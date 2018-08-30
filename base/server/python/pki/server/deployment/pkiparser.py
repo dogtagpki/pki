@@ -84,7 +84,11 @@ class PKIConfigParser:
         (None, 'pki_ssl_server_subject_dn',
          None, 'pki_sslserver_subject_dn'),
         (None, 'pki_ssl_server_token',
-         None, 'pki_sslserver_token')
+         None, 'pki_sslserver_token'),
+        (None, 'pki_database_path',
+         None, 'pki_server_database_path'),
+        (None, 'pki_pin',
+         None, 'pki_server_database_password'),
     ]
 
     DEPRECATED_CA_PARAMS = [
@@ -490,6 +494,7 @@ class PKIConfigParser:
                     'pki_pin',
                     'pki_replication_password',
                     'pki_security_domain_password',
+                    'pki_server_database_password',
                     'pki_server_pkcs12_password',
                     'pki_token_password')
 
@@ -766,17 +771,23 @@ class PKIConfigParser:
 
             # if instance already exists and has password, reuse the password
             if internal_token in instance.passwords:
-                self.mdict['pki_pin'] = instance.passwords.get(internal_token)
+                self.mdict['pki_server_database_password'] = instance.passwords.get(internal_token)
 
             # otherwise, use user-provided password if specified
-            elif 'pki_pin' in self.mdict:
+            elif self.mdict['pki_server_database_password']:
                 pass
+
+            # otherwise, use user-provided pin if specified
+            elif self.mdict['pki_pin']:
+                self.mdict['pki_server_database_password'] = self.mdict['pki_pin']
 
             # otherwise, generate a random password
             else:
-                self.mdict['pki_pin'] = pki.generate_password()
+                self.mdict['pki_server_database_password'] = pki.generate_password()
 
-            self.mdict['pki_client_pin'] = pki.generate_password()
+            # generate random password for client database if not specified
+            if not self.mdict['pki_client_database_password']:
+                self.mdict['pki_client_database_password'] = pki.generate_password()
 
             pkilogging.sensitive_parameters = \
                 self.mdict['sensitive_parameters'].split()
@@ -1231,13 +1242,13 @@ class PKIConfigParser:
                     self.mdict['pki_instance_configuration_path'],
                     "password.conf")
             self.mdict['pki_cert_database'] = \
-                os.path.join(self.mdict['pki_database_path'],
+                os.path.join(self.mdict['pki_server_database_path'],
                              "cert8.db")
             self.mdict['pki_key_database'] = \
-                os.path.join(self.mdict['pki_database_path'],
+                os.path.join(self.mdict['pki_server_database_path'],
                              "key3.db")
             self.mdict['pki_secmod_database'] = \
-                os.path.join(self.mdict['pki_database_path'],
+                os.path.join(self.mdict['pki_server_database_path'],
                              "secmod.db")
             self.mdict['pki_self_signed_nickname'] = \
                 self.mdict['pki_sslserver_nickname']
@@ -1261,11 +1272,6 @@ class PKIConfigParser:
                 os.path.join(
                     self.mdict['pki_subsystem_configuration_path'],
                     "password.conf")
-
-            if not len(self.mdict['pki_client_database_password']):
-                # use randomly generated client 'pin'
-                self.mdict['pki_client_database_password'] = \
-                    str(self.mdict['pki_client_pin'])
 
             # Configuration scriptlet
             # 'Security Domain' Configuration name/value pairs
@@ -1393,7 +1399,7 @@ class PKIConfigParser:
                 # NOTE:  ALWAYS store the PKCS #12 backup keys file
                 #        in with the NSS "server" security databases
                 self.mdict['pki_backup_keys_p12'] = \
-                    self.mdict['pki_database_path'] + "/" + \
+                    self.mdict['pki_server_database_path'] + "/" + \
                     self.mdict['pki_subsystem'].lower() + "_" + \
                     "backup" + "_" + "keys" + "." + "p12"
 

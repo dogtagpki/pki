@@ -54,12 +54,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_hsm_enable']):
             deployer.password.create_hsm_password_conf(
                 deployer.mdict['pki_shared_password_conf'],
-                deployer.mdict['pki_pin'],
+                deployer.mdict['pki_server_database_password'],
                 deployer.mdict['pki_token_password'])
         else:
             deployer.password.create_password_conf(
                 deployer.mdict['pki_shared_password_conf'],
-                deployer.mdict['pki_pin'])
+                deployer.mdict['pki_server_database_password'])
 
         # Since 'certutil' does NOT strip the 'token=' portion of
         # the 'token=password' entries, create a temporary server 'pfile'
@@ -67,11 +67,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # allowing 'certutil' to generate the security databases
         deployer.password.create_password_conf(
             deployer.mdict['pki_shared_pfile'],
-            deployer.mdict['pki_pin'], pin_sans_token=True)
+            deployer.mdict['pki_server_database_password'], pin_sans_token=True)
         deployer.file.modify(deployer.mdict['pki_shared_password_conf'])
 
         deployer.certutil.create_security_databases(
-            deployer.mdict['pki_database_path'],
+            deployer.mdict['pki_server_database_path'],
             deployer.mdict['pki_cert_database'],
             deployer.mdict['pki_key_database'],
             deployer.mdict['pki_secmod_database'],
@@ -79,7 +79,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if config.str2bool(deployer.mdict['pki_hsm_enable']):
             deployer.modutil.register_security_module(
-                deployer.mdict['pki_database_path'],
+                deployer.mdict['pki_server_database_path'],
                 deployer.mdict['pki_hsm_modulename'],
                 deployer.mdict['pki_hsm_libfile'])
         deployer.file.modify(
@@ -103,7 +103,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 raise Exception('Missing pki_server_pkcs12_password property.')
 
             nssdb = pki.nssdb.NSSDatabase(
-                directory=deployer.mdict['pki_database_path'],
+                directory=deployer.mdict['pki_server_database_path'],
                 password_file=deployer.mdict['pki_shared_pfile'])
 
             try:
@@ -129,7 +129,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 raise Exception('Missing pki_clone_pkcs12_password property.')
 
             nssdb = pki.nssdb.NSSDatabase(
-                directory=deployer.mdict['pki_database_path'],
+                directory=deployer.mdict['pki_server_database_path'],
                 password_file=deployer.mdict['pki_shared_pfile'])
 
             try:
@@ -162,7 +162,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     nickname=deployer.mdict['pki_audit_signing_nickname'],
                     trust_attributes='u,u,Pu')
 
-                print('Imported certificates in %s:' % deployer.mdict['pki_database_path'])
+                print('Imported certificates into %s:' %
+                      deployer.mdict['pki_server_database_path'])
 
                 nssdb.show_certs()
 
@@ -180,7 +181,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 #        the instance will utilize 'softokn' or an HSM
                 #
                 rv = deployer.certutil.verify_certificate_exists(
-                    deployer.mdict['pki_database_path'],
+                    deployer.mdict['pki_server_database_path'],
                     deployer.mdict['pki_cert_database'],
                     deployer.mdict['pki_key_database'],
                     deployer.mdict['pki_secmod_database'],
@@ -195,7 +196,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             'pki_ds_secure_connection_ca_trustargs'],
                         deployer.mdict['pki_ds_secure_connection_ca_pem_file'],
                         password_file=deployer.mdict['pki_shared_pfile'],
-                        path=deployer.mdict['pki_database_path'],
+                        path=deployer.mdict['pki_server_database_path'],
                         token=deployer.mdict['pki_self_signed_token'])
 
         # Always delete the temporary 'pfile'

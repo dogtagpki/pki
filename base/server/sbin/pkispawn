@@ -760,7 +760,7 @@ def print_external_ca_step_one_information(mdict):
     print("      The %s subsystem of the '%s' instance is still incomplete." %
           (deployer.subsystem_name, mdict['pki_instance_name']))
     print()
-    print("      NSS database: %s" % mdict['pki_database_path'])
+    print("      NSS database: %s" % mdict['pki_server_database_path'])
     print()
 
     signing_csr = mdict['pki_ca_signing_csr_path']
@@ -781,7 +781,7 @@ def print_kra_step_one_information(mdict):
     print("      The %s subsystem of the '%s' instance is still incomplete." %
           (deployer.subsystem_name, mdict['pki_instance_name']))
     print()
-    print("      NSS database: %s" % mdict['pki_database_path'])
+    print("      NSS database: %s" % mdict['pki_server_database_path'])
     print()
 
     storage_csr = mdict['pki_storage_csr_path']
@@ -820,7 +820,7 @@ def print_ocsp_step_one_information(mdict):
     print("      The %s subsystem of the '%s' instance is still incomplete." %
           (deployer.subsystem_name, mdict['pki_instance_name']))
     print()
-    print("      NSS database: %s" % mdict['pki_database_path'])
+    print("      NSS database: %s" % mdict['pki_server_database_path'])
     print()
 
     signing_csr = mdict['pki_ocsp_signing_csr_path']
