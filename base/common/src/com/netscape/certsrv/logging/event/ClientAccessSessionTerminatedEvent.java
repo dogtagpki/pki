@@ -34,6 +34,7 @@ public class ClientAccessSessionTerminatedEvent extends SignedAuditEvent {
     public static ClientAccessSessionTerminatedEvent createEvent(
             String clientIP,
             String serverIP,
+            String serverPort,
             String subjectID,
             String info) {
 
@@ -42,6 +43,7 @@ public class ClientAccessSessionTerminatedEvent extends SignedAuditEvent {
 
         event.setAttribute("ClientIP", clientIP);
         event.setAttribute("ServerIP", serverIP);
+        event.setAttribute("ServerPort", serverPort);
         event.setAttribute("SubjectID", subjectID);
         event.setAttribute("Outcome", ILogger.SUCCESS);
         event.setAttribute("Info", info);

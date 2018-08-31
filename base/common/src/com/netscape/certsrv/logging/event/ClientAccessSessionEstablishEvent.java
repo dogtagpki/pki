@@ -37,6 +37,7 @@ public class ClientAccessSessionEstablishEvent extends SignedAuditEvent {
     public static ClientAccessSessionEstablishEvent createSuccessEvent(
             String clientIP,
             String serverIP,
+            String serverPort,
             String subjectID) {
 
         ClientAccessSessionEstablishEvent event = new ClientAccessSessionEstablishEvent(
@@ -44,6 +45,7 @@ public class ClientAccessSessionEstablishEvent extends SignedAuditEvent {
 
         event.setAttribute("ClientIP", clientIP);
         event.setAttribute("ServerIP", serverIP);
+        event.setAttribute("ServerPort", serverPort);
         event.setAttribute("SubjectID", subjectID);
         event.setAttribute("Outcome", ILogger.SUCCESS);
 
@@ -53,6 +55,7 @@ public class ClientAccessSessionEstablishEvent extends SignedAuditEvent {
     public static ClientAccessSessionEstablishEvent createFailureEvent(
             String clientIP,
             String serverIP,
+            String serverPort,
             String subjectID,
             String info) {
 
@@ -61,6 +64,7 @@ public class ClientAccessSessionEstablishEvent extends SignedAuditEvent {
 
         event.setAttribute("ClientIP", clientIP);
         event.setAttribute("ServerIP", serverIP);
+        event.setAttribute("ServerPort", serverPort);
         event.setAttribute("SubjectID", subjectID);
         event.setAttribute("Outcome", ILogger.FAILURE);
         event.setAttribute("Info", info);

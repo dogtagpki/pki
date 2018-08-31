@@ -18,7 +18,10 @@
 package com.netscape.cmscore.connector;
 
 import java.io.IOException;
+import java.lang.Integer;
 import java.net.InetSocketAddress;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,13 +31,23 @@ import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IRequestEncoder;
+import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
+import com.netscape.certsrv.logging.SignedAuditEvent;
+import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.http.HttpClient;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.net.ISocketFactory;
 
+import org.dogtagpki.server.PKIClientSocketListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class HttpConnection implements IHttpConnection {
+
+    private static Logger logger = LoggerFactory.getLogger(PKIClientSocketListener.class);
+    private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected IRemoteAuthority mDest = null;
     protected HttpRequest mHttpreq = new HttpRequest();
@@ -118,6 +131,13 @@ public class HttpConnection implements IHttpConnection {
     void connect() throws IOException {
 
         IOException exception = null;
+        SignedAuditEvent auditEvent;
+        String localIP = "localhost";
+        try {
+            localIP = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            // default to "localhost";
+        }
 
         // try all targets
         for (InetSocketAddress target : targets) {
@@ -136,6 +156,17 @@ public class HttpConnection implements IHttpConnection {
             } catch (IOException e) {
                 exception = e;
                 CMS.debug("HttpConnection: Unable to connect to " + hostname + ":" + port + ": " + e);
+//cfu audit debug
+
+                CMS.debug("HttpConnection.connect: cfu auditing failed connect");
+                auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
+                        localIP,
+                        hostname,
+                        Integer.toString(port),
+                        "SYSTEM",
+                        "connect:" +e.toString());
+                signedAuditLogger.log(auditEvent);
+
                 // try the next target immediately
             }
         }
@@ -229,6 +260,13 @@ public class HttpConnection implements IHttpConnection {
 
         HttpResponse resp = null;
         boolean reconnected = false;
+        SignedAuditEvent auditEvent;
+        String localIP = "localhost";
+        try {
+            localIP = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            // default to "localhost";
+        }
 
         if (getRequestURI() == null) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "URI not set in HttpRequest"));
@@ -266,6 +304,16 @@ public class HttpConnection implements IHttpConnection {
                 resp = mHttpClient.send(mHttpreq);
 
             } catch (IOException e) {
+                //cfu audit debug
+
+                CMS.debug("HttpConnection.doSend: cfu auditing failed send");
+                auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
+                        localIP,
+                        mHttpClient.getHost(),
+                        mHttpClient.getPort(),
+                        "SYSTEM",
+                        "send:" +e.toString());
+                signedAuditLogger.log(auditEvent);
 
                 CMS.debug(e);
 

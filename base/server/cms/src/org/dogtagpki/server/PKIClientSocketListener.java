@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server;
 
+import java.lang.Integer;
 import java.net.InetAddress;
 import java.security.Principal;
 import java.util.HashMap;
@@ -62,9 +63,9 @@ CMS.debug(method + "begins");
 
             InetAddress serverAddress = socket.getInetAddress();
             InetAddress clientAddress = socket.getLocalAddress();
-CMS.debug(method + "1");
             String clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
             String serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
+            String serverPort = Integer.toString(socket.getPort());
 
             SSLSecurityStatus status = socket.getStatus();
 /*
@@ -87,11 +88,12 @@ String subjectID = "SYSTEM";
             signedAuditLogger.log(ClientAccessSessionTerminatedEvent.createEvent(
                     clientIP,
                     serverIP,
+                    serverPort,
                     subjectID,
                     reason));
 
         CMS.debug(method + "CS_CLIENT_ACCESS_SESSION_TERMINATED");
-CMS.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " reason=" + reason);
+CMS.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " serverPort=" + serverPort + " reason=" + reason);
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -113,6 +115,7 @@ CMS.debug(method + "got reason:"+ reason);
             SignedAuditEvent auditEvent;
             String clientIP;
             String serverIP;
+            String serverPort;
             String subjectID;
 
             if (description == SSLAlertDescription.CLOSE_NOTIFY.getID()) {
@@ -121,28 +124,29 @@ CMS.debug(method + "got reason:"+ reason);
                 Map<String,Object> info = socketInfos.get(socket);
                 clientIP = (String)info.get("clientIP");
                 serverIP = (String)info.get("serverIP");
+                serverPort = (String)info.get("serverPort");
                 subjectID = (String)info.get("subjectID");
 
                 auditEvent = ClientAccessSessionTerminatedEvent.createEvent(
                         clientIP,
                         serverIP,
+                        serverPort,
                         subjectID,
                         reason);
 
         CMS.debug(method + "CS_CLIENT_ACCESS_SESSION_TERMINATED");
-	CMS.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " reason=" + reason);
+	CMS.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP+ " serverPort=" + serverPort + " reason=" + reason);
 
             } else {
 
                 // get socket info from the socket itself
                 InetAddress serverAddress = socket.getInetAddress();
-CMS.debug(method + "6");
                 InetAddress clientAddress = socket.getLocalAddress();
-CMS.debug(method + "7");
+
                 clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
                 serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
+                serverPort = Integer.toString(socket.getPort());
 
-CMS.debug(method + "8");
                 SSLSecurityStatus status = socket.getStatus();
 /*
                 X509Certificate peerCertificate = status.getPeerCertificate();
@@ -154,6 +158,7 @@ subjectID = "SYSTEM";
                 auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
                         clientIP,
                         serverIP,
+                        serverPort,
                         subjectID,
                         reason);
 
@@ -168,7 +173,7 @@ subjectID = "SYSTEM";
             signedAuditLogger.log(auditEvent);
 
         CMS.debug(method + "CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE");
-CMS.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " reason=" + reason);
+CMS.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " serverPort=" + serverPort + " reason=" + reason);
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -186,6 +191,7 @@ CMS.debug(method + "begins");
             InetAddress clientAddress = socket.getLocalAddress();
             String serverIP = serverAddress == null ? "" : serverAddress.getHostAddress();
             String clientIP = clientAddress == null ? "" : clientAddress.getHostAddress();
+            String serverPort = Integer.toString(socket.getPort());
 
             SSLSecurityStatus status = socket.getStatus();
 /*
@@ -204,16 +210,18 @@ String subjectID = "SYSTEM";
             Map<String,Object> info = new HashMap<>();
             info.put("clientIP", clientIP);
             info.put("serverIP", serverIP);
+            info.put("serverPort", serverPort);
             info.put("subjectID", subjectID);
             socketInfos.put(socket, info);
 
             signedAuditLogger.log(ClientAccessSessionEstablishEvent.createSuccessEvent(
                     clientIP,
                     serverIP,
+                    serverPort,
                     subjectID));
 
         CMS.debug(method + "CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS");
-CMS.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP);
+CMS.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " serverPort=" + serverPort);
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
