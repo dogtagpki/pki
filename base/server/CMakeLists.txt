@@ -214,6 +214,13 @@ install(
 
 install(
     DIRECTORY
+        docs/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/server/docs
+)
+
+install(
+    DIRECTORY
         man/
     DESTINATION
         ${MAN_INSTALL_DIR}
