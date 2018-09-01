@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "288d5112_3daefbd1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-09-01T01:11:30Z",
+      "side": 1,
+      "message": "Please add a blank line between the summary (line 7) and the description (line 8). Otherwise git will consider line 8 as a continuation of line 7.",
+      "revId": "5c4f1eb38d7acd2532b667a6343067da8d3544a6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5362a28c_28e489a0",
+        "filename": "base/server/cmscore/src/com/netscape/cmscore/connector/HttpConnection.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1010221
+      },
+      "writtenOn": "2018-09-01T01:11:30Z",
+      "side": 1,
+      "message": "The localIP probably will not change throughout the lifetime of the server process, so this code can be moved into the constructor. It\u0027s not really a problem though, just to avoid redundant executions.",
+      "revId": "5c4f1eb38d7acd2532b667a6343067da8d3544a6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
