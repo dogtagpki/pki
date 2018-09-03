@@ -298,6 +298,25 @@ public abstract class Repository implements IRepository {
         BigInteger theSerialNo = null;
         theSerialNo = getLastSerialNumberInRange(mMinSerialNo, mMaxSerialNo);
 
+        if (theSerialNo == null) {
+            // This arises when range has been depleted by servicing
+            // UpdateNumberRange requests for clones.  Attempt to
+            // move to next range.
+            CMS.debug(
+                "Repository: failed to get last serial number in range "
+                + mMinSerialNo + ".." + mMaxSerialNo);
+
+            if (hasNextRange()) {
+                CMS.debug("Repository: switching to next range.");
+                switchToNextRange();
+                CMS.debug("Repository: new range: " + mMinSerialNo + ".." + mMaxSerialNo);
+                // try again with updated range
+                theSerialNo = getLastSerialNumberInRange(mMinSerialNo, mMaxSerialNo);
+            } else {
+                CMS.debug("Repository: next range not available.");
+            }
+        }
+
         if (theSerialNo != null) {
 
             mLastSerialNo = new BigInteger(theSerialNo.toString());
