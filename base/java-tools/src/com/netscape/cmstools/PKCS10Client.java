@@ -37,8 +37,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.pkcs.PKCS10;
 import netscape.security.x509.Extensions;
@@ -314,13 +312,6 @@ public class PKCS10Client {
                 System.out.println("PKCS10Client: Certificate request created");
             }
 
-            byte[] certReqb = certReq.toByteArray();
-            String b64E = Utils.base64encode(certReqb, true);
-
-            if(verbose) {
-                System.out.println("PKCS10Client: b64encode completes.");
-            }
-
             // print out keyid to be used in cmc popLinkWitnessV2
             PrivateKey privateKey = (PrivateKey) pair.getPrivate();
             @SuppressWarnings("deprecation")
@@ -331,19 +322,15 @@ public class PKCS10Client {
                 System.out.println("");
             }
 
+            certReq.print(System.out);
 
-            System.out.println(Cert.REQUEST_HEADER);
-            System.out.print(b64E);
-            System.out.println(Cert.REQUEST_FOOTER);
+            try (FileOutputStream fos = new FileOutputStream(ofilename);
+                    PrintStream ps = new PrintStream(fos)) {
+                certReq.print(ps);
+            }
 
-            PrintStream ps = null;
-            ps = new PrintStream(new FileOutputStream(ofilename));
-            ps.println(Cert.REQUEST_HEADER);
-            ps.print(b64E);
-            ps.println(Cert.REQUEST_FOOTER);
-            ps.flush();
-            ps.close();
-            System.out.println("PKCS10Client: done. Request written to file: "+ ofilename);
+            System.out.println("PKCS10Client: Certificate request written into " + ofilename);
+
         } catch (Exception e) {
             System.out.println("PKCS10Client: Exception caught: "+e.toString());
             System.exit(1);

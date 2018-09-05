@@ -29,6 +29,7 @@ import java.security.cert.CertificateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.util.BigInt;
@@ -342,9 +343,9 @@ public class PKCS10 {
         if (certificateRequest == null)
             throw new SignatureException("Cert request was not signed");
 
-        out.println("-----BEGIN NEW CERTIFICATE REQUEST-----");
+        out.println(Cert.REQUEST_HEADER);
         out.println(Utils.base64encode(certificateRequest, true));
-        out.println("-----END NEW CERTIFICATE REQUEST-----");
+        out.println(Cert.REQUEST_FOOTER);
     }
 
     /**
