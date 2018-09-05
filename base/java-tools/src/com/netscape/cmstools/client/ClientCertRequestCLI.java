@@ -97,7 +97,7 @@ public class ClientCertRequestCLI extends CLI {
         option.setArgName("algorithm name");
         options.addOption(option);
 
-        option = new Option(null, "length", true, "RSA key length (default: 1024)");
+        option = new Option(null, "length", true, "RSA key length (default: 2048)");
         option.setArgName("key length");
         options.addOption(option);
 
@@ -178,7 +178,7 @@ public class ClientCertRequestCLI extends CLI {
 
         // rsa, ec
         String algorithm = cmd.getOptionValue("algorithm", "rsa");
-        int length = Integer.parseInt(cmd.getOptionValue("length", "1024"));
+        int length = Integer.parseInt(cmd.getOptionValue("length", "2048"));
 
         String curve = cmd.getOptionValue("curve", "nistp256");
         boolean sslECDH = cmd.hasOption("ssl-ecdh");
