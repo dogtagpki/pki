@@ -31,8 +31,6 @@ import org.mozilla.jss.asn1.TeletexString;
 import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.asn1.UniversalString;
 import org.mozilla.jss.crypto.CryptoToken;
-import org.mozilla.jss.crypto.KeyPairAlgorithm;
-import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.pkix.primitive.AVA;
 import org.mozilla.jss.pkix.primitive.Name;
@@ -234,9 +232,8 @@ public class PKCS10Client {
             KeyPair pair = null;
 
             if (alg.equals("rsa")) {
-                KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
-                kg.initialize(rsa_keylen);
-                pair = kg.genKeyPair();
+                pair = CryptoUtil.generateRSAKeyPair(token, rsa_keylen);
+
             }  else if (alg.equals("ec")) {
                 // used with SSL server cert that does ECDH ECDSA
                 org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage usages_mask_ECDH[] = {
@@ -308,12 +305,14 @@ public class PKCS10Client {
                     subjectName, pair, extns);
 
             if (certReq == null) {
-                System.out.println("PKCS10Client: cert request null");
+                System.out.println("PKCS10Client: Unable to create certificate request");
                 System.exit(1);
-            } else
-                if(verbose) {
-                    System.out.println("PKCS10Client: CertificationRequest created.");
-                }
+                return;
+            }
+
+            if (verbose) {
+                System.out.println("PKCS10Client: Certificate request created");
+            }
 
             byte[] certReqb = certReq.toByteArray();
             String b64E = Utils.base64encode(certReqb, true);
