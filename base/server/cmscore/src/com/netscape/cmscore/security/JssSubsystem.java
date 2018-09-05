@@ -959,31 +959,33 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     public KeyPair getECCKeyPair(KeyCertData properties) throws EBaseException {
-        String token = CryptoUtil.INTERNAL_TOKEN_NAME;
+        String tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
         String keyCurve = "nistp521";
-        String certType = null;
-        KeyPair pair = null;
 
         String tmp = (String) properties.get(Constants.PR_TOKEN_NAME);
         if (tmp != null)
-            token = tmp;
+            tokenName = tmp;
 
         tmp = (String) properties.get(Constants.PR_KEY_CURVENAME);
         if (tmp != null)
             keyCurve = tmp;
 
-        certType = (String) properties.get(Constants.RS_ID);
+        String certType = (String) properties.get(Constants.RS_ID);
 
-        pair = getECCKeyPair(token, keyCurve, certType);
+        CryptoToken token;
+        try {
+            token = CryptoUtil.getKeyStorageToken(tokenName);
+        } catch (NotInitializedException | NoSuchTokenException e) {
+            throw new EBaseException("Unable to find token: " + tokenName, e);
+        }
+
+        KeyPair pair = getECCKeyPair(token, keyCurve, certType);
 
         return pair;
     }
 
-    public KeyPair getECCKeyPair(String token, String keyCurve, String certType) throws EBaseException {
+    public KeyPair getECCKeyPair(CryptoToken token, String keyCurve, String certType) throws EBaseException {
         KeyPair pair = null;
-
-        if (CryptoUtil.isInternalToken(token))
-            token = CryptoUtil.INTERNAL_TOKEN_NAME;
 
         if ((keyCurve == null) || (keyCurve.equals("")))
             keyCurve = "nistp521";

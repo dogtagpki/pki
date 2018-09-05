@@ -170,7 +170,7 @@ public interface ICryptoSubsystem extends ISubsystem {
      * @return key pair
      * @exception EBaseException failed to generate key pair
      */
-    public KeyPair getECCKeyPair(String token, String curveName, String certType) throws EBaseException;
+    public KeyPair getECCKeyPair(CryptoToken token, String curveName, String certType) throws EBaseException;
 
     /**
      * Retrieves the signature algorithm of the certificate named

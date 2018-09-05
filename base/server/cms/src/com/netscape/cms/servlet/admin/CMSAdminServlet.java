@@ -1160,7 +1160,7 @@ public final class CMSAdminServlet extends AdminServlet {
             } else {
                 if (keyType.equals("ECC")) {
                     // get ECC keypair
-                    keypair = jssSubSystem.getECCKeyPair(tokenName, keyCurveName, certType);
+                    keypair = jssSubSystem.getECCKeyPair(token, keyCurveName, certType);
                 } else { //DSA or RSA
                     if (keyType.equals("DSA"))
                         pqgParams = jssSubSystem.getPQG(keyLength);
