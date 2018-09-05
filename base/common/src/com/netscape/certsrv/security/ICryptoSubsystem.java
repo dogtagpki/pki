@@ -23,6 +23,7 @@ import java.security.cert.CertificateException;
 import java.util.Locale;
 
 import org.mozilla.jss.NotInitializedException;
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PQGParams;
 import org.mozilla.jss.crypto.TokenException;
@@ -129,26 +130,26 @@ public interface ICryptoSubsystem extends ISubsystem {
     /**
      * Generates a key pair based on the given parameters.
      *
-     * @param tokenName name of token where key is generated
+     * @param token token where key is generated
      * @param alg key algorithm
      * @param keySize key size
      * @return key pair
      * @exception EBaseException failed to generate key pair
      */
-    public KeyPair getKeyPair(String tokenName, String alg,
+    public KeyPair getKeyPair(CryptoToken token, String alg,
             int keySize) throws EBaseException;
 
     /**
      * Generates a key pair based on the given parameters.
      *
-     * @param tokenName name of token where key is generated
+     * @param token token where key is generated
      * @param alg key algorithm
      * @param keySize key size
      * @param pqg pqg parameters if DSA key, otherwise null
      * @return key pair
      * @exception EBaseException failed to generate key pair
      */
-    public KeyPair getKeyPair(String tokenName, String alg,
+    public KeyPair getKeyPair(CryptoToken token, String alg,
             int keySize, PQGParams pqg) throws EBaseException;
 
     /**

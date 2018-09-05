@@ -823,22 +823,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
     }
 
-    public KeyPair getKeyPair(String tokenName, String alg,
+    public KeyPair getKeyPair(CryptoToken token, String alg,
             int keySize) throws EBaseException {
-        return getKeyPair(tokenName, alg, keySize, null);
+        return getKeyPair(token, alg, keySize, null);
     }
 
-    public KeyPair getKeyPair(String tokenName, String alg,
+    public KeyPair getKeyPair(CryptoToken token, String alg,
             int keySize, PQGParams pqg) throws EBaseException {
-
-        CryptoToken token = null;
-
-        try {
-            token = CryptoUtil.getKeyStorageToken(tokenName);
-        } catch (Exception e) {
-            log(ILogger.LL_FAILURE, "Unable to find token: " + tokenName);
-            throw new EBaseException(e);
-        }
 
         KeyPairAlgorithm kpAlg = null;
 
@@ -940,14 +931,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     public KeyPair getKeyPair(KeyCertData properties) throws EBaseException {
-        String tokenname = CryptoUtil.INTERNAL_TOKEN_NAME;
+        String tokenName = CryptoUtil.INTERNAL_TOKEN_NAME;
         String keyType = "RSA";
         int keyLength = 512;
 
         String tmp = (String) properties.get(Constants.PR_TOKEN_NAME);
 
         if (!CryptoUtil.isInternalToken(tmp))
-            tokenname = tmp;
+            tokenName = tmp;
         tmp = (String) properties.get(Constants.PR_KEY_TYPE);
         if (tmp != null)
             keyType = tmp;
@@ -955,7 +946,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
         if (tmp != null)
             keyLength = Integer.parseInt(tmp);
 
-        KeyPair pair = getKeyPair(tokenname, keyType, keyLength);
+        CryptoToken token;
+        try {
+            token = CryptoUtil.getKeyStorageToken(tokenName);
+        } catch (NotInitializedException | NoSuchTokenException e) {
+            throw new EBaseException("Unable to find token: " + tokenName, e);
+        }
+
+        KeyPair pair = getKeyPair(token, keyType, keyLength);
 
         return pair;
     }

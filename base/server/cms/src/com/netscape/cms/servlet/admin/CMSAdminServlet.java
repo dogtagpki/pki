@@ -39,6 +39,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.NoSuchTokenException;
+import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PQGParams;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
@@ -1133,6 +1135,13 @@ public final class CMSAdminServlet extends AdminServlet {
                     nicknameWithoutTokenName = nickname.substring(index + 1);
             }
 
+            CryptoToken token;
+            try {
+                token = CryptoUtil.getKeyStorageToken(tokenName);
+            } catch (NotInitializedException | NoSuchTokenException e) {
+                throw new EBaseException("Unable to find token: " + tokenName, e);
+            }
+
             if (keyType.equals("")) {
                 if (nickname.equals("")) {
                     // store a message in the signed audit log file
@@ -1155,7 +1164,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 } else { //DSA or RSA
                     if (keyType.equals("DSA"))
                         pqgParams = jssSubSystem.getPQG(keyLength);
-                    keypair = jssSubSystem.getKeyPair(tokenName, keyType, keyLength, pqgParams);
+                    keypair = jssSubSystem.getKeyPair(token, keyType, keyLength, pqgParams);
                 }
             }
 
