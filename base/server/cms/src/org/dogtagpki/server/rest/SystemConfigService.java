@@ -31,6 +31,7 @@ import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
+import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.TokenException;
@@ -347,7 +348,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ) throws Exception {
 
         String tag = certData.getTag();
-        String token = certData.getToken();
+        String tokenName = certData.getToken();
+        CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
         logger.debug("SystemConfigService.processKeyPair(" + tag + ")");
 
@@ -380,7 +382,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         try {
 
             logger.debug("SystemConfigService: loading existing key pair from NSS database");
-            KeyPair pair = ConfigurationUtils.loadKeyPair(certData.getNickname(), certData.getToken());
+            KeyPair pair = ConfigurationUtils.loadKeyPair(certData.getNickname(), tokenName);
 
             logger.debug("SystemConfigService: storing key pair into CS.cfg");
             ConfigurationUtils.storeKeyPair(cs, tag, pair);
@@ -394,7 +396,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 String curvename = certData.getKeySize() != null ?
                         certData.getKeySize() : cs.getString("keys.ecc.curve.default");
                 cs.putString("preop.cert." + tag + ".curvename.name", curvename);
-                pair = ConfigurationUtils.createECCKeyPair(token, curvename, cs, tag);
+                pair = ConfigurationUtils.createECCKeyPair(tokenName, curvename, cs, tag);
 
             } else {
                 String keysize = certData.getKeySize() != null ? certData.getKeySize() : cs

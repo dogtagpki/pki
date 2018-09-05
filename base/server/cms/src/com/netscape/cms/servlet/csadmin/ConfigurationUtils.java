@@ -1973,7 +1973,7 @@ public class ConfigurationUtils {
         return pair;
     }
 
-    public static KeyPair createRSAKeyPair(String token, int keysize, IConfigStore config, String ct)
+    public static KeyPair createRSAKeyPair(CryptoToken token, int keysize, IConfigStore config, String ct)
             throws Exception {
 
         logger.debug("ConfigurationUtils.createRSAKeyPair(" + token + ")");
