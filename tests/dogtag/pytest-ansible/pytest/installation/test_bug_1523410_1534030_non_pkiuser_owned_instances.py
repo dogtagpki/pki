@@ -61,7 +61,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_ca(ansible_module):
 
     :Description: This automation tests if a CA instance can be configured with a non pkiuser ownership.
 
-    :Requirement: RHCS-REQ Installation and Deployment
+    :Requirement: Installation and Deployment
 
     :Setup:
 	Have all the required packages installed.
@@ -124,7 +124,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_kra(ansible_module):
 
     :Description: This automation tests if a KRA instance can be configured with a non pkiuser ownership.
 
-    :Requirement: RHCS-REQ Installation and Deployment
+    :Requirement: Installation and Deployment
 
     :CaseComponent: \-
 
@@ -181,7 +181,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_ocsp(ansible_module):
 
     :Description: This automation tests if a OCSP instance can be configured with a non pkiuser ownership.
 
-    :Requirement: RHCS-REQ Installation and Deployment
+    :Requirement: Installation and Deployment
 
     :CaseComponent: \-
 
@@ -238,7 +238,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_tks(ansible_module):
 
     :Description: This automation tests if a TKS instance can be configured with a non pkiuser ownership.
 
-    :Requirement: RHCS-REQ Installation and Deployment
+    :Requirement: Installation and Deployment
 
     :CaseComponent: \-
 
@@ -295,7 +295,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkispawn_tps(ansible_module):
 
     :Description: This automation tests if a TKS instance can be configured with a non pkiuser ownership.
 
-    :Requirement: RHCS-REQ Installation and Deployment
+    :Requirement: Installation and Deployment
 
     :CaseComponent: \-
 
@@ -355,7 +355,7 @@ def test_bug_1523410_non_pkiuser_owned_pkidestroy_tps(ansible_module):
 
     :Description: This automation tests pkidestroy of TPS when nuxwdog is enabled
 
-    :Requirement: RHCS-REQ Installation and Deployment
+    :Requirement: Installation and Deployment
 
     :CaseComponent: \-
 
@@ -390,7 +390,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_tks(ansible_module):
 
     :Description: This automation tests pkidestroy of TKS when nuxwdog is enabled
 
-    :Requirement: RHCS-REQ Installation and Deployment
+    :Req Installation and Deployment
 
     :CaseComponent: \-
 
@@ -425,7 +425,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_ocsp(ansible_module):
 
     :Description: This automation tests pkidestroy of OCSP when nuxwdog is enabled
 
-    :Requirement: RHCS-REQ Installation and Deployment
+    :Requirement: Installation and Deployment
 
     :CaseComponent: \-
 
@@ -460,7 +460,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_kra(ansible_module):
 
     :Description: This automation tests pkidestroy of KRA when nuxwdog is enabled
 
-    :Requirement: RHCS-REQ Installation and Deployment
+    :Requirement: Installation and Deployment
 
     :CaseComponent: \-
 
@@ -495,7 +495,7 @@ def test_bug_1523410_1534030_non_pkiuser_owned_pkidestroy_ca(ansible_module):
 
     :Description: This automation tests pkidestroy of CA when nuxwdog is enabled
 
-    :Requirement: RHCS-REQ Installation and Deployment
+    :Requirement: Installation and Deployment
 
     :CaseComponent: \-
 
