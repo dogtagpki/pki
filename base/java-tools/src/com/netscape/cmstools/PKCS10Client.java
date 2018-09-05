@@ -244,7 +244,7 @@ public class PKCS10Client {
                   org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage.DERIVE
                 };
 
-                pair = CryptoUtil.generateECCKeyPair(tokenName,  ecc_curve ,
+                pair = CryptoUtil.generateECCKeyPair(token, ecc_curve,
                        null,
                        usages_mask, ec_temporary /*temporary*/,
                        ec_sensitive /*sensitive*/, ec_extractable /*extractable*/);

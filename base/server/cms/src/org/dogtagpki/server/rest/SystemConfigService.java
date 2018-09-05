@@ -396,7 +396,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 String curvename = certData.getKeySize() != null ?
                         certData.getKeySize() : cs.getString("keys.ecc.curve.default");
                 cs.putString("preop.cert." + tag + ".curvename.name", curvename);
-                pair = ConfigurationUtils.createECCKeyPair(tokenName, curvename, cs, tag);
+                pair = ConfigurationUtils.createECCKeyPair(token, curvename, cs, tag);
 
             } else {
                 String keysize = certData.getKeySize() != null ? certData.getKeySize() : cs

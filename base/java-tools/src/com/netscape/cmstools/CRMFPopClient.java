@@ -633,7 +633,7 @@ public class CRMFPopClient {
         };
 
         return CryptoUtil.generateECCKeyPair(
-                token.getName(),
+                token,
                 curve,
                 null,
                 sslECDH ? usagesMaskECDH : usagesMask,

@@ -1822,7 +1822,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             };
 
             try {
-                pair = CryptoUtil.generateECCKeyPair(token.getName(),
+                pair = CryptoUtil.generateECCKeyPair(token,
                     keyCurve /*ECC_curve default*/,
                     null,
                     (isECDHE==true) ? usages_mask_ECDSA: usages_mask_ECDH,

@@ -1907,7 +1907,7 @@ public class ConfigurationUtils {
         setSigningAlgorithm(tag, keyAlgo, config);
     }
 
-    public static KeyPair createECCKeyPair(String token, String curveName, IConfigStore config, String ct)
+    public static KeyPair createECCKeyPair(CryptoToken token, String curveName, IConfigStore config, String ct)
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
             NotInitializedException, EPropertyNotFound, EBaseException {
 
