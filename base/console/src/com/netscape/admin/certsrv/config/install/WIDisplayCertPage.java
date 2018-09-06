@@ -17,14 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.StringTokenizer;
+
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.management.client.util.Debug;
 
 /**
  * This page is to install the certificate in the internal token. It
@@ -93,7 +106,7 @@ class WIDisplayCertPage extends WizardBasePanel implements IWizardPanel {
         StringTokenizer tokenizer = new StringTokenizer(certOrder, ":");
         int len = 0;
         while (tokenizer.hasMoreTokens()) {
-            String str = (String)tokenizer.nextToken();
+            String str = tokenizer.nextToken();
             int index = len+Integer.parseInt(str);
             if (index >= buffer.length())
                 break;

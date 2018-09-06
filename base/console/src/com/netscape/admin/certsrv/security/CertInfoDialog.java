@@ -17,13 +17,35 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import java.awt.*;
-import java.awt.event.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
+import com.netscape.management.client.util.AbstractDialog;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.Help;
+import com.netscape.management.client.util.JButtonFactory;
+import com.netscape.management.client.util.MultilineLabel;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UITools;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiConstants;
+import com.netscape.management.nmclf.SuiOptionPane;
 
 /**
  *
@@ -161,15 +183,13 @@ class CertInfoDialog extends AbstractDialog implements SuiConstants {
                     }
 
                     //if (response.hasCertInfo()) {
-                    if (!(((Message)(response.getMessages().elementAt(0))).
-                            isFailure())) {
+                    if (!response.getMessages().elementAt(0).isFailure()) {
                         deleteSuccess();
                         delete = true;
                         setVisible(false);
                     } else {
                         try {
-                            MessageDialog.messageDialog( (Message)
-                                    (response.getMessages().elementAt(0)));
+                            MessageDialog.messageDialog(response.getMessages().elementAt(0));
                         } catch (Exception e2) {
                             //shouldn't even be here in the first place.  if cgi fail or return nothing
                             //then it should be handle right after KeyCertTaskInfo.exec(...) is called
@@ -199,9 +219,7 @@ class CertInfoDialog extends AbstractDialog implements SuiConstants {
                        }*/
 
                     try {
-                        if (!(((Message)
-                                (response.getMessages().elementAt(0))).
-                                isFailure())) {
+                        if (!response.getMessages().elementAt(0).isFailure()) {
                             trustedCert = !trustedCert;
                             bTrust.setText(trustedCert ?
                                     resource.getString("CertInfoDialog",
@@ -210,8 +228,7 @@ class CertInfoDialog extends AbstractDialog implements SuiConstants {
                                     "trust"));
                         }
 
-                        MessageDialog.messageDialog( (Message)
-                                (response.getMessages().elementAt(0)));
+                        MessageDialog.messageDialog(response.getMessages().elementAt(0));
                     } catch (Exception e3) {
                         //shouldn't even be here in the first place.  if cgi fail or return nothing
                         //then it should be handle right after KeyCertTaskInfo.exec(...) is called

@@ -17,10 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.config.*;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.config.WBaseKeyPage;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.Constants;
 
 /**
  * Setup CA signing cert for installation wizard.
@@ -91,8 +92,8 @@ class WCAKeyPage extends WBaseKeyPage implements IWizardPanel {
     public void getUpdateInfo(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         wizardInfo.addEntry(Constants.PR_KEY_LENGTH,
-          (String)mKeyLengthBox.getSelectedItem());
+          mKeyLengthBox.getSelectedItem());
         wizardInfo.addEntry(Constants.PR_KEY_TYPE,
-          (String)mKeyTypeBox.getSelectedItem());
+          mKeyTypeBox.getSelectedItem());
     }
 }

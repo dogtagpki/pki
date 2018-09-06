@@ -47,9 +47,9 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.ECMCBadIdentityException;
 import com.netscape.certsrv.profile.ECMCBadMessageCheckException;
 import com.netscape.certsrv.profile.ECMCBadRequestException;
@@ -759,7 +759,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                     reqs[k].setExtData(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, "");
                 }
                 // put Shared Token authToken in request
-                String st_sbj = (String) ctx.get(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
+                String st_sbj = ctx.get(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
                 if (st_sbj != null) {
                     CMS.debug("ProfileSubmitCMCServlet: setting IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT in req for CMCUserSignedAuth");
                     reqs[k].setExtData(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, st_sbj);

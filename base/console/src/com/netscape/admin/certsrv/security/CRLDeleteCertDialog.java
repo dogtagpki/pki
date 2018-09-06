@@ -17,14 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+
 import com.netscape.management.client.console.ConsoleInfo;
-
-
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import com.netscape.management.client.util.AbstractDialog;
+import com.netscape.management.client.util.Debug;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.Help;
+import com.netscape.management.client.util.JButtonFactory;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiConstants;
+import com.netscape.management.nmclf.SuiOptionPane;
 
 class CRLDeleteCertDialog extends AbstractDialog implements SuiConstants {
 
@@ -68,14 +78,12 @@ class CRLDeleteCertDialog extends AbstractDialog implements SuiConstants {
                             error.getMessage());
                     return;
                 }
-                if (!(((Message)(response.getMessages().elementAt(0))).
-                        isFailure())) {
+                if (!response.getMessages().elementAt(0).isFailure()) {
                     delete = true;
                     setVisible(false);
                 } else {
                     try {
-                        MessageDialog.messageDialog( (Message)
-                                (response.getMessages().elementAt(0)));
+                        MessageDialog.messageDialog(response.getMessages().elementAt(0));
                     } catch (Exception e2) {
                         //shouldn't even be here in the first place.  if cgi fail or return nothing
                         //then it should be handle right after KeyCertTaskInfo.exec(...) is called

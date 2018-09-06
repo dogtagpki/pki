@@ -117,9 +117,7 @@ IKeyCertPage {
                 //MessageDialog.messageDialog((Message)(taskInfo.getResponse().getMessages().elementAt(0)));
                 StatusPane statusPane = (StatusPane)(observable.get("statusPane"));
 
-                statusPane.setMessage( (Message)
-                        (taskInfo.getResponse().getMessages().
-                        elementAt(0)));
+                statusPane.setMessage(taskInfo.getResponse().getMessages().elementAt(0));
                 statusPane.setShow(true);
             }
         }

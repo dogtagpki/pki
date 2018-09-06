@@ -17,11 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
+import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import com.netscape.management.client.console.ConsoleInfo;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
-import javax.swing.*;
-import java.awt.*;
+import com.netscape.management.client.util.AbstractDialog;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.Help;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.SingleBytePasswordField;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiOptionPane;
 
 /**
  *
@@ -74,11 +84,10 @@ public class ChangeKeyPasswordDialog extends AbstractDialog {
         }
 
         try {
-            MessageDialog.messageDialog(
-                    (Message)(response.getMessages().elementAt(0)));
+            MessageDialog.messageDialog(response.getMessages().elementAt(0));
         } catch (Exception ex) {}
 
-        if (((Message)(response.getMessages().elementAt(0))).getStatus()
+        if (response.getMessages().elementAt(0).getStatus()
                 == Message.NMC_SUCCESS)
             super.okInvoked();
     }

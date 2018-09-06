@@ -17,10 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import javax.swing.*;
-import javax.swing.tree.*;
-import javax.swing.event.*;
-import com.netscape.management.client.*;
+import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.tree.TreeSelectionModel;
+
+import com.netscape.management.client.IFramework;
+import com.netscape.management.client.IMenuInfo;
+import com.netscape.management.client.IResourceObject;
+import com.netscape.management.client.ResourcePage;
 
 /**
  * This page creates the resource view
@@ -73,7 +77,7 @@ public class CMSResourcePage extends ResourcePage implements Cloneable {
      * @return JTree obejct in the resource page
      */
     public JTree getTree() {
-        return (JTree)_tree;
+        return _tree;
     }
 
     /**

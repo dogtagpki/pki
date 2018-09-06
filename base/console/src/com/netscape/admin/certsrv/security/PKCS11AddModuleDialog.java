@@ -17,13 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import com.netscape.management.client.console.ConsoleInfo;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import javax.swing.Box;
+import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+
+import com.netscape.management.client.console.ConsoleInfo;
+import com.netscape.management.client.util.AbstractDialog;
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.Help;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiOptionPane;
 
 
 class PKCS11AddModuleDialog extends AbstractDialog {
@@ -62,12 +76,12 @@ class PKCS11AddModuleDialog extends AbstractDialog {
         }
 
         try {
-            Message m = (Message)(response.getMessages().elementAt(0));
+            Message m = response.getMessages().elementAt(0);
             MessageDialog.messageDialog(m);
             moduleAdded = m.isSuccess();
         } catch (Exception ex) {}
 
-        if (((Message) response.getMessages().elementAt(0)).getStatus()
+        if (response.getMessages().elementAt(0).getStatus()
                 == Message.NMC_SUCCESS)
             super.okInvoked();
     }

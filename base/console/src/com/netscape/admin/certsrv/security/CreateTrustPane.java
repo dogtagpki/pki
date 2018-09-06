@@ -17,12 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.security;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+import javax.swing.Box;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+
+import com.netscape.management.client.util.GridBagUtil;
+import com.netscape.management.client.util.IWizardControl;
+import com.netscape.management.client.util.MultilineLabel;
+import com.netscape.management.client.util.ResourceSet;
+import com.netscape.management.client.util.SingleBytePasswordField;
+import com.netscape.management.client.util.UtilConsoleGlobals;
+import com.netscape.management.nmclf.SuiConstants;
+import com.netscape.management.nmclf.SuiOptionPane;
 
 class CreateTrustPane extends JPanel implements SuiConstants, IKeyCertPage {
 
@@ -80,8 +95,7 @@ class CreateTrustPane extends JPanel implements SuiConstants, IKeyCertPage {
             hide = false;
         } else if ( (_passwd.getText().equals(_confirmPasswd.getText())) &&
                 (!(dbName.equals("")))) {
-            KeyCertTaskInfo taskInfo =
-                    ((WizardObservable) observable).getTaskInfo();
+            KeyCertTaskInfo taskInfo = observable.getTaskInfo();
             taskInfo.put("alias", dbName);
             taskInfo.put("keyfilepw", _confirmPasswd.getText());
             observable.put("keyPasswd", _confirmPasswd.getText());
@@ -96,22 +110,19 @@ class CreateTrustPane extends JPanel implements SuiConstants, IKeyCertPage {
 
 
             //MessageDialog.messageDialog((Message)(taskInfo.getResponse().getMessages().elementAt(0)));
-            StatusPane statusPane = (StatusPane)(observable.get("statusPane"));
-            statusPane.setMessage( (Message)
-                    (taskInfo.getResponse().getMessages().elementAt(0)));
+            StatusPane statusPane = (StatusPane)observable.get("statusPane");
+            statusPane.setMessage(taskInfo.getResponse().getMessages().elementAt(0));
             statusPane.setShow(true);
 
-            if (((Message)
-                    (taskInfo.getResponse().getMessages().elementAt(0))
-                    ).getStatus() == Message.NMC_SUCCESS) {
+            if (taskInfo.getResponse().getMessages().elementAt(0).getStatus() == Message.NMC_SUCCESS) {
                 hide = true;
                 observable.put("createTrust", new Boolean(false));
 
-                if (((Boolean)(observable.get("noneed"))).booleanValue()) {
+                if (((Boolean)observable.get("noneed")).booleanValue()) {
                     statusPane.appendMessage("\n\n"+
                             _noNeedToRequestInstallCert);
                     statusPane.setLastPage(true);
-                    ((IWizardControl)(observable.get("Wizard"))).
+                    ((IWizardControl)observable.get("Wizard")).
                             setIsLastPage(true);
                 }
             }

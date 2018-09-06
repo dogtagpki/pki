@@ -17,13 +17,28 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.util.StringTokenizer;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import com.netscape.admin.certsrv.CMSAdminResources;
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
 
 /**
  * CA signing cert for installation wizard.
@@ -84,7 +99,7 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
             String dnString = mSubjectStringText.getText().trim();
             StringTokenizer tokenizer = new StringTokenizer(dnString, ",");
             while (tokenizer.hasMoreTokens()) {
-                String element = ((String)tokenizer.nextToken()).trim();
+                String element = tokenizer.nextToken().trim();
                 if (element.startsWith(O) || element.startsWith(o)) {
                     int index = element.indexOf("=");
                     if (index > -1) {
@@ -126,7 +141,7 @@ public class WBaseDNPage extends WizardBasePanel implements IWizardPanel {
         StringTokenizer tokenizer = new StringTokenizer(str, ",");
         boolean isDNString = false;
         while (tokenizer.hasMoreTokens()) {
-            String element = (String)tokenizer.nextToken();
+            String element = tokenizer.nextToken();
             element = element.trim();
             int index = element.indexOf('=');
             String val = element.substring(index+1);

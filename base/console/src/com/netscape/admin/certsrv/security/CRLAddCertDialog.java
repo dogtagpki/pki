@@ -82,8 +82,7 @@ class CRLAddCertDialog extends AbstractDialog implements SuiConstants {
                     return;
                 }
 
-                if (!(((Message)(response.getMessages().elementAt(0))).
-                        isFailure())) {
+                if (!response.getMessages().elementAt(0).isFailure()) {
                     if (_certInstInfo.get("crl_action").equals("add") ||
                             _certInstInfo.get("crl_action").equals("replace")) {
                         modified = true;
@@ -91,8 +90,7 @@ class CRLAddCertDialog extends AbstractDialog implements SuiConstants {
                     setVisible(false);
                 } else {
                     try {
-                        MessageDialog.messageDialog( (Message)
-                                (response.getMessages().elementAt(0)));
+                        MessageDialog.messageDialog(response.getMessages().elementAt(0));
                     } catch (Exception e2) {
                         //shouldn't even be here in the first place.  if cgi fail or return nothing
                         //then it should be handle right after KeyCertTaskInfo.exec(...) is called
@@ -149,9 +147,7 @@ class CRLAddCertDialog extends AbstractDialog implements SuiConstants {
             super.show();
         } else {
             try {
-                MessageDialog.messageDialog( (Message)
-                        (_taskInfo.getResponse().getMessages().
-                        elementAt(0)));
+                MessageDialog.messageDialog(_taskInfo.getResponse().getMessages().elementAt(0));
             } catch (Exception e2) {
                 //shouldn't even be here in the first place.  if cgi fail or return nothing
                 //then it should be handle right after KeyCertTaskInfo.exec(...) is called

@@ -17,11 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
 
 /**
  * Generate the certificate request
@@ -65,7 +78,7 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
 		NameValuePairs nvps =
 			(NameValuePairs)wizardInfo.get(InstallWizardInfo.ALL_CERT_INFO);
 		if (nvps != null) {
-			str = (String)nvps.get(Constants.PR_SKI);
+			str = nvps.get(Constants.PR_SKI);
 			if (str != null && str.equals(ConfigConstants.TRUE)) {
 				mCMC.setEnabled(true);
 				mCMC.setVisible(true);

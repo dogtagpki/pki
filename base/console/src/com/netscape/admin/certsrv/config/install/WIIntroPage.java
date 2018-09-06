@@ -17,12 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
-import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.certsrv.common.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.StringTokenizer;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
+
+import com.netscape.admin.certsrv.CMSAdminUtil;
+import com.netscape.admin.certsrv.wizard.IWizardPanel;
+import com.netscape.admin.certsrv.wizard.WizardBasePanel;
+import com.netscape.admin.certsrv.wizard.WizardInfo;
+import com.netscape.certsrv.common.ConfigConstants;
+import com.netscape.certsrv.common.OpDef;
+import com.netscape.certsrv.common.TaskId;
 
 /**
  * Introduction page for installation wizard.
@@ -75,7 +87,7 @@ class WIIntroPage extends WizardBasePanel implements IWizardPanel {
             StringTokenizer tokenizer = new StringTokenizer(stages, ":");
             mLabel.setVisible(true);
             while (tokenizer.hasMoreTokens()) {
-                String str = (String)tokenizer.nextToken();
+                String str = tokenizer.nextToken();
                 if (str.equals(ConfigConstants.STAGE_INTERNAL_DB)) {
                     mDbButton.setVisible(true);
                 } else if (str.equals(ConfigConstants.STAGE_SETUP_PORTS)) {

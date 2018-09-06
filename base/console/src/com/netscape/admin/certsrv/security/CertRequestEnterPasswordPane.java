@@ -110,18 +110,15 @@ IKeyCertPage {
                 hide = false;
             }
 
-            if (!(response.hasCert())) {
+            if (!response.hasCert()) {
                 //MessageDialog.messageDialog((Message)(taskInfo.getResponse().getMessages().elementAt(0)));
                 StatusPane statusPane = (StatusPane)(observable.get("statusPane"));
-                statusPane.setMessage( (Message)
-                        (taskInfo.getResponse().getMessages().
-                        elementAt(0)));
+                statusPane.setMessage(taskInfo.getResponse().getMessages().elementAt(0));
                 statusPane.setShow(true);
                 modified = true;
             } else {
                 observable.put("CertReq",
-                        ((Message)(response.getMessages().elementAt(0))
-                        ).getExtraMessage());
+                        response.getMessages().elementAt(0).getExtraMessage());
                 observable.put("CertReqModified", new Boolean(false));
                 modified = false;
 

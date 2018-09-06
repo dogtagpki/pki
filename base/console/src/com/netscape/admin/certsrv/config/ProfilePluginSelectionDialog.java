@@ -91,7 +91,7 @@ public class ProfilePluginSelectionDialog extends PluginSelectionDialog
                 return;
             }
             Debug.println(response.toString());
-            String id =(String)(mDataModel.getObjectValueAt(mList.getSelectedIndex()));
+            String id = mDataModel.getObjectValueAt(mList.getSelectedIndex());
             response.put(Constants.PR_POLICY_IMPL_NAME, id);
 
             CMSBaseConfigDialog dialog = null;
@@ -133,7 +133,7 @@ public class ProfilePluginSelectionDialog extends PluginSelectionDialog
 
     //this returns the default configuration
     protected NameValuePairs getDefaultConfig() throws EAdminException {
-        String id = (String)(mDataModel.getObjectValueAt(mList.getSelectedIndex()));
+        String id = mDataModel.getObjectValueAt(mList.getSelectedIndex());
         NameValuePairs response;
         response = mConnection.read(mDestination, mScope, id,
           new NameValuePairs());

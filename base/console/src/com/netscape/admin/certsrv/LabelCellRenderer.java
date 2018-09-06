@@ -17,11 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import java.awt.*;
-import javax.swing.table.*;
-import javax.swing.border.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Component;
 import java.io.Serializable;
+
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableCellRenderer;
 
 /**
  * Class that will render label correctly in table
@@ -61,7 +67,7 @@ public class LabelCellRenderer
 
     public void setToolTipText(String text) {
     	if (component instanceof JComponent)
-    	    ((JComponent)component).setToolTipText(text);
+            component.setToolTipText(text);
     }
 
     public Component getComponent() {
