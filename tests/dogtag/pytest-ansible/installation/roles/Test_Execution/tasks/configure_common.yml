@@ -1,6 +1,6 @@
 - name: Disable firewalld before LDAP and Subsystem installation
   systemd: state=stopped name=firewalld
-  when: ansible_distribution == "RedHat" and ansible_distribution_version <= '7.5'
+  when: ansible_distribution == "RedHat"
 
 - name : Set hostname for machines Bydefault we choose pki1 for master and pki2 for clones.
   hostname: name=pki1.example.com

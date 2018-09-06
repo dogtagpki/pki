@@ -25,9 +25,6 @@
 #   Boston, MA 02110-1301, USA.
 """
 
-import os
-import sys
-import pytest
 from test_steps import ok
 
 from pki.testlib.common.certlib import *
@@ -44,7 +41,7 @@ def test_setup(ansible_module):
     """
     cert_setup = CertSetup(nssdb=constants.NSSDB,
                            db_pass=constants.CLIENT_DATABASE_PASSWORD,
-                           host='pki1.example.com',
+                           host=constants.MASTER_HOSTNAME,
                            port=constants.CA_HTTP_PORT,
                            nick="'{}'".format(constants.CA_ADMIN_NICK))
     cert_setup.create_certdb(ansible_module)
@@ -57,7 +54,7 @@ def test_setup(ansible_module):
     ("CA_AdminV", ['Status: Enabled', 'Signed: true',
                    'Interval (seconds): 5',
                    'Buffer size (bytes): 512']),
-    ("CA_AdminE", ['FATAL: SSL alert received: CERTIFICATE_EXPIRED']),
+    (pytest.param("CA_AdminE", ['FATAL: SSL alert received: CERTIFICATE_EXPIRED'], marks=pytest.mark.xfail)),
     ("CA_AdminR", ['PKIException: Unauthorized'])
 ])
 def test_ca_audit_with_role_users(ansible_module, certnick, expected):
@@ -70,12 +67,11 @@ def test_ca_audit_with_role_users(ansible_module, certnick, expected):
     :param expected:
     :return:
     """
-    contacted = ansible_module.pki(
-        cli='ca-audit-show',
-        nssdb=constants.NSSDB,
-        port=constants.CA_HTTPS_PORT,
-        protocol='https',
-        certnick=certnick)
+    contacted = ansible_module.pki(cli='ca-audit-show',
+                                   nssdb=constants.NSSDB,
+                                   dbpassword=constants.CLIENT_DATABASE_PASSWORD,
+                                   protocol='https',
+                                   certnick=certnick)
     for result in contacted.values():
         for iter in expected:
             if certnick == "CA_AdminV":
