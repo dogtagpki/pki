@@ -16,10 +16,10 @@ jobs:
         - touch ${TRANSFER_SH_URLS}
         - travis/post-test-started.sh
       install:
-        - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+        - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*' | uniq >> ${TRANSFER_SH_URLS}
       script:
         - set -o pipefail
-        - travis_wait 20 travis/run_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*.txt' | uniq >> ${TRANSFER_SH_URLS}
+        - travis/run_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*' | uniq >> ${TRANSFER_SH_URLS}
       after_failure:
         - travis/post-test-failed.sh
       after_script:
@@ -27,26 +27,24 @@ jobs:
         - docker kill ${CONTAINER}
         - docker rm ${CONTAINER}
 
-#    - env:
-#        - TASK_TO_RUN="ipa-test"
-#      before_install:
-#       - set -a && source travis/global_variables
-#        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-#        - touch ${TRANSFER_SH_URLS}
-#      install:
-#        - travis/init_task.sh
-#      script:
-#        - travis_wait 20 travis/run_task.sh
-#      after_failure:
-#        - docker exec ${CONTAINER} journalctl  -l > ${PKI_LOG}
-#        - echo "Uploading CI Logs to transfer.sh ..."
-#        - curl -w "\n" --upload-file ./${PKI_LOG} https://transfer.sh/dogtag_build_logs.txt > ${TRANSFER_SH_URLS}
-#        - curl -w "\n" --upload-file ./${CI_RESULTS_LOG} https://transfer.sh/freeipa-integration.txt >> ${TRANSFER_SH_URLS}
-#        - travis/post-test-failed.sh
-#      after_script:
-#        - cat ${TRANSFER_SH_URLS}
-#        - docker kill ${CONTAINER}
-#        - docker rm ${CONTAINER}
+    - env:
+        - TASK_TO_RUN="ipa-test"
+      before_install:
+        - set -a && source travis/global_variables
+        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+        - touch ${TRANSFER_SH_URLS}
+      install:
+        - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*' | uniq >> ${TRANSFER_SH_URLS}
+      script:
+        - set -o pipefail
+        - travis/run_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*' | uniq >> ${TRANSFER_SH_URLS}
+      after_failure:
+        # The built .tar file has all the required logs packed
+        - travis/post-test-failed.sh
+      after_script:
+        - cat ${TRANSFER_SH_URLS}
+        - docker kill ${CONTAINER}
+        - docker rm ${CONTAINER}
 
     - stage: Verification Label
       before_install:
