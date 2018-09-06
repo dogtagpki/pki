@@ -76,7 +76,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile
         IConfigStore defConfig4 = def4.getConfigStore();
         defConfig4.putString("params.signingAlg", "-");
         defConfig4.putString("params.signingAlgsAllowed",
-                "SHA1withRSA,SHA256withRSA,SHA512withRSA,SHA256withEC,SHA384withEC,SHA512withEC");
+                "SHA1withRSA,SHA256withRSA,SHA512withRSA,MD5withRSA,MD2withRSA,SHA256withEC,SHA384withEC,SHA512withEC");
 
         // extensions
         IProfilePolicy policy5 =
