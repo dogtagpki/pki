@@ -25,10 +25,12 @@
   shell: certutil -A -d /etc/pki/{{ topology }}-KRA/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
   notify:
     - STARTKRA
-
+    
 - name: Removing file generated with password
   file:
     path: "{{ item }}"
     state: absent
   with_items:
     -  /tmp/test_dir/certutil_password
+
+

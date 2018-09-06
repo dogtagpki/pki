@@ -10,7 +10,7 @@ These playbooks can setup the environment based on the topology specified in the
 ### Requirements:
 
 1. Pip should be installed.
-2. Pip [requiremets.txt](../Installation/requirements.txt) should be installed 
+2. Pip [requiremets.txt](../Installation/requirements.txt) should be installed
 3. Make sure to check ansible version after installation.This can be quickly done using
 ansible --version.
 If this commands works, Your ansible is installed properly.
@@ -29,7 +29,7 @@ This should not prompt for password any more.
 
 ### Packages to Install `Only for RHEL users`
 
-Configure repo that have below listed packages.It is mandatory to setup repo's 
+Configure repo that have below listed packages.It is mandatory to setup repo's
 correctly  before triggering ansible playbooks for system installation.
 
 ```
@@ -52,6 +52,11 @@ Required Packages:
 
 ### Usage:
 
+For Setting up system with only pki packages installed, use `topology-00`
+```
+ansible-playbook -i /tmp/test/pki-tests/ci/ansible/host main.yml --extra-vars "topology=topology-00" -v
+```
+
 For Setting up Subsystems on different port, use `topology-02 `
 ```
 ansible-playbook -i /tmp/test/pki-tests/ci/ansible/host main.yml --extra-vars "topology=topology-02" -v
@@ -68,7 +73,7 @@ where,
                         specify inventory host path
                         (default=/etc/ansible/hosts) or comma separated host
                         list.
-                        
+
 ## Examples of ansible-inventory
 
 Inventory file consist of the roles and the ip-address.Tests will run for the roles and ip's that are mentioned.
@@ -78,7 +83,7 @@ Inventory file consist of the roles and the ip-address.Tests will run for the ro
 10.1.2.3
 10.2.3.4
 ```
-                        
+
 ### Sanity tests
 
 Once playbook installation is complete, use below command and make certificates are returned.
