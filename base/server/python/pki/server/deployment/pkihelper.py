@@ -1036,12 +1036,12 @@ class Instance:
         client = pki.system.SystemStatusClient(connection)
         response = client.get_status(timeout=timeout)
 
-        config.pki_log.debug(
-            response,
-            extra=config.PKI_INDENTATION_LEVEL_3)
-
         root = ET.fromstring(response)
         status = root.findtext("Status")
+
+        config.pki_log.debug(
+            'status: %s', status,
+            extra=config.PKI_INDENTATION_LEVEL_3)
 
         return status
 
@@ -1098,8 +1098,8 @@ class Instance:
                 max_retry_error = exc.args[0]
                 reason = getattr(max_retry_error, 'reason')
                 config.pki_log.error(
-                    "server unreachable due to SSL error: %s", reason,
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+                    "Server unreachable due to SSL error: %s", reason,
+                    extra=config.PKI_INDENTATION_LEVEL_0)
                 break
 
             except RETRYABLE_EXCEPTIONS:
@@ -1110,9 +1110,9 @@ class Instance:
                 if counter >= timeout:
 
                     config.pki_log.error(
-                        "server did not start after %ds",
+                        "Server did not start after %ds",
                         timeout,
-                        extra=config.PKI_INDENTATION_LEVEL_3)
+                        extra=config.PKI_INDENTATION_LEVEL_0)
 
                     break
 

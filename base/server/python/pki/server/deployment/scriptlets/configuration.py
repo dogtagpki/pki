@@ -859,7 +859,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def import_perm_sslserver_cert(self, instance, sslserver):
 
         nickname = sslserver['nickname']
-        token = sslserver['token']
+        token = pki.nssdb.normalize_token(sslserver['token'])
+
+        if not token:
+            token = pki.nssdb.INTERNAL_TOKEN_NAME
 
         config.pki_log.info(
             "Importing permanent SSL server cert into %s token: %s", token, nickname,
@@ -1060,7 +1063,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         client = pki.system.SystemConfigClient(connection)
 
         config.pki_log.info(
-            "Configuring %s", subsystem.type,
+            'Configuring %s subsystem', subsystem.type,
             extra=config.PKI_INDENTATION_LEVEL_0)
 
         response = client.configure(request)

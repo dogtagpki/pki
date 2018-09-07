@@ -306,7 +306,7 @@ class NSSDatabase(object):
             '-@', self.password_file
         ]
 
-        logger.debug('Command: %s', ' '.join(cmd))
+        logger.debug('Command: %s', ' '.join(map(str, cmd)))
         subprocess.check_call(cmd)
 
         migration = (
@@ -366,7 +366,7 @@ class NSSDatabase(object):
                     '-t', ''
                 ]
 
-                logger.debug('Command: %s', ' '.join(cmd))
+                logger.debug('Command: %s', ' '.join(map(str, cmd)))
                 rc = subprocess.call(cmd)
 
                 if rc:
@@ -389,7 +389,7 @@ class NSSDatabase(object):
                     '-t', trust_attributes
                 ]
 
-                logger.debug('Command: %s', ' '.join(cmd))
+                logger.debug('Command: %s', ' '.join(map(str, cmd)))
                 subprocess.check_call(cmd)
 
         finally:
@@ -423,7 +423,7 @@ class NSSDatabase(object):
         if trust_attributes:
             cmd.extend(['--trust', trust_attributes])
 
-        logger.debug('Command: %s', ' '.join(cmd))
+        logger.debug('Command: %s', ' '.join(map(str, cmd)))
         subprocess.check_call(cmd)
 
     def modify_cert(self, nickname, trust_attributes):
@@ -442,7 +442,7 @@ class NSSDatabase(object):
             '-t', trust_attributes
         ])
 
-        logger.debug('Command: %s', ' '.join(cmd))
+        logger.debug('Command: %s', ' '.join(map(str, cmd)))
         subprocess.check_call(cmd)
 
     def create_noise(self, noise_file, size=2048):
@@ -453,7 +453,7 @@ class NSSDatabase(object):
             str(size)
         ]
 
-        logger.debug('Command: %s', ' '.join(cmd))
+        logger.debug('Command: %s', ' '.join(map(str, cmd)))
         subprocess.check_call(cmd)
 
     def create_request(
@@ -591,7 +591,7 @@ class NSSDatabase(object):
 
                 cmd.append(','.join(exts))
 
-            logger.debug('Command: %s', ' '.join(cmd))
+            logger.debug('Command: %s', ' '.join(map(str, cmd)))
 
             # generate binary request
             p = subprocess.Popen(cmd,
@@ -787,7 +787,7 @@ class NSSDatabase(object):
 
             keystroke += '\n'
 
-        logger.debug('Command: %s', ' '.join(cmd))
+        logger.debug('Command: %s', ' '.join(map(str, cmd)))
 
         p = subprocess.Popen(cmd,
                              stdin=subprocess.PIPE,
@@ -861,7 +861,7 @@ class NSSDatabase(object):
             '-d', self.directory
         ]
 
-        logger.debug('Command: %s', ' '.join(cmd))
+        logger.debug('Command: %s', ' '.join(map(str, cmd)))
         subprocess.check_call(cmd)
 
     def get_cert(self, nickname, token=None, output_format='pem',
@@ -904,7 +904,7 @@ class NSSDatabase(object):
             if output_format_option:
                 cmd.extend([output_format_option])
 
-            logger.debug('Command: %s', ' '.join(cmd))
+            logger.debug('Command: %s', ' '.join(map(str, cmd)))
 
             p = subprocess.Popen(cmd,
                                  stdout=subprocess.PIPE,
@@ -1040,7 +1040,7 @@ class NSSDatabase(object):
 
             cmd.extend([full_name])
 
-            logger.debug('Command: %s', ' '.join(cmd))
+            logger.debug('Command: %s', ' '.join(map(str, cmd)))
             subprocess.check_call(cmd)
 
         finally:
@@ -1074,7 +1074,7 @@ class NSSDatabase(object):
                 '-n', nickname
             ])
 
-            logger.debug('Command: %s', ' '.join(cmd))
+            logger.debug('Command: %s', ' '.join(map(str, cmd)))
             subprocess.check_call(cmd)
 
         finally:
@@ -1166,7 +1166,7 @@ class NSSDatabase(object):
                 '--output-suffix', suffix
             ]
 
-            logger.debug('Command: %s', ' '.join(cmd))
+            logger.debug('Command: %s', ' '.join(map(str, cmd)))
             subprocess.check_call(cmd)
 
             # Count the number of certs in the chain.
@@ -1245,7 +1245,7 @@ class NSSDatabase(object):
             if overwrite:
                 cmd.extend(['--overwrite'])
 
-            logger.debug('Command: %s', ' '.join(cmd))
+            logger.debug('Command: %s', ' '.join(map(str, cmd)))
             subprocess.check_call(cmd)
 
         finally:
@@ -1318,7 +1318,7 @@ class NSSDatabase(object):
             if nicknames:
                 cmd.extend(nicknames)
 
-            logger.debug('Command: %s', ' '.join(cmd))
+            logger.debug('Command: %s', ' '.join(map(str, cmd)))
             subprocess.check_call(cmd)
 
         finally:
