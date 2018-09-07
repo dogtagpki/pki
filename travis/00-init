@@ -25,9 +25,15 @@ chown ${BUILDUSER}:${BUILDUSER} ${BUILDDIR}
 # workaround for
 # [Errno 2] No such file or directory: '/var/cache/dnf/metadata_lock.pid'
 rm -f /var/cache/dnf/metadata_lock.pid
+dnf install -y dnf-plugins-core sudo wget 389-ds-base
+dnf install -y @buildsys-build @development-tools
+
+# Enable pki related COPR repo
+dnf copr enable -y @pki/${PKI_VERSION}
+
+# update, container might be outdated
+dnf update -y --best --allowerasing
+
 dnf clean all
 dnf makecache || true
 dnf makecache
-
-# update, container might be outdated
-dnf update -y

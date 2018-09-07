@@ -21,11 +21,6 @@
 #
 set -e
 
-PYTHON="/usr/bin/python${TRAVIS_PYTHON_VERSION}"
-
-test_set="test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_vault_plugin.py"
-developer_mode_opt="--developer-mode"
-cert_test_file_loc=""
 
 
 function truncate_log_to_test_failures() {
@@ -42,29 +37,16 @@ function truncate_log_to_test_failures() {
 
 if [[ "$TASK_TO_RUN" == "ipa-test" ]]
 then
-    docker pull ${IPA_IMAGE}
+    # 1. Base image is already available. No need to pull again
 
-    # Copy the built RPMS to host machine
-    mkdir -p ${DOGTAG_PKI_RPMS}
-    docker cp ${CONTAINER}:${RPMS_LOCATION}/. ${DOGTAG_PKI_RPMS}
-    ls ${DOGTAG_PKI_RPMS}
+    # 2. Setup IPA environment
+    docker exec -i ${CONTAINER} ${SCRIPTDIR}/ipa_test_setup.sh
 
-    # Install the ipa-docker-test-runner tool
-    pip3 install git+https://github.com/freeipa/ipa-docker-test-runner@release-0-3-1
+    # 3. Install recently built dogtag RPMS
+    docker exec -i ${CONTAINER} ${SCRIPTDIR}/20-install-rpms || exit $?
 
-    for test_files in ${test_set}; do
-        cert_test_file_loc="${cert_test_file_loc} test_xmlrpc/${test_files}"
-    done
-
-    echo ${cert_test_file_loc}
-
-    ipa-docker-test-runner -l ${CI_RESULTS_LOG} \
-        -c travis/ipa-test.yaml \
-        $developer_mode_opt \
-        --container-environment "PYTHON=$PYTHON" \
-        --container-image ${IPA_IMAGE} \
-        --git-repo ${TRAVIS_BUILD_DIR} \
-        run-tests ${cert_test_file_loc}
+    # 4. Run IPA tests
+    docker exec -i ${CONTAINER} ${SCRIPTDIR}/ipa_run_test.sh || exit $?
 
 elif [[ "$TASK_TO_RUN" == "pki-test" ]]
 then

@@ -22,11 +22,11 @@
 set -e
 
 pyenv global system 3.6
-docker pull ${PKI_IMAGE}
+docker pull ${BASE_IMAGE}
 docker run \
     --detach \
     --name=${CONTAINER} \
-    --hostname='pki.test' \
+    --hostname='master.pki.test' \
     --privileged \
     --tmpfs /tmp \
     --tmpfs /run \
@@ -34,18 +34,24 @@ docker run \
     -v $(pwd):/tmp/workdir/pki \
     -e BUILDUSER_UID=$(id -u) \
     -e BUILDUSER_GID=$(id -g) \
+    -e BUILDDIR="/tmp/workdir" \
+    -e BUILDUSER="builduser" \
     -e TRAVIS=${TRAVIS} \
     -e TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER} \
+    -e PKI_VERSION=${PKI_VERSION} \
+    -e IPA_VERSION=${IPA_VERSION} \
+    -e container=docker \
+    -e test_set="${test_set}" \
+    --expose=389 \
+    --expose=8080 \
+    --expose=8443 \
     -i \
-    ${PKI_IMAGE}
+    ${BASE_IMAGE} "/usr/sbin/init"
 
+# Check whether the container is up
+docker ps -a
 
 docker exec -i ${CONTAINER} /bin/ls -la /tmp/workdir
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/00-init
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/01-install-dependencies pki-core
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/10-compose-rpms compose_pki_core_packages
-
-# IPA related installs
-pip install --upgrade pip
-pip3 install --upgrade pip
-pip install pep8
