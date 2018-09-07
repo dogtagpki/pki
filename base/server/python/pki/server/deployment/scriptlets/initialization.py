@@ -19,6 +19,7 @@
 #
 
 from __future__ import absolute_import
+import pki
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
@@ -36,6 +37,32 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             deployer.mdict['pki_subsystem'],
                             deployer.mdict['pki_instance_name'],
                             extra=config.PKI_INDENTATION_LEVEL_0)
+
+        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance.load()
+
+        internal_token = deployer.mdict['pki_self_signed_token']
+
+        # if instance already exists and has password, reuse the password
+        if internal_token in instance.passwords:
+            deployer.mdict['pki_server_database_password'] = instance.passwords.get(internal_token)
+
+        # otherwise, use user-provided password if specified
+        elif deployer.mdict['pki_server_database_password']:
+            pass
+
+        # otherwise, use user-provided pin if specified
+        elif deployer.mdict['pki_pin']:
+            deployer.mdict['pki_server_database_password'] = deployer.mdict['pki_pin']
+
+        # otherwise, generate a random password
+        else:
+            deployer.mdict['pki_server_database_password'] = pki.generate_password()
+
+        # generate random password for client database if not specified
+        if not deployer.mdict['pki_client_database_password']:
+            deployer.mdict['pki_client_database_password'] = pki.generate_password()
+
         # ALWAYS initialize 'uid' and 'gid'
         deployer.identity.add_uid_and_gid(deployer.mdict['pki_user'],
                                           deployer.mdict['pki_group'])
