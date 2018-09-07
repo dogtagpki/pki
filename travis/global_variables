@@ -1,6 +1,7 @@
 CONTAINER=pkitest
 BUILDDIR=/tmp/workdir
 SCRIPTDIR=${BUILDDIR}/pki/travis
-BUILDER_RPMS=${BUILDDIR}/packages/RPMS
-HOST_RPMS=${TRAVIS_BUILD_DIR}/RPMS
 LOGS=${TRAVIS_BUILD_DIR}/logs.txt
+BASE_IMAGE=fedora:${BASE_IMAGE_VERSION}
+PKI_VERSION=10.6
+test_set="test_caacl_plugin.py test_caacl_profile_enforcement.py test_cert_plugin.py test_certprofile_plugin.py test_vault_plugin.py"

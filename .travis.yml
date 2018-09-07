@@ -11,7 +11,7 @@ jobs:
     # F27 Image
     - env:
         - TASK="PKI Test on F27"
-        - IMAGE=f27_106_46
+        - BASE_IMAGE_VERSION=27
       before_install:
         - set -a && source travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
@@ -43,17 +43,22 @@ jobs:
 
     - env:
         - TASK="IPA Test on F27"
-        - IMAGE=f27_106_46
+        - BASE_IMAGE_VERSION=27
       before_install:
         - set -a && source travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
         - touch ${LOGS}
       install:
+        # Setup the required build environment
         - travis/builder-init.sh
+        # Trigger build process
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh --with-pkgs=base,server,ca,kra
-        - travis/ipa-init.sh
+        # Initialize IPA test environment
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ipa-init.sh
+        # Install recently build Dogtag RPMS
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-install.sh
       script:
-        - travis_wait 20 travis/ipa-test.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ipa-test.sh
       after_failure:
         - travis/post-test-failed.sh
       after_script:
@@ -64,7 +69,7 @@ jobs:
     # F28 image
     - env:
         - TASK="PKI Test on F28"
-        - IMAGE=f28_106_46
+        - BASE_IMAGE_VERSION=28
       before_install:
         - set -a && source travis/global_variables
         - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
@@ -86,6 +91,31 @@ jobs:
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-remove.sh
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-remove.sh
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-remove.sh
+      after_failure:
+        - travis/post-test-failed.sh
+      after_script:
+        - cat ${LOGS}
+        - docker kill ${CONTAINER}
+        - docker rm ${CONTAINER}
+
+    - env:
+        - TASK="IPA Test on F28"
+        - BASE_IMAGE_VERSION=28
+      before_install:
+        - set -a && source travis/global_variables
+        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+        - touch ${LOGS}
+      install:
+        # Setup the required build environment
+        - travis/builder-init.sh
+        # Trigger build process
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh --with-pkgs=base,server,ca,kra
+        # Initialize IPA test environment
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ipa-init.sh
+        # Install recently build Dogtag RPMS
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-install.sh
+      script:
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ipa-test.sh
       after_failure:
         - travis/post-test-failed.sh
       after_script:

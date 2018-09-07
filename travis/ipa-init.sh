@@ -19,17 +19,7 @@
 # Copyright (C) 2018 Red Hat, Inc.
 # All rights reserved.
 #
+set -e
 
-# Copy the built RPMS to host machine
-echo "Copying binary packages into ${HOST_RPMS}"
-
-mkdir -p ${HOST_RPMS}
-docker cp ${CONTAINER}:${BUILDER_RPMS}/. ${HOST_RPMS}
-
-# IPA related installs
-pip install --upgrade pip
-pip3 install --upgrade pip
-pip install pep8
-
-# Install the ipa-docker-test-runner tool
-pip3 install git+https://github.com/freeipa/ipa-docker-test-runner@release-0-3-1
+# Install latest IPA from official fedora/updates repository
+dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests --best --allowerasing
