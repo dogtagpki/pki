@@ -764,31 +764,6 @@ class PKIConfigParser:
 
             self.deployer.flatten_master_dict()
 
-            instance = pki.server.PKIInstance(self.mdict['pki_instance_name'])
-            instance.load()
-
-            internal_token = self.mdict['pki_self_signed_token']
-
-            # if instance already exists and has password, reuse the password
-            if internal_token in instance.passwords:
-                self.mdict['pki_server_database_password'] = instance.passwords.get(internal_token)
-
-            # otherwise, use user-provided password if specified
-            elif self.mdict['pki_server_database_password']:
-                pass
-
-            # otherwise, use user-provided pin if specified
-            elif self.mdict['pki_pin']:
-                self.mdict['pki_server_database_password'] = self.mdict['pki_pin']
-
-            # otherwise, generate a random password
-            else:
-                self.mdict['pki_server_database_password'] = pki.generate_password()
-
-            # generate random password for client database if not specified
-            if not self.mdict['pki_client_database_password']:
-                self.mdict['pki_client_database_password'] = pki.generate_password()
-
             pkilogging.sensitive_parameters = \
                 self.mdict['sensitive_parameters'].split()
 
