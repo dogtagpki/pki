@@ -6,8 +6,8 @@ Overview
 
 This page describes the process to install a OCSP subsystem with custom OCSP system and admin keys, CSRs, and certificates.
 
-Initializing OCSP Installation
-------------------------------
+Starting OCSP Subsystem Installation
+------------------------------------
 
 Prepare a file (e.g. ocsp-step1.cfg) that contains the deployment configuration step 1, for example:
 
@@ -43,30 +43,22 @@ pki_external=True
 pki_external_step_two=False
 ```
 
-If the OCSP system keys are to be stored in HSM, specify the HSM configuration in the following parameters:
-
-```
-[DEFAULT]
-pki_hsm_enable=True
-pki_hsm_libfile=/opt/nfast/toolkits/pkcs11/libcknfast.so
-pki_hsm_modulename=nfast
-
-pki_token_name=HSM
-pki_token_password=Secret.123
-```
-
 Then execute the following command:
 
 ```
 $ pkispawn -f ocsp-step1.cfg -s OCSP
 ```
 
-It will install OCSP in a Tomcat instance (default is pki-tomcat) with an NSS database at /etc/pki/pki-tomcat/alias. Since there are no CSR path parameters specified, it will not generate the OCSP system and admin keys.
+It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+* server NSS database: /etc/pki/pki-tomcat/alias
+* admin NSS database: ~/.dogtag/pki-tomcat/ocsp/alias
+
+Since there are no CSR path parameters specified, it will not generate the OCSP system and admin keys.
 
 Generating OCSP Keys, CSRs, and Certificates
 --------------------------------------------
 
-Generate custom OCSP system keys in the OCSP NSS database above and admin key in the admin NSS database (default is ~/.dogtag/pki-tomcat/ocsp/alias), then generate the CSRs and store them in files, for example:
+Generate custom OCSP system keys in the server NSS database and admin key in the admin NSS database, then generate the CSRs and store them in files, for example:
 * ocsp_signing.csr
 * subsystem.csr
 * sslserver.csr
@@ -91,8 +83,8 @@ See also:
 * [Generating Audit Signing Certificate](http://www.dogtagpki.org/wiki/Generating_Audit_Signing_Certificate)
 * [Generating Admin Certificate](http://www.dogtagpki.org/wiki/Generating_Admin_Certificate)
 
-Finalizing OCSP Installation
-----------------------------
+Finishing OCSP Subsystem Installation
+-------------------------------------
 
 Prepare another file (e.g. ocsp-step2.cfg) that contains the deployment configuration step 2. The file can be copied from step 1 (i.e. ocsp-step1.cfg) with additional changes below.
 
@@ -135,10 +127,10 @@ Finally, execute the following command:
 $ pkispawn -f ocsp-step2.cfg -s OCSP
 ```
 
-Verifying OCSP System Certificates
-----------------------------------
+Verifying System Certificates
+-----------------------------
 
-Verify that the NSS database contains the following certificates:
+Verify that the server NSS database contains the following certificates:
 
 ```
 $ certutil -L -d /etc/pki/pki-tomcat/alias
@@ -153,8 +145,8 @@ ocsp_audit_signing                                           u,u,Pu
 sslserver                                                    u,u,u
 ```
 
-Verifying OCSP Admin Certificate
---------------------------------
+Verifying Admin Certificate
+---------------------------
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 

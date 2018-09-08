@@ -6,8 +6,8 @@ Overview
 
 This page describes the process to install a KRA subsystem with custom KRA system and admin keys, CSRs, and certificates.
 
-Initializing KRA Installation
------------------------------
+Starting KRA Subsystem Installation
+-----------------------------------
 
 Prepare a file (e.g. kra-step1.cfg) that contains the deployment configuration step 1, for example:
 
@@ -50,12 +50,16 @@ Then execute the following command:
 $ pkispawn -f kra-step1.cfg -s KRA
 ```
 
-It will install KRA in a Tomcat instance (default is pki-tomcat) with an NSS database at /etc/pki/pki-tomcat/alias. Since there are no CSR path parameters specified, it will not generate KRA system and admin keys.
+It will install KRA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+* server NSS database: /etc/pki/pki-tomcat/alias
+* admin NSS database: ~/dogtag/pki-tomcat/kra/alias
+
+Since there are no CSR path parameters specified, it will not generate KRA system and admin keys.
 
 Generating KRA Keys, CSRs, and Certificates
 -------------------------------------------
 
-Generate custom KRA system keys in the KRA NSS database above and admin key in the admin NSS database (default is ~/.dogtag/pki-tomcat/kra/alias), then generate the CSRs and store them in files, for example:
+Generate custom KRA system keys in the server NSS database and admin key in the admin NSS database, then generate the CSRs and store them in files, for example:
 * kra_storage.csr
 * kra_transport.csr
 * subsystem.csr
@@ -83,8 +87,8 @@ See also:
 * [Generating Audit Signing Certificate](http://www.dogtagpki.org/wiki/Generating_Audit_Signing_Certificate)
 * [Generating Admin Certificate](http://www.dogtagpki.org/wiki/Generating_Admin_Certificate)
 
-Finalizing KRA Installation
----------------------------
+Finishing KRA Subsystem Installation
+------------------------------------
 
 Prepare another file (e.g. kra-step2.cfg) that contains the deployment configuration step 2. The file can be copied from step 1 (i.e. kra-step1.cfg) with additional changes below.
 
@@ -129,10 +133,10 @@ Finally, execute the following command:
 $ pkispawn -f kra-step2.cfg -s KRA
 ```
 
-Verifying KRA System Certificates
----------------------------------
+Verifying System Certificates
+-----------------------------
 
-Verify that the NSS database contains the following certificates:
+Verify that the server NSS database contains the following certificates:
 
 ```
 $ certutil -L -d /etc/pki/pki-tomcat/alias
@@ -148,8 +152,8 @@ kra_audit_signing                                            u,u,Pu
 sslserver                                                    u,u,u
 ```
 
-Verifying KRA Admin Certificate
--------------------------------
+Verifying Admin Certificate
+---------------------------
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 

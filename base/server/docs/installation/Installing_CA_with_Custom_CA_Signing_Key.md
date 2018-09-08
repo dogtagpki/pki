@@ -6,8 +6,8 @@ Overview
 
 This page describes the process to install a CA subsystem with a custom CA signing key, CSR, and certificate.
 
-Initializing CA Installation
-----------------------------
+Starting CA Subsystem Installation
+----------------------------------
 
 Prepare a file (e.g. ca-step1.cfg) that contains the deployment configuration step 1, for example:
 
@@ -48,12 +48,16 @@ Then execute the following command:
 $ pkispawn -f ca-step1.cfg -s CA
 ```
 
-It will install CA in a Tomcat instance (default is pki-tomcat) with an NSS database at /etc/pki/pki-tomcat/alias. Since there is no CSR path parameter specified, it will not generate the CA signing key by default.
+It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
+* server NSS database: /etc/pki/pki-tomcat/alias
+* admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
+
+Since there is no CSR path parameter specified, it will not generate the CA signing key by default.
 
 Generating CA Signing Key, CSR, and Certificate
 -----------------------------------------------
 
-Generate a custom CA signing key in the CA NSS database above, then generate a CSR and store it in a file (e.g. ca_signing.csr).
+Generate a custom CA signing key in the server NSS database, then generate a CSR and store it in a file (e.g. ca_signing.csr).
 
 Use the CSR to issue the CA signing certificate:
 * for root CA installation, generate a self-signed CA signing certificate
@@ -66,8 +70,8 @@ If the CA signing certificate was issued by an external CA, store the external C
 See also:
 * [Generating CA Signing Certificate](http://www.dogtagpki.org/wiki/Generating_CA_Signing_Certificate)
 
-Finalizing CA Installation
---------------------------
+Finishing CA Subsystem Installation
+-----------------------------------
 
 Prepare another file (e.g. ca-step2.cfg) that contains the deployment configuration step 2. The file can be copied from step 1 (i.e. ca-step1.cfg) with additional changes below.
 
@@ -102,10 +106,10 @@ Finally, execute the following command:
 $ pkispawn -f ca-step2.cfg -s CA
 ```
 
-Verifying CA System Certificates
---------------------------------
+Verifying System Certificates
+-----------------------------
 
-Verify that the NSS database contains the following certificates:
+Verify that the server NSS database contains the following certificates:
 
 ```
 $ certutil -L -d /etc/pki/pki-tomcat/alias
@@ -121,8 +125,8 @@ ca_audit_signing                                             u,u,Pu
 sslserver                                                    u,u,u
 ```
 
-Verifying CA Admin Certificate
-------------------------------
+Verifying Admin Certificate
+---------------------------
 
 Prepare a client NSS database (e.g. ~/.dogtag/nssdb):
 
