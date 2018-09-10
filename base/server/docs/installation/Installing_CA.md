@@ -49,8 +49,8 @@ It will install CA subsystem in a Tomcat instance (default is pki-tomcat) and cr
 * server NSS database: /etc/pki/pki-tomcat/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ca/alias
 
-Verifying CA System Certificates
---------------------------------
+Verifying System Certificates
+-----------------------------
 
 Verify that the server NSS database contains the following certificates:
 

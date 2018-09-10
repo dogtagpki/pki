@@ -51,8 +51,8 @@ It will install OCSP subsystem in a Tomcat instance (default is pki-tomcat) and 
 * server NSS database: /etc/pki/pki-tomcat/alias
 * admin NSS database: ~/.dogtag/pki-tomcat/ocsp/alias
 
-Verifying OCSP System Certificates
----------------------------------
+Verifying System Certificates
+-----------------------------
 
 Verify that the server NSS database contains the following certificates:
 
