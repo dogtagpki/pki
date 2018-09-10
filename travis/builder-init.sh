@@ -19,15 +19,14 @@
 # Copyright (C) 2018 Red Hat, Inc.
 # All rights reserved.
 #
+set -e
 
-pyenv global system 3.6
-
-docker pull ${IMAGE_REPO:-dogtagpki/pki-ci}:${IMAGE}
+docker pull ${BASE_IMAGE}
 
 docker run \
     --detach \
     --name=${CONTAINER} \
-    --hostname='pki.test' \
+    --hostname='master.pki.test' \
     --privileged \
     --tmpfs /tmp \
     --tmpfs /run \
@@ -35,10 +34,24 @@ docker run \
     -v ${TRAVIS_BUILD_DIR}:${BUILDDIR}/pki \
     -e BUILDUSER_UID=$(id -u) \
     -e BUILDUSER_GID=$(id -g) \
+    -e BUILDDIR="${BUILDDIR}" \
+    -e BUILDUSER="builduser" \
     -e TRAVIS=${TRAVIS} \
     -e TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER} \
+    -e PKI_VERSION=${PKI_VERSION} \
+    -e container=docker \
+    -e test_set="${test_set}" \
+    -e LOGS=${LOGS} \
+    --expose=389 \
+    --expose=8080 \
+    --expose=8443 \
     -i \
-    ${IMAGE_REPO:-dogtagpki/pki-ci}:${IMAGE}
+    ${BASE_IMAGE} "/usr/sbin/init"
+
+# Check whether the container is up
+docker ps -a
 
 docker exec -i ${CONTAINER} /bin/ls -la ${BUILDDIR}
+
+# Initialize PKI build env
 docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh

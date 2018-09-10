@@ -3,7 +3,7 @@ set -e
 PACKAGES=`find ${BUILDDIR}/packages/RPMS/ -name '*.rpm' -and -not -name '*debuginfo*'`
 
 # To list all packages that are available. Useful for debug purposes
-echo ${PACKAGES}
+echo -e ${PACKAGES}
 
 dnf install -y --best --allowerasing ${PACKAGES}
 
