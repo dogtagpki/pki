@@ -25,7 +25,6 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
@@ -133,8 +132,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: request: " + data);
         validateRequest(data);
 
-        Collection<String> certList = getCertList(data);
-
         logger.debug("=== Token Configuration ===");
         String token = data.getToken();
         if (CryptoUtil.isInternalToken(token)) {
@@ -148,7 +145,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // configure subsystem
         logger.debug("=== Subsystem Configuration ===");
-        configureSubsystem(data, certList, token, domainXML);
+        configureSubsystem(data, token, domainXML);
 
         // configure hierarchy
         logger.debug("=== Hierarchy Configuration ===");
@@ -173,7 +170,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         logger.debug("=== Process Certs ===");
         Collection<Cert> certs = new ArrayList<Cert>();
-        processCerts(data, certList, certs);
+        processCerts(data, certs);
 
         logger.debug("=== Handle certs ===");
         handleCerts(certs);
@@ -277,29 +274,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    public Collection<String> getCertList(ConfigurationRequest request) {
-
-        Collection<String> certList = new ArrayList<String>();
-
-        try {
-            String value = cs.getString("preop.cert.list");
-            certList.addAll(Arrays.asList(value.split(",")));
-
-        } catch (Exception e) {
-            logger.error("Unable to get certList from config file: " + e.getMessage(), e);
-            throw new PKIException("Unable to get certList from config file: " + e, e);
-        }
-
-        return certList;
-    }
-
     public void processCerts(
             ConfigurationRequest request,
-            Collection<String> certList,
             Collection<Cert> certs) throws Exception {
 
         boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
         boolean generateSubsystemCert = request.getGenerateSubsystemCert();
+
+        String value = cs.getString("preop.cert.list");
+        String[] certList = value.split(",");
 
         for (String tag : certList) {
 
@@ -892,7 +875,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    private void configureClone(ConfigurationRequest data, Collection<String> certList, String token, String domainXML) throws Exception {
+    private void configureClone(ConfigurationRequest data, String token, String domainXML) throws Exception {
+
+        String value = cs.getString("preop.cert.list");
+        String[] certList = value.split(",");
+
         for (String tag : certList) {
             if (tag.equals("sslserver")) {
                 cs.putBoolean("preop.cert." + tag + ".enable", true);
@@ -1062,7 +1049,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     public void configureSubsystem(ConfigurationRequest request,
-            Collection<String> certList, String token, String domainXML) throws Exception {
+            String token, String domainXML) throws Exception {
 
         cs.putString("preop.subsystem.name", request.getSubsystemName());
 
@@ -1074,7 +1061,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         } else {
             cs.putString("preop.subsystem.select", "clone");
             cs.putString("subsystem.select", "Clone");
-            configureClone(request, certList, token, domainXML);
+            configureClone(request, token, domainXML);
         }
     }
 

@@ -19,7 +19,6 @@ package org.dogtagpki.server.tps.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 
 import org.dogtagpki.server.rest.SystemConfigService;
 import org.dogtagpki.server.tps.installer.TPSInstaller;
@@ -60,9 +59,9 @@ public class TPSInstallerService extends SystemConfigService  {
 
     @Override
     public void configureSubsystem(ConfigurationRequest request,
-            Collection<String> certList, String token, String domainXML) throws Exception {
+            String token, String domainXML) throws Exception {
 
-        super.configureSubsystem(request, certList, token, domainXML);
+        super.configureSubsystem(request, token, domainXML);
 
         SystemCertData subsystemCert = request.getSystemCert("subsystem");
 
