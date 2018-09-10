@@ -127,7 +127,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public void configure(ConfigurationRequest data, ConfigurationResponse response) throws Exception {
 
         if (csState.equals("1")) {
-            throw new BadRequestException("System is already configured");
+            throw new BadRequestException("System already configured");
         }
 
         logger.debug("SystemConfigService: request: " + data);
@@ -181,12 +181,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("=== Setting system Certs ===");
         response.setSystemCerts(SystemCertDataFactory.create(certs));
 
-        // backup keys
-        logger.debug("=== Backup Keys ===");
-        if (data.getBackupKeys().equals("true")) {
-            backupKeys(data);
-        }
-
         // configure admin
         logger.debug("=== Admin Configuration ===");
         if (!data.isClone()) {
@@ -200,6 +194,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: finalizeConfiguration()");
 
         try {
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
             cs.putInteger("cs.state", 1);
             ConfigurationUtils.removePreopConfigEntries();
 
@@ -219,6 +217,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: setupDatabaseUser()");
 
         try {
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
             if (!request.getSharedDB()) ConfigurationUtils.setupDBUser();
 
         } catch (PKIException e) { // normal response
@@ -237,6 +239,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: setupSecurityDomain()");
 
         try {
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
             String securityDomainType = data.getSecurityDomainType();
             if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
                 logger.debug("Creating new security domain");
@@ -595,12 +601,38 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString(csSubsystem + "." + tag + ".dn", cdata.getSubjectDN());
     }
 
-    public void backupKeys(ConfigurationRequest request) {
+    @Override
+    public void backupKeys(ConfigurationRequest request) throws Exception {
+
+        logger.debug("SystemConfigService: backupKeys()");
+
         try {
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            if (! request.getToken().equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
+                throw new BadRequestException("Unable to backup keys in HSM");
+            }
+
+            if (request.getBackupFile() == null || request.getBackupFile().length() <= 0) {
+                //TODO: also check for valid path, perhaps by touching file there
+                throw new BadRequestException("Invalid key backup file name");
+            }
+
+            if (request.getBackupPassword() == null || request.getBackupPassword().length() < 8) {
+                throw new BadRequestException("Key backup password must be at least 8 characters");
+            }
+
             ConfigurationUtils.backupKeys(request.getBackupPassword(), request.getBackupFile());
-        } catch (Exception e) {
-            logger.error("Error in creating pkcs12 to backup keys and certs: " + e.getMessage(), e);
-            throw new PKIException("Error in creating pkcs12 to backup keys and certs: " + e);
+
+        } catch (PKIException e) { // normal response
+            logger.error("Configuration failed: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Configuration failed: " + e.getMessage(), e);
+            throw e;
         }
     }
 
@@ -1219,23 +1251,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             data.setReplicateSchema("false");
         } else {
             data.setReplicateSchema("true");
-        }
-
-        if ((data.getBackupKeys() != null) && data.getBackupKeys().equals("true")) {
-            if (! data.getToken().equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
-                throw new BadRequestException("HSMs cannot publish private keys to PKCS #12 files");
-            }
-
-            if ((data.getBackupFile() == null) || (data.getBackupFile().length()<=0)) {
-                //TODO: also check for valid path, perhaps by touching file there
-                throw new BadRequestException("Invalid key backup file name");
-            }
-
-            if ((data.getBackupPassword() == null) || (data.getBackupPassword().length()<8)) {
-                throw new BadRequestException("key backup password must be at least 8 characters");
-            }
-        } else {
-            data.setBackupKeys("false");
         }
 
         if (csType.equals("CA") && (data.getHierarchy() == null)) {

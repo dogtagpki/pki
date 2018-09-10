@@ -278,6 +278,18 @@ class SystemConfigClient(object):
                                         headers)
         return response.json()
 
+    def backupKeys(self, data):
+        """
+        Backup keys.
+
+        :param data: Configuration request
+        :type data: ConfigurationRequest
+        """
+        headers = {'Content-type': 'application/json',
+                   'Accept': 'application/json'}
+        self.connection.post('/rest/installer/backupKeys', data,
+                             headers)
+
     def setupSecurityDomain(self, data):
         """
         Setup security domain.

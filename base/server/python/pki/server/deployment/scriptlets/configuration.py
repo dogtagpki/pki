@@ -1068,6 +1068,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         response = client.configure(request)
 
+        if config.str2bool(deployer.mdict['pki_backup_keys']):
+
+            config.pki_log.info(
+                'Backing up keys into %s',
+                deployer.mdict['pki_backup_keys_p12'],
+                extra=config.PKI_INDENTATION_LEVEL_0)
+
+            client.backupKeys(request)
+
         config.pki_log.info(
             "Setting up security domain",
             extra=config.PKI_INDENTATION_LEVEL_0)
