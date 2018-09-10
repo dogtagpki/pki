@@ -61,7 +61,8 @@ tps-config-cli:
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
   - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/tps/tps_config/*.py -q -s --junitxml $CI_PROJECT_DIR/tps_config_cli_junit.xml -vv
-
+  only:
+  - minor-tps-activity-cli-fix
 
 tps-activity-cli:
   stage: tier1
