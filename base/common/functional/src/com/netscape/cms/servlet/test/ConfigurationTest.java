@@ -257,7 +257,6 @@ public class ConfigurationTest {
         data.setRemoveData("true");
         data.setSecureConn("false");
 
-        data.setBackupKeys("true");
         data.setBackupFile("/tmp/testca.p12");
         data.setBackupPassword("redhat123");
 
@@ -359,7 +358,6 @@ public class ConfigurationTest {
         data.setRemoveData("true");
         data.setSecureConn("false");
 
-        data.setBackupKeys("true");
         data.setBackupFile("/tmp/testsubca.p12");
         data.setBackupPassword("redhat123");
 
@@ -461,7 +459,6 @@ public class ConfigurationTest {
         data.setRemoveData("true");
         data.setSecureConn("false");
 
-        data.setBackupKeys("true");
         data.setBackupFile("/tmp/testexternalca.p12");
         data.setBackupPassword("redhat123");
 
@@ -563,7 +560,6 @@ public class ConfigurationTest {
         data.setRemoveData("true");
         data.setSecureConn("false");
 
-        data.setBackupKeys("true");
         data.setBackupFile("/tmp/testexternalca.p12");
         data.setBackupPassword("redhat123");
 
@@ -678,8 +674,6 @@ public class ConfigurationTest {
         data.setRemoveData("true");
         data.setSecureConn("false");
 
-        data.setBackupKeys("false");
-
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert3 = new SystemCertData();
@@ -721,7 +715,6 @@ public class ConfigurationTest {
         data.setRemoveData("true");
         data.setSecureConn("false");
 
-        data.setBackupKeys("true");
         data.setBackupFile("/tmp/testkra.p12");
         data.setBackupPassword("redhat123");
 
@@ -824,7 +817,6 @@ public class ConfigurationTest {
         data.setRemoveData("true");
         data.setSecureConn("false");
 
-        data.setBackupKeys("true");
         data.setBackupFile("/tmp/testocsp.p12");
         data.setBackupPassword("redhat123");
 
@@ -916,7 +908,6 @@ public class ConfigurationTest {
         data.setRemoveData("true");
         data.setSecureConn("false");
 
-        data.setBackupKeys("true");
         data.setBackupFile("/tmp/testtks.p12");
         data.setBackupPassword("redhat123");
 

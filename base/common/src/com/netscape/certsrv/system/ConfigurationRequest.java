@@ -153,9 +153,6 @@ public class ConfigurationRequest {
     protected String issuingCA;
 
     @XmlElement
-    protected String backupKeys;
-
-    @XmlElement
     protected String backupPassword;
 
     @XmlElement
@@ -674,20 +671,6 @@ public class ConfigurationRequest {
     }
 
     /**
-     * @return the backupKeys
-     */
-    public String getBackupKeys() {
-        return backupKeys;
-    }
-
-    /**
-     * @param backupKeys the backupKeys to set
-     */
-    public void setBackupKeys(String backupKeys) {
-        this.backupKeys = backupKeys;
-    }
-
-    /**
      * @return the backupFile
      */
     public String getBackupFile() {
@@ -1077,7 +1060,6 @@ public class ConfigurationRequest {
                ", systemCertsImported=" + systemCertsImported +
                ", systemCerts=" + systemCerts +
                ", issuingCA=" + issuingCA +
-               ", backupKeys=" + backupKeys +
                ", backupPassword=XXXX" +
                ", backupFile=" + backupFile +
                ", adminUID=" + adminUID +

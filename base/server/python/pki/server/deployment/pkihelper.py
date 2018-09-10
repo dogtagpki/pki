@@ -4042,12 +4042,10 @@ class ConfigClient:
             pass
 
         # database
-        if self.subsystem != "RA":
-            self.set_database_parameters(data)
+        self.set_database_parameters(data)
 
         # backup
-        if self.mdict['pki_instance_type'] == "Tomcat":
-            self.set_backup_parameters(data)
+        self.set_backup_parameters(data)
 
         # admin user
         if not self.clone:
@@ -4389,11 +4387,8 @@ class ConfigClient:
 
     def set_backup_parameters(self, data):
         if config.str2bool(self.mdict['pki_backup_keys']):
-            data.backupKeys = "true"
             data.backupFile = self.mdict['pki_backup_keys_p12']
             data.backupPassword = self.mdict['pki_backup_password']
-        else:
-            data.backupKeys = "false"
 
     def set_admin_parameters(self, data):
         data.adminEmail = self.mdict['pki_admin_email']
