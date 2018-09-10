@@ -34,9 +34,6 @@ server_password="Secret.123"
 echo "Installing IPA ..."
 ipa-server-install -U --domain pki.test --realm PKI.TEST -p ${server_password} -a ${server_password} --setup-dns --setup-kra --auto-forwarders
 
-# Restart httpd
-systemctl restart httpd.service
-
 # Test whether IPA server is reachable
 echo ${server_password} | kinit admin && ipa ping
 

@@ -10,6 +10,7 @@ function compose {
 function upload {
     if test -f $BUILDLOG; then
         curl -k -w "\n" --upload-file $BUILDLOG https://transfer.sh/pki-build.txt >> ${BUILDDIR}/pki/logs.txt
+        cat ${BUILDDIR}/pki/logs.txt
     fi
 }
 

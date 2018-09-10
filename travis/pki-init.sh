@@ -26,9 +26,13 @@ chown ${BUILDUSER}:${BUILDUSER} ${BUILDDIR}
 # workaround for
 # [Errno 2] No such file or directory: '/var/cache/dnf/metadata_lock.pid'
 rm -f /var/cache/dnf/metadata_lock.pid
+dnf clean all
+dnf makecache || :
 
 echo "Installing basic development packages ..."
-dnf install -y dnf-plugins-core sudo wget 389-ds-base
+dnf install -y \
+    dnf-plugins-core sudo wget 389-ds-base @buildsys-build @development-tools \
+    --best --allowerasing
 
 # This needs to be installed inorder to use setup-ds.pl (changed to `dscreate`)
 # Only required >=28
@@ -38,14 +42,8 @@ then
     dnf install -y 389-ds-base-legacy-tools
 fi
 
-dnf install -y @buildsys-build @development-tools
-
 # Enable pki related COPR repo
 dnf copr enable -y @pki/${PKI_VERSION}
 
 # update, container might be outdated
 dnf update -y --best --allowerasing
-
-dnf clean all
-dnf makecache || true
-dnf makecache
