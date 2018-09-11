@@ -50,7 +50,7 @@ pki_subsystem_nickname=subsystem
 Then execute the following command:
 
 ```
-$ pkispawn -f tps.cfg -s KRA
+$ pkispawn -f tps.cfg -s TPS
 ```
 
 It will install TPS subsystem in a Tomcat instance (default is pki-tomcat) and create the following NSS databases:
