@@ -105,7 +105,7 @@ class KRAClonePrepareCLI(pki.cli.CLI):
                 pkcs12_file = a
 
             elif o == '--pkcs12-password':
-                pkcs12_password = a
+                pkcs12_password = a.encode()
 
             elif o == '--pkcs12-password-file':
                 with io.open(a, 'rb') as f:
@@ -148,7 +148,7 @@ class KRAClonePrepareCLI(pki.cli.CLI):
 
         try:
             pkcs12_password_file = os.path.join(tmpdir, 'pkcs12_password.txt')
-            with open(pkcs12_password_file, 'w') as f:
+            with open(pkcs12_password_file, 'wb') as f:
                 f.write(pkcs12_password)
 
             subsystem.export_system_cert(
