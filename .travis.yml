@@ -19,6 +19,7 @@ jobs:
         - travis/post-test-started.sh
       install:
         - travis/builder-init.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-install.sh
       script:
@@ -51,6 +52,8 @@ jobs:
       install:
         # Setup the required build environment
         - travis/builder-init.sh
+        # Initialize PKI build env
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh
         # Trigger build process
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh --with-pkgs=base,server,ca,kra
         # Initialize IPA test environment
@@ -76,6 +79,7 @@ jobs:
         - touch ${LOGS}
       install:
         - travis/builder-init.sh
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-install.sh
       script:
@@ -108,6 +112,8 @@ jobs:
       install:
         # Setup the required build environment
         - travis/builder-init.sh
+        # Initialize PKI build env
+        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh
         # Trigger build process
         - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh --with-pkgs=base,server,ca,kra
         # Initialize IPA test environment
