@@ -52,6 +52,3 @@ docker run \
 docker ps -a
 
 docker exec -i ${CONTAINER} /bin/ls -la ${BUILDDIR}
-
-# Initialize PKI build env
-docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh
