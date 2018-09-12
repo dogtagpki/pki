@@ -32,6 +32,10 @@ public interface SystemConfigResource {
     public ConfigurationResponse configure(ConfigurationRequest data) throws Exception;
 
     @POST
+    @Path("configureCerts")
+    public ConfigurationResponse configureCerts(ConfigurationRequest request) throws Exception;
+
+    @POST
     @Path("backupKeys")
     public void backupKeys(ConfigurationRequest data) throws Exception;
 

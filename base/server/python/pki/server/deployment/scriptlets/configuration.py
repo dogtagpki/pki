@@ -1066,7 +1066,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             'Configuring %s subsystem', subsystem.type,
             extra=config.PKI_INDENTATION_LEVEL_0)
 
-        response = client.configure(request)
+        client.configure(request)
+
+        config.pki_log.info(
+            'Configuring certificates',
+            extra=config.PKI_INDENTATION_LEVEL_0)
+
+        response = client.configureCerts(request)
 
         if config.str2bool(deployer.mdict['pki_backup_keys']):
 

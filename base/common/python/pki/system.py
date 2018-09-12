@@ -278,6 +278,20 @@ class SystemConfigClient(object):
                                         headers)
         return response.json()
 
+    def configureCerts(self, data):
+        """
+        Configure certificates.
+
+        :param data: Configuration request
+        :type data: ConfigurationRequest
+        :return: ConfigurationResponse
+        """
+        headers = {'Content-type': 'application/json',
+                   'Accept': 'application/json'}
+        response = self.connection.post('/rest/installer/configureCerts', data,
+                                        headers)
+        return response.json()
+
     def backupKeys(self, data):
         """
         Backup keys.

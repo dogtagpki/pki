@@ -171,31 +171,55 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         logger.debug("=== Configure CA Cert Chain ===");
         configureCACertChain(data, domainXML);
+    }
 
-        logger.debug("=== Process Certs ===");
-        Collection<Cert> certs = new ArrayList<Cert>();
-        processCerts(data, certs);
+    @Override
+    public ConfigurationResponse configureCerts(ConfigurationRequest request) throws Exception {
 
-        logger.debug("=== Handle certs ===");
-        handleCerts(certs);
+        logger.debug("SystemConfigService: configureCerts()");
 
-        logger.debug("=== Setting system Certs ===");
-        response.setSystemCerts(SystemCertDataFactory.create(certs));
+        try {
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
 
-        // configure admin
-        logger.debug("=== Admin Configuration ===");
-        if (!data.isClone()) {
+            ConfigurationResponse response = new ConfigurationResponse();
 
-            X509CertImpl cert = createAdminCert(data);
-            updateAdminUserCert(data, cert);
+            logger.debug("=== Process Certs ===");
+            Collection<Cert> certs = new ArrayList<Cert>();
+            processCerts(request, certs);
 
-            String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
-            logger.debug("SystemConfigService: admin cert: " + b64cert);
+            logger.debug("=== Handle certs ===");
+            handleCerts(certs);
 
-            SystemCertData adminCert = new SystemCertData();
-            adminCert.setCert(b64cert);
+            logger.debug("=== Setting system Certs ===");
+            response.setSystemCerts(SystemCertDataFactory.create(certs));
 
-            response.setAdminCert(adminCert);
+            // configure admin
+            logger.debug("=== Admin Configuration ===");
+            if (!request.isClone()) {
+
+                X509CertImpl cert = createAdminCert(request);
+                updateAdminUserCert(request, cert);
+
+                String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
+                logger.debug("SystemConfigService: admin cert: " + b64cert);
+
+                SystemCertData adminCert = new SystemCertData();
+                adminCert.setCert(b64cert);
+
+                response.setAdminCert(adminCert);
+            }
+
+            return response;
+
+        } catch (PKIException e) { // normal response
+            logger.error("Configuration failed: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Configuration failed: " + e.getMessage(), e);
+            throw e;
         }
     }
 
