@@ -181,7 +181,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // configure admin
         logger.debug("=== Admin Configuration ===");
         if (!data.isClone()) {
-            configureAdministrator(data, response);
+            X509CertImpl cert = configureAdministrator(data);
+
+            String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
+            logger.debug("SystemConfigService: admin cert: " + b64cert);
+
+            SystemCertData adminCert = new SystemCertData();
+            adminCert.setCert(b64cert);
+
+            response.setAdminCert(adminCert);
         }
     }
 
@@ -619,8 +627,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    public void configureAdministrator(ConfigurationRequest data, ConfigurationResponse response)
-            throws Exception {
+    public X509CertImpl configureAdministrator(ConfigurationRequest data) throws Exception {
 
         X509CertImpl admincerts[] = new X509CertImpl[1];
         ConfigurationUtils.createAdmin(data.getAdminUID(), data.getAdminEmail(),
@@ -688,13 +695,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         user.setX509Certificates(admincerts);
         ug.addUserCert(user);
 
-        String cert = Utils.base64encodeSingleLine(admincerts[0].getEncoded());
-        logger.debug("SystemConfigService: returning admin cert: " + cert);
-
-        SystemCertData adminCert = new SystemCertData();
-        adminCert.setCert(cert);
-
-        response.setAdminCert(adminCert);
+        return admincerts[0];
     }
 
     public void configureDatabase(ConfigurationRequest data) {
