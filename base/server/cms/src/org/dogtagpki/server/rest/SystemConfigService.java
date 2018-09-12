@@ -165,6 +165,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("=== System reinitializing ===");
         reinitSubsystems();
 
+        if (!data.isClone()) {
+            createAdminUser(data);
+        }
+
         logger.debug("=== Configure CA Cert Chain ===");
         configureCACertChain(data, domainXML);
 
@@ -181,7 +185,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // configure admin
         logger.debug("=== Admin Configuration ===");
         if (!data.isClone()) {
-            X509CertImpl cert = configureAdministrator(data);
+
+            X509CertImpl cert = createAdminCert(data);
+            updateAdminUserCert(data, cert);
 
             String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
             logger.debug("SystemConfigService: admin cert: " + b64cert);
@@ -627,11 +633,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    public X509CertImpl configureAdministrator(ConfigurationRequest data) throws Exception {
+    public X509CertImpl createAdminCert(ConfigurationRequest data) throws Exception {
 
-        X509CertImpl admincerts[] = new X509CertImpl[1];
-        ConfigurationUtils.createAdmin(data.getAdminUID(), data.getAdminEmail(),
-                data.getAdminName(), data.getAdminPassword());
+        X509CertImpl admincert;
 
         if (data.getImportAdminCert().equalsIgnoreCase("true")) {
 
@@ -644,7 +648,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             // Convert Admin Cert to X509CertImpl
             byte[] b = CryptoUtil.base64Decode(b64);
-            admincerts[0] = new X509CertImpl(b);
+            admincert = new X509CertImpl(b);
 
         } else {
 
@@ -661,7 +665,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 String serialno = cs.getString("preop.admincert.serialno.0");
                 ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
                 ICertificateRepository repo = ca.getCertificateRepository();
-                admincerts[0] = repo.getX509Certificate(new BigInteger(serialno, 16));
+                admincert = repo.getX509Certificate(new BigInteger(serialno, 16));
 
             } else {
 
@@ -683,19 +687,30 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                         data.getAdminCertRequest(), adminSubjectDN);
                 b64 = CryptoUtil.stripCertBrackets(b64.trim());
                 byte[] b = CryptoUtil.base64Decode(b64);
-                admincerts[0] = new X509CertImpl(b);
+                admincert = new X509CertImpl(b);
             }
         }
 
+        return admincert;
+    }
+
+    public void createAdminUser(ConfigurationRequest request) throws Exception {
+
+        ConfigurationUtils.createAdmin(request.getAdminUID(), request.getAdminEmail(),
+                request.getAdminName(), request.getAdminPassword());
+
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         engine.reinit(IUGSubsystem.ID);
+    }
+
+    public void updateAdminUserCert(ConfigurationRequest request, X509CertImpl adminCert) throws Exception {
+
+        X509CertImpl[] adminCerts = new X509CertImpl[] { adminCert };
 
         IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
-        IUser user = ug.getUser(data.getAdminUID());
-        user.setX509Certificates(admincerts);
+        IUser user = ug.getUser(request.getAdminUID());
+        user.setX509Certificates(adminCerts);
         ug.addUserCert(user);
-
-        return admincerts[0];
     }
 
     public void configureDatabase(ConfigurationRequest data) {
