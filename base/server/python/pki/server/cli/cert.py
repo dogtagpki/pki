@@ -53,6 +53,7 @@ class CertCLI(pki.cli.CLI):
         self.add_module(CertImportCLI())
         self.add_module(CertExportCLI())
         self.add_module(CertRemoveCLI())
+        self.add_module(CertFixCLI())
 
     @staticmethod
     def print_system_cert(cert, show_all=False):
@@ -1432,3 +1433,155 @@ class CertRemoveCLI(pki.cli.CLI):
 
         finally:
             nssdb.close()
+
+
+class CertFixCLI(pki.cli.CLI):
+    def __init__(self):
+        super(CertFixCLI, self).__init__(
+            'fix', 'Fix expired system certificate(s).')
+
+    def print_help(self):
+        print('Usage: pki-server cert-fix [OPTIONS] [--all (default) | --cert <Cert ID>]')
+        # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
+        # ca_audit_signing, kra_audit_signing
+        # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
+        print()
+        print('      --all                       Fix all expired system certs.')
+        print('      --cert <Cert ID>            Fix specified system cert.')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -d <database>                   Security database location '
+              '(default: ~/.dogtag/nssdb)')
+        print('  -c <NSS DB password>            NSS database password')
+        print('  -C <path>                       Input file containing the password for the'
+              ' NSS database.')
+        print('  -n <nickname>                   Client certificate nickname')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
+        print('      --help                      Show help message.')
+        print()
+
+    def execute(self, argv):
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:d:c:C:n:v', [
+                'instance=', 'all', 'cert=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        client_nssdb_location = os.getenv('HOME') + '/.dogtag/nssdb'
+        all_certs = True
+        client_nssdb_password = None
+        client_nssdb_pass_file = None
+        client_cert = None
+        fix_certs = []
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--all':
+                all_certs = True
+
+            elif o == '--cert':
+                all_certs = False
+                fix_certs.append(a)
+
+            elif o == '-d':
+                client_nssdb_location = a
+
+            elif o == '-c':
+                client_nssdb_password = a
+
+            elif o == '-C':
+                client_nssdb_pass_file = a
+
+            elif o == '-n':
+                client_cert = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                self.set_verbose(True)
+                self.set_debug(True)
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('option %s not recognized', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            logger.error('Invalid instance %s.', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        # 1. Make a list of certs to fix OR use the list provided through CLI options
+        if all_certs:
+            for subsystem in instance.subsystems:
+
+                # Retrieve the subsystem's system certificate
+                certs = subsystem.find_system_certs()
+
+                # Iterate on all subsystem's system certificate to prepend subsystem name to the ID
+                for cert in certs:
+
+                    if cert['id'] != 'sslserver' and cert['id'] != 'subsystem':
+                        cert['id'] = subsystem.name + '_' + cert['id']
+
+                    # Append only unique certificates to other subsystem certificate list
+                    if cert['id'] in fix_certs:
+                        continue
+
+                    fix_certs.append(cert['id'])
+
+        logger.info('Fixing the following certs: %s', fix_certs)
+
+        # 2. Stop the server if it's up
+        instance.stop()
+
+        # 3. Find the subsystem and Disable Self-tests
+        target_subsys = []
+        for cert in fix_certs:
+            subsystem = None
+            if cert != 'sslserver' and cert != 'subsystem':
+                subsystem = cert.split('_', 1)[0]
+
+            if subsystem not in target_subsys:
+                instance.set_self_test(False, subsystem)
+                target_subsys.append(subsystem)
+
+        # 4. Create temp SSL cert and import it
+        instance.cert_create(cert_id='sslserver', temp=True)
+        instance.cert_import(cert_id='sslserver')
+
+        # 5. Bring up the server temporarily
+        instance.start()
+
+        # 6. Place renewal request
+
+        # 7. Stop the sever
+        instance.stop()
+
+        # 8. Import the renewed system cert(s)
+
+        # 9. Enable self tests for the subsystems disabled earlier
+        for subsystem in target_subsys:
+            instance.set_self_test(True, subsystem)
+
+        # 10. Bring up the server
+        instance.start()

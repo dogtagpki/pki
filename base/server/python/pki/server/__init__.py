@@ -1005,6 +1005,63 @@ class PKIInstance(object):
             return "Dogtag 9 " + self.name
         return self.name
 
+    def set_self_test(self, status, subsystem):
+
+        cmd = [
+                'pki-server'
+        ]
+
+        if status:
+            cmd.extend(['selftest-enable'])
+        else:
+            cmd.extend(['selftest-disable'])
+
+        if subsystem:
+            cmd.extend(['--subsystem', subsystem])
+
+        cmd.extend(['--instance', self.name])
+
+        subprocess.check_call(cmd)
+
+    def cert_create(self, cert_id, client_nssdb=None, client_nssdb_pass=None,
+                    client_nssdb_pass_file=None, admin_nick=None, temp=False):
+        cmd = [
+            'pki-server', 'cert-create', '--instance', self.name
+        ]
+
+        if client_nssdb:
+            cmd.extend(['-d', client_nssdb])
+
+        if client_nssdb_pass:
+            cmd.extend(['-c', client_nssdb_pass])
+
+        if client_nssdb_pass_file:
+            cmd.extend(['-C', client_nssdb_pass_file])
+
+        if admin_nick:
+            cmd.extend(['n', admin_nick])
+
+        if cert_id:
+            cmd.extend([cert_id])
+        if temp:
+            cmd.extend(['--temp'])
+
+        logger.info('Executing CMD: %s', cmd)
+
+        subprocess.check_call(cmd)
+
+    def cert_import(self, cert_id):
+
+        cmd = [
+            'pki-server', 'cert-import', '--instance', self.name
+        ]
+        if cert_id:
+            cmd.extend([cert_id])
+
+        logger.info('Executing CMD: %s', cmd)
+
+        subprocess.check_call(cmd)
+        
 
 class PKIDatabaseConnection(object):
 
