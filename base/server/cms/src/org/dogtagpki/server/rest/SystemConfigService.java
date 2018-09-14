@@ -189,9 +189,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             Collection<Cert> certs = new ArrayList<Cert>();
             processCerts(request, certs);
 
-            logger.debug("=== Handle certs ===");
-            handleCerts(certs);
-
             logger.debug("=== Setting system Certs ===");
             response.setSystemCerts(SystemCertDataFactory.create(certs));
 
@@ -316,6 +313,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ConfigurationRequest request,
             Collection<Cert> certs) throws Exception {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
         boolean generateSubsystemCert = request.getGenerateSubsystemCert();
 
@@ -359,6 +358,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     certData);
 
             certs.add(cert);
+
+            String subsystem = cert.getSubsystem();
+            ConfigurationUtils.handleCert(cert);
+
+            if (tag.equals("signing") && subsystem.equals("ca")) {
+                engine.reinit(ICertificateAuthority.ID);
+            }
         }
 
         // make sure to commit changes here for step 1
@@ -546,25 +552,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         ConfigurationUtils.generateCertRequest(cs, tag, cert);
 
         return cert;
-    }
-
-    public void handleCerts(Collection<Cert> certs) throws Exception {
-
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-
-        for (Cert cert : certs) {
-
-            String tag = cert.getCertTag();
-            String subsystem = cert.getSubsystem();
-
-            logger.debug("=== Handling " + tag + " cert ===");
-
-            ConfigurationUtils.handleCert(cert);
-
-            if (tag.equals("signing") && subsystem.equals("ca")) {
-                engine.reinit(ICertificateAuthority.ID);
-            }
-        }
     }
 
     private void updateCloneConfiguration(SystemCertData cdata, String tag) throws NotInitializedException,
