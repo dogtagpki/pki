@@ -735,6 +735,10 @@ public class CertificateRepository extends Repository
             }
 
             s.add(name, record);
+
+        } catch (EBaseException e) {
+            throw new EBaseException("Unable to create certificate record: " + e.getMessage(), e);
+
         } finally {
             if (s != null)
                 s.close();

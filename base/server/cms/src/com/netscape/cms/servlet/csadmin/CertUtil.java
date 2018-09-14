@@ -609,7 +609,7 @@ public class CertUtil {
             X509CertImpl cert) throws Exception {
 
         logger.debug("CertUtil: createCertRecord(" +
-                profile.getName() + ", " +
+                cert.getSerialNumber() + ", " +
                 cert.getSubjectDN() + ")");
 
         ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);

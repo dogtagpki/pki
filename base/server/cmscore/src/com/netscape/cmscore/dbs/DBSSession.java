@@ -19,19 +19,8 @@ package com.netscape.cmscore.dbs;
 
 import java.util.Enumeration;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchConstraints;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPSortKey;
-import netscape.ldap.LDAPv2;
-import netscape.ldap.controls.LDAPPersistSearchControl;
-import netscape.ldap.controls.LDAPSortControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -48,6 +37,20 @@ import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.logging.ILogger;
 
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchConstraints;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPSortKey;
+import netscape.ldap.LDAPv2;
+import netscape.ldap.controls.LDAPPersistSearchControl;
+import netscape.ldap.controls.LDAPSortControl;
+
 /**
  * A class represents the database session. Operations
  * can be performed with a session.
@@ -60,6 +63,8 @@ import com.netscape.certsrv.logging.ILogger;
  */
 public class DBSSession implements IDBSSession {
 
+    public final static Logger logger = LoggerFactory.getLogger(DBSSession.class);
+
     private IDBSubsystem mDBSystem = null;
     private LDAPConnection mConn = null;
     private ILogger mLogger = CMS.getLogger();
@@ -70,13 +75,14 @@ public class DBSSession implements IDBSSession {
      * @param system the database subsytem
      * @param c the ldap connection
      */
-    public DBSSession(IDBSubsystem system, LDAPConnection c) {
+    public DBSSession(IDBSubsystem system, LDAPConnection c) throws EDBException {
         mDBSystem = system;
         mConn = c;
         try {
             // no limit
             mConn.setOption(LDAPv2.SIZELIMIT, Integer.valueOf(0));
         } catch (LDAPException e) {
+            throw new EDBException("Unable to create LDAP session: " + e.getMessage(), e);
         }
     }
 
@@ -107,6 +113,9 @@ public class DBSSession implements IDBSSession {
      * @param obj the DBobj that can be mapped to ldap attrubute set
      */
     public void add(String name, IDBObj obj) throws EBaseException {
+
+        logger.debug("DBSSession: add(" + name + ")");
+
         try {
             LDAPAttributeSet attrs = mDBSystem.getRegistry(
                     ).createLDAPAttributeSet(obj);
@@ -122,8 +131,7 @@ public class DBSSession implements IDBSSession {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
                 throw new EDBNotAvailException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
-                        name + ": " + e.getMessage()), e);
+            throw new EDBException("Unable to create LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -146,6 +154,9 @@ public class DBSSession implements IDBSSession {
      */
     public IDBObj read(String name, String attrs[])
             throws EBaseException {
+
+        logger.debug("DBSSession: read(" + name + ")");
+
         try {
             String ldapattrs[] = null;
 
@@ -180,8 +191,7 @@ public class DBSSession implements IDBSSession {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT)
                 throw new EDBRecordNotFoundException(
                         CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"));
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
-                        name + " " + e.toString()));
+            throw new EDBException("Unable to read LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -189,14 +199,16 @@ public class DBSSession implements IDBSSession {
      * Deletes object from database.
      */
     public void delete(String name) throws EBaseException {
+
+        logger.debug("DBSSession: delete(" + name + ")");
+
         try {
             mConn.delete(name);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
                 throw new EDBNotAvailException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
-                        name + " " + e.toString()));
+            throw new EDBException("Unable to delete LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -205,6 +217,9 @@ public class DBSSession implements IDBSSession {
      */
     public void modify(String name, ModificationSet mods)
             throws EBaseException {
+
+        logger.debug("DBSSession: modify(" + name + ")");
+
         try {
             LDAPModificationSet ldapMods = new
                     LDAPModificationSet();
@@ -239,8 +254,7 @@ public class DBSSession implements IDBSSession {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT)
                 throw new EDBRecordNotFoundException(
                         CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"));
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
-                        name + " " + e.toString()));
+            throw new EDBException("Unable to modify LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -271,6 +285,9 @@ public class DBSSession implements IDBSSession {
     @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter, int maxSize)
             throws EBaseException {
+
+        logger.debug("DBSSession: search(" + base+ ", " + filter + ")");
+
         try {
             String ldapattrs[] = null;
             String ldapfilter =
@@ -291,14 +308,16 @@ public class DBSSession implements IDBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
-                        e.toString()));
+            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
     }
 
     @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter, int maxSize,String sortAttribute)
             throws EBaseException {
+
+        logger.debug("DBSSession: search(" + base + ", " + filter + ")");
+
         try {
             String ldapattrs[] = null;
             String ldapfilter =
@@ -325,14 +344,16 @@ public class DBSSession implements IDBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
-                        e.toString()));
+            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
     }
 
     @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter, int maxSize, int timeLimit)
             throws EBaseException {
+
+        logger.debug("DBSSession: search(" + base + ", " + filter + ")");
+
         try {
             String ldapattrs[] = null;
             String ldapfilter =
@@ -354,8 +375,7 @@ public class DBSSession implements IDBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
-                        e.toString()));
+            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
     }
 
@@ -363,6 +383,8 @@ public class DBSSession implements IDBSSession {
     public IDBSearchResults search(String base, String filter, int maxSize,
             int timeLimit, String sortAttribute) throws EBaseException {
 
+        logger.debug("DBSSession: search(" + base + ", " + filter + ")");
+
         try {
             String ldapattrs[] = null;
             String ldapfilter =
@@ -390,8 +412,7 @@ public class DBSSession implements IDBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
-                        e.toString()));
+            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
 
     }
@@ -403,6 +424,9 @@ public class DBSSession implements IDBSSession {
     @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter,
             String attrs[]) throws EBaseException {
+
+        logger.debug("DBSSession: search(" + base + ", " + filter + ")");
+
         try {
             String ldapattrs[] = null;
 
@@ -433,13 +457,15 @@ public class DBSSession implements IDBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
-                        e.toString()));
+            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
     }
 
     public LDAPSearchResults persistentSearch(String base, String filter, String attrs[])
             throws EBaseException {
+
+        logger.debug("DBSSession: persistentSearch(" + base + ", " + filter + ")");
+
         try {
             String ldapattrs[] = null;
             if (attrs != null) {
@@ -478,12 +504,14 @@ public class DBSSession implements IDBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
-                        e.toString()));
+            throw new EDBException("Unable to search LDAP record: " + e.getMessage(), e);
         }
     }
 
     public void abandon(LDAPSearchResults results) throws EBaseException {
+
+        logger.debug("DBSSession: abandon()");
+
         try {
             mConn.abandon(results);
 
@@ -493,8 +521,7 @@ public class DBSSession implements IDBSSession {
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
             // XXX error handling, should not raise exception if
             // entry not found
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
-                        e.toString()));
+            throw new EDBException("Unable to abandon LDAP search result: " + e.getMessage(), e);
         }
     }
 
@@ -503,6 +530,9 @@ public class DBSSession implements IDBSSession {
      */
     public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[]) throws EBaseException {
+
+        logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
+
         return new DBVirtualList<T>(mDBSystem.getRegistry(), mConn, base,
                 filter, attrs);
     }
@@ -512,6 +542,9 @@ public class DBSSession implements IDBSSession {
      */
     public <T> IDBVirtualList<T> createVirtualList(String base, String filter,
             String attrs[], String sortKey[]) throws EBaseException {
+
+        logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
+
         return new DBVirtualList<T>(mDBSystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey);
     }
@@ -521,6 +554,9 @@ public class DBSSession implements IDBSSession {
      */
     public IDBVirtualList<?> createVirtualList(String base, String filter,
             String attrs[], String sortKey) throws EBaseException {
+
+        logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
+
         return new DBVirtualList<Object>(mDBSystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey);
     }
@@ -530,6 +566,9 @@ public class DBSSession implements IDBSSession {
      */
     public IDBVirtualList<?> createVirtualList(String base, String filter,
             String attrs[], String sortKey[], int pageSize) throws EBaseException {
+
+        logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
+
         return new DBVirtualList<Object>(mDBSystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey, pageSize);
     }
@@ -539,12 +578,18 @@ public class DBSSession implements IDBSSession {
      */
     public IDBVirtualList<Object> createVirtualList(String base, String filter,
             String attrs[], String sortKey, int pageSize) throws EBaseException {
+
+        logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
+
         return new DBVirtualList<Object>(mDBSystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey, pageSize);
     }
 
     public IDBVirtualList<Object> createVirtualList(String base, String filter,
             String attrs[], String startFrom, String sortKey, int pageSize) throws EBaseException {
+
+        logger.debug("DBSSession: createVirtualList(" + base + ", " + filter + ")");
+
         return new DBVirtualList<Object>(mDBSystem.getRegistry(), mConn, base,
                 filter, attrs, startFrom, sortKey, pageSize);
 
