@@ -125,6 +125,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public void configure(ConfigurationRequest data, ConfigurationResponse response) throws Exception {
 
+        authenticateRequest(data);
+
         if (csState.equals("1")) {
             throw new BadRequestException("System already configured");
         }
@@ -179,6 +181,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: configureCerts()");
 
         try {
+            authenticateRequest(request);
+
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
             }
@@ -226,6 +230,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: finalizeConfiguration()");
 
         try {
+            authenticateRequest(request);
+
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
             }
@@ -249,6 +255,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: setupDatabaseUser()");
 
         try {
+            authenticateRequest(request);
+
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
             }
@@ -266,16 +274,18 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     @Override
-    public void setupSecurityDomain(ConfigurationRequest data) throws Exception {
+    public void setupSecurityDomain(ConfigurationRequest request) throws Exception {
 
         logger.debug("SystemConfigService: setupSecurityDomain()");
 
         try {
+            authenticateRequest(request);
+
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
             }
 
-            String securityDomainType = data.getSecurityDomainType();
+            String securityDomainType = request.getSecurityDomainType();
             if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
                 logger.debug("Creating new security domain");
                 ConfigurationUtils.createSecurityDomain();
@@ -284,7 +294,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
                 // switch out security domain parameters from issuing CA security domain
                 // to subordinate CA hosted security domain
-                cs.putString("securitydomain.name", data.getSubordinateSecurityDomainName());
+                cs.putString("securitydomain.name", request.getSubordinateSecurityDomainName());
                 cs.putString("securitydomain.host", CMS.getEENonSSLHost());
                 cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
                 cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
@@ -615,6 +625,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: backupKeys()");
 
         try {
+            authenticateRequest(request);
+
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
             }
@@ -1096,10 +1108,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("preop.module.token", token);
     }
 
-    private void validateRequest(ConfigurationRequest data) throws Exception {
+    private void authenticateRequest(ConfigurationRequest request) throws Exception {
 
-        // validate installation pin
-        String pin = data.getPin();
+        String pin = request.getPin();
         if (pin == null) {
             throw new BadRequestException("No preop pin provided");
         }
@@ -1108,6 +1119,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         if (!preopPin.equals(pin)) {
             throw new BadRequestException("Incorrect pin provided");
         }
+    }
+
+    private void validateRequest(ConfigurationRequest data) throws Exception {
 
         // validate legal stand-alone PKI subsystems
         if (data.getStandAlone()) {
