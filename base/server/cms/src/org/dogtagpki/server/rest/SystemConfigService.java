@@ -355,7 +355,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 updateConfiguration(request, certData, "subsystem");
 
                 // get parameters needed for cloning
-                updateCloneConfiguration(certData, "subsystem");
+                updateCloneConfiguration(request, certData, "subsystem");
                 continue;
             }
 
@@ -392,6 +392,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         String tag = certData.getTag();
         String tokenName = certData.getToken();
+        if (StringUtils.isEmpty(tokenName)) {
+            tokenName = request.getToken();
+        }
+
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
         logger.debug("SystemConfigService.processKeyPair(" + tag + ")");
@@ -459,6 +463,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         String tag = certData.getTag();
         String tokenName = certData.getToken();
+        if (StringUtils.isEmpty(tokenName)) {
+            tokenName = request.getToken();
+        }
 
         logger.debug("SystemConfigService.processCert(" + tag + ")");
 
@@ -564,10 +571,16 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         return cert;
     }
 
-    private void updateCloneConfiguration(SystemCertData cdata, String tag) throws NotInitializedException,
+    private void updateCloneConfiguration(
+            ConfigurationRequest request,
+            SystemCertData cdata,
+            String tag) throws NotInitializedException,
             ObjectNotFoundException, TokenException {
 
         String tokenName = cdata.getToken();
+        if (StringUtils.isEmpty(tokenName)) {
+            tokenName = request.getToken();
+        }
 
         // TODO - some of these parameters may only be valid for RSA
         CryptoManager cryptoManager = CryptoManager.getInstance();
@@ -607,10 +620,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     private void updateConfiguration(ConfigurationRequest data, SystemCertData cdata, String tag) {
-        if (CryptoUtil.isInternalToken(cdata.getToken())) {
+        String tokenName = cdata.getToken();
+        if (StringUtils.isEmpty(tokenName)) {
+            tokenName = data.getToken();
+        }
+
+        if (CryptoUtil.isInternalToken(tokenName)) {
             cs.putString(csSubsystem + ".cert." + tag + ".nickname", cdata.getNickname());
         } else {
-            cs.putString(csSubsystem + ".cert." + tag + ".nickname", cdata.getToken() +
+            cs.putString(csSubsystem + ".cert." + tag + ".nickname", tokenName +
                     ":" + cdata.getNickname());
         }
 

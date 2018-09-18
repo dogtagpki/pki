@@ -166,6 +166,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         cert = subsystem.get_subsystem_cert(tag)
         token = pki.nssdb.normalize_token(cert['token'])
 
+        if not token:
+            token = deployer.mdict['pki_token_name']
+
         nssdb = subsystem.instance.open_nssdb(token)
 
         try:
@@ -204,6 +207,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         tag = 'sslserver'
         cert = subsystem.get_subsystem_cert(tag)
         token = pki.nssdb.normalize_token(cert['token'])
+
+        if not token:
+            token = deployer.mdict['pki_token_name']
 
         nssdb = subsystem.instance.open_nssdb(token)
 
@@ -244,6 +250,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         cert = subsystem.get_subsystem_cert(tag)
         token = pki.nssdb.normalize_token(cert['token'])
 
+        if not token:
+            token = deployer.mdict['pki_token_name']
+
         nssdb = subsystem.instance.open_nssdb(token)
 
         try:
@@ -275,6 +284,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         tag = 'audit_signing'
         cert = subsystem.get_subsystem_cert(tag)
         token = pki.nssdb.normalize_token(cert['token'])
+
+        if not token:
+            token = deployer.mdict['pki_token_name']
 
         nssdb = subsystem.instance.open_nssdb(token)
 
@@ -335,6 +347,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         cert = subsystem.get_subsystem_cert(tag)
         token = pki.nssdb.normalize_token(cert['token'])
 
+        if not token:
+            token = deployer.mdict['pki_token_name']
+
         nssdb = subsystem.instance.open_nssdb(token)
 
         try:
@@ -373,6 +388,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         cert = subsystem.get_subsystem_cert(tag)
         token = pki.nssdb.normalize_token(cert['token'])
 
+        if not token:
+            token = deployer.mdict['pki_token_name']
+
         nssdb = subsystem.instance.open_nssdb(token)
 
         try:
@@ -398,6 +416,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         tag = 'signing'
         cert = subsystem.get_subsystem_cert(tag)
         token = pki.nssdb.normalize_token(cert['token'])
+
+        if not token:
+            token = deployer.mdict['pki_token_name']
 
         nssdb = subsystem.instance.open_nssdb(token)
 
@@ -517,6 +538,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         cert = subsystem.get_subsystem_cert(tag)
         nickname = cert['nickname']
         token = pki.nssdb.normalize_token(cert['token'])
+
+        if not token:
+            token = deployer.mdict['pki_token_name']
 
         nssdb.import_cert_chain(
             nickname=nickname,
