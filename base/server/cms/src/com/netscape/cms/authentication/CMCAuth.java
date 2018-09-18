@@ -126,6 +126,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
     /* authentication plug-in configuration store */
     private IConfigStore mConfig;
+    private boolean mBypassClientAuth = false;
     private static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     private static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
     public static final String TOKEN_CERT_SERIAL = "certSerialToRevoke";
@@ -212,6 +213,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         mName = name;
         mImplName = implName;
         mConfig = config;
+        mBypassClientAuth =
+                CMS.getConfigStore().getBoolean("cmc.bypassClientAuth", false);
 
         log(ILogger.LL_INFO, "Initialization complete!");
     }
@@ -881,28 +884,33 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             X509Certificate clientCert =
                                     (X509Certificate) auditContext.get(SessionContext.SSL_CLIENT_CERT);
                             if (clientCert == null) {
-                            //    createAuditSubjectFromCert(auditContext, x509Certs[0]);
-                                msg = "missing SSL client authentication certificate;";
-                                CMS.debug(method + msg);
-                                s.close();
-                                throw new EMissingCredential(
-                                        CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
-                            }
-                            netscape.security.x509.X500Name clientPrincipal =
-                                    (X500Name) clientCert.getSubjectDN();
-
-                            netscape.security.x509.X500Name cmcPrincipal =
-                                    (X500Name) x509Certs[0].getSubjectDN();
-
-                            // check ssl client cert against cmc signer
-                            if (!clientPrincipal.equals(cmcPrincipal)) {
-                                msg = "SSL client authentication certificate and CMC signer do not match";
-                                CMS.debug(method + msg);
-                                s.close();
-                                throw new EInvalidCredentials(
-                                        CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
+                                if (mBypassClientAuth) {
+                                    msg = "missing SSL client authentication certificate; allowed";
+                                    CMS.debug(method + msg);
+                                } else {
+                                    msg = "missing SSL client authentication certificate;";
+                                    CMS.debug(method + msg);
+                                    s.close();
+                                    throw new EMissingCredential(
+                                            CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
+                                }
                             } else {
-                                CMS.debug(method + "ssl client cert principal and cmc signer principal match");
+                                netscape.security.x509.X500Name clientPrincipal =
+                                        (X500Name) clientCert.getSubjectDN();
+
+                                netscape.security.x509.X500Name cmcPrincipal =
+                                        (X500Name) x509Certs[0].getSubjectDN();
+
+                                // check ssl client cert against cmc signer
+                                if (!clientPrincipal.equals(cmcPrincipal)) {
+                                    msg = "SSL client authentication certificate and CMC signer do not match";
+                                    CMS.debug(method + msg);
+                                    s.close();
+                                    throw new EInvalidCredentials(
+                                            CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
+                                } else {
+                                    CMS.debug(method + "ssl client cert principal and cmc signer principal match");
+                                }
                             }
 
                             PublicKey signKey = cert.getPublicKey();
