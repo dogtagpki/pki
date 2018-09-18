@@ -102,9 +102,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             "Generating %s CSR in %s", cert_id, csr_path,
             extra=config.PKI_INDENTATION_LEVEL_0)
 
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
-
         subject_dn = deployer.mdict['pki_%s_subject_dn' % cert_id]
 
         (key_type, key_size, curve, hash_alg) = self.get_key_params(
@@ -113,7 +110,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb.create_request(
             subject_dn=subject_dn,
             request_file=csr_path,
-            token=token,
             key_type=key_type,
             key_size=key_size,
             curve=curve,
@@ -166,16 +162,26 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             generic_exts = [generic_ext]
 
-        self.generate_csr(
-            deployer,
-            nssdb,
-            subsystem,
-            'signing',
-            csr_path,
-            basic_constraints_ext=basic_constraints_ext,
-            key_usage_ext=key_usage_ext,
-            generic_exts=generic_exts
-        )
+        tag = 'signing'
+        cert = subsystem.get_subsystem_cert(tag)
+        token = pki.nssdb.normalize_token(cert['token'])
+
+        nssdb = subsystem.instance.open_nssdb(token)
+
+        try:
+            self.generate_csr(
+                deployer,
+                nssdb,
+                subsystem,
+                tag,
+                csr_path,
+                basic_constraints_ext=basic_constraints_ext,
+                key_usage_ext=key_usage_ext,
+                generic_exts=generic_exts
+            )
+
+        finally:
+            nssdb.close()
 
     def generate_sslserver_csr(self, deployer, nssdb, subsystem):
 
@@ -195,15 +201,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             'serverAuth': True
         }
 
-        self.generate_csr(
-            deployer,
-            nssdb,
-            subsystem,
-            'sslserver',
-            csr_path,
-            key_usage_ext=key_usage_ext,
-            extended_key_usage_ext=extended_key_usage_ext
-        )
+        tag = 'sslserver'
+        cert = subsystem.get_subsystem_cert(tag)
+        token = pki.nssdb.normalize_token(cert['token'])
+
+        nssdb = subsystem.instance.open_nssdb(token)
+
+        try:
+            self.generate_csr(
+                deployer,
+                nssdb,
+                subsystem,
+                tag,
+                csr_path,
+                key_usage_ext=key_usage_ext,
+                extended_key_usage_ext=extended_key_usage_ext
+            )
+
+        finally:
+            nssdb.close()
 
     def generate_subsystem_csr(self, deployer, nssdb, subsystem):
 
@@ -224,15 +240,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             'clientAuth': True
         }
 
-        self.generate_csr(
-            deployer,
-            nssdb,
-            subsystem,
-            'subsystem',
-            csr_path,
-            key_usage_ext=key_usage_ext,
-            extended_key_usage_ext=extended_key_usage_ext
-        )
+        tag = 'subsystem'
+        cert = subsystem.get_subsystem_cert(tag)
+        token = pki.nssdb.normalize_token(cert['token'])
+
+        nssdb = subsystem.instance.open_nssdb(token)
+
+        try:
+            self.generate_csr(
+                deployer,
+                nssdb,
+                subsystem,
+                tag,
+                csr_path,
+                key_usage_ext=key_usage_ext,
+                extended_key_usage_ext=extended_key_usage_ext
+            )
+
+        finally:
+            nssdb.close()
 
     def generate_audit_signing_csr(self, deployer, nssdb, subsystem):
 
@@ -246,14 +272,24 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             'critical': True
         }
 
-        self.generate_csr(
-            deployer,
-            nssdb,
-            subsystem,
-            'audit_signing',
-            csr_path,
-            key_usage_ext=key_usage_ext
-        )
+        tag = 'audit_signing'
+        cert = subsystem.get_subsystem_cert(tag)
+        token = pki.nssdb.normalize_token(cert['token'])
+
+        nssdb = subsystem.instance.open_nssdb(token)
+
+        try:
+            self.generate_csr(
+                deployer,
+                nssdb,
+                subsystem,
+                tag,
+                csr_path,
+                key_usage_ext=key_usage_ext
+            )
+
+        finally:
+            nssdb.close()
 
     def generate_admin_csr(self, deployer, subsystem):
 
@@ -295,15 +331,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             'clientAuth': True
         }
 
-        self.generate_csr(
-            deployer,
-            nssdb,
-            subsystem,
-            'storage',
-            csr_path,
-            key_usage_ext=key_usage_ext,
-            extended_key_usage_ext=extended_key_usage_ext
-        )
+        tag = 'storage'
+        cert = subsystem.get_subsystem_cert(tag)
+        token = pki.nssdb.normalize_token(cert['token'])
+
+        nssdb = subsystem.instance.open_nssdb(token)
+
+        try:
+            self.generate_csr(
+                deployer,
+                nssdb,
+                subsystem,
+                tag,
+                csr_path,
+                key_usage_ext=key_usage_ext,
+                extended_key_usage_ext=extended_key_usage_ext
+            )
+
+        finally:
+            nssdb.close()
 
     def generate_kra_transport_csr(self, deployer, nssdb, subsystem):
 
@@ -323,15 +369,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             'clientAuth': True
         }
 
-        self.generate_csr(
-            deployer,
-            nssdb,
-            subsystem,
-            'transport',
-            csr_path,
-            key_usage_ext=key_usage_ext,
-            extended_key_usage_ext=extended_key_usage_ext
-        )
+        tag = 'transport'
+        cert = subsystem.get_subsystem_cert(tag)
+        token = pki.nssdb.normalize_token(cert['token'])
+
+        nssdb = subsystem.instance.open_nssdb(token)
+
+        try:
+            self.generate_csr(
+                deployer,
+                nssdb,
+                subsystem,
+                tag,
+                csr_path,
+                key_usage_ext=key_usage_ext,
+                extended_key_usage_ext=extended_key_usage_ext
+            )
+
+        finally:
+            nssdb.close()
 
     def generate_ocsp_signing_csr(self, deployer, nssdb, subsystem):
 
@@ -339,13 +395,23 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not csr_path:
             return
 
-        self.generate_csr(
-            deployer,
-            nssdb,
-            subsystem,
-            'signing',
-            csr_path
-        )
+        tag = 'signing'
+        cert = subsystem.get_subsystem_cert(tag)
+        token = pki.nssdb.normalize_token(cert['token'])
+
+        nssdb = subsystem.instance.open_nssdb(token)
+
+        try:
+            self.generate_csr(
+                deployer,
+                nssdb,
+                subsystem,
+                tag,
+                csr_path
+            )
+
+        finally:
+            nssdb.close()
 
     def generate_system_cert_requests(self, deployer, nssdb, subsystem):
 
