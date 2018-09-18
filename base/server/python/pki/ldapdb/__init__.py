@@ -20,11 +20,15 @@
 #
 
 from __future__ import absolute_import
+from __future__ import print_function
 
 import tempfile
 import ldap
 import os
 import shutil
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class PKILDAPDatabase(object):
@@ -81,3 +85,24 @@ class PKILDAPDatabase(object):
 
         if self.temp_dir:
             shutil.rmtree(self.temp_dir)
+
+    def get(self, base_dn, search_scope, search_filter, retrieve_attributes):
+        if not self.ldap:
+            raise Exception('LDAP instance uninitialized.')
+
+        try:
+            ldap_result_id = self.ldap.search(
+                base_dn, search_scope, search_filter, retrieve_attributes)
+            result_set = []
+            while 1:
+                result_type, result_data = self.ldap.result(ldap_result_id, 0)
+                if not result_data:
+                    break
+                else:
+                    if result_type == ldap.RES_SEARCH_ENTRY:
+                        result_set.append(result_data)
+
+            print(result_set)
+
+        except ldap.LDAPError as e:
+            logger.error(e)
