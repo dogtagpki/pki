@@ -2505,14 +2505,11 @@ class Certutil:
                     log.PKIHELPER_CERTUTIL_MISSING_PATH,
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PATH)
+
             #   Specify the 'token'
             if token:
                 command.extend(["-h", token])
-            else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_TOKEN,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_TOKEN)
+
             #   Specify the nickname of this self-signed certificate
             if nickname:
                 command.extend(["-n", nickname])

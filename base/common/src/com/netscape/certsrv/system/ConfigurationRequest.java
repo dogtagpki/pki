@@ -28,8 +28,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.netscape.cmsutil.crypto.CryptoUtil;
-
 /**
  * @author alee
  *
@@ -56,7 +54,7 @@ public class ConfigurationRequest {
     @XmlElement
     protected String pin;
 
-    @XmlElement(defaultValue=CryptoUtil.INTERNAL_TOKEN_FULL_NAME)
+    @XmlElement
     protected String token;
 
     @XmlElement

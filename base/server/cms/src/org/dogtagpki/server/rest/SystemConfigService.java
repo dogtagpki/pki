@@ -136,9 +136,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         logger.debug("=== Token Configuration ===");
         String token = data.getToken();
-        if (CryptoUtil.isInternalToken(token)) {
-            token = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
-        }
         configureToken(data, token);
 
         // configure security domain
@@ -633,7 +630,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         cs.putString(csSubsystem + "." + tag + ".nickname", cdata.getNickname());
-        cs.putString(csSubsystem + "." + tag + ".tokenname", cdata.getToken());
+        cs.putString(csSubsystem + "." + tag + ".tokenname", StringUtils.defaultString(tokenName));
         cs.putString(csSubsystem + "." + tag + ".dn", cdata.getSubjectDN());
     }
 
@@ -649,7 +646,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            if (! request.getToken().equals(CryptoUtil.INTERNAL_TOKEN_FULL_NAME)) {
+            if (! CryptoUtil.isInternalToken(request.getToken())) {
                 throw new BadRequestException("Unable to backup keys in HSM");
             }
 
@@ -1123,7 +1120,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     public void configureToken(ConfigurationRequest data, String token) {
-        cs.putString("preop.module.token", token);
+        cs.putString("preop.module.token", StringUtils.defaultString(token));
     }
 
     private void authenticateRequest(ConfigurationRequest request) throws Exception {

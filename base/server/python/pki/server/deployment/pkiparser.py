@@ -668,9 +668,8 @@ class PKIConfigParser:
         if not token:
             token = self.mdict.get('pki_token_name')
 
-        # normalize internal token name
-        if not pki.nssdb.normalize_token(token):
-            token = pki.nssdb.INTERNAL_TOKEN_FULL_NAME
+        # normalize token name
+        token = pki.nssdb.normalize_token(token)
 
         # update cert token
         self.mdict[name] = token

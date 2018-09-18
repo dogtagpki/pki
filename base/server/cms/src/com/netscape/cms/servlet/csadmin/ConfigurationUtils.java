@@ -2369,7 +2369,7 @@ public class ConfigurationUtils {
         }
 
         config.putString(subsystem + "." + certTag + ".nickname", nickname);
-        config.putString(subsystem + "." + certTag + ".tokenname", token);
+        config.putString(subsystem + "." + certTag + ".tokenname", StringUtils.defaultString(token));
 
         if (certTag.equals("audit_signing")) {
             if (!CryptoUtil.isInternalToken(token)) {
