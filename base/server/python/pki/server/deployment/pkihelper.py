@@ -2130,30 +2130,28 @@ class Password:
 
     def create_password_conf(self, path, pin, pin_sans_token=False,
                              overwrite_flag=False, critical_failure=True):
+
+        config.pki_log.info(
+            log.PKIHELPER_PASSWORD_CONF_1, path,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
         try:
             if os.path.exists(path):
-                if overwrite_flag:
-                    config.pki_log.info(
-                        log.PKIHELPER_PASSWORD_CONF_1, path,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    # overwrite the existing 'password.conf' file
-                    with open(path, "w") as fd:
-                        if pin_sans_token:
-                            fd.write(str(pin))
-                        else:
-                            fd.write(self.mdict['pki_self_signed_token'] +
-                                     "=" + str(pin))
-            else:
-                config.pki_log.info(
-                    log.PKIHELPER_PASSWORD_CONF_1, path,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                # create a new 'password.conf' file
-                with open(path, "w") as fd:
-                    if pin_sans_token:
-                        fd.write(str(pin))
-                    else:
-                        fd.write(self.mdict['pki_self_signed_token'] +
-                                 "=" + str(pin))
+                if not overwrite_flag:
+                    return
+
+            if pin_sans_token:
+                with open(path, 'w') as fd:
+                    fd.write(str(pin))
+                return
+
+            token = self.mdict['pki_self_signed_token']
+            if not pki.nssdb.normalize_token(token):
+                token = pki.nssdb.INTERNAL_TOKEN_NAME
+
+            with open(path, 'w') as fd:
+                fd.write(token + '=' + str(pin))
+
         except OSError as exc:
             config.pki_log.error(
                 log.PKI_OSERROR_1, exc,
@@ -2164,30 +2162,26 @@ class Password:
 
     def create_hsm_password_conf(self, path, pin, hsm_pin,
                                  overwrite_flag=False, critical_failure=True):
+
+        config.pki_log.info(
+            log.PKIHELPER_PASSWORD_CONF_1, path,
+            extra=config.PKI_INDENTATION_LEVEL_2)
+
         try:
             if os.path.exists(path):
-                if overwrite_flag:
-                    config.pki_log.info(
-                        log.PKIHELPER_PASSWORD_CONF_1, path,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                    # overwrite the existing 'password.conf' file
-                    with open(path, "w") as fd:
-                        fd.write(self.mdict['pki_self_signed_token'] +
-                                 "=" + str(pin) + "\n")
-                        fd.write("hardware-" +
-                                 self.mdict['pki_token_name'] +
-                                 "=" + str(hsm_pin))
-            else:
-                config.pki_log.info(
-                    log.PKIHELPER_PASSWORD_CONF_1, path,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                # create a new 'password.conf' file
-                with open(path, "w") as fd:
-                    fd.write(self.mdict['pki_self_signed_token'] +
-                             "=" + str(pin) + "\n")
-                    fd.write("hardware-" +
-                             self.mdict['pki_token_name'] +
-                             "=" + str(hsm_pin))
+                if not overwrite_flag:
+                    return
+
+            token = self.mdict['pki_self_signed_token']
+            if not pki.nssdb.normalize_token(token):
+                token = pki.nssdb.INTERNAL_TOKEN_NAME
+
+            with open(path, 'w') as fd:
+                fd.write(token + '=' + str(pin) + '\n')
+                fd.write("hardware-" +
+                         self.mdict['pki_token_name'] +
+                         "=" + str(hsm_pin))
+
         except OSError as exc:
             config.pki_log.error(
                 log.PKI_OSERROR_1, exc,
