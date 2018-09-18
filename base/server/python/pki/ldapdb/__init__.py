@@ -32,9 +32,26 @@ logger = logging.getLogger(__name__)
 
 
 class PKILDAPDatabase(object):
+    """Provides an LDAP wrapper to access 389-Directory server.
+
+    By creating an instance of this class, following LDAP
+    operations can be performed:
+
+    * Searching entries
+    * Adding entries
+    * Deleting entries
+    * Editing entries
+
+    """
 
     def __init__(self, url='ldap://localhost:389'):
+        """
+        Return a ldapdb instance with the provided URL
 
+        :param url: str
+            URL of the LDAP instance to perform operations
+
+        """
         self.url = url
 
         self.nssdb_dir = None
@@ -53,12 +70,33 @@ class PKILDAPDatabase(object):
 
     def set_credentials(self, bind_dn=None, bind_password=None,
                         client_cert_nickname=None, nssdb_password=None):
+        """
+        Set credentials to authenticate during LDAP connection establishment
+
+        :param bind_dn: str
+            The `bind_dn` to connect to the LDAP instance
+        :param bind_password: str
+            The password to the LDAP instance
+        :param client_cert_nickname: str
+            Client cert nickname to authenticate against LDAP
+        :param nssdb_password: str
+            nssdb password
+        :return:
+            None
+        """
+
         self.bind_dn = bind_dn
         self.bind_password = bind_password
         self.client_cert_nickname = client_cert_nickname
         self.nssdb_password = nssdb_password
 
     def open(self):
+        """
+        Initialize a LDAP connection object with necessary options as
+        provided earlier
+
+        :return: None
+        """
 
         self.temp_dir = tempfile.mkdtemp()
 
@@ -87,22 +125,39 @@ class PKILDAPDatabase(object):
             shutil.rmtree(self.temp_dir)
 
     def get(self, base_dn, search_scope, search_filter, retrieve_attributes):
+        """
+        Retrieve entries from the LDAP database
+
+        :param base_dn:
+            The base Distinguished Name (DN) to start search
+        :type base_dn: str
+
+        :param search_scope:
+            The scope of this search (SCOPE_BASE, SCOPE_ONELEVEL, SCOPE_SUBTREE)
+        :type search_scope: int
+
+        :param search_filter:
+            The search filter string
+        :type search_filter: str
+
+        :param retrieve_attributes:
+            List of attributes to retrieve
+        :type retrieve_attributes: list
+
+        :return:
+            Result of the query
+        :rtype: list
+
+        """
+        # If ldap object isn't initialized, no operation can be performed
         if not self.ldap:
             raise Exception('LDAP instance uninitialized.')
 
         try:
-            ldap_result_id = self.ldap.search(
+            # Perform a synchronous search
+            ldap_result = self.ldap.search_s(
                 base_dn, search_scope, search_filter, retrieve_attributes)
-            result_set = []
-            while 1:
-                result_type, result_data = self.ldap.result(ldap_result_id, 0)
-                if not result_data:
-                    break
-                else:
-                    if result_type == ldap.RES_SEARCH_ENTRY:
-                        result_set.append(result_data)
-
-            print(result_set)
+            return ldap_result
 
         except ldap.LDAPError as e:
             logger.error(e)
