@@ -230,7 +230,7 @@ install(
         WORLD_READ
 )
 
-# install Python libraries
+# install Python server libraries
 if(WITH_PYTHON3_DEFAULT)
     install(
         DIRECTORY
@@ -244,6 +244,27 @@ else()
     install(
         DIRECTORY
             python/pki/server
+        DESTINATION
+            ${PYTHON2_SITE_PACKAGES}/pki
+        FILES_MATCHING PATTERN
+            *.py
+    )
+endif()
+
+# install Python ldapdb libraries
+if(WITH_PYTHON3_DEFAULT)
+    install(
+        DIRECTORY
+            python/pki/ldapdb
+        DESTINATION
+            ${PYTHON3_SITE_PACKAGES}/pki
+        FILES_MATCHING PATTERN
+            *.py
+    )
+else()
+    install(
+        DIRECTORY
+            python/pki/ldapdb
         DESTINATION
             ${PYTHON2_SITE_PACKAGES}/pki
         FILES_MATCHING PATTERN
