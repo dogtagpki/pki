@@ -388,14 +388,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ) throws Exception {
 
         String tag = certData.getTag();
+        logger.debug("SystemConfigService.processKeyPair(" + tag + ")");
+
         String tokenName = certData.getToken();
         if (StringUtils.isEmpty(tokenName)) {
             tokenName = request.getToken();
         }
 
+        logger.debug("SystemConfigService: token: " + tokenName);
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
-
-        logger.debug("SystemConfigService.processKeyPair(" + tag + ")");
 
         String keytype = certData.getKeyType() != null ? certData.getKeyType() : "rsa";
 
@@ -482,13 +483,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             fullName = nickname;
         }
 
-        logger.debug("SystemConfigService: checking " + tag + " cert in NSS database");
+        logger.debug("SystemConfigService: loading " + tag + " cert: " + fullName);
 
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate x509Cert;
         try {
             x509Cert = cm.findCertByNickname(fullName);
         } catch (ObjectNotFoundException e) {
+            logger.warn("SystemConfigService: cert not found: " + fullName);
             x509Cert = null;
         }
 

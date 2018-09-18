@@ -1102,8 +1102,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_target_tomcat_conf_instance_id'])
         tomcat_instance_subsystems = \
             len(deployer.instance.tomcat_instance_subsystems())
+
         if tomcat_instance_subsystems == 1:
             deployer.systemd.start()
+
         elif tomcat_instance_subsystems > 1:
             deployer.systemd.restart()
 

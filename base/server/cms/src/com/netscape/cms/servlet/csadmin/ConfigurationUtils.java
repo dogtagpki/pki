@@ -1865,8 +1865,13 @@ public class ConfigurationUtils {
             nickname = token + ":" + nickname;
         }
 
+        logger.debug("ConfigurationUtils: loading cert: " + nickname);
         X509Certificate cert = cm.findCertByNickname(nickname);
+
+        logger.debug("ConfigurationUtils: loading public key");
         PublicKey publicKey = cert.getPublicKey();
+
+        logger.debug("ConfigurationUtils: loading private key");
         PrivateKey privateKey = cm.findPrivKeyByCert(cert);
 
         return new KeyPair(publicKey, privateKey);

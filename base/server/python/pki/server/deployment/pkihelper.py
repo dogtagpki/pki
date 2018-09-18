@@ -3647,9 +3647,9 @@ class Systemd(object):
             # Compose this "systemd" execution management lifecycle command
             command = ["systemctl", "daemon-reload"]
             # Display this "systemd" execution management lifecycle command
-            config.pki_log.info(
-                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.debug(
+                'Command: %s', ' '.join(command),
+                extra=config.PKI_INDENTATION_LEVEL_0)
             # Execute this "systemd" execution management lifecycle command
             subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
@@ -3780,6 +3780,11 @@ class Systemd(object):
         Examples:
 
         """
+
+        config.pki_log.info(
+            'Starting %s instance', self.mdict['pki_instance_name'],
+            extra=config.PKI_INDENTATION_LEVEL_0)
+
         try:
             # Execute the "systemd daemon-reload" management lifecycle command
             if reload_daemon:
@@ -3792,11 +3797,13 @@ class Systemd(object):
                 command = ["systemctl", "start", self.service_name]
 
             # Display this "systemd" execution managment command
-            config.pki_log.info(
-                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.debug(
+                'Command: %s', ' '.join(command),
+                extra=config.PKI_INDENTATION_LEVEL_0)
+
             # Execute this "systemd" execution management command
             subprocess.check_call(command)
+
         except subprocess.CalledProcessError as exc:
             if pki.system.SYSTEM_TYPE == "debian":
                 if exc.returncode == 6:
@@ -3829,6 +3836,11 @@ class Systemd(object):
         Examples:
 
         """
+
+        config.pki_log.info(
+            'Stopping %s instance', self.mdict['pki_instance_name'],
+            extra=config.PKI_INDENTATION_LEVEL_0)
+
         try:
             if pki.system.SYSTEM_TYPE == "debian":
                 command = ["/etc/init.d/pki-tomcatd", "stop",
@@ -3837,11 +3849,13 @@ class Systemd(object):
                 command = ["systemctl", "stop", self.service_name]
 
             # Display this "systemd" execution managment command
-            config.pki_log.info(
-                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.debug(
+                'Command: %s', ' '.join(command),
+                extra=config.PKI_INDENTATION_LEVEL_0)
+
             # Execute this "systemd" execution management command
             subprocess.check_call(command)
+
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(
                 log.PKI_SUBPROCESS_ERROR_1, exc,
@@ -3875,6 +3889,11 @@ class Systemd(object):
         Examples:
 
         """
+
+        config.pki_log.info(
+            'Restarting %s instance', self.mdict['pki_instance_name'],
+            extra=config.PKI_INDENTATION_LEVEL_0)
+
         try:
             # Compose this "systemd" execution management command
             # Execute the "systemd daemon-reload" management lifecycle command
@@ -3888,11 +3907,13 @@ class Systemd(object):
                 command = ["systemctl", "restart", self.service_name]
 
             # Display this "systemd" execution managment command
-            config.pki_log.info(
-                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            config.pki_log.debug(
+                'Command: %s', ' '.join(command),
+                extra=config.PKI_INDENTATION_LEVEL_0)
+
             # Execute this "systemd" execution management command
             subprocess.check_call(command)
+
         except subprocess.CalledProcessError as exc:
             if pki.system.SYSTEM_TYPE == "debian":
                 if exc.returncode == 6:
