@@ -15,7 +15,7 @@ Prepare a file (e.g. ocsp.cfg) that contains the deployment configuration, for e
 [DEFAULT]
 pki_server_database_password=Secret.123
 
-[CA]
+[OCSP]
 pki_admin_cert_file=ca_admin.cert
 pki_admin_email=ocspadmin@example.com
 pki_admin_name=ocspadmin

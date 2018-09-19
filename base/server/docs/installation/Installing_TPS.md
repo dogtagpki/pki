@@ -15,7 +15,7 @@ Prepare a file (e.g. tps.cfg) that contains the deployment configuration, for ex
 [DEFAULT]
 pki_server_database_password=Secret.123
 
-[CA]
+[TPS]
 pki_admin_cert_file=ca_admin.cert
 pki_admin_email=tpsadmin@example.com
 pki_admin_name=tpsadmin

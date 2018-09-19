@@ -15,7 +15,7 @@ Prepare a file (e.g. kra-step1.cfg) that contains the deployment configuration s
 [DEFAULT]
 pki_server_database_password=Secret.123
 
-[CA]
+[KRA]
 pki_admin_email=kraadmin@example.com
 pki_admin_name=kraadmin
 pki_admin_nickname=kraadmin
