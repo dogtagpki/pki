@@ -27,6 +27,7 @@ import ldap
 import os
 import shutil
 import logging
+import ldap.modlist as modlist
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +127,7 @@ class PKILDAPDatabase(object):
 
     def get(self, base_dn, search_scope, search_filter, retrieve_attributes):
         """
-        Retrieve entries from the LDAP database
+        Retrieve entries from the LDAP database synchronously
 
         :param base_dn:
             The base Distinguished Name (DN) to start search
@@ -149,6 +150,7 @@ class PKILDAPDatabase(object):
         :rtype: list
 
         """
+
         # If ldap object isn't initialized, no operation can be performed
         if not self.ldap:
             raise Exception('LDAP instance uninitialized.')
@@ -161,3 +163,43 @@ class PKILDAPDatabase(object):
 
         except ldap.LDAPError as e:
             logger.error(e)
+
+    def put(self, dn, attr):
+        """
+        Add an entry to the LDAP database synchronously
+
+        :param dn:
+            The base Distinguished Name (DN) to start search
+        :type dn: str
+
+        :param attr:
+            The scope of this search (SCOPE_BASE, SCOPE_ONELEVEL, SCOPE_SUBTREE)
+        :type attr: dict
+
+        :return:
+            Result of the insert operation
+        :rtype: bool
+
+        """
+
+        if not self.ldap:
+            raise Exception('LDAP instance uninitialized.')
+
+        try:
+            logger.debug('Converting dict to LDAP entry syntax')
+            # Convert our dict to nice syntax for the add-function
+            ldif = modlist.addModlist(attr)
+
+            logger.debug('Adding entry to LDAP db')
+            # Perform a synchronous add operation
+            ldap_result = self.ldap.add_s(dn, ldif)
+
+            if ldap_result:
+                return True
+
+        except ldap.LDAPError as e:
+            logger.error(e)
+
+        return False
+
+
