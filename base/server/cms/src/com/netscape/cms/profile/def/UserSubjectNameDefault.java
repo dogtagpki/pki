@@ -105,7 +105,13 @@ public class UserSubjectNameDefault extends EnrollDefault {
                      * keep the old name so that the attribute
                      * encodings are preserved. */
                     X500Name oldX500name = oldName.getX500Name();
-                    if (x500name.toString().equals(oldX500name.toString())) {
+                    if (x500name == null) {
+                        CMS.debug( method
+                            + "new Subject DN is null; "
+                            + "retaining current value."
+                        );
+                        x500name = oldX500name;
+                    } else if (x500name.toString().equals(oldX500name.toString())) {
                         CMS.debug( method
                             + "new Subject DN has same string representation "
                             + "as current value; retaining current value."
@@ -196,6 +202,12 @@ public class UserSubjectNameDefault extends EnrollDefault {
         // to the certinfo
         CertificateSubjectName req_sbj = request.getExtDataInCertSubjectName(
                     IEnrollProfile.REQUEST_SUBJECT_NAME);
+        if (req_sbj == null) {
+            // failed to retrieve subject name
+            CMS.debug("UserSubjectNameDefault: populate req_sbj is null");
+            throw new EProfileException(CMS.getUserMessage(getLocale(request),
+                        "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
+        }
         try {
             info.set(X509CertInfo.SUBJECT, req_sbj);
 
