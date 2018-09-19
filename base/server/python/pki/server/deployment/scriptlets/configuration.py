@@ -946,13 +946,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         finally:
             nssdb.close()
 
-    def import_perm_sslserver_cert(self, instance, sslserver):
+    def import_perm_sslserver_cert(self, deployer, instance, cert):
 
-        nickname = sslserver['nickname']
-        token = pki.nssdb.normalize_token(sslserver['token'])
+        nickname = cert['nickname']
+        token = pki.nssdb.normalize_token(cert['token'])
 
         if not token:
-            token = pki.nssdb.INTERNAL_TOKEN_NAME
+            token = deployer.mdict['pki_token_name']
 
         config.pki_log.info(
             "Importing permanent SSL server cert into %s token: %s", token, nickname,
@@ -962,7 +962,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = instance.open_nssdb(token)
 
         try:
-            pem_cert = pki.nssdb.convert_cert(sslserver['data'], 'base64', 'pem')
+            pem_cert = pki.nssdb.convert_cert(cert['data'], 'base64', 'pem')
 
             cert_file = os.path.join(tmpdir, 'sslserver.crt')
             with open(cert_file, 'w') as f:
@@ -1327,7 +1327,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 token = sslserver['token']
                 instance.set_sslserver_cert_nickname(nickname, token)
 
-                self.import_perm_sslserver_cert(instance, sslserver)
+                self.import_perm_sslserver_cert(deployer, instance, sslserver)
 
             deployer.systemd.start()
 
