@@ -20,12 +20,17 @@
 
 # System Imports
 from __future__ import absolute_import
+import logging
 import os
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from .. import pkimessages as log
 from .. import pkiscriptlet
+
+logger = logging.LoggerAdapter(
+    logging.getLogger('instance'),
+    extra={'indent': ''})
 
 
 # PKI Deployment Instance Layout Scriptlet
@@ -34,12 +39,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def spawn(self, deployer):
 
         if config.str2bool(deployer.mdict['pki_skip_installation']):
-            config.pki_log.info(log.SKIP_INSTANCE_SPAWN_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.info('Skipping instance creation')
             return
 
-        config.pki_log.info(log.INSTANCE_SPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Creating instance')
 
         # if this is not the first subsystem, skip
         if len(deployer.instance.tomcat_instance_subsystems()) != 1:
@@ -237,8 +240,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
-        config.pki_log.info(log.INSTANCE_DESTROY_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Removing instance')
 
         # if this is not the last subsystem, skip
         if len(deployer.instance.tomcat_instance_subsystems()) != 0:
@@ -276,8 +278,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 # Don't copy the shared ldif files:
 # schema.ldif, manager.ldif, database.ldif
 def file_ignore_callback_src_server(src, names):
-    config.pki_log.info(log.FILE_EXCLUDE_CALLBACK_2, src, names,
-                        extra=config.PKI_INDENTATION_LEVEL_1)
+    logger.debug(log.FILE_EXCLUDE_CALLBACK_2, src, names)
 
     return {
         'catalina.properties',

@@ -19,11 +19,16 @@
 #
 
 from __future__ import absolute_import
+import logging
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from .. import pkimessages as log
 from .. import pkiscriptlet
+
+logger = logging.LoggerAdapter(
+    logging.getLogger('finalization'),
+    extra={'indent': ''})
 
 
 # PKI Deployment Finalization Scriptlet
@@ -37,12 +42,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         skip_configuration = deployer.configuration_file.skip_configuration
 
         if (external or standalone) and step_one or skip_configuration:
-            config.pki_log.info(log.SKIP_FINALIZATION_SPAWN_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.info('Skipping finalization')
             return
 
-        config.pki_log.info(log.FINALIZATION_SPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Finalizing subsystem creation')
 
         # Optionally, programmatically 'enable' the configured PKI instance
         # to be started upon system boot (default is True)
@@ -64,16 +67,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.directory.delete(
                     deployer.mdict['pki_client_subsystem_dir'])
         # Log final process messages
-        config.pki_log.info(log.PKISPAWN_END_MESSAGE_2,
-                            deployer.mdict['pki_subsystem'],
-                            deployer.mdict['pki_instance_name'],
-                            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info(log.PKISPAWN_END_MESSAGE_2,
+                    deployer.mdict['pki_subsystem'],
+                    deployer.mdict['pki_instance_name'])
         deployer.file.modify(deployer.mdict['pki_spawn_log'], silent=True)
 
     def destroy(self, deployer):
 
-        config.pki_log.info(log.FINALIZATION_DESTROY_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Finalizing subsystem removal')
+
         deployer.file.modify(deployer.mdict['pki_destroy_log'], silent=True)
         # If this is the last remaining PKI instance, ALWAYS remove the
         # link to start configured PKI instances upon system reboot
@@ -83,7 +85,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Start this Tomcat PKI Process
         if len(deployer.instance.tomcat_instance_subsystems()) >= 1:
             deployer.systemd.start()
-        config.pki_log.info(log.PKIDESTROY_END_MESSAGE_2,
-                            deployer.mdict['pki_subsystem'],
-                            deployer.mdict['pki_instance_name'],
-                            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info(log.PKIDESTROY_END_MESSAGE_2,
+                    deployer.mdict['pki_subsystem'],
+                    deployer.mdict['pki_instance_name'])

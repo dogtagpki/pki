@@ -20,7 +20,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
-
+import logging
 import os
 import shutil
 
@@ -31,8 +31,11 @@ import pki.util
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
-from .. import pkimessages as log
 from .. import pkiscriptlet
+
+logger = logging.LoggerAdapter(
+    logging.getLogger('nssdb'),
+    extra={'indent': ''})
 
 
 # PKI Deployment Security Databases Scriptlet
@@ -41,12 +44,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def spawn(self, deployer):
 
         if config.str2bool(deployer.mdict['pki_skip_installation']):
-            config.pki_log.info(log.SKIP_SECURITY_DATABASES_SPAWN_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.info('Skipping NSS database creation')
             return
 
-        config.pki_log.info(log.SECURITY_DATABASES_SPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Creating NSS database')
 
         instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
@@ -262,8 +263,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
-        config.pki_log.info(log.SECURITY_DATABASES_DESTROY_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Removing NSS database')
+
         if len(deployer.instance.tomcat_instance_subsystems()) == 0:
             shutil.rmtree(deployer.mdict['pki_server_database_path'])
             deployer.file.delete(deployer.mdict['pki_shared_password_conf'])

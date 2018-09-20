@@ -24,6 +24,7 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.x509.oid import NameOID
 import json
+import logging
 import os
 import re
 import shutil
@@ -39,6 +40,10 @@ import pki.nssdb
 import pki.server
 import pki.system
 import pki.util
+
+logger = logging.LoggerAdapter(
+    logging.getLogger('configuration'),
+    extra={'indent': ''})
 
 
 # PKI Deployment Configuration Scriptlet
@@ -98,9 +103,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         cert_id = self.get_cert_id(subsystem, tag)
 
-        config.pki_log.info(
-            "Generating %s CSR in %s", cert_id, csr_path,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Generating %s CSR in %s', cert_id, csr_path)
 
         subject_dn = deployer.mdict['pki_%s_subject_dn' % cert_id]
 
@@ -460,9 +463,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not csr_path or not os.path.exists(csr_path):
             return
 
-        config.pki_log.info(
-            "Importing %s CSR from %s", tag, csr_path,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Importing %s CSR from %s', tag, csr_path)
 
         with open(csr_path) as f:
             csr_data = f.read()
@@ -476,9 +477,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not csr_path or not os.path.exists(csr_path):
             return
 
-        config.pki_log.info(
-            "Importing ca_signing CSR from %s", csr_path,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Importing ca_signing CSR from %s', csr_path)
 
         with open(csr_path) as f:
             csr_data = f.read()
@@ -511,9 +510,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         nickname = deployer.mdict['pki_ca_signing_nickname']
 
-        config.pki_log.info(
-            "Importing ca_signing certificate from %s", cert_file,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Importing ca_signing certificate from %s', cert_file)
 
         nssdb.import_cert_chain(
             nickname=nickname,
@@ -531,9 +528,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not cert_file or not os.path.exists(cert_file):
             return
 
-        config.pki_log.info(
-            "Importing %s certificate from %s", cert_id, cert_file,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Importing %s certificate from %s', cert_id, cert_file)
 
         cert = subsystem.get_subsystem_cert(tag)
         nickname = cert['nickname']
@@ -561,9 +556,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             password=deployer.mdict['pki_client_database_password'])
 
         try:
-            config.pki_log.info(
-                "Importing admin certificate from %s", cert_file,
-                extra=config.PKI_INDENTATION_LEVEL_0)
+            logger.info('Importing admin certificate from %s', cert_file)
 
             client_nssdb.import_cert_chain(
                 nickname=nickname,
@@ -579,9 +572,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not pkcs12_file or not os.path.exists(pkcs12_file):
             return
 
-        config.pki_log.info(
-            "Importing certificates and keys from %s", pkcs12_file,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Importing certificates and keys from %s', pkcs12_file)
 
         pkcs12_password = deployer.mdict['pki_external_pkcs12_password']
         nssdb.import_pkcs12(pkcs12_file, pkcs12_password)
@@ -595,9 +586,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         nickname = deployer.mdict['pki_cert_chain_nickname']
 
-        config.pki_log.info(
-            "Importing certificate chain from %s", chain_file,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Importing certificate chain from %s', chain_file)
 
         nssdb.import_cert_chain(
             nickname=nickname,
@@ -670,9 +659,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def configure_ca_signing_cert(self, deployer, subsystem):
 
-        config.pki_log.info(
-            "Configuring ca_signing certificate",
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Configuring ca_signing certificate')
 
         self.configure_system_cert(deployer, subsystem, 'signing')
 
@@ -681,41 +668,31 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def configure_ca_ocsp_signing_cert(self, deployer, subsystem):
 
-        config.pki_log.info(
-            "Configuring ca_ocsp_signing certificate",
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Configuring ca_ocsp_signing certificate')
 
         self.configure_system_cert(deployer, subsystem, 'ocsp_signing')
 
     def configure_sslserver_cert(self, deployer, subsystem):
 
-        config.pki_log.info(
-            "Configuring sslserver certificate",
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Configuring sslserver certificate')
 
         self.configure_system_cert(deployer, subsystem, 'sslserver')
 
     def configure_subsystem_cert(self, deployer, subsystem):
 
-        config.pki_log.info(
-            "Configuring subsystem certificate",
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Configuring subsystem certificate')
 
         self.configure_system_cert(deployer, subsystem, 'subsystem')
 
     def configure_audit_signing_cert(self, deployer, subsystem):
 
-        config.pki_log.info(
-            "Configuring audit_signing certificate",
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Configuring audit_signing certificate')
 
         self.configure_system_cert(deployer, subsystem, 'audit_signing')
 
     def update_admin_cert(self, deployer, subsystem):
 
-        config.pki_log.info(
-            "Updating admin certificate",
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Updating admin certificate')
 
         client_nssdb = pki.nssdb.NSSDatabase(
             directory=deployer.mdict['pki_client_database_dir'],
@@ -736,25 +713,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def configure_kra_storage_cert(self, deployer, subsystem):
 
-        config.pki_log.info(
-            "Configuring kra_storage certificate",
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Configuring kra_storage certificate')
 
         self.configure_system_cert(deployer, subsystem, 'storage')
 
     def configure_kra_transport_cert(self, deployer, subsystem):
 
-        config.pki_log.info(
-            "Configuring kra_transport certificate",
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Configuring kra_transport certificate')
 
         self.configure_system_cert(deployer, subsystem, 'transport')
 
     def configure_ocsp_signing_cert(self, deployer, subsystem):
 
-        config.pki_log.info(
-            "Configuring ocsp_signing certificate",
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Configuring ocsp_signing certificate')
 
         self.configure_system_cert(deployer, subsystem, 'signing')
 
@@ -804,9 +775,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not cert_data:
             return
 
-        config.pki_log.info(
-            "Validating %s certificate", tag,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Validating %s certificate', tag)
 
         subsystem.validate_system_cert(tag)
 
@@ -837,9 +806,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         try:
             nickname = deployer.mdict['pki_self_signed_nickname']
 
-            config.pki_log.info(
-                "Checking existing SSL server cert: %s", nickname,
-                extra=config.PKI_INDENTATION_LEVEL_0)
+            logger.info('Checking existing SSL server cert: %s', nickname)
 
             pem_cert = nssdb.get_cert(
                 nickname=nickname)
@@ -849,25 +816,19 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 cn = cert.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0]
                 hostname = cn.value
 
-                config.pki_log.info(
-                    "existing SSL server cert is for %s", hostname,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.info('Existing SSL server cert is for %s', hostname)
 
                 # if hostname is correct, don't create temp cert
                 if hostname == deployer.mdict['pki_hostname']:
                     return False
 
-                config.pki_log.info(
-                    "removing SSL server cert for %s", hostname,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.info('Removing SSL server cert for %s', hostname)
 
                 nssdb.remove_cert(
                     nickname=nickname,
                     remove_key=True)
 
-            config.pki_log.info(
-                "Creating temp SSL server cert for %s", deployer.mdict['pki_hostname'],
-                extra=config.PKI_INDENTATION_LEVEL_0)
+            logger.info('Creating temp SSL server cert for %s', deployer.mdict['pki_hostname'])
 
             instance.set_sslserver_cert_nickname(nickname)
 
@@ -926,9 +887,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nickname = sslserver['nickname']
         token = sslserver['token']
 
-        config.pki_log.info(
-            "Removing temp SSL server cert from internal token: %s", nickname,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info(
+            'Removing temp SSL server cert from internal token: %s',
+            nickname)
 
         nssdb = instance.open_nssdb()
 
@@ -954,9 +915,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if not token:
             token = deployer.mdict['pki_token_name']
 
-        config.pki_log.info(
-            "Importing permanent SSL server cert into %s token: %s", token, nickname,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info(
+            'Importing permanent SSL server cert into %s token: %s',
+            token, nickname)
 
         tmpdir = tempfile.mkdtemp()
         nssdb = instance.open_nssdb(token)
@@ -987,12 +948,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             PKISPAWN_STARTUP_TIMEOUT_SECONDS = 60
 
         if config.str2bool(deployer.mdict['pki_skip_configuration']):
-            config.pki_log.info(log.SKIP_CONFIGURATION_SPAWN_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.info('Skipping configuration')
             return
 
-        config.pki_log.info(log.CONFIGURATION_SPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Configuring subsystem')
 
         # Place "slightly" less restrictive permissions on
         # the top-level client directory ONLY
@@ -1037,9 +996,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # set ephemeral requests if needed
         if subsystem.name == 'kra':
             if config.str2bool(deployer.mdict['pki_kra_ephemeral_requests']):
-                config.pki_log.info(
-                    "setting ephemeral requests to true",
-                    extra=config.PKI_INDENTATION_LEVEL_1)
+                logger.debug('Setting ephemeral requests to true')
                 subsystem.config['kra.ephemeralRequests'] = 'true'
                 subsystem.save()
 
@@ -1125,9 +1082,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             request_timeout=status_request_timeout,
         )
         if status is None:
-            config.pki_log.error(
-                "server failed to restart",
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error('Server failed to restart')
             raise Exception("server failed to restart")
 
         # Optionally wait for debugger to attach (e. g. - 'eclipse'):
@@ -1154,57 +1109,42 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         client = pki.system.SystemConfigClient(connection)
 
-        config.pki_log.info(
-            'Configuring %s subsystem', subsystem.type,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Configuring %s subsystem', subsystem.type)
 
         client.configure(request)
 
-        config.pki_log.info(
-            'Configuring certificates',
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Configuring certificates')
 
         response = client.configureCerts(request)
 
         if config.str2bool(deployer.mdict['pki_backup_keys']):
 
-            config.pki_log.info(
+            logger.info(
                 'Backing up keys into %s',
-                deployer.mdict['pki_backup_keys_p12'],
-                extra=config.PKI_INDENTATION_LEVEL_0)
+                deployer.mdict['pki_backup_keys_p12'])
 
             client.backupKeys(request)
 
-        config.pki_log.info(
-            "Setting up security domain",
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Setting up security domain')
 
         client.setupSecurityDomain(request)
 
-        config.pki_log.info(
-            "Setting up database user",
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Setting up database user')
 
         client.setupDatabaseUser(request)
 
-        config.pki_log.info(
-            "Finalizing %s configuration", subsystem.type,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Finalizing %s configuration', subsystem.type)
 
         client.finalizeConfiguration(request)
 
-        config.pki_log.info(
-            '%s configuration complete', subsystem.type,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('%s configuration complete', subsystem.type)
 
         # Create an empty file that designates the fact that although
         # this server instance has been configured, it has NOT yet
         # been restarted!
 
         restart_server = os.path.join(instance.conf_dir, 'restart_server_after_configuration')
-        config.pki_log.debug(
-            'creating %s', restart_server,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+        logger.debug('Creating %s', restart_server)
 
         open(restart_server, 'a').close()
         os.chown(restart_server, instance.uid, instance.gid)
@@ -1214,9 +1154,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             certs = response['systemCerts']
         except KeyError:
             # no system certs created
-            config.pki_log.debug(
-                "No new system certificates generated.",
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.debug('No new system certificates generated')
             certs = []
 
         if not isinstance(certs, list):
@@ -1286,12 +1224,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         deployer.mdict['pki_transport_csr_path'])
 
             else:
-                config.pki_log.debug(
-                    '%s cert: %s', cdata['tag'], cdata['cert'],
-                    extra=config.PKI_INDENTATION_LEVEL_0)
-                config.pki_log.debug(
-                    '%s request: %s', cdata['tag'], cdata['request'],
-                    extra=config.PKI_INDENTATION_LEVEL_0)
+                logger.debug('%s cert: %s', cdata['tag'], cdata['cert'])
+                logger.debug('%s request: %s', cdata['tag'], cdata['request'])
 
         # Cloned PKI subsystems do not return an Admin Certificate
         if not clone:
@@ -1354,15 +1288,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             )
 
         if not status:
-            config.pki_log.error(
-                "server failed to restart",
-                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.error('Server failed to restart')
             raise RuntimeError("server failed to restart")
 
     def destroy(self, deployer):
 
-        config.pki_log.info(log.CONFIGURATION_DESTROY_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Destroying subsystem')
+
         if len(deployer.instance.tomcat_instance_subsystems()) == 1:
             if deployer.directory.exists(deployer.mdict['pki_client_dir']):
                 deployer.directory.delete(deployer.mdict['pki_client_dir'])

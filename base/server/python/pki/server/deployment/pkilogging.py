@@ -55,7 +55,7 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
     # Configure console handler
     console = logging.StreamHandler()
     console.setLevel(console_log_level)
-    console_format = logging.Formatter('%(name)-12s: ' +
+    console_format = logging.Formatter('%(name)-14s: ' +
                                        '%(levelname)-8s ' +
                                        '%(indent)s%(message)s')
     console.setFormatter(console_format)
@@ -63,11 +63,17 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
     # Configure file handler
     log_file = logging.FileHandler(log_dir + "/" + log_name, 'w')
     log_file.setLevel(log_level)
-    file_format = logging.Formatter('%(asctime)s %(name)-12s: ' +
+    file_format = logging.Formatter('%(asctime)s %(name)-14s: ' +
                                     '%(levelname)-8s ' +
                                     '%(indent)s%(message)s',
                                     '%Y-%m-%d %H:%M:%S')
     log_file.setFormatter(file_format)
+
+    # Configure pki logger
+    logger = logging.getLogger('pki')
+    logger.setLevel(log_level)
+    logger.addHandler(console)
+    logger.addHandler(log_file)
 
     # Configure pkispawn/pkidestroy logger
     config.pki_log = logging.getLogger(name)
@@ -75,8 +81,21 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
     config.pki_log.addHandler(console)
     config.pki_log.addHandler(log_file)
 
-    # Configure pki logger
-    logger = logging.getLogger('pki')
-    logger.setLevel(log_level)
-    logger.addHandler(console)
-    logger.addHandler(log_file)
+    # Configure scriptlet loggers
+    scriptlets = [
+        'initialization',
+        'infrastructure',
+        'instance'
+        'subsystem',
+        'webapp',
+        'nssdb',
+        'selinux',
+        'configuration',
+        'finalization'
+    ]
+
+    for scriptlet in scriptlets:
+        logger = logging.getLogger(scriptlet)
+        logger.setLevel(log_level)
+        logger.addHandler(console)
+        logger.addHandler(log_file)

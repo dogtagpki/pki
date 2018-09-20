@@ -19,6 +19,7 @@
 #
 
 from __future__ import absolute_import
+import logging
 import selinux
 import sys
 import time
@@ -26,7 +27,6 @@ import time
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from ..pkiconfig import pki_selinux_config_ports as ports
-from .. import pkimessages as log
 from .. import pkiscriptlet
 
 seobject = None
@@ -38,6 +38,10 @@ if selinux.is_selinux_enabled():
         # sepolgen is missing.
         if sys.version_info.major == 2:
             raise
+
+logger = logging.LoggerAdapter(
+    logging.getLogger('selinux'),
+    extra={'indent': ''})
 
 
 # PKI Deployment Selinux Setup Scriptlet
@@ -54,17 +58,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def spawn(self, deployer):
 
         if config.str2bool(deployer.mdict['pki_skip_installation']):
-            config.pki_log.info(log.SKIP_SELINUX_SPAWN_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.info('Skipping SELinux setup')
             return
 
         if not selinux.is_selinux_enabled() or seobject is None:
-            config.pki_log.info(log.SELINUX_DISABLED_SPAWN_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.info('SELinux disabled')
             return
 
-        config.pki_log.info(log.SELINUX_SPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Creating SELinux contexts')
+
         # A maximum of 10 tries to create the SELinux contexts
         counter = 0
         max_tries = 10
@@ -85,7 +87,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                         fcon = seobject.fcontextRecords(trans)
 
-                        config.pki_log.info(
+                        logger.info(
                             "adding selinux fcontext \"%s\"",
                             deployer.mdict['pki_instance_path'] + self.suffix,
                             extra=config.PKI_INDENTATION_LEVEL_2)
@@ -93,7 +95,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             deployer.mdict['pki_instance_path'] + self.suffix,
                             config.PKI_INSTANCE_SELINUX_CONTEXT, "", "s0", "")
 
-                        config.pki_log.info(
+                        logger.info(
                             "adding selinux fcontext \"%s\"",
                             deployer.mdict['pki_instance_log_path'] +
                             self.suffix,
@@ -103,7 +105,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             self.suffix,
                             config.PKI_LOG_SELINUX_CONTEXT, "", "s0", "")
 
-                        config.pki_log.info(
+                        logger.info(
                             "adding selinux fcontext \"%s\"",
                             deployer.mdict['pki_instance_configuration_path'] +
                             self.suffix,
@@ -113,7 +115,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             self.suffix,
                             config.PKI_CFG_SELINUX_CONTEXT, "", "s0", "")
 
-                        config.pki_log.info(
+                        logger.info(
                             "adding selinux fcontext \"%s\"",
                             deployer.mdict['pki_server_database_path'] + self.suffix,
                             extra=config.PKI_INDENTATION_LEVEL_2)
@@ -123,7 +125,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                         port_records = seobject.portRecords(trans)
                         for port in ports:
-                            config.pki_log.info(
+                            logger.info(
                                 "adding selinux port %s", port,
                                 extra=config.PKI_INDENTATION_LEVEL_2)
                             port_records.add(
@@ -136,27 +138,24 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 break
             except ValueError as e:
                 error_message = str(e)
-                config.pki_log.debug(error_message)
+                logger.error(error_message)
                 if error_message.strip() == \
                         "Could not start semanage transaction":
                     counter += 1
                     if counter >= max_tries:
                         raise
                     time.sleep(5)
-                    config.pki_log.debug(
-                        "Retrying to setup the selinux context ...")
+                    logger.debug("Retrying to setup the selinux context ...")
                 else:
                     raise
 
     def destroy(self, deployer):
 
         if not bool(selinux.is_selinux_enabled()):
-            config.pki_log.info(log.SELINUX_DISABLED_DESTROY_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.info('SELinux disabled')
             return
 
-        config.pki_log.info(log.SELINUX_DESTROY_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Removing SELinux contexts')
 
         # check first if any transactions are required
         if (len(ports) == 0 and deployer.mdict['pki_instance_name'] ==
@@ -178,7 +177,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                         fcon = seobject.fcontextRecords(trans)
 
-                        config.pki_log.info(
+                        logger.info(
                             "deleting selinux fcontext \"%s\"",
                             deployer.mdict['pki_instance_path'] + self.suffix,
                             extra=config.PKI_INDENTATION_LEVEL_2)
@@ -186,7 +185,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             deployer.mdict['pki_instance_path'] +
                             self.suffix, "")
 
-                        config.pki_log.info(
+                        logger.info(
                             "deleting selinux fcontext \"%s\"",
                             deployer.mdict['pki_instance_log_path'] +
                             self.suffix,
@@ -195,7 +194,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             deployer.mdict['pki_instance_log_path'] +
                             self.suffix, "")
 
-                        config.pki_log.info(
+                        logger.info(
                             "deleting selinux fcontext \"%s\"",
                             deployer.mdict['pki_instance_configuration_path'] +
                             self.suffix,
@@ -204,7 +203,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                             deployer.mdict['pki_instance_configuration_path'] +
                             self.suffix, "")
 
-                        config.pki_log.info(
+                        logger.info(
                             "deleting selinux fcontext \"%s\"",
                             deployer.mdict['pki_server_database_path'] + self.suffix,
                             extra=config.PKI_INDENTATION_LEVEL_2)
@@ -214,7 +213,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                         port_records = seobject.portRecords(trans)
                         for port in ports:
-                            config.pki_log.info(
+                            logger.info(
                                 "deleting selinux port %s", port,
                                 extra=config.PKI_INDENTATION_LEVEL_2)
                             port_records.delete(port, "tcp")
@@ -223,14 +222,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 break
             except ValueError as e:
                 error_message = str(e)
-                config.pki_log.debug(error_message)
+                logger.error(error_message)
                 if error_message.strip() == \
                         "Could not start semanage transaction":
                     counter += 1
                     if counter >= max_tries:
                         raise
                     time.sleep(5)
-                    config.pki_log.debug(
-                        "Retrying to remove selinux context ...")
+                    logger.debug("Retrying to remove selinux context ...")
                 else:
                     raise

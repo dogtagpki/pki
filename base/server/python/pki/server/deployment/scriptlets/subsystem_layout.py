@@ -19,11 +19,15 @@
 #
 
 from __future__ import absolute_import
+import logging
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
-from .. import pkimessages as log
 from .. import pkiscriptlet
+
+logger = logging.LoggerAdapter(
+    logging.getLogger('subsystem'),
+    extra={'indent': ''})
 
 
 # PKI Deployment Subsystem Layout Scriptlet
@@ -32,12 +36,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def spawn(self, deployer):
 
         if config.str2bool(deployer.mdict['pki_skip_installation']):
-            config.pki_log.info(log.SKIP_SUBSYSTEM_SPAWN_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.info('Skipping subsystem creation')
             return
 
-        config.pki_log.info(log.SUBSYSTEM_SPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Creating subsystem')
 
         # establish instance-based subsystem logs
         deployer.directory.create(deployer.mdict['pki_subsystem_log_path'])
@@ -124,8 +126,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
-        config.pki_log.info(log.SUBSYSTEM_DESTROY_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Removing subsystem')
+
         # remove instance-based subsystem base
         if deployer.mdict['pki_subsystem'] == "CA":
             deployer.directory.delete(

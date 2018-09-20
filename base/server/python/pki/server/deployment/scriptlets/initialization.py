@@ -19,6 +19,8 @@
 #
 
 from __future__ import absolute_import
+import logging
+
 import pki
 
 # PKI Deployment Imports
@@ -26,17 +28,19 @@ from .. import pkiconfig as config
 from .. import pkimessages as log
 from .. import pkiscriptlet
 
+logger = logging.LoggerAdapter(
+    logging.getLogger('initialization'),
+    extra={'indent': ''})
+
 
 # PKI Deployment Initialization Scriptlet
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
-        # begin official logging
-        config.pki_log.info(log.PKISPAWN_BEGIN_MESSAGE_2,
-                            deployer.mdict['pki_subsystem'],
-                            deployer.mdict['pki_instance_name'],
-                            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info(log.PKISPAWN_BEGIN_MESSAGE_2,
+                    deployer.mdict['pki_subsystem'],
+                    deployer.mdict['pki_instance_name'])
 
         instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
@@ -74,13 +78,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # ALWAYS initialize HSMs (when and if present)
         deployer.hsm.initialize()
         if config.str2bool(deployer.mdict['pki_skip_installation']):
-            config.pki_log.info(log.SKIP_INITIALIZATION_SPAWN_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.info('Skipping initialization')
             return
 
         else:
-            config.pki_log.info(log.INITIALIZATION_SPAWN_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.info('Initialization')
 
             # Verify that the subsystem already exists for the following cases:
             # - External CA/KRA/OCSP (Step 2)
@@ -114,13 +116,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
-        # begin official logging
-        config.pki_log.info(log.PKIDESTROY_BEGIN_MESSAGE_2,
-                            deployer.mdict['pki_subsystem'],
-                            deployer.mdict['pki_instance_name'],
-                            extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.info(log.INITIALIZATION_DESTROY_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info(log.PKIDESTROY_BEGIN_MESSAGE_2,
+                    deployer.mdict['pki_subsystem'],
+                    deployer.mdict['pki_instance_name'])
+
+        logger.info('Initialization')
+
         # verify that this type of "subsystem" currently EXISTS
         # for this "instance"
         deployer.instance.verify_subsystem_exists()

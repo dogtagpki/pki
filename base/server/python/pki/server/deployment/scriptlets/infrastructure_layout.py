@@ -19,12 +19,16 @@
 #
 
 from __future__ import absolute_import
+from __future__ import print_function
+import logging
 
 # PKI Deployment Imports
-from __future__ import print_function
 from .. import pkiconfig as config
-from .. import pkimessages as log
 from .. import pkiscriptlet
+
+logger = logging.LoggerAdapter(
+    logging.getLogger('infrastructure'),
+    extra={'indent': ''})
 
 
 # PKI Deployment Top-Level Infrastructure Layout Scriptlet
@@ -33,12 +37,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
     def spawn(self, deployer):
 
         if config.str2bool(deployer.mdict['pki_skip_installation']):
-            config.pki_log.info(log.SKIP_ADMIN_DOMAIN_SPAWN_1, __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.info('Skipping infrastructure setup')
             return
 
-        config.pki_log.info(log.ADMIN_DOMAIN_SPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Setting up infrastructure')
+
         # NOTE:  It was determined that since the "pkidestroy" command
         #        relies upon a symbolic link to a replica of the original
         #        deployment configuration file used by the
@@ -108,8 +111,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
-        config.pki_log.info(log.ADMIN_DOMAIN_DESTROY_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Cleaning up infrastructure')
+
         # remove top-level infrastructure base
         if deployer.mdict['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
            deployer.instance.pki_instance_subsystems() == 0:

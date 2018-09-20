@@ -20,12 +20,16 @@
 
 # System Imports
 from __future__ import absolute_import
+import logging
 import os
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
-from .. import pkimessages as log
 from .. import pkiscriptlet
+
+logger = logging.LoggerAdapter(
+    logging.getLogger('webapp'),
+    extra={'indent': ''})
 
 
 # PKI Web Application Deployment Scriptlet
@@ -33,13 +37,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
         if config.str2bool(deployer.mdict['pki_skip_installation']):
-            config.pki_log.info(log.SKIP_WEBAPP_DEPLOYMENT_SPAWN_1,
-                                __name__,
-                                extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.info('Skipping webapp creation')
             return
 
-        config.pki_log.info(log.WEBAPP_DEPLOYMENT_SPAWN_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+        logger.info('Creating webapp')
 
         # Create subsystem webapps folder to store custom webapps:
         # <instance>/<subsystem>/webapps.
@@ -67,8 +68,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 deployer.mdict['pki_subsystem'].lower() + ".xml"))
 
     def destroy(self, deployer):
-        config.pki_log.info(log.WEBAPP_DEPLOYMENT_DESTROY_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
+
+        logger.info('Removing webapp')
 
         # Delete <instance>/conf/Catalina/localhost/<subsystem>.xml
         deployer.file.delete(
