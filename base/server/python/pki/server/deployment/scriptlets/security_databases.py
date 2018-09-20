@@ -248,6 +248,44 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem.save()
 
+        # Place 'slightly' less restrictive permissions on
+        # the top-level client directory ONLY
+
+        deployer.directory.create(
+            deployer.mdict['pki_client_subsystem_dir'],
+            uid=0, gid=0,
+            perms=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS)
+
+        # Since 'certutil' does NOT strip the 'token=' portion of
+        # the 'token=password' entries, create a client password file
+        # which ONLY contains the 'password' for the purposes of
+        # allowing 'certutil' to generate the security databases
+
+        deployer.password.create_password_conf(
+            deployer.mdict['pki_client_password_conf'],
+            deployer.mdict['pki_client_database_password'], pin_sans_token=True)
+
+        deployer.file.modify(
+            deployer.mdict['pki_client_password_conf'],
+            uid=0, gid=0)
+
+        # Similarly, create a simple password file containing the
+        # PKCS #12 password used when exporting the 'Admin Certificate'
+        # into a PKCS #12 file
+
+        deployer.password.create_client_pkcs12_password_conf(
+            deployer.mdict['pki_client_pkcs12_password_conf'])
+
+        deployer.file.modify(deployer.mdict['pki_client_pkcs12_password_conf'])
+
+        deployer.directory.create(
+            deployer.mdict['pki_client_database_dir'],
+            uid=0, gid=0)
+
+        deployer.certutil.create_security_databases(
+            deployer.mdict['pki_client_database_dir'],
+            password_file=deployer.mdict['pki_client_password_conf'])
+
     def update_external_certs_conf(self, external_path, deployer):
         external_certs = pki.server.PKIInstance.read_external_certs(
             external_path)
@@ -266,5 +304,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Removing NSS database')
 
         if len(deployer.instance.tomcat_instance_subsystems()) == 0:
+
+            if deployer.directory.exists(deployer.mdict['pki_client_dir']):
+                deployer.directory.delete(deployer.mdict['pki_client_dir'])
+
             shutil.rmtree(deployer.mdict['pki_server_database_path'])
             deployer.file.delete(deployer.mdict['pki_shared_password_conf'])

@@ -19,14 +19,12 @@
 #
 
 from __future__ import absolute_import
-import binascii
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.x509.oid import NameOID
 import json
 import logging
 import os
-import re
 import shutil
 import tempfile
 
@@ -55,405 +53,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return '%s_%s' % (subsystem.name, tag)
         else:
             return tag
-
-    def get_key_params(self, deployer, cert_id):
-
-        key_type = deployer.mdict['pki_%s_key_type' % cert_id]
-        key_alg = deployer.mdict['pki_%s_key_algorithm' % cert_id]
-        key_size = deployer.mdict['pki_%s_key_size' % cert_id]
-
-        if key_type == 'rsa':
-
-            key_size = int(key_size)
-            curve = None
-
-            m = re.match(r'(.*)withRSA', key_alg)
-            if not m:
-                raise Exception('Invalid key algorithm: %s' % key_alg)
-
-            hash_alg = m.group(1)
-
-        elif key_type == 'ec' or key_type == 'ecc':
-
-            key_type = 'ec'
-            curve = key_size
-            key_size = None
-
-            m = re.match(r'(.*)withEC', key_alg)
-            if not m:
-                raise Exception('Invalid key algorithm: %s' % key_alg)
-
-            hash_alg = m.group(1)
-
-        else:
-            raise Exception('Invalid key type: %s' % key_type)
-
-        return (key_type, key_size, curve, hash_alg)
-
-    def generate_csr(self,
-                     deployer,
-                     nssdb,
-                     subsystem,
-                     tag,
-                     csr_path,
-                     basic_constraints_ext=None,
-                     key_usage_ext=None,
-                     extended_key_usage_ext=None,
-                     generic_exts=None):
-
-        cert_id = self.get_cert_id(subsystem, tag)
-
-        logger.info('Generating %s CSR in %s', cert_id, csr_path)
-
-        subject_dn = deployer.mdict['pki_%s_subject_dn' % cert_id]
-
-        (key_type, key_size, curve, hash_alg) = self.get_key_params(
-            deployer, cert_id)
-
-        nssdb.create_request(
-            subject_dn=subject_dn,
-            request_file=csr_path,
-            key_type=key_type,
-            key_size=key_size,
-            curve=curve,
-            hash_alg=hash_alg,
-            basic_constraints_ext=basic_constraints_ext,
-            key_usage_ext=key_usage_ext,
-            extended_key_usage_ext=extended_key_usage_ext,
-            generic_exts=generic_exts)
-
-        with open(csr_path) as f:
-            csr = f.read()
-
-        b64_csr = pki.nssdb.convert_csr(csr, 'pem', 'base64')
-        subsystem.config['%s.%s.certreq' % (subsystem.name, tag)] = b64_csr
-
-    def generate_ca_signing_csr(self, deployer, nssdb, subsystem):
-
-        csr_path = deployer.mdict.get('pki_ca_signing_csr_path')
-        if not csr_path:
-            return
-
-        basic_constraints_ext = {
-            'ca': True,
-            'path_length': None,
-            'critical': True
-        }
-
-        key_usage_ext = {
-            'digitalSignature': True,
-            'nonRepudiation': True,
-            'certSigning': True,
-            'crlSigning': True,
-            'critical': True
-        }
-
-        # if specified, add generic CSR extension
-        generic_exts = None
-
-        if 'preop.cert.signing.ext.oid' in subsystem.config and \
-           'preop.cert.signing.ext.data' in subsystem.config:
-
-            data = subsystem.config['preop.cert.signing.ext.data']
-            critical = subsystem.config['preop.cert.signing.ext.critical']
-
-            generic_ext = {
-                'oid': subsystem.config['preop.cert.signing.ext.oid'],
-                'data': binascii.unhexlify(data),
-                'critical': config.str2bool(critical)
-            }
-
-            generic_exts = [generic_ext]
-
-        tag = 'signing'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
-
-        if not token:
-            token = deployer.mdict['pki_token_name']
-
-        nssdb = subsystem.instance.open_nssdb(token)
-
-        try:
-            self.generate_csr(
-                deployer,
-                nssdb,
-                subsystem,
-                tag,
-                csr_path,
-                basic_constraints_ext=basic_constraints_ext,
-                key_usage_ext=key_usage_ext,
-                generic_exts=generic_exts
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_sslserver_csr(self, deployer, nssdb, subsystem):
-
-        csr_path = deployer.mdict.get('pki_sslserver_csr_path')
-        if not csr_path:
-            return
-
-        key_usage_ext = {
-            'digitalSignature': True,
-            'nonRepudiation': True,
-            'keyEncipherment': True,
-            'dataEncipherment': True,
-            'critical': True
-        }
-
-        extended_key_usage_ext = {
-            'serverAuth': True
-        }
-
-        tag = 'sslserver'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
-
-        if not token:
-            token = deployer.mdict['pki_token_name']
-
-        nssdb = subsystem.instance.open_nssdb(token)
-
-        try:
-            self.generate_csr(
-                deployer,
-                nssdb,
-                subsystem,
-                tag,
-                csr_path,
-                key_usage_ext=key_usage_ext,
-                extended_key_usage_ext=extended_key_usage_ext
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_subsystem_csr(self, deployer, nssdb, subsystem):
-
-        csr_path = deployer.mdict.get('pki_subsystem_csr_path')
-        if not csr_path:
-            return
-
-        key_usage_ext = {
-            'digitalSignature': True,
-            'nonRepudiation': True,
-            'keyEncipherment': True,
-            'dataEncipherment': True,
-            'critical': True
-        }
-
-        extended_key_usage_ext = {
-            'serverAuth': True,
-            'clientAuth': True
-        }
-
-        tag = 'subsystem'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
-
-        if not token:
-            token = deployer.mdict['pki_token_name']
-
-        nssdb = subsystem.instance.open_nssdb(token)
-
-        try:
-            self.generate_csr(
-                deployer,
-                nssdb,
-                subsystem,
-                tag,
-                csr_path,
-                key_usage_ext=key_usage_ext,
-                extended_key_usage_ext=extended_key_usage_ext
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_audit_signing_csr(self, deployer, nssdb, subsystem):
-
-        csr_path = deployer.mdict.get('pki_audit_signing_csr_path')
-        if not csr_path:
-            return
-
-        key_usage_ext = {
-            'digitalSignature': True,
-            'nonRepudiation': True,
-            'critical': True
-        }
-
-        tag = 'audit_signing'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
-
-        if not token:
-            token = deployer.mdict['pki_token_name']
-
-        nssdb = subsystem.instance.open_nssdb(token)
-
-        try:
-            self.generate_csr(
-                deployer,
-                nssdb,
-                subsystem,
-                tag,
-                csr_path,
-                key_usage_ext=key_usage_ext
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_admin_csr(self, deployer, subsystem):
-
-        csr_path = deployer.mdict.get('pki_admin_csr_path')
-        if not csr_path:
-            return
-
-        client_nssdb = pki.nssdb.NSSDatabase(
-            directory=deployer.mdict['pki_client_database_dir'],
-            password=deployer.mdict['pki_client_database_password'])
-
-        try:
-            self.generate_csr(
-                deployer,
-                client_nssdb,
-                subsystem,
-                'admin',
-                csr_path
-            )
-
-        finally:
-            client_nssdb.close()
-
-    def generate_kra_storage_csr(self, deployer, nssdb, subsystem):
-
-        csr_path = deployer.mdict.get('pki_storage_csr_path')
-        if not csr_path:
-            return
-
-        key_usage_ext = {
-            'digitalSignature': True,
-            'nonRepudiation': True,
-            'keyEncipherment': True,
-            'dataEncipherment': True,
-            'critical': True
-        }
-
-        extended_key_usage_ext = {
-            'clientAuth': True
-        }
-
-        tag = 'storage'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
-
-        if not token:
-            token = deployer.mdict['pki_token_name']
-
-        nssdb = subsystem.instance.open_nssdb(token)
-
-        try:
-            self.generate_csr(
-                deployer,
-                nssdb,
-                subsystem,
-                tag,
-                csr_path,
-                key_usage_ext=key_usage_ext,
-                extended_key_usage_ext=extended_key_usage_ext
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_kra_transport_csr(self, deployer, nssdb, subsystem):
-
-        csr_path = deployer.mdict.get('pki_transport_csr_path')
-        if not csr_path:
-            return
-
-        key_usage_ext = {
-            'digitalSignature': True,
-            'nonRepudiation': True,
-            'keyEncipherment': True,
-            'dataEncipherment': True,
-            'critical': True
-        }
-
-        extended_key_usage_ext = {
-            'clientAuth': True
-        }
-
-        tag = 'transport'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
-
-        if not token:
-            token = deployer.mdict['pki_token_name']
-
-        nssdb = subsystem.instance.open_nssdb(token)
-
-        try:
-            self.generate_csr(
-                deployer,
-                nssdb,
-                subsystem,
-                tag,
-                csr_path,
-                key_usage_ext=key_usage_ext,
-                extended_key_usage_ext=extended_key_usage_ext
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_ocsp_signing_csr(self, deployer, nssdb, subsystem):
-
-        csr_path = deployer.mdict.get('pki_ocsp_signing_csr_path')
-        if not csr_path:
-            return
-
-        tag = 'signing'
-        cert = subsystem.get_subsystem_cert(tag)
-        token = pki.nssdb.normalize_token(cert['token'])
-
-        if not token:
-            token = deployer.mdict['pki_token_name']
-
-        nssdb = subsystem.instance.open_nssdb(token)
-
-        try:
-            self.generate_csr(
-                deployer,
-                nssdb,
-                subsystem,
-                tag,
-                csr_path
-            )
-
-        finally:
-            nssdb.close()
-
-    def generate_system_cert_requests(self, deployer, nssdb, subsystem):
-
-        if subsystem.name == 'ca':
-            self.generate_ca_signing_csr(deployer, nssdb, subsystem)
-
-        if subsystem.name in ['kra', 'ocsp']:
-            self.generate_sslserver_csr(deployer, nssdb, subsystem)
-            self.generate_subsystem_csr(deployer, nssdb, subsystem)
-            self.generate_audit_signing_csr(deployer, nssdb, subsystem)
-            self.generate_admin_csr(deployer, subsystem)
-
-        if subsystem.name == 'kra':
-            self.generate_kra_storage_csr(deployer, nssdb, subsystem)
-            self.generate_kra_transport_csr(deployer, nssdb, subsystem)
-
-        if subsystem.name == 'ocsp':
-            self.generate_ocsp_signing_csr(deployer, nssdb, subsystem)
 
     def import_system_cert_request(self, deployer, subsystem, tag):
 
@@ -939,6 +538,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def spawn(self, deployer):
 
+        external = deployer.configuration_file.external
+        standalone = deployer.configuration_file.standalone
+        step_one = deployer.configuration_file.external_step_one
+        skip_configuration = deployer.configuration_file.skip_configuration
+
+        if (external or standalone) and step_one or skip_configuration:
+            logger.info('Skipping configuration')
+            return
+
+        logger.info('Configuring subsystem')
+
         try:
             PKISPAWN_STARTUP_TIMEOUT_SECONDS = \
                 int(os.environ['PKISPAWN_STARTUP_TIMEOUT_SECONDS'])
@@ -946,41 +556,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             PKISPAWN_STARTUP_TIMEOUT_SECONDS = 60
         if PKISPAWN_STARTUP_TIMEOUT_SECONDS <= 0:
             PKISPAWN_STARTUP_TIMEOUT_SECONDS = 60
-
-        if config.str2bool(deployer.mdict['pki_skip_configuration']):
-            logger.info('Skipping configuration')
-            return
-
-        logger.info('Configuring subsystem')
-
-        # Place "slightly" less restrictive permissions on
-        # the top-level client directory ONLY
-        deployer.directory.create(
-            deployer.mdict['pki_client_subsystem_dir'],
-            uid=0, gid=0,
-            perms=config.PKI_DEPLOYMENT_DEFAULT_CLIENT_DIR_PERMISSIONS)
-        # Since 'certutil' does NOT strip the 'token=' portion of
-        # the 'token=password' entries, create a client password file
-        # which ONLY contains the 'password' for the purposes of
-        # allowing 'certutil' to generate the security databases
-        deployer.password.create_password_conf(
-            deployer.mdict['pki_client_password_conf'],
-            deployer.mdict['pki_client_database_password'], pin_sans_token=True)
-        deployer.file.modify(
-            deployer.mdict['pki_client_password_conf'],
-            uid=0, gid=0)
-        # Similarly, create a simple password file containing the
-        # PKCS #12 password used when exporting the "Admin Certificate"
-        # into a PKCS #12 file
-        deployer.password.create_client_pkcs12_password_conf(
-            deployer.mdict['pki_client_pkcs12_password_conf'])
-        deployer.file.modify(deployer.mdict['pki_client_pkcs12_password_conf'])
-        deployer.directory.create(
-            deployer.mdict['pki_client_database_dir'],
-            uid=0, gid=0)
-        deployer.certutil.create_security_databases(
-            deployer.mdict['pki_client_database_dir'],
-            password_file=deployer.mdict['pki_client_password_conf'])
 
         instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
@@ -1004,27 +579,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         nssdb = instance.open_nssdb()
 
         existing = deployer.configuration_file.existing
-        external = deployer.configuration_file.external
-        standalone = deployer.configuration_file.standalone
-        step_one = deployer.configuration_file.external_step_one
         step_two = deployer.configuration_file.external_step_two
         clone = deployer.configuration_file.clone
 
         try:
-            if (external or standalone) and step_one:
-
-                self.generate_system_cert_requests(deployer, nssdb, subsystem)
-
-                # This is needed by IPA to detect step 1 completion.
-                # See is_step_one_done() in ipaserver/install/cainstance.py.
-
-                subsystem.config['preop.ca.type'] = 'otherca'
-
-                subsystem.save()
-
-                # End of step 1.
-                return
-
             if existing or (external or standalone) and step_two:
 
                 self.import_system_cert_requests(deployer, subsystem)
@@ -1292,9 +850,4 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             raise RuntimeError("server failed to restart")
 
     def destroy(self, deployer):
-
-        logger.info('Destroying subsystem')
-
-        if len(deployer.instance.tomcat_instance_subsystems()) == 1:
-            if deployer.directory.exists(deployer.mdict['pki_client_dir']):
-                deployer.directory.delete(deployer.mdict['pki_client_dir'])
+        pass
