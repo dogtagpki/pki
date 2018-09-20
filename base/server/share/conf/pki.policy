@@ -66,10 +66,6 @@ grant codeBase "file:/usr/share/java/jboss-web.jar" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:/usr/share/java/log4j.jar" {
-        permission java.security.AllPermission;
-};
-
 grant codeBase "file:/usr/share/java/servlet.jar" {
         permission java.security.AllPermission;
 };

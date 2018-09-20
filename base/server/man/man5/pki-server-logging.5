@@ -18,7 +18,7 @@
 pki-server-logging \- PKI Server Logging Configuration
 
 .SH LOCATION
-/etc/pki/<instance>/logging.properties, /var/lib/pki/<instance>/lib/log4j.properties, /etc/pki/<instance>/<subsystem>/CS.cfg
+/etc/pki/<instance>/logging.properties, /etc/pki/<instance>/<subsystem>/CS.cfg
 
 .SH DESCRIPTION
 
@@ -26,7 +26,6 @@ PKI server logging can be configured using the following logging frameworks:
 
 .nf
 - java.util.logging (JUL) (https://docs.oracle.com/javase/8/docs/api/java/util/logging/package-summary.html)
-- Log4j (http://logging.apache.org/log4j/1.2/)
 - Internal Logging
 .fi
 
@@ -65,37 +64,6 @@ For more information see the following documents:
 - https://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html
 - https://docs.oracle.com/javase/8/docs/api/java/util/logging/SimpleFormatter.html
 - https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html
-.fi
-
-.SS Log4j
-
-The default Tomcat 7 classpath does include Log4j, but the server itself is not configured to use Log4j for logging by default.
-However, since the Log4j is in the classpath the RESTEasy will use Log4j for logging automatically (see https://docs.jboss.org/resteasy/docs/3.0.6.Final/userguide/html/Installation_Configuration.html#RESTEasyLogging).
-
-The default Log4j configuration is located at /usr/share/pki/server/conf/log4j.properties.
-During server deployment a link will be created at /var/lib/pki/<instance>/lib/log4j.properties.
-
-By default only log messages with level WARN or higher will be logged on the console (i.e. systemd journal).
-
-.IP
-.nf
-log4j.appender.console = org.apache.log4j.ConsoleAppender
-log4j.appender.console.Target = System.err
-log4j.appender.console.layout = org.apache.log4j.PatternLayout
-log4j.appender.console.layout.ConversionPattern = %p: %m%n
-
-log4j.rootLogger = WARN, console
-.fi
-.PP
-
-The default Tomcat 8 classpath does not include Log4j, so RESTEasy will use JUL instead.
-
-For more information see the following documents:
-
-.nf
-- http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/ConsoleAppender.html
-- http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/Level.html
-- http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html
 .fi
 
 .SS Internal  Logging
@@ -147,32 +115,11 @@ org.dogtagpki.level = ALL
 .fi
 .PP
 
-To troubleshoot issues with RESTEasy add the following line (unless Log4j is installed in Tomcat classpath):
+To troubleshoot issues with RESTEasy add the following line:
 
 .IP
 .nf
 org.jboss.resteasy.level = ALL
-.fi
-.PP
-
-Then restart the server.
-
-.SS Log4j
-
-To customize Log4j configuration, replace the link with a copy of the default configuration:
-
-.nf
-$ rm -f /var/lib/pki/<instance>/lib/log4j.properties
-$ cp /usr/share/pki/server/conf/log4j.properties /var/lib/pki/<instance>/lib
-$ chown pkiuser.pkiuser /var/lib/pki/<instance>/lib/log4j.properties
-.fi
-
-Then edit the file as needed.
-For example, to troubleshoot issues with RESTEasy add the following line (unless Log4j is not installed in Tomcat classpath):
-
-.IP
-.nf
-log4j.logger.org.jboss.resteasy = ALL
 .fi
 .PP
 

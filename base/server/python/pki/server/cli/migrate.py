@@ -571,11 +571,6 @@ class MigrateCLI(pki.cli.CLI):
             dest = os.path.join(instance.lib_dir, filename)
             self.create_link(instance, source, dest)
 
-        # log4j.properties
-        source = '/usr/share/pki/server/conf/log4j.properties'
-        dest = os.path.join(instance.lib_dir, 'log4j.properties')
-        self.create_link(instance, source, dest)
-
         # slf4j-api.jar
         source = '/usr/share/pki/server/lib/slf4j-api.jar'
         dest = os.path.join(instance.lib_dir, 'slf4j-api.jar')
