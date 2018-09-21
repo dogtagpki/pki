@@ -26,12 +26,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
-import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -47,15 +48,13 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 public class UpdateNumberRange extends CMSServlet {
 
-    /**
-     *
-     */
+    public final static Logger logger = LoggerFactory.getLogger(UpdateNumberRange.class);
+
     private static final long serialVersionUID = -1584171713024263331L;
     private final static String SUCCESS = "0";
     private final static String AUTH_FAILURE = "2";
 
     public UpdateNumberRange() {
-        super();
     }
 
     /**
@@ -64,9 +63,9 @@ public class UpdateNumberRange extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
-        CMS.debug("UpdateNumberRange: initializing...");
+        logger.debug("UpdateNumberRange: initializing...");
         super.init(sc);
-        CMS.debug("UpdateNumberRange: done initializing...");
+        logger.debug("UpdateNumberRange: done initializing...");
     }
 
     /**
@@ -79,17 +78,21 @@ public class UpdateNumberRange extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("UpdateNumberRange: processing...");
+        logger.debug("UpdateNumberRange: processing...");
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMS.debug("UpdateNumberRange process: authentication starts");
+        logger.debug("UpdateNumberRange process: authentication starts");
+
         IAuthToken authToken = authenticate(cmsReq);
+
         if (authToken == null) {
-            CMS.debug("UpdateNumberRange process: authToken is null");
-            outputError(httpResp, AUTH_FAILURE, "Error: not authenticated",
-                        null);
+            logger.error("UpdateNumberRange: Authentication failed");
+            outputError(httpResp, AUTH_FAILURE,
+                    "Error: Authentication failed",
+                    null);
+            return;
         }
 
         AuthzToken authzToken = null;
@@ -97,20 +100,15 @@ public class UpdateNumberRange extends CMSServlet {
         try {
             authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
                     "modify");
-        } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-            outputError(httpResp, "Error: Not authorized");
-            return;
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-            outputError(httpResp,
-                    "Error: Encountered problem during authorization.");
+            logger.error("UpdateNumberRange: Authorization failed: " + e.getMessage(), e);
+            outputError(httpResp, "Error: Authorization failed");
             return;
         }
+
         if (authzToken == null) {
-            outputError(httpResp, "Error: Not authorized");
+            logger.error("UpdateNumberRange: Authorization failed");
+            outputError(httpResp, "Error: Authorization failed");
             return;
         }
 
@@ -120,6 +118,8 @@ public class UpdateNumberRange extends CMSServlet {
 
         try {
             String type = httpReq.getParameter("type");
+            logger.debug("UpdateNumberRange: type: " + type);
+
             IConfigStore cs = CMS.getConfigStore();
             String cstype = cs.getString("cs.type", "");
 
@@ -144,6 +144,7 @@ public class UpdateNumberRange extends CMSServlet {
                 } else if (type.equals("replicaId")) {
                     repo = kra.getReplicaRepository();
                 }
+
             } else { // CA
                 ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(
                         ICertificateAuthority.ID);
@@ -160,7 +161,7 @@ public class UpdateNumberRange extends CMSServlet {
             // This needs to be done beforehand to ensure that we always have enough
             // replica numbers
             if (type.equals("replicaId")) {
-                CMS.debug("Checking replica number ranges");
+                logger.debug("UpdateNumberRange: Checking replica number ranges");
                 repo.checkRanges();
             }
 
@@ -181,31 +182,47 @@ public class UpdateNumberRange extends CMSServlet {
                 nextEndConfig = "dbs.nextEndReplicaNumber";
             }
 
-            String endNumStr = cs.getString(endNumConfig, "");
+            String endNumStr = cs.getString(endNumConfig);
             endNum = new BigInteger(endNumStr, radix);
-            String decrementStr = cs.getString(cloneNumConfig, "");
+            logger.debug("UpdateNumberRange: " + endNumConfig + ": " + endNum);
+
+            String decrementStr = cs.getString(cloneNumConfig);
             BigInteger decrement = new BigInteger(decrementStr, radix);
+            logger.debug("UpdateNumberRange: " + cloneNumConfig + ": " + decrement);
+
             beginNum = endNum.subtract(decrement).add(oneNum);
+            logger.debug("UpdateNumberRange: beginNum: " + beginNum);
 
             if (beginNum.compareTo(repo.getTheSerialNumber()) < 0) {
-                String nextEndNumStr = cs.getString(nextEndConfig, "");
+
+                logger.debug("UpdateNumberRange: Transferring from the end of on-deck range");
+
+                String nextEndNumStr = cs.getString(nextEndConfig);
                 BigInteger endNum2 = new BigInteger(nextEndNumStr, radix);
-                CMS.debug("Transferring from the end of on-deck range");
+                logger.debug("UpdateNumberRange: " + nextEndConfig + ": " + endNum2);
+
                 String newValStr = endNum2.subtract(decrement).toString(radix);
+                logger.debug("UpdateNumberRange: nextMaxSerial: " + newValStr);
+
                 repo.setNextMaxSerial(newValStr);
+
                 cs.putString(nextEndConfig, newValStr);
                 beginNum = endNum2.subtract(decrement).add(oneNum);
                 endNum = endNum2;
+
             } else {
-                CMS.debug("Transferring from the end of the current range");
+
+                logger.debug("UpdateNumberRange: Transferring from the end of the current range");
+
                 String newValStr = beginNum.subtract(oneNum).toString(radix);
+                logger.debug("UpdateNumberRange: maxSerial: " + newValStr);
+
                 repo.setMaxSerial(newValStr);
                 cs.putString(endNumConfig, newValStr);
             }
 
             if (beginNum == null) {
-                CMS.debug("UpdateNumberRange::process() - " +
-                           "beginNum is null!");
+                logger.error("UpdateNumberRange: Missing beginNum");
                 auditMessage = CMS.getLogMessage(
                                    AuditEvent.CONFIG_SERIAL_NUMBER,
                                    auditSubjectID,
@@ -221,7 +238,7 @@ public class UpdateNumberRange extends CMSServlet {
             }
 
             // insert info
-            CMS.debug("UpdateNumberRange: Sending response");
+            logger.debug("UpdateNumberRange: Sending response");
 
             // send success status back to the requestor
             XMLObject xmlObj = new XMLObject();
@@ -246,8 +263,7 @@ public class UpdateNumberRange extends CMSServlet {
             audit(auditMessage);
 
         } catch (Exception e) {
-            CMS.debug("UpdateNumberRange: Failed to update number range: " + e);
-            CMS.debug(e);
+            logger.error("UpdateNumberRange: Unable to update number range: " + e.getMessage(), e);
 
             auditMessage = CMS.getLogMessage(
                                AuditEvent.CONFIG_SERIAL_NUMBER,
@@ -256,7 +272,7 @@ public class UpdateNumberRange extends CMSServlet {
                                auditParams);
             audit(auditMessage);
 
-            outputError(httpResp, "Error: Failed to update number range.");
+            outputError(httpResp, "Error: Unable to update number range: " + e.getMessage());
         }
     }
 
