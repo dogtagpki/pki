@@ -566,14 +566,22 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         ocsp_uri = deployer.mdict.get('pki_default_ocsp_uri')
         if ocsp_uri:
             subsystem.config['ca.defaultOcspUri'] = ocsp_uri
-            subsystem.save()
 
-        # set ephemeral requests if needed
+        if subsystem.name == 'ca':
+            serial_number_range_start = deployer.mdict.get('pki_serial_number_range_start')
+            if serial_number_range_start:
+                subsystem.config['dbs.beginSerialNumber'] = serial_number_range_start
+
+            serial_number_range_end = deployer.mdict.get('pki_serial_number_range_end')
+            if serial_number_range_end:
+                subsystem.config['dbs.endSerialNumber'] = serial_number_range_end
+
         if subsystem.name == 'kra':
             if config.str2bool(deployer.mdict['pki_kra_ephemeral_requests']):
                 logger.debug('Setting ephemeral requests to true')
                 subsystem.config['kra.ephemeralRequests'] = 'true'
-                subsystem.save()
+
+        subsystem.save()
 
         token = deployer.mdict['pki_token_name']
         nssdb = instance.open_nssdb()
