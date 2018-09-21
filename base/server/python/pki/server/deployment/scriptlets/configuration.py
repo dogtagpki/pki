@@ -576,6 +576,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if serial_number_range_end:
                 subsystem.config['dbs.endSerialNumber'] = serial_number_range_end
 
+            request_number_range_start = deployer.mdict.get('pki_request_number_range_start')
+            if request_number_range_start:
+                subsystem.config['dbs.beginRequestNumber'] = request_number_range_start
+
+            request_number_range_end = deployer.mdict.get('pki_request_number_range_end')
+            if request_number_range_end:
+                subsystem.config['dbs.endRequestNumber'] = request_number_range_end
+
         if subsystem.name == 'kra':
             if config.str2bool(deployer.mdict['pki_kra_ephemeral_requests']):
                 logger.debug('Setting ephemeral requests to true')
