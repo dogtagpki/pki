@@ -29,19 +29,23 @@ public interface SystemConfigResource {
 
     @POST
     @Path("configure")
-    public ConfigurationResponse configure(ConfigurationRequest data) throws Exception;
+    public ConfigurationResponse configure(ConfigurationRequest request) throws Exception;
 
     @POST
     @Path("configureCerts")
     public ConfigurationResponse configureCerts(ConfigurationRequest request) throws Exception;
 
     @POST
+    @Path("setupAdmin")
+    public ConfigurationResponse setupAdmin(ConfigurationRequest request) throws Exception;
+
+    @POST
     @Path("backupKeys")
-    public void backupKeys(ConfigurationRequest data) throws Exception;
+    public void backupKeys(ConfigurationRequest request) throws Exception;
 
     @POST
     @Path("setupSecurityDomain")
-    public void setupSecurityDomain(ConfigurationRequest data) throws Exception;
+    public void setupSecurityDomain(ConfigurationRequest request) throws Exception;
 
     @POST
     @Path("setupDatabaseUser")

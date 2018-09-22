@@ -298,6 +298,23 @@ class SystemConfigClient(object):
             headers)
         return response.json()
 
+    def setupAdmin(self, request):
+        """
+        Set up admin.
+
+        :param request: Admin setup request
+        :type request: ConfigurationRequest
+        :return: ConfigurationResponse
+        """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
+        headers = {'Content-type': 'application/json',
+                   'Accept': 'application/json'}
+        response = self.connection.post(
+            '/rest/installer/setupAdmin',
+            data,
+            headers)
+        return response.json()
+
     def backupKeys(self, request):
         """
         Backup keys.

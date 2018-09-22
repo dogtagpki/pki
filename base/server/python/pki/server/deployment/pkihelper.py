@@ -4092,6 +4092,20 @@ class ConfigClient:
 
         return data
 
+    def create_admin_setup_request(self):
+
+        config.pki_log.info(
+            'Creating admin setup request',
+            extra=config.PKI_INDENTATION_LEVEL_0)
+
+        request = pki.system.ConfigurationRequest()
+
+        request.pin = self.mdict['pki_one_time_pin']
+
+        self.set_admin_parameters(request)
+
+        return request
+
     def save_admin_csr(self):
         config.pki_log.info(
             log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_2,

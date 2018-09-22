@@ -687,12 +687,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         client = pki.system.SystemConfigClient(connection)
 
         logger.info('Configuring %s subsystem', subsystem.type)
-
         client.configure(request)
 
         logger.info('Configuring certificates')
-
         response = client.configureCerts(request)
+
+        logger.info('Setting up admin')
+        admin_setup_request = deployer.config_client.create_admin_setup_request()
+        admin_setup_response = client.setupAdmin(admin_setup_request)
 
         if config.str2bool(deployer.mdict['pki_backup_keys']):
 
@@ -703,15 +705,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             client.backupKeys(request)
 
         logger.info('Setting up security domain')
-
         client.setupSecurityDomain(request)
 
         logger.info('Setting up database user')
-
         client.setupDatabaseUser(request)
 
         logger.info('Finalizing %s configuration', subsystem.type)
-
         client.finalizeConfiguration(request)
 
         logger.info('%s configuration complete', subsystem.type)
@@ -753,7 +752,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             if external or standalone \
                     or not config.str2bool(deployer.mdict['pki_import_admin_cert']):
-                admin_cert = response['adminCert']['cert']
+                admin_cert = admin_setup_response['adminCert']['cert']
                 deployer.config_client.process_admin_cert(admin_cert)
 
         # If temp SSL server cert was created and there's a new perm cert,

@@ -167,10 +167,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("=== System reinitializing ===");
         reinitSubsystems();
 
-        if (!data.isClone()) {
-            createAdminUser(data);
-        }
-
         logger.debug("=== Configure CA Cert Chain ===");
         configureCACertChain(data, domainXML);
     }
@@ -193,12 +189,36 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             Collection<Cert> certs = new ArrayList<Cert>();
             processCerts(request, certs);
 
-            logger.debug("=== Setting system Certs ===");
             response.setSystemCerts(SystemCertDataFactory.create(certs));
 
-            // configure admin
-            logger.debug("=== Admin Configuration ===");
+            return response;
+
+        } catch (PKIException e) { // normal response
+            logger.error("Configuration failed: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Configuration failed: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public ConfigurationResponse setupAdmin(ConfigurationRequest request) throws Exception {
+
+        logger.debug("SystemConfigService: setupAdmin()");
+
+        try {
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            ConfigurationResponse response = new ConfigurationResponse();
+
             if (!request.isClone()) {
+                createAdminUser(request);
 
                 X509CertImpl cert = createAdminCert(request);
                 updateAdminUserCert(request, cert);
