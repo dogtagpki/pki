@@ -215,6 +215,43 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
+            if (StringUtils.isEmpty(request.getAdminUID())) {
+                throw new BadRequestException("Missing admin UID");
+            }
+
+            if (StringUtils.isEmpty(request.getAdminPassword())) {
+                throw new BadRequestException("Missing admin password");
+            }
+
+            if (StringUtils.isEmpty(request.getAdminEmail())) {
+                throw new BadRequestException("Missing admin email");
+            }
+
+            if (StringUtils.isEmpty(request.getAdminName())) {
+                throw new BadRequestException("Missing admin name");
+            }
+
+            boolean importAdminCert = Boolean.parseBoolean(request.getImportAdminCert());
+
+            if (importAdminCert) {
+                if (StringUtils.isEmpty(request.getAdminCert())) {
+                    throw new BadRequestException("Missing admin certificate");
+                }
+
+            } else {
+                if (StringUtils.isEmpty(request.getAdminCertRequest())) {
+                    throw new BadRequestException("Missing admin certificate request");
+                }
+
+                if (StringUtils.isEmpty(request.getAdminCertRequestType())) {
+                    throw new BadRequestException("Missing admin certificate request type");
+                }
+
+                if (StringUtils.isEmpty(request.getAdminSubjectDN())) {
+                    throw new BadRequestException("Missing admin subject DN");
+                }
+            }
+
             ConfigurationResponse response = new ConfigurationResponse();
 
             createAdminUser(request);
@@ -1326,41 +1363,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (csType.equals("CA") && (data.getHierarchy() == null)) {
             throw new BadRequestException("Hierarchy is required for CA, not provided");
-        }
-
-        if (!data.isClone()) {
-            if ((data.getAdminUID() == null) || (data.getAdminUID().length() == 0)) {
-                throw new BadRequestException("Admin UID not provided");
-            }
-            if ((data.getAdminPassword() == null) || (data.getAdminPassword().length() == 0)) {
-                throw new BadRequestException("Admin Password not provided");
-            }
-            if ((data.getAdminEmail() == null) || (data.getAdminEmail().length() == 0)) {
-                throw new BadRequestException("Admin UID not provided");
-            }
-            if ((data.getAdminName() == null) || (data.getAdminName().length() == 0)) {
-                throw new BadRequestException("Admin name not provided");
-            }
-
-            if (data.getImportAdminCert() == null) {
-                data.setImportAdminCert("false");
-            }
-
-            if (data.getImportAdminCert().equalsIgnoreCase("true")) {
-                if (data.getAdminCert() == null) {
-                    throw new BadRequestException("Admin Cert not provided");
-                }
-            } else {
-                if ((data.getAdminCertRequest() == null) || (data.getAdminCertRequest().length() == 0)) {
-                    throw new BadRequestException("Admin cert request not provided");
-                }
-                if ((data.getAdminCertRequestType() == null) || (data.getAdminCertRequestType().length() == 0)) {
-                    throw new BadRequestException("Admin cert request type not provided");
-                }
-                if ((data.getAdminSubjectDN() == null) || (data.getAdminSubjectDN().length() == 0)) {
-                    throw new BadRequestException("Admin subjectDN not provided");
-                }
-            }
         }
 
         if (data.getGenerateServerCert() == null) {
