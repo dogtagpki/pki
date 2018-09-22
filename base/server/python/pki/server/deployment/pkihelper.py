@@ -4098,7 +4098,7 @@ class ConfigClient:
             'Creating admin setup request',
             extra=config.PKI_INDENTATION_LEVEL_0)
 
-        request = pki.system.ConfigurationRequest()
+        request = pki.system.AdminSetupRequest()
 
         request.pin = self.mdict['pki_one_time_pin']
 

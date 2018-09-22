@@ -45,6 +45,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
+import com.netscape.certsrv.system.AdminSetupRequest;
+import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.SystemCertData;
@@ -204,7 +206,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     @Override
-    public ConfigurationResponse setupAdmin(ConfigurationRequest request) throws Exception {
+    public AdminSetupResponse setupAdmin(AdminSetupRequest request) throws Exception {
 
         logger.debug("SystemConfigService: setupAdmin()");
 
@@ -252,7 +254,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 }
             }
 
-            ConfigurationResponse response = new ConfigurationResponse();
+            AdminSetupResponse response = new AdminSetupResponse();
 
             createAdminUser(request);
 
@@ -262,10 +264,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
             logger.debug("SystemConfigService: admin cert: " + b64cert);
 
-            SystemCertData adminCert = new SystemCertData();
+            SystemCertData adminCert = response.getAdminCert();
             adminCert.setCert(b64cert);
-
-            response.setAdminCert(adminCert);
 
             return response;
 
@@ -731,7 +731,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    public X509CertImpl createAdminCert(ConfigurationRequest data) throws Exception {
+    public X509CertImpl createAdminCert(AdminSetupRequest data) throws Exception {
 
         if (data.getImportAdminCert().equalsIgnoreCase("true")) {
 
@@ -798,7 +798,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         return new X509CertImpl(b);
     }
 
-    public void createAdminUser(ConfigurationRequest request) throws Exception {
+    public void createAdminUser(AdminSetupRequest request) throws Exception {
 
         ConfigurationUtils.createAdmin(request.getAdminUID(), request.getAdminEmail(),
                 request.getAdminName(), request.getAdminPassword());
@@ -807,7 +807,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         engine.reinit(IUGSubsystem.ID);
     }
 
-    public void updateAdminUserCert(ConfigurationRequest request, X509CertImpl adminCert) throws Exception {
+    public void updateAdminUserCert(AdminSetupRequest request, X509CertImpl adminCert) throws Exception {
 
         X509CertImpl[] adminCerts = new X509CertImpl[] { adminCert };
 

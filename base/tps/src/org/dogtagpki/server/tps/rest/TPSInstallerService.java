@@ -27,6 +27,8 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.system.AdminSetupRequest;
+import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.SystemCertData;
@@ -59,8 +61,8 @@ public class TPSInstallerService extends SystemConfigService  {
     }
 
     @Override
-    public ConfigurationResponse setupAdmin(ConfigurationRequest request) throws Exception {
-        ConfigurationResponse response = super.setupAdmin(request);
+    public AdminSetupResponse setupAdmin(AdminSetupRequest request) throws Exception {
+        AdminSetupResponse response = super.setupAdmin(request);
         ConfigurationUtils.addProfilesToTPSUser(request.getAdminUID());
         return response;
     }

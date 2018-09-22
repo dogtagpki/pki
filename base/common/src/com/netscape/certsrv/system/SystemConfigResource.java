@@ -37,7 +37,7 @@ public interface SystemConfigResource {
 
     @POST
     @Path("setupAdmin")
-    public ConfigurationResponse setupAdmin(ConfigurationRequest request) throws Exception;
+    public AdminSetupResponse setupAdmin(AdminSetupRequest request) throws Exception;
 
     @POST
     @Path("backupKeys")

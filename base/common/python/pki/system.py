@@ -236,6 +236,16 @@ class ConfigurationResponse(object):
         pass
 
 
+class AdminSetupRequest(object):
+    def __init__(self):
+        pass
+
+
+class AdminSetupResponse(object):
+    def __init__(self):
+        pass
+
+
 class SystemCertData(object):
     """
     Class used to represent the data for a system certificate, which is
@@ -303,8 +313,8 @@ class SystemConfigClient(object):
         Set up admin.
 
         :param request: Admin setup request
-        :type request: ConfigurationRequest
-        :return: ConfigurationResponse
+        :type request: AdminSetupRequest
+        :return: AdminSetupResponse
         """
         data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
@@ -401,4 +411,6 @@ class SystemStatusClient(object):
 
 pki.encoder.NOTYPES['ConfigurationRequest'] = ConfigurationRequest
 pki.encoder.NOTYPES['ConfigurationResponse'] = ConfigurationResponse
+pki.encoder.NOTYPES['AdminSetupRequest'] = AdminSetupRequest
+pki.encoder.NOTYPES['AdminSetupResponse'] = AdminSetupResponse
 pki.encoder.NOTYPES['SystemCertData'] = SystemCertData
