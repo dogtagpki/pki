@@ -125,7 +125,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public void configure(ConfigurationRequest data, ConfigurationResponse response) throws Exception {
 
-        authenticateRequest(data);
+        validatePin(data.getPin());
 
         if (csState.equals("1")) {
             throw new BadRequestException("System already configured");
@@ -178,7 +178,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: configureCerts()");
 
         try {
-            authenticateRequest(request);
+            validatePin(request.getPin());
 
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
@@ -227,7 +227,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: finalizeConfiguration()");
 
         try {
-            authenticateRequest(request);
+            validatePin(request.getPin());
 
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
@@ -252,7 +252,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: setupDatabaseUser()");
 
         try {
-            authenticateRequest(request);
+            validatePin(request.getPin());
 
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
@@ -276,7 +276,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: setupSecurityDomain()");
 
         try {
-            authenticateRequest(request);
+            validatePin(request.getPin());
 
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
@@ -642,7 +642,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: backupKeys()");
 
         try {
-            authenticateRequest(request);
+            validatePin(request.getPin());
 
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
@@ -1125,16 +1125,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("preop.module.token", StringUtils.defaultString(token));
     }
 
-    private void authenticateRequest(ConfigurationRequest request) throws Exception {
+    private void validatePin(String pin) throws Exception {
 
-        String pin = request.getPin();
         if (pin == null) {
-            throw new BadRequestException("No preop pin provided");
+            throw new BadRequestException("Missing configuration PIN");
         }
 
         String preopPin = cs.getString("preop.pin");
         if (!preopPin.equals(pin)) {
-            throw new BadRequestException("Incorrect pin provided");
+            throw new BadRequestException("Invalid configuration PIN");
         }
     }
 
