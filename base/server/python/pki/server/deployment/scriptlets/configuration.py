@@ -30,7 +30,6 @@ import tempfile
 
 # PKI Deployment Imports
 from .. import pkiconfig as config
-from .. import pkimessages as log
 from .. import pkiscriptlet
 
 import pki.encoder
@@ -750,79 +749,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 sslserver['data'] = cdata['cert']
                 sslserver['request'] = cdata['request']
 
-            if standalone and not step_two:
-
-                # Stand-alone PKI (Step 1)
-
-                if cdata['tag'].lower() == "audit_signing":
-                    # Save Stand-alone PKI 'Audit Signing Certificate' CSR
-                    # (Step 1)
-                    deployer.config_client.save_system_csr(
-                        cdata['request'],
-                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_AUDIT_SIGNING_2,
-                        deployer.mdict['pki_audit_signing_csr_path'],
-                        subsystem.name)
-
-                elif cdata['tag'].lower() == "signing":
-                    # Save Stand-alone PKI OCSP 'OCSP Signing Certificate'
-                    # CSR (Step 1)
-                    deployer.config_client.save_system_csr(
-                        cdata['request'],
-                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_OCSP_SIGNING_1,
-                        deployer.mdict['pki_signing_csr_path'])
-
-                elif cdata['tag'].lower() == "sslserver":
-                    # Save Stand-alone PKI 'SSL Server Certificate' CSR
-                    # (Step 1)
-                    deployer.config_client.save_system_csr(
-                        cdata['request'],
-                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SSLSERVER_2,
-                        deployer.mdict['pki_sslserver_csr_path'],
-                        subsystem.name)
-
-                elif cdata['tag'].lower() == "storage":
-                    # Save Stand-alone PKI KRA 'Storage Certificate' CSR
-                    # (Step 1)
-                    deployer.config_client.save_system_csr(
-                        cdata['request'],
-                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_STORAGE_1,
-                        deployer.mdict['pki_storage_csr_path'])
-
-                elif cdata['tag'].lower() == "subsystem":
-                    # Save Stand-alone PKI 'Subsystem Certificate' CSR
-                    # (Step 1)
-                    deployer.config_client.save_system_csr(
-                        cdata['request'],
-                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_SUBSYSTEM_2,
-                        deployer.mdict['pki_subsystem_csr_path'],
-                        subsystem.name)
-
-                elif cdata['tag'].lower() == "transport":
-                    # Save Stand-alone PKI KRA 'Transport Certificate' CSR
-                    # (Step 1)
-                    deployer.config_client.save_system_csr(
-                        cdata['request'],
-                        log.PKI_CONFIG_EXTERNAL_CSR_SAVE_KRA_TRANSPORT_1,
-                        deployer.mdict['pki_transport_csr_path'])
-
-            else:
-                logger.debug('%s cert: %s', cdata['tag'], cdata['cert'])
-                logger.debug('%s request: %s', cdata['tag'], cdata['request'])
+            logger.debug('%s cert: %s', cdata['tag'], cdata['cert'])
+            logger.debug('%s request: %s', cdata['tag'], cdata['request'])
 
         # Cloned PKI subsystems do not return an Admin Certificate
         if not clone:
 
-            if external or standalone:
-                if not step_two:
-                    # NOTE:  Do nothing for Stand-alone PKI (Step 1)
-                    #        as this has already been addressed
-                    #        in 'set_admin_parameters()'
-                    pass
-                else:
-                    admin_cert = response['adminCert']['cert']
-                    deployer.config_client.process_admin_cert(admin_cert)
-
-            elif not config.str2bool(deployer.mdict['pki_import_admin_cert']):
+            if external or standalone \
+                    or not config.str2bool(deployer.mdict['pki_import_admin_cert']):
                 admin_cert = response['adminCert']['cert']
                 deployer.config_client.process_admin_cert(admin_cert)
 
