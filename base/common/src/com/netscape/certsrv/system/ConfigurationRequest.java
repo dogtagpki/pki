@@ -48,9 +48,6 @@ public class ConfigurationRequest {
     public static final String ECC_INTERNAL_SUBSYSTEM_CERT_PROFILE= "caECInternalAuthSubsystemCert";
     public static final String RSA_INTERNAL_SUBSYSTEM_CERT_PROFILE= "caInternalAuthSubsystemCert";
 
-    public static final String ECC_INTERNAL_ADMIN_CERT_PROFILE="caECAdminCert";
-    public static final String RSA_INTERNAL_ADMIN_CERT_PROFILE="caAdminCert";
-
     @XmlElement
     protected String pin;
 
@@ -176,6 +173,9 @@ public class ConfigurationRequest {
 
     @XmlElement
     protected String adminName;
+
+    @XmlElement
+    protected String adminKeyType;
 
     @XmlElement
     protected String adminProfileID;
@@ -795,25 +795,24 @@ public class ConfigurationRequest {
     }
 
     /**
+     * @return the admin key type
+     */
+    public String getAdminKeyType() {
+        return adminKeyType;
+    }
+
+    /**
+     * @param adminKeyType the admin key type
+     */
+    public void setAdminKeyType(String adminKeyType) {
+        this.adminKeyType = adminKeyType;
+    }
+
+    /**
      * @return the adminProfileID
      */
     public String getAdminProfileID() {
-
-        // Modify the value returned based on key type of the
-        // subsystem cert. If keyType not found take the default
-        // sent over the server. In the future we can make sure
-        // the correct value is sent over the server.
-        String keyType = this.getSystemCertKeyType("subsystem");
-        String actualAdminProfileID = adminProfileID;
-        if(keyType != null) {
-            if("ecc".equalsIgnoreCase(keyType)) {
-                actualAdminProfileID = ECC_INTERNAL_ADMIN_CERT_PROFILE;
-            } else if("rsa".equalsIgnoreCase(keyType)) {
-                actualAdminProfileID = RSA_INTERNAL_ADMIN_CERT_PROFILE;
-            }
-        }
-
-        return actualAdminProfileID;
+        return adminProfileID;
     }
 
     /**
