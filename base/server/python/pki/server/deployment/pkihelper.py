@@ -4060,10 +4060,6 @@ class ConfigClient:
         # backup
         self.set_backup_parameters(data)
 
-        # admin user
-        if not self.clone:
-            self.set_admin_parameters(data)
-
         data.replicationPassword = self.mdict['pki_replication_password']
 
         # Issuing CA Information

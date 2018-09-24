@@ -154,39 +154,6 @@ public class ConfigurationRequest {
     protected String backupFile;
 
     @XmlElement
-    protected String adminUID;
-
-    @XmlElement
-    protected String adminPassword;
-
-    @XmlElement
-    protected String adminEmail;
-
-    @XmlElement
-    protected String adminCertRequest;
-
-    @XmlElement
-    protected String adminCertRequestType;
-
-    @XmlElement
-    protected String adminSubjectDN;
-
-    @XmlElement
-    protected String adminName;
-
-    @XmlElement
-    protected String adminKeyType;
-
-    @XmlElement
-    protected String adminProfileID;
-
-    @XmlElement(defaultValue = "false")
-    protected String importAdminCert;
-
-    @XmlElement
-    protected String adminCert;
-
-    @XmlElement
     protected Boolean external;
 
     @XmlElement
@@ -696,148 +663,6 @@ public class ConfigurationRequest {
         this.backupPassword = backupPassword;
     }
 
-    /**
-     * @return the adminUID
-     */
-    public String getAdminUID() {
-        return adminUID;
-    }
-
-    /**
-     * @param adminUID the adminUID to set
-     */
-    public void setAdminUID(String adminUID) {
-        this.adminUID = adminUID;
-    }
-
-    /**
-     * @return the adminPassword
-     */
-    public String getAdminPassword() {
-        return adminPassword;
-    }
-
-    /**
-     * @param adminPassword the adminPassword to set
-     */
-    public void setAdminPassword(String adminPassword) {
-        this.adminPassword = adminPassword;
-    }
-
-    /**
-     * @return the adminEmail
-     */
-    public String getAdminEmail() {
-        return adminEmail;
-    }
-
-    /**
-     * @param adminEmail the adminEmail to set
-     */
-    public void setAdminEmail(String adminEmail) {
-        this.adminEmail = adminEmail;
-    }
-
-    /**
-     * @return the adminCertRequest
-     */
-    public String getAdminCertRequest() {
-        return adminCertRequest;
-    }
-
-    /**
-     * @param adminCertRequest the adminCertRequest to set
-     */
-    public void setAdminCertRequest(String adminCertRequest) {
-        this.adminCertRequest = adminCertRequest;
-    }
-
-    /**
-     * @return the adminCertRequestType
-     */
-    public String getAdminCertRequestType() {
-        return adminCertRequestType;
-    }
-
-    /**
-     * @param adminCertRequestType the adminCertRequestType to set
-     */
-    public void setAdminCertRequestType(String adminCertRequestType) {
-        this.adminCertRequestType = adminCertRequestType;
-    }
-
-    /**
-     * @return the adminSubjectDN
-     */
-    public String getAdminSubjectDN() {
-        return adminSubjectDN;
-    }
-
-    /**
-     * @param adminSubjectDN the adminSubjectDN to set
-     */
-    public void setAdminSubjectDN(String adminSubjectDN) {
-        this.adminSubjectDN = adminSubjectDN;
-    }
-
-    /**
-     * @return the adminName
-     */
-    public String getAdminName() {
-        return adminName;
-    }
-
-    /**
-     * @param adminName the adminName to set
-     */
-    public void setAdminName(String adminName) {
-        this.adminName = adminName;
-    }
-
-    /**
-     * @return the admin key type
-     */
-    public String getAdminKeyType() {
-        return adminKeyType;
-    }
-
-    /**
-     * @param adminKeyType the admin key type
-     */
-    public void setAdminKeyType(String adminKeyType) {
-        this.adminKeyType = adminKeyType;
-    }
-
-    /**
-     * @return the adminProfileID
-     */
-    public String getAdminProfileID() {
-        return adminProfileID;
-    }
-
-    /**
-     * @param adminProfileID the adminProfileID to set
-     */
-    public void setAdminProfileID(String adminProfileID) {
-        this.adminProfileID = adminProfileID;
-    }
-
-    public String getImportAdminCert() {
-        return importAdminCert;
-    }
-
-    public void setImportAdminCert(String importAdminCert) {
-        this.importAdminCert = importAdminCert;
-    }
-
-    public String getAdminCert() {
-        return adminCert;
-    }
-
-    public void setAdminCert(String adminCert) {
-        this.adminCert = adminCert;
-    }
-
     public Boolean isExternal() {
         return external;
     }
@@ -1059,16 +884,6 @@ public class ConfigurationRequest {
                ", issuingCA=" + issuingCA +
                ", backupPassword=XXXX" +
                ", backupFile=" + backupFile +
-               ", adminUID=" + adminUID +
-               ", adminPassword=XXXX" +
-               ", adminEmail=" + adminEmail +
-               ", adminCertRequest=" + adminCertRequest +
-               ", adminCertRequestType=" + adminCertRequestType +
-               ", adminSubjectDN=" + adminSubjectDN +
-               ", adminName=" + adminName +
-               ", adminProfileID=" + adminProfileID +
-               ", adminCert=" + adminCert +
-               ", importAdminCert=" + importAdminCert +
                ", generateServerCert=" + generateServerCert +
                ", external=" + external +
                ", standAlone=" + standAlone +

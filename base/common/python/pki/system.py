@@ -219,7 +219,6 @@ class ConfigurationRequest(object):
         self.token = None
         self.isClone = "false"
         self.secureConn = "off"
-        self.importAdminCert = "false"
         self.generateServerCert = "true"
 
 

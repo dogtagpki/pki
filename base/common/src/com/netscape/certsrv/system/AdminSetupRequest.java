@@ -177,6 +177,7 @@ public class AdminSetupRequest {
                ", adminCertRequestType=" + adminCertRequestType +
                ", adminSubjectDN=" + adminSubjectDN +
                ", adminName=" + adminName +
+               ", adminKeyType=" + adminKeyType +
                ", adminProfileID=" + adminProfileID +
                ", adminCert=" + adminCert +
                ", importAdminCert=" + importAdminCert +

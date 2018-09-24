@@ -260,18 +260,6 @@ public class ConfigurationTest {
         data.setBackupFile("/tmp/testca.p12");
         data.setBackupPassword("redhat123");
 
-        data.setAdminEmail("alee@redhat.com");
-        data.setAdminName("admin");
-        data.setAdminPassword("redhat123");
-        data.setAdminProfileID("caAdminCert");
-        data.setAdminUID("admin");
-        String subjectdn = "CN=CA Administrator of Instance testca, UID=admin, E=alee@redhat.com, o=testca2";
-        data.setAdminSubjectDN(subjectdn);
-
-        String crmf_request = generateCRMFRequest(token, "2048", subjectdn, false);
-        data.setAdminCertRequest(crmf_request);
-        data.setAdminCertRequestType("crmf");
-
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert1 = new SystemCertData();
@@ -360,18 +348,6 @@ public class ConfigurationTest {
 
         data.setBackupFile("/tmp/testsubca.p12");
         data.setBackupPassword("redhat123");
-
-        data.setAdminEmail("alee@redhat.com");
-        data.setAdminName("admin");
-        data.setAdminPassword("redhat123");
-        data.setAdminProfileID("caAdminCert");
-        data.setAdminUID("admin");
-        String subjectdn = "CN=CA Administrator of Instance testsubca, UID=admin, E=alee@redhat.com, o=testsubca";
-        data.setAdminSubjectDN(subjectdn);
-
-        String crmf_request = generateCRMFRequest(token, "2048", subjectdn, false);
-        data.setAdminCertRequest(crmf_request);
-        data.setAdminCertRequestType("crmf");
 
         data.setIssuingCA("https://" + host + ":9224");
 
@@ -462,18 +438,6 @@ public class ConfigurationTest {
         data.setBackupFile("/tmp/testexternalca.p12");
         data.setBackupPassword("redhat123");
 
-        data.setAdminEmail("alee@redhat.com");
-        data.setAdminName("admin");
-        data.setAdminPassword("redhat123");
-        data.setAdminProfileID("caAdminCert");
-        data.setAdminUID("admin");
-        String subjectdn = "CN=CA Administrator of Instance testexternalca, UID=admin, E=alee@redhat.com, o=testexternalca";
-        data.setAdminSubjectDN(subjectdn);
-
-        String crmf_request = generateCRMFRequest(token, "2048", subjectdn, false);
-        data.setAdminCertRequest(crmf_request);
-        data.setAdminCertRequestType("crmf");
-
         data.setIssuingCA("External CA");
 
         // create system certs
@@ -562,18 +526,6 @@ public class ConfigurationTest {
 
         data.setBackupFile("/tmp/testexternalca.p12");
         data.setBackupPassword("redhat123");
-
-        data.setAdminEmail("alee@redhat.com");
-        data.setAdminName("admin");
-        data.setAdminPassword("redhat123");
-        data.setAdminProfileID("caAdminCert");
-        data.setAdminUID("admin");
-        String subjectdn = "CN=CA Administrator of Instance testexternalca, UID=admin, E=alee@redhat.com, o=testexternalca";
-        data.setAdminSubjectDN(subjectdn);
-
-        String crmf_request = generateCRMFRequest(token, "2048", subjectdn, false);
-        data.setAdminCertRequest(crmf_request);
-        data.setAdminCertRequestType("crmf");
 
         data.setIssuingCA("External CA");
 
@@ -718,18 +670,6 @@ public class ConfigurationTest {
         data.setBackupFile("/tmp/testkra.p12");
         data.setBackupPassword("redhat123");
 
-        data.setAdminEmail("alee@redhat.com");
-        data.setAdminName("admin");
-        data.setAdminPassword("redhat123");
-        data.setAdminProfileID("caAdminCert");
-        data.setAdminUID("admin");
-        String subjectdn = "CN=KRA Administrator of Instance testkra, UID=admin, E=alee@redhat.com, o=testkra22";
-        data.setAdminSubjectDN(subjectdn);
-
-        String crmf_request = generateCRMFRequest(token, "2048", subjectdn, false);
-        data.setAdminCertRequest(crmf_request);
-        data.setAdminCertRequestType("crmf");
-
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
@@ -820,18 +760,6 @@ public class ConfigurationTest {
         data.setBackupFile("/tmp/testocsp.p12");
         data.setBackupPassword("redhat123");
 
-        data.setAdminEmail("alee@redhat.com");
-        data.setAdminName("admin");
-        data.setAdminPassword("redhat123");
-        data.setAdminProfileID("caAdminCert");
-        data.setAdminUID("admin");
-        String subjectdn = "CN=OCSP Administrator of Instance testocsp, UID=admin, E=alee@redhat.com, o=testocsp22";
-        data.setAdminSubjectDN(subjectdn);
-
-        String crmf_request = generateCRMFRequest(token, "2048", subjectdn, false);
-        data.setAdminCertRequest(crmf_request);
-        data.setAdminCertRequestType("crmf");
-
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
@@ -910,18 +838,6 @@ public class ConfigurationTest {
 
         data.setBackupFile("/tmp/testtks.p12");
         data.setBackupPassword("redhat123");
-
-        data.setAdminEmail("alee@redhat.com");
-        data.setAdminName("admin");
-        data.setAdminPassword("redhat123");
-        data.setAdminProfileID("caAdminCert");
-        data.setAdminUID("admin");
-        String subjectdn = "CN=TKS Administrator of Instance testtks, UID=admin, E=alee@redhat.com, o=testtks22";
-        data.setAdminSubjectDN(subjectdn);
-
-        String crmf_request = generateCRMFRequest(token, "2048", subjectdn, false);
-        data.setAdminCertRequest(crmf_request);
-        data.setAdminCertRequestType("crmf");
 
         data.setIssuingCA("https://" + host + ":9224");
 
