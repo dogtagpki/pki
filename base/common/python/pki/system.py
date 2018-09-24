@@ -20,9 +20,11 @@
 #
 
 from __future__ import absolute_import
-import pki.encoder as encoder
+import json
 import xml.etree.ElementTree as ETree
 import os
+
+import pki.encoder
 
 SYSTEM_TYPE = "Fedora/RHEL"
 if os.path.exists("/etc/debian_version"):
@@ -260,83 +262,101 @@ class SystemConfigClient(object):
     def __init__(self, connection):
         self.connection = connection
 
-    def configure(self, data):
+    def configure(self, request):
         """
         Contacts the server and invokes the Java configuration REST API to
         configure a Dogtag subsystem.
 
-        :param data: Configuration request containing all the input needed to
+        :param request: Configuration request containing all the input needed to
             configure the subsystem
-        :type data: ConfigurationRequest
+        :type request: ConfigurationRequest
         :return: ConfigurationResponse -- response from configuration servlet.
         """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        response = self.connection.post('/rest/installer/configure', data,
-                                        headers)
+        response = self.connection.post(
+            '/rest/installer/configure',
+            data,
+            headers)
         return response.json()
 
-    def configureCerts(self, data):
+    def configureCerts(self, request):
         """
         Configure certificates.
 
-        :param data: Configuration request
-        :type data: ConfigurationRequest
+        :param request: Configuration request
+        :type request: ConfigurationRequest
         :return: ConfigurationResponse
         """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        response = self.connection.post('/rest/installer/configureCerts', data,
-                                        headers)
+        response = self.connection.post(
+            '/rest/installer/configureCerts',
+            data,
+            headers)
         return response.json()
 
-    def backupKeys(self, data):
+    def backupKeys(self, request):
         """
         Backup keys.
 
-        :param data: Configuration request
-        :type data: ConfigurationRequest
+        :param request: Configuration request
+        :type request: ConfigurationRequest
         """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        self.connection.post('/rest/installer/backupKeys', data,
-                             headers)
+        self.connection.post(
+            '/rest/installer/backupKeys',
+            data,
+            headers)
 
-    def setupSecurityDomain(self, data):
+    def setupSecurityDomain(self, request):
         """
         Setup security domain.
 
-        :param data: Configuration request
-        :type data: ConfigurationRequest
+        :param request: Configuration request
+        :type request: ConfigurationRequest
         """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        self.connection.post('/rest/installer/setupSecurityDomain', data,
-                             headers)
+        self.connection.post(
+            '/rest/installer/setupSecurityDomain',
+            data,
+            headers)
 
-    def setupDatabaseUser(self, data):
+    def setupDatabaseUser(self, request):
         """
         Set up database user.
 
-        :param data: Configuration request
-        :type data: ConfigurationRequest
+        :param request: Configuration request
+        :type request: ConfigurationRequest
         """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        self.connection.post('/rest/installer/setupDatabaseUser', data,
-                             headers)
+        self.connection.post(
+            '/rest/installer/setupDatabaseUser',
+            data,
+            headers)
 
-    def finalizeConfiguration(self, data):
+    def finalizeConfiguration(self, request):
         """
         Finalize server configuration.
 
-        :param data: Configuration request
-        :type data: ConfigurationRequest
+        :param request: Configuration request
+        :type request: ConfigurationRequest
         """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        self.connection.post('/rest/installer/finalizeConfiguration', data,
-                             headers)
+        self.connection.post(
+            '/rest/installer/finalizeConfiguration',
+            data,
+            headers)
 
 
 class SystemStatusClient(object):
@@ -362,6 +382,6 @@ class SystemStatusClient(object):
         return response.text
 
 
-encoder.NOTYPES['ConfigurationRequest'] = ConfigurationRequest
-encoder.NOTYPES['ConfigurationResponse'] = ConfigurationResponse
-encoder.NOTYPES['SystemCertData'] = SystemCertData
+pki.encoder.NOTYPES['ConfigurationRequest'] = ConfigurationRequest
+pki.encoder.NOTYPES['ConfigurationResponse'] = ConfigurationResponse
+pki.encoder.NOTYPES['SystemCertData'] = SystemCertData

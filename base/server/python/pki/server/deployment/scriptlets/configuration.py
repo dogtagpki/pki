@@ -22,7 +22,6 @@ from __future__ import absolute_import
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.x509.oid import NameOID
-import json
 import logging
 import os
 import shutil
@@ -673,13 +672,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # Construct PKI Subsystem Configuration Data
         nssdb = instance.open_nssdb(token)
         try:
-            data = deployer.config_client.construct_pki_configuration_data(nssdb)
+            request = deployer.config_client.create_config_request(nssdb)
 
         finally:
             nssdb.close()
-
-        # Configure the subsystem
-        request = json.dumps(data, cls=pki.encoder.CustomTypeEncoder)
 
         connection = pki.client.PKIConnection(
             protocol='https',

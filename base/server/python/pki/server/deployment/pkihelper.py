@@ -4008,10 +4008,11 @@ class ConfigClient:
             self.mdict['pki_client_admin_cert_p12'],
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
-    def construct_pki_configuration_data(self, nssdb):
+    def create_config_request(self, nssdb):
+
         config.pki_log.info(
-            log.PKI_CONFIG_CONSTRUCTING_PKI_DATA,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            'Creating config request',
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         data = pki.system.ConfigurationRequest()
 
