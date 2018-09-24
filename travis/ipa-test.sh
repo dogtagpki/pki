@@ -21,6 +21,28 @@
 #
 set -e
 
+exit_handler() {
+
+    # Save systemd journal
+    journalctl -b --no-pager > systemd_journal.txt
+    curl -k -w "\n" --upload systemd_journal.txt https://transfer.sh/systemd_journal.txt >> ${BUILDDIR}/pki/logs.txt
+
+    # Save other logs
+    LOGS_TAR_NAME="var_log.tar"
+    journalctl -b --no-pager > systemd_journal.txt
+    tar --ignore-failed-read -cvf /tmp/${LOGS_TAR_NAME} \
+        /var/log/dirsrv \
+        /var/log/httpd \
+        /var/log/ipa* \
+        /var/log/krb5kdc.log \
+        /var/log/pki
+
+    chown ${BUILDUSER_UID}:${BUILDUSER_GID} /tmp/${LOGS_TAR_NAME}
+    curl -k -w "\n" --upload /tmp/${LOGS_TAR_NAME} https://transfer.sh/${LOGS_TAR_NAME} >> ${BUILDDIR}/pki/logs.txt
+}
+
+trap "exit_handler" EXIT
+
 # Print the version of installed components
 rpm -qa tomcat* pki-* freeipa-* nss* 389-ds* jss*| sort
 
@@ -61,17 +83,3 @@ ${cert_test_file_loc}
 
 # Uninstall ipa-server
 ipa-server-install --uninstall -U
-
-# Cleanup and pack the logs
-LOGS_TAR_NAME="var_log.tar"
-journalctl -b --no-pager > systemd_journal.txt
-tar --ignore-failed-read -cvf /tmp/${LOGS_TAR_NAME} \
-    /var/log/dirsrv \
-    /var/log/httpd \
-    /var/log/ipa* \
-    /var/log/krb5kdc.log \
-    /var/log/pki
-
-chown ${BUILDUSER_UID}:${BUILDUSER_GID} /tmp/${LOGS_TAR_NAME}
-curl -k -w "\n" --upload /tmp/${LOGS_TAR_NAME} https://transfer.sh/${LOGS_TAR_NAME} >> ${BUILDDIR}/pki/logs.txt
-curl -k -w "\n" --upload systemd_journal.txt https://transfer.sh/systemd_journal.txt >> ${BUILDDIR}/pki/logs.txt
