@@ -675,63 +675,60 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public X509CertImpl createAdminCert(ConfigurationRequest data) throws Exception {
 
-        X509CertImpl admincert;
-
         if (data.getImportAdminCert().equalsIgnoreCase("true")) {
 
             String cert = data.getAdminCert();
-            logger.debug("SystemConfigService: importing admin cert: " + cert);
+            logger.info("SystemConfigService: Importing admin cert: " + cert);
+            // standalone admin cert is already stored into CS.cfg by configuration.py
 
             String b64 = CryptoUtil.stripCertBrackets(cert.trim());
             b64 = CryptoUtil.normalizeCertStr(b64);
-            // standalone admin cert is already stored into CS.cfg by configuration.py
-
-            // Convert Admin Cert to X509CertImpl
             byte[] b = CryptoUtil.base64Decode(b64);
-            admincert = new X509CertImpl(b);
 
-        } else {
-
-            String adminSubjectDN = data.getAdminSubjectDN();
-            cs.putString("preop.cert.admin.dn", adminSubjectDN);
-
-            if (csType.equals("CA")) {
-
-                logger.debug("SystemConfigService: generating admin cert");
-
-                ConfigurationUtils.createAdminCertificate(data.getAdminCertRequest(),
-                        data.getAdminCertRequestType(), adminSubjectDN);
-
-                String serialno = cs.getString("preop.admincert.serialno.0");
-                ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
-                ICertificateRepository repo = ca.getCertificateRepository();
-                admincert = repo.getX509Certificate(new BigInteger(serialno, 16));
-
-            } else {
-
-                logger.debug("SystemConfigService: requesting admin cert");
-
-                String type = cs.getString("preop.ca.type", "");
-                String ca_hostname = "";
-                int ca_port = -1;
-                if (type.equals("sdca")) {
-                    ca_hostname = cs.getString("preop.ca.hostname");
-                    ca_port = cs.getInteger("preop.ca.httpsport");
-                } else {
-                    ca_hostname = cs.getString("securitydomain.host", "");
-                    ca_port = cs.getInteger("securitydomain.httpseeport");
-                }
-                logger.debug("Calculated admin cert profile: " + data.getAdminProfileID());
-                String b64 = ConfigurationUtils.submitAdminCertRequest(ca_hostname, ca_port,
-                        data.getAdminProfileID(), data.getAdminCertRequestType(),
-                        data.getAdminCertRequest(), adminSubjectDN);
-                b64 = CryptoUtil.stripCertBrackets(b64.trim());
-                byte[] b = CryptoUtil.base64Decode(b64);
-                admincert = new X509CertImpl(b);
-            }
+            return new X509CertImpl(b);
         }
 
-        return admincert;
+        String adminSubjectDN = data.getAdminSubjectDN();
+        cs.putString("preop.cert.admin.dn", adminSubjectDN);
+
+        if (csType.equals("CA")) {
+
+            logger.info("SystemConfigService: Generating admin cert");
+
+            ConfigurationUtils.createAdminCertificate(data.getAdminCertRequest(),
+                    data.getAdminCertRequestType(), adminSubjectDN);
+
+            String serialno = cs.getString("preop.admincert.serialno.0");
+            ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+            ICertificateRepository repo = ca.getCertificateRepository();
+
+            return repo.getX509Certificate(new BigInteger(serialno, 16));
+        }
+
+        logger.info("SystemConfigService: Requesting admin cert from CA");
+
+        String type = cs.getString("preop.ca.type", "");
+        String ca_hostname = "";
+        int ca_port = -1;
+
+        if (type.equals("sdca")) {
+            ca_hostname = cs.getString("preop.ca.hostname");
+            ca_port = cs.getInteger("preop.ca.httpsport");
+        } else {
+            ca_hostname = cs.getString("securitydomain.host", "");
+            ca_port = cs.getInteger("securitydomain.httpseeport");
+        }
+
+        logger.debug("SystemConfigService: profile: " + data.getAdminProfileID());
+
+        String b64 = ConfigurationUtils.submitAdminCertRequest(ca_hostname, ca_port,
+                data.getAdminProfileID(), data.getAdminCertRequestType(),
+                data.getAdminCertRequest(), adminSubjectDN);
+
+        b64 = CryptoUtil.stripCertBrackets(b64.trim());
+        byte[] b = CryptoUtil.base64Decode(b64);
+
+        return new X509CertImpl(b);
     }
 
     public void createAdminUser(ConfigurationRequest request) throws Exception {
