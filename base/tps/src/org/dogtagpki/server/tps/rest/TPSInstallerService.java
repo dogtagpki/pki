@@ -28,6 +28,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.ConfigurationRequest;
+import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -55,6 +56,13 @@ public class TPSInstallerService extends SystemConfigService  {
 
         SubsystemInfo si = engine.dynSubsystems.get(SelfTestSubsystem.ID);
         si.enabled = true;
+    }
+
+    @Override
+    public ConfigurationResponse setupAdmin(ConfigurationRequest request) throws Exception {
+        ConfigurationResponse response = super.setupAdmin(request);
+        ConfigurationUtils.addProfilesToTPSUser(request.getAdminUID());
+        return response;
     }
 
     @Override
@@ -125,8 +133,6 @@ public class TPSInstallerService extends SystemConfigService  {
     public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
         try {
-            ConfigurationUtils.addProfilesToTPSUser(request.getAdminUID());
-
             URI secdomainURI = new URI(request.getSecurityDomainUri());
 
             // register TPS with CA

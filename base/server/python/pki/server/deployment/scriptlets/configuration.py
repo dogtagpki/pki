@@ -692,9 +692,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Configuring certificates')
         response = client.configureCerts(request)
 
-        logger.info('Setting up admin')
-        admin_setup_request = deployer.config_client.create_admin_setup_request()
-        admin_setup_response = client.setupAdmin(admin_setup_request)
+        if not clone:
+            logger.info('Setting up admin')
+            admin_setup_request = deployer.config_client.create_admin_setup_request()
+            admin_setup_response = client.setupAdmin(admin_setup_request)
 
         if config.str2bool(deployer.mdict['pki_backup_keys']):
 

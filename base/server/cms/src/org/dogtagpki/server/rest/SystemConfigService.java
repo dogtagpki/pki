@@ -217,20 +217,18 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             ConfigurationResponse response = new ConfigurationResponse();
 
-            if (!request.isClone()) {
-                createAdminUser(request);
+            createAdminUser(request);
 
-                X509CertImpl cert = createAdminCert(request);
-                updateAdminUserCert(request, cert);
+            X509CertImpl cert = createAdminCert(request);
+            updateAdminUserCert(request, cert);
 
-                String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
-                logger.debug("SystemConfigService: admin cert: " + b64cert);
+            String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
+            logger.debug("SystemConfigService: admin cert: " + b64cert);
 
-                SystemCertData adminCert = new SystemCertData();
-                adminCert.setCert(b64cert);
+            SystemCertData adminCert = new SystemCertData();
+            adminCert.setCert(b64cert);
 
-                response.setAdminCert(adminCert);
-            }
+            response.setAdminCert(adminCert);
 
             return response;
 
