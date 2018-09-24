@@ -77,6 +77,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public final static Logger logger = LoggerFactory.getLogger(SystemConfigService.class);
 
+    public static final String ECC_INTERNAL_ADMIN_CERT_PROFILE = "caECAdminCert";
+    public static final String RSA_INTERNAL_ADMIN_CERT_PROFILE = "caAdminCert";
+
     public IConfigStore cs;
     public String csType;
     public String csSubsystem;
@@ -719,10 +722,19 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ca_port = cs.getInteger("securitydomain.httpseeport");
         }
 
-        logger.debug("SystemConfigService: profile: " + data.getAdminProfileID());
+        String keyType = data.getAdminKeyType();
+        String profileID;
+
+        if ("ecc".equalsIgnoreCase(keyType)) {
+            profileID = ECC_INTERNAL_ADMIN_CERT_PROFILE;
+        } else { // rsa
+            profileID = RSA_INTERNAL_ADMIN_CERT_PROFILE;
+        }
+
+        logger.debug("SystemConfigService: profile: " + profileID);
 
         String b64 = ConfigurationUtils.submitAdminCertRequest(ca_hostname, ca_port,
-                data.getAdminProfileID(), data.getAdminCertRequestType(),
+                profileID, data.getAdminCertRequestType(),
                 data.getAdminCertRequest(), adminSubjectDN);
 
         b64 = CryptoUtil.stripCertBrackets(b64.trim());

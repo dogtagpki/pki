@@ -4407,6 +4407,7 @@ class ConfigClient:
         data.adminEmail = self.mdict['pki_admin_email']
         data.adminName = self.mdict['pki_admin_name']
         data.adminPassword = self.mdict['pki_admin_password']
+        data.adminKeyType = self.mdict['pki_admin_key_type']
         data.adminProfileID = self.mdict['pki_admin_profile_id']
         data.adminUID = self.mdict['pki_admin_uid']
         data.adminSubjectDN = self.mdict['pki_admin_subject_dn']
