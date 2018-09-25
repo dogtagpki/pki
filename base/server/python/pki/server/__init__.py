@@ -595,10 +595,11 @@ class CASubsystem(PKISubsystem):
         attrs = entry[1]
 
         request = {}
-        request['id'] = attrs['cn'][0]
-        request['type'] = attrs['requestType'][0]
-        request['status'] = attrs['requestState'][0]
-        request['request'] = attrs['extdata-cert--005frequest'][0]
+        request['id'] = attrs['cn'][0].decode('utf-8')
+        request['type'] = attrs['requestType'][0].decode('utf-8')
+        request['status'] = attrs['requestState'][0].decode('utf-8')
+        request['request'] = attrs['extdata-cert--005frequest'][0]\
+            .decode('utf-8')
 
         return request
 
