@@ -1,5 +1,6 @@
 # Authors:
 #     Dinesh Prasanth M K <dmoluguw@redhat.com>
+#     Endi S. Dewata <edewata@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -699,7 +700,7 @@ class CertCreateCLI(pki.cli.CLI):
         ]
 
         logger.debug('Command: %s', ' '.join(ca_cert_retrieve_cmd))
-        ca_cert_details = subprocess.check_output(ca_cert_retrieve_cmd)
+        ca_cert_details = subprocess.check_output(ca_cert_retrieve_cmd).decode('utf-8')
 
         aki = re.search(r'Subject Key Identifier.*\n.*?(.*?)\n', ca_cert_details).group(1)
 
