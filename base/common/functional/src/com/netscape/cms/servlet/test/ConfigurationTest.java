@@ -257,9 +257,6 @@ public class ConfigurationTest {
         data.setRemoveData("true");
         data.setSecureConn("false");
 
-        data.setBackupFile("/tmp/testca.p12");
-        data.setBackupPassword("redhat123");
-
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert1 = new SystemCertData();
@@ -345,9 +342,6 @@ public class ConfigurationTest {
         data.setBindpwd("redhat123");
         data.setRemoveData("true");
         data.setSecureConn("false");
-
-        data.setBackupFile("/tmp/testsubca.p12");
-        data.setBackupPassword("redhat123");
 
         data.setIssuingCA("https://" + host + ":9224");
 
@@ -435,9 +429,6 @@ public class ConfigurationTest {
         data.setRemoveData("true");
         data.setSecureConn("false");
 
-        data.setBackupFile("/tmp/testexternalca.p12");
-        data.setBackupPassword("redhat123");
-
         data.setIssuingCA("External CA");
 
         // create system certs
@@ -523,9 +514,6 @@ public class ConfigurationTest {
         data.setBindpwd("redhat123");
         data.setRemoveData("true");
         data.setSecureConn("false");
-
-        data.setBackupFile("/tmp/testexternalca.p12");
-        data.setBackupPassword("redhat123");
 
         data.setIssuingCA("External CA");
 
@@ -667,9 +655,6 @@ public class ConfigurationTest {
         data.setRemoveData("true");
         data.setSecureConn("false");
 
-        data.setBackupFile("/tmp/testkra.p12");
-        data.setBackupPassword("redhat123");
-
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
@@ -757,9 +742,6 @@ public class ConfigurationTest {
         data.setRemoveData("true");
         data.setSecureConn("false");
 
-        data.setBackupFile("/tmp/testocsp.p12");
-        data.setBackupPassword("redhat123");
-
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
@@ -835,9 +817,6 @@ public class ConfigurationTest {
         data.setBindpwd("redhat123");
         data.setRemoveData("true");
         data.setSecureConn("false");
-
-        data.setBackupFile("/tmp/testtks.p12");
-        data.setBackupPassword("redhat123");
 
         data.setIssuingCA("https://" + host + ":9224");
 

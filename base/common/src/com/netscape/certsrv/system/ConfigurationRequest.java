@@ -148,12 +148,6 @@ public class ConfigurationRequest {
     protected String issuingCA;
 
     @XmlElement
-    protected String backupPassword;
-
-    @XmlElement
-    protected String backupFile;
-
-    @XmlElement
     protected Boolean external;
 
     @XmlElement
@@ -635,34 +629,6 @@ public class ConfigurationRequest {
         this.issuingCA = issuingCA;
     }
 
-    /**
-     * @return the backupFile
-     */
-    public String getBackupFile() {
-        return backupFile;
-    }
-
-    /**
-     * @param backupFile the backupFile to set
-     */
-    public void setBackupFile(String backupFile) {
-        this.backupFile = backupFile;
-    }
-
-    /**
-     * @return the backupPassword
-     */
-    public String getBackupPassword() {
-        return backupPassword;
-    }
-
-    /**
-     * @param backupPassword the backupPassword to set
-     */
-    public void setBackupPassword(String backupPassword) {
-        this.backupPassword = backupPassword;
-    }
-
     public Boolean isExternal() {
         return external;
     }
@@ -882,8 +848,6 @@ public class ConfigurationRequest {
                ", systemCertsImported=" + systemCertsImported +
                ", systemCerts=" + systemCerts +
                ", issuingCA=" + issuingCA +
-               ", backupPassword=XXXX" +
-               ", backupFile=" + backupFile +
                ", generateServerCert=" + generateServerCert +
                ", external=" + external +
                ", standAlone=" + standAlone +
