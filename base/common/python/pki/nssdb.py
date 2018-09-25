@@ -1,6 +1,6 @@
 # Authors:
 #     Endi S. Dewata <edewata@redhat.com>
-#     Dinesh Prasnath M K <dmoluguw@redhat.com>
+#     Dinesh Prasanth M K <dmoluguw@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the Lesser GNU General Public License as published by
@@ -928,7 +928,7 @@ class NSSDatabase(object):
                 logger.warning('certutil returned non-zero exit code (bug #1539996)')
 
             if output_format == 'base64':
-                cert_data = base64.b64encode(cert_data)
+                cert_data = base64.b64encode(cert_data).decode('utf-8')
             if output_text and not isinstance(cert_data, six.string_types):
                 cert_data = cert_data.decode('ascii')
 

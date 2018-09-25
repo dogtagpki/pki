@@ -836,6 +836,8 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
                 nickname=subsystem_cert['nickname'],
                 cert_file=cert_file)
 
+        # Retrieve the cert info from NSSDB
+        # Note: This reloads `data` object if --cert option is provided
         data = nssdb.get_cert(
             nickname=subsystem_cert['nickname'],
             output_format='base64')
