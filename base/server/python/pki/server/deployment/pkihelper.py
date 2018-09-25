@@ -4057,9 +4057,6 @@ class ConfigClient:
         # database
         self.set_database_parameters(data)
 
-        # backup
-        self.set_backup_parameters(data)
-
         data.replicationPassword = self.mdict['pki_replication_password']
 
         # Issuing CA Information
@@ -4099,6 +4096,20 @@ class ConfigClient:
         request.pin = self.mdict['pki_one_time_pin']
 
         self.set_admin_parameters(request)
+
+        return request
+
+    def create_key_backup_request(self):
+
+        config.pki_log.info(
+            'Creating key backup request',
+            extra=config.PKI_INDENTATION_LEVEL_0)
+
+        request = pki.system.KeyBackupRequest()
+
+        request.pin = self.mdict['pki_one_time_pin']
+
+        self.set_backup_parameters(request)
 
         return request
 
@@ -4409,9 +4420,8 @@ class ConfigClient:
             data.sharedDB = "false"
 
     def set_backup_parameters(self, data):
-        if config.str2bool(self.mdict['pki_backup_keys']):
-            data.backupFile = self.mdict['pki_backup_keys_p12']
-            data.backupPassword = self.mdict['pki_backup_password']
+        data.backupFile = self.mdict['pki_backup_keys_p12']
+        data.backupPassword = self.mdict['pki_backup_password']
 
     def set_admin_parameters(self, data):
         data.adminEmail = self.mdict['pki_admin_email']

@@ -49,6 +49,7 @@ import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.ConfigurationResponse;
+import com.netscape.certsrv.system.KeyBackupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
@@ -695,7 +696,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     @Override
-    public void backupKeys(ConfigurationRequest request) throws Exception {
+    public void backupKeys(KeyBackupRequest request) throws Exception {
 
         logger.debug("SystemConfigService: backupKeys()");
 
@@ -704,10 +705,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
-            }
-
-            if (! CryptoUtil.isInternalToken(request.getToken())) {
-                throw new BadRequestException("Unable to backup keys in HSM");
             }
 
             if (request.getBackupFile() == null || request.getBackupFile().length() <= 0) {

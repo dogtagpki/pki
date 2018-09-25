@@ -245,6 +245,11 @@ class AdminSetupResponse(object):
         pass
 
 
+class KeyBackupRequest(object):
+    def __init__(self):
+        pass
+
+
 class SystemCertData(object):
     """
     Class used to represent the data for a system certificate, which is
@@ -328,8 +333,8 @@ class SystemConfigClient(object):
         """
         Backup keys.
 
-        :param request: Configuration request
-        :type request: ConfigurationRequest
+        :param request: Key backup request
+        :type request: KeyBackupRequest
         """
         data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
@@ -412,4 +417,5 @@ pki.encoder.NOTYPES['ConfigurationRequest'] = ConfigurationRequest
 pki.encoder.NOTYPES['ConfigurationResponse'] = ConfigurationResponse
 pki.encoder.NOTYPES['AdminSetupRequest'] = AdminSetupRequest
 pki.encoder.NOTYPES['AdminSetupResponse'] = AdminSetupResponse
+pki.encoder.NOTYPES['KeyBackupRequest'] = KeyBackupRequest
 pki.encoder.NOTYPES['SystemCertData'] = SystemCertData

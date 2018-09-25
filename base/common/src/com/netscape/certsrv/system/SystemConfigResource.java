@@ -41,7 +41,7 @@ public interface SystemConfigResource {
 
     @POST
     @Path("backupKeys")
-    public void backupKeys(ConfigurationRequest request) throws Exception;
+    public void backupKeys(KeyBackupRequest request) throws Exception;
 
     @POST
     @Path("setupSecurityDomain")

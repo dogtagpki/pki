@@ -597,7 +597,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem.save()
 
-        token = deployer.mdict['pki_token_name']
+        token = pki.nssdb.normalize_token(deployer.mdict['pki_token_name'])
         nssdb = instance.open_nssdb()
 
         existing = deployer.configuration_file.existing
@@ -703,7 +703,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 'Backing up keys into %s',
                 deployer.mdict['pki_backup_keys_p12'])
 
-            client.backupKeys(request)
+            key_backup_request = deployer.config_client.create_key_backup_request()
+            client.backupKeys(key_backup_request)
 
         logger.info('Setting up security domain')
         client.setupSecurityDomain(request)
