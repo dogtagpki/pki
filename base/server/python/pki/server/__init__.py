@@ -262,6 +262,8 @@ class PKISubsystem(object):
                 nickname
             ])
 
+            logger.debug('Command: %s', ' '.join(cmd))
+
             subprocess.check_call(cmd)
 
         finally:
@@ -303,6 +305,8 @@ class PKISubsystem(object):
                 nickname
             ])
 
+            logger.debug('Command: %s', ' '.join(cmd))
+
             subprocess.check_call(cmd)
 
             # remove the certificate and key, but keep the chain
@@ -321,6 +325,8 @@ class PKISubsystem(object):
                 '--pkcs12-password-file', pkcs12_password_file,
                 nickname
             ])
+
+            logger.debug('Command: %s', ' '.join(cmd))
 
             subprocess.check_call(cmd)
 
@@ -729,14 +735,19 @@ class PKIInstance(object):
                 'Invalid instance: ' + self.__repr__(), None)
 
     def start(self):
-        subprocess.check_call(['systemctl', 'start', self.service_name])
+        cmd = ['systemctl', 'start', self.service_name]
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def stop(self):
-        subprocess.check_call(['systemctl', 'stop', self.service_name])
+        cmd = ['systemctl', 'stop', self.service_name]
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     def is_active(self):
-        rc = subprocess.call(
-            ['systemctl', '--quiet', 'is-active', self.service_name])
+        cmd = ['systemctl', '--quiet', 'is-active', self.service_name]
+        logger.debug('Command: %s', ' '.join(cmd))
+        rc = subprocess.call(cmd)
         return rc == 0
 
     def load(self):
@@ -901,6 +912,8 @@ class PKIInstance(object):
                 cmd.extend([
                     nickname
                 ])
+
+                logger.debug('Command: %s', ' '.join(cmd))
 
                 subprocess.check_call(cmd)
 
