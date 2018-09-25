@@ -404,7 +404,8 @@ class CertCreateCLI(pki.cli.CLI):
                 create_temp_cert = True
 
             elif o == '--serial':
-                serial = a
+                # string containing the dec or hex value for the identifier
+                serial = str(int(a, 0))
 
             elif o == '--output':
                 output = a
