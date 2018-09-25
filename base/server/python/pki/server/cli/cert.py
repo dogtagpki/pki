@@ -893,6 +893,13 @@ class CertImportCLI(pki.cli.CLI):
                 subsystem_name, instance_name)
             sys.exit(1)
 
+        # audit and CA certs require special flags set in NSSDB
+        trust_attributes = None
+        if cert_id == 'ca_signing':
+            trust_attributes = 'CT,C,C'
+        elif cert_tag == 'audit_signing':
+            trust_attributes = ',,P'
+
         nssdb = instance.open_nssdb()
 
         try:
@@ -920,7 +927,8 @@ class CertImportCLI(pki.cli.CLI):
             nssdb.add_cert(
                 nickname=cert['nickname'],
                 token=cert['token'],
-                cert_file=cert_file)
+                cert_file=cert_file,
+                trust_attributes=trust_attributes)
 
             logger.info('Updating CS.cfg with the new certificate')
 
