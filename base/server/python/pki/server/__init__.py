@@ -1008,7 +1008,7 @@ class PKIInstance(object):
     def set_self_test(self, status, subsystem):
 
         cmd = [
-                'pki-server'
+            'pki-server'
         ]
 
         if status:
@@ -1023,14 +1023,15 @@ class PKIInstance(object):
 
         subprocess.check_call(cmd)
 
-    def cert_create(self, cert_id, client_nssdb=None, client_nssdb_pass=None,
-                    client_nssdb_pass_file=None, admin_nick=None, temp=False):
+    def cert_create(self, cert_id, client_nssdb_location=None,
+                    client_nssdb_pass=None, client_nssdb_pass_file=None,
+                    client_cert=None, renew=False, temp=False):
         cmd = [
             'pki-server', 'cert-create', '--instance', self.name
         ]
 
-        if client_nssdb:
-            cmd.extend(['-d', client_nssdb])
+        if client_nssdb_location:
+            cmd.extend(['-d', client_nssdb_location])
 
         if client_nssdb_pass:
             cmd.extend(['-c', client_nssdb_pass])
@@ -1038,13 +1039,17 @@ class PKIInstance(object):
         if client_nssdb_pass_file:
             cmd.extend(['-C', client_nssdb_pass_file])
 
-        if admin_nick:
-            cmd.extend(['n', admin_nick])
+        if client_cert:
+            cmd.extend(['-n', client_cert])
 
         if cert_id:
             cmd.extend([cert_id])
+
         if temp:
             cmd.extend(['--temp'])
+
+        if renew:
+            cmd.extend(['--renew'])
 
         logger.info('Executing CMD: %s', cmd)
 
@@ -1061,7 +1066,18 @@ class PKIInstance(object):
         logger.info('Executing CMD: %s', cmd)
 
         subprocess.check_call(cmd)
-        
+
+    def cert_del(self, cert_id):
+
+        cmd = [
+            'pki-server', 'cert-del', '--instance', self.name
+        ]
+        if cert_id:
+            cmd.extend([cert_id])
+
+        logger.info('Executing CMD: %s', cmd)
+        subprocess.check_call(cmd)
+
 
 class PKIDatabaseConnection(object):
 
