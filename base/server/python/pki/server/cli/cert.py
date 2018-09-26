@@ -610,16 +610,9 @@ class CertCreateCLI(pki.cli.CLI):
 
             if create_temp_cert:
                 if not serial:
-                    # If admin doesn't provide a serial number, find the highest in NSS db
-                    # and add 1 to it
-                    serial = 0
-                    for sub in instance.subsystems:
-                        for n_cert in sub.find_system_certs():
-                            if int(n_cert['serial_number']) > serial:
-                                serial = int(n_cert['serial_number'])
-
-                    # Add 1 and then rewrap it as a string
-                    serial = str(serial + 1)
+                    # If admin doesn't provide a serial number, set the serial to
+                    # the same serial number available in the nssdb
+                    serial = subsystem.get_subsystem_cert('sslserver')["serial_number"]
 
             else:
                 # Create permanent certificate
