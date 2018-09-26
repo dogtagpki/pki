@@ -320,7 +320,6 @@ public class PKCS12Util {
         attrs.addElement(subjectAttr);
 
         byte[] keyID = keyInfo.getID();
-
         SEQUENCE localKeyAttr = new SEQUENCE();
         localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
 
@@ -363,7 +362,7 @@ public class PKCS12Util {
             attrs.addElement(trustFlagsAttr);
         }
 
-        byte[] keyID = certInfo.getID();
+        byte[] keyID = certInfo.getKeyID();
         if (keyID != null) {
             logger.debug("   Key ID: " + Hex.encodeHexString(keyID));
 
@@ -458,10 +457,11 @@ public class PKCS12Util {
             try {
                 PrivateKey privateKey = cm.findPrivKeyByCert(cert);
 
-                PKCS12KeyInfo keyInfo = createKeyInfoFromNSS(cert, privateKey, id, friendlyName);
+                PKCS12KeyInfo keyInfo = createKeyInfoFromNSS(cert, privateKey, friendlyName);
                 pkcs12.addKeyInfo(keyInfo);
 
                 byte[] keyID = keyInfo.getID();
+                certInfo.setKeyID(keyID);
                 logger.debug("   Key ID: " + Hex.encodeHexString(keyID));
 
             } catch (ObjectNotFoundException e) {
@@ -520,24 +520,24 @@ public class PKCS12Util {
 
     public PKCS12KeyInfo createKeyInfoFromNSS(
             X509Certificate cert,
-            PrivateKey privateKey,
-            byte[] id) throws Exception {
+            PrivateKey privateKey) throws Exception {
 
-        return createKeyInfoFromNSS(cert, privateKey, id, null);
+        return createKeyInfoFromNSS(cert, privateKey, null);
     }
 
     public PKCS12KeyInfo createKeyInfoFromNSS(
             X509Certificate cert,
             PrivateKey privateKey,
-            byte[] id,
             String friendlyName) throws Exception {
+
+        byte[] keyID = privateKey.getUniqueID();
 
         if (friendlyName == null) {
             friendlyName = cert.getNickname();
         }
 
         PKCS12KeyInfo keyInfo = new PKCS12KeyInfo(privateKey);
-        keyInfo.setID(id);
+        keyInfo.setID(keyID);
         keyInfo.setFriendlyName(friendlyName);
 
         return keyInfo;
@@ -671,6 +671,11 @@ public class PKCS12Util {
         OCTET_STRING certStr = (OCTET_STRING) certBag.getInterpretedCert();
         byte[] x509cert = certStr.toByteArray();
 
+        // generate cert ID from SHA-1 hash of cert data
+        byte[] id = SafeBag.getLocalKeyIDFromCert(x509cert);
+        certInfo.setID(id);
+        logger.debug("   Certificate ID: " + Hex.encodeHexString(id));
+
         X509CertImpl cert = new X509CertImpl(x509cert);
         certInfo.setCert(cert);
 
@@ -704,7 +709,7 @@ public class PKCS12Util {
                 OCTET_STRING keyIdAsn1 = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
 
                 byte[] keyID = keyIdAsn1.toByteArray();
-                certInfo.setID(keyID);
+                certInfo.setKeyID(keyID);
                 logger.debug("   Key ID: " + Hex.encodeHexString(keyID));
 
             } else if (oid.equals(PKCS12.CERT_TRUST_FLAGS_OID) && trustFlagsEnabled) {
@@ -722,15 +727,6 @@ public class PKCS12Util {
             } else {
                 logger.warn("   " + oid + ": " + attr.getValues());
             }
-        }
-
-        byte[] id = certInfo.getID();
-        if (id == null) {
-            logger.debug("   ID not specified, generating new ID");
-            // generate cert ID from SHA-1 hash of cert data
-            id = SafeBag.getLocalKeyIDFromCert(x509cert);
-            certInfo.setID(id);
-            logger.debug("   ID: " + Hex.encodeHexString(id));
         }
 
         if (certInfo.getFriendlyName() == null) {
@@ -851,7 +847,7 @@ public class PKCS12Util {
             String nickname,
             PKCS12KeyInfo keyInfo) throws Exception {
 
-        PKCS12CertInfo certInfo = pkcs12.getCertInfoByID(keyInfo.getID());
+        PKCS12CertInfo certInfo = pkcs12.getCertInfoByKeyID(keyInfo.getID());
         if (certInfo == null) {
             logger.debug("Private key has no certificate, ignore");
             return;
@@ -918,11 +914,11 @@ public class PKCS12Util {
         X509CertImpl certImpl = certInfo.getCert();
         X509Certificate cert;
 
-        byte[] id = certInfo.getID();
-        PKCS12KeyInfo keyInfo = pkcs12.getKeyInfoByID(id);
+        byte[] keyID = certInfo.getKeyID();
 
-        if (keyInfo != null) { // cert has key
+        if (keyID != null) { // cert has key
             logger.debug("Importing private key for " + certInfo.getFriendlyName());
+            PKCS12KeyInfo keyInfo = pkcs12.getKeyInfoByID(keyID);
             importKey(pkcs12, password, certInfo.getFriendlyName(), keyInfo);
 
             logger.debug("Importing user certificate " + certInfo.getFriendlyName());

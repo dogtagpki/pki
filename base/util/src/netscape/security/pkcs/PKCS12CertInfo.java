@@ -25,6 +25,7 @@ public class PKCS12CertInfo {
     private X509CertImpl cert;
     private String friendlyName;
     private String trustFlags;
+    private byte[] keyID;
 
     public PKCS12CertInfo() {
     }
@@ -59,5 +60,13 @@ public class PKCS12CertInfo {
 
     public void setTrustFlags(String trustFlags) {
         this.trustFlags = trustFlags;
+    }
+
+    public byte[] getKeyID() {
+        return keyID;
+    }
+
+    public void setKeyID(byte[] keyID) {
+        this.keyID = keyID;
     }
 }

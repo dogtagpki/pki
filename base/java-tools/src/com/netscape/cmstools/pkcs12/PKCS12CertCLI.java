@@ -56,6 +56,10 @@ public class PKCS12CertCLI extends CLI {
             System.out.println("  Trust Flags: " + certInfo.getTrustFlags());
         }
 
-        System.out.println("  Has Key: " + (pkcs12.getKeyInfoByID(id) != null));
+        byte[] keyID = certInfo.getKeyID();
+        System.out.println("  Has Key: " + (keyID != null));
+        if (keyID != null) {
+            System.out.println("  Key ID: " + Hex.encodeHexString(keyID));
+        }
     }
 }
