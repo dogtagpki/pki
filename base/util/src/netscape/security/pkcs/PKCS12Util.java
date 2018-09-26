@@ -293,8 +293,9 @@ public class PKCS12Util {
 
         logger.debug("Creating cert bag for " + certInfo.getFriendlyName());
 
-        ASN1Value cert = new OCTET_STRING(certInfo.cert.getEncoded());
-        CertBag certBag = new CertBag(CertBag.X509_CERT_TYPE, cert);
+        X509CertImpl cert = certInfo.getCert();
+        ASN1Value certAsn1 = new OCTET_STRING(cert.getEncoded());
+        CertBag certBag = new CertBag(CertBag.X509_CERT_TYPE, certAsn1);
 
         SET certAttrs = createCertBagAttrs(certInfo);
 
@@ -306,20 +307,24 @@ public class PKCS12Util {
 
         SET attrs = new SET();
 
+        String friendlyName = keyInfo.getFriendlyName();
+
         SEQUENCE subjectAttr = new SEQUENCE();
         subjectAttr.addElement(SafeBag.FRIENDLY_NAME);
 
         SET subjectSet = new SET();
-        subjectSet.addElement(new BMPString(keyInfo.getFriendlyName()));
+        subjectSet.addElement(new BMPString(friendlyName));
         subjectAttr.addElement(subjectSet);
 
         attrs.addElement(subjectAttr);
+
+        byte[] keyID = keyInfo.getID();
 
         SEQUENCE localKeyAttr = new SEQUENCE();
         localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
 
         SET localKeySet = new SET();
-        localKeySet.addElement(new OCTET_STRING(keyInfo.id));
+        localKeySet.addElement(new OCTET_STRING(keyID));
         localKeyAttr.addElement(localKeySet);
 
         attrs.addElement(localKeyAttr);
@@ -331,32 +336,36 @@ public class PKCS12Util {
 
         SET attrs = new SET();
 
+        String friendlyName = certInfo.getFriendlyName();
+
         SEQUENCE nicknameAttr = new SEQUENCE();
         nicknameAttr.addElement(SafeBag.FRIENDLY_NAME);
 
         SET nicknameSet = new SET();
-        nicknameSet.addElement(new BMPString(certInfo.getFriendlyName()));
+        nicknameSet.addElement(new BMPString(friendlyName));
         nicknameAttr.addElement(nicknameSet);
 
         attrs.addElement(nicknameAttr);
 
-        if (certInfo.getID() != null) {
+        byte[] keyID = certInfo.getID();
+        if (keyID != null) {
             SEQUENCE localKeyAttr = new SEQUENCE();
             localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
 
             SET localKeySet = new SET();
-            localKeySet.addElement(new OCTET_STRING(certInfo.id));
+            localKeySet.addElement(new OCTET_STRING(keyID));
             localKeyAttr.addElement(localKeySet);
 
             attrs.addElement(localKeyAttr);
         }
 
-        if (certInfo.trustFlags != null && trustFlagsEnabled) {
+        String trustFlags = certInfo.getTrustFlags();
+        if (trustFlags != null && trustFlagsEnabled) {
             SEQUENCE trustFlagsAttr = new SEQUENCE();
             trustFlagsAttr.addElement(PKCS12.CERT_TRUST_FLAGS_OID);
 
             SET trustFlagsSet = new SET();
-            trustFlagsSet.addElement(new BMPString(certInfo.trustFlags));
+            trustFlagsSet.addElement(new BMPString(trustFlags));
             trustFlagsAttr.addElement(trustFlagsSet);
 
             attrs.addElement(trustFlagsAttr);
@@ -482,11 +491,14 @@ public class PKCS12Util {
             friendlyName = nickname;
         }
 
+        X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
+        String trustFlags = getTrustFlags(cert);
+
         PKCS12CertInfo certInfo = new PKCS12CertInfo();
-        certInfo.id = id;
+        certInfo.setID(id);
         certInfo.setFriendlyName(friendlyName);
-        certInfo.cert = new X509CertImpl(cert.getEncoded());
-        certInfo.trustFlags = getTrustFlags(cert);
+        certInfo.setCert(certImpl);
+        certInfo.setTrustFlags(trustFlags);
 
         return certInfo;
     }
@@ -513,7 +525,7 @@ public class PKCS12Util {
         }
 
         PKCS12KeyInfo keyInfo = new PKCS12KeyInfo(privateKey);
-        keyInfo.id = id;
+        keyInfo.setID(id);
         keyInfo.setFriendlyName(friendlyName);
 
         return keyInfo;
@@ -625,10 +637,11 @@ public class PKCS12Util {
                 ANY value = (ANY) values.elementAt(0);
 
                 ByteArrayInputStream bis = new ByteArrayInputStream(value.getEncoded());
-                OCTET_STRING keyID = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
+                OCTET_STRING keyIdAsn1 = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
 
-                keyInfo.id = keyID.toByteArray();
-                logger.debug("   ID: " + Hex.encodeHexString(keyInfo.id));
+                byte[] keyID = keyIdAsn1.toByteArray();
+                logger.debug("   ID: " + Hex.encodeHexString(keyID));
+                keyInfo.setID(keyID);
             }
         }
 
@@ -644,8 +657,10 @@ public class PKCS12Util {
         OCTET_STRING certStr = (OCTET_STRING) certBag.getInterpretedCert();
         byte[] x509cert = certStr.toByteArray();
 
-        certInfo.cert = new X509CertImpl(x509cert);
-        Principal subjectDN = certInfo.cert.getSubjectDN();
+        X509CertImpl cert = new X509CertImpl(x509cert);
+        certInfo.setCert(cert);
+
+        Principal subjectDN = cert.getSubjectDN();
         logger.debug("   Subject DN: " + subjectDN);
 
         SET bagAttrs = bag.getBagAttributes();
@@ -666,17 +681,17 @@ public class PKCS12Util {
                 certInfo.setFriendlyName(friendlyName.toString());
                 logger.debug("   Friendly name: " + certInfo.getFriendlyName());
 
-
             } else if (oid.equals(SafeBag.LOCAL_KEY_ID)) {
 
                 SET values = attr.getValues();
                 ANY value = (ANY) values.elementAt(0);
 
                 ByteArrayInputStream bis = new ByteArrayInputStream(value.getEncoded());
-                OCTET_STRING keyID = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
+                OCTET_STRING keyIdAsn1 = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
 
-                certInfo.id = keyID.toByteArray();
-                logger.debug("   ID: " + Hex.encodeHexString(certInfo.id));
+                byte[] keyID = keyIdAsn1.toByteArray();
+                certInfo.setID(keyID);
+                logger.debug("   ID: " + Hex.encodeHexString(keyID));
 
             } else if (oid.equals(PKCS12.CERT_TRUST_FLAGS_OID) && trustFlagsEnabled) {
 
@@ -684,25 +699,29 @@ public class PKCS12Util {
                 ANY value = (ANY) values.elementAt(0);
 
                 ByteArrayInputStream is = new ByteArrayInputStream(value.getEncoded());
-                BMPString trustFlags = (BMPString) (new BMPString.Template()).decode(is);
+                BMPString trustFlagsAsn1 = (BMPString) (new BMPString.Template()).decode(is);
 
-                certInfo.trustFlags = trustFlags.toString();
-                logger.debug("   Trust flags: " + certInfo.trustFlags);
+                String trustFlags = trustFlagsAsn1.toString();
+                certInfo.setTrustFlags(trustFlags);
+                logger.debug("   Trust flags: " + trustFlags);
             }
         }
 
-        if (certInfo.id == null) {
+        byte[] id = certInfo.getID();
+        if (id == null) {
             logger.debug("   ID not specified, generating new ID");
-            certInfo.id = SafeBag.getLocalKeyIDFromCert(x509cert);
-            logger.debug("   ID: " + Hex.encodeHexString(certInfo.id));
+            id = SafeBag.getLocalKeyIDFromCert(x509cert);
+            certInfo.setID(id);
+            logger.debug("   ID: " + Hex.encodeHexString(id));
         }
 
         if (certInfo.getFriendlyName() == null) {
             logger.debug("   Generating new friendly name");
             DN dn = new DN(subjectDN.getName());
             String[] values = dn.explodeDN(true);
-            certInfo.setFriendlyName(StringUtils.join(values, " - "));
-            logger.debug("   Friendly name: " + certInfo.friendlyName);
+            String friendlyName = StringUtils.join(values, " - ");
+            certInfo.setFriendlyName(friendlyName);
+            logger.debug("   Friendly name: " + friendlyName);
         }
 
         return certInfo;
@@ -800,7 +819,8 @@ public class PKCS12Util {
             throws CertificateException {
 
         for (PKCS12CertInfo certInfo : pkcs12.getCertInfos()) {
-            Principal certSubjectDN = certInfo.cert.getSubjectDN();
+            X509CertImpl cert = certInfo.getCert();
+            Principal certSubjectDN = cert.getSubjectDN();
             if (LDAPDN.equals(certSubjectDN.toString(), subjectDN)) return certInfo;
         }
 
@@ -823,7 +843,8 @@ public class PKCS12Util {
         CryptoToken token = cm.getInternalKeyStorageToken();
         PK11Store store = (PK11Store)token.getCryptoStore();
 
-        X509Certificate cert = cm.importCACertPackage(certInfo.cert.getEncoded());
+        X509CertImpl certImpl = certInfo.getCert();
+        X509Certificate cert = cm.importCACertPackage(certImpl.getEncoded());
 
         // get public key
         PublicKey publicKey = cert.getPublicKey();
@@ -879,6 +900,7 @@ public class PKCS12Util {
             store.deleteCert(cert);
         }
 
+        X509CertImpl certImpl = certInfo.getCert();
         X509Certificate cert;
         if (keyInfo != null) { // cert has key
             logger.debug("Importing private key for " + certInfo.getFriendlyName());
@@ -886,16 +908,18 @@ public class PKCS12Util {
 
             logger.debug("Importing user certificate " + certInfo.getFriendlyName());
             cert = cm.importUserCACertPackage(
-                    certInfo.cert.getEncoded(), certInfo.getFriendlyName());
+                    certImpl.getEncoded(), certInfo.getFriendlyName());
 
         } else { // cert has no key
             logger.debug("Importing CA certificate " + certInfo.getFriendlyName());
             // Note: JSS does not preserve CA certificate nickname
-            cert = cm.importCACertPackage(certInfo.cert.getEncoded());
+            cert = cm.importCACertPackage(certImpl.getEncoded());
         }
 
-        if (certInfo.trustFlags != null && trustFlagsEnabled)
-            setTrustFlags(cert, certInfo.trustFlags);
+        String trustFlags = certInfo.getTrustFlags();
+        if (trustFlags != null && trustFlagsEnabled) {
+            setTrustFlags(cert, trustFlags);
+        }
     }
 
     public void storeCertIntoNSS(PKCS12 pkcs12, Password password, String nickname, boolean overwrite) throws Exception {

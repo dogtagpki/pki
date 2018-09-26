@@ -34,8 +34,8 @@ public class PKCS12KeyInfo {
 
     private PrivateKey privateKey;
     private byte[] epkiBytes;
-    byte[] id;
-    String friendlyName;
+    private byte[] id;
+    private String friendlyName;
 
     public PKCS12KeyInfo() {
     }

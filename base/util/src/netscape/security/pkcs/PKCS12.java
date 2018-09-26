@@ -152,7 +152,7 @@ public class PKCS12 {
     }
 
     public void addKeyInfo(PKCS12KeyInfo keyInfo) {
-        keyInfosByID.put(new BigInteger(1, keyInfo.id), keyInfo);
+        keyInfosByID.put(new BigInteger(1, keyInfo.getID()), keyInfo);
     }
 
     public PKCS12KeyInfo getKeyInfoByID(byte[] id) {

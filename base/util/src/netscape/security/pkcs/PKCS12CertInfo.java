@@ -21,10 +21,10 @@ import netscape.security.x509.X509CertImpl;
 
 public class PKCS12CertInfo {
 
-    byte[] id;
-    X509CertImpl cert;
-    String friendlyName;
-    String trustFlags;
+    private byte[] id;
+    private X509CertImpl cert;
+    private String friendlyName;
+    private String trustFlags;
 
     public PKCS12CertInfo() {
     }
