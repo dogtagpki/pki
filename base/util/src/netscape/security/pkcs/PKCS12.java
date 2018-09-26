@@ -143,6 +143,7 @@ public class PKCS12 {
     Map<BigInteger, PKCS12KeyInfo> keyInfosByID = new LinkedHashMap<BigInteger, PKCS12KeyInfo>();
 
     Map<BigInteger, PKCS12CertInfo> certInfosByID = new LinkedHashMap<BigInteger, PKCS12CertInfo>();
+    Map<BigInteger, PKCS12CertInfo> certInfosByKeyID = new LinkedHashMap<BigInteger, PKCS12CertInfo>();
 
     public PKCS12() {
     }
@@ -174,10 +175,19 @@ public class PKCS12 {
             return;
 
         certInfosByID.put(id, certInfo);
+
+        byte[] keyID = certInfo.getKeyID();
+        if (keyID == null) return;
+
+        certInfosByKeyID.put(new BigInteger(1, keyID), certInfo);
     }
 
     public PKCS12CertInfo getCertInfoByID(byte[] id) {
         return certInfosByID.get(new BigInteger(1, id));
+    }
+
+    public PKCS12CertInfo getCertInfoByKeyID(byte[] keyID) {
+        return certInfosByKeyID.get(new BigInteger(1, keyID));
     }
 
     public Collection<PKCS12CertInfo> getCertInfosByFriendlyName(String friendlyName) {
@@ -201,9 +211,15 @@ public class PKCS12 {
         }
 
         for (PKCS12CertInfo certInfo : result) {
+
             BigInteger id = new BigInteger(1, certInfo.getID());
             certInfosByID.remove(id);
-            keyInfosByID.remove(id);
+
+            byte[] keyID = certInfo.getKeyID();
+            if (keyID == null) continue;
+
+            certInfosByKeyID.remove(new BigInteger(1, keyID));
+            keyInfosByID.remove(new BigInteger(1, keyID));
         }
     }
 }
