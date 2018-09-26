@@ -648,6 +648,16 @@ class CertCreateCLI(pki.cli.CLI):
                                        subsystem=subsystem, new_cert_file=new_cert_file,
                                        connection=connection)
 
+            elif cert_tag == 'transport':
+                self.create_transport_cert(is_temp_cert=create_temp_cert, serial=serial,
+                                           subsystem=subsystem, new_cert_file=new_cert_file,
+                                           connection=connection)
+
+            elif cert_tag == 'storage':
+                self.create_storage_cert(is_temp_cert=create_temp_cert, serial=serial,
+                                         subsystem=subsystem, new_cert_file=new_cert_file,
+                                         connection=connection)
+
             else:
                 # renewal not yet supported
                 raise Exception('Renewal for %s not yet supported.' % cert_id)
@@ -855,6 +865,7 @@ class CertCreateCLI(pki.cli.CLI):
             self.renew_system_certificate(connection=connection,
                                           output=new_cert_file, serial=serial)
 
+    # TODO: Combine the following create_<name>_cert methods into generic method
     def create_ocsp_cert(self, subsystem, is_temp_cert, new_cert_file, serial, connection):
 
         if is_temp_cert:
@@ -862,6 +873,8 @@ class CertCreateCLI(pki.cli.CLI):
 
         else:
             cert_tag = 'ocsp_signing'
+            # if subsystem = OCSP, then reformat the cert_tag
+            # if susbsytem = CA, then cert_tag should remain the same
             if subsystem.name is 'ocsp':
                 cert_tag = 'signing'
 
@@ -900,6 +913,40 @@ class CertCreateCLI(pki.cli.CLI):
             if not serial:
                 # If serial number is not provided, get Serial Number from NSS db
                 serial = subsystem.get_subsystem_cert('audit_signing')["serial_number"]
+
+            logger.info('Renewing for certificate with serial number: %s', serial)
+
+            self.renew_system_certificate(connection=connection,
+                                          output=new_cert_file, serial=serial)
+
+    def create_transport_cert(self, subsystem, is_temp_cert, new_cert_file, serial,
+                              connection):
+
+        logger.info('Creating transport certificate')
+
+        if is_temp_cert:
+            raise Exception('Temp certificate for transport is not supported.')
+        else:
+            if not serial:
+                # If serial number is not provided, get Serial Number from NSS db
+                serial = subsystem.get_subsystem_cert('transport')["serial_number"]
+
+            logger.info('Renewing for certificate with serial number: %s', serial)
+
+            self.renew_system_certificate(connection=connection,
+                                          output=new_cert_file, serial=serial)
+
+    def create_storage_cert(self, subsystem, is_temp_cert, new_cert_file, serial,
+                              connection):
+
+        logger.info('Creating storage certificate')
+
+        if is_temp_cert:
+            raise Exception('Temp certificate for storage is not supported.')
+        else:
+            if not serial:
+                # If serial number is not provided, get Serial Number from NSS db
+                serial = subsystem.get_subsystem_cert('storage')["serial_number"]
 
             logger.info('Renewing for certificate with serial number: %s', serial)
 
