@@ -35,33 +35,6 @@ class SelfTestCLI(pki.cli.CLI):
         self.add_module(EnableSelfTestCLI())
         self.add_module(DisableSelftestCLI())
 
-    @staticmethod
-    def set_startup_test_critical(instance, subsystem, test, critical=False):
-
-        target_subsystems = []
-
-        # Load subsystem or subsystems
-        if not subsystem:
-            for subsys in instance.subsystems:
-                target_subsystems.append(subsys)
-        else:
-            target_subsystems.append(instance.get_subsystem(subsystem))
-
-        for subsys in target_subsystems:
-            target_tests = subsys.get_startup_tests()
-            # Change the test level to critical
-            if test:
-                if test not in target_tests:
-                    raise Exception('No such self test available for %s' % subsystem)
-                target_tests[test] = critical
-            else:
-                for testID in target_tests:
-                    target_tests[testID] = critical
-
-            subsys.set_startup_tests(target_tests)
-            # save the CS.cfg
-            subsys.save()
-
 
 class EnableSelfTestCLI(pki.cli.CLI):
     def __init__(self):
@@ -119,8 +92,17 @@ class EnableSelfTestCLI(pki.cli.CLI):
 
         instance.load()
 
-        SelfTestCLI.set_startup_test_critical(instance=instance,
-                                              subsystem=subsystem, test=test, critical=True)
+        target_subsystems = []
+
+        # Load subsystem or subsystems
+        if not subsystem:
+            for subsys in instance.subsystems:
+                target_subsystems.append(subsys)
+        else:
+            target_subsystems.append(instance.get_subsystem(subsystem))
+
+        for subsys in target_subsystems:
+            subsys.set_startup_test_critical(test=test, critical=True)
 
 
 class DisableSelftestCLI(pki.cli.CLI):
@@ -179,5 +161,14 @@ class DisableSelftestCLI(pki.cli.CLI):
 
         instance.load()
 
-        SelfTestCLI.set_startup_test_critical(instance=instance,
-                                              subsystem=subsystem, test=test)
+        target_subsystems = []
+
+        # Load subsystem or subsystems
+        if not subsystem:
+            for subsys in instance.subsystems:
+                target_subsystems.append(subsys)
+        else:
+            target_subsystems.append(instance.get_subsystem(subsystem))
+
+        for subsys in target_subsystems:
+            subsys.set_startup_test_critical(test=test, critical=False)

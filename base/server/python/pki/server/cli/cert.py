@@ -1601,14 +1601,36 @@ class CertFixCLI(pki.cli.CLI):
         target_subsys = []
         for cert in fix_certs:
             # If the cert is either sslserver/subsystem, disable selftest for all
-            # subsystems since all subsystems use these 2 certs
-            subsystem = None
-            if cert != 'sslserver' and cert != 'subsystem':
-                subsystem = cert.split('_', 1)[0]
+            # subsystems since all subsystems use these 2 certs. We store a list
+            # of subsystems in target_subsys in order to enable selftests for
+            # respective subsystems later
+            if cert == 'sslserver' or cert == 'subsystem':
+                for subsystem in instance.subsystems:
+                    target_subsys.append(subsystem)
+                break
 
-            if subsystem not in target_subsys:
-                instance.set_self_test(False, subsystem)
+            else:
+                subsystem_name = cert.split('_', 1)[0]
+                subsystem = instance.get_subsystem(subsystem_name)
+
+                # If the subsystem is wrong, stop the process
+                if not subsystem:
+                    logger.error('No %s subsystem in instance %s.',
+                                 subsystem_name, instance_name)
+                    sys.exit(1)
+
                 target_subsys.append(subsystem)
+
+        # Remove duplicates, if any.
+        # Example of duplicates:
+        # fix_certs = [ca_ocsp_signing, sslserver]
+        target_subsys = list(set(target_subsys))
+
+        for subsystem in target_subsys:
+            subsystem.set_startup_test_critical(False)
+
+        logger.debug('Selftests disabled for subsystems: %s', ', '.join(
+            str(x.name) for x in target_subsys))
 
         # 4. Create temp SSL cert and import it
         instance.cert_create(cert_id='sslserver', temp=True)
@@ -1636,7 +1658,7 @@ class CertFixCLI(pki.cli.CLI):
 
         # 9. Enable self tests for the subsystems disabled earlier
         for subsystem in target_subsys:
-            instance.set_self_test(True, subsystem)
+            subsystem.set_startup_test_critical(True)
 
         # 10. Bring up the server
         instance.start()

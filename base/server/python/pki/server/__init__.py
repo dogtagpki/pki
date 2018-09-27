@@ -546,6 +546,22 @@ class PKISubsystem(object):
             .join([(key + ':' + SELFTEST_CRITICAL if val else key)
                    for key, val in target_tests.items()])
 
+    def set_startup_test_critical(self, critical, test=None):
+
+        target_tests = self.get_startup_tests()
+        # Change the test level to critical
+        if test:
+            if test not in target_tests:
+                raise Exception('No such self test available for %s' % self.name)
+            target_tests[test] = critical
+        else:
+            for testID in target_tests:
+                target_tests[testID] = critical
+
+        self.set_startup_tests(target_tests)
+        # save the CS.cfg
+        self.save()
+
 
 class CASubsystem(PKISubsystem):
 
@@ -1004,24 +1020,6 @@ class PKIInstance(object):
         if self.type == 9:
             return "Dogtag 9 " + self.name
         return self.name
-
-    def set_self_test(self, status, subsystem):
-
-        cmd = [
-            'pki-server'
-        ]
-
-        if status:
-            cmd.extend(['selftest-enable'])
-        else:
-            cmd.extend(['selftest-disable'])
-
-        if subsystem:
-            cmd.extend(['--subsystem', subsystem])
-
-        cmd.extend(['--instance', self.name])
-
-        subprocess.check_call(cmd)
 
     def cert_create(self, cert_id, client_nssdb_location=None,
                     client_nssdb_pass=None, client_nssdb_pass_file=None,
