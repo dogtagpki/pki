@@ -620,8 +620,7 @@ class CertCreateCLI(pki.cli.CLI):
                     # Fixme: Support rekey
                     raise Exception('Rekey is not supported yet.')
 
-                connection = self.setup_authentication(subsystem=subsystem,
-                                                       c_nssdb_pass=client_nssdb_password,
+                connection = self.setup_authentication(c_nssdb_pass=client_nssdb_password,
                                                        c_cert=client_cert,
                                                        c_nssdb_pass_file=client_nssdb_pass_file,
                                                        c_nssdb=client_nssdb_location,
@@ -715,7 +714,7 @@ class CertCreateCLI(pki.cli.CLI):
 
         return ca_signing_cert, aki, csr_file
 
-    def setup_authentication(self, subsystem, c_nssdb_pass, c_nssdb_pass_file, c_cert,
+    def setup_authentication(self, c_nssdb_pass, c_nssdb_pass_file, c_cert,
                              c_nssdb, tmpdir):
         temp_auth_p12 = os.path.join(tmpdir, 'auth.p12')
         temp_auth_cert = os.path.join(tmpdir, 'auth.pem')
@@ -726,7 +725,8 @@ class CertCreateCLI(pki.cli.CLI):
             sys.exit(1)
 
         # Create a PKIConnection object that stores the details of subsystem.
-        connection = client.PKIConnection('https', os.environ['HOSTNAME'], '8443', subsystem.name)
+        # Note: Renewal requests can be submitted only to 'ca'
+        connection = client.PKIConnection('https', os.environ['HOSTNAME'], '8443', 'ca')
 
         # Create a p12 file using
         # pk12util -o <p12 file name> -n <cert nick name> -d <NSS db path>
@@ -875,7 +875,7 @@ class CertCreateCLI(pki.cli.CLI):
             cert_tag = 'ocsp_signing'
             # if subsystem = OCSP, then reformat the cert_tag
             # if susbsytem = CA, then cert_tag should remain the same
-            if subsystem.name is 'ocsp':
+            if subsystem.name == 'ocsp':
                 cert_tag = 'signing'
 
             if not serial:
@@ -1573,6 +1573,7 @@ class CertFixCLI(pki.cli.CLI):
         instance.load()
 
         # 1. Make a list of certs to fix OR use the list provided through CLI options
+        # TODO: Identify only certs that are EXPIRED or ALMOST EXPIRED
         if all_certs:
             for subsystem in instance.subsystems:
 
