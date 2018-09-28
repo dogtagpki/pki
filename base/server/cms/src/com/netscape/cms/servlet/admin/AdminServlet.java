@@ -35,6 +35,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthManager;
@@ -992,7 +994,7 @@ public class AdminServlet extends HttpServlet {
             if (name.equals(Constants.RS_ID)) continue;
 
             String value = null;
-            if (name.equalsIgnoreCase("PASSWORD_CACHE_ADD"))
+            if (StringUtils.containsIgnoreCase(name, "pass"))
                 value = "(sensitive)";
             else
                 value = req.getParameter(name);
