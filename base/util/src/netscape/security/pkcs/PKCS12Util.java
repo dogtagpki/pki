@@ -438,7 +438,16 @@ public class PKCS12Util {
 
         if (includeKey) {
             // load key info if exists
-            loadKeyInfoFromNSS(pkcs12, cert, id, friendlyName);
+
+            try {
+                PrivateKey privateKey = cm.findPrivKeyByCert(cert);
+
+                PKCS12KeyInfo keyInfo = createKeyInfoFromNSS(cert, privateKey, id, friendlyName);
+                pkcs12.addKeyInfo(keyInfo);
+
+            } catch (ObjectNotFoundException e) {
+                logger.debug("Certificate has no private key");
+            }
         }
 
         if (includeChain) {
@@ -482,17 +491,17 @@ public class PKCS12Util {
         return certInfo;
     }
 
-    public void loadKeyInfoFromNSS(
-            PKCS12 pkcs12,
+    public PKCS12KeyInfo createKeyInfoFromNSS(
             X509Certificate cert,
+            PrivateKey privateKey,
             byte[] id) throws Exception {
 
-        loadKeyInfoFromNSS(pkcs12, cert, id, null);
+        return createKeyInfoFromNSS(cert, privateKey, id, null);
     }
 
-    public void loadKeyInfoFromNSS(
-            PKCS12 pkcs12,
+    public PKCS12KeyInfo createKeyInfoFromNSS(
             X509Certificate cert,
+            PrivateKey privateKey,
             byte[] id,
             String friendlyName) throws Exception {
 
@@ -503,21 +512,11 @@ public class PKCS12Util {
             friendlyName = nickname;
         }
 
-        CryptoManager cm = CryptoManager.getInstance();
+        PKCS12KeyInfo keyInfo = new PKCS12KeyInfo(privateKey);
+        keyInfo.id = id;
+        keyInfo.setFriendlyName(friendlyName);
 
-        try {
-            PrivateKey privateKey = cm.findPrivKeyByCert(cert);
-            logger.debug("Certificate \"" + nickname + "\" has private key");
-
-            PKCS12KeyInfo keyInfo = new PKCS12KeyInfo(privateKey);
-            keyInfo.id = id;
-            keyInfo.setFriendlyName(friendlyName);
-
-            pkcs12.addKeyInfo(keyInfo);
-
-        } catch (ObjectNotFoundException e) {
-            logger.debug("Certificate \"" + nickname + "\" has no private key");
-        }
+        return keyInfo;
     }
 
     public PFX generatePFX(PKCS12 pkcs12, Password password) throws Exception {
