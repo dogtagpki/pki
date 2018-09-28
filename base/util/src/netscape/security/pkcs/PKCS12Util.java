@@ -433,7 +433,8 @@ public class PKCS12Util {
         logger.debug("ID: " + Hex.encodeHexString(id));
 
         // load cert info
-        loadCertInfoFromNSS(pkcs12, cert, id, true, friendlyName);
+        PKCS12CertInfo certInfo = createCertInfoFromNSS(cert, id, friendlyName);
+        pkcs12.addCertInfo(certInfo, true);
 
         if (includeKey) {
             // load key info if exists
@@ -444,27 +445,25 @@ public class PKCS12Util {
             // load cert chain
             X509Certificate[] certChain = cm.buildCertificateChain(cert);
             for (int i = 1; i < certChain.length; i++) {
-                X509Certificate c = certChain[i];
-                byte[] cid = SafeBag.getLocalKeyIDFromCert(c.getEncoded());
-                loadCertInfoFromNSS(pkcs12, c, cid, false);
+                X509Certificate caCert = certChain[i];
+                byte[] caCertID = SafeBag.getLocalKeyIDFromCert(caCert.getEncoded());
+
+                PKCS12CertInfo caCertInfo = createCertInfoFromNSS(caCert, caCertID);
+                pkcs12.addCertInfo(caCertInfo, false);
             }
         }
     }
 
-    public void loadCertInfoFromNSS(
-            PKCS12 pkcs12,
+    public PKCS12CertInfo createCertInfoFromNSS(
             X509Certificate cert,
-            byte[] id,
-            boolean replace) throws Exception {
+            byte[] id) throws Exception {
 
-        loadCertInfoFromNSS(pkcs12, cert, id, replace, null);
+        return createCertInfoFromNSS(cert, id, null);
     }
 
-    public void loadCertInfoFromNSS(
-            PKCS12 pkcs12,
+    public PKCS12CertInfo createCertInfoFromNSS(
             X509Certificate cert,
             byte[] id,
-            boolean replace,
             String friendlyName) throws Exception {
 
         String nickname = cert.getNickname();
@@ -480,7 +479,7 @@ public class PKCS12Util {
         certInfo.cert = new X509CertImpl(cert.getEncoded());
         certInfo.trustFlags = getTrustFlags(cert);
 
-        pkcs12.addCertInfo(certInfo, replace);
+        return certInfo;
     }
 
     public void loadKeyInfoFromNSS(
