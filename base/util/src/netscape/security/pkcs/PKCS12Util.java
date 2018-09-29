@@ -209,7 +209,8 @@ public class PKCS12Util {
     public void addKeyBag(PKCS12KeyInfo keyInfo, Password password,
             SEQUENCE encSafeContents) throws Exception {
 
-        logger.debug("Creating key bag for " + keyInfo.getFriendlyName());
+        byte[] keyID = keyInfo.getID();
+        logger.debug(" - Key ID: " + Hex.encodeHexString(keyID));
 
         ASN1Value content;
 
@@ -220,8 +221,6 @@ public class PKCS12Util {
             content = new ANY(epkiBytes);
 
         } else {
-            logger.debug("Encrypting private key for " + keyInfo.getFriendlyName());
-
             PrivateKey privateKey = keyInfo.getPrivateKey();
             if (privateKey == null) {
                 throw new Exception("Missing private key for " + keyInfo.getFriendlyName());
@@ -291,7 +290,8 @@ public class PKCS12Util {
     public void addCertBag(PKCS12CertInfo certInfo,
             SEQUENCE safeContents) throws Exception {
 
-        logger.debug("Creating cert bag for " + certInfo.getFriendlyName());
+        byte[] id = certInfo.getID();
+        logger.debug(" - Certificate ID: " + Hex.encodeHexString(id));
 
         X509CertImpl cert = certInfo.getCert();
         ASN1Value certAsn1 = new OCTET_STRING(cert.getEncoded());
@@ -308,6 +308,7 @@ public class PKCS12Util {
         SET attrs = new SET();
 
         String friendlyName = keyInfo.getFriendlyName();
+        logger.debug("   Friendly name: " + friendlyName);
 
         SEQUENCE subjectAttr = new SEQUENCE();
         subjectAttr.addElement(SafeBag.FRIENDLY_NAME);
@@ -337,6 +338,7 @@ public class PKCS12Util {
         SET attrs = new SET();
 
         String friendlyName = certInfo.getFriendlyName();
+        logger.debug("   Friendly name: " + friendlyName);
 
         SEQUENCE nicknameAttr = new SEQUENCE();
         nicknameAttr.addElement(SafeBag.FRIENDLY_NAME);
@@ -347,20 +349,10 @@ public class PKCS12Util {
 
         attrs.addElement(nicknameAttr);
 
-        byte[] keyID = certInfo.getID();
-        if (keyID != null) {
-            SEQUENCE localKeyAttr = new SEQUENCE();
-            localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
-
-            SET localKeySet = new SET();
-            localKeySet.addElement(new OCTET_STRING(keyID));
-            localKeyAttr.addElement(localKeySet);
-
-            attrs.addElement(localKeyAttr);
-        }
-
         String trustFlags = certInfo.getTrustFlags();
         if (trustFlags != null && trustFlagsEnabled) {
+            logger.debug("   Trust flags: " + trustFlags);
+
             SEQUENCE trustFlagsAttr = new SEQUENCE();
             trustFlagsAttr.addElement(PKCS12.CERT_TRUST_FLAGS_OID);
 
@@ -369,6 +361,20 @@ public class PKCS12Util {
             trustFlagsAttr.addElement(trustFlagsSet);
 
             attrs.addElement(trustFlagsAttr);
+        }
+
+        byte[] keyID = certInfo.getID();
+        if (keyID != null) {
+            logger.debug("   Key ID: " + Hex.encodeHexString(keyID));
+
+            SEQUENCE localKeyAttr = new SEQUENCE();
+            localKeyAttr.addElement(SafeBag.LOCAL_KEY_ID);
+
+            SET localKeySet = new SET();
+            localKeySet.addElement(new OCTET_STRING(keyID));
+            localKeyAttr.addElement(localKeySet);
+
+            attrs.addElement(localKeyAttr);
         }
 
         return attrs;
@@ -380,7 +386,7 @@ public class PKCS12Util {
 
     public void loadFromNSS(PKCS12 pkcs12, boolean includeKey, boolean includeChain) throws Exception {
 
-        logger.info("Loading all certificate and keys from NSS database");
+        logger.info("Loading certificates and keys from NSS database");
 
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = cm.getInternalKeyStorageToken();
@@ -436,14 +442,19 @@ public class PKCS12Util {
             boolean includeChain,
             String friendlyName) throws Exception {
 
+        byte[] id = SafeBag.getLocalKeyIDFromCert(cert.getEncoded());
+        logger.debug(" - Certificate ID: " + Hex.encodeHexString(id));
+
         CryptoManager cm = CryptoManager.getInstance();
 
-        byte[] id = SafeBag.getLocalKeyIDFromCert(cert.getEncoded());
-        logger.debug("ID: " + Hex.encodeHexString(id));
+        String nickname = cert.getNickname();
+        logger.debug("   Friendly name: " + nickname);
 
         // load cert info
         PKCS12CertInfo certInfo = createCertInfoFromNSS(cert, id, friendlyName);
         pkcs12.addCertInfo(certInfo, true);
+
+        logger.debug("   Trust flags: " + certInfo.getTrustFlags());
 
         if (includeKey) {
             // load key info if exists
@@ -454,6 +465,8 @@ public class PKCS12Util {
                 PKCS12KeyInfo keyInfo = createKeyInfoFromNSS(cert, privateKey, id, friendlyName);
                 pkcs12.addKeyInfo(keyInfo);
 
+                logger.debug("   Key ID: " + Hex.encodeHexString(keyInfo.getID()));
+
             } catch (ObjectNotFoundException e) {
                 logger.debug("Certificate has no private key");
             }
@@ -462,12 +475,19 @@ public class PKCS12Util {
         if (includeChain) {
             // load cert chain
             X509Certificate[] certChain = cm.buildCertificateChain(cert);
+            if (certChain.length > 1) {
+                logger.debug("   Certificate Chain:");
+            }
             for (int i = 1; i < certChain.length; i++) {
                 X509Certificate caCert = certChain[i];
                 byte[] caCertID = SafeBag.getLocalKeyIDFromCert(caCert.getEncoded());
+                logger.debug("   - Certificate ID: " + Hex.encodeHexString(caCertID));
 
                 PKCS12CertInfo caCertInfo = createCertInfoFromNSS(caCert, caCertID);
                 pkcs12.addCertInfo(caCertInfo, false);
+
+                logger.debug("     Friendly name: " + caCertInfo.getFriendlyName());
+                logger.debug("     Trust flags: " + caCertInfo.getTrustFlags());
             }
         }
     }
@@ -484,11 +504,8 @@ public class PKCS12Util {
             byte[] id,
             String friendlyName) throws Exception {
 
-        String nickname = cert.getNickname();
-        logger.info("Loading certificate \"" + nickname + "\" from NSS database");
-
         if (friendlyName == null) {
-            friendlyName = nickname;
+            friendlyName = cert.getNickname();
         }
 
         X509CertImpl certImpl = new X509CertImpl(cert.getEncoded());
@@ -517,11 +534,8 @@ public class PKCS12Util {
             byte[] id,
             String friendlyName) throws Exception {
 
-        String nickname = cert.getNickname();
-        logger.info("Loading private key for certificate \"" + nickname + "\" from NSS database");
-
         if (friendlyName == null) {
-            friendlyName = nickname;
+            friendlyName = cert.getNickname();
         }
 
         PKCS12KeyInfo keyInfo = new PKCS12KeyInfo(privateKey);
@@ -592,7 +606,7 @@ public class PKCS12Util {
 
         PFX pfx = generatePFX(pkcs12, password);
 
-        logger.info("Storing data into PKCS #12 file");
+        logger.info("Storing PKCS #12 data into " + filename);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         pfx.encode(bos);
         byte[] data = bos.toByteArray();
@@ -640,8 +654,10 @@ public class PKCS12Util {
                 OCTET_STRING keyIdAsn1 = (OCTET_STRING) new OCTET_STRING.Template().decode(bis);
 
                 byte[] keyID = keyIdAsn1.toByteArray();
-                logger.debug("   ID: " + Hex.encodeHexString(keyID));
                 keyInfo.setID(keyID);
+
+            } else {
+                logger.warn("   " + oid + ": " + attr.getValues());
             }
         }
 
@@ -691,7 +707,7 @@ public class PKCS12Util {
 
                 byte[] keyID = keyIdAsn1.toByteArray();
                 certInfo.setID(keyID);
-                logger.debug("   ID: " + Hex.encodeHexString(keyID));
+                logger.debug("   Key ID: " + Hex.encodeHexString(keyID));
 
             } else if (oid.equals(PKCS12.CERT_TRUST_FLAGS_OID) && trustFlagsEnabled) {
 
