@@ -403,26 +403,7 @@ public abstract class CMSServlet extends HttpServlet {
             // __ (double underscores); however, in the event that
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed
-            if (pn.startsWith("__") ||
-                    pn.endsWith("password") ||
-                    pn.endsWith("passwd") ||
-                    pn.endsWith("pwd") ||
-                    pn.equalsIgnoreCase("admin_password_again") ||
-                    pn.equalsIgnoreCase("directoryManagerPwd") ||
-                    pn.equalsIgnoreCase("bindpassword") ||
-                    pn.equalsIgnoreCase("bindpwd") ||
-                    pn.equalsIgnoreCase("passwd") ||
-                    pn.equalsIgnoreCase("password") ||
-                    pn.equalsIgnoreCase("pin") ||
-                    pn.equalsIgnoreCase("pwd") ||
-                    pn.equalsIgnoreCase("pwdagain") ||
-                    pn.startsWith("p12Password") ||
-                    pn.equalsIgnoreCase("uPasswd") ||
-                    pn.equalsIgnoreCase("host_challenge") ||
-                    pn.equalsIgnoreCase("card_challenge") ||
-                    pn.equalsIgnoreCase("card_cryptogram") ||
-                    pn.equalsIgnoreCase("drm_trans_desKey") ||
-                    pn.equalsIgnoreCase("cert_request")) {
+            if (CMS.isSensitive(pn)) {
                 CMS.debug("CMSServlet::service() param name='" + pn +
                         "' value='(sensitive)'");
             } else {
