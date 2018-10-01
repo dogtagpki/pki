@@ -718,6 +718,9 @@ public class PKCS12Util {
                 String trustFlags = trustFlagsAsn1.toString();
                 certInfo.setTrustFlags(trustFlags);
                 logger.debug("   Trust flags: " + trustFlags);
+
+            } else {
+                logger.warn("   " + oid + ": " + attr.getValues());
             }
         }
 
@@ -904,9 +907,6 @@ public class PKCS12Util {
         CryptoToken ct = cm.getInternalKeyStorageToken();
         CryptoStore store = ct.getCryptoStore();
 
-        byte[] id = certInfo.getID();
-        PKCS12KeyInfo keyInfo = pkcs12.getKeyInfoByID(id);
-
         String nickname = certInfo.getFriendlyName();
         for (X509Certificate cert : cm.findCertsByNickname(nickname)) {
             if (!overwrite) {
@@ -917,6 +917,10 @@ public class PKCS12Util {
 
         X509CertImpl certImpl = certInfo.getCert();
         X509Certificate cert;
+
+        byte[] id = certInfo.getID();
+        PKCS12KeyInfo keyInfo = pkcs12.getKeyInfoByID(id);
+
         if (keyInfo != null) { // cert has key
             logger.debug("Importing private key for " + certInfo.getFriendlyName());
             importKey(pkcs12, password, certInfo.getFriendlyName(), keyInfo);

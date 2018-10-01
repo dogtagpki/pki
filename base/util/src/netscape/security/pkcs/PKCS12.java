@@ -201,7 +201,6 @@ public class PKCS12 {
         }
 
         for (PKCS12CertInfo certInfo : result) {
-            // remove cert and key
             BigInteger id = new BigInteger(1, certInfo.getID());
             certInfosByID.remove(id);
             keyInfosByID.remove(id);
