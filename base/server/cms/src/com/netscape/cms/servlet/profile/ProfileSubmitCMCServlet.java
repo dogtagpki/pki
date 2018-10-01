@@ -47,9 +47,9 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.ECMCBadIdentityException;
 import com.netscape.certsrv.profile.ECMCBadMessageCheckException;
 import com.netscape.certsrv.profile.ECMCBadRequestException;
@@ -306,20 +306,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 // __ (double underscores); however, in the event that
                 // a security parameter slips through, we perform multiple
                 // additional checks to insure that it is NOT displayed
-                if (paramName.startsWith("__") ||
-                        paramName.endsWith("password") ||
-                        paramName.endsWith("passwd") ||
-                        paramName.endsWith("pwd") ||
-                        paramName.equalsIgnoreCase("admin_password_again") ||
-                        paramName.equalsIgnoreCase("directoryManagerPwd") ||
-                        paramName.equalsIgnoreCase("bindpassword") ||
-                        paramName.equalsIgnoreCase("bindpwd") ||
-                        paramName.equalsIgnoreCase("passwd") ||
-                        paramName.equalsIgnoreCase("password") ||
-                        paramName.equalsIgnoreCase("pin") ||
-                        paramName.equalsIgnoreCase("pwd") ||
-                        paramName.equalsIgnoreCase("pwdagain") ||
-                        paramName.equalsIgnoreCase("uPasswd")) {
+                if (CMS.isSensitive(paramName)) {
                     CMS.debug("ProfileSubmitCMCServlet Input Parameter " +
                               paramName + "='(sensitive)'");
                 } else {

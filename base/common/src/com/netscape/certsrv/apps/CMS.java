@@ -1672,6 +1672,36 @@ public final class CMS {
     }
 
     /**
+     * Check whether the string is contains password
+     *
+     * @param name key string
+     * @return whether key is a password or not
+     */
+    public static boolean isSensitive(String name) {
+        return (name.startsWith("__") ||
+                name.endsWith("password") ||
+                name.endsWith("passwd") ||
+                name.endsWith("pwd") ||
+                name.equalsIgnoreCase("admin_password_again") ||
+                name.equalsIgnoreCase("directoryManagerPwd") ||
+                name.equalsIgnoreCase("bindpassword") ||
+                name.equalsIgnoreCase("bindpwd") ||
+                name.equalsIgnoreCase("passwd") ||
+                name.equalsIgnoreCase("password") ||
+                name.equalsIgnoreCase("pin") ||
+                name.equalsIgnoreCase("pwd") ||
+                name.equalsIgnoreCase("pwdagain") ||
+                name.equalsIgnoreCase("uPasswd") ||
+                name.equalsIgnoreCase("PASSWORD_CACHE_ADD") ||
+                name.startsWith("p12Password") ||
+                name.equalsIgnoreCase("host_challenge") ||
+                name.equalsIgnoreCase("card_challenge") ||
+                name.equalsIgnoreCase("card_cryptogram") ||
+                name.equalsIgnoreCase("drm_trans_desKey") ||
+                name.equalsIgnoreCase("cert_request"));
+    }
+
+    /**
      * Main driver to start CMS.
      */
     public static void main(String[] args) {
