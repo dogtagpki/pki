@@ -306,20 +306,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 // __ (double underscores); however, in the event that
                 // a security parameter slips through, we perform multiple
                 // additional checks to insure that it is NOT displayed
-                if (paramName.startsWith("__") ||
-                        paramName.endsWith("password") ||
-                        paramName.endsWith("passwd") ||
-                        paramName.endsWith("pwd") ||
-                        paramName.equalsIgnoreCase("admin_password_again") ||
-                        paramName.equalsIgnoreCase("directoryManagerPwd") ||
-                        paramName.equalsIgnoreCase("bindpassword") ||
-                        paramName.equalsIgnoreCase("bindpwd") ||
-                        paramName.equalsIgnoreCase("passwd") ||
-                        paramName.equalsIgnoreCase("password") ||
-                        paramName.equalsIgnoreCase("pin") ||
-                        paramName.equalsIgnoreCase("pwd") ||
-                        paramName.equalsIgnoreCase("pwdagain") ||
-                        paramName.equalsIgnoreCase("uPasswd")) {
+                if (CMS.isSensitive(paramName)) {
                     CMS.debug("ProfileSubmitCMCServlet Input Parameter " +
                               paramName + "='(sensitive)'");
                 } else {
