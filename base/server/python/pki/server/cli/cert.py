@@ -93,10 +93,11 @@ class CertCLI(pki.cli.CLI):
     def get_cert_id_info(cert_id):
         """
         Return cert_tag and corresponding subsystem details from cert_id
+
         :param cert_id: Cert ID
         :type cert_id: str
-        :returns (subsystem_name, cert_tag)
-        :rtype (str, str)
+        :returns: (subsystem_name, cert_tag)
+        :rtype: (str, str)
         """
         if cert_id == 'sslserver' or cert_id == 'subsystem':
             subsystem_name = None
@@ -379,9 +380,6 @@ class CertUpdateCLI(pki.cli.CLI):
 
         instance.load()
 
-        subsystem_name = None
-        cert_tag = cert_id
-
         subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
@@ -443,15 +441,7 @@ class CertUpdateCLI(pki.cli.CLI):
         else:
             print('WARNING: Certificate request not found')
 
-        # store cert data and request in CS.cfg
-        if cert_id == 'sslserver' or cert_id == 'subsystem':
-            # Update for all subsystems
-            for subsystem in instance.subsystems:
-                subsystem.update_subsystem_cert(subsystem_cert)
-                subsystem.save()
-        else:
-            subsystem.update_subsystem_cert(subsystem_cert)
-            subsystem.save()
+        instance.cert_update_config(cert_id, subsystem_cert, subsystem)
 
         self.print_message('Updated "%s" system certificate' % cert_id)
 
@@ -1043,62 +1033,16 @@ class CertImportCLI(pki.cli.CLI):
                 subsystem_name, instance_name)
             sys.exit(1)
 
-        # audit and CA certs require special flags set in NSSDB
-        trust_attributes = None
-        if cert_id == 'ca_signing':
-            trust_attributes = 'CT,C,C'
-        elif cert_tag == 'audit_signing':
-            trust_attributes = ',,P'
-
-        nssdb = instance.open_nssdb()
-
         try:
-            cert_folder = os.path.join(pki.CONF_DIR, instance_name, 'certs')
-            if not cert_file:
-                cert_file = os.path.join(cert_folder, cert_id + '.crt')
+            # Load the cert into NSS db
+            cert = subsystem.cert_import_nssdb(cert_tag, cert_file)
 
-            if not os.path.isfile(cert_file):
-                logger.error('No %s such file.', cert_file)
-                self.print_help()
-                sys.exit(1)
+            # Update the CS.cfg file for (all) corresponding subsystems
+            instance.cert_update_config(cert_id, cert, subsystem)
 
-            cert = subsystem.get_subsystem_cert(cert_tag)
-
-            logger.info('Checking existing %s certificate in NSS database', cert_id)
-
-            if nssdb.get_cert(
-                    nickname=cert['nickname'],
-                    token=cert['token']):
-                logger.error('Certificate already exists: %s', cert_id)
-                sys.exit(1)
-
-            logger.info('Importing new %s certificate into NSS database', cert_id)
-
-            nssdb.add_cert(
-                nickname=cert['nickname'],
-                token=cert['token'],
-                cert_file=cert_file,
-                trust_attributes=trust_attributes)
-
-            logger.info('Updating CS.cfg with the new certificate')
-
-            data = nssdb.get_cert(
-                nickname=cert['nickname'],
-                token=cert['token'],
-                output_format='base64')
-            cert['data'] = data
-
-            if cert_id == 'sslserver' or cert_id == 'subsystem':
-                # Update all subsystem's CS.cfg
-                for subsystem in instance.subsystems:
-                    subsystem.update_subsystem_cert(cert)
-                    subsystem.save()
-            else:
-                subsystem.update_subsystem_cert(cert)
-                subsystem.save()
-
-        finally:
-            nssdb.close()
+        except server.PKIServerException as e:
+            logger.error(str(e))
+            sys.exit(1)
 
 
 class CertExportCLI(pki.cli.CLI):
@@ -1563,79 +1507,91 @@ class CertFixCLI(pki.cli.CLI):
         # 2. Stop the server if it's up
         instance.stop()
 
-        # 3. Find the subsystem and Disable Self-tests
-        target_subsys = []
-        for cert in fix_certs:
-            # If the cert is either sslserver/subsystem, disable selftest for all
-            # subsystems since all subsystems use these 2 certs. We store a list
-            # of subsystems in target_subsys in order to enable selftests for
-            # respective subsystems later
-            if cert == 'sslserver' or cert == 'subsystem':
-                for subsystem in instance.subsystems:
-                    target_subsys.append(subsystem)
-                break
+        try:
+            # 3. Find the subsystem and Disable Self-tests
+            target_subsys = []
+            for cert in fix_certs:
+                # If the cert is either sslserver/subsystem, disable selftest for all
+                # subsystems since all subsystems use these 2 certs. We store a list
+                # of subsystems in target_subsys in order to enable selftests for
+                # respective subsystems later
+                if cert == 'sslserver' or cert == 'subsystem':
+                    for subsystem in instance.subsystems:
+                        target_subsys.append(subsystem)
+                    break
 
-            else:
-                subsystem_name = cert.split('_', 1)[0]
+                else:
+                    subsystem_name = cert.split('_', 1)[0]
+                    subsystem = instance.get_subsystem(subsystem_name)
+
+                    # If the subsystem is wrong, stop the process
+                    if not subsystem:
+                        logger.error('No %s subsystem in instance %s.',
+                                     subsystem_name, instance_name)
+                        sys.exit(1)
+
+                    target_subsys.append(subsystem)
+
+            # Remove duplicates, if any.
+            # Example of duplicates:
+            # fix_certs = [ca_ocsp_signing, sslserver]
+            target_subsys = list(set(target_subsys))
+
+            for subsystem in target_subsys:
+                subsystem.set_startup_test_critical(False)
+
+            logger.debug('Selftests disabled for subsystems: %s', ', '.join(
+                str(x.name) for x in target_subsys))
+
+            # 4a. Create temp SSL cert
+            instance.cert_create(cert_id='sslserver', temp=True)
+
+            # 4b. Load the first subsystem from target_sys (since sslserver is used
+            #     by ALL subsystems) and Delete the existing SSL Cert
+            target_subsys[0].cert_del('sslserver')
+
+            # 4d. Import it into NSS DB
+            cert = target_subsys[0].cert_import_nssdb('sslserver')
+
+            # 4e. Import into all subsystem's CS.cfg
+            instance.cert_update_config('sslserver', cert)
+
+            # 5. Bring up the server temporarily
+            instance.start()
+
+            # 6. Place renewal request for all certs in fix_certs
+            for cert_id in fix_certs:
+                instance.cert_create(cert_id=cert_id,
+                                     client_nssdb_location=client_nssdb_location,
+                                     client_nssdb_pass=client_nssdb_password,
+                                     client_nssdb_pass_file=client_nssdb_pass_file,
+                                     client_cert=client_cert, renew=True)
+
+            # 7. Stop the server
+            instance.stop()
+
+            # 8. Delete existing certs and then import the renewed system cert(s)
+            for cert_id in fix_certs:
+                subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
                 subsystem = instance.get_subsystem(subsystem_name)
 
-                # If the subsystem is wrong, stop the process
-                if not subsystem:
-                    logger.error('No %s subsystem in instance %s.',
-                                 subsystem_name, instance_name)
-                    sys.exit(1)
+                # Delete the existing cert from the subsys
+                subsystem.cert_del(cert_id)
 
-                target_subsys.append(subsystem)
+                # Import new cert from /etc/pki/<instance>/certs into subsystem's
+                # nssdb
+                cert = subsystem.cert_import_nssdb(cert_tag)
 
-        # Remove duplicates, if any.
-        # Example of duplicates:
-        # fix_certs = [ca_ocsp_signing, sslserver]
-        target_subsys = list(set(target_subsys))
+                # Import this new cert into (all) corresponding subsystem's CS.cfg
+                instance.cert_update_config(cert_id, cert, subsystem)
 
-        for subsystem in target_subsys:
-            subsystem.set_startup_test_critical(False)
+            # 9. Enable self tests for the subsystems disabled earlier
+            for subsystem in target_subsys:
+                subsystem.set_startup_test_critical(True)
 
-        logger.debug('Selftests disabled for subsystems: %s', ', '.join(
-            str(x.name) for x in target_subsys))
+            # 10. Bring up the server
+            instance.start()
 
-        # 4a. Create temp SSL cert
-        instance.cert_create(cert_id='sslserver', temp=True)
-
-        # 4b. Load the first subsystem from target_sys (since sslserver is used
-        #     by ALL subsystems) and Delete the existing SSL Cert
-        target_subsys[0].cert_del(cert_id='sslserver')
-
-        # 4d. import it
-        instance.cert_import(cert_id='sslserver')
-
-        # 5. Bring up the server temporarily
-        instance.start()
-
-        # 6. Place renewal request for all certs in fix_certs
-        for cert_id in fix_certs:
-            instance.cert_create(cert_id=cert_id,
-                                 client_nssdb_location=client_nssdb_location,
-                                 client_nssdb_pass=client_nssdb_password,
-                                 client_nssdb_pass_file=client_nssdb_pass_file,
-                                 client_cert=client_cert, renew=True)
-
-        # 7. Stop the server
-        instance.stop()
-
-        # 8. Delete existing certs and then import the renewed system cert(s)
-        for cert_id in fix_certs:
-            subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
-            subsystem = instance.get_subsystem(subsystem_name)
-
-            # Delete the existing cert from the subsys
-            subsystem.cert_del(cert_id)
-
-            # Import new cert for the subsys
-            instance.cert_import(cert_id)
-
-        # 9. Enable self tests for the subsystems disabled earlier
-        for subsystem in target_subsys:
-            subsystem.set_startup_test_critical(True)
-
-        # 10. Bring up the server
-        instance.start()
+        except server.PKIServerException as e:
+            logger.error(str(e))
+            sys.exit(1)

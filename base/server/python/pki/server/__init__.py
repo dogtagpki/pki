@@ -583,6 +583,71 @@ class PKISubsystem(object):
         finally:
             nssdb.close()
 
+    def cert_import_nssdb(self, cert_tag, cert_file=None):
+        """
+        Add cert from cert_file to NSS db with appropriate trust flags
+
+        :param cert_tag: Cert Tag
+        :type cert_tag: str
+        :param cert_file: Cert file to be imported into NSS db
+        :type cert_file: str
+        :return: New cert data loaded into nssdb
+        :rtype: dict
+        """
+
+        # audit and CA signing cert require special flags set in NSSDB
+        trust_attributes = None
+        if self.name == 'ca' and cert_tag == 'signing':
+            trust_attributes = 'CT,C,C'
+        elif cert_tag == 'audit_signing':
+            trust_attributes = ',,P'
+
+        nssdb = self.instance.open_nssdb()
+
+        try:
+            cert_folder = os.path.join(pki.CONF_DIR, self.instance.name, 'certs')
+            if not cert_file:
+                cert_file = os.path.join(cert_folder,
+                                         self.name + '_' + cert_tag + '.crt')
+
+            if not os.path.isfile(cert_file):
+                raise PKIServerException('No %s such file.', cert_file)
+
+            cert = self.get_subsystem_cert(cert_tag)
+
+            logger.debug('Checking existing %s certificate in NSS database'
+                         'for subsys %s, instance %s',
+                         cert_tag, self.name, self.instance.name)
+
+            if nssdb.get_cert(
+                    nickname=cert['nickname'],
+                    token=cert['token']):
+                raise PKIServerException('Certificate already exists: %s in'
+                                         'subsystem %s', cert_tag, self.name)
+
+            logger.debug('Importing new %s certificate into NSS database'
+                         'for subsys %s, instance %s',
+                         cert_tag, self.name, self.instance.name)
+
+            nssdb.add_cert(
+                nickname=cert['nickname'],
+                token=cert['token'],
+                cert_file=cert_file,
+                trust_attributes=trust_attributes)
+
+            logger.info('Updating CS.cfg with the new certificate')
+
+            data = nssdb.get_cert(
+                nickname=cert['nickname'],
+                token=cert['token'],
+                output_format='base64')
+            cert['data'] = data
+
+            return cert
+
+        finally:
+            nssdb.close()
+
 
 class CASubsystem(PKISubsystem):
 
@@ -1042,6 +1107,33 @@ class PKIInstance(object):
             return "Dogtag 9 " + self.name
         return self.name
 
+    def cert_update_config(self, cert_id, cert, subsystem=None):
+        """
+        Update corresponding subsystem's CS.cfg with the new cert details
+        passed.
+
+        **Note:**
+        *subsystem* param is ignored when *cert_id* is either *sslserver* or
+        *subsystem* since these 2 certs are used by all subsystems
+
+        :param cert_id: Cert ID to update
+        :param cert: Cert details to store in CS.cfg
+        :param subsystem: Subsystem whose CS.cfg needs to be updated
+        """
+        # store cert data and request in CS.cfg
+        if cert_id == 'sslserver' or cert_id == 'subsystem':
+            # Update for all subsystems
+            for subsystem in self.subsystems:
+                subsystem.update_subsystem_cert(cert)
+                subsystem.save()
+        else:
+            if subsystem:
+                subsystem.update_subsystem_cert(cert)
+                subsystem.save()
+            else:
+                raise PKIServerException('No corresponding subsystem loaded for %s',
+                                         cert_id)
+
     def cert_create(self, cert_id, client_nssdb_location=None,
                     client_nssdb_pass=None, client_nssdb_pass_file=None,
                     client_cert=None, renew=False, temp=False):
@@ -1069,18 +1161,6 @@ class PKIInstance(object):
 
         if renew:
             cmd.extend(['--renew'])
-
-        logger.info('Executing CMD: %s', cmd)
-
-        subprocess.check_call(cmd)
-
-    def cert_import(self, cert_id):
-
-        cmd = [
-            'pki-server', 'cert-import', '--instance', self.name
-        ]
-        if cert_id:
-            cmd.extend([cert_id])
 
         logger.info('Executing CMD: %s', cmd)
 
