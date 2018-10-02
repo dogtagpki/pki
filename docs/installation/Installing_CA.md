@@ -6,6 +6,18 @@ Overview
 
 This page describes the process to install a CA subsystem with a self-signed CA signing certificate.
 
+Before beginning with the installation, please ensure that you have configured the directory
+server and added base entries. This step is described [here](http://www.dogtagpki.org/wiki/Installing_DS).
+
+Additionally, please verify that your FQDN is correctly reported by the following command:
+
+    python -c 'import socket; print(socket.getfqdn())'
+
+If it isn't, please add an entry at the beginning of the `/etc/hosts` file:
+
+    127.0.0.1 server.example.com
+    ::1 server.example.com
+
 CA Subsystem Installation
 -------------------------
 
