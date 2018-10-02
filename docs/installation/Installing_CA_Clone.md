@@ -6,6 +6,25 @@ Overview
 
 This page describes the process to install a CA subsystem as a clone of an existing CA subsystem.
 
+Before beginning with the installation, please ensure that you have configured the directory
+server and added base entries. This step is described [here](http://www.dogtagpki.org/wiki/Installing_DS).
+
+Additionally, please verify that your FQDN is correctly reported by the following command:
+
+    python -c 'import socket; print(socket.getfqdn())'
+
+If it isn't, please add an entry at the beginning of the `/etc/hosts` file:
+
+    127.0.0.1 clone.example.com
+    ::1 clone.example.com
+
+Some useful tips:
+
+ - Make sure the firewall on the master allows external access to LDAP from the clone
+ - Make sure the firewall on the clone allows external access to LDAP from the master
+ - Not having a `dc=pki,dc=example,dc=com` entry in LDAP will give the same error as
+       not being able to connect to the LDAP server.
+
 Exporting Existing System Certificates
 --------------------------------------
 
@@ -63,6 +82,10 @@ pki_clone_uri=https://server.example.com:8443
 pki_clone_pkcs12_path=ca-certs.p12
 pki_clone_pkcs12_password=Secret.123
 ```
+
+In the above, replace `server.example.com` with the hostname of the
+master instance. Note that an alternate replica can be specified for
+the value of `pki_clone_uri`.
 
 Then execute the following command:
 
