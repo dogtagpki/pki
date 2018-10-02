@@ -1038,10 +1038,11 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
             return True
 
         except subprocess.CalledProcessError as e:
-            if e.returncode == 1:
-                print('  Status: INVALID')
+            if e.output:
+                status = e.output.decode('utf-8')
             else:
-                print('  Status: ERROR: %s' % e.output)
+                status = 'ERROR'
+            print('  Status: %s' % status)
             return False
 
         finally:
