@@ -733,7 +733,8 @@ def check_ds(parser):
                 sys.exit(1)
 
     except ldap.LDAPError as e:
-        print('ERROR:  Unable to access directory server: ' +
+        server = parser.protocol + '://' + parser.hostname + ':' + parser.port
+        print('ERROR:  Unable to access directory server (' + server + '): ' +
               e.args[0]['desc'])
         sys.exit(1)
 

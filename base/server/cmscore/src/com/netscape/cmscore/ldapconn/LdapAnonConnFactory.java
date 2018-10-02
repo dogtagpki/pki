@@ -206,7 +206,9 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
                 }
             } else {
                 log(ILogger.LL_FAILURE,
-                        "Cannot connect to ldap server. error: " + e.toString());
+                        "Cannot connect to ldap server (" + mConnInfo.getHost() +
+				":" + mConnInfo.getPort() + "). " +
+				"error: " + e.toString());
                 String errmsg = e.errorCodeToString();
 
                 if (errmsg == null)
