@@ -143,8 +143,10 @@ public class ReplicationUtil {
 
             String status = replicationStatus(replicadn, masterConn, masterAgreementName);
             if (!(status.startsWith("Error (0) ") || status.startsWith("0 "))) {
-                logger.error("ReplicationUtil: replication consumer initialization failed: " + status);
-                throw new IOException("Replication consumer initialization failed: " + status);
+                String message = "ReplicationUtil: replication consumer initialization failed " +
+                    "(against " + masterConn.getHost() + ":" + masterConn.getPort() + "): " + status;
+                logger.error(message);
+                throw new IOException(message);
             }
 
             // remove master ldap password from password.conf (if present)
