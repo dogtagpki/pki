@@ -102,7 +102,7 @@ class PKISubsystem(object):
             instance.conf_dir, 'Catalina', 'localhost', self.name + '.xml')
 
         self.config = {}
-        self.type = None    # e.g. CA, KRA
+        self.type = None  # e.g. CA, KRA
         self.prefix = None  # e.g. ca, kra
 
         # custom subsystem location
@@ -542,7 +542,7 @@ class PKISubsystem(object):
 
     def set_startup_tests(self, target_tests):
         # Remove unnecessary space, curly braces
-        self.config['selftests.container.order.startup'] = ", "\
+        self.config['selftests.container.order.startup'] = ", " \
             .join([(key + ':' + SELFTEST_CRITICAL if val else key)
                    for key, val in target_tests.items()])
 
@@ -561,6 +561,27 @@ class PKISubsystem(object):
         self.set_startup_tests(target_tests)
         # save the CS.cfg
         self.save()
+
+    def cert_del(self, cert_tag, remove_key=False):
+        """
+        Delete a cert from NSS db
+        :param cert_tag: Cert Tag
+        :param remove_key: Remove associate private key
+        """
+        cert = self.get_subsystem_cert(cert_tag)
+        nssdb = self.instance.open_nssdb()
+
+        try:
+            logger.debug('Removing %s certificate from NSS database for '
+                         'subsystem %s instance %s', cert_tag, self.name, self.instance)
+
+            nssdb.remove_cert(
+                nickname=cert['nickname'],
+                token=cert['token'],
+                remove_key=remove_key)
+
+        finally:
+            nssdb.close()
 
 
 class CASubsystem(PKISubsystem):
@@ -620,7 +641,7 @@ class CASubsystem(PKISubsystem):
         request['id'] = attrs['cn'][0].decode('utf-8')
         request['type'] = attrs['requestType'][0].decode('utf-8')
         request['status'] = attrs['requestState'][0].decode('utf-8')
-        request['request'] = attrs['extdata-cert--005frequest'][0]\
+        request['request'] = attrs['extdata-cert--005frequest'][0] \
             .decode('utf-8')
 
         return request
@@ -1065,17 +1086,6 @@ class PKIInstance(object):
 
         subprocess.check_call(cmd)
 
-    def cert_del(self, cert_id):
-
-        cmd = [
-            'pki-server', 'cert-del', '--instance', self.name
-        ]
-        if cert_id:
-            cmd.extend([cert_id])
-
-        logger.info('Executing CMD: %s', cmd)
-        subprocess.check_call(cmd)
-
 
 class PKIDatabaseConnection(object):
 
@@ -1109,11 +1119,9 @@ class PKIDatabaseConnection(object):
         self.temp_dir = tempfile.mkdtemp()
 
         if self.nssdb_dir:
-
             ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, self.nssdb_dir)
 
         if self.client_cert_nickname:
-
             password_file = os.path.join(self.temp_dir, 'password.txt')
             with open(password_file, 'w') as f:
                 f.write(self.nssdb_password)
@@ -1139,7 +1147,6 @@ class PKIServerException(pki.PKIException):
 
     def __init__(self, message, exception=None,
                  instance=None, subsystem=None):
-
         pki.PKIException.__init__(self, message, exception)
 
         self.instance = instance
@@ -1150,7 +1157,6 @@ class Tomcat(object):
 
     @classmethod
     def get_version(cls):
-
         # run "tomcat version"
         output = subprocess.check_output(['/usr/sbin/tomcat', 'version'])
         output = output.decode('utf-8')

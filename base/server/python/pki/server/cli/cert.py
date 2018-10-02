@@ -89,6 +89,26 @@ class CertCLI(pki.cli.CLI):
     def convert_millis_to_date(millis):
         return datetime.datetime.fromtimestamp(millis / 1000.0).strftime("%a %b %d %H:%M:%S %Y")
 
+    @staticmethod
+    def get_cert_id_info(cert_id):
+        """
+        Return cert_tag and corresponding subsystem details from cert_id
+        :param cert_id: Cert ID
+        :type cert_id: str
+        :returns (subsystem_name, cert_tag)
+        :rtype (str, str)
+        """
+        if cert_id == 'sslserver' or cert_id == 'subsystem':
+            subsystem_name = None
+            cert_tag = cert_id
+
+        else:
+            parts = cert_id.split('_', 1)
+            subsystem_name = parts[0]
+            cert_tag = parts[1]
+
+        return subsystem_name, cert_tag
+
 
 class CertFindCLI(pki.cli.CLI):
     def __init__(self):
@@ -260,14 +280,7 @@ class CertShowCLI(pki.cli.CLI):
 
         instance.load()
 
-        if cert_id == 'sslserver' or cert_id == 'subsystem':
-            subsystem_name = None
-            cert_tag = cert_id
-
-        else:
-            parts = cert_id.split('_', 1)
-            subsystem_name = parts[0]
-            cert_tag = parts[1]
+        subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -369,14 +382,7 @@ class CertUpdateCLI(pki.cli.CLI):
         subsystem_name = None
         cert_tag = cert_id
 
-        if cert_id == 'sslserver' or cert_id == 'subsystem':
-            subsystem_name = None
-            cert_tag = cert_id
-
-        else:
-            parts = cert_id.split('_', 1)
-            subsystem_name = parts[0]
-            cert_tag = parts[1]
+        subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -576,14 +582,7 @@ class CertCreateCLI(pki.cli.CLI):
         subsystem_name = None
         cert_tag = cert_id
 
-        if cert_id == 'sslserver' or cert_id == 'subsystem':
-            subsystem_name = None
-            cert_tag = cert_id
-
-        else:
-            parts = cert_id.split('_', 1)
-            subsystem_name = parts[0]
-            cert_tag = parts[1]
+        subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -1030,14 +1029,7 @@ class CertImportCLI(pki.cli.CLI):
         # Load the instance. Default: pki-tomcat
         instance.load()
 
-        if cert_id == 'sslserver' or cert_id == 'subsystem':
-            subsystem_name = None
-            cert_tag = cert_id
-
-        else:
-            parts = cert_id.split('_', 1)
-            subsystem_name = parts[0]
-            cert_tag = parts[1]
+        subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -1258,14 +1250,7 @@ class CertExportCLI(pki.cli.CLI):
         subsystem_name = None
         cert_tag = cert_id
 
-        if cert_id == 'sslserver' or cert_id == 'subsystem':
-            subsystem_name = None
-            cert_tag = cert_id
-
-        else:
-            parts = cert_id.split('_', 1)
-            subsystem_name = parts[0]
-            cert_tag = parts[1]
+        subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -1438,14 +1423,7 @@ class CertRemoveCLI(pki.cli.CLI):
         # Load the instance. Default: pki-tomcat
         instance.load()
 
-        if cert_id == 'sslserver' or cert_id == 'subsystem':
-            subsystem_name = None
-            cert_tag = cert_id
-
-        else:
-            parts = cert_id.split('_', 1)
-            subsystem_name = parts[0]
-            cert_tag = parts[1]
+        subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -1459,20 +1437,8 @@ class CertRemoveCLI(pki.cli.CLI):
                 subsystem_name, instance_name)
             sys.exit(1)
 
-        cert = subsystem.get_subsystem_cert(cert_tag)
-
-        nssdb = instance.open_nssdb()
-
-        try:
-            logger.info('Removing %s certificate from NSS database', cert_id)
-
-            nssdb.remove_cert(
-                nickname=cert['nickname'],
-                token=cert['token'],
-                remove_key=remove_key)
-
-        finally:
-            nssdb.close()
+        logger.info('Removing %s certificate from NSS db', cert_id)
+        subsystem.cert_del(cert_tag=cert_tag, remove_key=remove_key)
 
 
 class CertFixCLI(pki.cli.CLI):
@@ -1632,9 +1598,14 @@ class CertFixCLI(pki.cli.CLI):
         logger.debug('Selftests disabled for subsystems: %s', ', '.join(
             str(x.name) for x in target_subsys))
 
-        # 4. Create temp SSL cert and import it
+        # 4a. Create temp SSL cert
         instance.cert_create(cert_id='sslserver', temp=True)
-        instance.cert_del(cert_id='sslserver')
+
+        # 4b. Load the first subsystem from target_sys (since sslserver is used
+        #     by ALL subsystems) and Delete the existing SSL Cert
+        target_subsys[0].cert_del(cert_id='sslserver')
+
+        # 4d. import it
         instance.cert_import(cert_id='sslserver')
 
         # 5. Bring up the server temporarily
@@ -1653,7 +1624,13 @@ class CertFixCLI(pki.cli.CLI):
 
         # 8. Delete existing certs and then import the renewed system cert(s)
         for cert_id in fix_certs:
-            instance.cert_del(cert_id)
+            subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
+            subsystem = instance.get_subsystem(subsystem_name)
+
+            # Delete the existing cert from the subsys
+            subsystem.cert_del(cert_id)
+
+            # Import new cert for the subsys
             instance.cert_import(cert_id)
 
         # 9. Enable self tests for the subsystems disabled earlier
