@@ -114,6 +114,21 @@ class PKIDeployer:
         self.config_client = util.ConfigClient(self)
         self.parser = parser
 
+    def validate(self):
+        # Validate environmental settings for the deployer;
+        # to be called before self.init().
+
+        blacklisted_hostnames = ['localhost', 'localhost.localdomain',
+                                 'localhost4', 'localhost4.localdomain4',
+                                 'localhost6', 'localhost6.localdomain6']
+
+        if self.hostname in blacklisted_hostnames:
+            raise Exception("This host has a localhost-like domain as its " +
+                            "FQDN. Please change this to a non-localhost " +
+                            "FQDN. Changes must be made in /etc/hosts; to " +
+                            "verify that they have applied run " +
+                            "`python -c 'import socket; print(socket.getfqdn())'`.")
+
     def flatten_master_dict(self):
 
         self.mdict.update(__name__="PKI Master Dictionary")
