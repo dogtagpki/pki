@@ -38,6 +38,8 @@ import ldap.filter
 import pki
 import pki.nssdb
 import pki.util
+import pki.client as client
+import pki.cert
 import six
 from lxml import etree
 
@@ -648,6 +650,300 @@ class PKISubsystem(object):
         finally:
             nssdb.close()
 
+    def setup_temp_renewal(self, tmpdir, cert_id):
+        """
+        Retrieve CA's cert, Subject Key Identifier and CSR for the cert_id provided
+
+        :param tmpdir: Temp dir to which cert's .csr and CA's .crt file needs
+                       to be written to
+        :type tmpdir: str
+        :param cert_id: Cert for which CSR is requested for
+        :type cert_id: str
+        :return: (ca_signing_cert, aki, csr_file)
+        """
+
+        csr_file = os.path.join(tmpdir, cert_id + '.csr')
+        ca_cert_file = os.path.join(tmpdir, 'ca_certificate.crt')
+
+        logger.debug('Exporting CSR for %s cert', cert_id)
+
+        # Retrieve CSR for cert_id
+        cert_request = self.get_subsystem_cert(cert_id).get('request', None)
+        if cert_request is None:
+            raise PKIServerException('Unable to find CSR for %s cert', cert_id)
+
+        csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
+        with open(csr_file, 'w') as f:
+            f.write(csr_data)
+
+        logger.debug('Extracting SKI from CA cert')
+        # TODO: Support remote CA.
+
+        # Retrieve Subject Key Identifier from CA cert
+        ca_signing_cert = self.instance.get_subsystem('ca').get_subsystem_cert('signing')
+        ca_cert_data = ca_signing_cert.get('data', None)
+        if ca_cert_data is None:
+            raise PKIServerException('Unable to find certificate data for CA signing certificate.')
+
+        ca_cert = pki.nssdb.convert_cert(ca_cert_data, 'base64', 'pem')
+        with open(ca_cert_file, 'w') as f:
+            f.write(ca_cert)
+
+        ca_cert_retrieve_cmd = [
+            'openssl',
+            'x509',
+            '-in', ca_cert_file,
+            '-noout',
+            '-text'
+        ]
+
+        logger.debug('Command: %s', ' '.join(ca_cert_retrieve_cmd))
+        ca_cert_details = subprocess.check_output(ca_cert_retrieve_cmd).decode('utf-8')
+
+        aki = re.search(r'Subject Key Identifier.*\n.*?(.*?)\n', ca_cert_details).group(1)
+
+        # Add 0x to represent this is a Hex
+        aki = '0x' + aki.strip().replace(':', '')
+        logger.debug('AKI: %s', aki)
+
+        return ca_signing_cert, aki, csr_file
+
+    def temp_cert_create(self, nssdb, tmpdir, cert_tag, serial, new_cert_file):
+        """
+        Generates temp cert with validity of 3 months by default
+
+        **Note**: Currently, supports only *sslserver* cert
+
+        :param nssdb: NSS db instance
+        :type nssdb: NSSDatabase
+        :param tmpdir: Temp dir to which cert's csr and ca's cert file needs to be
+                       written to
+        :type tmpdir: str
+        :param cert_tag: Cert for which temp cert needs to be created
+        :type cert_tag: str
+        :param serial: Serial number to be assigned to new cert
+        :type serial: str
+        :param new_cert_file: Path where the new temp cert needs to be written to
+        :type new_cert_file: str
+        :return: None
+        """
+        logger.info('Generate temp SSL certificate')
+
+        if cert_tag != 'sslserver':
+            raise PKIServerException('Temp cert for %s is not supported yet.', cert_tag)
+
+        ca_signing_cert, aki, csr_file = \
+            self.setup_temp_renewal(tmpdir=tmpdir, cert_id='sslserver')
+
+        # --keyUsage
+        key_usage_ext = {
+            'digitalSignature': True,
+            'nonRepudiation': True,
+            'keyEncipherment': True,
+            'dataEncipherment': True,
+            'critical': True
+        }
+
+        # -3
+        aki_ext = {
+            'auth_key_id': aki
+        }
+
+        # --extKeyUsage
+        ext_key_usage_ext = {
+            'serverAuth': True
+        }
+
+        rc = nssdb.create_cert(
+            issuer=ca_signing_cert['nickname'],
+            request_file=csr_file,
+            cert_file=new_cert_file,
+            serial=serial,
+            key_usage_ext=key_usage_ext,
+            aki_ext=aki_ext,
+            ext_key_usage_ext=ext_key_usage_ext)
+        if rc:
+            raise Exception('Failed to generate CA-signed temp SSL certificate. '
+                            'RC: %d' % rc)
+
+    def setup_authentication(self, c_nssdb_pass, c_nssdb_pass_file, c_cert,
+                             c_nssdb, tmpdir):
+        """
+        Set up a secure authenticated connection with the PKI Server through PKI client
+
+        :param c_nssdb_pass: Client NSS db plain password
+        :type c_nssdb_pass: str
+        :param c_nssdb_pass_file: File containing client NSS db password
+        :type c_nssdb_pass_file: str
+        :param c_cert: Client Cert nick name
+        :type c_cert: str
+        :param c_nssdb: Client NSS db path
+        :type c_nssdb: str
+        :param tmpdir: Absolute path of temp dir to store p12 and pem files
+        :type tmpdir: str
+        :return: Authenticated secure connection to PKI server
+        """
+        temp_auth_p12 = os.path.join(tmpdir, 'auth.p12')
+        temp_auth_cert = os.path.join(tmpdir, 'auth.pem')
+
+        if not c_cert:
+            raise PKIServerException('Client cert nickname is required.')
+
+        # Create a PKIConnection object that stores the details of subsystem.
+        # Note: Renewal requests can be submitted only to 'ca'
+        connection = client.PKIConnection('https', os.environ['HOSTNAME'], '8443', 'ca')
+
+        # Create a p12 file using
+        # pk12util -o <p12 file name> -n <cert nick name> -d <NSS db path>
+        # -W <pkcs12 password> -K <NSS db pass>
+        cmd_generate_pk12 = [
+            'pk12util',
+            '-o', temp_auth_p12,
+            '-n', c_cert,
+            '-d', c_nssdb
+        ]
+
+        # The pem file used for authentication. Created from a p12 file using the
+        # command:
+        # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes
+        cmd_generate_pem = [
+            'openssl',
+            'pkcs12',
+            '-in', temp_auth_p12,
+            '-out', temp_auth_cert,
+            '-nodes',
+
+        ]
+
+        if c_nssdb_pass_file:
+            # Use the same password file for the generated pk12 file
+            cmd_generate_pk12.extend(['-k', c_nssdb_pass_file,
+                                      '-w', c_nssdb_pass_file])
+            cmd_generate_pem.extend(['-passin', 'file:' + c_nssdb_pass_file])
+        else:
+            # Use the same password for the generated pk12 file
+            cmd_generate_pk12.extend(['-K', c_nssdb_pass,
+                                      '-W', c_nssdb_pass])
+            cmd_generate_pem.extend(['-passin', 'pass:' + c_nssdb_pass])
+
+        res_pk12 = subprocess.check_output(cmd_generate_pk12, stderr=subprocess.STDOUT)
+        logger.info(res_pk12)
+
+        res_pem = subprocess.check_output(cmd_generate_pem, stderr=subprocess.STDOUT)
+        logger.info(res_pem)
+
+        # Bind the authentication with the connection object
+        connection.set_authentication_cert(temp_auth_cert)
+
+        return connection
+
+    def renew_certificate(self, connection,
+                          output, serial):
+        """
+        Renew cert associated with the provided serial
+
+        :param connection: Secure authenticated connection to PKI Server
+        :type connection: PKIConnection
+        :param output: Location of the new cert file to be written to
+        :type output: str
+        :param serial: Serial number of the cert to be renewed
+        :type serial: str
+        :return: None
+        """
+
+        # Instantiate the CertClient
+        cert_client = pki.cert.CertClient(connection)
+
+        inputs = dict()
+        inputs['serial_num'] = serial
+
+        # request: CertRequestInfo object for request generated.
+        # cert: CertData object for certificate generated (if any)
+        ret = cert_client.enroll_cert(inputs=inputs, profile_id='caManualRenewal')
+
+        request_data = ret[0].request
+        cert_data = ret[0].cert
+
+        logger.info('Request ID: %s', request_data.request_id)
+        logger.info('Request Status: %s', request_data.request_status)
+
+        if not cert_data:
+            raise PKIServerException('Unable to renew system '
+                                     'certificate for serial: %s' % serial)
+
+        # store cert_id for usage later
+        cert_id = cert_data.serial_number
+        if not cert_id:
+            raise PKIServerException('Unable to retrieve serial number of '
+                                     'renewed certificate.')
+
+        logger.info('Serial Number: %s', cert_id)
+        logger.info('Issuer: %s', cert_data.issuer_dn)
+        logger.info('Subject: %s', cert_data.subject_dn)
+        logger.info('Pretty Print:')
+        logger.info(cert_data.pretty_repr)
+
+        new_cert_data = cert_client.get_cert(cert_serial_number=cert_id)
+        with open(output, 'w') as f:
+            f.write(new_cert_data.encoded)
+
+    def cert_create(self, cert_tag, c_cert, c_nssdb, c_nssdb_pass,
+                    c_nssdb_pass_file, serial=None, temp_cert=False, renew=False,
+                    output=None):
+        """
+        Create a new cert for the subsystem provided
+
+        :param cert_tag: New cert's tag
+        :param c_cert: Client cert nickname
+        :param c_nssdb: Path to nssdb
+        :param c_nssdb_pass: Password to the nssdb
+        :param c_nssdb_pass_file: File containing nssdb's password
+        :param serial: Serial number to be assigned to new cert
+        :param temp_cert: Whether new cert is a temporary cert
+        :param renew: Whether to place a renewal request to ca
+        :param output: Path to which new cert needs to be written to
+        :return: None
+        """
+        nssdb = self.instance.open_nssdb()
+        tmpdir = tempfile.mkdtemp()
+        try:
+            cert_folder = os.path.join(pki.CONF_DIR, self.name, 'certs')
+            if not os.path.exists(cert_folder):
+                os.makedirs(cert_folder)
+
+            if output:
+                new_cert_file = output
+            else:
+                new_cert_file = os.path.join(cert_folder,
+                                             self.name + '_' + cert_tag + '.crt')
+
+            if not serial:
+                # If admin doesn't provide a serial number, set the serial to
+                # the same serial number available in the nssdb
+                serial = self.get_subsystem_cert(cert_tag)["serial_number"]
+
+            if temp_cert:
+                # Create Temp Cert and write it to new_cert_file
+                self.temp_cert_create(nssdb, tmpdir, cert_tag, serial, new_cert_file)
+
+            else:
+                # Create permanent certificate
+                if not renew:
+                    # TODO: Support rekey
+                    raise Exception('Rekey is not supported yet.')
+
+                connection = self.setup_authentication(c_nssdb_pass=c_nssdb_pass,
+                                                       c_cert=c_cert,
+                                                       c_nssdb_pass_file=c_nssdb_pass_file,
+                                                       c_nssdb=c_nssdb,
+                                                       tmpdir=tmpdir)
+
+                self.renew_certificate(connection, new_cert_file, serial)
+
+        finally:
+            nssdb.close()
+            shutil.rmtree(tmpdir)
+
 
 class CASubsystem(PKISubsystem):
 
@@ -1133,38 +1429,6 @@ class PKIInstance(object):
             else:
                 raise PKIServerException('No corresponding subsystem loaded for %s',
                                          cert_id)
-
-    def cert_create(self, cert_id, client_nssdb_location=None,
-                    client_nssdb_pass=None, client_nssdb_pass_file=None,
-                    client_cert=None, renew=False, temp=False):
-        cmd = [
-            'pki-server', 'cert-create', '--instance', self.name
-        ]
-
-        if client_nssdb_location:
-            cmd.extend(['-d', client_nssdb_location])
-
-        if client_nssdb_pass:
-            cmd.extend(['-c', client_nssdb_pass])
-
-        if client_nssdb_pass_file:
-            cmd.extend(['-C', client_nssdb_pass_file])
-
-        if client_cert:
-            cmd.extend(['-n', client_cert])
-
-        if cert_id:
-            cmd.extend([cert_id])
-
-        if temp:
-            cmd.extend(['--temp'])
-
-        if renew:
-            cmd.extend(['--renew'])
-
-        logger.info('Executing CMD: %s', cmd)
-
-        subprocess.check_call(cmd)
 
 
 class PKIDatabaseConnection(object):
