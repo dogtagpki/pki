@@ -446,7 +446,7 @@ class CertCreateCLI(pki.cli.CLI):
         super(CertCreateCLI, self).__init__(
             'create', 'Create system certificate.')
 
-    def print_help(self):
+    def print_help(self):  # flake8: noqa
         print('Usage: pki-server cert-create [OPTIONS] <Cert ID>')
         # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
         # ca_audit_signing, kra_audit_signing
@@ -456,8 +456,7 @@ class CertCreateCLI(pki.cli.CLI):
         print('  -d <database>                   Security database location '
               '(default: ~/.dogtag/nssdb)')
         print('  -c <NSS DB password>            NSS database password')
-        print('  -C <path>                       Input file containing the password for the'
-              ' NSS database.')
+        print('  -C <path>                       Input file containing the password for the NSS database.')
         print('  -n <nickname>                   Client certificate nickname')
         print('      --temp                      Create temporary certificate.')
         print('      --serial <number>           Provide serial number for the certificate.')
@@ -577,8 +576,13 @@ class CertCreateCLI(pki.cli.CLI):
                 subsystem_name, instance_name)
             sys.exit(1)
 
-        subsystem.cert_create(cert_tag, c_cert, c_nssdb, c_nssdb_password,
-                              c_nssdb_pass_file, serial, temp_cert, renew, output)
+        try:
+            subsystem.cert_create(cert_tag, c_cert, c_nssdb, c_nssdb_password,
+                                  c_nssdb_pass_file, serial, temp_cert, renew, output)
+
+        except server.PKIServerException as e:
+            logger.error(str(e))
+            sys.exit(1)
 
 
 class CertImportCLI(pki.cli.CLI):
@@ -696,8 +700,7 @@ class CertExportCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --cert-file <path>             Output file to store the exported certificate in PEM format.')
         print('      --csr-file <path>              Output file to store the exported CSR in PEM format.')
-        print(
-            '      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
+        print('      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  Input file containing the password for the PKCS #12 file.')
         print('      --friendly-name <name>         Friendly name for the certificate in PKCS #12 file.')
@@ -829,9 +832,6 @@ class CertExportCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance.load()
-
-        subsystem_name = None
-        cert_tag = cert_id
 
         subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
 
@@ -1029,7 +1029,7 @@ class CertFixCLI(pki.cli.CLI):
         super(CertFixCLI, self).__init__(
             'fix', 'Fix expired system certificate(s).')
 
-    def print_help(self):
+    def print_help(self):  # flake8: noqa
         print('Usage: pki-server cert-fix [OPTIONS] [--all (default) | --cert <Cert ID>]')
         # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
         # ca_audit_signing, kra_audit_signing
@@ -1038,11 +1038,9 @@ class CertFixCLI(pki.cli.CLI):
         print('      --all (default)             Fix all expired system certs.')
         print('      --cert <Cert ID>            Fix specified system cert.')
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('  -d <database>                   Security database location '
-              '(default: ~/.dogtag/nssdb)')
+        print('  -d <database>                   Security database location (default: ~/.dogtag/nssdb)')
         print('  -c <NSS DB password>            NSS database password')
-        print('  -C <path>                       Input file containing the password for the'
-              ' NSS database.')
+        print('  -C <path>                       Input file containing the password for the NSS database.')
         print('  -n <nickname>                   Client certificate nickname')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
@@ -1063,11 +1061,11 @@ class CertFixCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
-        client_nssdb_location = os.getenv('HOME') + '/.dogtag/nssdb'
+        c_nssdb_location = os.getenv('HOME') + '/.dogtag/nssdb'
         all_certs = True
-        client_nssdb_password = None
-        client_nssdb_pass_file = None
-        client_cert = None
+        c_nssdb_pass = None
+        c_nssdb_pass_file = None
+        c_cert = None
         fix_certs = []
 
         for o, a in opts:
@@ -1081,16 +1079,16 @@ class CertFixCLI(pki.cli.CLI):
                 fix_certs.append(a)
 
             elif o == '-d':
-                client_nssdb_location = a
+                c_nssdb_location = a
 
             elif o == '-c':
-                client_nssdb_password = a
+                c_nssdb_pass = a
 
             elif o == '-C':
-                client_nssdb_pass_file = a
+                c_nssdb_pass_file = a
 
             elif o == '-n':
-                client_cert = a
+                c_cert = a
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -1109,6 +1107,16 @@ class CertFixCLI(pki.cli.CLI):
                 logger.error('option %s not recognized', o)
                 self.print_help()
                 sys.exit(1)
+
+        if not c_cert:
+            logger.error('Client nick name is required.')
+            self.print_help()
+            sys.exit(1)
+
+        if not c_nssdb_pass or not c_nssdb_pass_file:
+            logger.error('Client NSS db password is required.')
+            self.print_help()
+            sys.exit(1)
 
         if fix_certs:
             all_certs = False
@@ -1184,7 +1192,7 @@ class CertFixCLI(pki.cli.CLI):
                 str(x.name) for x in target_subsys))
 
             # 4a. Create temp SSL cert
-            target_subsys[0].cert_create(cert_id='sslserver', temp=True)
+            target_subsys[0].cert_create(cert_tag='sslserver', temp=True)
 
             # 4b. Load the first subsystem from target_sys (since sslserver is used
             #     by ALL subsystems) and Delete the existing SSL Cert
@@ -1206,13 +1214,14 @@ class CertFixCLI(pki.cli.CLI):
                 # If cert ID is instance specific, get it from first subsystem
                 if not subsystem_name:
                     subsystem_name = instance.subsystems[0].name
-
                 subsystem = instance.get_subsystem(subsystem_name)
-                subsystem.cert_create(cert_id=cert_id,
-                                      client_nssdb_location=client_nssdb_location,
-                                      client_nssdb_pass=client_nssdb_password,
-                                      client_nssdb_pass_file=client_nssdb_pass_file,
-                                      client_cert=client_cert, renew=True)
+
+                subsystem.cert_create(cert_tag=cert_tag,
+                                      c_cert=c_cert,
+                                      c_nssdb=c_nssdb_location,
+                                      c_nssdb_pass=c_nssdb_pass,
+                                      c_nssdb_pass_file=c_nssdb_pass_file,
+                                      renew=True)
 
             # 7. Stop the server
             instance.stop()

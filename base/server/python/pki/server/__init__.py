@@ -763,8 +763,8 @@ class PKISubsystem(object):
             aki_ext=aki_ext,
             ext_key_usage_ext=ext_key_usage_ext)
         if rc:
-            raise Exception('Failed to generate CA-signed temp SSL certificate. '
-                            'RC: %d' % rc)
+            raise PKIServerException('Failed to generate CA-signed temp SSL '
+                                     'certificate. RC: %d' % rc)
 
     def setup_authentication(self, c_nssdb_pass, c_nssdb_pass_file, c_cert,
                              c_nssdb, tmpdir):
@@ -887,8 +887,8 @@ class PKISubsystem(object):
         with open(output, 'w') as f:
             f.write(new_cert_data.encoded)
 
-    def cert_create(self, cert_tag, c_cert, c_nssdb, c_nssdb_pass,
-                    c_nssdb_pass_file, serial=None, temp_cert=False, renew=False,
+    def cert_create(self, cert_tag, c_cert=None, c_nssdb=None, c_nssdb_pass=None,
+                    c_nssdb_pass_file=None, serial=None, temp_cert=False, renew=False,
                     output=None):
         """
         Create a new cert for the subsystem provided
@@ -930,7 +930,13 @@ class PKISubsystem(object):
                 # Create permanent certificate
                 if not renew:
                     # TODO: Support rekey
-                    raise Exception('Rekey is not supported yet.')
+                    raise PKIServerException('Rekey is not supported yet.')
+
+                if not c_cert:
+                    raise PKIServerException('Client cert nick name required.')
+
+                if not c_nssdb_pass or not c_nssdb_pass_file:
+                    raise PKIServerException('NSS db password required.')
 
                 connection = self.setup_authentication(c_nssdb_pass=c_nssdb_pass,
                                                        c_cert=c_cert,
