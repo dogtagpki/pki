@@ -35,9 +35,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509CertImpl;
-
 import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.apps.CMS;
@@ -72,6 +69,9 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmsutil.util.Utils;
 
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.X509CertImpl;
+
 /**
  * Revoke a Certificate
  *
@@ -79,9 +79,8 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class DoRevoke extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DoRevoke.class);
+
     private static final long serialVersionUID = 1693115906265904238L;
     private final static String TPL_FILE = "revocationResult.template";
 
@@ -430,9 +429,10 @@ public class DoRevoke extends CMSServlet {
                     if (eeSerialNumber != null &&
                         eeSerialNumber.equals(targetCert.getSerialNumber()) &&
                         targetRecord.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
-                        processor.log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CA_CERTIFICATE_ALREADY_REVOKED_1",
-                                        targetRecord.getSerialNumber().toString(16)));
+
+                        String message = CMS.getLogMessage("CA_CERTIFICATE_ALREADY_REVOKED_1",
+                                targetRecord.getSerialNumber().toString(16));
+                        logger.error(message);
 
                         throw new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
                     }
@@ -519,7 +519,8 @@ public class DoRevoke extends CMSServlet {
                     }
 
                     if (!authorized) {
-                        processor.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REQ_AUTH_REVOKED_CERT"));
+                        String message = CMS.getLogMessage("CMSGW_REQ_AUTH_REVOKED_CERT");
+                        logger.error(message);
                         throw new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
                     }
 
@@ -545,7 +546,7 @@ public class DoRevoke extends CMSServlet {
 
             int count = processor.getCertificates().size();
             if (count == 0) {
-                processor.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REV_CERTS_ZERO"));
+                logger.warn("Unable to pre-process revocation request: certificate not found");
                 throw new ECMSGWException(CMS.getLogMessage("CMSGW_REVOCATION_ERROR_CERT_NOT_FOUND"));
             }
 
@@ -556,10 +557,11 @@ public class DoRevoke extends CMSServlet {
             processor.auditChangeRequest(ILogger.SUCCESS);
 
         } catch (ForbiddenException e) {
+            logger.warn("Unable to pre-process revocation request: " + e.getMessage());
             throw new EAuthzException(CMS.getUserMessage(locale, "CMS_AUTHORIZATION_ERROR"));
 
         } catch (CertificateException e) {
-            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            logger.error("Unable to pre-process revocation request: " + e.getMessage(), e);
             processor.auditChangeRequest(ILogger.FAILURE);
 
             // TODO: throw exception or return?
@@ -567,13 +569,13 @@ public class DoRevoke extends CMSServlet {
             return;
 
         } catch (EBaseException e) {
-            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            logger.error("Unable to pre-process revocation request: " + e.getMessage(), e);
             processor.auditChangeRequest(ILogger.FAILURE);
 
             throw e;
 
         } catch (IOException e) {
-            processor.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()));
+            logger.error("Unable to pre-process revocation request: " + e.getMessage(), e);
             processor.auditChangeRequest(ILogger.FAILURE);
 
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
@@ -745,7 +747,7 @@ public class DoRevoke extends CMSServlet {
             processor.auditChangeRequestProcessed(ILogger.SUCCESS);
 
         } catch (EBaseException e) {
-            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            logger.error("Unable to revoke certificate: " + e.getMessage(), e);
             processor.auditChangeRequestProcessed(ILogger.FAILURE);
 
             throw e;

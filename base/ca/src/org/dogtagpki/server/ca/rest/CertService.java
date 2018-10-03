@@ -36,18 +36,6 @@ import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509ExtensionException;
-import netscape.security.x509.X509Key;
-
 import org.apache.catalina.realm.GenericPrincipal;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
@@ -62,6 +50,7 @@ import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertNotFoundException;
+import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertResource;
 import com.netscape.certsrv.cert.CertRetrievalRequest;
 import com.netscape.certsrv.cert.CertRevokeRequest;
@@ -84,11 +73,25 @@ import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
 
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.provider.RSAPublicKey;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.RevocationReason;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509ExtensionException;
+import netscape.security.x509.X509Key;
+
 /**
  * @author alee
  *
  */
 public class CertService extends PKIService implements CertResource {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertService.class);
 
     ICertificateAuthority authority;
     ICertificateRepository repo;
@@ -154,11 +157,11 @@ public class CertService extends PKIService implements CertResource {
 
     public Response revokeCert(CertId id, CertRevokeRequest request, boolean caCert) {
         if (id == null) {
-            CMS.debug("revokeCert: id is null");
+            logger.warn("revokeCert: id is null");
             throw new BadRequestException("Unable to revoke cert: invalid id");
         }
         if (request == null) {
-            CMS.debug("revokeCert: request is null");
+            logger.warn("revokeCert: request is null");
             throw new BadRequestException("Unable to revoke cert: invalid request");
         }
 
@@ -191,7 +194,8 @@ public class CertService extends PKIService implements CertResource {
             processor.setAuthority(authority);
 
         } catch (EBaseException e) {
-            throw new PKIException(e.getMessage());
+            logger.error("Unable to create revocation processor: " + e.getMessage(), e);
+            throw new PKIException("Unable to revoke cert: " + e.getMessage(), e);
         }
 
         try {
@@ -244,21 +248,19 @@ public class CertService extends PKIService implements CertResource {
             processor.auditChangeRequest(ILogger.SUCCESS);
 
         } catch (PKIException e) {
-            processor.log(ILogger.LL_FAILURE, e.getMessage());
+            logger.warn("Unable to pre-process revocation request: " + e.getMessage());
             processor.auditChangeRequest(ILogger.FAILURE);
             throw e;
 
         } catch (EBaseException e) {
-            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            logger.error("Unable to pre-process revocation request: " + e.getMessage(), e);
             processor.auditChangeRequest(ILogger.FAILURE);
-
-            throw new PKIException(e.getMessage());
+            throw new PKIException("Unable to revoke cert: " + e.getMessage(), e);
 
         } catch (IOException e) {
-            processor.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()));
+            logger.error("Unable to pre-process revocation request: " + e.getMessage(), e);
             processor.auditChangeRequest(ILogger.FAILURE);
-
-            throw new PKIException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
+            throw new PKIException("Unable to revoke cert: " + e.getMessage(), e);
         }
 
         // change audit processing from "REQUEST" to "REQUEST_PROCESSED"
@@ -271,30 +273,31 @@ public class CertService extends PKIService implements CertResource {
             processor.auditChangeRequestProcessed(ILogger.SUCCESS);
 
         } catch (EBaseException e) {
-            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            logger.error("Unable to process revocation request: " + e.getMessage(), e);
             processor.auditChangeRequestProcessed(ILogger.FAILURE);
-
-            throw new PKIException(e.getMessage());
+            throw new PKIException("Unable to revoke certificate: " + e.getMessage(), e);
         }
 
         try {
             IRequest certRequest = processor.getRequest();
             CertRequestDAO dao = new CertRequestDAO();
-            return createOKResponse(dao.getRequest(certRequest.getRequestId(), uriInfo));
+            CertRequestInfo requestInfo = dao.getRequest(certRequest.getRequestId(), uriInfo);
+            return createOKResponse(requestInfo);
 
         } catch (EBaseException e) {
-            throw new PKIException(e.getMessage());
+            logger.error("Unable to create revocation response: " + e.getMessage(), e);
+            throw new PKIException("Unable to create revocation response: " + e.getMessage(), e);
         }
     }
 
     @Override
     public Response unrevokeCert(CertId id) {
         if (id == null) {
-            CMS.debug("unrevokeCert: id is null");
+            logger.warn("unrevokeCert: id is null");
             throw new BadRequestException("Unable to unrevoke cert: invalid id");
         }
         if (request == null) {
-            CMS.debug("unrevokeCert: request is null");
+            logger.warn("unrevokeCert: request is null");
             throw new BadRequestException("Unable to unrevoke cert: invalid request");
         }
 
@@ -315,7 +318,8 @@ public class CertService extends PKIService implements CertResource {
             processor.setAuthority(authority);
 
         } catch (EBaseException e) {
-            throw new PKIException(e.getMessage());
+            logger.error("Unable to create revocation processor: " + e.getMessage(), e);
+            throw new PKIException("Unable to unrevoke certificate: " + e.getMessage(), e);
         }
 
         try {
@@ -325,10 +329,9 @@ public class CertService extends PKIService implements CertResource {
             processor.auditChangeRequest(ILogger.SUCCESS);
 
         } catch (EBaseException e) {
-            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            logger.error("Unable to pre-process unrevocation request: " + e.getMessage(), e);
             processor.auditChangeRequest(ILogger.FAILURE);
-
-            throw new PKIException(e.getMessage());
+            throw new PKIException("Unable to unrevoke certificate: " + e.getMessage(), e);
         }
 
         // change audit processing from "REQUEST" to "REQUEST_PROCESSED"
@@ -341,10 +344,9 @@ public class CertService extends PKIService implements CertResource {
             processor.auditChangeRequestProcessed(ILogger.SUCCESS);
 
         } catch (EBaseException e) {
-            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            logger.error("Unable to process unrevocation request: " + e.getMessage(), e);
             processor.auditChangeRequestProcessed(ILogger.FAILURE);
-
-            throw new PKIException(e.getMessage());
+            throw new PKIException("Unable to unrevoke certificate: " + e.getMessage(), e);
         }
 
         try {
@@ -353,7 +355,8 @@ public class CertService extends PKIService implements CertResource {
             return createOKResponse(dao.getRequest(certRequest.getRequestId(), uriInfo));
 
         } catch (EBaseException e) {
-            throw new PKIException(e.getMessage());
+            logger.error("Unable to create unrevocation response: " + e.getMessage(), e);
+            throw new PKIException("Unable to create unrevocation response: " + e.getMessage(), e);
         }
     }
 
@@ -387,7 +390,7 @@ public class CertService extends PKIService implements CertResource {
         size       = size == null ? DEFAULT_SIZE : size;
 
         String filter = createSearchFilter(status);
-        CMS.debug("CertService.listCerts: filter: " + filter);
+        logger.debug("CertService.listCerts: filter: " + filter);
 
         CertDataInfos infos = new CertDataInfos();
         try {
@@ -433,7 +436,7 @@ public class CertService extends PKIService implements CertResource {
     @Override
     public Response searchCerts(CertSearchRequest data, Integer start, Integer size) {
 
-        CMS.debug("CertService.searchCerts()");
+        logger.debug("CertService.searchCerts()");
 
         if (data == null) {
             throw new BadRequestException("Search request is null");
@@ -443,20 +446,20 @@ public class CertService extends PKIService implements CertResource {
         size = size == null ? DEFAULT_SIZE : size;
 
         String filter = createSearchFilter(data);
-        CMS.debug("CertService: filter: " + filter);
+        logger.debug("CertService: filter: " + filter);
 
         CertDataInfos infos = new CertDataInfos();
         try {
             ICertRecordList list = repo.findCertRecordsInList(filter, null, "serialno", size);
             int total = list.getSize();
-            CMS.debug("CertService: total: " + total);
+            logger.debug("CertService: total: " + total);
 
             // return entries in the requested page
             for (int i = start; i < start + size && i < total; i++) {
                 ICertRecord record = list.getCertRecord(i);
 
                 if (record == null) {
-                    CMS.debug("CertService: Certificate record not found");
+                    logger.warn("CertService: Certificate record not found");
                     throw new PKIException("Certificate record not found");
                 }
 
@@ -476,8 +479,8 @@ public class CertService extends PKIService implements CertResource {
             }
 
         } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Unable to search certificates: " + e, e);
+            logger.error("Unable to search certificates: " + e.getMessage(), e);
+            throw new PKIException("Unable to search certificates: " + e.getMessage(), e);
         }
 
         return createOKResponse(infos);

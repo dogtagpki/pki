@@ -30,8 +30,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.RevocationReason;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -56,6 +54,8 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
+import netscape.security.x509.RevocationReason;
+
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
  * take them off-hold)
@@ -64,9 +64,8 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class DoUnrevoke extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DoUnrevoke.class);
+
     private static final long serialVersionUID = -7978703730006036625L;
     private final static String TPL_FILE = "unrevocationResult.template";
 
@@ -269,7 +268,7 @@ public class DoUnrevoke extends CMSServlet {
             processor.auditChangeRequest(ILogger.SUCCESS);
 
         } catch (EBaseException e) {
-            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            logger.error("Unable to pre-process unrevocation request: " + e.getMessage(), e);
             processor.auditChangeRequest(ILogger.FAILURE);
 
             throw e;
@@ -415,7 +414,7 @@ public class DoUnrevoke extends CMSServlet {
             processor.auditChangeRequestProcessed(ILogger.SUCCESS);
 
         } catch (EBaseException e) {
-            processor.log(ILogger.LL_FAILURE, "Error " + e);
+            logger.error("Unable to process unrevocation request: " + e.getMessage(), e);
             processor.auditChangeRequestProcessed(ILogger.FAILURE);
 
             throw e;

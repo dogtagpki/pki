@@ -500,8 +500,4 @@ public class RevocationProcessor extends CertProcessor {
                 String.valueOf(revocationReason.toInt()),
                 requestStatus));
     }
-
-    public void log(int level, String message) {
-        log(ILogger.S_CA, level, message);
-    }
 }
