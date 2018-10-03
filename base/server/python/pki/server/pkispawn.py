@@ -102,6 +102,12 @@ def main(argv):
         action='store_true',
         help='skip installation step')
 
+    parser.optional.add_argument(
+        '--enforce-hostname',
+        dest='enforce_hostname',
+        action='store_true',
+        help='enforce strict hostname/FQDN checks')
+
     args = parser.process_command_line_arguments()
 
     config.default_deployment_cfg = \
@@ -113,6 +119,12 @@ def main(argv):
             args.user_deployment_cfg).strip('[\']')
 
     parser.validate()
+
+    # Currently the only logic in deployer's validation is the
+    # hostname check; at some point this might need to be updated.
+    if args.enforce_hostname:
+        deployer.validate()
+
     interactive = False
 
     if config.user_deployment_cfg is None:
