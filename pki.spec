@@ -15,7 +15,7 @@ License:          GPLv2 and LGPLv2
 ExcludeArch:      aarch64 s390x
 %endif
 
-Version:          10.6.6
+Version:          10.6.7
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 # global           _phase -a1
 
@@ -201,7 +201,7 @@ BuildRequires:    nss-devel >= 3.36.1
 %if 0%{?rhel} && 0%{?rhel} <= 7
 BuildRequires:    nuxwdog-client-java >= 1.0.3-7
 %else
-BuildRequires:    nuxwdog-client-java >= 1.0.3-13
+BuildRequires:    nuxwdog-client-java >= 1.0.5
 %endif
 
 BuildRequires:    openldap-devel
@@ -320,7 +320,7 @@ BuildRequires:    jss >= 4.4.0-11
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
 BuildRequires:    jss >= 4.5.0-1
-BuildRequires:    tomcatjss >= 7.3.5
+BuildRequires:    tomcatjss >= 7.3.6
 %endif
 BuildRequires:    systemd-units
 
@@ -610,7 +610,7 @@ Requires:         net-tools
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         nuxwdog-client-java >= 1.0.3-7
 %else
-Requires:         nuxwdog-client-java >= 1.0.3-13
+Requires:         nuxwdog-client-java >= 1.0.5
 %endif
 
 Requires:         policycoreutils
@@ -678,7 +678,7 @@ Requires(pre):    shadow-utils
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         tomcatjss >= 7.2.1-4
 %else
-Requires:         tomcatjss >= 7.3.5
+Requires:         tomcatjss >= 7.3.6
 %endif
 
 %description -n   pki-server
