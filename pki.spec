@@ -10,9 +10,9 @@ License:          GPLv2 and LGPLv2
 %if 0%{?rhel} && 0%{?rhel} <= 7
 # no arch exclusion
 %else
-# Exclude 'aarch64' and 's390x' architectures since
+# Exclude 's390' and 's390x' architectures since
 # 'esc' does not exist on these two platforms
-ExcludeArch:      aarch64 s390x
+ExcludeArch:      s390 s390x
 %endif
 
 Version:          10.6.7
