@@ -214,7 +214,7 @@ install(
 
 install(
     DIRECTORY
-        docs/
+        ../../docs/
     DESTINATION
         ${DATA_INSTALL_DIR}/server/docs
 )
