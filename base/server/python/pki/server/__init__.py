@@ -540,15 +540,11 @@ class PKISubsystem(object):
 
         return target_tests
 
-    def set_startup_tests(self, target_tests):
-        # Remove unnecessary space, curly braces
-        self.config['selftests.container.order.startup'] = ", " \
-            .join([(key + ':' + SELFTEST_CRITICAL if val else key)
-                   for key, val in target_tests.items()])
-
-    def set_startup_test_critical(self, critical, test=None):
+    def set_startup_tests(self, critical, test=None):
+        # Retrieve all available tests and assume handling of all tests
         target_tests = self.get_startup_tests()
-        # Change the test level to critical
+
+        # If a (valid)test is specifically provided as argument, handle only that entry
         if test:
             if test not in target_tests:
                 raise PKIServerException('No such self test available for %s' % self.name)
@@ -556,9 +552,11 @@ class PKISubsystem(object):
         else:
             for testID in target_tests:
                 target_tests[testID] = critical
-        self.set_startup_tests(target_tests)
-        # save the CS.cfg
-        self.save()
+
+        # Update the entries in CS.cfg
+        self.config['selftests.container.order.startup'] = ", " \
+            .join([(key + ':' + SELFTEST_CRITICAL if val else key)
+                   for key, val in target_tests.items()])
 
 
 class CASubsystem(PKISubsystem):
