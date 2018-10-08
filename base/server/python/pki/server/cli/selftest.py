@@ -110,7 +110,7 @@ class EnableSelfTestCLI(pki.cli.CLI):
         try:
             # Enable critical tests for all subsystems listed in target_subsystems
             for subsys in target_subsystems:
-                subsys.set_startup_tests(test=test, critical=True)
+                subsys.set_startup_test_criticality(test=test, critical=True)
                 # Save the updated CS.cfg to disk
                 subsys.save()
 
@@ -190,7 +190,7 @@ class DisableSelftestCLI(pki.cli.CLI):
         try:
             # Disable critical tests for all subsystems listed in target_subsystems
             for subsys in target_subsystems:
-                subsys.set_startup_tests(test=test, critical=False)
+                subsys.set_startup_test_criticality(test=test, critical=False)
                 # Save the updated CS.cfg to disk
                 subsys.save()
 

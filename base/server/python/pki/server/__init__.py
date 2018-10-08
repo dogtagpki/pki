@@ -540,11 +540,17 @@ class PKISubsystem(object):
 
         return target_tests
 
-    def set_startup_tests(self, critical, test=None):
-        # Retrieve all available tests and assume handling of all tests
+    def set_startup_tests(self, target_tests):
+        # Remove unnecessary space, curly braces
+        self.config['selftests.container.order.startup'] = ", " \
+            .join([(key + ':' + SELFTEST_CRITICAL if val else key)
+                   for key, val in target_tests.items()])
+
+    def set_startup_test_criticality(self, critical, test=None):
+        # Assume action to be taken on ALL available startup tests
         target_tests = self.get_startup_tests()
 
-        # If a (valid)test is specifically provided as argument, handle only that entry
+        # If just one test is provided, take action on ONLY that test
         if test:
             if test not in target_tests:
                 raise PKIServerException('No such self test available for %s' % self.name)
@@ -552,11 +558,7 @@ class PKISubsystem(object):
         else:
             for testID in target_tests:
                 target_tests[testID] = critical
-
-        # Update the entries in CS.cfg
-        self.config['selftests.container.order.startup'] = ", " \
-            .join([(key + ':' + SELFTEST_CRITICAL if val else key)
-                   for key, val in target_tests.items()])
+        self.set_startup_tests(target_tests)
 
 
 class CASubsystem(PKISubsystem):
