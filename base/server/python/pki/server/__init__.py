@@ -560,6 +560,24 @@ class PKISubsystem(object):
                 target_tests[testID] = critical
         self.set_startup_tests(target_tests)
 
+    def cert_del(self, cert_tag, remove_key=False):
+        """
+        Delete a cert from NSS db
+        :param cert_tag: Cert Tag
+        :param remove_key: Remove associate private key
+        """
+        cert = self.get_subsystem_cert(cert_tag)
+        nssdb = self.instance.open_nssdb()
+        try:
+            logger.debug('Removing %s certificate from NSS database for '
+                         'subsystem %s instance %s', cert_tag, self.name, self.instance)
+            nssdb.remove_cert(
+                nickname=cert['nickname'],
+                token=cert['token'],
+                remove_key=remove_key)
+        finally:
+            nssdb.close()
+
 
 class CASubsystem(PKISubsystem):
 
