@@ -89,7 +89,7 @@ class CertCLI(pki.cli.CLI):
         return datetime.datetime.fromtimestamp(millis / 1000.0).strftime("%a %b %d %H:%M:%S %Y")
 
     @staticmethod
-    def get_cert_id_info(cert_id):
+    def split_cert_id(cert_id):
         """
         Return cert_tag and corresponding subsystem details from cert_id
         :param cert_id: Cert ID
@@ -277,7 +277,7 @@ class CertShowCLI(pki.cli.CLI):
 
         instance.load()
 
-        subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
+        subsystem_name, cert_tag = CertCLI.split_cert_id(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -376,7 +376,7 @@ class CertUpdateCLI(pki.cli.CLI):
 
         instance.load()
 
-        subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
+        subsystem_name, cert_tag = CertCLI.split_cert_id(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -990,7 +990,7 @@ class CertImportCLI(pki.cli.CLI):
         # Load the instance. Default: pki-tomcat
         instance.load()
 
-        subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
+        subsystem_name, cert_tag = CertCLI.split_cert_id(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -1208,7 +1208,7 @@ class CertExportCLI(pki.cli.CLI):
 
         instance.load()
 
-        subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
+        subsystem_name, cert_tag = CertCLI.split_cert_id(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
@@ -1381,7 +1381,7 @@ class CertRemoveCLI(pki.cli.CLI):
         # Load the instance. Default: pki-tomcat
         instance.load()
 
-        subsystem_name, cert_tag = CertCLI.get_cert_id_info(cert_id)
+        subsystem_name, cert_tag = CertCLI.split_cert_id(cert_id)
 
         # If cert ID is instance specific, get it from first subsystem
         if not subsystem_name:
