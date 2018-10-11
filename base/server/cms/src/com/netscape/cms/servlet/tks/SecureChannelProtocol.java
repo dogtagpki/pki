@@ -30,7 +30,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-import sun.security.pkcs11.wrapper.PKCS11Constants;
+import org.mozilla.jss.pkcs11.PKCS11Constants;
 
 public class SecureChannelProtocol {
 

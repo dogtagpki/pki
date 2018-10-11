@@ -7,7 +7,7 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.SymmetricKeyDeriver;
 import org.mozilla.jss.crypto.TokenException;
 
-import sun.security.pkcs11.wrapper.PKCS11Constants;
+import org.mozilla.jss.pkcs11.PKCS11Constants;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
