@@ -51,6 +51,7 @@ import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.crypto.InvalidKeyFormatException;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs11.PK11RSAPublicKey;
+import org.mozilla.jss.pkcs11.PKCS11Constants;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
 import com.netscape.certsrv.apps.CMS;
@@ -66,7 +67,6 @@ import netscape.security.provider.RSAPublicKey;
 import netscape.security.util.BigInt;
 import netscape.security.x509.RevocationReason;
 import netscape.security.x509.X509CertImpl;
-import sun.security.pkcs11.wrapper.PKCS11Constants;
 
 public class TPSEnrollProcessor extends TPSProcessor {
 

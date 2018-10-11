@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
 
-import sun.security.pkcs11.wrapper.PKCS11Constants;
+import org.mozilla.jss.pkcs11.PKCS11Constants;
 
 import com.netscape.certsrv.apps.CMS;
 

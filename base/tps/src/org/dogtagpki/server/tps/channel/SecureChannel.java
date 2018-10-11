@@ -52,7 +52,7 @@ import org.dogtagpki.tps.main.Util;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
-import sun.security.pkcs11.wrapper.PKCS11Constants;
+import org.mozilla.jss.pkcs11.PKCS11Constants;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
