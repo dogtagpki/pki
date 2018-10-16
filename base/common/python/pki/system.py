@@ -295,6 +295,21 @@ class SystemConfigClient(object):
             headers)
         return response.json()
 
+    def setupDatabase(self, request):
+        """
+        Set up database.
+
+        :param request: Configuration request
+        :type request: ConfigurationRequest
+        """
+        data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
+        headers = {'Content-type': 'application/json',
+                   'Accept': 'application/json'}
+        self.connection.post(
+            '/rest/installer/setupDatabase',
+            data,
+            headers)
+
     def configureCerts(self, request):
         """
         Configure certificates.

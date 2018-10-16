@@ -694,6 +694,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Configuring %s subsystem', subsystem.type)
         client.configure(request)
 
+        logger.info('Setting up database')
+        client.setupDatabase(request)
+
         logger.info('Configuring certificates')
         response = client.configureCerts(request)
 

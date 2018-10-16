@@ -156,22 +156,36 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("=== Hierarchy Configuration ===");
         configureHierarchy(data);
 
-        // configure database
-        logger.debug("=== Database Configuration ===");
-        try {
-            configureDatabase(data);
-            cs.commit(false);
-        } catch (EBaseException e) {
-            logger.error("Unable to commit config parameters to file: " + e.getMessage(), e);
-            throw new PKIException("Unable to commit config parameters to file", e);
-        }
-        initializeDatabase(data);
-
-        logger.debug("=== System reinitializing ===");
-        reinitSubsystems();
-
         logger.debug("=== Configure CA Cert Chain ===");
         configureCACertChain(data, domainXML);
+    }
+
+    @Override
+    public void setupDatabase(ConfigurationRequest request) throws Exception {
+
+        logger.debug("SystemConfigService: setupDatabase()");
+
+        try {
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            configureDatabase(request);
+            cs.commit(false);
+
+            initializeDatabase(request);
+            reinitSubsystems();
+
+        } catch (PKIException e) { // normal response
+            logger.error("Configuration failed: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Configuration failed: " + e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Override
