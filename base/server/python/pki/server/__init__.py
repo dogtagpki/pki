@@ -102,7 +102,7 @@ class PKISubsystem(object):
             instance.conf_dir, 'Catalina', 'localhost', self.name + '.xml')
 
         self.config = {}
-        self.type = None    # e.g. CA, KRA
+        self.type = None  # e.g. CA, KRA
         self.prefix = None  # e.g. ca, kra
 
         # custom subsystem location
@@ -542,9 +542,23 @@ class PKISubsystem(object):
 
     def set_startup_tests(self, target_tests):
         # Remove unnecessary space, curly braces
-        self.config['selftests.container.order.startup'] = ", "\
+        self.config['selftests.container.order.startup'] = ", " \
             .join([(key + ':' + SELFTEST_CRITICAL if val else key)
                    for key, val in target_tests.items()])
+
+    def set_startup_test_criticality(self, critical, test=None):
+        # Assume action to be taken on ALL available startup tests
+        target_tests = self.get_startup_tests()
+
+        # If just one test is provided, take action on ONLY that test
+        if test:
+            if test not in target_tests:
+                raise PKIServerException('No such self test available for %s' % self.name)
+            target_tests[test] = critical
+        else:
+            for testID in target_tests:
+                target_tests[testID] = critical
+        self.set_startup_tests(target_tests)
 
 
 class CASubsystem(PKISubsystem):
@@ -604,7 +618,7 @@ class CASubsystem(PKISubsystem):
         request['id'] = attrs['cn'][0].decode('utf-8')
         request['type'] = attrs['requestType'][0].decode('utf-8')
         request['status'] = attrs['requestState'][0].decode('utf-8')
-        request['request'] = attrs['extdata-cert--005frequest'][0]\
+        request['request'] = attrs['extdata-cert--005frequest'][0] \
             .decode('utf-8')
 
         return request
@@ -1038,11 +1052,9 @@ class PKIDatabaseConnection(object):
         self.temp_dir = tempfile.mkdtemp()
 
         if self.nssdb_dir:
-
             ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, self.nssdb_dir)
 
         if self.client_cert_nickname:
-
             password_file = os.path.join(self.temp_dir, 'password.txt')
             with open(password_file, 'w') as f:
                 f.write(self.nssdb_password)
@@ -1068,7 +1080,6 @@ class PKIServerException(pki.PKIException):
 
     def __init__(self, message, exception=None,
                  instance=None, subsystem=None):
-
         pki.PKIException.__init__(self, message, exception)
 
         self.instance = instance
@@ -1079,7 +1090,6 @@ class Tomcat(object):
 
     @classmethod
     def get_version(cls):
-
         # run "tomcat version"
         output = subprocess.check_output(['/usr/sbin/tomcat', 'version'])
         output = output.decode('utf-8')
