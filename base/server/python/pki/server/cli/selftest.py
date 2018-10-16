@@ -23,9 +23,12 @@ from __future__ import print_function
 
 import getopt
 import sys
+import logging
 
 import pki.cli
 import pki.server as server
+
+logger = logging.getLogger(__name__)
 
 
 class SelfTestCLI(pki.cli.CLI):
@@ -34,33 +37,6 @@ class SelfTestCLI(pki.cli.CLI):
                                           'Selftest management commands')
         self.add_module(EnableSelfTestCLI())
         self.add_module(DisableSelftestCLI())
-
-    @staticmethod
-    def set_startup_test_critical(instance, subsystem, test, critical=False):
-
-        target_subsystems = []
-
-        # Load subsystem or subsystems
-        if not subsystem:
-            for subsys in instance.subsystems:
-                target_subsystems.append(subsys)
-        else:
-            target_subsystems.append(instance.get_subsystem(subsystem))
-
-        for subsys in target_subsystems:
-            target_tests = subsys.get_startup_tests()
-            # Change the test level to critical
-            if test:
-                if test not in target_tests:
-                    raise Exception('No such self test available for %s' % subsystem)
-                target_tests[test] = critical
-            else:
-                for testID in target_tests:
-                    target_tests[testID] = critical
-
-            subsys.set_startup_tests(target_tests)
-            # save the CS.cfg
-            subsys.save()
 
 
 class EnableSelfTestCLI(pki.cli.CLI):
@@ -87,7 +63,8 @@ class EnableSelfTestCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        subsystem = None
+        # To hold the subsystem names
+        subsystems = []
         test = None
         instance_name = 'pki-tomcat'
 
@@ -99,7 +76,7 @@ class EnableSelfTestCLI(pki.cli.CLI):
                 instance_name = a
 
             elif o == '--subsystem':
-                subsystem = a
+                subsystems.append(a)
 
             elif o == '--help':
                 self.print_help()
@@ -119,8 +96,27 @@ class EnableSelfTestCLI(pki.cli.CLI):
 
         instance.load()
 
-        SelfTestCLI.set_startup_test_critical(instance=instance,
-                                              subsystem=subsystem, test=test, critical=True)
+        # To hold the instance of the loaded subsystems
+        target_subsystems = []
+
+        # Load subsystem or subsystems
+        if not subsystems:
+            for subsys in instance.subsystems:
+                target_subsystems.append(subsys)
+        else:
+            for subsys in subsystems:
+                target_subsystems.append(instance.get_subsystem(subsys))
+
+        try:
+            # Enable critical tests for all subsystems listed in target_subsystems
+            for subsys in target_subsystems:
+                subsys.set_startup_test_criticality(test=test, critical=True)
+                # Save the updated CS.cfg to disk
+                subsys.save()
+
+        except server.PKIServerException as e:
+            logger.error(str(e))
+            sys.exit(1)
 
 
 class DisableSelftestCLI(pki.cli.CLI):
@@ -147,7 +143,8 @@ class DisableSelftestCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        subsystem = None
+        # To hold the subsystem names
+        subsystems = []
         test = None
         instance_name = 'pki-tomcat'
 
@@ -159,7 +156,7 @@ class DisableSelftestCLI(pki.cli.CLI):
                 instance_name = a
 
             elif o == '--subsystem':
-                subsystem = a
+                subsystems.append(a)
 
             elif o == '--help':
                 self.print_help()
@@ -179,5 +176,24 @@ class DisableSelftestCLI(pki.cli.CLI):
 
         instance.load()
 
-        SelfTestCLI.set_startup_test_critical(instance=instance,
-                                              subsystem=subsystem, test=test)
+        # To hold the instance of the loaded subsystems
+        target_subsystems = []
+
+        # Load subsystem or subsystems
+        if not subsystems:
+            for subsys in instance.subsystems:
+                target_subsystems.append(subsys)
+        else:
+            for subsys in subsystems:
+                target_subsystems.append(instance.get_subsystem(subsys))
+
+        try:
+            # Disable critical tests for all subsystems listed in target_subsystems
+            for subsys in target_subsystems:
+                subsys.set_startup_test_criticality(test=test, critical=False)
+                # Save the updated CS.cfg to disk
+                subsys.save()
+
+        except server.PKIServerException as e:
+            logger.error(str(e))
+            sys.exit(1)
