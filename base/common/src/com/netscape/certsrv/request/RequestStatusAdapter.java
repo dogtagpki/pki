@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * The RevocationReasonAdapter class provides custom marshaling for RevocationReason.
+ * The RequestStatusAdapter class provides custom marshaling for RequestStatus.
  *
  * @author Endi S. Dewata
  */
