@@ -578,7 +578,7 @@ class PKISubsystem(object):
         finally:
             nssdb.close()
 
-    def cert_import_nssdb(self, cert_tag, cert_file=None):
+    def nssdb_import_cert(self, cert_tag, cert_file=None):
         """
         Add cert from cert_file to NSS db with appropriate trust flags
 
@@ -596,24 +596,32 @@ class PKISubsystem(object):
             trust_attributes = 'CT,C,C'
         elif cert_tag == 'audit_signing':
             trust_attributes = ',,P'
+
         nssdb = self.instance.open_nssdb()
+
         try:
             cert_folder = os.path.join(pki.CONF_DIR, self.instance.name, 'certs')
+
             # If cert_file is not provided, load the cert from /etc/pki/certs/<cert_id>.crt
             if not cert_file:
                 cert_file = os.path.join(cert_folder,
                                          self.name + '_' + cert_tag + '.crt')
+
             if not os.path.isfile(cert_file):
                 raise PKIServerException('%s does not exist.' % cert_file)
+
             cert = self.get_subsystem_cert(cert_tag)
+
             logger.debug('Checking existing %s certificate in NSS database'
                          ' for subsystem: %s, instance: %s',
                          cert_tag, self.name, self.instance.name)
+
             if nssdb.get_cert(
                     nickname=cert['nickname'],
                     token=cert['token']):
                 raise PKIServerException('Certificate already exists: %s in'
                                          'subsystem %s' % (cert_tag, self.name))
+
             logger.debug('Importing new %s certificate into NSS database'
                          ' for subsys %s, instance %s',
                          cert_tag, self.name, self.instance.name)
@@ -622,13 +630,18 @@ class PKISubsystem(object):
                 token=cert['token'],
                 cert_file=cert_file,
                 trust_attributes=trust_attributes)
+
             logger.info('Updating CS.cfg with the new certificate')
             data = nssdb.get_cert(
                 nickname=cert['nickname'],
                 token=cert['token'],
                 output_format='base64')
+
+            # Store the cert data retrieved from NSS db
             cert['data'] = data
+
             return cert
+
         finally:
             nssdb.close()
 
@@ -1091,7 +1104,7 @@ class PKIInstance(object):
             return "Dogtag 9 " + self.name
         return self.name
 
-    def cert_update_config(self, cert_id, cert, subsystem=None):
+    def cert_update_config(self, cert_id, cert):
         """
         Update corresponding subsystem's CS.cfg with the new cert details
         passed.
@@ -1101,8 +1114,9 @@ class PKIInstance(object):
         cert_id == subsystem)` since these 2 certs are used by all subsystems
 
         :param cert_id: Cert ID to update
+        :type cert_id: str
         :param cert: Cert details to store in CS.cfg
-        :param subsystem: Subsystem whose CS.cfg needs to be updated
+        :type cert: dict
         :rtype: None
         :raises PKIServerException
         """
@@ -1113,12 +1127,18 @@ class PKIInstance(object):
                 subsystem.update_subsystem_cert(cert)
                 subsystem.save()
         else:
+            # Extract subsystem_name from cert_id
+            subsystem_name = cert_id.split('_', 1)[0]
+
+            # Load the corresponding subsystem
+            subsystem = self.get_subsystem(subsystem_name)
+
             if subsystem:
                 subsystem.update_subsystem_cert(cert)
                 subsystem.save()
             else:
-                raise PKIServerException('No corresponding subsystem loaded for %s',
-                                         cert_id)
+                raise PKIServerException('No subsystem can be loaded for %s in '
+                                         'instance %s.' % (cert_id, self.name))
 
 
 class PKIDatabaseConnection(object):

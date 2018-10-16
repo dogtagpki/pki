@@ -437,7 +437,7 @@ class CertUpdateCLI(pki.cli.CLI):
         else:
             print('WARNING: Certificate request not found')
 
-        instance.cert_update_config(cert_id, subsystem_cert, subsystem)
+        instance.cert_update_config(cert_id, subsystem_cert)
 
         self.print_message('Updated "%s" system certificate' % cert_id)
 
@@ -998,9 +998,9 @@ class CertImportCLI(pki.cli.CLI):
 
         try:
             # Load the cert into NSS db
-            cert = subsystem.cert_import_nssdb(cert_tag, cert_file)
+            cert = subsystem.nssdb_import_cert(cert_tag, cert_file)
             # Update the CS.cfg file for (all) corresponding subsystems
-            instance.cert_update_config(cert_id, cert, subsystem)
+            instance.cert_update_config(cert_id, cert)
 
         except server.PKIServerException as e:
             logger.error(str(e))
