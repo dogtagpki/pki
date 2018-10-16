@@ -203,14 +203,18 @@ class PKISubsystem(object):
         self.config.clear()
 
         if os.path.exists(self.cs_conf):
+
             lines = open(self.cs_conf).read().splitlines()
 
             for index, line in enumerate(lines):
+
                 if not line or line.startswith('#'):
                     continue
+
                 parts = line.split('=', 1)
                 if len(parts) < 2:
                     raise Exception('Missing delimiter in %s line %d' % (self.cs_conf, index + 1))
+
                 name = parts[0]
                 value = parts[1]
                 self.config[name] = value
@@ -221,14 +225,9 @@ class PKISubsystem(object):
     def find_system_certs(self):
 
         cert_ids = self.config['%s.cert.list' % self.name].split(',')
+
         for cert_id in cert_ids:
-
-            cert = self.create_subsystem_cert_object(cert_id)
-
-            if not cert:
-                continue
-
-            yield cert
+            yield self.get_subsystem_cert(cert_id)
 
     def get_subsystem_cert(self, cert_id):
         return self.create_subsystem_cert_object(cert_id)
@@ -333,6 +332,8 @@ class PKISubsystem(object):
                 nickname
             ])
 
+            logger.debug('Command: %s', ' '.join(cmd))
+
             subprocess.check_call(cmd)
 
         finally:
@@ -374,6 +375,8 @@ class PKISubsystem(object):
                 nickname
             ])
 
+            logger.debug('Command: %s', ' '.join(cmd))
+
             subprocess.check_call(cmd)
 
             # remove the certificate and key, but keep the chain
@@ -392,6 +395,8 @@ class PKISubsystem(object):
                 '--pkcs12-password-file', pkcs12_password_file,
                 nickname
             ])
+
+            logger.debug('Command: %s', ' '.join(cmd))
 
             subprocess.check_call(cmd)
 
@@ -708,6 +713,38 @@ class PKISubsystem(object):
         self.config['selftests.container.order.startup'] = ", "\
             .join([(key + ':' + SELFTEST_CRITICAL if val else key)
                    for key, val in target_tests.items()])
+
+    def set_startup_test_criticality(self, critical, test=None):
+        # Assume action to be taken on ALL available startup tests
+        target_tests = self.get_startup_tests()
+
+        # If just one test is provided, take action on ONLY that test
+        if test:
+            if test not in target_tests:
+                raise PKIServerException('No such self test available for %s' % self.name)
+            target_tests[test] = critical
+        else:
+            for testID in target_tests:
+                target_tests[testID] = critical
+        self.set_startup_tests(target_tests)
+
+    def cert_del(self, cert_tag, remove_key=False):
+        """
+        Delete a cert from NSS db
+        :param cert_tag: Cert Tag
+        :param remove_key: Remove associate private key
+        """
+        cert = self.get_subsystem_cert(cert_tag)
+        nssdb = self.instance.open_nssdb()
+        try:
+            logger.debug('Removing %s certificate from NSS database for '
+                         'subsystem %s instance %s', cert_tag, self.name, self.instance)
+            nssdb.remove_cert(
+                nickname=cert['nickname'],
+                token=cert['token'],
+                remove_key=remove_key)
+        finally:
+            nssdb.close()
 
 
 class CASubsystem(PKISubsystem):
