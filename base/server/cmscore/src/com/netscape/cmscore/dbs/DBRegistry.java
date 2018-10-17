@@ -24,6 +24,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Vector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -34,7 +37,6 @@ import com.netscape.certsrv.dbs.IDBDynAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IFilterConverter;
-import com.netscape.certsrv.logging.ILogger;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -56,14 +58,14 @@ import netscape.ldap.LDAPAttributeSet;
  */
 public class DBRegistry implements IDBRegistry, ISubsystem {
 
+    public final static Logger logger = LoggerFactory.getLogger(DBRegistry.class);
+
     private IConfigStore mConfig = null;
     private Hashtable<String, String[]> mOCclassNames = new Hashtable<String, String[]>();
     private Hashtable<String, NameAndObject> mOCldapNames = new Hashtable<String, NameAndObject>();
     private Hashtable<String, IDBAttrMapper> mAttrufNames = new Hashtable<String, IDBAttrMapper>();
     private IFilterConverter mConverter = null;
     private Vector<IDBDynAttrMapper> mDynAttrMappers = new Vector<IDBDynAttrMapper>();
-
-    private ILogger mLogger = CMS.getLogger();
 
     /**
      * Constructs registry.
@@ -140,10 +142,8 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
              * @reason failed to register object class
              * @message DBRegistry: <exception thrown>
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", className));
+            logger.error("DBRegistry: " + CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", className), e);
+            throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", className), e);
         }
     }
 
@@ -371,9 +371,13 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
         // ignore duplicates, maintain order
         Set<String> v = new LinkedHashSet<String>();
 
+        logger.debug("DBRegistry: mapping attributes:");
+
         for (int i = 0; i < attrs.length; i++) {
 
             String attr = attrs[i];
+            logger.debug("DBRegistry: - " + attr);
+
             String prefix = "";
 
             // check reverse sort order
@@ -388,6 +392,9 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
             }
 
             if (isAttributeRegistered(attr)) {
+
+                logger.debug("DBRegistry:   attribute is registered");
+
                 IDBAttrMapper mapper = mAttrufNames.get(attr.toLowerCase());
                 if (mapper == null) {
                     throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS"));
@@ -400,11 +407,14 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
                 }
 
             } else {
+
+                logger.debug("DBRegistry:   checking dynamic mapper");
+
                 IDBDynAttrMapper matchingDynAttrMapper = null;
-                // check if a dynamic mapper can handle the attribute
                 for (Iterator<IDBDynAttrMapper> dynMapperIter = mDynAttrMappers.iterator(); dynMapperIter.hasNext();) {
                     IDBDynAttrMapper dynAttrMapper = dynMapperIter.next();
                     if (dynAttrMapper.supportsLDAPAttributeName(attr)) {
+                        logger.debug("DBRegistry:   found dynamic mapper: " + dynAttrMapper);
                         matchingDynAttrMapper = dynAttrMapper;
                         break;
                     }
@@ -420,8 +430,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
                      * @reason failed to get registered object class
                      * @message DBRegistry: <attr> is not registered
                      */
-                    mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
-                            ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attr));
+                    logger.error("DBRegistry: " + CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attr));
                     throw new EDBException(CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attr));
                 }
             }
@@ -510,9 +519,8 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
              * @reason failed to create object class
              * @message DBRegistry: <attr> is not registered
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS"));
+            logger.error("DBRegistry: " + CMS.getUserMessage("CMS_DBS_INVALID_ATTRS") + ": " + e.getMessage(), e);
+            throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS") + ": " + e.getMessage(), e);
         }
     }
 
