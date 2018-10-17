@@ -1946,7 +1946,8 @@ public class CMSEngine implements ICMSEngine {
 
     public void autoShutdown(boolean restart) {
 
-        logger.info("Shutting down");
+        logger.info("CMSEngine: Shutting down " + name + " subsystem");
+
         logger.debug("CMSEngine: restart: " + restart);
 
         // update restart tracker so we don't go into infinite restart loop
@@ -2011,6 +2012,27 @@ public class CMSEngine implements ICMSEngine {
 
         shutdownHttpServer(restart);
 
+    }
+
+    public void disableSubsystem() {
+
+        logger.info("CMSEngine: Disabling " + name + " subsystem");
+
+        try {
+            String subsystemID = name.toLowerCase();
+            ProcessBuilder pb = new ProcessBuilder("pki-server", "subsystem-disable", "-i", instanceId, subsystemID);
+            logger.debug("Command: " + String.join(" ", pb.command()));
+
+            Process process = pb.inheritIO().start();
+            int rc = process.waitFor();
+
+            if (rc != 0) {
+                logger.error("CMSEngine: Unable to disable " + name + " subsystem. RC: " + rc);
+            }
+
+        } catch (Exception e) {
+            logger.error("CMSEngine: Unable to disable " + name + " subsystem: " + e.getMessage(), e);
+        }
     }
 
     private void shutdownSubsystems(Map<String, SubsystemInfo> subsystems) {

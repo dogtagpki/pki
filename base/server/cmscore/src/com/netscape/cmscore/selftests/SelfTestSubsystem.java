@@ -50,6 +50,7 @@ import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 //////////////////////
 // class definition //
@@ -1804,29 +1805,11 @@ public class SelfTestSubsystem
 
             audit(auditMessage);
 
-            logger.error("SelfTestSubsystem: Shutting down server due to selftest failure");
-
-            // shutdown the system gracefully
+            logger.error("SelfTestSubsystem: Shutting down server due to selftest failure: " + e.getMessage(), e);
             CMS.shutdown();
 
-            IConfigStore cs = CMS.getConfigStore();
-            String instanceID = cs.get("instanceId");
-            String subsystemID = cs.get("cs.type").toLowerCase();
-
-            System.out.println("SelfTestSubsystem: Disabling \"" + subsystemID + "\" subsystem due to selftest failure.");
-
-            try {
-                ProcessBuilder pb = new ProcessBuilder("pki-server", "subsystem-disable", "-i", instanceID, subsystemID);
-                Process process = pb.inheritIO().start();
-                int rc = process.waitFor();
-
-                if (rc != 0) {
-                    System.out.println("SelfTestSubsystem: Unable to disable \"" + subsystemID + "\". RC: " + rc);
-                }
-
-            } catch (Exception e2) {
-                e.printStackTrace();
-            }
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            engine.disableSubsystem();
 
             throw new ESelfTestException("Selftest failed: " + e.getMessage(), e);
         }
