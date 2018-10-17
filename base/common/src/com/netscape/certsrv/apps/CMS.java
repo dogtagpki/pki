@@ -145,6 +145,10 @@ public final class CMS {
         _engine = engine;
     }
 
+    public static ICMSEngine getCMSEngine() {
+        return _engine;
+    }
+
     /**
      * This method is used for unit tests. It allows the underlying _engine
      * to be stubbed out.
