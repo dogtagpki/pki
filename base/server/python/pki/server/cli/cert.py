@@ -327,15 +327,7 @@ class CertUpdateCLI(pki.cli.CLI):
         else:
             print('WARNING: Certificate request not found')
 
-        # store cert data and request in CS.cfg
-        if cert_id == 'sslserver' or cert_id == 'subsystem':
-            # Update for all subsystems
-            for subsystem in instance.subsystems:
-                subsystem.update_subsystem_cert(subsystem_cert)
-                subsystem.save()
-        else:
-            subsystem.update_subsystem_cert(subsystem_cert)
-            subsystem.save()
+        instance.cert_update_config(cert_id, subsystem_cert)
 
         self.print_message('Updated "%s" system certificate' % cert_id)
 
@@ -894,62 +886,15 @@ class CertImportCLI(pki.cli.CLI):
                 subsystem_name, instance_name)
             sys.exit(1)
 
-        # audit and CA certs require special flags set in NSSDB
-        trust_attributes = None
-        if cert_id == 'ca_signing':
-            trust_attributes = 'CT,C,C'
-        elif cert_tag == 'audit_signing':
-            trust_attributes = ',,P'
-
-        nssdb = instance.open_nssdb()
-
         try:
-            cert_folder = os.path.join(pki.CONF_DIR, instance_name, 'certs')
-            if not cert_file:
-                cert_file = os.path.join(cert_folder, cert_id + '.crt')
+            # Load the cert into NSS db
+            cert = subsystem.nssdb_import_cert(cert_tag, cert_file)
+            # Update the CS.cfg file for (all) corresponding subsystems
+            instance.cert_update_config(cert_id, cert)
 
-            if not os.path.isfile(cert_file):
-                logger.error('No %s such file.', cert_file)
-                self.print_help()
-                sys.exit(1)
-
-            cert = subsystem.get_subsystem_cert(cert_tag)
-
-            logger.info('Checking existing %s certificate in NSS database', cert_id)
-
-            if nssdb.get_cert(
-                    nickname=cert['nickname'],
-                    token=cert['token']):
-                logger.error('Certificate already exists: %s', cert_id)
-                sys.exit(1)
-
-            logger.info('Importing new %s certificate into NSS database', cert_id)
-
-            nssdb.add_cert(
-                nickname=cert['nickname'],
-                token=cert['token'],
-                cert_file=cert_file,
-                trust_attributes=trust_attributes)
-
-            logger.info('Updating CS.cfg with the new certificate')
-
-            data = nssdb.get_cert(
-                nickname=cert['nickname'],
-                token=cert['token'],
-                output_format='base64')
-            cert['data'] = data
-
-            if cert_id == 'sslserver' or cert_id == 'subsystem':
-                # Update all subsystem's CS.cfg
-                for subsystem in instance.subsystems:
-                    subsystem.update_subsystem_cert(cert)
-                    subsystem.save()
-            else:
-                subsystem.update_subsystem_cert(cert)
-                subsystem.save()
-
-        finally:
-            nssdb.close()
+        except server.PKIServerException as e:
+            logger.error(str(e))
+            sys.exit(1)
 
 
 class CertExportCLI(pki.cli.CLI):
