@@ -80,6 +80,10 @@ public class ESelfTestException
         super(msg);
     }
 
+    public ESelfTestException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
+
     ////////////////////////////////
     // ESelfTestException methods //
     ////////////////////////////////
