@@ -73,6 +73,25 @@ class PKIServer(object):
 
         return instances
 
+    @staticmethod
+    def split_cert_id(cert_id):
+        """
+        Utility method to return cert_tag and corresponding subsystem details from cert_id
+
+        :param cert_id: Cert ID
+        :type cert_id: str
+        :returns: (subsystem_name, cert_tag)
+        :rtype: (str, str)
+        """
+        if cert_id == 'sslserver' or cert_id == 'subsystem':
+            subsystem_name = None
+            cert_tag = cert_id
+        else:
+            parts = cert_id.split('_', 1)
+            subsystem_name = parts[0]
+            cert_tag = parts[1]
+        return subsystem_name, cert_tag
+
 
 @functools.total_ordering
 class PKISubsystem(object):
