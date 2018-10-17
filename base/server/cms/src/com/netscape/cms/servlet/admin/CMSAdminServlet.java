@@ -96,9 +96,8 @@ import netscape.security.x509.X509CertInfo;
  */
 public final class CMSAdminServlet extends AdminServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSAdminServlet.class);
+
     private static final long serialVersionUID = 714370238027440050L;
     private final static String INFO = "CMSAdminServlet";
 
@@ -754,7 +753,7 @@ public final class CMSAdminServlet extends AdminServlet {
         if (stop != null) {
             //XXX Send response first then shutdown
             sendResponse(SUCCESS, null, params, resp);
-            CMS.debug("CMSAdminServlet.performTasks(): shutdown server");
+            logger.debug("CMSAdminServlet.performTasks(): shutdown server");
             CMS.shutdown();
             return;
         }
@@ -1564,7 +1563,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             // create a new CA certificate or ssl server cert
             if (properties.getKeyCurveName() != null) { //new ECC
-                CMS.debug("CMSAdminServlet: issueImportCert: generating ECC keys");
+                logger.debug("CMSAdminServlet: issueImportCert: generating ECC keys");
                 pair = jssSubSystem.getECCKeyPair(properties);
                 if (certType.equals(Constants.PR_CA_SIGNING_CERT))
                     caKeyPair = pair;
@@ -1613,7 +1612,7 @@ public final class CMSAdminServlet extends AdminServlet {
             }
 
             if (pair == null)
-                CMS.debug("CMSAdminServlet: issueImportCert: key pair is null");
+                logger.debug("CMSAdminServlet: issueImportCert: key pair is null");
 
             BigInteger nextSerialNo = repository.getNextSerialNumber();
 
@@ -1628,7 +1627,7 @@ public final class CMSAdminServlet extends AdminServlet {
                                            caKeyPair.getPrivate());
 
             if (signedCert == null)
-                CMS.debug("CMSAdminServlet: issueImportCert: signedCert is null");
+                logger.debug("CMSAdminServlet: issueImportCert: signedCert is null");
 
             /* bug 600124
              try {
@@ -1644,7 +1643,7 @@ public final class CMSAdminServlet extends AdminServlet {
             //jss adds the token prefix!!!
             //log(ILogger.LL_DEBUG,"import as alias"+ nicknameWithoutTokenName);
             try {
-                CMS.debug("CMSAdminServlet: issueImportCert: Importing cert: " + nicknameWithoutTokenName);
+                logger.debug("CMSAdminServlet: issueImportCert: Importing cert: " + nicknameWithoutTokenName);
                 jssSubSystem.importCert(signedCert, nicknameWithoutTokenName,
                                         certType);
             } catch (EBaseException e) {
@@ -1653,7 +1652,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 String newNickname = nicknameWithoutTokenName
                                    + "-" + now.getTime();
 
-                CMS.debug("CMSAdminServlet: issueImportCert: Importing cert with nickname: " + newNickname);
+                logger.debug("CMSAdminServlet: issueImportCert: Importing cert with nickname: " + newNickname);
                 jssSubSystem.importCert(signedCert, newNickname,
                                         certType);
                 nicknameWithoutTokenName = newNickname;
@@ -1704,7 +1703,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 }
             }
 
-            CMS.debug("CMSAdminServlet: oldtoken:" + oldtokenname
+            logger.debug("CMSAdminServlet: oldtoken:" + oldtokenname
                     + " newtoken:" + newtokenname + " nickname:" + nickname);
             if ((newtokenname != null &&
                     !newtokenname.equals(oldtokenname)) || nicknameChanged) {
@@ -1783,7 +1782,7 @@ public final class CMSAdminServlet extends AdminServlet {
             mConfig.commit(true);
             sendResponse(SUCCESS, null, null, resp);
         } catch (EBaseException eAudit1) {
-            CMS.debug("CMSAdminServlet: issueImportCert: EBaseException thrown: " + eAudit1.toString());
+            logger.error("CMSAdminServlet: issueImportCert: EBaseException thrown: " + eAudit1.toString());
 
             audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
@@ -1793,7 +1792,7 @@ public final class CMSAdminServlet extends AdminServlet {
             // rethrow the specific exception to be handled later
             throw eAudit1;
         } catch (IOException eAudit2) {
-            CMS.debug("CMSAdminServlet: issueImportCert: IOException thrown: " + eAudit2.toString());
+            logger.error("CMSAdminServlet: issueImportCert: IOException thrown: " + eAudit2.toString());
 
             audit(new ConfigTrustedPublicKeyEvent(
                         auditSubjectID,
@@ -1879,7 +1878,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     certpath = value;
             }
 
-            CMS.debug("CMSAdminServlet: installCert(" + nickname + ")");
+            logger.debug("CMSAdminServlet: installCert(" + nickname + ")");
 
             try {
                 if (pkcs == null || pkcs.equals("")) {
@@ -2004,7 +2003,7 @@ public final class CMSAdminServlet extends AdminServlet {
             //		nickname).
             //
 
-            CMS.debug("CMSAdminServlet.installCert(): About to try jssSubSystem.importCert: "
+            logger.debug("CMSAdminServlet.installCert(): About to try jssSubSystem.importCert: "
                     + nicknameWithoutTokenName);
             try {
                 jssSubSystem.importCert(pkcs, nicknameWithoutTokenName,
@@ -2015,7 +2014,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
                 String eString = e.toString();
                 if (eString.contains("Failed to find certificate that was just imported")) {
-                    CMS.debug("CMSAdminServlet.installCert(): nickname="
+                    logger.debug("CMSAdminServlet.installCert(): nickname="
                             + nicknameWithoutTokenName + " TokenException: " + eString);
 
                     X509Certificate cert = null;
@@ -2024,9 +2023,9 @@ public final class CMSAdminServlet extends AdminServlet {
                         if (cert != null) {
                             certFound = true;
                         }
-                        CMS.debug("CMSAdminServlet.installCert() Found cert just imported: " + nickname);
+                        logger.debug("CMSAdminServlet.installCert() Found cert just imported: " + nickname);
                     } catch (Exception ex) {
-                        CMS.debug("CMSAdminServlet.installCert() Can't find cert just imported: " + ex.toString());
+                        logger.warn("CMSAdminServlet.installCert() Can't find cert just imported: " + ex.toString());
                     }
                 }
 
@@ -2043,7 +2042,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     } else {
                         nickname = tokenName + ":" + newNickname;
                     }
-                    CMS.debug("CMSAdminServlet: installCert():  After second install attempt following initial error: nickname="
+                    logger.debug("CMSAdminServlet: installCert():  After second install attempt following initial error: nickname="
                             + nickname);
                 }
             }
@@ -2165,7 +2164,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             boolean verified = false;
             try {
-                CMS.debug("CMSAdminServlet: verifying system certificate " + nickname);
+                logger.debug("CMSAdminServlet: verifying system certificate " + nickname);
                 CMS.verifySystemCertByNickname(nickname, null);
                 verified = true;
 
@@ -2178,7 +2177,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.error("CMSAdminServlet: Unable to verify system certificate: " + e.getMessage(), e);
                 auditMessage = CMS.getLogMessage(
                                 AuditEvent.CIMC_CERT_VERIFICATION,
                                 auditSubjectID,
@@ -2323,7 +2322,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 throw new EBaseException(
                         CMS.getLogMessage("BASE_OPEN_FILE_FAILED"));
             }
-            CMS.debug("CMSAdminServlet: got b64Cert");
+            logger.debug("CMSAdminServlet: got b64Cert");
             b64Cert = Cert.stripBrackets(b64Cert.trim());
 
             // Base64 decode cert
@@ -2332,7 +2331,7 @@ public final class CMSAdminServlet extends AdminServlet {
             try {
                 bCert = Utils.base64decode(b64Cert);
             } catch (Exception e) {
-                CMS.debug("CMSAdminServlet: exception: " + e.toString());
+                logger.warn("CMSAdminServlet: exception: " + e.toString());
             }
 
             pathname = serverRoot + File.separator + serverID
@@ -2889,7 +2888,7 @@ public final class CMSAdminServlet extends AdminServlet {
         String issuername = req.getParameter(Constants.PR_ISSUER_NAME);
         String trust = req.getParameter("trustbit");
 
-        CMS.debug("CMSAdminServlet: setRootCertTrust()");
+        logger.debug("CMSAdminServlet: setRootCertTrust()");
 
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
                 CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
@@ -2933,7 +2932,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         String auditSubjectID = auditSubjectID();
 
-        CMS.debug("CMSAdminServlet: trustCACert()");
+        logger.debug("CMSAdminServlet: trustCACert()");
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -3024,10 +3023,8 @@ public final class CMSAdminServlet extends AdminServlet {
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            if (CMS.debugOn()) {
-                CMS.debug("CMSAdminServlet::runSelfTestsOnDemand():"
-                        + "  ENTERING . . .");
-            }
+            logger.debug("CMSAdminServlet: runSelfTestsOnDemand()");
+
             Enumeration<String> enum1 = req.getParameterNames();
             String request = "";
             NameValuePairs results = new NameValuePairs();
@@ -3161,16 +3158,12 @@ public final class CMSAdminServlet extends AdminServlet {
                     }
 
                     try {
-                        if (CMS.debugOn()) {
-                            CMS.debug("CMSAdminServlet::runSelfTestsOnDemand():"
-                                    + "    running \""
+                        logger.debug("CMSAdminServlet: runSelfTestsOnDemand(): running \""
                                     + test.getSelfTestName()
                                     + "\"");
-                        }
 
                         // store this information for console notification
-                        content += "CMSAdminServlet::runSelfTestsOnDemand():"
-                                + "    running \""
+                        content += "CMSAdminServlet: runSelfTestsOnDemand(): running \""
                                 + test.getSelfTestName()
                                 + "\" . . .\n";
 
@@ -3181,7 +3174,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
                     } catch (Exception e) {
 
-                        CMS.debug(e);
+                        logger.error("CMSAdminServlet: Selftest failure: " + e.getMessage(), e);
 
                         // Check to see if the self test was critical:
                         if (mSelfTestSubsystem.isSelfTestCriticalOnDemand(
@@ -3210,12 +3203,11 @@ public final class CMSAdminServlet extends AdminServlet {
                                     + "\n";
                             sendResponse(ERROR, content, null, resp);
 
-                            CMS.debug("CMSAdminServlet.runSelfTestsOnDemand(): shutdown server");
-
-                            // shutdown the system gracefully
+                            logger.error("CMSAdminServlet: Shutting down server due to selftest failure: " + e.getMessage());
                             CMS.shutdown();
 
-                            return;
+                            throw new ESelfTestException("Selftest failure: " + e.getMessage(), e);
+
                         } else {
                             // store this information for console notification
                             content += "FAILED WITH NON-CRITICAL ERROR\n";
@@ -3261,10 +3253,6 @@ public final class CMSAdminServlet extends AdminServlet {
                     content);
             sendResponse(SUCCESS, null, results, resp);
 
-            if (CMS.debugOn()) {
-                CMS.debug("CMSAdminServlet::runSelfTestsOnDemand():"
-                        + "  EXITING.");
-            }
         } catch (EMissingSelfTestException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
