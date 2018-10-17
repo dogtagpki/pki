@@ -289,11 +289,15 @@ class KeyRequestResponse(object):
         """ Return a KeyRequestResponse object from its JSON representation. """
         ret = cls()
 
-        if 'RequestInfo' in json_value:
+        # The Jackson 1 provider omits null fields, whereas the Jackson 2
+        # provider includes them, the value being 'null'.  The
+        # ``.get(...) is not None`` construction handles both cases.
+
+        if json_value.get('RequestInfo') is not None:
             ret.request_info = KeyRequestInfo.from_json(
                 json_value['RequestInfo'])
 
-        if 'KeyData' in json_value:
+        if json_value.get('KeyData') is not None:
             ret.key_data = KeyData.from_json(json_value['KeyData'])
         return ret
 
