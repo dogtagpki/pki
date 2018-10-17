@@ -3203,8 +3203,10 @@ public final class CMSAdminServlet extends AdminServlet {
                                     + "\n";
                             sendResponse(ERROR, content, null, resp);
 
-                            logger.error("CMSAdminServlet: Shutting down server due to selftest failure: " + e.getMessage());
-                            CMS.shutdown();
+                            logger.error("CMSAdminServlet: Disabling subsystem due to selftest failure: " + e.getMessage());
+
+                            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                            engine.disableSubsystem();
 
                             throw new ESelfTestException("Selftest failure: " + e.getMessage(), e);
 

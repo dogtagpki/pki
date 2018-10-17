@@ -535,8 +535,10 @@ public class SelfTestSubsystem
                                     "CMSCORE_SELFTESTS_RUN_ON_DEMAND_FAILED",
                                     instanceFullName));
 
-                    logger.error("SelfTestSubsystem: Shutting down server due to selftest failure");
-                    CMS.shutdown();
+                    logger.error("SelfTestSubsystem: Disabling subsystem due to selftest failure: " + e.getMessage(), e);
+
+                    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                    engine.disableSubsystem();
 
                     throw new ESelfTestException("Selftest failed: " + e.getMessage(), e);
                 }
@@ -1805,8 +1807,7 @@ public class SelfTestSubsystem
 
             audit(auditMessage);
 
-            logger.error("SelfTestSubsystem: Shutting down server due to selftest failure: " + e.getMessage(), e);
-            CMS.shutdown();
+            logger.error("SelfTestSubsystem: Disabling subsystem due to selftest failure: " + e.getMessage(), e);
 
             CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
             engine.disableSubsystem();
