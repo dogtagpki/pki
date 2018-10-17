@@ -74,6 +74,25 @@ class PKIServer(object):
         return instances
 
     @staticmethod
+    def split_cert_id(cert_id):
+        """
+        Utility method to return cert_tag and corresponding subsystem details from cert_id
+
+        :param cert_id: Cert ID
+        :type cert_id: str
+        :returns: (subsystem_name, cert_tag)
+        :rtype: (str, str)
+        """
+        if cert_id == 'sslserver' or cert_id == 'subsystem':
+            subsystem_name = None
+            cert_tag = cert_id
+        else:
+            parts = cert_id.split('_', 1)
+            subsystem_name = parts[0]
+            cert_tag = parts[1]
+        return subsystem_name, cert_tag
+
+    @staticmethod
     def load_audit_events(filename):
         '''
         This method loads audit event info from audit-events.properties
@@ -1272,11 +1291,9 @@ class PKIDatabaseConnection(object):
         self.temp_dir = tempfile.mkdtemp()
 
         if self.nssdb_dir:
-
             ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, self.nssdb_dir)
 
         if self.client_cert_nickname:
-
             password_file = os.path.join(self.temp_dir, 'password.txt')
             with open(password_file, 'w') as f:
                 f.write(self.nssdb_password)
@@ -1302,7 +1319,6 @@ class PKIServerException(pki.PKIException):
 
     def __init__(self, message, exception=None,
                  instance=None, subsystem=None):
-
         pki.PKIException.__init__(self, message, exception)
 
         self.instance = instance
