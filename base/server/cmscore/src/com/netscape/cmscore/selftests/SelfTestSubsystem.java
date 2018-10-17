@@ -66,6 +66,8 @@ import com.netscape.cms.logging.SignedAuditLogger;
 public class SelfTestSubsystem
         implements ISelfTestSubsystem {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfTestSubsystem.class);
+
     private static ILogEventListener mLogger;
     private static ILogger mErrorLogger = CMS.getLogger();
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
@@ -486,10 +488,8 @@ public class SelfTestSubsystem
      */
     public void runSelfTestsOnDemand()
             throws EMissingSelfTestException, ESelfTestException {
-        if (CMS.debugOn()) {
-            CMS.debug("SelfTestSubsystem::runSelfTestsOnDemand():"
-                    + "  ENTERING . . .");
-        }
+
+        logger.debug("SelfTestSubsystem: runSelfTestsOnDemand()");
 
         // loop through all self test plugin instances
         // specified to be executed on demand
@@ -527,8 +527,6 @@ public class SelfTestSubsystem
 
             } catch (Exception e) {
 
-                CMS.debug(e);
-
                 // Check to see if the self test was critical:
                 if (isSelfTestCriticalOnDemand(instanceName)) {
                     log(mLogger,
@@ -536,25 +534,20 @@ public class SelfTestSubsystem
                                     "CMSCORE_SELFTESTS_RUN_ON_DEMAND_FAILED",
                                     instanceFullName));
 
-                    CMS.debug("SelfTestSubsystem.runSelfTestsOnDemand(): shutdown server");
-
-                    // shutdown the system gracefully
+                    logger.error("SelfTestSubsystem: Shutting down server due to selftest failure");
                     CMS.shutdown();
 
-                    return;
+                    throw new ESelfTestException("Selftest failed: " + e.getMessage(), e);
                 }
-            }
-        }
 
-        if (CMS.debugOn()) {
-            CMS.debug("SelfTestSubsystem::runSelfTestsOnDemand():"
-                    + "  EXITING.");
+                logger.warn("SelfTestSubsystem: Selftest failed: " + e.getMessage(), e);
+            }
         }
     }
 
     public void runSelfTest(String instanceName) throws Exception {
 
-        CMS.debug("SelfTestSubsystem.runSelfTest(" + instanceName + ")");
+        logger.debug("SelfTestSubsystem: runSelfTest(" + instanceName + ")");
 
         ISelfTest test = mSelfTestInstances.get(instanceName);
 
@@ -852,17 +845,18 @@ public class SelfTestSubsystem
             ISelfTest test = mSelfTestInstances.get(instanceName);
 
             try {
-                CMS.debug("SelfTestSubsystem: running " + test.getSelfTestName());
+                logger.debug("SelfTestSubsystem: running " + test.getSelfTestName());
                 test.runSelfTest(mLogger);
 
             } catch (Exception e) {
 
-                CMS.debug(e);
-
                 // Check to see if the self test was critical:
                 if (!isSelfTestCriticalAtStartup(instanceName)) {
+                    logger.warn("SelfTestSubsystem: selftest failed: " + e.getMessage(), e);
                     continue;
                 }
+
+                logger.error("SelfTestSubsystem: selftest failed: " + e.getMessage(), e);
 
                 log(mLogger,
                         CMS.getLogMessage(
@@ -1213,14 +1207,12 @@ public class SelfTestSubsystem
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        if (CMS.debugOn()) {
-            CMS.debug("SelfTestSubsystem::init():"
-                    + "  ENTERING . . .");
-        }
+
+        logger.debug("SelfTestSubsystem: init()");
 
         if (config == null) {
-            CMS.debug("SelfTestSubsystem::init() - config is null!");
-            throw new EBaseException("config is null");
+            logger.error("SelfTestSubsystem: Missing selftest configuration");
+            throw new EBaseException("Missing selftest configuration");
         }
 
         mOwner = owner;
@@ -1242,10 +1234,7 @@ public class SelfTestSubsystem
         // loggerPropertyName=loggerValue //
         ////////////////////////////////////
 
-        if (CMS.debugOn()) {
-            CMS.debug("SelfTestSubsystem::init():"
-                    + "    loading self test logger parameters");
-        }
+        logger.debug("SelfTestSubsystem: loading selftest logger parameters");
 
         String loggerPrefix = null;
         String loggerFullName = null;
@@ -1369,7 +1358,7 @@ public class SelfTestSubsystem
                                 loggerFullName,
                                 loggerValue));
 
-                CMS.debugStackTrace();
+                logger.error("SelfTestSubsystem: Unable to initialize selftest logger: " + e.getMessage(), e);
 
                 throw new EBaseException(e);
             }
@@ -1402,10 +1391,7 @@ public class SelfTestSubsystem
         // instancePropertyName=instanceValue //
         ////////////////////////////////////////
 
-        if (CMS.debugOn()) {
-            CMS.debug("SelfTestSubsystem::init():"
-                    + "    loading self test plugins");
-        }
+        logger.debug("SelfTestSubsystem: loading selftest plugins");
 
         // compose self test plugins instance property prefix
         String instancePath = PROP_CONTAINER + "." + PROP_INSTANCE;
@@ -1521,7 +1507,7 @@ public class SelfTestSubsystem
                                 instanceFullName,
                                 instanceValue));
 
-                CMS.debugStackTrace();
+                logger.error("SelfTestSubsystem: Unable to create selftest instance: " + e.getMessage(), e);
 
                 throw new EInvalidSelfTestException(instanceFullName,
                         instanceValue);
@@ -1532,10 +1518,7 @@ public class SelfTestSubsystem
                 if (first_time) {
                     first_time = false;
 
-                    if (CMS.debugOn()) {
-                        CMS.debug("SelfTestSubsystem::init():"
-                                + "    loading self test plugin parameters");
-                    }
+                    logger.debug("SelfTestSubsystem: loading selftest plugin parameters");
 
                     log(mLogger,
                             CMS.getLogMessage(
@@ -1579,10 +1562,7 @@ public class SelfTestSubsystem
         // onDemandOrderPropertyName=onDemandOrderValue1, . . . //
         //////////////////////////////////////////////////////////
 
-        if (CMS.debugOn()) {
-            CMS.debug("SelfTestSubsystem::init():"
-                    + "    loading on demand self tests");
-        }
+        logger.debug("SelfTestSubsystem: loading on demand selftests");
 
         // compose self test plugins on-demand ordering property name
         String onDemandOrderName = PROP_CONTAINER + "."
@@ -1666,10 +1646,7 @@ public class SelfTestSubsystem
         // startupOrderPropertyName=startupOrderValue1, . . . //
         ////////////////////////////////////////////////////////
 
-        if (CMS.debugOn()) {
-            CMS.debug("SelfTestSubsystem::init():"
-                    + "    loading startup self tests");
-        }
+        logger.debug("SelfTestSubsystem: loading startup selftests");
 
         // compose self test plugins startup ordering property name
         String startupOrderName = PROP_CONTAINER + "."
@@ -1757,11 +1734,6 @@ public class SelfTestSubsystem
                     CMS.getLogMessage(
                             "CMSCORE_SELFTESTS_PLUGINS_LOADED"));
         }
-
-        if (CMS.debugOn()) {
-            CMS.debug("SelfTestSubsystem::init():"
-                    + "  EXITING.");
-        }
     }
 
     /**
@@ -1781,7 +1753,7 @@ public class SelfTestSubsystem
         }
 
         if (CMS.isPreOpMode()) {
-            CMS.debug("SelfTestSubsystem.startup(): Do not run selftests in pre-op mode");
+            logger.debug("SelfTestSubsystem.startup(): Do not run selftests in pre-op mode");
             return;
         }
 
@@ -1832,7 +1804,7 @@ public class SelfTestSubsystem
 
             audit(auditMessage);
 
-            CMS.debug("SelfTestSubsystem.startup(): shutdown server");
+            logger.error("SelfTestSubsystem: Shutting down server due to selftest failure");
 
             // shutdown the system gracefully
             CMS.shutdown();
@@ -1855,6 +1827,8 @@ public class SelfTestSubsystem
             } catch (Exception e2) {
                 e.printStackTrace();
             }
+
+            throw new ESelfTestException("Selftest failed: " + e.getMessage(), e);
         }
     }
 
