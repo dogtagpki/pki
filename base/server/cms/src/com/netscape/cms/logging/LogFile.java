@@ -79,6 +79,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.SystemEvent;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.client.JDAPAVA;
@@ -422,20 +423,10 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             // synchronized. We just want to avoid an infinite loop.
             mInSignedAuditLogFailureMode = true;
 
-            // Block all new incoming requests
-            if (CMS.areRequestsDisabled() == false) {
-                // XXX is this a race condition?
-                CMS.disableRequests();
-            }
+            CMS.debug("LogFile: Disabling subsystem due to signed logging failure");
 
-            // Terminate all requests in process
-            CMS.terminateRequests();
-
-            // Call graceful shutdown of the CMS server
-            // Call force shutdown to get added functionality of
-            // making sure to kill the web server.
-
-            CMS.forceShutdown();
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            engine.disableSubsystem();
         }
     }
 
