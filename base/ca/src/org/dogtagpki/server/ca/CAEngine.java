@@ -27,6 +27,10 @@ import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 public class CAEngine extends CMSEngine {
 
+    public CAEngine() {
+        super("CA");
+    }
+
     protected void loadSubsystems() throws EBaseException {
 
         super.loadSubsystems();

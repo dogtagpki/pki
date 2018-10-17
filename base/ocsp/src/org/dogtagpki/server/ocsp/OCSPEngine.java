@@ -26,6 +26,10 @@ import com.netscape.ocsp.OCSPAuthority;
 
 public class OCSPEngine extends CMSEngine {
 
+    public OCSPEngine() {
+        super("OCSP");
+    }
+
     protected void loadSubsystems() throws EBaseException {
 
         super.loadSubsystems();

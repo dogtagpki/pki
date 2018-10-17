@@ -26,6 +26,10 @@ import com.netscape.tks.TKSAuthority;
 
 public class TKSEngine extends CMSEngine {
 
+    public TKSEngine() {
+        super("TKS");
+    }
+
     protected void loadSubsystems() throws EBaseException {
 
         super.loadSubsystems();

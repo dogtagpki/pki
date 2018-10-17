@@ -209,6 +209,7 @@ public class CMSEngine implements ICMSEngine {
 
     public static final SubsystemRegistry mSSReg = SubsystemRegistry.getInstance();
 
+    public String name;
     public String instanceDir; /* path to instance <server-root>/cert-<instance-name> */
     private String instanceId;
     private int pid;
@@ -273,10 +274,8 @@ public class CMSEngine implements ICMSEngine {
     private static final int PW_MAX_ATTEMPTS = 3;
 
 
-    /**
-     * private constructor.
-     */
-    public CMSEngine() {
+    public CMSEngine(String name) {
+        this.name = name;
     }
 
     /**
@@ -500,6 +499,9 @@ public class CMSEngine implements ICMSEngine {
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+
+        logger.info("Initializing " + name + " subsystem");
+
         mOwner = owner;
         mConfig = config;
         int state = mConfig.getInteger("cs.state");
@@ -1833,7 +1835,6 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public boolean areRequestsDisabled() {
-        logger.debug("CMSEngine: in areRequestsDisabled");
         return CommandQueue.mShuttingDown;
     }
 
@@ -1891,7 +1892,7 @@ public class CMSEngine implements ICMSEngine {
      */
     public void shutdown() {
 
-        logger.info("Shutting down");
+        logger.info("Shutting down " + name + " subsystem");
 
         /*
                 CommandQueue commandQueue = new CommandQueue();
@@ -1935,7 +1936,7 @@ public class CMSEngine implements ICMSEngine {
      * Added extra call to shutdown the web server.
      */
     public void forceShutdown() {
-        logger.debug("CMSEngine.forceShutdown()...begins graceful shutdown.");
+        logger.debug("CMSEngine.forceShutdown()");
         autoShutdown(false /*no restart*/);
     }
 

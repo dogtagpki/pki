@@ -26,6 +26,10 @@ import com.netscape.kra.KeyRecoveryAuthority;
 
 public class KRAEngine extends CMSEngine {
 
+    public KRAEngine() {
+        super("KRA");
+    }
+
     protected void loadSubsystems() throws EBaseException {
 
         super.loadSubsystems();

@@ -25,6 +25,10 @@ import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 public class TPSEngine extends CMSEngine {
 
+    public TPSEngine() {
+        super("TPS");
+    }
+
     protected void loadSubsystems() throws EBaseException {
 
         super.loadSubsystems();
