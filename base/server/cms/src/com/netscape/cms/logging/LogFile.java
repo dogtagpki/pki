@@ -98,6 +98,7 @@ import netscape.ldap.client.JDAPFilterSubString;
  **/
 public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogFile.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String PROP_TYPE = "type";
@@ -817,13 +818,17 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                                     mFileName)));
                 }
             }
+
         } catch (IllegalArgumentException iae) {
             ConsoleError.send(
                     new SystemEvent(CMS.getUserMessage("CMS_LOG_ILLEGALARGUMENT",
                             mFileName)));
+
         } catch (GeneralSecurityException gse) {
             // error with signed audit log, shutdown CMS
-            ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_OPEN_FAILED", mFileName, gse.toString())));
+            String message = CMS.getUserMessage("CMS_LOG_OPEN_FAILED", mFileName, gse.toString());
+            logger.error("LogFile: " + message, gse);
+            ConsoleError.send(new SystemEvent(message));
             gse.printStackTrace();
             shutdownCMS();
         }
@@ -838,35 +843,19 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     public synchronized void flush() {
         try {
             if (mLogSigning) {
-                try {
-                    pushSignature();
-                } catch (ELogException le) {
-                    ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_FLUSH_LOG_FAILED", mFileName,
-                            le.toString())));
-                    le.printStackTrace();
-                    shutdownCMS();
-                }
+                pushSignature();
             }
 
             if (mLogWriter != null) {
                 mLogWriter.flush();
             }
-        } catch (IOException e) {
-            ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_FLUSH_LOG_FAILED", mFileName, e.toString())));
+
+        } catch (Exception e) {
+            String message = CMS.getUserMessage("CMS_LOG_FLUSH_LOG_FAILED", mFileName, e.getMessage());
+            logger.error("LogFile: " + message, e);
+            ConsoleError.send(new SystemEvent(message));
             if (mLogSigning) {
-                //error in writing to signed audit log, shut down CMS
                 e.printStackTrace();
-                shutdownCMS();
-            }
-        } catch (GeneralSecurityException gse) {
-            // error with signed audit log, shutdown CMS
-            ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_FLUSH_LOG_FAILED", mFileName, gse.toString())));
-            gse.printStackTrace();
-            shutdownCMS();
-        } catch (Exception ee) {
-            ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_FLUSH_LOG_FAILED", mFileName, ee.toString())));
-            if(mLogSigning) {
-                ee.printStackTrace();
                 shutdownCMS();
             }
         }
@@ -1004,12 +993,15 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         if (mLogWriter == null) {
             String[] params = { mFileName, entry };
 
+            String message = CMS.getUserMessage("CMS_LOG_LOGFILE_CLOSED", params);
+            logger.error("LogFile: " + message);
+            ConsoleError.send(new SystemEvent(message));
             if (mLogSigning) {
-                ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_LOGFILE_CLOSED", params)));
                 // Failed to write to audit log, shut down CMS
                 shutdownCMS();
             }
-            throw new ELogException(CMS.getUserMessage("CMS_LOG_LOGFILE_CLOSED", params));
+            throw new ELogException(message);
+
         } else {
             try {
                 mLogWriter.write(entry, 0/*offset*/, entry.length());
@@ -1062,17 +1054,21 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                         CMS.debug("LogFile: mSignature is null in log() 2");
                     }
                 }
+
             } catch (IOException e) {
-                ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_WRITE_FAILED", mFileName, entry,
-                        e.toString())));
+                String message = CMS.getUserMessage("CMS_LOG_WRITE_FAILED", mFileName, entry, e.getMessage());
+                logger.error("LogFile: " + message);
+                ConsoleError.send(new SystemEvent(message));
                 if (mLogSigning) {
                     // Failed to write to audit log, shut down CMS
                     e.printStackTrace();
                     shutdownCMS();
                 }
+
             } catch (IllegalStateException e) {
                 CMS.debug("LogFile: exception thrown in log(): " + e.toString());
                 ConsoleError.send(new SignedAuditEvent(CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, e.toString())));
+
             } catch (GeneralSecurityException gse) {
                 // DJN: handle error
                 CMS.debug("LogFile: exception thrown in log(): "
@@ -1080,8 +1076,11 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 gse.printStackTrace();
                 ConsoleError.send(new SignedAuditEvent(CMS.getLogMessage(
                         LOG_SIGNED_AUDIT_EXCEPTION, gse.toString())));
+
             } catch (Exception ee) { // Make darn sure we got everything
-                ConsoleError.send(new SignedAuditEvent(CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, ee.toString())));
+                String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, ee.getMessage());
+                logger.error("LogFile: " + message, ee);
+                ConsoleError.send(new SignedAuditEvent(message));
                 if (mLogSigning) {
                     // Failed to write to audit log, shut down CMS
                     ee.printStackTrace();
