@@ -2042,6 +2042,30 @@ public class CMSEngine implements ICMSEngine {
 
     }
 
+    public void disableSubsystem() {
+
+        String name = mConfig.get("cs.type");
+        String subsystemID = name.toLowerCase();
+
+        CMS.debug("CMSEngine: Disabling " + name + " subsystem");
+
+        try {
+            ProcessBuilder pb = new ProcessBuilder("pki-server", "subsystem-disable", "-i", instanceId, subsystemID);
+            CMS.debug("Command: " + String.join(" ", pb.command()));
+
+            Process process = pb.inheritIO().start();
+            int rc = process.waitFor();
+
+            if (rc != 0) {
+                CMS.debug("CMSEngine: Unable to disable " + name + " subsystem. RC: " + rc);
+            }
+
+        } catch (Exception e) {
+            CMS.debug("CMSEngine: Unable to disable " + name + " subsystem: " + e.getMessage());
+            CMS.debug(e);
+        }
+    }
+
     /**
      * shuts down a subsystem list in reverse order.
      */
