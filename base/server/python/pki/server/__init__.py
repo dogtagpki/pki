@@ -21,13 +21,10 @@
 from __future__ import absolute_import
 
 import codecs
-from lxml import etree
 import functools
 import getpass
 import grp
 import io
-import ldap
-import ldap.filter
 import logging
 import operator
 import os
@@ -37,9 +34,13 @@ import shutil
 import subprocess
 import tempfile
 
+import ldap
+import ldap.filter
 import pki
+import pki.client as client
 import pki.nssdb
 import pki.util
+from lxml import etree
 
 INSTANCE_BASE_DIR = '/var/lib/pki'
 CONFIG_BASE_DIR = '/etc/pki'
@@ -91,6 +92,85 @@ class PKIServer(object):
             subsystem_name = parts[0]
             cert_tag = parts[1]
         return subsystem_name, cert_tag
+
+    @staticmethod
+    def setup_authentication(c_nssdb_pass, c_nssdb_pass_file, c_cert,
+                             c_nssdb, tmpdir, subsystem_name):
+        """
+        Utility method to set up a secure authenticated connection with a
+        subsystem of PKI Server through PKI client
+        :param c_nssdb_pass: Client NSS db plain password
+        :type c_nssdb_pass: str
+        :param c_nssdb_pass_file: File containing client NSS db password
+        :type c_nssdb_pass_file: str
+        :param c_cert: Client Cert nick name
+        :type c_cert: str
+        :param c_nssdb: Client NSS db path
+        :type c_nssdb: str
+        :param tmpdir: Absolute path of temp dir to store p12 and pem files
+        :type tmpdir: str
+        :param subsystem_name: Name of the subsystem
+        :type subsystem_name: str
+        :return: Authenticated secure connection to PKI server
+        """
+        temp_auth_p12 = os.path.join(tmpdir, 'auth.p12')
+        temp_auth_cert = os.path.join(tmpdir, 'auth.pem')
+
+        if not c_cert:
+            raise PKIServerException('Client cert nickname is required.')
+
+        # Create a PKIConnection object that stores the details of subsystem.
+        connection = client.PKIConnection('https', os.environ['HOSTNAME'], '8443',
+                                          subsystem_name)
+
+        # Create a p12 file using
+        # pk12util -o <p12 file name> -n <cert nick name> -d <NSS db path>
+        # -W <pkcs12 password> -K <NSS db pass>
+        cmd_generate_pk12 = [
+            'pk12util',
+            '-o', temp_auth_p12,
+            '-n', c_cert,
+            '-d', c_nssdb
+        ]
+
+        # The pem file used for authentication. Created from a p12 file using the
+        # command:
+        # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes
+        cmd_generate_pem = [
+            'openssl',
+            'pkcs12',
+            '-in', temp_auth_p12,
+            '-out', temp_auth_cert,
+            '-nodes',
+
+        ]
+
+        if c_nssdb_pass_file:
+            # Use the same password file for the generated pk12 file
+            cmd_generate_pk12.extend(['-k', c_nssdb_pass_file,
+                                      '-w', c_nssdb_pass_file])
+            cmd_generate_pem.extend(['-passin', 'file:' + c_nssdb_pass_file])
+        else:
+            # Use the same password for the generated pk12 file
+            cmd_generate_pk12.extend(['-K', c_nssdb_pass,
+                                      '-W', c_nssdb_pass])
+            cmd_generate_pem.extend(['-passin', 'pass:' + c_nssdb_pass])
+
+        # Generate temp_auth_p12 file
+        res_pk12 = subprocess.check_output(cmd_generate_pk12,
+                                           stderr=subprocess.STDOUT).decode('utf-8')
+        logger.debug('Result of pk12 generation: %s', res_pk12)
+
+        # Use temp_auth_p12 generated in previous step to
+        # to generate temp_auth_cert PEM file
+        res_pem = subprocess.check_output(cmd_generate_pem,
+                                          stderr=subprocess.STDOUT).decode('utf-8')
+        logger.debug('Result of pem generation: %s', res_pem)
+
+        # Bind the authentication with the connection object
+        connection.set_authentication_cert(temp_auth_cert)
+
+        return connection
 
     @staticmethod
     def load_audit_events(filename):
@@ -188,7 +268,7 @@ class PKISubsystem(object):
             instance.conf_dir, 'Catalina', 'localhost', self.name + '.xml')
 
         self.config = {}
-        self.type = None    # e.g. CA, KRA
+        self.type = None  # e.g. CA, KRA
         self.prefix = None  # e.g. ca, kra
 
         # custom subsystem location
@@ -729,7 +809,7 @@ class PKISubsystem(object):
 
     def set_startup_tests(self, target_tests):
         # Remove unnecessary space, curly braces
-        self.config['selftests.container.order.startup'] = ", "\
+        self.config['selftests.container.order.startup'] = ", " \
             .join([(key + ':' + SELFTEST_CRITICAL if val else key)
                    for key, val in target_tests.items()])
 

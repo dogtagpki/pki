@@ -28,15 +28,14 @@ import getpass
 import logging
 import os
 import shutil
-import subprocess
 import sys
 import tempfile
 
-import pki.cli
-import pki.server as server
-import pki.client as client
 import pki.cert
+import pki.cli
 import pki.nssdb
+
+import pki.server as server
 
 logger = logging.getLogger(__name__)
 
@@ -490,15 +489,17 @@ class CertCreateCLI(pki.cli.CLI):
                     # Fixme: Support rekey
                     raise Exception('Rekey is not supported yet.')
 
-                connection = self.setup_authentication(subsystem=subsystem,
-                                                       c_nssdb_pass=client_nssdb_password,
-                                                       c_cert=client_cert,
-                                                       c_nssdb_pass_file=client_nssdb_pass_file,
-                                                       c_nssdb=client_nssdb_location,
-                                                       tmpdir=tmpdir)
+                # Create a secure connection to CA
+                connection = server.PKIServer.setup_authentication(
+                    c_nssdb_pass=client_nssdb_password,
+                    c_cert=client_cert,
+                    c_nssdb_pass_file=client_nssdb_pass_file,
+                    c_nssdb=client_nssdb_location,
+                    tmpdir=tmpdir,
+                    subsystem_name='ca')
 
             if cert_tag == 'sslserver':
-                self.create_ssl_cert(instance=instance, subsystem=subsystem,
+                self.create_ssl_cert(subsystem=subsystem,
                                      is_temp_cert=create_temp_cert,
                                      new_cert_file=new_cert_file, nssdb=nssdb, serial=serial,
                                      tmpdir=tmpdir, connection=connection)
@@ -525,63 +526,6 @@ class CertCreateCLI(pki.cli.CLI):
         finally:
             nssdb.close()
             shutil.rmtree(tmpdir)
-
-    def setup_authentication(self, subsystem, c_nssdb_pass, c_nssdb_pass_file, c_cert,
-                             c_nssdb, tmpdir):
-        temp_auth_p12 = os.path.join(tmpdir, 'auth.p12')
-        temp_auth_cert = os.path.join(tmpdir, 'auth.pem')
-
-        if not c_cert:
-            logger.error('Client cert nickname is required.')
-            self.print_help()
-            sys.exit(1)
-
-        # Create a PKIConnection object that stores the details of subsystem.
-        connection = client.PKIConnection('https', os.environ['HOSTNAME'], '8443', subsystem.name)
-
-        # Create a p12 file using
-        # pk12util -o <p12 file name> -n <cert nick name> -d <NSS db path>
-        # -W <pkcs12 password> -K <NSS db pass>
-        cmd_generate_pk12 = [
-            'pk12util',
-            '-o', temp_auth_p12,
-            '-n', c_cert,
-            '-d', c_nssdb
-        ]
-
-        # The pem file used for authentication. Created from a p12 file using the
-        # command:
-        # openssl pkcs12 -in <p12_file_path> -out /tmp/auth.pem -nodes
-        cmd_generate_pem = [
-            'openssl',
-            'pkcs12',
-            '-in', temp_auth_p12,
-            '-out', temp_auth_cert,
-            '-nodes',
-
-        ]
-
-        if c_nssdb_pass_file:
-            # Use the same password file for the generated pk12 file
-            cmd_generate_pk12.extend(['-k', c_nssdb_pass_file,
-                                      '-w', c_nssdb_pass_file])
-            cmd_generate_pem.extend(['-passin', 'file:' + c_nssdb_pass_file])
-        else:
-            # Use the same password for the generated pk12 file
-            cmd_generate_pk12.extend(['-K', c_nssdb_pass,
-                                      '-W', c_nssdb_pass])
-            cmd_generate_pem.extend(['-passin', 'pass:' + c_nssdb_pass])
-
-        res_pk12 = subprocess.check_output(cmd_generate_pk12, stderr=subprocess.STDOUT)
-        logger.info(res_pk12)
-
-        res_pem = subprocess.check_output(cmd_generate_pem, stderr=subprocess.STDOUT)
-        logger.info(res_pem)
-
-        # Bind the authentication with the connection object
-        connection.set_authentication_cert(temp_auth_cert)
-
-        return connection
 
     def renew_system_certificate(self, connection,
                                  output, serial):
