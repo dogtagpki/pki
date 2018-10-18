@@ -285,7 +285,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             try {
                 mSAuditCertNickName = config.getString(
                                           PROP_SIGNED_AUDIT_CERT_NICKNAME);
-                CMS.debug("LogFile: init(): audit log signing enabled. signedAuditCertNickname=" + mSAuditCertNickName);
+                logger.debug("LogFile: audit log signing enabled. signedAuditCertNickname: " + mSAuditCertNickName);
             } catch (EBaseException e) {
                 throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
                         config.getName() + "."
@@ -318,14 +318,14 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             unselectedEvents.add(event);
         }
 
-        CMS.debug("Event filters:");
+        logger.debug("Event filters:");
         IConfigStore filterStore = config.getSubStore(PROP_SIGNED_AUDIT_FILTERS);
         for (Enumeration<String> e = filterStore.getPropertyNames(); e.hasMoreElements(); ) {
             String eventType = e.nextElement();
 
             // get event filter
             String strFilter = filterStore.get(eventType);
-            CMS.debug(" - " + eventType + ": " + strFilter);
+            logger.debug(" - " + eventType + ": " + strFilter);
 
             // parse filter
             JDAPFilter filter = JDAPFilter.getFilter(strFilter);
@@ -343,7 +343,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         if (mOn && mLogSigning) {
 
             try {
-                CMS.debug("LogFile: setting up log signing");
+                logger.debug("LogFile: setting up log signing");
                 setupSigning();
 
                 signedAuditLogger.log(CMS.getLogMessage(
@@ -490,9 +490,10 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         try {
             mLevel = config.getInteger(PROP_LEVEL, 3);
         } catch (EBaseException e) {
-            e.printStackTrace();
-            throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
-                    config.getName() + "." + PROP_LEVEL));
+            String message = CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
+                    config.getName() + "." + PROP_LEVEL);
+            logger.error("LogFile: " + message + ": " + e.getMessage(), e);
+            throw new ELogException(message);
         }
 
         try {
@@ -529,10 +530,10 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                                        + instID + "_" + "audit";
 
         } catch (Exception e2) {
-            throw new ELogException(
-                          CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
-                                              config.getName() + "." +
-                                                      PROP_FILE_NAME));
+            String message = CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
+                    config.getName() + "." + PROP_FILE_NAME);
+            logger.error("LogFile: " + message + ": " + e2.getMessage(), e2);
+            throw new ELogException(message);
         }
 
         // the default value is determined by the eventType.
@@ -543,15 +544,19 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         } else if (mType.equals(ILogger.PROP_AUDIT)) {
             defaultFileName = "logs/transactions";
         } else {
-            throw new ELogException(CMS.getUserMessage("CMS_LOG_INVALID_LOG_TYPE",
-                    config.getName(), mType));
+            String message = CMS.getUserMessage("CMS_LOG_INVALID_LOG_TYPE",
+                    config.getName(), mType);
+            logger.error("LogFile: " + message);
+            throw new ELogException(message);
         }
 
         try {
             fileName = config.getString(PROP_FILE_NAME, defaultFileName);
         } catch (EBaseException e) {
-            throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
-                    config.getName() + "." + PROP_FILE_NAME));
+            String message = CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
+                    config.getName() + "." + PROP_FILE_NAME);
+            logger.error("LogFile: " + message + ": " + e.getMessage(), e);
+            throw new ELogException(message);
         }
 
         if (mOn) {
@@ -571,7 +576,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         if (fileName == null)
             throw new ELogException(CMS.getUserMessage("CMS_LOG_INVALID_FILE_NAME", "null"));
 
-        CMS.debug("Creating " + getClass().getSimpleName() + "(" + fileName + ")");
+        logger.debug("LogFile: Creating " + getClass().getSimpleName() + "(" + fileName + ")");
 
         //If we want to reuse the old log files
         //mFileName = fileName + "." + mLogFileDateFormat.format(mDate);
@@ -596,7 +601,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             Provider[] providers = java.security.Security.getProviders();
             int ps = providers.length;
             for (int i = 0; i < ps; i++) {
-                CMS.debug("LogFile: provider " + i + "= " + providers[i].getName());
+                logger.debug("LogFile: provider " + i + "= " + providers[i].getName());
             }
 
             CryptoManager cm = CryptoManager.getInstance();
@@ -604,9 +609,9 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             // find CertServer's private key
             X509Certificate cert = cm.findCertByNickname(mSAuditCertNickName);
             if (cert != null) {
-                CMS.debug("LogFile: setupSignig(): found cert:" + mSAuditCertNickName);
+                logger.debug("LogFile: setupSignig(): found cert:" + mSAuditCertNickName);
             } else {
-                CMS.debug("LogFile: setupSignig(): cert not found:" + mSAuditCertNickName);
+                logger.warn("LogFile: setupSignig(): cert not found:" + mSAuditCertNickName);
             }
             mSigningKey = cm.findPrivKeyByCert(cert);
 
@@ -799,8 +804,9 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 try {
                     Utils.exec("chmod 00640 " + mFile.getCanonicalPath());
                 } catch (IOException e) {
-                    CMS.debug("Unable to change file permissions on "
-                             + mFile.toString());
+                    String message = "Unable to change file permissions on "
+                             + mFile + ": " + e.getMessage();
+                    logger.warn(message, e);
                 }
             }
             mLogWriter = new BufferedWriter(
@@ -810,23 +816,22 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             // initialized yet. That's ok, we will push our first signature
             // in setupSigning().
             if (mLogSigning && (mSignature != null)) {
-                try {
-                    pushSignature();
-                } catch (ELogException le) {
-                    ConsoleError.send(
-                            new SystemEvent(CMS.getUserMessage("CMS_LOG_ILLEGALARGUMENT",
-                                    mFileName)));
-                }
+                pushSignature();
             }
 
+        } catch (ELogException e) {
+            String message = CMS.getUserMessage("CMS_LOG_ILLEGALARGUMENT", mFileName);
+            logger.warn("LogFile: " + message + ": " + e.getMessage(), e);
+            ConsoleError.send(new SystemEvent(message));
+
         } catch (IllegalArgumentException iae) {
-            ConsoleError.send(
-                    new SystemEvent(CMS.getUserMessage("CMS_LOG_ILLEGALARGUMENT",
-                            mFileName)));
+            String message = CMS.getUserMessage("CMS_LOG_ILLEGALARGUMENT", mFileName);
+            logger.warn("LogFile: " + message + ": " + iae.getMessage(), iae);
+            ConsoleError.send(new SystemEvent(message));
 
         } catch (GeneralSecurityException gse) {
             // error with signed audit log, shutdown CMS
-            String message = CMS.getUserMessage("CMS_LOG_OPEN_FAILED", mFileName, gse.toString());
+            String message = CMS.getUserMessage("CMS_LOG_OPEN_FAILED", mFileName, gse.getMessage());
             logger.error("LogFile: " + message, gse);
             ConsoleError.send(new SystemEvent(message));
             gse.printStackTrace();
@@ -889,7 +894,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      */
     public synchronized void shutdown() {
 
-        CMS.debug("Destroying LogFile(" + mFileName + ")");
+        logger.info("Destroying LogFile(" + mFileName + ")");
 
         String auditMessage = null;
 
@@ -1011,7 +1016,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                         // include newline for calculating MAC
                         mSignature.update(entry.getBytes("UTF-8"));
                     } else {
-                        CMS.debug("LogFile: mSignature is not yet ready... null in log()");
+                        logger.warn("LogFile: missing audit log signature");
                     }
                 }
                 if (mTrace) {
@@ -1051,7 +1056,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                     if (mSignature != null) {
                         mSignature.update(LINE_SEP_BYTE);
                     } else {
-                        CMS.debug("LogFile: mSignature is null in log() 2");
+                        logger.warn("LogFile: missing audit log signature");
                     }
                 }
 
@@ -1066,16 +1071,15 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 }
 
             } catch (IllegalStateException e) {
-                CMS.debug("LogFile: exception thrown in log(): " + e.toString());
-                ConsoleError.send(new SignedAuditEvent(CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, e.toString())));
+                String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, e.getMessage());
+                logger.error("LogFile: " + message, e);
+                ConsoleError.send(new SignedAuditEvent(message));
 
             } catch (GeneralSecurityException gse) {
                 // DJN: handle error
-                CMS.debug("LogFile: exception thrown in log(): "
-                        + gse.toString());
-                gse.printStackTrace();
-                ConsoleError.send(new SignedAuditEvent(CMS.getLogMessage(
-                        LOG_SIGNED_AUDIT_EXCEPTION, gse.toString())));
+                String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, gse.getMessage());
+                logger.error("LogFile: " + message, gse);
+                ConsoleError.send(new SignedAuditEvent(message));
 
             } catch (Exception ee) { // Make darn sure we got everything
                 String message = CMS.getLogMessage(LOG_SIGNED_AUDIT_EXCEPTION, ee.getMessage());
@@ -1145,7 +1149,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             return;
         }
 
-        CMS.debug("LogFile: event type not selected: " + type);
+        logger.debug("LogFile: event type not selected: " + type);
     }
 
     public void filter(SignedAuditEvent ev) throws ELogException {
