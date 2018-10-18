@@ -17,14 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server;
 
-import java.lang.Integer;
 import java.net.InetAddress;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLAlertDescription;
 import org.mozilla.jss.ssl.SSLAlertEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
@@ -34,11 +31,11 @@ import org.mozilla.jss.ssl.SSLSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionTerminatedEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.certsrv.apps.CMS;
 
 public class PKIClientSocketListener implements SSLSocketListener {
 
