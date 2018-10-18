@@ -27,7 +27,6 @@ import getopt
 import getpass
 import logging
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -527,55 +526,6 @@ class CertCreateCLI(pki.cli.CLI):
             nssdb.close()
             shutil.rmtree(tmpdir)
 
-    @staticmethod
-    def setup_temp_renewal(instance, subsystem, tmpdir, cert_id):
-
-        csr_file = os.path.join(tmpdir, cert_id + '.csr')
-        ca_cert_file = os.path.join(tmpdir, 'ca_certificate.crt')
-
-        logger.debug('Exporting CSR for %s cert', cert_id)
-
-        cert_request = subsystem.get_subsystem_cert(cert_id).get('request', None)
-        if cert_request is None:
-            logger.error('Unable to find CSR for %s cert', cert_id)
-            sys.exit(1)
-
-        csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
-        with open(csr_file, 'w') as f:
-            f.write(csr_data)
-
-        logger.debug('Extracting SKI from CA cert')
-        # TODO: Support remote CA.
-
-        ca_signing_cert = instance.get_subsystem('ca').get_subsystem_cert('signing')
-        ca_cert_data = ca_signing_cert.get('data', None)
-        if ca_cert_data is None:
-            logger.error('Unable to find certificate data for CA signing certificate.')
-            sys.exit(1)
-
-        ca_cert = pki.nssdb.convert_cert(ca_cert_data, 'base64', 'pem')
-        with open(ca_cert_file, 'w') as f:
-            f.write(ca_cert)
-
-        ca_cert_retrieve_cmd = [
-            'openssl',
-            'x509',
-            '-in', ca_cert_file,
-            '-noout',
-            '-text'
-        ]
-
-        logger.debug('Command: %s', ' '.join(ca_cert_retrieve_cmd))
-        ca_cert_details = subprocess.check_output(ca_cert_retrieve_cmd)
-
-        aki = re.search(r'Subject Key Identifier.*\n.*?(.*?)\n', ca_cert_details).group(1)
-
-        # Add 0x to represent this is a Hex
-        aki = '0x' + aki.strip().replace(':', '')
-        logger.debug('AKI: %s', aki)
-
-        return ca_signing_cert, aki, csr_file
-
     def setup_authentication(self, subsystem, c_nssdb_pass, c_nssdb_pass_file, c_cert,
                              c_nssdb, tmpdir):
         temp_auth_p12 = os.path.join(tmpdir, 'auth.p12')
@@ -670,48 +620,14 @@ class CertCreateCLI(pki.cli.CLI):
         with open(output, 'w') as f:
             f.write(new_cert_data.encoded)
 
-    def create_ssl_cert(self, instance, subsystem, serial, is_temp_cert, tmpdir,
+    # NOTE: The following method will be removed in subsequent patches
+    def create_ssl_cert(self, subsystem, serial, is_temp_cert, tmpdir,
                         new_cert_file, nssdb, connection):
 
         logger.info('Creating SSL server certificate.')
 
         if is_temp_cert:
-
-            logger.info('Generate temp SSL certificate')
-
-            ca_signing_cert, aki, csr_file = self.setup_temp_renewal(
-                instance=instance, subsystem=subsystem, tmpdir=tmpdir, cert_id='sslserver')
-
-            # --keyUsage
-            key_usage_ext = {
-                'digitalSignature': True,
-                'nonRepudiation': True,
-                'keyEncipherment': True,
-                'dataEncipherment': True,
-                'critical': True
-            }
-
-            # -3
-            aki_ext = {
-                'auth_key_id': aki
-            }
-
-            # --extKeyUsage
-            ext_key_usage_ext = {
-                'serverAuth': True
-            }
-
-            rc = nssdb.create_cert(
-                issuer=ca_signing_cert['nickname'],
-                request_file=csr_file,
-                cert_file=new_cert_file,
-                serial=serial,
-                key_usage_ext=key_usage_ext,
-                aki_ext=aki_ext,
-                ext_key_usage_ext=ext_key_usage_ext)
-            if rc:
-                raise Exception('Failed to generate CA-signed temp SSL certificate. '
-                                'RC: %d' % rc)
+            subsystem.temp_cert_create(nssdb, tmpdir, 'sslserver', serial, new_cert_file)
 
         else:
 
@@ -726,6 +642,7 @@ class CertCreateCLI(pki.cli.CLI):
             self.renew_system_certificate(connection=connection,
                                           output=new_cert_file, serial=serial)
 
+    # NOTE: The following method will be removed in subsequent patches
     def create_ocsp_cert(self, subsystem, is_temp_cert, new_cert_file, serial, connection):
 
         if is_temp_cert:
@@ -745,6 +662,7 @@ class CertCreateCLI(pki.cli.CLI):
             self.renew_system_certificate(connection=connection,
                                           output=new_cert_file, serial=serial)
 
+    # NOTE: The following method will be removed in subsequent patches
     def create_subsystem_cert(self, subsystem, is_temp_cert, new_cert_file, serial,
                               connection):
 
@@ -761,6 +679,7 @@ class CertCreateCLI(pki.cli.CLI):
             self.renew_system_certificate(connection=connection,
                                           output=new_cert_file, serial=serial)
 
+    # NOTE: The following method will be removed in subsequent patches
     def create_audit_cert(self, subsystem, is_temp_cert, new_cert_file, serial, connection):
 
         logger.info('Creating audit certificate')
