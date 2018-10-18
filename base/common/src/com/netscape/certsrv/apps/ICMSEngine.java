@@ -531,22 +531,6 @@ public interface ICMSEngine extends ISubsystem {
     public IRequestEncoder getHttpRequestEncoder();
 
     /**
-     * Converts a BER-encoded byte array into a MIME-64 encoded string.
-     *
-     * @param data data in byte array format
-     * @return base-64 encoding for the data
-     */
-    public String BtoA(byte data[]);
-
-    /**
-     * Converts a MIME-64 encoded string into a BER-encoded byte array.
-     *
-     * @param data base-64 encoding for the data
-     * @return data data in byte array format
-     */
-    public byte[] AtoB(String data);
-
-    /**
      * Retrieves the certifcate in MIME-64 encoded format
      * with header and footer.
      *

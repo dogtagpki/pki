@@ -1196,26 +1196,6 @@ public final class CMS {
     }
 
     /**
-     * Converts a BER-encoded byte array into a MIME-64 encoded string.
-     *
-     * @param data data in byte array format
-     * @return base-64 encoding for the data
-     */
-    public static String BtoA(byte data[]) {
-        return _engine.BtoA(data);
-    }
-
-    /**
-     * Converts a MIME-64 encoded string into a BER-encoded byte array.
-     *
-     * @param data base-64 encoding for the data
-     * @return data data in byte array format
-     */
-    public static byte[] AtoB(String data) {
-        return _engine.AtoB(data);
-    }
-
-    /**
      * Retrieves the ldap connection information from the configuration
      * store.
      *

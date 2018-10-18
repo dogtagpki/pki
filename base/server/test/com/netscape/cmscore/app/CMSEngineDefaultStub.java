@@ -150,10 +150,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public ILogger getSignedAuditLogger() {
-        return null;
-    }
-
     public void debug(byte data[]) {
     }
 
@@ -294,14 +290,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
 
     public IRequestEncoder getHttpRequestEncoder() {
         return null;
-    }
-
-    public String BtoA(byte data[]) {
-        return null;
-    }
-
-    public byte[] AtoB(String data) {
-        return new byte[0];
     }
 
     public String getEncodedCert(X509Certificate cert) {
@@ -506,15 +494,7 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public IHttpConnection getHttpConnection(IRemoteAuthority authority, ISocketFactory factory, String op) {
-        return null;
-    }
-
     public IHttpConnection getHttpConnection(IRemoteAuthority authority, ISocketFactory factory, int timeout) {
-        return null;
-    }
-
-    public IHttpConnection getHttpConnection(IRemoteAuthority authority, ISocketFactory factory, int timeout, String op) {
         return null;
     }
 

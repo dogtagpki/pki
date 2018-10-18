@@ -1672,14 +1672,6 @@ public class CMSEngine implements ICMSEngine {
         return CertUtils.checkOID(attrName, value);
     }
 
-    public String BtoA(byte data[]) {
-        return Utils.base64encode(data, true);
-    }
-
-    public byte[] AtoB(String data) {
-        return Utils.base64decode(data);
-    }
-
     public String getEncodedCert(X509Certificate cert) {
         try {
             return Cert.HEADER + "\n" +
