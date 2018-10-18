@@ -94,6 +94,13 @@ def main(argv):
         nargs=1, metavar='<security domain password file>',
         help='security domain password file path')
 
+    parser.optional.add_argument(
+        '--force',
+        dest='pki_force_destroy',
+        action='store_true',
+        help='force remove all installed files'
+    )
+
     args = parser.process_command_line_arguments()
 
     interactive = False
@@ -154,20 +161,25 @@ def main(argv):
                 pwd_file:
             config.pki_secdomain_pass = pwd_file.readline().strip('\n')
 
+    #   '--force'
+    force_destroy = args.pki_force_destroy
+
     # verify that previously deployed instance exists
     deployed_pki_instance_path = os.path.join(
         config.PKI_DEPLOYMENT_BASE_ROOT, config.pki_deployed_instance_name
     )
-    if not os.path.exists(deployed_pki_instance_path):
+    if not os.path.exists(deployed_pki_instance_path) and not force_destroy:
         print("ERROR:  " + log.PKI_INSTANCE_DOES_NOT_EXIST_1 %
               deployed_pki_instance_path)
         print()
         parser.arg_parser.exit(-1)
 
     # verify that previously deployed subsystem for this instance exists
-    deployed_pki_subsystem_path = \
-        deployed_pki_instance_path + "/" + deployer.subsystem_name.lower()
-    if not os.path.exists(deployed_pki_subsystem_path):
+    deployed_pki_subsystem_path = os.path.join(
+        deployed_pki_instance_path, deployer.subsystem_name.lower()
+    )
+
+    if not os.path.exists(deployed_pki_subsystem_path) and not force_destroy:
         print("ERROR:  " + log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 %
               (deployer.subsystem_name, deployed_pki_instance_path))
         print()
@@ -177,11 +189,13 @@ def main(argv):
         config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
 
     # establish complete path to previously deployed configuration file
-    config.user_deployment_cfg =\
-        deployed_pki_subsystem_path + "/" +\
-        "registry" + "/" +\
-        deployer.subsystem_name.lower() + "/" +\
-        config.USER_DEPLOYMENT_CONFIGURATION
+    if not force_destroy:
+        config.user_deployment_cfg = os.path.join(
+            deployed_pki_subsystem_path,
+            "registry",
+            deployer.subsystem_name.lower(),
+            config.USER_DEPLOYMENT_CONFIGURATION
+        )
 
     parser.validate()
     parser.init_config()
@@ -211,6 +225,10 @@ def main(argv):
     parser.compose_pki_master_dictionary()
     parser.mdict['pki_destroy_log'] = \
         config.pki_log_dir + "/" + config.pki_log_name
+
+    # Add force_destroy to master dictionary
+    parser.mdict['pki_force_destroy'] = force_destroy
+
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
     config.pki_log.debug(pkilogging.log_format(parser.mdict),

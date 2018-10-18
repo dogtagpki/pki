@@ -22,7 +22,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 import logging
 import os
-import shutil
 
 import pki.nssdb
 import pki.pkcs12
@@ -312,5 +311,5 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if deployer.directory.exists(deployer.mdict['pki_client_dir']):
                 deployer.directory.delete(deployer.mdict['pki_client_dir'])
 
-            shutil.rmtree(deployer.mdict['pki_server_database_path'])
+            deployer.directory.delete(deployer.mdict['pki_server_database_path'])
             deployer.file.delete(deployer.mdict['pki_shared_password_conf'])
