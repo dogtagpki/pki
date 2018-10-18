@@ -832,6 +832,131 @@ class PKISubsystem(object):
         finally:
             nssdb.close()
 
+    def setup_temp_renewal(self, tmpdir, cert_tag):
+        """
+        Retrieve CA's cert, Subject Key Identifier (SKI aka AKI) and CSR for
+        the *cert_id* provided
+
+        :param tmpdir: Path to temp dir to write cert's .csr and CA's .crt file
+        :type tmpdir: str
+        :param cert_tag: Cert for which CSR is requested
+        :type cert_tag: str
+        :return: (ca_signing_cert, aki, csr_file)
+        """
+
+        csr_file = os.path.join(tmpdir, cert_tag + '.csr')
+        ca_cert_file = os.path.join(tmpdir, 'ca_certificate.crt')
+
+        logger.debug('Exporting CSR for %s cert', cert_tag)
+
+        # Retrieve CSR for cert_id
+        cert_request = self.get_subsystem_cert(cert_tag).get('request', None)
+        if cert_request is None:
+            raise PKIServerException('Unable to find CSR for %s cert' % cert_tag)
+
+        logger.debug('Retrieved CSR: %s', cert_request)
+
+        csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
+        with open(csr_file, 'w') as f:
+            f.write(csr_data)
+        logger.info('CSR for %s has been written to %s', cert_tag, csr_file)
+
+        logger.debug('Extracting SKI from CA cert')
+        # TODO: Support remote CA.
+
+        # Retrieve Subject Key Identifier from CA cert
+        ca_signing_cert = self.instance.get_subsystem('ca').get_subsystem_cert('signing')
+
+        ca_cert_data = ca_signing_cert.get('data', None)
+        if ca_cert_data is None:
+            raise PKIServerException('Unable to find certificate data for CA signing certificate.')
+
+        logger.debug('Retrieved CA cert details: %s', ca_cert_data)
+
+        ca_cert = pki.nssdb.convert_cert(ca_cert_data, 'base64', 'pem')
+        with open(ca_cert_file, 'w') as f:
+            f.write(ca_cert)
+        logger.info('CA cert written to %s', ca_cert_file)
+
+        ca_cert_retrieve_cmd = [
+            'openssl',
+            'x509',
+            '-in', ca_cert_file,
+            '-noout',
+            '-text'
+        ]
+
+        logger.debug('Command: %s', ' '.join(ca_cert_retrieve_cmd))
+        ca_cert_details = subprocess.check_output(ca_cert_retrieve_cmd).decode('utf-8')
+
+        aki = re.search(r'Subject Key Identifier.*\n.*?(.*?)\n', ca_cert_details).group(1)
+
+        # Add 0x to represent this as a Hex
+        aki = '0x' + aki.strip().replace(':', '')
+        logger.info('AKI: %s', aki)
+
+        return ca_signing_cert, aki, csr_file
+
+    def temp_cert_create(self, nssdb, tmpdir, cert_tag, serial, new_cert_file):
+        """
+        Generates temp cert with validity of 3 months by default
+
+        **Note**: Currently, supports only *sslserver* cert
+
+        :param nssdb: NSS db instance
+        :type nssdb: NSSDatabase
+        :param tmpdir: Path to temp dir to write cert's csr and ca's cert file
+        :type tmpdir: str
+        :param cert_tag: Cert for which temp cert needs to be created
+        :type cert_tag: str
+        :param serial: Serial number to be assigned to new cert
+        :type serial: str
+        :param new_cert_file: Path where the new temp cert needs to be written to
+        :type new_cert_file: str
+        :return: None
+        :rtype: None
+        """
+        logger.info('Generate temp SSL certificate')
+
+        if cert_tag != 'sslserver':
+            raise PKIServerException('Temp cert for %s is not supported yet.' % cert_tag)
+
+        ca_signing_cert, aki, csr_file = \
+            self.setup_temp_renewal(tmpdir=tmpdir, cert_tag=cert_tag)
+
+        # --keyUsage
+        key_usage_ext = {
+            'digitalSignature': True,
+            'nonRepudiation': True,
+            'keyEncipherment': True,
+            'dataEncipherment': True,
+            'critical': True
+        }
+
+        # -3
+        aki_ext = {
+            'auth_key_id': aki
+        }
+
+        # --extKeyUsage
+        ext_key_usage_ext = {
+            'serverAuth': True
+        }
+
+        logger.debug('Creating temp cert')
+
+        rc = nssdb.create_cert(
+            issuer=ca_signing_cert['nickname'],
+            request_file=csr_file,
+            cert_file=new_cert_file,
+            serial=serial,
+            key_usage_ext=key_usage_ext,
+            aki_ext=aki_ext,
+            ext_key_usage_ext=ext_key_usage_ext)
+        if rc:
+            raise PKIServerException('Failed to generate CA-signed temp SSL '
+                                     'certificate. RC: %d' % rc)
+
 
 class CASubsystem(PKISubsystem):
 
