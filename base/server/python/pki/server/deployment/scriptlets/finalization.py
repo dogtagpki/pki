@@ -70,19 +70,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info(log.PKISPAWN_END_MESSAGE_2,
                     deployer.mdict['pki_subsystem'],
                     deployer.mdict['pki_instance_name'])
-        deployer.file.modify(deployer.mdict['pki_spawn_log'], silent=True)
 
     def destroy(self, deployer):
 
         logger.info('Finalizing subsystem removal')
 
-        deployer.file.modify(deployer.mdict['pki_destroy_log'], silent=True)
         # If this is the last remaining PKI instance, ALWAYS remove the
         # link to start configured PKI instances upon system reboot
         if deployer.mdict['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
            deployer.instance.pki_instance_subsystems() == 0:
             deployer.systemd.disable()
-        # Start this Tomcat PKI Process
+
+        # Start this Tomcat PKI Process back if there are any subsystems still existing
         if len(deployer.instance.tomcat_instance_subsystems()) >= 1:
             deployer.systemd.start()
         logger.info(log.PKIDESTROY_END_MESSAGE_2,

@@ -71,7 +71,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Removing webapp')
 
-        # Delete <instance>/conf/Catalina/localhost/<subsystem>.xml
+        # Delete <instance>/Catalina/localhost/<subsystem>.xml
         deployer.file.delete(
             os.path.join(
                 deployer.mdict['pki_instance_configuration_path'],
