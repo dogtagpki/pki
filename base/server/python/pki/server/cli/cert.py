@@ -599,12 +599,14 @@ class CertCreateCLI(pki.cli.CLI):
                     # Fixme: Support rekey
                     raise Exception('Rekey is not supported yet.')
 
+                # Create a secure connection to CA
                 connection = server.PKIServer.setup_authentication(
                     c_nssdb_pass=client_nssdb_password,
                     c_cert=client_cert,
                     c_nssdb_pass_file=client_nssdb_pass_file,
                     c_nssdb=client_nssdb_location,
-                    tmpdir=tmpdir)
+                    tmpdir=tmpdir,
+                    subsystem_name='ca')
 
             if cert_tag == 'sslserver':
                 self.create_ssl_cert(subsystem=subsystem,

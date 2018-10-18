@@ -95,10 +95,10 @@ class PKIServer(object):
 
     @staticmethod
     def setup_authentication(c_nssdb_pass, c_nssdb_pass_file, c_cert,
-                             c_nssdb, tmpdir):
+                             c_nssdb, tmpdir, subsystem_name):
         """
-        Utility method to set up a secure authenticated connection with the
-        PKI Server through PKI client
+        Utility method to set up a secure authenticated connection with a
+        subsystem of PKI Server through PKI client
 
         :param c_nssdb_pass: Client NSS db plain password
         :type c_nssdb_pass: str
@@ -110,6 +110,8 @@ class PKIServer(object):
         :type c_nssdb: str
         :param tmpdir: Absolute path of temp dir to store p12 and pem files
         :type tmpdir: str
+        :param subsystem_name: Name of the subsystem
+        :type subsystem_name: str
         :return: Authenticated secure connection to PKI server
         """
         temp_auth_p12 = os.path.join(tmpdir, 'auth.p12')
@@ -119,8 +121,8 @@ class PKIServer(object):
             raise PKIServerException('Client cert nickname is required.')
 
         # Create a PKIConnection object that stores the details of subsystem.
-        # NOTE: Renewal requests can be submitted only to 'ca'
-        connection = client.PKIConnection('https', os.environ['HOSTNAME'], '8443', 'ca')
+        connection = client.PKIConnection('https', os.environ['HOSTNAME'], '8443',
+                                          subsystem_name)
 
         # Create a p12 file using
         # pk12util -o <p12 file name> -n <cert nick name> -d <NSS db path>
