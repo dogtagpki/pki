@@ -33,7 +33,6 @@ import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.AsymKeyGenerationProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
@@ -57,6 +56,7 @@ import netscape.security.util.WrappingParams;
  */
 public class AsymKeyGenService implements IService {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AsymKeyGenService.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final String ATTR_KEY_RECORD = "keyRecord";
@@ -128,8 +128,8 @@ public class AsymKeyGenService implements IService {
             }
         }
 
-        CMS.debug("AsymKeyGenService.serviceRequest. Request id: " + request.getRequestId());
-        CMS.debug("AsymKeyGenService.serviceRequest algorithm: " + algorithm);
+        logger.debug("AsymKeyGenService: request id: " + request.getRequestId());
+        logger.debug("AsymKeyGenService: algorithm: " + algorithm);
 
         String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
         String auditSubjectID = owner;
@@ -147,16 +147,19 @@ public class AsymKeyGenService implements IService {
                  );
 
         } catch (EBaseException e) {
-            CMS.debugStackTrace();
+            String message = "Unable to generate asymmetric key: " + e.getMessage();
+            logger.error("AsymKeyGenService: " + message, e);
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Failed to generate asymmetric key: " + e.getMessage());
-            throw new EBaseException("Errors in generating Asymmetric key: " + e, e);
+                    clientKeyId, null, message);
+            throw new EBaseException(message, e);
         }
 
         if (kp == null) {
+            String message = "Unable to generate asymmetric key";
+            logger.error("AsymKeyGenService: " + message);
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Failed to generate asymmetric key");
-            throw new EBaseException("Failed to generate asymmetric key!");
+                    clientKeyId, null, message);
+            throw new EBaseException(message);
         }
 
         byte[] privateSecurityData = null;
@@ -166,10 +169,11 @@ public class AsymKeyGenService implements IService {
             params = storageUnit.getWrappingParams(allowEncDecrypt_archival);
             privateSecurityData = storageUnit.wrap((PrivateKey) kp.getPrivate(), params);
         } catch (Exception e) {
-            CMS.debug("Failed to generate security data to archive: " + e);
+            String message = "Unable to wrap asymmetric key: " + e.getMessage();
+            logger.error("AsymKeyGenService: " + message, e);
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
-            throw new EBaseException("Failed to generate security data to archive!", e);
+                    clientKeyId, null, message);
+            throw new EBaseException(message, e);
         }
 
         KeyRecord record = new KeyRecord(null, kp.getPublic().getEncoded(), privateSecurityData,
@@ -179,11 +183,12 @@ public class AsymKeyGenService implements IService {
         BigInteger serialNo = storage.getNextSerialNumber();
 
         if (serialNo == null) {
-            kra.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
+            String message = "Unable to get next key ID";
+            logger.error("AsymKeyGenService: " + message);
+            kra.log(ILogger.LL_FAILURE, message);
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Failed to get next Key ID");
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
+                    clientKeyId, null, message);
+            throw new EBaseException(message);
         }
 
         // Storing the public key and private key.
@@ -202,9 +207,11 @@ public class AsymKeyGenService implements IService {
         try {
             record.setWrappingParams(params, allowEncDecrypt_archival);
         } catch (Exception e) {
+            String message = "Unable to store wrapping parameters: " + e.getMessage();
+            logger.error("AsymKeyGenService: " + message);
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Failed to store wrapping params");
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
+                    clientKeyId, null, message);
+            throw new EBaseException(message, e);
         }
 
         storage.addKeyRecord(record);
@@ -216,14 +223,10 @@ public class AsymKeyGenService implements IService {
         return true;
     }
 
-    protected void audit(LogEvent event) {
-        signedAuditLogger.log(event);
-    }
-
     private void auditAsymKeyGenRequestProcessed(String subjectID, String status, RequestId requestID,
             String clientKeyID,
             KeyId keyID, String reason) {
-        audit(new AsymKeyGenerationProcessedEvent(
+        signedAuditLogger.log(new AsymKeyGenerationProcessedEvent(
                 subjectID,
                 status,
                 requestID,
