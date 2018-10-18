@@ -1,27 +1,5 @@
 project(pki-ca_java NONE)
 
-# '${JAVA_LIB_INSTALL_DIR}' jars
-find_file(JSS_JAR
-    NAMES
-        jss4.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-)
-
-find_file(RESTEASY_JAXRS_JAR
-    NAMES
-        resteasy-jaxrs.jar
-    PATHS
-        ${RESTEASY_LIB}
-)
-
-find_file(RESTEASY_ATOM_PROVIDER_JAR
-    NAMES
-        resteasy-atom-provider.jar
-    PATHS
-        ${RESTEASY_LIB}
-)
-
 # build pki-ca
 javac(pki-ca-classes
     SOURCES

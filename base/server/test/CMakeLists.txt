@@ -1,33 +1,5 @@
 project(pki-server-test NONE)
 
-find_file(PKI_CERTSRV_JAR
-    NAMES
-		pki-certsrv.jar
-    PATHS
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
-
-find_file(PKI_CMS_JAR
-    NAMES
-		pki-cms.jar
-    PATHS
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
-
-find_file(PKI_CMSCORE_JAR
-    NAMES
-		pki-cmscore.jar
-    PATHS
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
-
-find_file(PKI_CMSBUNDLE_JAR
-    NAMES
-		pki-cmsbundle.jar
-    PATHS
-        ${JAVA_JAR_INSTALL_DIR}/pki
-)
-
 # build pki-server-test
 # TODO: build test only when the test is invoked
 javac(pki-server-test-classes

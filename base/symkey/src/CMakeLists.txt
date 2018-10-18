@@ -1,13 +1,5 @@
 project(symkey NONE)
 
-find_file(JSS_JAR
-    NAMES
-        jss4.jar
-    PATHS
-    ${JAVA_LIB_INSTALL_DIR}
-    /usr/share/java
-)
-
 # build symkey
 javac(symkey-classes
     SOURCES

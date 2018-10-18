@@ -205,6 +205,20 @@ find_file(RESTEASY_ATOM_PROVIDER_JAR
         ${RESTEASY_LIB}
 )
 
+find_file(RESTEASY_CLIENT_JAR
+    NAMES
+        resteasy-client.jar
+    PATHS
+        ${RESTEASY_LIB}
+)
+
+find_file(SYMKEY_JAR
+    NAMES
+        symkey.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+)
+
 find_file(JASPIC_API_JAR
     NAMES
         jaspic-api.jar
@@ -307,6 +321,47 @@ find_file(XML_COMMONS_RESOLVER_JAR
     PATHS
         /usr/share/java
 )
+
+find_file(BASE_JAR
+    NAMES
+        idm-console-base.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
+find_file(MMC_JAR
+    NAMES
+        idm-console-mcc.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
+find_file(MMC_EN_JAR
+    NAMES
+        idm-console-mcc_en.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
+find_file(NMCLF_JAR
+    NAMES
+        idm-console-nmclf.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
+find_file(NMCLF_EN_JAR
+    NAMES
+        idm-console-nmclf_en.jar
+    PATHS
+        ${JAVA_LIB_INSTALL_DIR}
+        /usr/share/java
+)
+
 
 # The order is important!
 if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)

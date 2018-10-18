@@ -1,84 +1,11 @@
 project(pki-tks_java NONE)
 
-# '/usr/share/java/pki' jars
-find_file(PKI_CERTSRV_JAR
-    NAMES
-        pki-certsrv.jar
-    PATHS
-        /usr/share/java/pki
-)
-
-find_file(PKI_CMS_JAR
-    NAMES
-        pki-cms.jar
-    PATHS
-        /usr/share/java/pki
-)
-
-find_file(PKI_CMSCORE_JAR
-    NAMES
-        pki-cmscore.jar
-    PATHS
-        /usr/share/java/pki
-)
-
-find_file(PKI_CMSUTIL_JAR
-    NAMES
-        pki-cmsutil.jar
-    PATHS
-        /usr/share/java/pki
-)
-
-find_file(PKI_NSUTIL_JAR
-    NAMES
-        pki-nsutil.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java/pki
-)
-
-
-# '${JAVA_LIB_INSTALL_DIR}' jars
-find_file(JSS_JAR
-    NAMES
-        jss4.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-)
-
-find_file(COMMONS_CODEC_JAR
-    NAMES
-        commons-codec.jar
-    PATHS
-        /usr/share/java
-)
-
-find_file(RESTEASY_JAXRS_JAR
-    NAMES
-        resteasy-jaxrs.jar
-    PATHS
-        ${RESTEASY_LIB}
-)
-
-find_file(RESTEASY_ATOM_PROVIDER_JAR
-    NAMES
-        resteasy-atom-provider.jar
-    PATHS
-        ${RESTEASY_LIB}
-)
-
-find_file(SYMKEY_JAR
-    NAMES
-        symkey.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-)
-
 # build pki-tks
 javac(pki-tks-classes
     SOURCES
         *.java
     CLASSPATH
+        ${SLF4J_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_LANG_JAR}
         ${LDAPJDK_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
