@@ -28,6 +28,9 @@ import com.netscape.certsrv.request.IRequest;
 import netscape.security.x509.X509CertInfo;
 
 public class CertInfoProfile {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertInfoProfile.class);
+
     private Vector<ICertInfoPolicyDefault> mDefaults = new Vector<ICertInfoPolicyDefault>();
     private String mName = null;
     private String mID = null;
@@ -53,7 +56,7 @@ public class CertInfoProfile {
                 init(config.getSubStore(id + ".default"), def);
                 mDefaults.addElement(def);
             } catch (Exception e) {
-                CMS.debug("CertInfoProfile: " + e.toString());
+                logger.warn("CertInfoProfile: Unable to create CertInfoPolicyDefault: " + e.getMessage(), e);
             }
         }
     }
@@ -63,7 +66,7 @@ public class CertInfoProfile {
         try {
             def.init(null, config);
         } catch (Exception e) {
-            CMS.debug("CertInfoProfile.init: " + e.toString());
+            logger.warn("CertInfoProfile: Unable to initialize CertInfoPolicyDefault: " + e.getMessage(), e);
         }
     }
 
@@ -96,10 +99,10 @@ public class CertInfoProfile {
         while (e1.hasMoreElements()) {
             ICertInfoPolicyDefault def = e1.nextElement();
             try {
-                CMS.debug("CertInfoProfile: Populating certificate with " + def.getClass().getName());
+                logger.debug("CertInfoProfile: Populating certificate with " + def.getClass().getName());
                 def.populate(request, info);
             } catch (Exception e) {
-                CMS.debug("CertInfoProfile: Unable to populate certificate: " + e);
+                logger.error("CertInfoProfile: Unable to populate certificate: " + e, e);
                 throw e;
             }
         }
