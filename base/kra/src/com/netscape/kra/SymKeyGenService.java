@@ -59,6 +59,7 @@ import netscape.security.util.WrappingParams;
  */
 public class SymKeyGenService implements IService {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SymKeyGenService.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public final static String ATTR_KEY_RECORD = "keyRecord";
@@ -100,8 +101,8 @@ public class SymKeyGenService implements IService {
         String keySizeStr = request.getExtDataInString(IRequest.KEY_GEN_SIZE);
         int keySize = Integer.parseInt(keySizeStr);
 
-        CMS.debug("SymKeyGenService.serviceRequest. Request id: " + id);
-        CMS.debug("SymKeyGenService.serviceRequest algorithm: " + algorithm);
+        logger.debug("SymKeyGenService: request ID: " + id);
+        logger.debug("SymKeyGenService: algorithm: " + algorithm);
 
         String owner = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);
         String auditSubjectID = owner;
@@ -160,12 +161,13 @@ public class SymKeyGenService implements IService {
         SymmetricKey sk = null;
         try {
             sk = CryptoUtil.generateKey(token, kgAlg, keySize, keyUsages, true);
-            CMS.debug("SymKeyGenService:wrap() session key generated on slot: " + token.getName());
+            logger.debug("SymKeyGenService: session key generated on slot: " + token.getName());
         } catch (Exception e) {
-            CMS.debugStackTrace();
+            String message = "Unable to generate symmetric key: " + e.getMessage();
+            logger.error("SymKeyGenService: " + message, e);
             auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Failed to generate symmetric key");
-            throw new EBaseException("Errors in generating symmetric key: " + e, e);
+                    clientKeyId, null, message);
+            throw new EBaseException(message, e);
         }
 
         byte[] publicKey = null;
@@ -173,19 +175,22 @@ public class SymKeyGenService implements IService {
         WrappingParams params = null;
 
         if (sk == null) {
+            String message = "Unable to generate security data";
+            logger.error("SymKeyGenService: " + message);
             auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Failed to create security data to archive");
-            throw new EBaseException("Failed to create security data to archive!");
+                    clientKeyId, null, message);
+            throw new EBaseException(message);
         }
 
         try {
             params = mStorageUnit.getWrappingParams(allowEncDecrypt_archival);
             privateSecurityData = mStorageUnit.wrap(sk, params);
         } catch (Exception e) {
-            CMS.debug("Failed to generate security data to archive: " + e);
+            String message = "Unable to wrap security data: " + e.getMessage();
+            logger.error("SymKeyGenService: " + message);
             auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
-            throw new EBaseException("Failed to generate security data to archive!");
+                    clientKeyId, null, message);
+            throw new EBaseException(message, e);
         }
 
         // create key record
@@ -197,20 +202,23 @@ public class SymKeyGenService implements IService {
 
         //Now we need a serial number for our new key.
         if (rec.getSerialNumber() != null) {
+            String message = CMS.getUserMessage("CMS_KRA_INVALID_STATE");
+            logger.error("SymKeyGenService: " + message);
             auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
+                    clientKeyId, null, message);
+            throw new EBaseException(message);
         }
 
         IKeyRepository storage = mKRA.getKeyRepository();
         BigInteger serialNo = storage.getNextSerialNumber();
 
         if (serialNo == null) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
+            String message = CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL");
+            logger.error("SymKeyGenService: " + message);
+            mKRA.log(ILogger.LL_FAILURE, message);
             auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Failed to get  next Key ID");
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"));
+                    clientKeyId, null, message);
+            throw new EBaseException(message);
         }
 
         rec.set(KeyRecord.ATTR_ID, serialNo);
@@ -226,14 +234,15 @@ public class SymKeyGenService implements IService {
         try {
             rec.setWrappingParams(params, allowEncDecrypt_archival);
         } catch (Exception e) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    "Failed to store wrapping parameters: " + e);
+            String message = "Unable to store wrapping parameters: " + e.getMessage();
+            logger.error("SymKeyGenService: " + message, e);
+            mKRA.log(ILogger.LL_FAILURE, message);
             auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
-                    clientKeyId, null, "Failed to store wraping parameters.");
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"), e);
+                    clientKeyId, null, message);
+            throw new EBaseException(message, e);
         }
 
-        CMS.debug("KRA adding Security Data key record " + serialNo);
+        logger.debug("SymKeyGenService: adding security data key record " + serialNo);
         storage.addKeyRecord(rec);
 
         auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.SUCCESS, request.getRequestId(),
