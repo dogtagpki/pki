@@ -1564,6 +1564,7 @@ fi
 
 %doc themes/%{brand}/common-ui/LICENSE
 %dir %{_datadir}/pki
+%{_datadir}/pki/CS_SERVER_VERSION
 %{_datadir}/pki/common-ui/
 %{_datadir}/pki/server/webapps/pki/ca
 %{_datadir}/pki/server/webapps/pki/css
