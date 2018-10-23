@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.io.IOException;
+import java.io.FileInputStream;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
@@ -34,6 +35,8 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmsutil.xml.XMLObject;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 public class GetStatus extends CMSServlet {
 
@@ -41,6 +44,8 @@ public class GetStatus extends CMSServlet {
      *
      */
     private static final long serialVersionUID = -2852842030221659847L;
+    // File below will be a member of a pki theme package.
+    private static final String productVersionFILE = "/usr/share/pki/CS_SERVER_VERSION";
 
     public GetStatus() {
         super();
@@ -80,6 +85,13 @@ public class GetStatus extends CMSServlet {
             xmlObj.addItemToContainer(root, "Type", type);
             xmlObj.addItemToContainer(root, "Status", status);
             xmlObj.addItemToContainer(root, "Version", version);
+            // File below will be a member of a pki theme package.
+            String productVersion = getProductVersion(productVersionFILE);
+
+            if(!StringUtils.isEmpty(productVersion)) {
+                xmlObj.addItemToContainer(root,"ProductVersion", productVersion);
+            }
+
             byte[] cb = xmlObj.toByteArray();
 
             outputResult(httpResp, "application/xml", cb);
@@ -108,4 +120,40 @@ public class GetStatus extends CMSServlet {
         return locale;
     }
 
+    /**
+     * Return the product version if the file: /usr/share/pki/CS_SERVER_VERSION
+     * exists.
+     *
+     * Caller only cares if there is a string or not, exceptions handled here.
+     */
+    private String getProductVersion(String versionFilePathName) {
+        String version = null;
+        FileInputStream inputStream = null;
+
+        if(StringUtils.isEmpty(versionFilePathName)) {
+            CMS.debug("Missing product version file path!");
+            return null;
+        }
+
+        try {
+            inputStream = new FileInputStream(versionFilePathName);
+            String contents = IOUtils.toString(inputStream);
+
+            if(contents != null) {
+                CMS.debug("Returning product version: " + version);
+                version = contents.trim();
+            }
+        } catch (Exception e) {
+            CMS.debug("Failed to read product version String. " + e);
+        }
+        finally {
+            if(inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        return version;
+    }
 }
