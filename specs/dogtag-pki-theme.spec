@@ -6,8 +6,8 @@
 
 Name:             dogtag-pki-theme
 %if 0%{?rhel}
-Version:                10.5.1
-%define redhat_release  2
+Version:                10.5.9
+%define redhat_release  1
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
@@ -173,6 +173,7 @@ cd build
 %defattr(-,root,root,-)
 %doc dogtag/common-ui/LICENSE
 %dir %{_datadir}/pki
+%{_datadir}/pki/CS_SERVER_VERSION
 %{_datadir}/pki/common-ui/
 %{_datadir}/pki/server/webapps/pki/ca
 %{_datadir}/pki/server/webapps/pki/css
@@ -192,6 +193,9 @@ cd build
 
 
 %changelog
+* Tue Oct 16 2018 Dogtag Team <pki-devel@redhat.com> 10.5.9-1
+- Re-base Dogtag to 10.5.9
+
 * Fri Mar 23 2018 Dogtag Team <pki-devel@redhat.com> 10.5.7-1
 - Re-base Dogtag to 10.5.7
 
