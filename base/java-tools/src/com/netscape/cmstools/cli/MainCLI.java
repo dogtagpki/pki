@@ -378,9 +378,6 @@ public class MainCLI extends CLI {
 
             if (passwordFile != null && password != null) {
                 throw new Exception("The '-W' and '-w' options are mutually exclusive.");
-
-            } else if (passwordFile == null && password == null) {
-                throw new Exception("Missing user password.");
             }
         }
 
