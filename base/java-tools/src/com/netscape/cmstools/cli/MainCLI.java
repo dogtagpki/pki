@@ -375,12 +375,8 @@ public class MainCLI extends CLI {
 
         // make sure no conflicting basic authentication passwords
         if (username != null) {
-
             if (password != null && passwordFile != null) {
                 throw new Exception("The -w and -W options are mutually exclusive.");
-
-            } else if (password == null && passwordFile == null) {
-                throw new Exception("Missing user password.");
             }
         }
 
