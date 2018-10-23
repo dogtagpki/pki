@@ -33,6 +33,7 @@ import time
 
 import pki.cli
 import pki.server.cli.audit
+import pki.server.cli.config
 
 
 TPS_VLV_PATH = '/usr/share/pki/tps/conf/vlv.ldif'
@@ -48,6 +49,7 @@ class TPSCLI(pki.cli.CLI):
         self.add_module(TPSCloneCLI())
         self.add_module(TPSDBCLI())
         self.add_module(pki.server.cli.audit.AuditCLI(self))
+        self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
 
 
 class TPSCloneCLI(pki.cli.CLI):
