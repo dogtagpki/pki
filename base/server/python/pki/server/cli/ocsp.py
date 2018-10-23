@@ -29,6 +29,7 @@ import tempfile
 
 import pki.cli
 import pki.server.cli.audit
+import pki.server.cli.config
 
 
 class OCSPCLI(pki.cli.CLI):
@@ -39,6 +40,7 @@ class OCSPCLI(pki.cli.CLI):
 
         self.add_module(OCSPCloneCLI())
         self.add_module(pki.server.cli.audit.AuditCLI(self))
+        self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
 
 
 class OCSPCloneCLI(pki.cli.CLI):
