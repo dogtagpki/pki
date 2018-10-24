@@ -42,7 +42,6 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnInfo;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
@@ -338,10 +337,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
 
     public LDAPConnection getBoundConnection(String id, String host, int port, int version, LDAPSSLSocketFactoryExt fac,
             String bindDN, String bindPW) throws LDAPException {
-        return null;
-    }
-
-    public ILdapConnFactory getLdapAnonConnFactory(String id) throws ELdapException {
         return null;
     }
 

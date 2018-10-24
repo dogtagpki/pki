@@ -22,15 +22,6 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
@@ -40,6 +31,16 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements an enrollment default policy
@@ -264,7 +265,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
             mParamsConfig = mInstConfig.getSubStore(PROP_PARAMS);
             mLdapConfig = mParamsConfig.getSubStore(PROP_LDAP);
             mBaseDN = mParamsConfig.getString(CONFIG_LDAP_BASEDN, null);
-            mConnFactory = CMS.getLdapAnonConnFactory("nsNKeySubjectNameDefault");
+            mConnFactory = new LdapAnonConnFactory("nsNKeySubjectNameDefault");
             mConnFactory.init(mLdapConfig);
 
             /* initialize dn pattern */

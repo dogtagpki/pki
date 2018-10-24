@@ -65,7 +65,6 @@ import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnInfo;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogSubsystem;
@@ -1240,16 +1239,6 @@ public final class CMS {
      */
     public static ILdapAuthInfo getLdapAuthInfo() {
         return _engine.getLdapAuthInfo();
-    }
-
-    /**
-     * Retrieves the LDAP connection factory.
-     *
-     * @return anonymous LDAP connection pool
-     */
-    public static ILdapConnFactory getLdapAnonConnFactory(String id)
-            throws ELdapException {
-        return _engine.getLdapAnonConnFactory(id);
     }
 
     /**

@@ -57,7 +57,6 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnInfo;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
@@ -625,13 +624,6 @@ public interface ICMSEngine extends ISubsystem {
     public LDAPConnection getBoundConnection(String id, String host, int port,
                int version, LDAPSSLSocketFactoryExt fac, String bindDN,
                String bindPW) throws LDAPException;
-
-    /**
-     * Retrieves the LDAP connection factory.
-     *
-     * @return anonymous LDAP connection pool
-     */
-    public ILdapConnFactory getLdapAnonConnFactory(String id) throws ELdapException;
 
     /**
      * Retrieves the named SharedToken class

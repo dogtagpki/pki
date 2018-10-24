@@ -42,6 +42,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.util.Utils;
 
@@ -292,7 +293,7 @@ public abstract class DirBasedAuthentication
             CMS.debug(method + " getting ldap bound conn factory using id= " + mTag);
             mConnFactory = new LdapBoundConnFactory(mTag);
         } else {
-            mConnFactory = CMS.getLdapAnonConnFactory("DirBasedAuthentication");
+            mConnFactory = new LdapAnonConnFactory("DirBasedAuthentication");
         }
         if (mConnFactory != null) // else can try again later when needed
             mConnFactory.init(mLdapConfig);
@@ -400,7 +401,7 @@ public abstract class DirBasedAuthentication
                     CMS.debug(method + " getting ldap bound conn factory using id= " + mTag);
                     mConnFactory = new LdapBoundConnFactory(mTag);
                 } else {
-                    mConnFactory = CMS.getLdapAnonConnFactory("DirBasedAuthentication");
+                    mConnFactory = new LdapAnonConnFactory("DirBasedAuthentication");
                 }
                 if (mConnFactory != null) {
                     mConnFactory.init(mLdapConfig);

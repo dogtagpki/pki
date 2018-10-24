@@ -98,7 +98,6 @@ import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnInfo;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
@@ -143,7 +142,6 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmscore.jobs.JobsScheduler;
-import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -890,11 +888,6 @@ public class CMSEngine implements ICMSEngine {
 
     public ILdapAuthInfo getLdapAuthInfo() {
         return new LdapAuthInfo();
-    }
-
-    public ILdapConnFactory getLdapAnonConnFactory(String id)
-            throws ELdapException {
-        return new LdapAnonConnFactory(id);
     }
 
     public IRequestEncoder getHttpRequestEncoder() {
