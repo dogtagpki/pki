@@ -22,8 +22,6 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -96,8 +94,6 @@ public class LDAPProfileSubsystem
         logger.debug("LDAPProfileSubsystem: start init");
 
         // (re)init member collections
-        mProfiles = new LinkedHashMap<String, IProfile>();
-        mProfileClassIds = new Hashtable<String, String>();
         entryUSNs = new TreeMap<>();
         nsUniqueIds = new TreeMap<>();
         deletedNsUniqueIds = new TreeSet<>();

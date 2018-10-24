@@ -39,8 +39,8 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
 
     protected IConfigStore mConfig = null;
     protected ISubsystem mOwner;
-    protected LinkedHashMap<String, IProfile> mProfiles;
-    protected Hashtable<String, String> mProfileClassIds;
+    protected LinkedHashMap<String, IProfile> mProfiles = new LinkedHashMap<String, IProfile>();
+    protected Hashtable<String, String> mProfileClassIds = new Hashtable<String, String>();
 
     /**
      * Returns the root configuration storage of this system.
