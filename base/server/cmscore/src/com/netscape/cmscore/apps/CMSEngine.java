@@ -893,8 +893,7 @@ public class CMSEngine implements ICMSEngine {
         return new LdapAuthInfo();
     }
 
-    public ILdapConnFactory getLdapBoundConnFactory(String id)
-            throws ELdapException {
+    public ILdapConnFactory getLdapBoundConnFactory(String id) {
         return new LdapBoundConnFactory(id);
     }
 

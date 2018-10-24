@@ -1247,8 +1247,7 @@ public final class CMS {
      *
      * @return bound LDAP connection pool
      */
-    public static ILdapConnFactory getLdapBoundConnFactory(String id)
-            throws ELdapException {
+    public static ILdapConnFactory getLdapBoundConnFactory(String id) {
         return _engine.getLdapBoundConnFactory(id);
     }
 

@@ -223,7 +223,7 @@ public class CertificateAuthority
     /* The static conn factory is initialised by the host authority's
      * 'init' method, before any lightweight CAs are instantiated
      */
-    private static ILdapConnFactory dbFactory = null;
+    private static ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("CertificateAuthority");
 
     private static final Map<AuthorityID, ICertificateAuthority> caMap =
         Collections.synchronizedSortedMap(new TreeMap<AuthorityID, ICertificateAuthority>());
@@ -520,7 +520,6 @@ public class CertificateAuthority
             mConfig = config;
 
             if (isHostAuthority()) {
-                dbFactory = CMS.getLdapBoundConnFactory("CertificateAuthority");
                 dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
             }
 

@@ -627,7 +627,7 @@ public interface ICMSEngine extends ISubsystem {
      *
      * @return bound LDAP connection pool
      */
-    public ILdapConnFactory getLdapBoundConnFactory(String id) throws ELdapException;
+    public ILdapConnFactory getLdapBoundConnFactory(String id);
 
     public LDAPConnection getBoundConnection(String id, String host, int port,
                int version, LDAPSSLSocketFactoryExt fac, String bindDN,

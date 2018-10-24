@@ -336,7 +336,7 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public ILdapConnFactory getLdapBoundConnFactory(String id) throws ELdapException {
+    public ILdapConnFactory getLdapBoundConnFactory(String id) {
         return null;
     }
 
