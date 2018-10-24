@@ -22,16 +22,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPObjectClassSchema;
-import netscape.ldap.LDAPSchema;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthInternalError;
@@ -47,6 +37,17 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPObjectClassSchema;
+import netscape.ldap.LDAPSchema;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
 
 /**
  * uid/pwd directory based authentication manager
@@ -152,7 +153,7 @@ public class PortalEnroll extends DirBasedAuthentication {
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "objectclass"));
 
         /* Get connect parameter */
-        mLdapFactory = CMS.getLdapBoundConnFactory("PortalEnroll");
+        mLdapFactory = new LdapBoundConnFactory("PortalEnroll");
         mLdapFactory.init(mLdapConfig);
         mLdapConn = mLdapFactory.getConn();
 

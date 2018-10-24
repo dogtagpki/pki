@@ -30,9 +30,9 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.pkix.cmc.PKIData;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.IAuthCredentials;
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -44,6 +44,7 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -224,7 +225,7 @@ public class SharedSecret extends DirBasedAuthentication
             CMS.debug(msg);
             throw new EBaseException(msg);
         }
-        shrTokLdapFactory = CMS.getLdapBoundConnFactory("SharedSecret");
+        shrTokLdapFactory = new LdapBoundConnFactory("SharedSecret");
         if (shrTokLdapFactory == null) {
             msg = method + "CMS.getLdapBoundConnFactory returned null for SharedSecret";
             CMS.debug(msg);

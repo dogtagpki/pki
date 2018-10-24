@@ -41,6 +41,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
@@ -176,7 +177,7 @@ public class CAInstallerService extends SystemConfigService {
         StringTokenizer st = new StringTokenizer(profileIds, ",");
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("CAInstallerService");
+        ILdapConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
         dbFactory.init(dbCfg);
 
         while (st.hasMoreTokens()) {
@@ -247,7 +248,7 @@ public class CAInstallerService extends SystemConfigService {
         LDAPConnection conn = null;
         try {
             IConfigStore dbCfg = cs.getSubStore("internaldb");
-            ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("CAInstallerService");
+            ILdapConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
             dbFactory.init(dbCfg);
             conn = dbFactory.getConn();
 

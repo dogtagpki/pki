@@ -1245,15 +1245,6 @@ public final class CMS {
     /**
      * Retrieves the LDAP connection factory.
      *
-     * @return bound LDAP connection pool
-     */
-    public static ILdapConnFactory getLdapBoundConnFactory(String id) {
-        return _engine.getLdapBoundConnFactory(id);
-    }
-
-    /**
-     * Retrieves the LDAP connection factory.
-     *
      * @return anonymous LDAP connection pool
      */
     public static ILdapConnFactory getLdapAnonConnFactory(String id)

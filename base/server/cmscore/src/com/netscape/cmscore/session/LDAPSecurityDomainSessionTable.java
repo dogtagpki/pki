@@ -28,6 +28,7 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -51,7 +52,7 @@ public class LDAPSecurityDomainSessionTable
         m_timeToLive = timeToLive;
         IConfigStore cs = CMS.getConfigStore();
         IConfigStore internaldb = cs.getSubStore("internaldb");
-        mLdapConnFactory = CMS.getLdapBoundConnFactory("LDAPSecurityDomainSessionTable");
+        mLdapConnFactory = new LdapBoundConnFactory("LDAPSecurityDomainSessionTable");
         mLdapConnFactory.init(internaldb);
     }
 

@@ -47,6 +47,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.xml.XMLObject;
 
 import netscape.ldap.LDAPAttribute;
@@ -88,7 +89,7 @@ public class UpdateDomainXML extends CMSServlet {
 
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
-            connFactory = CMS.getLdapBoundConnFactory("UpdateDomainXML");
+            connFactory = new LdapBoundConnFactory("UpdateDomainXML");
             connFactory.init(ldapConfig);
             conn = connFactory.getConn();
             conn.delete(dn);
@@ -122,7 +123,7 @@ public class UpdateDomainXML extends CMSServlet {
 
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
-            connFactory = CMS.getLdapBoundConnFactory("UpdateDomainXML");
+            connFactory = new LdapBoundConnFactory("UpdateDomainXML");
             connFactory.init(ldapConfig);
             conn = connFactory.getConn();
             conn.modify(dn, mod);
@@ -157,7 +158,7 @@ public class UpdateDomainXML extends CMSServlet {
 
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
-            connFactory = CMS.getLdapBoundConnFactory("UpdateDomainXML");
+            connFactory = new LdapBoundConnFactory("UpdateDomainXML");
             connFactory.init(ldapConfig);
             conn = connFactory.getConn();
             conn.add(entry);

@@ -24,14 +24,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -51,6 +43,15 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
 
 /**
  * uid/pwd/pin directory based authentication manager
@@ -159,7 +160,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
 
         if (mRemovePin) {
             removePinLdapConfigStore = config.getSubStore("ldap");
-            removePinLdapFactory = CMS.getLdapBoundConnFactory("UidPwdPinDirAuthentication");
+            removePinLdapFactory = new LdapBoundConnFactory("UidPwdPinDirAuthentication");
             removePinLdapFactory.init(removePinLdapConfigStore);
             removePinLdapConnection = removePinLdapFactory.getConn();
         }

@@ -143,6 +143,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.security.KeyCertUtil;
@@ -223,7 +224,7 @@ public class CertificateAuthority
     /* The static conn factory is initialised by the host authority's
      * 'init' method, before any lightweight CAs are instantiated
      */
-    private static ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("CertificateAuthority");
+    private static ILdapConnFactory dbFactory = new LdapBoundConnFactory("CertificateAuthority");
 
     private static final Map<AuthorityID, ICertificateAuthority> caMap =
         Collections.synchronizedSortedMap(new TreeMap<AuthorityID, ICertificateAuthority>());

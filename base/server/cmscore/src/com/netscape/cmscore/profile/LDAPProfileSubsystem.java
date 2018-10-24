@@ -42,6 +42,7 @@ import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.servlet.csadmin.GetStatus;
 import com.netscape.cmscore.base.LDAPConfigStore;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -100,7 +101,7 @@ public class LDAPProfileSubsystem
 
         IConfigStore cs = CMS.getConfigStore();
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        dbFactory = CMS.getLdapBoundConnFactory("LDAPProfileSubsystem");
+        dbFactory = new LdapBoundConnFactory("LDAPProfileSubsystem");
         dbFactory.init(dbCfg);
 
         mConfig = config;

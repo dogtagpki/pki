@@ -145,7 +145,6 @@ import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
-import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
@@ -891,10 +890,6 @@ public class CMSEngine implements ICMSEngine {
 
     public ILdapAuthInfo getLdapAuthInfo() {
         return new LdapAuthInfo();
-    }
-
-    public ILdapConnFactory getLdapBoundConnFactory(String id) {
-        return new LdapBoundConnFactory(id);
     }
 
     public ILdapConnFactory getLdapAnonConnFactory(String id)

@@ -52,6 +52,7 @@ import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -163,7 +164,7 @@ public class SecurityDomainProcessor extends CAProcessor {
             String filter = "objectclass=pkiSecurityGroup";
 
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
-            connFactory = CMS.getLdapBoundConnFactory("SecurityDomainProcessor");
+            connFactory = new LdapBoundConnFactory("SecurityDomainProcessor");
             connFactory.init(ldapConfig);
             conn = connFactory.getConn();
 

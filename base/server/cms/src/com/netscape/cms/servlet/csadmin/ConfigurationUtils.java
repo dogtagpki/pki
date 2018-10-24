@@ -129,6 +129,7 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
@@ -1301,7 +1302,7 @@ public class ConfigurationUtils {
         IConfigStore cs = CMS.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("ConfigurationUtils");
+        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
         LDAPConnection conn = dbFactory.getConn();
         try {
@@ -1326,7 +1327,7 @@ public class ConfigurationUtils {
         boolean reindexData = cs.getBoolean("preop.database.reindexData", false);
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("ConfigurationUtils");
+        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
         LDAPConnection conn = dbFactory.getConn();
 
@@ -1814,7 +1815,7 @@ public class ConfigurationUtils {
         IConfigStore cs = CMS.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("ConfigurationUtils");
+        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
         LDAPConnection conn = dbFactory.getConn();
 
@@ -1833,7 +1834,7 @@ public class ConfigurationUtils {
         IConfigStore cs = CMS.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("ConfigurationUtils");
+        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
         LDAPConnection conn = dbFactory.getConn();
 
@@ -3070,7 +3071,7 @@ public class ConfigurationUtils {
             SAXException, ParserConfigurationException {
         IConfigStore cs = CMS.getConfigStore();
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("ConfigurationUtils");
+        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
         LDAPConnection conn = dbFactory.getConn();
         LDAPEntry entry = null;
@@ -3654,7 +3655,7 @@ public class ConfigurationUtils {
         IConfigStore cs = CMS.getConfigStore();
         String userbasedn = "ou=people, " + cs.getString("internaldb.basedn");
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("ConfigurationUtils");
+        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
         LDAPConnection conn = dbFactory.getConn();
 
@@ -3721,7 +3722,7 @@ public class ConfigurationUtils {
 
         // update global next range entries
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = CMS.getLdapBoundConnFactory("ConfigurationUtils");
+        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
         LDAPConnection conn = dbFactory.getConn();
 

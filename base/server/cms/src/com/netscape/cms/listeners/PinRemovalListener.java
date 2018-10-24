@@ -25,6 +25,7 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -95,7 +96,7 @@ public class PinRemovalListener implements IRequestListener {
         mConfig = config;
 
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
-        mConnFactory = CMS.getLdapBoundConnFactory("PinRemovalListener");
+        mConnFactory = new LdapBoundConnFactory("PinRemovalListener");
         mConnFactory.init(mLdapConfig);
         mRemovePinLdapConnection = mConnFactory.getConn();
 

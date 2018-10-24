@@ -27,6 +27,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -80,12 +81,12 @@ public class ReplicationUtil {
 
         try {
             logger.info("ReplicationUtil: connecting to master");
-            ILdapConnFactory masterFactory = CMS.getLdapBoundConnFactory("ConfigurationUtils");
+            ILdapConnFactory masterFactory = new LdapBoundConnFactory("ConfigurationUtils");
             masterFactory.init(masterCfg);
             masterConn = masterFactory.getConn();
 
             logger.info("ReplicationUtil: connecting to replica");
-            ILdapConnFactory replicaFactory = CMS.getLdapBoundConnFactory("ConfigurationUtils");
+            ILdapConnFactory replicaFactory = new LdapBoundConnFactory("ConfigurationUtils");
             replicaFactory.init(replicaCfg);
             replicaConn = replicaFactory.getConn();
 
