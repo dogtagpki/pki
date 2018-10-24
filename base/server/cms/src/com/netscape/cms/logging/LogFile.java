@@ -336,7 +336,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         try {
             init(config);
         } catch (IOException e) {
-            throw new ELogException(CMS.getUserMessage("CMS_LOG_UNEXPECTED_EXCEPTION", e.toString()));
+            throw new ELogException("Unable to initialize LogFile: " + e.getMessage(), e);
         }
 
         // set up signing here to ensure audit logs generated during
@@ -445,26 +445,9 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
         mConfig = config;
 
-        try {
-            mTrace = config.getBoolean(PROP_TRACE, false);
-        } catch (EBaseException e) {
-            throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
-                    config.getName() + "." + PROP_TRACE));
-        }
-
-        try {
-            mType = config.getString(PROP_TYPE, "system");
-        } catch (EBaseException e) {
-            throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
-                    config.getName() + "." + PROP_TYPE));
-        }
-
-        try {
-            mRegister = config.getBoolean(PROP_REGISTER, true);
-        } catch (EBaseException e) {
-            throw new ELogException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
-                    config.getName() + "." + PROP_REGISTER));
-        }
+        mTrace = config.getBoolean(PROP_TRACE, false);
+        mType = config.getString(PROP_TYPE, "system");
+        mRegister = config.getBoolean(PROP_REGISTER, true);
 
         if (mOn) {
             if (mRegister) {
@@ -478,14 +461,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             }
         }
 
-        try {
-            mLevel = config.getInteger(PROP_LEVEL, 3);
-        } catch (EBaseException e) {
-            String message = CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
-                    config.getName() + "." + PROP_LEVEL);
-            logger.error("LogFile: " + message + ": " + e.getMessage(), e);
-            throw new ELogException(message);
-        }
+        mLevel = config.getInteger(PROP_LEVEL, 3);
 
         try {
             // retrieve the subsystem
@@ -524,7 +500,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             String message = CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
                     config.getName() + "." + PROP_FILE_NAME);
             logger.error("LogFile: " + message + ": " + e2.getMessage(), e2);
-            throw new ELogException(message);
+            throw new ELogException(message, e2);
         }
 
         // the default value is determined by the eventType.
@@ -547,7 +523,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             String message = CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
                     config.getName() + "." + PROP_FILE_NAME);
             logger.error("LogFile: " + message + ": " + e.getMessage(), e);
-            throw new ELogException(message);
+            throw new ELogException(message, e);
         }
 
         if (mOn) {
