@@ -73,7 +73,6 @@ import com.netscape.cmsutil.password.IPasswordStore;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.ldap.LDAPSocketFactory;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
@@ -588,31 +587,6 @@ public interface ICMSEngine extends ISubsystem {
      */
     public ILdapConnInfo getLdapConnInfo(IConfigStore config)
             throws EBaseException, ELdapException;
-
-    /**
-     * Creates a LDAP SSL socket with the given nickname. The
-     * certificate associated with the nickname will be used
-     * for client authentication.
-     *
-     * @param certNickname nickname of client certificate
-     * @return LDAP SSL socket factory
-     */
-    public LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory(
-            String certNickname);
-
-    /**
-     * Creates a LDAP SSL socket.
-     *
-     * @return LDAP SSL socket factory
-     */
-    public LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory();
-
-    /**
-     * Creates an LDAP socket factory.
-     *
-     * @return LDAP SSL socket factory
-     */
-    public LDAPSocketFactory getLDAPSocketFactory(boolean secure);
 
     /**
      * Creates a LDAP Auth Info object.

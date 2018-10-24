@@ -174,7 +174,6 @@ import com.netscape.cmsutil.util.Utils;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.ldap.LDAPSocketFactory;
 import netscape.security.extensions.CertInfo;
 import netscape.security.pkcs.ContentInfo;
 import netscape.security.pkcs.PKCS7;
@@ -455,7 +454,7 @@ public class CMSEngine implements ICMSEngine {
         String host = info.getHost();
         int port = info.getPort();
 
-        LDAPConnection conn = new LDAPConnection(getLDAPSocketFactory(info.getSecure()));
+        LDAPConnection conn = new LDAPConnection(new PKISocketFactory(info.getSecure()));
 
         logger.debug("testLDAPConnection connecting to " + host + ":" + port);
 
@@ -871,19 +870,6 @@ public class CMSEngine implements ICMSEngine {
     public ILdapConnInfo getLdapConnInfo(IConfigStore config)
             throws EBaseException, ELdapException {
         return new LdapConnInfo(config);
-    }
-
-    public LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory(
-            String certNickname) {
-        return new PKISocketFactory(certNickname);
-    }
-
-    public LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory() {
-        return new PKISocketFactory(true);
-    }
-
-    public LDAPSocketFactory getLDAPSocketFactory(boolean secure) {
-        return new PKISocketFactory(secure);
     }
 
     public ILdapAuthInfo getLdapAuthInfo() {

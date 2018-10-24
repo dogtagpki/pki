@@ -62,6 +62,7 @@ import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.certsrv.security.ICryptoSubsystem;
+import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
@@ -713,8 +714,7 @@ public class PublisherAdminServlet extends AdminServlet {
                             ldap.getSubStore(
                                     ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(
                                     ILdapAuthInfo.PROP_CLIENTCERTNICKNAME);
-                    conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory(
-                                    certNickName));
+                    conn = new LDAPConnection(new PKISocketFactory(certNickName));
                     CMS.debug("Publishing Test certNickName=" + certNickName);
                     params.put(Constants.PR_CONN_INITED,
                             "Create ssl LDAPConnection with certificate: " +
@@ -770,8 +770,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
             } else {
                 try {
-                    conn = new LDAPConnection(
-                            CMS.getLDAPSocketFactory(secure));
+                    conn = new LDAPConnection(new PKISocketFactory(secure));
                     if (secure) {
                         params.put(Constants.PR_CONN_INITED,
                                 "Create ssl LDAPConnection" +

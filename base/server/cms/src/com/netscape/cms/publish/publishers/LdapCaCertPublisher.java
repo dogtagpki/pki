@@ -30,6 +30,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.cmscore.ldapconn.PKISocketFactory;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -181,9 +182,9 @@ public class LdapCaCertPublisher
                 String cert_nick = mConfig.getString("clientCertNickname", null);
                 LDAPSSLSocketFactoryExt sslSocket;
                 if (cert_nick != null) {
-                    sslSocket = CMS.getLdapJssSSLSocketFactory(cert_nick);
+                    sslSocket = new PKISocketFactory(cert_nick);
                 } else {
-                    sslSocket = CMS.getLdapJssSSLSocketFactory();
+                    sslSocket = new PKISocketFactory(true);
                 }
                 String mgr_dn = mConfig.getString("bindDN", null);
                 String mgr_pwd = mConfig.getString("bindPWD", null);
