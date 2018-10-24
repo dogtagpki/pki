@@ -37,4 +37,8 @@ public class ELdapServerDownException extends ELdapException {
     public ELdapServerDownException(String errorString) {
         super(errorString);
     }
+
+    public ELdapServerDownException(String errorString, Throwable cause) {
+        super(errorString, cause);
+    }
 }

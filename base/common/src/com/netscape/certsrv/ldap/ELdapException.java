@@ -54,8 +54,8 @@ public class ELdapException extends EBaseException {
      * @param e Common exception.
      *            <P>
      */
-    public ELdapException(String msgFormat, Exception e) {
-        super(msgFormat, e);
+    public ELdapException(String msgFormat, Throwable cause) {
+        super(msgFormat, cause);
     }
 
     /**
