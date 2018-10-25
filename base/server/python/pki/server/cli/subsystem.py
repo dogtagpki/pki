@@ -377,7 +377,12 @@ class SubsystemCertCLI(pki.cli.CLI):
         print('  Serial No: %s' % cert['serial_number'])
         print('  Cert ID: %s' % cert['id'])
         print('  Nickname: %s' % cert['nickname'])
-        print('  Token: %s' % cert['token'])
+
+        token = cert['token']
+        if not token:
+            token = pki.nssdb.INTERNAL_TOKEN_FULL_NAME
+
+        print('  Token: %s' % token)
 
         if show_all:
             print('  Certificate: %s' % cert['data'])
@@ -1006,7 +1011,10 @@ class SubsystemCertValidateCLI(pki.cli.CLI):
 
         print('  Usage: %s' % usage)
 
-        token = cert.get('token', '')
+        token = cert['token']
+        if not token:
+            token = pki.nssdb.INTERNAL_TOKEN_FULL_NAME
+
         print('  Token: %s' % token)
 
         # normalize internal token into None
