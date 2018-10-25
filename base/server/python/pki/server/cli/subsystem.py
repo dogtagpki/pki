@@ -453,16 +453,22 @@ class SubsystemCertFindCLI(pki.cli.CLI):
             print('ERROR: No %s subsystem in instance '
                   '%s.' % (subsystem_name, instance_name))
             sys.exit(1)
-        results = subsystem.find_system_certs()
 
-        self.print_message('%s entries matched' % len(results))
+        certs = subsystem.get_cert_infos()
+
+        self.print_message('%s entries matched' % len(certs))
 
         first = True
-        for cert in results:
+        for cert in certs:
             if first:
                 first = False
             else:
                 print()
+
+            if cert['nickname']:
+                cert_info = subsystem.get_nssdb_cert_info(cert['id'])
+                if cert_info:
+                    cert.update(cert_info)
 
             SubsystemCertCLI.print_subsystem_cert(cert, show_all)
 

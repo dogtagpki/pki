@@ -262,6 +262,18 @@ class PKISubsystem(object):
         for cert_id in cert_ids:
             yield self.get_subsystem_cert(cert_id)
 
+    def get_cert_infos(self):
+
+        cert_ids = self.config['%s.cert.list' % self.name].split(',')
+
+        certs = []
+
+        for cert_id in cert_ids:
+            cert = self.get_cert_info(cert_id)
+            certs.append(cert)
+
+        return certs
+
     def get_subsystem_cert(self, cert_id):
 
         cert = self.get_cert_info(cert_id)
