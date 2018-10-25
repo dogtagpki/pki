@@ -283,15 +283,24 @@ class PKISubsystem(object):
         if not nickname:
             return cert
 
-        nssdb = self.instance.open_nssdb(token)
-        try:
-            cert_info = nssdb.get_cert_info(nickname)
-            if cert_info:
-                cert.update(cert_info)
-        finally:
-            nssdb.close()
+        cert_info = self.get_nssdb_cert_info(cert_id)
+        if cert_info:
+            cert.update(cert_info)
 
         return cert
+
+    def get_nssdb_cert_info(self, cert_id):
+
+        logger.info('Getting %s cert info for %s from NSS database', cert_id, self.name)
+
+        nickname = self.config.get('%s.%s.nickname' % (self.name, cert_id))
+        token = self.config.get('%s.%s.tokenname' % (self.name, cert_id))
+
+        nssdb = self.instance.open_nssdb(token)
+        try:
+            return nssdb.get_cert_info(nickname)
+        finally:
+            nssdb.close()
 
     def update_subsystem_cert(self, cert):
         cert_id = cert['id']
