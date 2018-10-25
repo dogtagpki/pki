@@ -188,7 +188,6 @@ PKIHELPER_CERTUTIL_MISSING_PATH = "certutil:  Missing '-d path' option!"
 PKIHELPER_CERTUTIL_MISSING_SERIAL_NUMBER = \
     "certutil:  Missing '-m serial-number' option!"
 PKIHELPER_CERTUTIL_MISSING_SUBJECT = "certutil:  Missing '-s subject' option!"
-PKIHELPER_CERTUTIL_MISSING_TOKEN = "certutil:  Missing '-h token' option!"
 PKIHELPER_CERTUTIL_MISSING_TRUSTARGS = \
     "certutil:  Missing '-t trustargs' option!"
 PKIHELPER_CERTUTIL_MISSING_VALIDITY_PERIOD = \
