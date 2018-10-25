@@ -98,7 +98,14 @@ def main(argv):
         '--force',
         dest='pki_force_destroy',
         action='store_true',
-        help='force remove all installed files'
+        help='force removal of subsystem'
+    )
+
+    parser.optional.add_argument(
+        '--remove-logs',
+        dest='pki_remove_logs',
+        action='store_true',
+        help='remove subsystem logs'
     )
 
     args = parser.process_command_line_arguments()
@@ -164,6 +171,9 @@ def main(argv):
     #   '--force'
     force_destroy = args.pki_force_destroy
 
+    #   '--remove-logs'
+    remove_logs = args.pki_remove_logs
+
     # verify that previously deployed instance exists
     deployed_pki_instance_path = os.path.join(
         config.PKI_DEPLOYMENT_BASE_ROOT, config.pki_deployed_instance_name
@@ -189,13 +199,16 @@ def main(argv):
         config.PKI_DEPLOYMENT_DEFAULT_CONFIGURATION_FILE
 
     # establish complete path to previously deployed configuration file
-    if not force_destroy:
-        config.user_deployment_cfg = os.path.join(
-            deployed_pki_subsystem_path,
-            "registry",
-            deployer.subsystem_name.lower(),
-            config.USER_DEPLOYMENT_CONFIGURATION
-        )
+    config.user_deployment_cfg = os.path.join(
+        deployed_pki_subsystem_path,
+        "registry",
+        deployer.subsystem_name.lower(),
+        config.USER_DEPLOYMENT_CONFIGURATION
+    )
+
+    if force_destroy and not os.path.exists(config.user_deployment_cfg):
+        # During force destroy, try to load the file. If file doesn't exist, we ignore it
+        config.user_deployment_cfg = None
 
     parser.validate()
     parser.init_config()
@@ -228,6 +241,9 @@ def main(argv):
 
     # Add force_destroy to master dictionary
     parser.mdict['pki_force_destroy'] = force_destroy
+
+    # Add remove logs to master dictionary
+    parser.mdict['pki_remove_logs'] = remove_logs
 
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
