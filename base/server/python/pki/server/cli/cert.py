@@ -55,7 +55,10 @@ class CertCLI(pki.cli.CLI):
     def print_system_cert(cert, show_all=False):
         print('  Cert ID: %s' % cert['id'])
         print('  Nickname: %s' % cert['nickname'])
-        print('  Token: %s' % cert['token'])
+
+        token = cert.get('token')
+        if token:
+            print('  Token: %s' % token)
 
         serial_number = cert.get('serial_number')
         if serial_number:
