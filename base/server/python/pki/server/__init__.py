@@ -264,7 +264,19 @@ class PKISubsystem(object):
 
     def get_subsystem_cert(self, cert_id):
 
-        logger.info('Getting %s cert info for %s', cert_id, self.name)
+        cert = self.get_cert_info(cert_id)
+        if not cert['nickname']:
+            return cert
+
+        cert_info = self.get_nssdb_cert_info(cert_id)
+        if cert_info:
+            cert.update(cert_info)
+
+        return cert
+
+    def get_cert_info(self, cert_id):
+
+        logger.info('Getting %s cert info for %s from CS.cfg', cert_id, self.name)
 
         nickname = self.config.get('%s.%s.nickname' % (self.name, cert_id))
         token = self.config.get('%s.%s.tokenname' % (self.name, cert_id))
@@ -279,13 +291,6 @@ class PKISubsystem(object):
             '%s.%s.certreq' % (self.name, cert_id), None)
         cert['certusage'] = self.config.get(
             '%s.cert.%s.certusage' % (self.name, cert_id), None)
-
-        if not nickname:
-            return cert
-
-        cert_info = self.get_nssdb_cert_info(cert_id)
-        if cert_info:
-            cert.update(cert_info)
 
         return cert
 
