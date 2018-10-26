@@ -189,6 +189,7 @@ BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
 BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
+BuildRequires:    glassfish-jaxb-api
 BuildRequires:    slf4j
 %if 0%{?rhel} && 0%{?rhel} <= 7
 # no slf4j-jdk14
@@ -537,6 +538,7 @@ Requires:         apache-commons-io
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jakarta-commons-httpclient
+Requires:         glassfish-jaxb-api
 Requires:         slf4j
 %if 0%{?rhel} && 0%{?rhel} <= 7
 # no slf4j-jdk14
