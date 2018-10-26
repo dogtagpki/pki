@@ -11,7 +11,7 @@ javac(pki-tools-classes
         ${COMMONS_CLI_JAR} ${COMMONS_LANG_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
         ${HTTPCLIENT_JAR} ${HTTPCORE_JAR}
-        ${SLF4J_API_JAR}
+        ${SLF4J_API_JAR} ${JAXB_API_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     DEPENDS
