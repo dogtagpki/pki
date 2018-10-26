@@ -55,7 +55,7 @@ javac(pki-server-classes
         cms/src/*.java
         cmscore/src/*.java
     CLASSPATH
-        ${SLF4J_API_JAR}
+        ${SLF4J_API_JAR} ${JAXB_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR}
         ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
