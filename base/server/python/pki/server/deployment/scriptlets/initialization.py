@@ -46,21 +46,26 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance.load()
 
         internal_token = deployer.mdict['pki_self_signed_token']
+        if not pki.nssdb.normalize_token(internal_token):
+            internal_token = pki.nssdb.INTERNAL_TOKEN_NAME
 
         # if instance already exists and has password, reuse the password
         if internal_token in instance.passwords:
+            logger.info('Reusing server NSS database password')
             deployer.mdict['pki_server_database_password'] = instance.passwords.get(internal_token)
 
         # otherwise, use user-provided password if specified
         elif deployer.mdict['pki_server_database_password']:
-            pass
+            logger.info('Using specified server NSS database password')
 
         # otherwise, use user-provided pin if specified
         elif deployer.mdict['pki_pin']:
+            logger.info('Using specified PIN as server NSS database password')
             deployer.mdict['pki_server_database_password'] = deployer.mdict['pki_pin']
 
         # otherwise, generate a random password
         else:
+            logger.info('Generating random server NSS database password')
             deployer.mdict['pki_server_database_password'] = pki.generate_password()
 
         # generate random password for client database if not specified
