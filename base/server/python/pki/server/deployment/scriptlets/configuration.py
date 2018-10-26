@@ -436,6 +436,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             # TODO: replace with pki-server create-cert sslserver --temp
 
+            logger.info('Creating password file: %s', deployer.mdict['pki_shared_pfile'])
             deployer.password.create_password_conf(
                 deployer.mdict['pki_shared_pfile'],
                 deployer.mdict['pki_server_database_password'], pin_sans_token=True)

@@ -1726,20 +1726,19 @@ class File:
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name,
                     extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % name)
+
             # applying in-place slot substitutions on <name>
             config.pki_log.info(
                 log.PKIHELPER_APPLY_SLOT_SUBSTITUTION_1,
                 name,
                 extra=config.PKI_INDENTATION_LEVEL_2)
+
             for line in fileinput.FileInput(name, inplace=1):
                 for slot in self.slots:
                     if slot != '__name__' and self.slots[slot] in line:
-                        config.pki_log.debug(
-                            log.PKIHELPER_SLOT_SUBSTITUTION_2,
-                            self.slots[slot], self.mdict[slot],
-                            extra=config.PKI_INDENTATION_LEVEL_3)
                         line = line.replace(self.slots[slot], self.mdict[slot])
                 print(line, end='')
+
             if uid is None:
                 uid = self.identity.get_uid()
             if gid is None:
@@ -1803,11 +1802,6 @@ class File:
                 # get parameter value as string
                 value = str(self.mdict[name])
 
-                config.pki_log.debug(
-                    log.PKIHELPER_SLOT_SUBSTITUTION_2,
-                    line[begin:end + 1], value,
-                    extra=config.PKI_INDENTATION_LEVEL_3)
-
                 # replace parameter with value, keep the rest of the line
                 line = line[0:begin] + value + line[end + 1:]
 
@@ -1860,10 +1854,6 @@ class File:
                         # substitute registered slots
                         for slot in self.slots:
                             if slot != '__name__' and self.slots[slot] in line:
-                                config.pki_log.debug(
-                                    log.PKIHELPER_SLOT_SUBSTITUTION_2,
-                                    self.slots[slot], self.mdict[slot],
-                                    extra=config.PKI_INDENTATION_LEVEL_3)
                                 line = line.replace(
                                     self.slots[slot],
                                     self.mdict[slot])
@@ -2130,10 +2120,6 @@ class Password:
 
     def create_password_conf(self, path, pin, pin_sans_token=False,
                              overwrite_flag=False, critical_failure=True):
-
-        config.pki_log.info(
-            log.PKIHELPER_PASSWORD_CONF_1, path,
-            extra=config.PKI_INDENTATION_LEVEL_2)
 
         try:
             if os.path.exists(path):

@@ -55,6 +55,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem = instance.get_subsystem(
             deployer.mdict['pki_subsystem'].lower())
 
+        logger.info('Creating password config: %s', deployer.mdict['pki_shared_password_conf'])
         if config.str2bool(deployer.mdict['pki_hsm_enable']):
             deployer.password.create_hsm_password_conf(
                 deployer.mdict['pki_shared_password_conf'],
@@ -69,6 +70,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # the 'token=password' entries, create a temporary server 'pfile'
         # which ONLY contains the 'password' for the purposes of
         # allowing 'certutil' to generate the security databases
+
+        logger.info('Creating password file: %s', deployer.mdict['pki_shared_pfile'])
         deployer.password.create_password_conf(
             deployer.mdict['pki_shared_pfile'],
             deployer.mdict['pki_server_database_password'], pin_sans_token=True)
@@ -261,6 +264,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # which ONLY contains the 'password' for the purposes of
         # allowing 'certutil' to generate the security databases
 
+        logger.info('Creating password file: %s', deployer.mdict['pki_client_password_conf'])
         deployer.password.create_password_conf(
             deployer.mdict['pki_client_password_conf'],
             deployer.mdict['pki_client_database_password'], pin_sans_token=True)

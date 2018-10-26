@@ -233,9 +233,14 @@ class PKISubsystem(object):
         return hash((self.name, self.instance, self.type))
 
     def load(self):
+
+        logger.info('Loading subsystem: %s', self.name)
+
         self.config.clear()
 
         if os.path.exists(self.cs_conf):
+
+            logger.info('Loading subsystem config: %s', self.cs_conf)
 
             lines = open(self.cs_conf).read().splitlines()
 
@@ -1101,8 +1106,13 @@ class PKIInstance(object):
         return rc == 0
 
     def load(self):
+
+        logger.info('Loading instance: %s', self.name)
+
         # load UID and GID
         if os.path.exists(self.registry_file):
+
+            logger.info('Loading instance registry: %s', self.registry_file)
 
             with open(self.registry_file, 'r') as registry:
                 lines = registry.readlines()
@@ -1121,6 +1131,7 @@ class PKIInstance(object):
         # load passwords
         self.passwords.clear()
         if os.path.exists(self.password_conf):
+            logger.info('Loading password config: %s', self.password_conf)
             pki.util.load_properties(self.password_conf, self.passwords)
 
         self.load_external_certs(self.external_certs_conf)
