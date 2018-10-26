@@ -117,19 +117,21 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
             throws ELdapException, EBaseException {
 
         logger.debug("LdapBoundConnFactory: initialization");
-        LdapConnInfo connInfo =
-                new LdapConnInfo(config.getSubStore(PROP_LDAPCONNINFO));
+
+        int minConns = config.getInteger(PROP_MINCONNS, mMinConns);
+        int maxConns = config.getInteger(PROP_MAXCONNS, mMaxConns);
+
+        LdapConnInfo connInfo = new LdapConnInfo(config.getSubStore(PROP_LDAPCONNINFO));
+
+        LdapAuthInfo authInfo = new LdapAuthInfo(config.getSubStore(PROP_LDAPAUTHINFO),
+                connInfo.getHost(), connInfo.getPort(), connInfo.getSecure());
 
         mErrorIfDown = config.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
 
         doCloning = config.getBoolean("doCloning", true);
-
         logger.debug("LdapBoundConnFactory: doCloning: " + doCloning);
-        init(config.getInteger(PROP_MINCONNS, mMinConns),
-                config.getInteger(PROP_MAXCONNS, mMaxConns),
-                connInfo,
-                new LdapAuthInfo(config.getSubStore(PROP_LDAPAUTHINFO),
-                        connInfo.getHost(), connInfo.getPort(), connInfo.getSecure()));
+
+        init(minConns, maxConns, connInfo, authInfo);
     }
 
     /**
@@ -248,6 +250,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         if (mNumConns < mMinConns && mTotal <= mMaxConns) {
             increment = Math.min(mMinConns - mNumConns, mMaxConns - mTotal);
             logger.debug("LdapBoundConnFactory: increasing minimum connections by " + increment);
+
             for (int i = increment - 1; i >= 0; i--) {
 
                 if (doCloning == true) {
@@ -257,9 +260,11 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
                 }
 
             }
+
             mTotal += increment;
             mNumConns += increment;
-            logger.debug("LdapBoundConnFactory: total available connections: " + mTotal);
+
+            logger.debug("LdapBoundConnFactory: total connections: " + mTotal);
             logger.debug("LdapBoundConnFactory: number of connections: " + mNumConns);
         }
     }
@@ -315,6 +320,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         boolean waited = false;
 
         logger.debug("LdapBoundConnFactory: getting a connection");
+
         if (mMasterConn != null)
             logger.debug("LdapBoundConnFactory: master connection is connected: " + mMasterConn.isConnected());
         else
@@ -332,6 +338,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
 
         if (mNumConns == 0)
             makeMinimum();
+
         if (mNumConns == 0) {
             if (!waitForConn)
                 return null;
@@ -418,13 +425,16 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         if (boundconn.getFacId() != mConns) {
             logger.warn("LdapBoundConnFactory: Unknown connection");
         }
+
         for (int i = 0; i < mNumConns; i++) {
             if (mConns[i] == conn) {
                 logger.warn("LdapBoundConnFactory: Connection already returned");
             }
         }
+
         mConns[mNumConns++] = boundconn;
         logger.debug("LdapBoundConnFactory: number of connections: " + mNumConns);
+
         notify();
     }
 
@@ -447,7 +457,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
                 try {
                     mConns[i].disconnect();
                 } catch (LDAPException e) {
-                    e.printStackTrace();
+                    logger.warn("LdapBoundConnFactory: Unable to disconnect: " + e.getMessage(), e);
                 }
                 mConns[i] = null;
             }

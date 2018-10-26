@@ -17,17 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldapconn;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSocketFactory;
-
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.logging.ILogger;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSocketFactory;
 
 /**
  * Factory for getting LDAP Connections to a LDAP server
@@ -36,13 +34,13 @@ import com.netscape.certsrv.logging.ILogger;
  */
 public class LdapAnonConnFactory implements ILdapConnFactory {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapAnonConnFactory.class);
+
     protected String id;
 
     protected int mMinConns = 5;
     protected int mMaxConns = 1000;
     protected LdapConnInfo mConnInfo = null;
-
-    private ILogger mLogger = CMS.getLogger();
 
     public static final String PROP_MINCONNS = "minConns";
     public static final String PROP_MAXCONNS = "maxConns";
@@ -64,12 +62,12 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * must be followed by init(IConfigStore)
      */
     public LdapAnonConnFactory(String id) {
-        CMS.debug("Creating LdapAnonConnFactory(" + id + ")");
+        logger.debug("Creating LdapAnonConnFactory(" + id + ")");
         this.id = id;
     }
 
     public LdapAnonConnFactory(String id, boolean defErrorIfDown) {
-        CMS.debug("Creating LdapAnonConnFactory(" + id + ")");
+        logger.debug("Creating LdapAnonConnFactory(" + id + ")");
         this.id = id;
         mDefErrorIfDown = defErrorIfDown;
     }
@@ -84,7 +82,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      */
     public LdapAnonConnFactory(String id, int minConns, int maxConns,
             LdapConnInfo connInfo) throws ELdapException {
-        CMS.debug("Creating LdapAnonConnFactory(" + id + ")");
+        logger.debug("Creating LdapAnonConnFactory(" + id + ")");
         this.id = id;
         init(minConns, maxConns, connInfo);
     }
@@ -105,37 +103,17 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * init routine to be called when initialize from config store.
      */
     public void init(IConfigStore config) throws EBaseException, ELdapException {
-        String minStr = config.getString(PROP_MINCONNS, "");
-        String maxStr = config.getString(PROP_MAXCONNS, "");
-        int minConns = mMinConns;
-        int maxConns = mMaxConns;
 
-        // if it is "", use the default value
-        if (!minStr.equals("")) {
-            try {
-                minConns = Integer.parseInt(minStr);
-            } catch (NumberFormatException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAPCONN_MIN_CONN"));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_NUMBER_FORMAT_1", PROP_MINCONNS));
-            }
-        }
+        logger.debug("LdapAnonConnFactory: initialization");
 
-        // if it is "", use the default value
-        if (!maxStr.equals("")) {
-            try {
-                maxConns = Integer.parseInt(maxStr);
-            } catch (NumberFormatException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAPCONN_MAX_CONN"));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_NUMBER_FORMAT_1", PROP_MAXCONNS));
-            }
-        }
+        int minConns = config.getInteger(PROP_MINCONNS, mMinConns);
+        int maxConns = config.getInteger(PROP_MAXCONNS, mMaxConns);
+
+        LdapConnInfo connInfo = new LdapConnInfo(config.getSubStore(PROP_LDAPCONNINFO));
 
         mErrorIfDown = config.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
 
-        init(minConns, maxConns,
-                new LdapConnInfo(config.getSubStore(PROP_LDAPCONNINFO)));
+        init(minConns, maxConns, connInfo);
     }
 
     /**
@@ -146,11 +124,17 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         if (mInited)
             return; // XXX should throw exception here ?
 
-        if (minConns <= 0 || maxConns <= 0 || minConns > maxConns)
-            throw new ELdapException(
-                    CMS.getUserMessage("CMS_LDAP_INVALID_NUMCONN_PARAMETERS"));
+        if (minConns <= 0)
+            throw new ELdapException("Invalid minimum number of connections: " + minConns);
+
+        if (maxConns <= 0)
+            throw new ELdapException("Invalid maximum number of connections: " + maxConns);
+
+        if (minConns > maxConns)
+            throw new ELdapException("Minimum number of connections is bigger than maximum: " + minConns + " > " + maxConns);
+
         if (connInfo == null)
-            throw new IllegalArgumentException("connInfo is Null!");
+            throw new IllegalArgumentException("Missing connection info");
 
         mMinConns = minConns;
         mMaxConns = maxConns;
@@ -158,10 +142,11 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
         mConns = new AnonConnection[mMaxConns];
 
-        log(ILogger.LL_INFO,
-                "Created: min " + minConns + " max " + maxConns +
-                        " host " + connInfo.getHost() + " port " + connInfo.getPort() +
-                        " secure " + connInfo.getSecure());
+        logger.debug("LdapAnonConnFactory: mininum: " + mMinConns);
+        logger.debug("LdapAnonConnFactory: maximum: " + mMaxConns);
+        logger.debug("LdapAnonConnFactory: host: " + mConnInfo.getHost());
+        logger.debug("LdapAnonConnFactory: port: " + mConnInfo.getPort());
+        logger.debug("LdapAnonConnFactory: secure: " + mConnInfo.getSecure());
 
         // initalize minimum number of connection handles available.
         makeMinimum(mErrorIfDown);
@@ -175,18 +160,17 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         try {
             if (mNumConns < mMinConns && mTotal < mMaxConns) {
                 int increment = Math.min(mMinConns - mNumConns, mMaxConns - mTotal);
+                logger.debug("LdapAnonConnFactory: increasing minimum connections by " + increment);
 
-                CMS.debug(
-                        "increasing minimum number of connections by " + increment);
                 for (int i = increment - 1; i >= 0; i--) {
                     mConns[i] = new AnonConnection(mConnInfo);
                 }
+
                 mTotal += increment;
                 mNumConns += increment;
-                CMS.debug(
-                        "new total number of connections " + mTotal);
-                CMS.debug(
-                        "new total available connections " + mNumConns);
+
+                logger.debug("LdapAnonConnFactory: total connections: " + mTotal);
+                logger.debug("LdapAnonConnFactory: number of connections: " + mNumConns);
             }
         } catch (LDAPException e) {
             // XXX errorCodeToString() used here so users won't see message.
@@ -195,27 +179,20 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
-                log(ILogger.LL_FAILURE,
-                        "Cannot connect to Ldap server. Error: " +
-                                "Ldap Server host " + mConnInfo.getHost() +
-                                " int " + mConnInfo.getPort() + " is unavailable.");
+                String message = "LDAP server is unavailable: " + mConnInfo.getHost() + ":" + mConnInfo.getPort();
+                logger.error("LdapAnonConnFactory: " + message, e);
                 if (errorIfDown) {
-                    throw new ELdapServerDownException(
-                            CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE",
-                                    mConnInfo.getHost(), "" + mConnInfo.getPort()));
+                    throw new ELdapServerDownException(message, e);
                 }
             } else {
-                log(ILogger.LL_FAILURE,
-                        "Cannot connect to ldap server (" + mConnInfo.getHost() +
-				":" + mConnInfo.getPort() + "). " +
-				"error: " + e.toString());
                 String errmsg = e.errorCodeToString();
-
                 if (errmsg == null)
-                    errmsg = e.toString();
-                throw new ELdapException(
-                        CMS.getUserMessage("CMS_LDAP_CONNECT_TO_LDAP_SERVER_FAILED",
-                                mConnInfo.getHost(), "" + (Integer.valueOf(mConnInfo.getPort())), errmsg));
+                    errmsg = e.getMessage();
+
+                String message = "Unable to connect to LDAP server: " + errmsg;
+                logger.error("LdapAnonConnFactory: " + message, e);
+
+                throw new ELdapException(message, e);
             }
         }
     }
@@ -270,21 +247,16 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
             throws ELdapException {
         boolean waited = false;
 
-        CMS.debug("LdapAnonConnFactory::getConn");
+        logger.debug("LdapAnonConnFactory: getting a connection");
+
         if (mNumConns == 0)
             makeMinimum(true);
+
         if (mNumConns == 0) {
             if (!waitForConn)
                 return null;
             try {
-                CMS.debug("getConn(): out of ldap connections");
-                log(ILogger.LL_WARN,
-                        "Ran out of ldap connections available " +
-                                "in ldap connection pool to " +
-                                mConnInfo.getHost() + ":" + mConnInfo.getPort() + ". " +
-                                "This could be a temporary condition or an indication of " +
-                                "something more serious that can cause the server to " +
-                                "hang.");
+                logger.warn("LdapAnonConnFactory: out of LDAP connections");
                 waited = true;
                 while (mNumConns == 0) {
                     wait();
@@ -298,11 +270,10 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
         mConns[mNumConns] = null;
         if (waited) {
-            log(ILogger.LL_WARN,
-                    "Ldap connections are available again in ldap connection pool " +
-                            "to " + mConnInfo.getHost() + ":" + mConnInfo.getPort());
+            logger.warn("LdapAnonConnFactory: connections are available for " + mConnInfo.getHost() + ":" + mConnInfo.getPort());
         }
-        CMS.debug("LdapAnonConnFactory.getConn(): num avail conns now " + mNumConns);
+        logger.debug("LdapAnonConnFactory: number of connections: " + mNumConns);
+
         //Beginning of fix for Bugzilla #630176
         boolean isConnected = false;
         if (conn != null) {
@@ -310,15 +281,16 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         }
 
         if (!isConnected) {
-            CMS.debug("LdapAnonConnFactory.getConn(): selected conn is down, try to reconnect...");
+            logger.debug("LdapAnonConnFactory: reestablishing connection");
+
             conn = null;
             try {
                 conn = new AnonConnection(mConnInfo);
             } catch (LDAPException e) {
-                CMS.debug("LdapAnonConnFactory.getConn(): error when trying to bring back a down connection.");
-                throw new ELdapException(
-                        CMS.getUserMessage("CMS_LDAP_CONNECT_TO_LDAP_SERVER_FAILED",
-                                mConnInfo.getHost(), "" + (Integer.valueOf(mConnInfo.getPort())), e.toString()));
+                String message = "Unable to reestablish LDAP connection: " + e.getMessage();
+                logger.error("LdapAnonConnFactory: " + message, e);
+
+                throw new ELdapException(message, e);
             }
         }
         //This is the end of the fix for Bugzilla #630176
@@ -355,22 +327,17 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         if (conn instanceof AnonConnection) {
             anon = (AnonConnection) conn;
         } else {
-            log(ILogger.LL_WARN, "returnConn : Connection is not an AnonConnection");
+            logger.warn("LdapAnonConnFactory: Unable to return connection: not an anonymous connection");
             return;
         }
 
         if (anon.getFacId() != mConns) {
-            // returning a connection not from this factory.
-            log(ILogger.LL_WARN, "returnConn: unknown connection.");
+            logger.warn("LdapAnonConnFactory: Unknown connection");
         }
-        // check if conn has already been returned.
-        for (int i = 0; i < mNumConns; i++) {
-            // returning connection already returned.
-            if (mConns[i] == anon) {
 
-                /* swallow this error but see who's doing it. */
-                log(ILogger.LL_WARN,
-                        "returnConn: previously returned connection.");
+        for (int i = 0; i < mNumConns; i++) {
+            if (mConns[i] == anon) {
+                logger.warn("LdapAnonConnFactory: Connection already returned");
             }
         }
 
@@ -380,17 +347,14 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         // to avoid doing an explicit anonymous bind
         try {
             anon.connect(mConnInfo.getHost(), mConnInfo.getPort());
-
-            // return conn.
-            CMS.debug("returnConn: mNumConns now " + mNumConns);
         } catch (LDAPException e) {
-            log(ILogger.LL_WARN,
-                    "Could not re-authenticate ldap connection to anonymous." +
-                            " Error " + e);
+            logger.warn("LdapAnonConnFactory: Unable to reauthenticate as anonymous");
         }
+
         // return the connection even if can't reauthentication anon.
         // most likely server was down.
         mConns[mNumConns++] = anon;
+        logger.debug("LdapAnonConnFactory: number of connections: " + mNumConns);
 
         notify();
     }
@@ -416,36 +380,23 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
     // ok only if no connections outstanding.
     public synchronized void reset()
             throws ELdapException {
-        CMS.debug("Destroying LdapAnonConnFactory(" + id + ")");
+        logger.debug("Destroying LdapAnonConnFactory(" + id + ")");
         if (mNumConns == mTotal) {
             for (int i = 0; i < mNumConns; i++) {
                 try {
-                    CMS.debug("disconnecting connection " + i);
                     mConns[i].disconnect();
                 } catch (LDAPException e) {
-                    log(ILogger.LL_INFO,
-                            "exception during disconnect: " + e.toString());
+                    logger.warn("LdapAnonConnFactory: Unable to disconnect: " + e.getMessage(), e);
                 }
                 mConns[i] = null;
             }
             mTotal = 0;
             mNumConns = 0;
         } else {
-            log(ILogger.LL_INFO,
-                    "Cannot reset() while connections not all returned");
-            throw new ELdapException(
-                    CMS.getUserMessage("CMS_LDAP_CANNOT_RESET_CONNFAC"));
+            String message = "Unable to reset LDAP connection factory due to outstanding connections";
+            logger.error("LdapAnonConnFactory: " + message);
+            throw new ELdapException(message);
         }
-    }
-
-    /**
-     * handy routine for logging in this class.
-     */
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "In Ldap (anonymous) connection pool to" +
-                        " host " + mConnInfo.getHost() +
-                        " port " + mConnInfo.getPort() + ", " + msg);
     }
 
     /**
