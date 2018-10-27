@@ -64,7 +64,6 @@ import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
-import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
@@ -1236,15 +1235,6 @@ public final class CMS {
     public static ObjectIdentifier checkOID(String attrName, String value)
             throws EBaseException {
         return _engine.checkOID(attrName, value);
-    }
-
-    /**
-     * Retrieves the email resolver that checks for subjectAlternateName.
-     *
-     * @return email key resolver
-     */
-    public static IEmailResolver getReqCertSANameEmailResolver() {
-        return _engine.getReqCertSANameEmailResolver();
     }
 
     /**

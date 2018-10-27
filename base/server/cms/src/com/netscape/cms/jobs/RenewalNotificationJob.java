@@ -46,6 +46,7 @@ import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.notification.EmailResolverKeys;
+import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
 
 /**
  * A job for the Jobs Scheduler. This job checks in the internal ldap
@@ -550,7 +551,7 @@ public class RenewalNotificationJob
                 }
             }
 
-            IEmailResolver er = CMS.getReqCertSANameEmailResolver();
+            IEmailResolver er = new ReqCertSANameEmailResolver();
 
             rcp = er.getEmail(keys);
 

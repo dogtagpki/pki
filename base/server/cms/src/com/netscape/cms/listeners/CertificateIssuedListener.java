@@ -42,6 +42,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.notification.EmailResolverKeys;
+import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
 
 import netscape.security.x509.X509CertImpl;
 
@@ -228,7 +229,7 @@ public class CertificateIssuedListener implements IRequestListener {
                             CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
                 }
 
-                IEmailResolver er = CMS.getReqCertSANameEmailResolver();
+                IEmailResolver er = new ReqCertSANameEmailResolver();
 
                 try {
                     mEmail = er.getEmail(keys);
@@ -330,7 +331,7 @@ public class CertificateIssuedListener implements IRequestListener {
                     CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
         }
 
-        IEmailResolver er = CMS.getReqCertSANameEmailResolver();
+        IEmailResolver er = new ReqCertSANameEmailResolver();
 
         try {
             mEmail = er.getEmail(keys);
