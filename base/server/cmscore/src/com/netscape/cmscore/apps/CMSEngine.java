@@ -61,7 +61,6 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.util.PasswordCallback;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -127,7 +126,6 @@ import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.CertRequestConstants;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
-import com.netscape.cmscore.security.PWCBsdr;
 import com.netscape.cmscore.security.PWsdrCache;
 import com.netscape.cmscore.session.LDAPSecurityDomainSessionTable;
 import com.netscape.cmscore.session.SecurityDomainSessionTable;
@@ -1933,10 +1931,6 @@ public class CMSEngine implements ICMSEngine {
             // intercept this for now -- don't want to change the callers
             logger.warn(CMS.getLogMessage("CMSCORE_SDR_ADD_ERROR", e.toString()), e);
         }
-    }
-
-    public PasswordCallback getPasswordCallback() {
-        return new PWCBsdr();
     }
 
     public int getPID() {

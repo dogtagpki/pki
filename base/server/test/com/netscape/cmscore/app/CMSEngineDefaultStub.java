@@ -16,7 +16,6 @@ import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.CertificateUsage;
-import org.mozilla.jss.util.PasswordCallback;
 
 import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.authentication.ISharedToken;
@@ -280,10 +279,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public void putPasswordCache(String tag, String pw) {
-    }
-
-    public PasswordCallback getPasswordCallback() {
-        return null;
     }
 
     public String getServerCertNickname() {

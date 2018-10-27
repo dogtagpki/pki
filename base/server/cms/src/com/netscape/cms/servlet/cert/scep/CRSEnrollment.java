@@ -92,6 +92,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmscore.security.PWCBsdr;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.scep.CRSPKIMessage;
 import com.netscape.cmsutil.util.Utils;
@@ -1975,7 +1976,7 @@ public class CRSEnrollment extends HttpServlet {
                     internalKeyStorageToken = null;
                 }
                 if (!mUseCA && internalKeyStorageToken == null) {
-                    PasswordCallback cb = CMS.getPasswordCallback();
+                    PasswordCallback cb = new PWCBsdr();
                     keyStorageToken.login(cb); // ONE_TIME by default.
                 }
                 signingCert = cm.findCertByNickname(mNickname);

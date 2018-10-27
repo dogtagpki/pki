@@ -33,7 +33,6 @@ import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.CertificateUsage;
-import org.mozilla.jss.util.PasswordCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1244,15 +1243,6 @@ public final class CMS {
      */
     public static void putPasswordCache(String tag, String pw) {
         _engine.putPasswordCache(tag, pw);
-    }
-
-    /**
-     * Retrieves the password callback.
-     *
-     * @return default password callback
-     */
-    public static PasswordCallback getPasswordCallback() {
-        return _engine.getPasswordCallback();
     }
 
     public static IConfigStore createFileConfigStore(String path) throws EBaseException {
