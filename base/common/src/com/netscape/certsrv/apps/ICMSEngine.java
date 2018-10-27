@@ -41,7 +41,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
-import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
@@ -505,14 +504,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return base-64 format certificate
      */
     public String getEncodedCert(X509Certificate cert);
-
-    /**
-     * Retrieves the certificate pretty print handler.
-     *
-     * @param cert certificate
-     * @return certificate pretty print handler
-     */
-    public ICertPrettyPrint getCertPrettyPrint(X509Certificate cert);
 
     /**
      * Retrieves the CRL pretty print handler.

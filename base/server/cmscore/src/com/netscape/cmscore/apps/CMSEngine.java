@@ -73,7 +73,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
-import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
@@ -113,7 +112,6 @@ import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.SubsystemRegistry;
-import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.CrlPrettyPrint;
@@ -1637,10 +1635,6 @@ public class CMSEngine implements ICMSEngine {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public ICertPrettyPrint getCertPrettyPrint(X509Certificate cert) {
-        return new CertPrettyPrint(cert);
     }
 
     public ICRLPrettyPrint getCRLPrettyPrint(X509CRL crl) {

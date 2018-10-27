@@ -31,26 +31,12 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
@@ -66,7 +52,21 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.extensions.NSCertTypeExtension;
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.CRLReasonExtension;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.Extension;
+import netscape.security.x509.KeyUsageExtension;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * Display detailed information about a certificate
@@ -358,7 +358,7 @@ public class DisplayBySerial extends CMSServlet {
             }
 
             if (!b64CertOnly) {
-                ICertPrettyPrint certDetails = CMS.getCertPrettyPrint(cert);
+                CertPrettyPrint certDetails = new CertPrettyPrint(cert);
                 header.addStringValue("certPrettyPrint",
                     certDetails.toString(locale));
             }

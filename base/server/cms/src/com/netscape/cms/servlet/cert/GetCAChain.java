@@ -29,8 +29,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.CertificateChain;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
@@ -38,7 +36,6 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -47,7 +44,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.CertificateChain;
 
 /**
  * Retrieve the Certificates comprising the CA Chain for this CA.
@@ -344,7 +344,7 @@ public class GetCAChain extends CMSServlet {
                         throw new IOException("Internal Error");
                     }
 
-                    ICertPrettyPrint certDetails = CMS.getCertPrettyPrint(certs[i]);
+                    CertPrettyPrint certDetails = new CertPrettyPrint(certs[i]);
 
                     IArgBlock rarg = CMS.createArgBlock();
 

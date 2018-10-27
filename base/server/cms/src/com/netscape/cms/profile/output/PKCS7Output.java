@@ -21,15 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
 
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
@@ -40,7 +32,15 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.pkcs.ContentInfo;
+import netscape.security.pkcs.PKCS7;
+import netscape.security.pkcs.SignerInfo;
+import netscape.security.x509.AlgorithmId;
+import netscape.security.x509.CertificateChain;
+import netscape.security.x509.X509CertImpl;
 
 /**
  * This class implements the output plugin that outputs
@@ -113,7 +113,7 @@ public class PKCS7Output extends EnrollOutput implements IProfileOutput {
                     EnrollProfile.REQUEST_ISSUED_CERT);
             if (cert == null)
                 return null;
-            ICertPrettyPrint prettyCert = CMS.getCertPrettyPrint(cert);
+            CertPrettyPrint prettyCert = new CertPrettyPrint(cert);
 
             return prettyCert.toString(locale);
         } else if (name.equals(VAL_PKCS7)) {

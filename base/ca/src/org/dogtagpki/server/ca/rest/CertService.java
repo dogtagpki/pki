@@ -42,7 +42,6 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -69,6 +68,7 @@ import com.netscape.cms.servlet.cert.CertRequestDAO;
 import com.netscape.cms.servlet.cert.FilterBuilder;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.util.Utils;
@@ -506,7 +506,7 @@ public class CertService extends PKIService implements CertResource {
         String base64 = CMS.getEncodedCert(cert);
         certData.setEncoded(base64);
 
-        ICertPrettyPrint print = CMS.getCertPrettyPrint(cert);
+        CertPrettyPrint print = new CertPrettyPrint(cert);
         certData.setPrettyPrint(print.toString(getLocale(headers)));
 
         String p7Str = getCertChainData(cert);

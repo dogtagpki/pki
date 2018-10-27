@@ -42,13 +42,13 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
@@ -260,7 +260,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
             String ppStr = "";
 
             if (!prettyPrintRequested.equals("false")) {
-                ICertPrettyPrint pp = CMS.getCertPrettyPrint(cert);
+                CertPrettyPrint pp = new CertPrettyPrint(cert);
 
                 ppStr = pp.toString(locale);
             }

@@ -41,6 +41,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.RawJS;
+import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.ExtPrettyPrint;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmsutil.util.Utils;
@@ -254,7 +255,7 @@ public class CertReqParser extends ReqParser {
                         X509CertImpl issuedCert[] =
                                 req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
                         if (issuedCert != null && issuedCert[0] != null) {
-                            val = "<pre>" + CMS.getCertPrettyPrint(issuedCert[0]).toString(l) + "</pre>";
+                            val = "<pre>" + new CertPrettyPrint(issuedCert[0]).toString(l) + "</pre>";
                         }
                     } else if (name.equalsIgnoreCase(IRequest.CERT_INFO) && mDetails) {
                         X509CertInfo[] certInfo =

@@ -43,7 +43,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
@@ -68,6 +67,7 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
+import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmsutil.util.Cert;
 
 import netscape.security.pkcs.PKCS7;
@@ -772,7 +772,7 @@ public class UserService extends SubsystemService implements UserResource {
 
                 if (!userCertData.getID().equals(certID)) continue;
 
-                ICertPrettyPrint print = CMS.getCertPrettyPrint(cert);
+                CertPrettyPrint print = new CertPrettyPrint(cert);
                 userCertData.setPrettyPrint(print.toString(getLocale(headers)));
 
                 // add base64 encoding

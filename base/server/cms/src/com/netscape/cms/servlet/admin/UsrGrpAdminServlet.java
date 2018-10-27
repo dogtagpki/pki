@@ -38,7 +38,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
@@ -54,6 +53,7 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
@@ -509,7 +509,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
         if (certs != null) {
             for (int i = 0; i < certs.length; i++) {
-                ICertPrettyPrint print = CMS.getCertPrettyPrint(certs[i]);
+                CertPrettyPrint print = new CertPrettyPrint(certs[i]);
 
                 // add base64 encoding
                 String base64 = CMS.getEncodedCert(certs[i]);

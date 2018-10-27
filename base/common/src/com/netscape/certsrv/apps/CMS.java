@@ -45,7 +45,6 @@ import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
-import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
@@ -1232,16 +1231,6 @@ public final class CMS {
      */
     public static ICRLPrettyPrint getCRLCachePrettyPrint(ICRLIssuingPoint ip) {
         return _engine.getCRLCachePrettyPrint(ip);
-    }
-
-    /**
-     * Retrieves the certificate pretty print handler.
-     *
-     * @param cert certificate
-     * @return certificate pretty print handler
-     */
-    public static ICertPrettyPrint getCertPrettyPrint(X509Certificate cert) {
-        return _engine.getCertPrettyPrint(cert);
     }
 
     public static String getConfigSDSessionId() {
