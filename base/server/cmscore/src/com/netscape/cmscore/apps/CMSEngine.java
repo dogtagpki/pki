@@ -93,9 +93,7 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
-import com.netscape.certsrv.ldap.ILdapConnInfo;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.IAuditor;
@@ -844,11 +842,6 @@ public class CMSEngine implements ICMSEngine {
             String clientCiphers,
             IRemoteAuthority remote, int interval) {
         return new Resender(authority, nickname, clientCiphers, remote, interval);
-    }
-
-    public ILdapConnInfo getLdapConnInfo(IConfigStore config)
-            throws EBaseException, ELdapException {
-        return new LdapConnInfo(config);
     }
 
     public ILdapAuthInfo getLdapAuthInfo() {

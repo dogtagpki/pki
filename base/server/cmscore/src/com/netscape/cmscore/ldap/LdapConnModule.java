@@ -24,7 +24,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapBoundConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.ldap.ILdapConnInfo;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
@@ -80,8 +79,7 @@ public class LdapConnModule implements ILdapConnModule {
                          ILdapBoundConnFactory.PROP_LDAPCONNINFO);
         IConfigStore authinfo = ldap.getSubStore(
                          ILdapBoundConnFactory.PROP_LDAPAUTHINFO);
-        ILdapConnInfo connInfo =
-                CMS.getLdapConnInfo(ldapconn);
+        LdapConnInfo connInfo = new LdapConnInfo(ldapconn);
         LdapAuthInfo authInfo =
                 new LdapAuthInfo(authinfo, ldapconn.getString("host"),
                         ldapconn.getInteger("port"), connInfo.getSecure());
@@ -92,7 +90,7 @@ public class LdapConnModule implements ILdapConnModule {
 
         CMS.debug("Creating LdapBoundConnFactory for LdapConnModule.");
         mLdapConnFactory =
-                new LdapBoundConnFactory("LDAPConnModule", minConns, maxConns, (LdapConnInfo) connInfo, authInfo);
+                new LdapBoundConnFactory("LDAPConnModule", minConns, maxConns, connInfo, authInfo);
 
         mInited = true;
 

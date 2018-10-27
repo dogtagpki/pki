@@ -62,6 +62,7 @@ import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.certsrv.security.ICryptoSubsystem;
+import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 
@@ -691,8 +692,7 @@ public class PublisherAdminServlet extends AdminServlet {
                             " to a LDAP directory. The connection status is" +
                             " as follows:\n \n");
             LDAPConnection conn = null;
-            ILdapConnInfo connInfo =
-                    CMS.getLdapConnInfo(ldap.getSubStore(
+            LdapConnInfo connInfo = new LdapConnInfo(ldap.getSubStore(
                             ILdapBoundConnFactory.PROP_LDAPCONNINFO));
             //LdapAuthInfo authInfo =
             //new LdapAuthInfo(ldap.getSubStore(

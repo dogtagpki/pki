@@ -60,9 +60,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
-import com.netscape.certsrv.ldap.ILdapConnInfo;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.ILogger;
@@ -1141,18 +1139,6 @@ public final class CMS {
     public static String getFingerPrints(Certificate cert)
             throws NoSuchAlgorithmException, CertificateEncodingException {
         return _engine.getFingerPrints(cert);
-    }
-
-    /**
-     * Retrieves the ldap connection information from the configuration
-     * store.
-     *
-     * @param config configuration parameters of ldap connection
-     * @return a LDAP connection info
-     */
-    public static ILdapConnInfo getLdapConnInfo(IConfigStore config)
-            throws EBaseException, ELdapException {
-        return _engine.getLdapConnInfo(config);
     }
 
     /**
