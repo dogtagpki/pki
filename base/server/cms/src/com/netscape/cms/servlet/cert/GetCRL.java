@@ -45,6 +45,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.CrlPrettyPrint;
 import com.netscape.cmsutil.util.Utils;
 
@@ -308,8 +309,7 @@ public class GetCRL extends CMSServlet {
             if (op.equals("displayCRL")) {
                 if (crlDisplayType.equals("entireCRL") || crlDisplayType.equals("cachedCRL")) {
                     ICRLPrettyPrint crlDetails = (crlDisplayType.equals("entireCRL")) ?
-                            new CrlPrettyPrint(crl) :
-                                                    CMS.getCRLCachePrettyPrint(crlIP);
+                            new CrlPrettyPrint(crl) : new CrlCachePrettyPrint(crlIP);
                     String pageStart = args.getValueAsString("pageStart", null);
                     String pageSize = args.getValueAsString("pageSize", null);
 

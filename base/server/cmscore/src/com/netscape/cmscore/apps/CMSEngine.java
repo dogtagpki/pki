@@ -71,13 +71,11 @@ import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.ITimeSource;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.ICMSRequest;
@@ -112,7 +110,6 @@ import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.connector.Resender;
@@ -1632,10 +1629,6 @@ public class CMSEngine implements ICMSEngine {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public ICRLPrettyPrint getCRLCachePrettyPrint(ICRLIssuingPoint ip) {
-        return new CrlCachePrettyPrint(ip);
     }
 
     public IPasswordCheck getPasswordChecker() {

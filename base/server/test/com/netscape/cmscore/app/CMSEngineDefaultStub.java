@@ -23,11 +23,9 @@ import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
@@ -265,10 +263,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public String getEncodedCert(X509Certificate cert) {
-        return null;
-    }
-
-    public ICRLPrettyPrint getCRLCachePrettyPrint(ICRLIssuingPoint ip) {
         return null;
     }
 

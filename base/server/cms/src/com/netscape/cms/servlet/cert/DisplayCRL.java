@@ -47,6 +47,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.CrlPrettyPrint;
 import com.netscape.cmsutil.util.Utils;
 
@@ -311,7 +312,7 @@ public class DisplayCRL extends CMSServlet {
                 if (crlDisplayType.equals("entireCRL")) {
                     crlDetails = new CrlPrettyPrint(crl);
                 } else {
-                    crlDetails = CMS.getCRLCachePrettyPrint(crlIP);
+                    crlDetails = new CrlCachePrettyPrint(crlIP);
                 }
 
                 String pageStart = req.getParameter("pageStart");
