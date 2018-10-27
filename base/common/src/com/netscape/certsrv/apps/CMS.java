@@ -54,7 +54,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.connector.IRemoteAuthority;
-import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
@@ -1142,16 +1141,6 @@ public final class CMS {
     public static String getFingerPrints(Certificate cert)
             throws NoSuchAlgorithmException, CertificateEncodingException {
         return _engine.getFingerPrints(cert);
-    }
-
-    /**
-     * Creates a request encoder. A request cannot be sent to
-     * the remote authority in its regular format.
-     *
-     * @return a request encoder
-     */
-    public static IRequestEncoder getHttpRequestEncoder() {
-        return _engine.getHttpRequestEncoder();
     }
 
     /**

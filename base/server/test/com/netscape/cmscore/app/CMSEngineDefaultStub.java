@@ -34,7 +34,6 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.connector.IRemoteAuthority;
-import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
@@ -276,10 +275,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public IRepositoryRecord createRepositoryRecord() {
-        return null;
-    }
-
-    public IRequestEncoder getHttpRequestEncoder() {
         return null;
     }
 

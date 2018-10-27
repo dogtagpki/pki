@@ -88,7 +88,6 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.connector.IRemoteAuthority;
-import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
@@ -131,7 +130,6 @@ import com.netscape.cmscore.cert.CrlPrettyPrint;
 import com.netscape.cmscore.cert.ExtPrettyPrint;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
-import com.netscape.cmscore.connector.HttpRequestEncoder;
 import com.netscape.cmscore.connector.Resender;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -855,10 +853,6 @@ public class CMSEngine implements ICMSEngine {
 
     public ILdapAuthInfo getLdapAuthInfo() {
         return new LdapAuthInfo();
-    }
-
-    public IRequestEncoder getHttpRequestEncoder() {
-        return new HttpRequestEncoder();
     }
 
     public Enumeration<String> getSubsystemNames() {

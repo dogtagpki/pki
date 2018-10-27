@@ -63,6 +63,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.connector.HttpPKIMessage;
+import com.netscape.cmscore.connector.HttpRequestEncoder;
 
 import netscape.security.x509.CRLExtensions;
 import netscape.security.x509.CRLReasonExtension;
@@ -109,7 +110,7 @@ public class ConnectorServlet extends CMSServlet {
         if (authority != null)
             mAuthority = (IAuthority)
                     CMS.getSubsystem(authority);
-        mReqEncoder = CMS.getHttpRequestEncoder();
+        mReqEncoder = new HttpRequestEncoder();
 
         mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
     }

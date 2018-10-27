@@ -49,7 +49,6 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.connector.IRemoteAuthority;
-import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
@@ -508,14 +507,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return repository record
      */
     public IRepositoryRecord createRepositoryRecord();
-
-    /**
-     * Creates a request encoder. A request cannot be sent to
-     * the remote authority in its regular format.
-     *
-     * @return a request encoder
-     */
-    public IRequestEncoder getHttpRequestEncoder();
 
     /**
      * Retrieves the certifcate in MIME-64 encoded format
