@@ -65,7 +65,6 @@ import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
-import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
@@ -1225,15 +1224,6 @@ public final class CMS {
      */
     public static IMailNotification getMailNotification() {
         return _engine.getMailNotification();
-    }
-
-    /**
-     * Retrieves the email key resolver.
-     *
-     * @return email key resolver
-     */
-    public static IEmailResolverKeys getEmailResolverKeys() {
-        return _engine.getEmailResolverKeys();
     }
 
     /**

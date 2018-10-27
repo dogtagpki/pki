@@ -43,6 +43,7 @@ import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.notification.EmailResolverKeys;
 
 import netscape.security.x509.RevokedCertImpl;
 
@@ -204,7 +205,7 @@ public class CertificateRevokedListener implements IRequestListener {
 
                 // do we have an email to send?
                 String mEmail = null;
-                IEmailResolverKeys keys = CMS.getEmailResolverKeys();
+                EmailResolverKeys keys = new EmailResolverKeys();
 
                 try {
                     keys.set(IEmailResolverKeys.KEY_REQUEST, r);

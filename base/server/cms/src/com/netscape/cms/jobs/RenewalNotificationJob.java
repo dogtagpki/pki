@@ -45,6 +45,7 @@ import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.notification.EmailResolverKeys;
 
 /**
  * A job for the Jobs Scheduler. This job checks in the internal ldap
@@ -535,7 +536,7 @@ public class RenewalNotificationJob
         //		boolean sendFailed = false;
         Exception sendFailedException = null;
 
-        IEmailResolverKeys keys = CMS.getEmailResolverKeys();
+        EmailResolverKeys keys = new EmailResolverKeys();
 
         try {
             if (req != null) {
