@@ -21,7 +21,6 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
@@ -504,14 +503,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return base-64 format certificate
      */
     public String getEncodedCert(X509Certificate cert);
-
-    /**
-     * Retrieves the CRL pretty print handler.
-     *
-     * @param crl CRL
-     * @return CRL pretty print handler
-     */
-    public ICRLPrettyPrint getCRLPrettyPrint(X509CRL crl);
 
     /**
      * Retrieves the CRL cache pretty print handler.

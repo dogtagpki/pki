@@ -28,7 +28,6 @@ import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -114,7 +113,6 @@ import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.CrlCachePrettyPrint;
-import com.netscape.cmscore.cert.CrlPrettyPrint;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.connector.Resender;
@@ -156,7 +154,6 @@ import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CertificateChain;
 import netscape.security.x509.GeneralName;
-import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
 
 public class CMSEngine implements ICMSEngine {
@@ -1635,10 +1632,6 @@ public class CMSEngine implements ICMSEngine {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public ICRLPrettyPrint getCRLPrettyPrint(X509CRL crl) {
-        return new CrlPrettyPrint((X509CRLImpl) crl);
     }
 
     public ICRLPrettyPrint getCRLCachePrettyPrint(ICRLIssuingPoint ip) {

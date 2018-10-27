@@ -30,8 +30,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CRLImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -49,7 +47,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.cert.CrlPrettyPrint;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.x509.X509CRLImpl;
 
 /**
  * Decode the CRL and display it to the requester.
@@ -308,7 +309,7 @@ public class DisplayCRL extends CMSServlet {
             if (crlDisplayType.equals("entireCRL") || crlDisplayType.equals("cachedCRL")) {
                 ICRLPrettyPrint crlDetails = null;
                 if (crlDisplayType.equals("entireCRL")) {
-                    crlDetails = CMS.getCRLPrettyPrint(crl);
+                    crlDetails = new CrlPrettyPrint(crl);
                 } else {
                     crlDetails = CMS.getCRLCachePrettyPrint(crlIP);
                 }
@@ -345,7 +346,7 @@ public class DisplayCRL extends CMSServlet {
                             "crlPrettyPrint", crlDetails.toString(locale));
                 }
             } else if (crlDisplayType.equals("crlHeader")) {
-                ICRLPrettyPrint crlDetails = CMS.getCRLPrettyPrint(crl);
+                CrlPrettyPrint crlDetails = new CrlPrettyPrint(crl);
 
                 header.addStringValue(
                         "crlPrettyPrint", crlDetails.toString(locale, lCRLSize, 0, 0));
@@ -418,7 +419,7 @@ public class DisplayCRL extends CMSServlet {
                                 header.addIntegerValue("deltaCRLSize",
                                         deltaCRL.getNumberOfRevokedCertificates());
 
-                                ICRLPrettyPrint crlDetails = CMS.getCRLPrettyPrint(deltaCRL);
+                                CrlPrettyPrint crlDetails = new CrlPrettyPrint(deltaCRL);
 
                                 header.addStringValue(
                                         "crlPrettyPrint", crlDetails.toString(locale, 0, 0, 0));

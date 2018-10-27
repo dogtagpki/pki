@@ -21,7 +21,6 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
@@ -1211,16 +1210,6 @@ public final class CMS {
     public static ObjectIdentifier checkOID(String attrName, String value)
             throws EBaseException {
         return _engine.checkOID(attrName, value);
-    }
-
-    /**
-     * Retrieves the CRL pretty print handler.
-     *
-     * @param crl CRL
-     * @return CRL pretty print handler
-     */
-    public static ICRLPrettyPrint getCRLPrettyPrint(X509CRL crl) {
-        return _engine.getCRLPrettyPrint(crl);
     }
 
     /**
