@@ -87,7 +87,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.connector.IResender;
@@ -132,7 +131,6 @@ import com.netscape.cmscore.cert.CrlPrettyPrint;
 import com.netscape.cmscore.cert.ExtPrettyPrint;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
-import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
 import com.netscape.cmscore.connector.Resender;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
@@ -848,10 +846,6 @@ public class CMSEngine implements ICMSEngine {
             String clientCiphers,
             IRemoteAuthority remote, int interval) {
         return new Resender(authority, nickname, clientCiphers, remote, interval);
-    }
-
-    public IPKIMessage getHttpPKIMessage() {
-        return new HttpPKIMessage();
     }
 
     public ILdapConnInfo getLdapConnInfo(IConfigStore config)

@@ -19,13 +19,14 @@ package com.netscape.cmscore.connector;
 
 import java.util.Vector;
 
+import org.dogtagpki.server.PKIClientSocketListener;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.connector.IHttpConnection;
-import com.netscape.certsrv.connector.IHttpPKIMessage;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.request.IRequest;
@@ -34,8 +35,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
-
-import org.dogtagpki.server.PKIClientSocketListener;
 
 public class HttpConnector implements IConnector {
     protected IAuthority mSource = null;
@@ -150,7 +149,7 @@ public class HttpConnector implements IConnector {
         IHttpConnection curConn = null;
 
         try {
-            IHttpPKIMessage tomsg = (IHttpPKIMessage) CMS.getHttpPKIMessage();
+            HttpPKIMessage tomsg = new HttpPKIMessage();
             HttpPKIMessage replymsg = null;
 
             tomsg.fromRequest(r);

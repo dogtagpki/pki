@@ -31,9 +31,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -56,6 +53,10 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.connector.HttpPKIMessage;
+
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * Clone servlet - part of the Clone Authority (CLA)
@@ -326,7 +327,7 @@ public class CloneServlet extends CMSServlet {
             } else {
                 mAuthority.log(ILogger.LL_INFO,
                         "Found request " + thisreqid + " for " + srcid);
-                replymsg = CMS.getHttpPKIMessage();
+                replymsg = new HttpPKIMessage();
                 replymsg.fromRequest(thisreq);
                 return replymsg;
             }
@@ -352,7 +353,7 @@ public class CloneServlet extends CMSServlet {
         }
 
         queue.processRequest(thisreq);
-        replymsg = CMS.getHttpPKIMessage();
+        replymsg = new HttpPKIMessage();
         replymsg.fromRequest(thisreq);
 
         //for audit log

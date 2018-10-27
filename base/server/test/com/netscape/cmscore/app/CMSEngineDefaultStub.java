@@ -33,7 +33,6 @@ import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
-import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.connector.IResender;
@@ -277,10 +276,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public IRepositoryRecord createRepositoryRecord() {
-        return null;
-    }
-
-    public IPKIMessage getHttpPKIMessage() {
         return null;
     }
 

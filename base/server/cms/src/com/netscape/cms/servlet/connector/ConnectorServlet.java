@@ -62,6 +62,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.connector.HttpPKIMessage;
 
 import netscape.security.x509.CRLExtensions;
 import netscape.security.x509.CRLReasonExtension;
@@ -484,7 +485,7 @@ public class ConnectorServlet extends CMSServlet {
                 } else {
                     mAuthority.log(ILogger.LL_INFO,
                             "Found request " + thisreqid + " for " + srcid);
-                    replymsg = CMS.getHttpPKIMessage();
+                    replymsg = new HttpPKIMessage();
                     replymsg.fromRequest(thisreq);
 
                     // store a message in the signed audit log file
@@ -641,7 +642,7 @@ public class ConnectorServlet extends CMSServlet {
                 }
             }
 
-            replymsg = CMS.getHttpPKIMessage();
+            replymsg = new HttpPKIMessage();
             replymsg.fromRequest(thisreq);
 
             CMS.debug("ConnectorServlet: replymsg.reqStatus=" +
