@@ -43,7 +43,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtPrettyPrint;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
@@ -62,7 +61,6 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
 import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
 
 /**
@@ -507,15 +505,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return base-64 format certificate
      */
     public String getEncodedCert(X509Certificate cert);
-
-    /**
-     * Retrieves the extension pretty print handler.
-     *
-     * @param e extension
-     * @param indent indentation
-     * @return extension pretty print handler
-     */
-    public IExtPrettyPrint getExtPrettyPrint(Extension e, int indent);
 
     /**
      * Retrieves the certificate pretty print handler.

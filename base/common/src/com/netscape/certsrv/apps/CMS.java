@@ -47,7 +47,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtPrettyPrint;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
@@ -79,7 +78,6 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
 import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
 
 /**
@@ -1214,17 +1212,6 @@ public final class CMS {
     public static ObjectIdentifier checkOID(String attrName, String value)
             throws EBaseException {
         return _engine.checkOID(attrName, value);
-    }
-
-    /**
-     * Retrieves the extension pretty print handler.
-     *
-     * @param e extension
-     * @param indent indentation
-     * @return extension pretty print handler
-     */
-    public static IExtPrettyPrint getExtPrettyPrint(Extension e, int indent) {
-        return _engine.getExtPrettyPrint(e, indent);
     }
 
     /**

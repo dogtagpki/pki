@@ -41,6 +41,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.RawJS;
+import com.netscape.cmscore.cert.ExtPrettyPrint;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmsutil.util.Utils;
 
@@ -419,7 +420,7 @@ public class CertReqParser extends ReqParser {
 
                                         rr.addStringValue(
                                                 EXT_PRETTYPRINT,
-                                                CMS.getExtPrettyPrint(ext, 0).toString());
+                                                new ExtPrettyPrint(ext, 0).toString());
                                         argSet.addRepeatRecord(rr);
                                     }
                                 }

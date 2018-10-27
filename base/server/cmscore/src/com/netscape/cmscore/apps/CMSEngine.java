@@ -75,7 +75,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtPrettyPrint;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.ITimeSource;
@@ -118,7 +117,6 @@ import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.CrlPrettyPrint;
-import com.netscape.cmscore.cert.ExtPrettyPrint;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.connector.Resender;
@@ -159,7 +157,6 @@ import netscape.security.pkcs.SignerInfo;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CertificateChain;
-import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
 import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
@@ -1640,10 +1637,6 @@ public class CMSEngine implements ICMSEngine {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public IExtPrettyPrint getExtPrettyPrint(Extension e, int indent) {
-        return new ExtPrettyPrint(e, indent);
     }
 
     public ICertPrettyPrint getCertPrettyPrint(X509Certificate cert) {
