@@ -35,7 +35,6 @@ import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
-import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
@@ -43,6 +42,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
+import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
 
 import netscape.security.x509.X509CertImpl;
@@ -279,7 +279,7 @@ public class CertificateIssuedListener implements IRequestListener {
         /*
          * get template file from disk
          */
-        IEmailTemplate template = CMS.getEmailTemplate(mFormPath);
+        EmailTemplate template = new EmailTemplate(mFormPath);
 
         /*
          * parse and process the template
@@ -355,7 +355,7 @@ public class CertificateIssuedListener implements IRequestListener {
             /*
              * get rejection file from disk
              */
-            IEmailTemplate template = CMS.getEmailTemplate(mRejectPath);
+            EmailTemplate template = new EmailTemplate(mRejectPath);
 
             if (template != null) {
                 if (!template.init()) {

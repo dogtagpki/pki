@@ -30,7 +30,6 @@ import com.netscape.certsrv.listeners.EListenersException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
-import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
@@ -38,6 +37,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.profile.input.SubjectNameInput;
 import com.netscape.cms.profile.input.SubmitterInfoInput;
 import com.netscape.cmscore.notification.EmailFormProcessor;
+import com.netscape.cmscore.notification.EmailTemplate;
 
 /**
  * a listener for every request gets into the request queue.
@@ -149,7 +149,7 @@ public class RequestInQListener implements IRequestListener {
         /*
          * get form file from disk
          */
-        IEmailTemplate template = CMS.getEmailTemplate(mFormPath);
+        EmailTemplate template = new EmailTemplate(mFormPath);
 
         /*
          * parse and process the template

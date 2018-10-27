@@ -63,7 +63,6 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.password.IPasswordCheck;
@@ -1195,15 +1194,6 @@ public final class CMS {
      */
     public static boolean isEncryptionCert(X509Certificate cert) {
         return _engine.isEncryptionCert(cert);
-    }
-
-    /**
-     * Retrieves the email form template.
-     *
-     * @return email template
-     */
-    public static IEmailTemplate getEmailTemplate(String path) {
-        return _engine.getEmailTemplate(path);
     }
 
     /**

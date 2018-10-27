@@ -29,9 +29,9 @@ import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
-import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.notification.EmailTemplate;
 
 import netscape.security.x509.X509CertImpl;
 
@@ -161,7 +161,7 @@ public abstract class AJobBase implements IJob, Runnable {
         /*
          * get template file from disk
          */
-        IEmailTemplate template = CMS.getEmailTemplate(templatePath);
+        EmailTemplate template = new EmailTemplate(templatePath);
 
         if (template != null) {
             if (!template.init()) {
