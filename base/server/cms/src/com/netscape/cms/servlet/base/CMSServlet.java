@@ -47,7 +47,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.apps.ICommandQueue;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -94,6 +93,7 @@ import com.netscape.cms.servlet.common.GenSvcPendingTemplateFiller;
 import com.netscape.cms.servlet.common.GenUnexpectedErrorTemplateFiller;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cms.servlet.common.ServletUtils;
+import com.netscape.cmscore.apps.CommandQueue;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -480,7 +480,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         // process request.
-        ICommandQueue iCommandQueue = CMS.getCommandQueue();
+        CommandQueue iCommandQueue = new CommandQueue();
 
         try {
             if (iCommandQueue.registerProcess(cmsRequest, this) == false) {

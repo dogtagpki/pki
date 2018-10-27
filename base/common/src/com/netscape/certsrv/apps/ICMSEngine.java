@@ -946,13 +946,6 @@ public interface ICMSEngine extends ISubsystem {
             IRemoteAuthority remote, int interval);
 
     /**
-     * Retrieves command queue
-     *
-     * @return command queue
-     */
-    public ICommandQueue getCommandQueue();
-
-    /**
      * Blocks all new incoming requests.
      */
     public void disableRequests();

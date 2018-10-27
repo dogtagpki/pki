@@ -20,7 +20,6 @@ import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.util.PasswordCallback;
 
 import com.netscape.certsrv.apps.ICMSEngine;
-import com.netscape.certsrv.apps.ICommandQueue;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -446,10 +445,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public IResender getResender(IAuthority authority, String nickname, String clientCiphers, IRemoteAuthority remote, int interval) {
-        return null;
-    }
-
-    public ICommandQueue getCommandQueue() {
         return null;
     }
 

@@ -1363,15 +1363,6 @@ public final class CMS {
         return _engine.getPasswordCallback();
     }
 
-    /**
-     * Retrieves command queue
-     *
-     * @return command queue
-     */
-    public static ICommandQueue getCommandQueue() {
-        return _engine.getCommandQueue();
-    }
-
     public static IConfigStore createFileConfigStore(String path) throws EBaseException {
         return _engine.createFileConfigStore(path);
     }

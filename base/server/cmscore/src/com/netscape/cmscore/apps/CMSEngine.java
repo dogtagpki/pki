@@ -68,7 +68,6 @@ import org.w3c.dom.NodeList;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.apps.ICMSEngine;
-import com.netscape.certsrv.apps.ICommandQueue;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -2068,10 +2067,6 @@ public class CMSEngine implements ICMSEngine {
              * Upgrade.perform(c);
              **/
         }
-    }
-
-    public ICommandQueue getCommandQueue() {
-        return new CommandQueue();
     }
 
     private ICertificateRepository getCertDB() {
