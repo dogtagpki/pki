@@ -46,6 +46,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmsutil.util.Utils;
 
+import netscape.security.extensions.CertInfo;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.CertificateSubjectName;
@@ -184,7 +185,7 @@ public class CRMFProcessor extends PKIProcessor {
             CertRequest certReq = certReqMsg.getCertReq();
 
             CertTemplate certTemplate = certReq.getCertTemplate();
-            X509CertInfo certInfo = CMS.getDefaultX509CertInfo();
+            X509CertInfo certInfo = new CertInfo();
 
             // get key
             SubjectPublicKeyInfo spki = certTemplate.getPublicKey();

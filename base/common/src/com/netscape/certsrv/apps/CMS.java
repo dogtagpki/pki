@@ -86,7 +86,6 @@ import netscape.ldap.LDAPSSLSocketFactoryExt;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * This represents the CMS server. Plugins can access other
@@ -1138,15 +1137,6 @@ public final class CMS {
     public static String getFingerPrints(Certificate cert)
             throws NoSuchAlgorithmException, CertificateEncodingException {
         return _engine.getFingerPrints(cert);
-    }
-
-    /**
-     * Retrieves the default X.509 certificate template.
-     *
-     * @return default certificate template
-     */
-    public static X509CertInfo getDefaultX509CertInfo() {
-        return _engine.getDefaultX509CertInfo();
     }
 
     /**

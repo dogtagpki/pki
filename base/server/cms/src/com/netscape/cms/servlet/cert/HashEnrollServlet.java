@@ -36,19 +36,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extension;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
@@ -84,6 +71,20 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.extensions.CertInfo;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.CertificateExtensions;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.CertificateVersion;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.Extension;
+import netscape.security.x509.KeyUsageExtension;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 /**
  * performs face-to-face enrollment.
@@ -375,7 +376,7 @@ public class HashEnrollServlet extends CMSServlet {
                         CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_CERTINFO"));
             }
         } else {
-            certInfo = CMS.getDefaultX509CertInfo();
+            certInfo = new CertInfo();
         }
 
         X509CertInfo[] certInfoArray = new X509CertInfo[] { certInfo };
@@ -484,7 +485,7 @@ public class HashEnrollServlet extends CMSServlet {
                 if (!en.hasMoreElements()) {
                     // pairing encryption cert not found
                 } else {
-                    X509CertInfo encCertInfo = CMS.getDefaultX509CertInfo();
+                    X509CertInfo encCertInfo = new CertInfo();
                     X509CertInfo[] cInfoArray = new X509CertInfo[] { certInfo,
                             encCertInfo };
                     int i = 1;
@@ -912,7 +913,7 @@ public class HashEnrollServlet extends CMSServlet {
                 req.setExtData(IRequest.CRMF_REQID, String.valueOf(srcId));
 
                 CertTemplate certTemplate = certReq.getCertTemplate();
-                X509CertInfo certInfo = CMS.getDefaultX509CertInfo();
+                X509CertInfo certInfo = new CertInfo();
 
                 // get key
                 SubjectPublicKeyInfo spki = certTemplate.getPublicKey();

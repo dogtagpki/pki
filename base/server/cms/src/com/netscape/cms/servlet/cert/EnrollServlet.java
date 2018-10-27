@@ -70,6 +70,7 @@ import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
 import com.netscape.cmsutil.util.Utils;
 
+import netscape.security.extensions.CertInfo;
 import netscape.security.pkcs.PKCS10;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CertificateAlgorithmId;
@@ -477,7 +478,7 @@ public class EnrollServlet extends CMSServlet {
             return null;
             // pairing encryption cert not found
         } else {
-            X509CertInfo encCertInfo = CMS.getDefaultX509CertInfo();
+            X509CertInfo encCertInfo = new CertInfo();
             X509CertInfo[] cInfoArray = new X509CertInfo[] { certInfo,
                     encCertInfo };
             int i = 1;
@@ -921,7 +922,7 @@ public class EnrollServlet extends CMSServlet {
                 }
             } else {
                 CMS.debug("EnrollServlet: No CertAuthEnroll.");
-                certInfo = CMS.getDefaultX509CertInfo();
+                certInfo = new CertInfo();
             }
 
             X509CertInfo[] certInfoArray = new X509CertInfo[] { certInfo };

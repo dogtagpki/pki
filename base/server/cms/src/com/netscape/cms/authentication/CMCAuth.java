@@ -93,6 +93,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
+import netscape.security.extensions.CertInfo;
 import netscape.security.pkcs.PKCS10;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
@@ -522,8 +523,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                                         new PKCS10(ostream.toByteArray(), sigver);
 
                                 // xxx do we need to do anything else?
-                                X509CertInfo certInfo =
-                                        CMS.getDefaultX509CertInfo();
+                                X509CertInfo certInfo = new CertInfo();
 
                                 // fillPKCS10(certInfo,pkcs10,authToken,null);
 
@@ -582,8 +582,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                                 Name name = template.getSubject();
 
                                 // xxx do we need to do anything else?
-                                X509CertInfo certInfo =
-                                        CMS.getDefaultX509CertInfo();
+                                X509CertInfo certInfo = new CertInfo();
 
                                 // reset value of auditCertSubject
                                 if (name != null) {

@@ -162,7 +162,6 @@ import com.netscape.cmsutil.util.Utils;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.security.extensions.CertInfo;
 import netscape.security.pkcs.ContentInfo;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
@@ -173,7 +172,6 @@ import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
 import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
 
 public class CMSEngine implements ICMSEngine {
 
@@ -1638,10 +1636,6 @@ public class CMSEngine implements ICMSEngine {
 
     public boolean isEncryptionCert(X509Certificate cert) {
         return CertUtils.isEncryptionCert((X509CertImpl) cert);
-    }
-
-    public X509CertInfo getDefaultX509CertInfo() {
-        return new CertInfo();
     }
 
     public IEmailResolverKeys getEmailResolverKeys() {

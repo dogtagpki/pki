@@ -27,12 +27,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
@@ -69,6 +63,13 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmsutil.util.Utils;
+
+import netscape.security.extensions.CertInfo;
+import netscape.security.pkcs.PKCS10;
+import netscape.security.x509.CertificateX509Key;
+import netscape.security.x509.X509CertImpl;
+import netscape.security.x509.X509CertInfo;
+import netscape.security.x509.X509Key;
 
 /**
  * Process CMC messages according to RFC 2797
@@ -167,7 +168,7 @@ public class CMCProcessor extends PKIProcessor {
                     try {
                         PKCS10 pkcs10 = new PKCS10(ostream.toByteArray());
                         //xxx do we need to do anything else?
-                        X509CertInfo certInfo = CMS.getDefaultX509CertInfo();
+                        X509CertInfo certInfo = new CertInfo();
 
                         pkcs10Processor.fillCertInfo(pkcs10, certInfo, authToken, httpParams);
 

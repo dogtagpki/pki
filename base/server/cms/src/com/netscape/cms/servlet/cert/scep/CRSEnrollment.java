@@ -100,6 +100,7 @@ import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
+import netscape.security.extensions.CertInfo;
 import netscape.security.pkcs.PKCS10;
 import netscape.security.pkcs.PKCS10Attribute;
 import netscape.security.pkcs.PKCS10Attributes;
@@ -1171,7 +1172,7 @@ public class CRSEnrollment extends HttpServlet {
 
             // Here, we make a new CertInfo - it's a new start for a certificate
 
-            X509CertInfo certInfo = CMS.getDefaultX509CertInfo();
+            X509CertInfo certInfo = new CertInfo();
 
             // get some stuff out of the request
             X509Key key = p10.getSubjectPublicKeyInfo();

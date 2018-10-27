@@ -53,7 +53,6 @@ import netscape.ldap.LDAPSSLSocketFactoryExt;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * Default engine stub for testing.
@@ -386,10 +385,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
 
     public boolean isEncryptionCert(X509Certificate cert) {
         return false;
-    }
-
-    public X509CertInfo getDefaultX509CertInfo() {
-        return null;
     }
 
     public IEmailFormProcessor getEmailFormProcessor() {

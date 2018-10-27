@@ -69,7 +69,6 @@ import netscape.ldap.LDAPSSLSocketFactoryExt;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * This interface represents the CMS core framework. The
@@ -752,13 +751,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return true if the given certificate is an encryption certificate
      */
     public boolean isEncryptionCert(X509Certificate cert);
-
-    /**
-     * Retrieves the default X.509 certificate template.
-     *
-     * @return default certificate template
-     */
-    public X509CertInfo getDefaultX509CertInfo();
 
     /**
      * Retrieves the email form processor.
