@@ -26,20 +26,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.connector.IRemoteRequest;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
-
-import org.dogtagpki.server.connector.IRemoteRequest;
+import com.netscape.cmscore.cert.PrettyPrintFormat;
 
 /**
  * TokenKeyRecoveryServlet
@@ -61,7 +61,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
     protected ServletConfig mConfig = null;
     protected IAuthority mAuthority = null;
     public static int ERROR = 1;
-    IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
+    PrettyPrintFormat pp = new PrettyPrintFormat(":");
     protected IAuthSubsystem mAuthSubsystem = null;
 
     /**
@@ -196,7 +196,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
                CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): received request parameter: cert");
             }
             if ((rKeyid != null) && (!rKeyid.equals(""))) {
-                thisreq.setExtData(IRequest.NETKEY_ATTR_KEYID, rKeyid); 
+                thisreq.setExtData(IRequest.NETKEY_ATTR_KEYID, rKeyid);
                 CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): received request parameter: keyid");
             }
 

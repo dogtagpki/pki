@@ -28,7 +28,6 @@ import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtPrettyPrint;
-import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
@@ -270,10 +269,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public String getEncodedCert(X509Certificate cert) {
-        return null;
-    }
-
-    public IPrettyPrintFormat getPrettyPrintFormat(String delimiter) {
         return null;
     }
 

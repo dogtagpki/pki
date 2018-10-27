@@ -76,7 +76,6 @@ import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtPrettyPrint;
-import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.ITimeSource;
@@ -1641,10 +1640,6 @@ public class CMSEngine implements ICMSEngine {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public IPrettyPrintFormat getPrettyPrintFormat(String delimiter) {
-        return new com.netscape.cmscore.cert.PrettyPrintFormat(delimiter);
     }
 
     public IExtPrettyPrint getExtPrettyPrint(Extension e, int indent) {

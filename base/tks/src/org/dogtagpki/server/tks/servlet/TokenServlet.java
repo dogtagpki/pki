@@ -45,7 +45,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
@@ -55,6 +54,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.tks.GPParams;
 import com.netscape.cms.servlet.tks.NistSP800_108KDF;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;
+import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
@@ -79,7 +79,7 @@ public class TokenServlet extends CMSServlet {
     String mKeyNickName = null;
     String mNewKeyNickName = null;
     String mCurrentUID = null;
-    IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
+    PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
     // Derivation Constants for SCP02
     public final static byte[] C_MACDerivationConstant = { (byte) 0x01, (byte) 0x01 };

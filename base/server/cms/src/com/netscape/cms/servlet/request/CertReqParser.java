@@ -41,6 +41,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.RawJS;
+import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.extensions.NSCertTypeExtension;
@@ -79,7 +80,7 @@ public class CertReqParser extends ReqParser {
      * Constructs a certificate request parser.
      */
     public CertReqParser() {
-        pp = CMS.getPrettyPrintFormat(":");
+        pp = new PrettyPrintFormat(":");
     }
 
     /**
@@ -89,7 +90,7 @@ public class CertReqParser extends ReqParser {
      */
     public CertReqParser(boolean details) {
         mDetails = details;
-        pp = CMS.getPrettyPrintFormat(":");
+        pp = new PrettyPrintFormat(":");
     }
 
     private static final String EXT_PRETTYPRINT = "ext_prettyprint";

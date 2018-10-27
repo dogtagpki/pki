@@ -19,12 +19,11 @@ package com.netscape.cms.servlet.key;
 
 import java.util.Date;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
+import com.netscape.cmscore.cert.PrettyPrintFormat;
 
 /**
  * Output a 'pretty print' of a Key Archival record
@@ -81,7 +80,7 @@ public class KeyRecordParser {
                 rec.getAlgorithm());
         // Possible Enhancement: sun's BASE64Encode is not
         // fast. We may may to have our native implmenetation.
-        IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
+        PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
         rarg.addStringValue(OUT_PUBLIC_KEY,
                 pp.toHexString(rec.getPublicKeyData(), 0, 20));

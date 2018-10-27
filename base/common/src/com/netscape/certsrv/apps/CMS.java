@@ -48,7 +48,6 @@ import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.certsrv.base.ICertPrettyPrint;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtPrettyPrint;
-import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
@@ -1226,16 +1225,6 @@ public final class CMS {
      */
     public static IExtPrettyPrint getExtPrettyPrint(Extension e, int indent) {
         return _engine.getExtPrettyPrint(e, indent);
-    }
-
-    /**
-     * Retrieves the certificate pretty print handler.
-     *
-     * @param delimiter delimiter
-     * @return certificate pretty print handler
-     */
-    public static IPrettyPrintFormat getPrettyPrintFormat(String delimiter) {
-        return _engine.getPrettyPrintFormat(delimiter);
     }
 
     /**

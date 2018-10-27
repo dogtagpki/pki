@@ -28,7 +28,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IAttrSet;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.pattern.Pattern;
 import com.netscape.certsrv.profile.EProfileException;
@@ -40,6 +39,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmscore.cert.PrettyPrintFormat;
 
 import netscape.security.extensions.KerberosName;
 import netscape.security.util.DerInputStream;
@@ -291,7 +291,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     }
 
     public String toHexString(byte data[]) {
-        IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
+        PrettyPrintFormat pp = new PrettyPrintFormat(":");
         String s = pp.toHexString(data, 0, 16);
         StringTokenizer st = new StringTokenizer(s, "\n");
         StringBuffer buffer = new StringBuffer();

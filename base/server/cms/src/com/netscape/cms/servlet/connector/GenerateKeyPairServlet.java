@@ -19,12 +19,14 @@ package com.netscape.cms.servlet.connector;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Hashtable;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Hashtable;
+
+import org.dogtagpki.server.connector.IRemoteRequest;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
@@ -33,15 +35,13 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
-
-import org.dogtagpki.server.connector.IRemoteRequest;
+import com.netscape.cmscore.cert.PrettyPrintFormat;
 
 /**
  * GenerateKeyPairServlet
@@ -63,7 +63,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
     protected ServletConfig mConfig = null;
     protected IAuthority mAuthority = null;
     public static int ERROR = 1;
-    IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
+    PrettyPrintFormat pp = new PrettyPrintFormat(":");
     protected IAuthSubsystem mAuthSubsystem = null;
     protected ILogger mLogger = CMS.getLogger();
     private Hashtable<String, String> supportedECCurves_ht = null;
@@ -249,7 +249,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
         // now that fields are cleared, we can really write to ldap
         thisreq.setExtData("delayLDAPCommit", "false");
         queue.updateRequest(thisreq);
-        
+
         /*
           if (selectedToken == null)
           status = "4";
