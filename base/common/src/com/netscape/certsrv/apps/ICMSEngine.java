@@ -48,7 +48,6 @@ import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
-import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IRequestEncoder;
@@ -67,7 +66,6 @@ import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
@@ -971,28 +969,6 @@ public interface ICMSEngine extends ISubsystem {
      */
     public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured)
             throws EBaseException;
-
-    /**
-     * Retrieves the HTTP Connection for use with connector.
-     *
-     * @param authority remote authority
-     * @param factory socket factory
-     * @return http connection to the remote authority
-     */
-    public IHttpConnection getHttpConnection(IRemoteAuthority authority,
-            ISocketFactory factory);
-
-    /**
-     * Retrieves the HTTP Connection for use with connector.
-     *
-     * @param authority remote authority
-     * @param factory socket factory
-     * @param timeout return error if connection cannot be established within
-     *            the timeout period
-     * @return http connection to the remote authority
-     */
-    public IHttpConnection getHttpConnection(IRemoteAuthority authority,
-            ISocketFactory factory, int timeout);
 
     /**
      * Retrieves the request sender for use with connector.

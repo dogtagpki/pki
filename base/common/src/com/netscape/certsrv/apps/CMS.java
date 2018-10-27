@@ -53,7 +53,6 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IRequestEncoder;
@@ -84,7 +83,6 @@ import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
-import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
@@ -781,32 +779,6 @@ public final class CMS {
      */
     public static long getStartupTime() {
         return _engine.getStartupTime();
-    }
-
-    /**
-     * Retrieves the HTTP Connection for use with connector.
-     *
-     * @param authority remote authority
-     * @param factory socket factory
-     * @return http connection to the remote authority
-     */
-    public static IHttpConnection getHttpConnection(IRemoteAuthority authority,
-            ISocketFactory factory) {
-        return _engine.getHttpConnection(authority, factory);
-    }
-
-    /**
-     * Retrieves the HTTP Connection for use with connector.
-     *
-     * @param authority remote authority
-     * @param factory socket factory
-     * @param timeout return error if connection cannot be established within
-     *            the timeout period
-     * @return http connection to the remote authority
-     */
-    public static IHttpConnection getHttpConnection(IRemoteAuthority authority,
-            ISocketFactory factory, int timeout) {
-        return _engine.getHttpConnection(authority, factory, timeout);
     }
 
     /**

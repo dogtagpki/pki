@@ -87,7 +87,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IRequestEncoder;
@@ -133,7 +132,6 @@ import com.netscape.cmscore.cert.CrlPrettyPrint;
 import com.netscape.cmscore.cert.ExtPrettyPrint;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
-import com.netscape.cmscore.connector.HttpConnection;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
 import com.netscape.cmscore.connector.Resender;
@@ -165,7 +163,6 @@ import com.netscape.cmscore.time.SimpleTimeSource;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.NuxwdogPasswordStore;
 import com.netscape.cmsutil.util.Cert;
@@ -845,16 +842,6 @@ public class CMSEngine implements ICMSEngine {
 
     public String getAdminPort() {
         return info[ADMIN][PORT];
-    }
-
-    public IHttpConnection getHttpConnection(IRemoteAuthority authority,
-            ISocketFactory factory) {
-        return new HttpConnection(authority, factory);
-    }
-
-    public IHttpConnection getHttpConnection(IRemoteAuthority authority,
-            ISocketFactory factory, int timeout) {
-        return new HttpConnection(authority, factory, timeout);
     }
 
     public IResender getResender(IAuthority authority, String nickname,
