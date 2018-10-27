@@ -37,7 +37,6 @@ import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
-import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
@@ -297,10 +296,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public ICRLPrettyPrint getCRLCachePrettyPrint(ICRLIssuingPoint ip) {
-        return null;
-    }
-
-    public ILdapAuthInfo getLdapAuthInfo() {
         return null;
     }
 

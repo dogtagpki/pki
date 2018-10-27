@@ -42,9 +42,9 @@ import com.netscape.certsrv.common.DestDef;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
-import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 
 /**
  * A class representing an administration servlet for the
@@ -1230,7 +1230,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             //This only works in the fact that we only support one instance per
             //auth plugin.
-            ILdapAuthInfo authInfo = CMS.getLdapAuthInfo();
+            LdapAuthInfo authInfo = new LdapAuthInfo();
 
             authInfo.removePassword("Rule " + id);
 

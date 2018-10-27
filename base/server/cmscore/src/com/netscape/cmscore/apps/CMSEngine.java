@@ -93,7 +93,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.IAuditor;
@@ -134,7 +133,6 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmscore.jobs.JobsScheduler;
-import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
@@ -842,10 +840,6 @@ public class CMSEngine implements ICMSEngine {
             String clientCiphers,
             IRemoteAuthority remote, int interval) {
         return new Resender(authority, nickname, clientCiphers, remote, interval);
-    }
-
-    public ILdapAuthInfo getLdapAuthInfo() {
-        return new LdapAuthInfo();
     }
 
     public Enumeration<String> getSubsystemNames() {

@@ -60,7 +60,6 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.ILogger;
@@ -1139,15 +1138,6 @@ public final class CMS {
     public static String getFingerPrints(Certificate cert)
             throws NoSuchAlgorithmException, CertificateEncodingException {
         return _engine.getFingerPrints(cert);
-    }
-
-    /**
-     * Creates a LDAP Auth Info object.
-     *
-     * @return LDAP authentication info
-     */
-    public static ILdapAuthInfo getLdapAuthInfo() {
-        return _engine.getLdapAuthInfo();
     }
 
     /**
