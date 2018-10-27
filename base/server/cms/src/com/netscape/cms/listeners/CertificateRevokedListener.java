@@ -43,6 +43,7 @@ import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
 
@@ -271,7 +272,7 @@ public class CertificateRevokedListener implements IRequestListener {
             }
 
             buildContentParams(crlentries, mEmail);
-            IEmailFormProcessor et = CMS.getEmailFormProcessor();
+            EmailFormProcessor et = new EmailFormProcessor();
             String c = et.getEmailContent(template.toString(), mContentParams);
 
             if (template.isHTML()) {

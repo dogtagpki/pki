@@ -41,6 +41,7 @@ import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
 
@@ -289,7 +290,7 @@ public class CertificateIssuedListener implements IRequestListener {
             }
 
             buildContentParams(issuedCert, mEmail);
-            IEmailFormProcessor et = CMS.getEmailFormProcessor();
+            EmailFormProcessor et = new EmailFormProcessor();
             String c = et.getEmailContent(template.toString(), mContentParams);
 
             if (template.isHTML()) {
@@ -370,7 +371,7 @@ public class CertificateIssuedListener implements IRequestListener {
                 mReqId = r.getRequestId();
                 mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
                         mReqId.toString());
-                IEmailFormProcessor et = CMS.getEmailFormProcessor();
+                EmailFormProcessor et = new EmailFormProcessor();
                 String c = et.getEmailContent(template.toString(), mContentParams);
 
                 mn.setContent(c);

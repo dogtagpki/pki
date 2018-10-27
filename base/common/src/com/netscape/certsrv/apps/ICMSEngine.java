@@ -54,7 +54,6 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
@@ -749,13 +748,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return true if the given certificate is an encryption certificate
      */
     public boolean isEncryptionCert(X509Certificate cert);
-
-    /**
-     * Retrieves the email form processor.
-     *
-     * @return email form processor
-     */
-    public IEmailFormProcessor getEmailFormProcessor();
 
     /**
      * Retrieves the email form template.

@@ -100,7 +100,6 @@ import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SystemEvent;
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
@@ -135,7 +134,6 @@ import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.logging.LogSubsystem;
-import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.CertRequestConstants;
@@ -1632,10 +1630,6 @@ public class CMSEngine implements ICMSEngine {
 
     public boolean isEncryptionCert(X509Certificate cert) {
         return CertUtils.isEncryptionCert((X509CertImpl) cert);
-    }
-
-    public IEmailFormProcessor getEmailFormProcessor() {
-        return new EmailFormProcessor();
     }
 
     public IEmailTemplate getEmailTemplate(String path) {

@@ -37,6 +37,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.profile.input.SubjectNameInput;
 import com.netscape.cms.profile.input.SubmitterInfoInput;
+import com.netscape.cmscore.notification.EmailFormProcessor;
 
 /**
  * a listener for every request gets into the request queue.
@@ -160,7 +161,7 @@ public class RequestInQListener implements IRequestListener {
             }
 
             buildContentParams(r);
-            IEmailFormProcessor et = CMS.getEmailFormProcessor();
+            EmailFormProcessor et = new EmailFormProcessor();
             String c = et.getEmailContent(template.toString(), mContentParams);
 
             if (template.isHTML()) {

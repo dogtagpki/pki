@@ -40,6 +40,7 @@ import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.notification.EmailFormProcessor;
 
 import netscape.security.x509.X509CertImpl;
 
@@ -341,8 +342,7 @@ public class PublishCertsJob extends AJobBase
 
             // if summary is enabled, form the item content
             if (mSummary) {
-                IEmailFormProcessor emailItemFormProcessor =
-                        CMS.getEmailFormProcessor();
+                EmailFormProcessor emailItemFormProcessor = new EmailFormProcessor();
                 String c = emailItemFormProcessor.getEmailContent(itemForm,
                         mItemParams);
 
@@ -370,7 +370,7 @@ public class PublishCertsJob extends AJobBase
             buildContentParams(IEmailFormProcessor.TOKEN_EXECUTION_TIME,
                     nowString);
 
-            IEmailFormProcessor emailFormProcessor = CMS.getEmailFormProcessor();
+            EmailFormProcessor emailFormProcessor = new EmailFormProcessor();
             String mailContent =
                     emailFormProcessor.getEmailContent(contentForm,
                             mContentParams);

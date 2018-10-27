@@ -38,7 +38,6 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
@@ -383,10 +382,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
 
     public boolean isEncryptionCert(X509Certificate cert) {
         return false;
-    }
-
-    public IEmailFormProcessor getEmailFormProcessor() {
-        return null;
     }
 
     public IEmailTemplate getEmailTemplate(String path) {

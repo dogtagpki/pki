@@ -34,6 +34,7 @@ import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmscore.notification.EmailFormProcessor;
 
 /**
  * A job for the Jobs Scheduler. This job checks in the internal ldap
@@ -196,7 +197,7 @@ public class RequestInQueueJob extends AJobBase
         buildContentParams(IEmailFormProcessor.TOKEN_EXECUTION_TIME,
                 nowString);
 
-        IEmailFormProcessor emailFormProcessor = CMS.getEmailFormProcessor();
+        EmailFormProcessor emailFormProcessor = new EmailFormProcessor();
         String mailContent =
                 emailFormProcessor.getEmailContent(contentForm,
                         mContentParams);

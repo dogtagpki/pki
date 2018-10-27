@@ -45,6 +45,7 @@ import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
 
@@ -452,7 +453,7 @@ public class RenewalNotificationJob
                         buildContentParams(IEmailFormProcessor.TOKEN_EXECUTION_TIME,
                                 nowString);
 
-                        IEmailFormProcessor summaryEmfp = CMS.getEmailFormProcessor();
+                        EmailFormProcessor summaryEmfp = new EmailFormProcessor();
 
                         String summaryContent =
                                 summaryEmfp.getEmailContent(summaryTemplate,
@@ -660,7 +661,7 @@ class CertRecProcessor implements IElementProcessor {
         try {
             // send mail to user
 
-            IEmailFormProcessor emfp = CMS.getEmailFormProcessor();
+            EmailFormProcessor emfp = new EmailFormProcessor();
             String message = emfp.getEmailContent(mEmailTemplate,
                     mJob.mItemParams);
 
@@ -685,8 +686,7 @@ class CertRecProcessor implements IElementProcessor {
         }
 
         if (mJob.mSummary == true) {
-            IEmailFormProcessor summaryItemEmfp =
-                    CMS.getEmailFormProcessor();
+            EmailFormProcessor summaryItemEmfp = new EmailFormProcessor();
             String c =
                     summaryItemEmfp.getEmailContent(mSummaryItemTemplate,
                             mJob.mItemParams);
