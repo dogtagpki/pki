@@ -1138,16 +1138,6 @@ public final class CMS {
     }
 
     /**
-     * Checks if the given certificate is a signing certificate.
-     *
-     * @param cert certificate
-     * @return true if the given certificate is a signing certificate
-     */
-    public static boolean isSigningCert(X509Certificate cert) {
-        return _engine.isSigningCert(cert);
-    }
-
-    /**
      * Checks if the given certificate is an encryption certificate.
      *
      * @param cert certificate

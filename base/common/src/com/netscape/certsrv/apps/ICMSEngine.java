@@ -647,14 +647,6 @@ public interface ICMSEngine extends ISubsystem {
     public String getAdminPort();
 
     /**
-     * Checks if the given certificate is a signing certificate.
-     *
-     * @param cert certificate
-     * @return true if the given certificate is a signing certificate
-     */
-    public boolean isSigningCert(X509Certificate cert);
-
-    /**
      * Checks if the given certificate is an encryption certificate.
      *
      * @param cert certificate

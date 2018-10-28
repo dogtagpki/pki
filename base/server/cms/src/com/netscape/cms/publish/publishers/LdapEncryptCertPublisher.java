@@ -26,6 +26,18 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ca.ICAService;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.ELdapServerDownException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.cmscore.cert.CertUtils;
+
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
@@ -38,17 +50,6 @@ import netscape.security.x509.CRLReasonExtension;
 import netscape.security.x509.RevocationReason;
 import netscape.security.x509.RevokedCertImpl;
 import netscape.security.x509.X509CertImpl;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ca.ICAService;
-import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.publish.ILdapPublisher;
 
 /**
  * Interface for mapping a X509 certificate to a LDAP entry
@@ -260,8 +261,8 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
                     // skip
                     log(ILogger.LL_INFO, "SKIP ENCRYPTION " + cert);
                     revokeCert(cert);
-                } else if (CMS.isSigningCert(thisCert) &&
-                        CMS.isSigningCert(cert)) {
+                } else if (CertUtils.isSigningCert(thisCert) &&
+                        CertUtils.isSigningCert(cert)) {
                     // skip
                     log(ILogger.LL_INFO, "SKIP SIGNING " + cert);
                     revokeCert(cert);

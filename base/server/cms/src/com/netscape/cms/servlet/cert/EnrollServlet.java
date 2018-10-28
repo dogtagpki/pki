@@ -68,6 +68,7 @@ import com.netscape.cms.servlet.processors.CRMFProcessor;
 import com.netscape.cms.servlet.processors.KeyGenProcessor;
 import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.extensions.CertInfo;
@@ -400,12 +401,9 @@ public class EnrollServlet extends CMSServlet {
 
     private boolean checkClientCertSigningOnly(X509Certificate sslClientCert)
             throws EBaseException {
-        if ((CMS.isSigningCert(sslClientCert) ==
-                false) ||
-                ((CMS.isSigningCert(sslClientCert) ==
-                    true) &&
-                (CMS.isEncryptionCert(sslClientCert) ==
-                    true))) {
+        if (!CertUtils.isSigningCert((X509CertImpl) sslClientCert) ||
+                CertUtils.isSigningCert((X509CertImpl) sslClientCert) &&
+                CMS.isEncryptionCert(sslClientCert)) {
 
             // either it's not a signing cert, or it's a dual cert
             log(ILogger.LL_FAILURE,
@@ -490,9 +488,9 @@ public class EnrollServlet extends CMSServlet {
                 X509CertImpl cert = record.getCertificate();
 
                 // if not encryption cert only, try next one
-                if ((CMS.isEncryptionCert(cert) == false) ||
-                        ((CMS.isEncryptionCert(cert) == true) &&
-                        (CMS.isSigningCert(cert) == true))) {
+                if (!CMS.isEncryptionCert(cert) ||
+                        CMS.isEncryptionCert(cert) &&
+                        CertUtils.isSigningCert(cert)) {
 
                     CMS.debug("EnrollServlet: Not encryption only cert, will try next one.");
                     continue;

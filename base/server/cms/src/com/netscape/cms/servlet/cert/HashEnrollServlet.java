@@ -70,6 +70,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.extensions.CertInfo;
@@ -444,9 +445,9 @@ public class HashEnrollServlet extends CMSServlet {
 
                 // first, make sure the client cert is indeed a
                 //				signing only cert
-                if ((CMS.isSigningCert(sslClientCert) == false) ||
-                        ((CMS.isSigningCert(sslClientCert) == true) &&
-                        (CMS.isEncryptionCert(sslClientCert) == true))) {
+                if (!CertUtils.isSigningCert((X509CertImpl) sslClientCert) ||
+                        CertUtils.isSigningCert((X509CertImpl) sslClientCert) &&
+                        CMS.isEncryptionCert(sslClientCert)) {
                     // either it's not a signing cert, or it's a dual cert
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSGW_INVALID_CERT_TYPE"));
@@ -495,9 +496,9 @@ public class HashEnrollServlet extends CMSServlet {
                         X509CertImpl cert = record.getCertificate();
 
                         // if not encryption cert only, try next one
-                        if ((CMS.isEncryptionCert(cert) == false) ||
-                                ((CMS.isEncryptionCert(cert) == true) &&
-                                (CMS.isSigningCert(cert) == true))) {
+                        if (!CMS.isEncryptionCert(cert) ||
+                                CMS.isEncryptionCert(cert) &&
+                                CertUtils.isSigningCert(cert)) {
                             continue;
                         }
 
@@ -546,9 +547,9 @@ public class HashEnrollServlet extends CMSServlet {
             } else if (certauthEnrollType.equals(CERT_AUTH_ENCRYPTION)) {
                 // first, make sure the client cert is indeed a
                 //				signing only cert
-                if ((CMS.isSigningCert(sslClientCert) == false) ||
-                        ((CMS.isSigningCert(sslClientCert) == true) &&
-                        (CMS.isEncryptionCert(sslClientCert) == true))) {
+                if (!CertUtils.isSigningCert((X509CertImpl) sslClientCert) ||
+                        CertUtils.isSigningCert((X509CertImpl) sslClientCert) &&
+                        CMS.isEncryptionCert(sslClientCert)) {
                     // either it's not a signing cert, or it's a dual cert
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSGW_INVALID_CERT_TYPE"));
