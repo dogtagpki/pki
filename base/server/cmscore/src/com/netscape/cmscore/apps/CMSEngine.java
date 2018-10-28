@@ -54,7 +54,6 @@ import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
-import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -1590,22 +1589,6 @@ public class CMSEngine implements ICMSEngine {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public void verifySystemCerts() throws Exception {
-        CertUtils.verifySystemCerts();
-    }
-
-    public void verifySystemCertByTag(String tag) throws Exception {
-        CertUtils.verifySystemCertByTag(tag);
-    }
-
-    public void verifySystemCertByNickname(String nickname, String certificateUsage) throws Exception {
-        CertUtils.verifySystemCertByNickname(nickname, certificateUsage);
-    }
-
-    public CertificateUsage getCertificateUsage(String certusage) {
-        return CertUtils.getCertificateUsage(certusage);
     }
 
     public boolean isSigningCert(X509Certificate cert) {

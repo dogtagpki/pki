@@ -36,6 +36,7 @@ import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
+import com.netscape.cmscore.cert.CertUtils;
 
 //////////////////////
 // class definition //
@@ -190,7 +191,7 @@ public class SystemCertsVerification
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
         try {
-            CMS.verifySystemCerts();
+            CertUtils.verifySystemCerts();
 
             String logMessage = CMS.getLogMessage(
                     "SELFTESTS_COMMON_SYSTEM_CERTS_VERIFICATION_SUCCESS",

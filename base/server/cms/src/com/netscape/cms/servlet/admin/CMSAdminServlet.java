@@ -76,6 +76,7 @@ import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
@@ -2165,7 +2166,7 @@ public final class CMSAdminServlet extends AdminServlet {
             boolean verified = false;
             try {
                 logger.debug("CMSAdminServlet: verifying system certificate " + nickname);
-                CMS.verifySystemCertByNickname(nickname, null);
+                CertUtils.verifySystemCertByNickname(nickname, null);
                 verified = true;
 
                 auditMessage = CMS.getLogMessage(

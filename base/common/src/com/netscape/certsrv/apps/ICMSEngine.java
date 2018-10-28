@@ -32,7 +32,6 @@ import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
-import org.mozilla.jss.CertificateUsage;
 
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
@@ -646,35 +645,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return port of administration service
      */
     public String getAdminPort();
-
-    /**
-     * Verifies all system certificates
-     *
-     * @throws Exception if something is wrong
-     */
-    public void verifySystemCerts() throws Exception;
-
-    /**
-     * Verifies a system certificate by its tag name
-     * as defined in <subsystemtype>.cert.list
-     *
-     * @throws Exception if something is wrong
-     */
-    public void verifySystemCertByTag(String tag) throws Exception;
-
-    /**
-     * Verifies a system certificate by its nickname
-     *
-     * @throws Exception if something is wrong
-     */
-    public void verifySystemCertByNickname(String nickname, String certificateUsage) throws Exception;
-
-    /**
-     * get the CertificateUsage as defined in JSS CryptoManager
-     *
-     * @return CertificateUsage as defined in JSS CryptoManager
-     */
-    public CertificateUsage getCertificateUsage(String certusage);
 
     /**
      * Checks if the given certificate is a signing certificate.

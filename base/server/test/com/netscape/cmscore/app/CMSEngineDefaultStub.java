@@ -15,7 +15,6 @@ import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
-import org.mozilla.jss.CertificateUsage;
 
 import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.authentication.ISharedToken;
@@ -442,24 +441,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
 
     @Override
     public String getEEClientAuthSSLPort() {
-        return null;
-    }
-
-    @Override
-    public void verifySystemCerts() throws Exception {
-    }
-
-    @Override
-    public void verifySystemCertByTag(String tag) throws Exception {
-    }
-
-    @Override
-    public void verifySystemCertByNickname(String nickname,
-            String certificateUsage) throws Exception {
-    }
-
-    @Override
-    public CertificateUsage getCertificateUsage(String certusage) {
         return null;
     }
 

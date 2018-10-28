@@ -32,7 +32,6 @@ import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
-import org.mozilla.jss.CertificateUsage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1136,36 +1135,6 @@ public final class CMS {
      */
     public static String getEncodedCert(X509Certificate cert) {
         return _engine.getEncodedCert(cert);
-    }
-
-    /**
-     * Verifies all system certs
-     * with tags defined in <subsystemtype>.cert.list
-     */
-    public static void verifySystemCerts() throws Exception {
-        _engine.verifySystemCerts();
-    }
-
-    /**
-     * Verify a system cert by tag name
-     * with tags defined in <subsystemtype>.cert.list
-     */
-    public static void verifySystemCertByTag(String tag) throws Exception {
-        _engine.verifySystemCertByTag(tag);
-    }
-
-    /**
-     * Verify a system cert by certificate nickname
-     */
-    public static void verifySystemCertByNickname(String nickname, String certificateUsage) throws Exception {
-        _engine.verifySystemCertByNickname(nickname, certificateUsage);
-    }
-
-    /**
-     * get the CertificateUsage as defined in JSS CryptoManager
-     */
-    public static CertificateUsage getCertificateUsage(String certusage) {
-        return _engine.getCertificateUsage(certusage);
     }
 
     /**
