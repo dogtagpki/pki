@@ -342,10 +342,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public boolean isEncryptionCert(X509Certificate cert) {
-        return false;
-    }
-
     public IMailNotification getMailNotification() {
         return null;
     }

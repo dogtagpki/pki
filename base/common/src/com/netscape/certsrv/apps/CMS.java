@@ -1138,16 +1138,6 @@ public final class CMS {
     }
 
     /**
-     * Checks if the given certificate is an encryption certificate.
-     *
-     * @param cert certificate
-     * @return true if the given certificate is an encryption certificate
-     */
-    public static boolean isEncryptionCert(X509Certificate cert) {
-        return _engine.isEncryptionCert(cert);
-    }
-
-    /**
      * Retrieves the email notification handler.
      *
      * @return email notification

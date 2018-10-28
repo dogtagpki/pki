@@ -38,6 +38,7 @@ import com.netscape.certsrv.profile.IProfileUpdater;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmscore.cert.CertUtils;
 
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
@@ -240,7 +241,7 @@ public class CAEnrollProfile extends EnrollProfile {
         }
 
         // set value for predicate value - checking in getRule
-        if (CMS.isEncryptionCert(theCert))
+        if (CertUtils.isEncryptionCert(theCert))
             request.setExtData("isEncryptionCert", "true");
         else
             request.setExtData("isEncryptionCert", "false");

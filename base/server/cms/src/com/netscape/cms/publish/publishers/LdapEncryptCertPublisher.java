@@ -256,8 +256,8 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
                 X509CertImpl cert = new X509CertImpl(val);
 
                 log(ILogger.LL_INFO, "Checking " + cert);
-                if (CMS.isEncryptionCert(thisCert) &&
-                        CMS.isEncryptionCert(cert)) {
+                if (CertUtils.isEncryptionCert(thisCert) &&
+                        CertUtils.isEncryptionCert(cert)) {
                     // skip
                     log(ILogger.LL_INFO, "SKIP ENCRYPTION " + cert);
                     revokeCert(cert);

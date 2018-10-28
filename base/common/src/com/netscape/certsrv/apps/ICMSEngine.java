@@ -647,14 +647,6 @@ public interface ICMSEngine extends ISubsystem {
     public String getAdminPort();
 
     /**
-     * Checks if the given certificate is an encryption certificate.
-     *
-     * @param cert certificate
-     * @return true if the given certificate is an encryption certificate
-     */
-    public boolean isEncryptionCert(X509Certificate cert);
-
-    /**
      * Retrieves the email notification handler.
      *
      * @return email notification

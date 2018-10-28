@@ -54,6 +54,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.cert.CertUtils;
 
 import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
@@ -472,13 +473,13 @@ public class UpdateDir extends CMSServlet {
                             SessionContext sc = SessionContext.getContext();
 
                             if (r == null) {
-                                if (CMS.isEncryptionCert(cert))
+                                if (CertUtils.isEncryptionCert(cert))
                                     sc.put("isEncryptionCert", "true");
                                 else
                                     sc.put("isEncryptionCert", "false");
                                 mPublisherProcessor.publishCert(cert, null);
                             } else {
-                                if (CMS.isEncryptionCert(cert))
+                                if (CertUtils.isEncryptionCert(cert))
                                     r.setExtData("isEncryptionCert", "true");
                                 else
                                     r.setExtData("isEncryptionCert", "false");

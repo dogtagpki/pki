@@ -403,7 +403,7 @@ public class EnrollServlet extends CMSServlet {
             throws EBaseException {
         if (!CertUtils.isSigningCert((X509CertImpl) sslClientCert) ||
                 CertUtils.isSigningCert((X509CertImpl) sslClientCert) &&
-                CMS.isEncryptionCert(sslClientCert)) {
+                CertUtils.isEncryptionCert((X509CertImpl) sslClientCert)) {
 
             // either it's not a signing cert, or it's a dual cert
             log(ILogger.LL_FAILURE,
@@ -488,8 +488,8 @@ public class EnrollServlet extends CMSServlet {
                 X509CertImpl cert = record.getCertificate();
 
                 // if not encryption cert only, try next one
-                if (!CMS.isEncryptionCert(cert) ||
-                        CMS.isEncryptionCert(cert) &&
+                if (!CertUtils.isEncryptionCert(cert) ||
+                        CertUtils.isEncryptionCert(cert) &&
                         CertUtils.isSigningCert(cert)) {
 
                     CMS.debug("EnrollServlet: Not encryption only cert, will try next one.");

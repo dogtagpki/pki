@@ -1591,10 +1591,6 @@ public class CMSEngine implements ICMSEngine {
         }
     }
 
-    public boolean isEncryptionCert(X509Certificate cert) {
-        return CertUtils.isEncryptionCert((X509CertImpl) cert);
-    }
-
     public IMailNotification getMailNotification() {
         try {
             String className = mConfig.getString("notificationClassName",
