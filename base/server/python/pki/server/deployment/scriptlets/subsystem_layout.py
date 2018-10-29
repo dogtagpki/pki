@@ -45,10 +45,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.directory.create(deployer.mdict['pki_subsystem_log_path'])
         deployer.directory.create(
             deployer.mdict['pki_subsystem_archive_log_path'])
-        if deployer.mdict['pki_subsystem'] in \
-                config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
-            deployer.directory.create(
-                deployer.mdict['pki_subsystem_signed_audit_log_path'])
+        deployer.directory.create(
+            deployer.mdict['pki_subsystem_signed_audit_log_path'])
 
         # create /var/lib/pki/<instance>/<subsystem>/conf
         deployer.directory.create(
@@ -137,10 +135,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.directory.delete(deployer.mdict['pki_subsystem_path'])
         # remove instance-based subsystem logs only if --remove-logs flag is specified
         if deployer.mdict['pki_remove_logs']:
-            if deployer.mdict['pki_subsystem'] in \
-                    config.PKI_SIGNED_AUDIT_SUBSYSTEMS:
-                deployer.directory.delete(
-                    deployer.mdict['pki_subsystem_signed_audit_log_path'])
+            deployer.directory.delete(
+                deployer.mdict['pki_subsystem_signed_audit_log_path'])
             deployer.directory.delete(
                 deployer.mdict['pki_subsystem_archive_log_path'])
             deployer.directory.delete(
