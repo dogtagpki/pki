@@ -35,6 +35,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.tree.TreeNode;
 
 import com.netscape.admin.certsrv.CMSAdminResources;
 import com.netscape.admin.certsrv.CMSAdminUtil;
@@ -266,9 +267,9 @@ public class CMSCRLIPPanel  extends CMSBaseTab
                 }
                 CMSResourceObject node =
                   (CMSResourceObject)(mParent.getResourceObject());
-                Enumeration<CMSResourceObject> allchildren = node.children();
+                Enumeration<TreeNode> allchildren = node.children();
                 while (allchildren.hasMoreElements()) {
-                    CMSResourceObject child = allchildren.nextElement();
+                    CMSResourceObject child = (CMSResourceObject)allchildren.nextElement();
                     String name1 = child.getName();
                     if (name1.equals(name)) {
                         node.remove(child);
