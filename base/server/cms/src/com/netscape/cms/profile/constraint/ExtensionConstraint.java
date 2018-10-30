@@ -19,9 +19,6 @@ package com.netscape.cms.profile.constraint;
 
 import java.util.Locale;
 
-import netscape.security.x509.Extension;
-import netscape.security.x509.X509CertInfo;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
@@ -35,6 +32,10 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.EnrollExtDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserExtensionDefault;
+import com.netscape.cmscore.cert.CertUtils;
+
+import netscape.security.x509.Extension;
+import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements the general extension constraint.
@@ -70,7 +71,7 @@ public class ExtensionConstraint extends EnrollConstraint {
 
             if (name.equals(CONFIG_OID)) {
                 try {
-                    CMS.checkOID("", value);
+                    CertUtils.checkOID("", value);
                 } catch (Exception e) {
                     throw new EPropertyException(
                             CMS.getUserMessage("CMS_PROFILE_PROPERTY_ERROR", value));

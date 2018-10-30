@@ -104,7 +104,6 @@ import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.SubsystemRegistry;
-import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.connector.Resender;
@@ -141,7 +140,6 @@ import netscape.ldap.LDAPSSLSocketFactoryExt;
 import netscape.security.pkcs.ContentInfo;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
-import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CertificateChain;
 import netscape.security.x509.GeneralName;
@@ -1556,11 +1554,6 @@ public class CMSEngine implements ICMSEngine {
             boolean isValueConfigured,
             boolean isPolicyEnabled) throws EBaseException {
         return new GeneralNameUtil.GeneralNamesAsConstraintsConfig(name, config, isValueConfigured, isPolicyEnabled);
-    }
-
-    public ObjectIdentifier checkOID(String attrName, String value)
-            throws EBaseException {
-        return CertUtils.checkOID(attrName, value);
     }
 
     public String getEncodedCert(X509Certificate cert) {

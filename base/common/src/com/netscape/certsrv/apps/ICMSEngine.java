@@ -51,7 +51,6 @@ import com.netscape.cmsutil.password.IPasswordStore;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.GeneralName;
 
 /**
@@ -622,16 +621,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return email notification
      */
     public IMailNotification getMailNotification();
-
-    /**
-     * Checks if the given OID is valid.
-     *
-     * @param attrName attribute name
-     * @param value attribute value
-     * @return object identifier of the given attrName
-     */
-    public ObjectIdentifier checkOID(String attrName, String value)
-            throws EBaseException;
 
     /**
      * Creates a general name constraints.

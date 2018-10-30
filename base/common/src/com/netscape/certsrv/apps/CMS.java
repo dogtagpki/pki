@@ -68,7 +68,6 @@ import com.netscape.cmsutil.password.IPasswordStore;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.GeneralName;
 
 /**
@@ -1108,18 +1107,6 @@ public final class CMS {
      */
     public static IMailNotification getMailNotification() {
         return _engine.getMailNotification();
-    }
-
-    /**
-     * Checks if the given OID is valid.
-     *
-     * @param attrName attribute name
-     * @param value attribute value
-     * @return object identifier of the given attrName
-     */
-    public static ObjectIdentifier checkOID(String attrName, String value)
-            throws EBaseException {
-        return _engine.checkOID(attrName, value);
     }
 
     public static String getConfigSDSessionId() {

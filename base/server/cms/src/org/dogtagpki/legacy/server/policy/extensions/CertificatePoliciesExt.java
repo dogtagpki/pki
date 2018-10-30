@@ -35,6 +35,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.cert.CertUtils;
 
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.CPSuri;
@@ -415,7 +416,7 @@ class CertPolicy {
         // if a policy id is not null check that it is a valid OID.
 
         if (mPolicyId != null)
-            CMS.checkOID(mNameDot + PROP_POLICY_IDENTIFIER, mPolicyId);
+            CertUtils.checkOID(mNameDot + PROP_POLICY_IDENTIFIER, mPolicyId);
 
         // if enabled, form CertificatePolicyInfo to be encoded in
         // extension. Policy ids should be all set.

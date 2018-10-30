@@ -38,6 +38,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.cert.CertUtils;
 
 import netscape.security.extensions.GenericASN1Extension;
 import netscape.security.util.ObjectIdentifier;
@@ -257,7 +258,7 @@ public class GenericASN1Ext extends APolicyRule implements
         }
 
         // Check OID value
-        CMS.checkOID(name, oid);
+        CertUtils.checkOID(name, oid);
         pattern = mConfig.getString(PROP_PATTERN, null);
         checkOID(0);
 
@@ -328,7 +329,7 @@ public class GenericASN1Ext extends APolicyRule implements
                 type = mConfig.getString(PROP_ATTRIBUTE + "." + ch + "." + PROP_TYPE, null);
                 if ((type != null) && (type.equalsIgnoreCase("OID"))) {
                     oid = mConfig.getString(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE, null);
-                    CMS.checkOID(oid, oid);
+                    CertUtils.checkOID(oid, oid);
                 }
             }
             index++;

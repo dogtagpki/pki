@@ -34,6 +34,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.cert.CertUtils;
 
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.CertificateExtensions;
@@ -399,10 +400,10 @@ class PolicyMap {
         ObjectIdentifier subjectPolicyId = null;
 
         if (mIssuerDomainPolicy != null)
-            issuerPolicyId = CMS.checkOID(
+            issuerPolicyId = CertUtils.checkOID(
                         mNameDot + PROP_ISSUER_DOMAIN_POLICY, mIssuerDomainPolicy);
         if (mSubjectDomainPolicy != null)
-            subjectPolicyId = CMS.checkOID(
+            subjectPolicyId = CertUtils.checkOID(
                         mNameDot + PROP_SUBJECT_DOMAIN_POLICY, mSubjectDomainPolicy);
 
         // if enabled, form CertificatePolicyMap to be encoded in extension.

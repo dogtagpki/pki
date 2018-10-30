@@ -35,7 +35,6 @@ import com.netscape.cmsutil.password.IPasswordStore;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.GeneralName;
 
 /**
@@ -323,10 +322,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public IMailNotification getMailNotification() {
-        return null;
-    }
-
-    public ObjectIdentifier checkOID(String attrName, String value) throws EBaseException {
         return null;
     }
 
