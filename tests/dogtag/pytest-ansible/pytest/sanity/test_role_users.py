@@ -25,9 +25,11 @@
 #   Boston, MA 02110-1301, USA.
 """
 
-from test_steps import ok
-
+import sys
+import os
+import pytest
 from pki.testlib.common.certlib import *
+from test_steps import ok
 
 if os.path.isfile('/tmp/test_dir/constants.py'):
     sys.path.append('/tmp/test_dir')
