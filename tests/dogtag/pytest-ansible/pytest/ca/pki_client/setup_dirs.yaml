@@ -1,0 +1,31 @@
+- hosts: master
+  gather_facts: true
+  tasks:
+    - name: Making constants.py file compatable for including as vars.
+      shell: sed -e "s/ =/:/g;s/'//g" /tmp/test_dir/constants.py > /tmp/constants.yml
+
+    - name: Fetch the file
+      fetch: src=/tmp/constants.yml dest=/tmp/test_dir flat=yes validate_checksum=no
+
+    - name: Including variables from Environment
+      include_vars:
+        file: /tmp/test_dir/constants.yml
+        name: variable
+
+    - name: Init DB1
+      command: pki -d /tmp/db1_test -c {{ variable.CLIENT_DIR_PASSWORD }} client-init --force
+    - name: Init DB2
+      command: pki -d /tmp/db2_test -c {{ variable.CLIENT_DIR_PASSWORD }} client-init --force
+
+    - name: Import CA Certificate
+      shell: pki -d /tmp/db1_test -c {{ variable.CLIENT_DIR_PASSWORD }} -p {{ variable.CA_HTTP_PORT }} client-cert-import --ca-server CA
+    - name: Import Admin Certificate
+      shell: pki -d /tmp/db1_test -c {{ variable.CLIENT_DIR_PASSWORD }} client-cert-import --pkcs12 {{ variable.CA_CLIENT_DIR }}/ca_admin_cert.p12 --pkcs12-password {{ variable.CLIENT_PKCS12_PASSWORD }}
+    - name: Import KRA Certificate
+      shell: pki -d /tmp/db1_test -c {{ variable.CLIENT_DIR_PASSWORD }} client-cert-import --pkcs12 {{ variable.KRA_CLIENT_DIR }}/kra_admin_cert.p12 --pkcs12-password {{ variable.CLIENT_PKCS12_PASSWORD }}
+    - name: Import OCSP Certificate
+      shell: pki -d /tmp/db1_test -c {{ variable.CLIENT_DIR_PASSWORD }} client-cert-import --pkcs12 {{ variable.OCSP_CLIENT_DIR }}/ocsp_admin_cert.p12 --pkcs12-password {{ variable.CLIENT_PKCS12_PASSWORD }}
+    - name: Import TKS Certificate
+      shell: pki -d /tmp/db1_test -c {{ variable.CLIENT_DIR_PASSWORD }} client-cert-import --pkcs12 {{ variable.TKS_CLIENT_DIR }}/tks_admin_cert.p12 --pkcs12-password {{ variable.CLIENT_PKCS12_PASSWORD }}
+    - name: Import TPS Certificate
+      shell: pki -d /tmp/db1_test -c {{ variable.CLIENT_DIR_PASSWORD }} client-cert-import --pkcs12 {{ variable.TPS_CLIENT_DIR }}/tps_admin_cert.p12 --pkcs12-password {{ variable.CLIENT_PKCS12_PASSWORD }}
