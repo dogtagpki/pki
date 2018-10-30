@@ -49,6 +49,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
 
@@ -317,7 +318,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
             String fingerprint = null;
 
             try {
-                fingerprint = CMS.getFingerPrints(cert);
+                fingerprint = CertUtils.getFingerPrints(cert);
             } catch (CertificateEncodingException ex) {
                 // should never happen
                 throw new EBaseException(

@@ -1930,7 +1930,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             if (impl != null) {
                 print = new CertPrettyPrint(impl);
-                fingerPrint = CMS.getFingerPrints(impl.getEncoded());
+                fingerPrint = CertUtils.getFingerPrints(impl.getEncoded());
             }
 
             if ((print != null) && (fingerPrint != "")) {

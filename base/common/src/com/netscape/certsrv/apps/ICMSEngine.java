@@ -18,9 +18,6 @@
 package com.netscape.certsrv.apps;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
@@ -456,33 +453,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return CRL issuing point record name
      */
     public String getCRLIssuingPointRecordName();
-
-    /**
-     * Returns the finger print of the given certificate.
-     *
-     * @param cert certificate
-     * @return finger print of certificate
-     */
-    public String getFingerPrint(Certificate cert)
-            throws CertificateEncodingException, NoSuchAlgorithmException;
-
-    /**
-     * Returns the finger print of the given certificate.
-     *
-     * @param cert certificate
-     * @return finger print of certificate
-     */
-    public String getFingerPrints(Certificate cert)
-            throws NoSuchAlgorithmException, CertificateEncodingException;
-
-    /*
-     * Returns the finger print of the given certificate.
-     *
-     * @param certDer DER byte array of certificate
-     * @return finger print of certificate
-     */
-    public String getFingerPrints(byte[] certDer)
-            throws NoSuchAlgorithmException;
 
     /**
      * Creates a repository record in the internal database.

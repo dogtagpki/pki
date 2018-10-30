@@ -18,9 +18,6 @@
 package com.netscape.certsrv.apps;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
@@ -1091,39 +1088,6 @@ public final class CMS {
             boolean isPolicyEnabled) throws EBaseException {
         return _engine.createGeneralNamesAsConstraintsConfig(
                 name, config, isValueConfigured, isPolicyEnabled);
-    }
-
-    /**
-     * Returns the finger print of the given certificate.
-     *
-     * @param cert certificate
-     * @return finger print of certificate
-     */
-    public static String getFingerPrint(Certificate cert)
-            throws CertificateEncodingException, NoSuchAlgorithmException {
-        return _engine.getFingerPrint(cert);
-    }
-
-    /**
-     * Returns the finger print of the given certificate.
-     *
-     * @param certDer DER byte array of the certificate
-     * @return finger print of certificate
-     */
-    public static String getFingerPrints(byte[] certDer)
-            throws NoSuchAlgorithmException {
-        return _engine.getFingerPrints(certDer);
-    }
-
-    /**
-     * Returns the finger print of the given certificate.
-     *
-     * @param cert certificate
-     * @return finger print of certificate
-     */
-    public static String getFingerPrints(Certificate cert)
-            throws NoSuchAlgorithmException, CertificateEncodingException {
-        return _engine.getFingerPrints(cert);
     }
 
     /**

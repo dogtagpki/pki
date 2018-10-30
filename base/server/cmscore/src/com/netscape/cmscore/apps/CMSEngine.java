@@ -23,11 +23,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.SignatureException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -1294,21 +1291,6 @@ public class CMSEngine implements ICMSEngine {
 
     public void setServerCertNickname(String newName) {
         mServerCertNickname = newName;
-    }
-
-    public String getFingerPrint(Certificate cert)
-            throws CertificateEncodingException, NoSuchAlgorithmException {
-        return CertUtils.getFingerPrint(cert);
-    }
-
-    public String getFingerPrints(Certificate cert)
-            throws NoSuchAlgorithmException, CertificateEncodingException {
-        return CertUtils.getFingerPrints(cert);
-    }
-
-    public String getFingerPrints(byte[] certDer)
-            throws NoSuchAlgorithmException {
-        return CertUtils.getFingerPrints(certDer);
     }
 
     public String getUserMessage(Locale locale, String msgID, String params[]) {

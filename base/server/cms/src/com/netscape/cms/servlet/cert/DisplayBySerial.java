@@ -53,6 +53,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.extensions.NSCertTypeExtension;
@@ -381,7 +382,7 @@ public class DisplayBySerial extends CMSServlet {
                 String certFingerprints = "";
 
                 try {
-                    certFingerprints = CMS.getFingerPrints(cert);
+                    certFingerprints = CertUtils.getFingerPrints(cert);
                 } catch (Exception e) {
                     log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSGW_ERR_DIGESTING_CERT", e.toString()));

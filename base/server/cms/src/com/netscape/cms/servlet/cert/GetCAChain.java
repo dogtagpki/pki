@@ -45,6 +45,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.CertificateChain;
@@ -339,7 +340,7 @@ public class GetCAChain extends CMSServlet {
                     String subjectdn = certs[i].getSubjectDN().toString();
                     String finger = null;
                     try {
-                        finger = CMS.getFingerPrints(certs[i]);
+                        finger = CertUtils.getFingerPrints(certs[i]);
                     } catch (Exception e) {
                         throw new IOException("Internal Error");
                     }

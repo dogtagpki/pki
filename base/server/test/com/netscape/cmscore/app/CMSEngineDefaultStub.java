@@ -1,9 +1,6 @@
 package com.netscape.cmscore.app;
 
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
@@ -236,23 +233,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public String getCRLIssuingPointRecordName() {
-        return null;
-    }
-
-    public String getFingerPrint(Certificate cert) throws CertificateEncodingException, NoSuchAlgorithmException {
-        return null;
-    }
-
-    public String getFingerPrints(Certificate cert) throws NoSuchAlgorithmException, CertificateEncodingException {
-        return null;
-    }/*
-     * Returns the finger print of the given certificate.
-     *
-     * @param certDer DER byte array of certificate
-     * @return finger print of certificate
-     */
-
-    public String getFingerPrints(byte[] certDer) throws NoSuchAlgorithmException {
         return null;
     }
 
