@@ -27,10 +27,10 @@
 
 import os
 import sys
-import pytest
-from test_steps import ok
 
+import pytest
 from pki.testlib.common.certlib import *
+from test_steps import ok
 
 if os.path.isfile('/tmp/test_dir/constants.py'):
     sys.path.append('/tmp/test_dir')
@@ -57,7 +57,7 @@ def test_setup(ansible_module):
     ("CA_AdminV", ['Status: Enabled', 'Signed: true',
                    'Interval (seconds): 5',
                    'Buffer size (bytes): 512']),
-    ("CA_AdminE", ['FATAL: SSL alert received: CERTIFICATE_EXPIRED']),
+    ("CA_AdminE", pytest.mark.xfail(['FATAL: SSL alert received: CERTIFICATE_EXPIRED'])),
     ("CA_AdminR", ['PKIException: Unauthorized'])
 ])
 def test_ca_audit_with_role_users(ansible_module, certnick, expected):

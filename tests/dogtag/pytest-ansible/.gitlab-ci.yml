@@ -122,5 +122,15 @@ pki_server:
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE pytest/pki_server/test_pki_server_instance*.py -qs --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_instance_junit.xml -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE pytest/pki_server/test_pki_server_subsystem*.py -qs --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_subsystem_junit.xml -vv
   - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master --ansible-playbook-inventory $HOSTFILE pytest/pki_server/test_pki_server_migrate.py pytest/pki_server/test_pki_server_db*.py -qs --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_migrate_db_junit.xml -vv
+
+pki_ca_cert_cli:
+  <<: *job_definition
+  stage: tier1
+  script:
+  - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv
+  - cd $CI_PROJECT_DIR/tests/dogtag/pytest-ansible/
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/sanity/test_role_users.py -q -s --junitxml $CI_PROJECT_DIR/role_user_creation_junit.xml -vvv
+  - py.test --ansible-user=fedora --ansible-become --ansible-inventory $HOSTFILE --ansible-host-pattern master pytest/ca/pki_cert/*.py -qsvv --junitxml $CI_PROJECT_DIR/${CI_JOB_NAME}_junit.xml
   only:
-    - pki_server
+    - pki_cert
+
