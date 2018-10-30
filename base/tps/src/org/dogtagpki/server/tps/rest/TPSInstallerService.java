@@ -18,13 +18,13 @@
 package org.dogtagpki.server.tps.rest;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.dogtagpki.server.rest.SystemConfigService;
 import org.dogtagpki.server.tps.installer.TPSInstaller;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.AdminSetupRequest;
@@ -43,6 +43,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 public class TPSInstallerService extends SystemConfigService  {
 
+    public final static Logger logger = LoggerFactory.getLogger(TPSInstallerService.class);
 
     public TPSInstallerService() throws EBaseException {
     }
@@ -133,46 +134,84 @@ public class TPSInstallerService extends SystemConfigService  {
     @Override
     public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
-        try {
-            URI secdomainURI = new URI(request.getSecurityDomainUri());
+        URI secdomainURI = new URI(request.getSecurityDomainUri());
+        URI caURI = request.getCaUri();
+        URI tksURI = request.getTksUri();
+        URI kraURI = request.getKraUri();
 
-            // register TPS with CA
-            URI caURI = request.getCaUri();
+        try {
+            logger.info("TPSInstallerService: Registering TPS to CA: " + caURI);
             ConfigurationUtils.registerUser(secdomainURI, caURI, "ca");
 
-            // register TPS with TKS
-            URI tksURI = request.getTksUri();
+        } catch (Exception e) {
+            String message = "Unable to register TPS to CA: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
+        }
+
+        try {
+            logger.info("TPSInstallerService: Registering TPS to TKS: " + tksURI);
             ConfigurationUtils.registerUser(secdomainURI, tksURI, "tks");
 
-            if (request.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
-                URI kraURI = request.getKraUri();
+        } catch (Exception e) {
+            String message = "Unable to register TPS to TKS: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
+        }
+
+        if (request.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
+
+            try {
+                logger.info("TPSInstallerService: Registering TPS to KRA: " + kraURI);
                 ConfigurationUtils.registerUser(secdomainURI, kraURI, "kra");
-                String transportCert = ConfigurationUtils.getTransportCert(secdomainURI, kraURI);
-                ConfigurationUtils.exportTransportCert(secdomainURI, tksURI, transportCert);
+
+            } catch (Exception e) {
+                String message = "Unable to register TPS to KRA: " + e.getMessage();
+                logger.error(message, e);
+                throw new PKIException(message, e);
             }
 
+            String transportCert;
+            try {
+                logger.info("TPSInstallerService: Retrieving transport cert from KRA");
+                transportCert = ConfigurationUtils.getTransportCert(secdomainURI, kraURI);
+
+            } catch (Exception e) {
+                String message = "Unable to retrieve transport cert from KRA: " + e.getMessage();
+                logger.error(message, e);
+                throw new PKIException(message, e);
+            }
+
+            try {
+                logger.info("TPSInstallerService: Importing transport cert into TKS");
+                ConfigurationUtils.exportTransportCert(secdomainURI, tksURI, transportCert);
+
+            } catch (Exception e) {
+                String message = "Unable to import transport cert into TKS: " + e.getMessage();
+                logger.error(message, e);
+                throw new PKIException(message, e);
+            }
+        }
+
+        try {
             String doImportStr = request.getImportSharedSecret();
-            CMS.debug("finalizeConfiguration: importSharedSecret:" + doImportStr);
-            // generate shared secret from the tks
+            logger.debug("TPSInstallerService: importSharedSecret:" + doImportStr);
 
             boolean doImport = false;
-
-            if("true".equalsIgnoreCase(doImportStr)) {
-                CMS.debug("finalizeConfiguration: importSharedSecret: importSharedSecret is true.");
+            if ("true".equalsIgnoreCase(doImportStr)) {
                 doImport = true;
             }
 
+            logger.info("TPSInstallerService: Generating shared secret in TKS");
             ConfigurationUtils.getSharedSecret(
                     tksURI.getHost(),
                     tksURI.getPort(),
                     doImport);
 
-        } catch (URISyntaxException e) {
-            throw new BadRequestException("Invalid URI for CA, TKS or KRA");
-
         } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException("Errors in registering TPS to CA, TKS or KRA: " + e);
+            String message = "Unable to generate shared secret in TKS: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
         }
 
         super.finalizeConfiguration(request);
