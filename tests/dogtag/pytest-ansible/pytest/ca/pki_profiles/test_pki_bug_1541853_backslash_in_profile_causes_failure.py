@@ -33,14 +33,13 @@
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 """
 
+import logging
 import os
-import re
 import sys
-import tempfile
 
 import pytest
 
-from pki.testlib.common.utils import UserOperations
+from pki.testlib.common.utils import UserOperations, ProfileOperations
 
 try:
     from pki.testlib.common import constants
@@ -50,6 +49,10 @@ except Exception as e:
         import constants
 
 userop = UserOperations(nssdb=constants.NSSDB)
+profop = ProfileOperations(nssdb=constants.NSSDB)
+
+log = logging.getLogger()
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 def test_bug_1541853_backslash_in_profile_failure_in_cert_issuance(ansible_module):
@@ -87,73 +90,72 @@ def test_bug_1541853_backslash_in_profile_failure_in_cert_issuance(ansible_modul
                 1. Certificate issuance should be successful.
                 2. Make sure that backslashes are not present in the raw profile.
     """
-    tmp_file = tempfile.mktemp(suffix='tmp_', prefix='_profile')
-    newProfile = None
-    profile_update = False
+    file_name = '/tmp/caServerCert.txt'
+    profile = 'caServerCert'
     replace_param = 'policyset.serverCertSet.1.default.params.name=.*'
     param_string = 'policyset.serverCertSet.1.default.params.name=' \
                    'CN\=$request.request_subject_name.cn$,O\=Red Hat\, Inc.'
-    profile = ansible_module.pki(cli='ca-profile-show',
-                                 nssdb=constants.NSSDB,
-                                 port=constants.CA_HTTP_PORT,
-                                 certnick='"{}"'.format(constants.CA_ADMIN_NICK),
-                                 extra_args='caServerCert --raw')
 
-    for _, result in profile.items():
+    profile_show = ansible_module.pki(cli='ca-profile-show',
+                                      nssdb=constants.NSSDB,
+                                      port=constants.CA_HTTP_PORT,
+                                      dbpassword=constants.CLIENT_DATABASE_PASSWORD,
+                                      certnick='"{}"'.format(constants.CA_ADMIN_NICK),
+                                      extra_args='{} --raw --output {}'.format(profile, file_name))
+
+    for result in profile_show.values():
         if result['rc'] == 0:
-            newProfile = result['stdout']
-            newProfile = re.sub(replace_param, param_string, newProfile)
+            log.info("Changing {} to {}.".format(replace_param, param_string))
+            ansible_module.lineinfile(dest=file_name, regexp=replace_param, line=param_string)
+        else:
+            log.error("Failed to get caServerCert profile.")
+            log.error("Failed to run: {}".format(result['cmd']))
+            pytest.xfail()
+    disabled = profop.disable_profile(ansible_module, profile)
+    assert disabled
 
-    disable_profile = ansible_module.pki(cli='ca-profile-disable',
-                                         nssdb=constants.NSSDB,
-                                         port=constants.CA_HTTP_PORT,
-                                         certnick='"{}"'.format(constants.CA_ADMIN_NICK),
-                                         extra_args='caServerCert')
-    if newProfile:
-        with open(tmp_file, 'w') as f:
-            f.write(newProfile)
-        ansible_module.copy(src=tmp_file, dest='/tmp/caServerProf.tmp')
+    update_prof = ansible_module.pki(cli='ca-profile-mod',
+                                     nssdb=constants.NSSDB,
+                                     port=constants.CA_HTTP_PORT,
+                                     dbpassword=constants.CLIENT_DATABASE_PASSWORD,
+                                     certnick='"{}"'.format(constants.CA_ADMIN_NICK),
+                                     extra_args='{} --raw'.format(file_name))
 
-        update_prof = ansible_module.pki(cli='ca-profile-mod',
-                                         nssdb=constants.NSSDB,
-                                         port=constants.CA_HTTP_PORT,
-                                         certnick='"{}"'.format(constants.CA_ADMIN_NICK),
-                                         extra_args='/tmp/caServerProf.tmp --raw')
+    for result in update_prof.values():
+        if result['rc'] == 0:
+            log.info("Changed profile.")
+        else:
+            log.error("Failed to update the profile.")
+            pytest.xfail("Failed to update profile.")
+    enabled = profop.enable_profile(ansible_module, profile_name=profile)
+    assert enabled
 
-        for _, result in update_prof.items():
-            if result['rc'] == 0:
-                profile_update = True
-            else:
-                pytest.xfail("Failed to update profile.")
+    ca_ser_cert = ansible_module.pki(cli='ca-profile-show',
+                                     nssdb=constants.NSSDB,
+                                     port=constants.CA_HTTP_PORT,
+                                     dbpassword=constants.CLIENT_DATABASE_PASSWORD,
+                                     certnick='"{}"'.format(constants.CA_ADMIN_NICK),
+                                     extra_args='caServerCert --raw')
+    for res in ca_ser_cert.values():
+        if res['rc'] == 0:
+            assert param_string in res['stdout']
+        else:
+            pytest.xfail("Failed to run caServerCert profile.")
 
-    enable_profile = ansible_module.pki(cli='ca-profile-enable',
-                                        nssdb=constants.NSSDB,
-                                        port=constants.CA_HTTP_PORT,
-                                        certnick='"{}"'.format(constants.CA_ADMIN_NICK),
-                                        extra_args='caServerCert')
-    if profile_update:
-        ca_ser_cert = ansible_module.pki(cli='ca-profile-show',
-                                         nssdb=constants.NSSDB,
-                                         port=constants.CA_HTTP_PORT,
-                                         certnick='"{}"'.format(constants.CA_ADMIN_NICK),
-                                         extra_args='caServerCert --raw')
-        for _, res in ca_ser_cert.items():
-            if res['rc'] == 0:
-                assert param_string.replace('\,', ',') in res['stdout']
-            else:
-                pytest.xfail("Failed to run caServerCert profile.")
+    subject = 'CN=pki1.example.com'
+    cert_id = userop.process_certificate_request(ansible_module, subject=subject, profile=profile,
+                                                 keysize=2048)
 
-        subject = 'CN=pki1.example.com'
-        cert_id = userop.process_certificate_request(ansible_module, subject=subject,
-                                                     profile='caServerCert',
-                                                     keysize=2048)
+    cert_show_out = ansible_module.pki(cli='ca-cert-show',
+                                       nssdb=constants.NSSDB,
+                                       port=constants.CA_HTTP_PORT,
+                                       dbpassword=constants.CLIENT_DATABASE_PASSWORD,
+                                       certnick='"{}"'.format(constants.CA_ADMIN_NICK),
+                                       extra_args='{}'.format(cert_id))
 
-        cert_show_out = ansible_module.pki(cli='ca-cert-show',
-                                           nssdb=constants.NSSDB,
-                                           port=constants.CA_HTTP_PORT,
-                                           certnick='"{}"'.format(constants.CA_ADMIN_NICK),
-                                           extra_args='{}'.format(cert_id))
-
-        for _, res in cert_show_out.items():
-            if res['rc'] == 0:
-                assert '\\' not in res['stdout']
+    for res in cert_show_out.values():
+        if res['rc'] == 0:
+            assert '\\' not in res['stdout']
+            log.info(res['stdout'])
+        else:
+            pytest.xfail()
