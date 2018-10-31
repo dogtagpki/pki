@@ -15,7 +15,6 @@
 %global package_rhcs_packages 1
 %define pki_core_rhel_version 10.5.9
 %else
-# 0%{?fedora}
 # Fedora always packages all RPMS
 %global package_fedora_packages 1
 %endif
@@ -75,7 +74,6 @@ Version:                10.5.13
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
-#%define default_release %{fedora_release}
 %endif
 
 %if 0%{?use_pki_release}
@@ -805,7 +803,9 @@ This package is a part of the PKI Core used by the Certificate System.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVERSION=%{version}-%{release} \
+%cmake \
+    --no-warn-unused-cli \
+    -DVERSION=%{version}-%{release} \
 	-DVAR_INSTALL_DIR:PATH=/var \
 	-DBUILD_PKI_CORE:BOOL=ON \
 	-DJAVA_HOME=%{java_home} \
@@ -832,13 +832,19 @@ cd build
 	-DWITH_JAVADOC:BOOL=OFF \
 %endif
 	..
-%{__make} VERBOSE=1 %{?_smp_mflags} -j 1 all unit-test
-
 
 %install
-%{__rm} -rf %{buildroot}
+
 cd build
-%{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
+
+# Do not use _smp_mflags to preserve build order
+%{__make} \
+    VERBOSE=%{?_verbose} \
+    CMAKE_NO_VERBOSE=1 \
+    DESTDIR=%{buildroot} \
+    INSTALL="install -p" \
+    --no-print-directory \
+     all unit-test install
 
 # Create symlinks for admin console (TPS does not use admin console)
 for subsystem in ca kra ocsp tks; do
@@ -852,21 +858,6 @@ ln -s %{_bindir}/KRATool %{buildroot}%{_bindir}/DRMTool
 ln -s %{_datadir}/pki/java-tools/KRATool.cfg %{buildroot}%{_datadir}/pki/java-tools/DRMTool.cfg
 # Create compatibility symlink for DRMTool.1.gz -> KRATool.1.gz
 ln -s %{_mandir}/man1/KRATool.1.gz %{buildroot}%{_mandir}/man1/DRMTool.1.gz
-
-# Customize system upgrade scripts in /usr/share/pki/upgrade
-%if 0%{?rhel} && 0%{?rhel} <= 7
-
-# merge newer upgrade scripts into 10.3.3 for RHEL
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.3.4
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.3.5
-
-# merge newer upgrade scripts into 10.4.1 for RHEL
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.2
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.3
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.4
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.5
-/bin/rm -rf %{buildroot}%{_datadir}/pki/upgrade/10.4.6
-%endif
 
 # Customize client library links in /usr/share/pki/lib
 %if 0%{?fedora} || 0%{?rhel} > 7
@@ -902,7 +893,6 @@ mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/01-FixServerLibrary \
    %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/02-FixServerLibrary
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/02-FixDeploymentDescriptor \
    %{buildroot}%{_datadir}/pki/server/upgrade/10.3.3/03-FixDeploymentDescriptor
-/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.4
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5
 
 # merge newer upgrade scripts into 10.4.1 for RHEL
@@ -913,9 +903,6 @@ mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2/02-AddKRAWrappingParams \
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6/01-UpdateKeepAliveTimeout \
    %{buildroot}%{_datadir}/pki/server/upgrade/10.4.1/03-UpdateKeepAliveTimeout
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2
-/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.3
-/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.4
-/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.5
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6
 
 # merge newer upgrade script into 10.5.1 for RHEL
