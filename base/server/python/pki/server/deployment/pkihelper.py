@@ -373,18 +373,16 @@ class Namespace:
                     log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                         self.mdict['pki_instance_name'],
                         self.mdict['pki_cgroup_cpu_systemd_service_path']))
+
         if os.path.exists(self.mdict['pki_instance_log_path']) and\
            os.path.exists(self.mdict['pki_subsystem_log_path']):
-            # Top-Level PKI log path collision
-            config.pki_log.error(
-                log.PKIHELPER_NAMESPACE_COLLISION_2,
+            # Check if logs already exist. If so, append to it. Log it as info
+            config.pki_log.info(
+                log.PKIHELPER_LOG_REUSE,
                 self.mdict['pki_instance_name'],
                 self.mdict['pki_instance_log_path'],
                 extra=config.PKI_INDENTATION_LEVEL_2)
-            raise Exception(
-                log.PKIHELPER_NAMESPACE_COLLISION_2 % (
-                    self.mdict['pki_instance_name'],
-                    self.mdict['pki_instance_log_path']))
+
         if os.path.exists(self.mdict['pki_instance_configuration_path']) and\
            os.path.exists(self.mdict['pki_subsystem_configuration_path']):
             # Top-Level PKI configuration path collision

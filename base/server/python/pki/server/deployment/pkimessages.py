@@ -271,6 +271,8 @@ PKIHELPER_NAMESPACE_COLLISION_2 = \
     "PKI instance '%s' would produce a namespace collision with '%s'!"
 PKIHELPER_NAMESPACE_RESERVED_NAME_2 = \
     "PKI instance '%s' is already a reserved name under '%s'!"
+PKIHELPER_LOG_REUSE = \
+    "previous logs of PKI instance '%s' already exist. Appending logs to '%s'"
 PKIHELPER_NCIPHER_RESTART_1 = "executing '%s'"
 PKIHELPER_NOISE_FILE_2 = \
     "generating noise file called '%s' and filling it with '%d' random bytes"
