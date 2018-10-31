@@ -66,12 +66,12 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.9
-%define redhat_release  5
+%define redhat_release  7
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.12
+Version:                10.5.13
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -169,9 +169,9 @@ BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.4.4-3
 %if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    tomcatjss >= 7.2.1-7
+BuildRequires:    tomcatjss >= 7.2.1-8
 %else
-BuildRequires:    tomcatjss >= 7.2.4-3
+BuildRequires:    tomcatjss >= 7.2.4-4
 %endif
 BuildRequires:    systemd-units
 
@@ -537,9 +537,9 @@ Requires(preun):  systemd-units
 Requires(postun): systemd-units
 Requires(pre):    shadow-utils
 %if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         tomcatjss >= 7.2.1-7
+Requires:         tomcatjss >= 7.2.1-8
 %else
-Requires:         tomcatjss >= 7.2.4-3
+Requires:         tomcatjss >= 7.2.4-4
 %endif
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
@@ -1336,6 +1336,24 @@ fi
 %endif # %{with server}
 
 %changelog
+* Mon Oct 29 2018 Dogtag Team <pki-devel@redhat.com> 10.5.13-1
+- Require "tomcatjss >= 7.2.4-4" as a build and runtime requirement
+- dogtagpki Pagure Issue #2840 - pki cli command for Dogtag doesn't
+  prompt for a password (edewata)
+- dogtagpki Pagure Issue #2865 - X500Name.directoryStringEncodingOrder
+  overridden by CSR encoding (coverity changes) (mharmsen)
+- dogtagpki Pagure Issue #2879 - missing audit event for CS acting as
+  TLS client (cfu)
+- dogtagpki Pagure Issue #2960 - Permit certain SHA384 FIPS ciphers to be
+  enabled by default for RSA and ECC . . . (cfu)
+- dogtagpki Pagure Issue #3027 - Unsupported RSA_ ciphers should be
+  removed from the default ciphers list (cfu)
+- dogtagpki Pagure Issue #3040 - pki-ca using existing CA (edewata)
+- dogtagpki Pagure Issue #3070 - Auto shutdown when partition
+  for signed audit log is full (edewata)
+- dogtagpki Pagure Issue #3071 - Identify product version of CA, KRA,
+  OCSP, TKS, and TPS using browser (cfu, jmagne, mharmsen)
+
 * Mon Aug 13 2018 Dogtag Team <pki-devel@redhat.com> 10.5.12-1
 - dogtagpki Pagure Issue #2481 - ECC keys not supported for signing
   audit logs (cfu)
