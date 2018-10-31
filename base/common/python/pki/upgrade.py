@@ -22,8 +22,8 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import functools
+import logging
 import os
-import re
 import shutil
 import traceback
 
@@ -36,70 +36,9 @@ DEFAULT_VERSION = '10.0.0'
 UPGRADE_DIR = pki.SHARE_DIR + '/upgrade'
 BACKUP_DIR = pki.LOG_DIR + '/upgrade'
 SYSTEM_TRACKER = pki.CONF_DIR + '/pki.version'
+
+logger = logging.getLogger(__name__)
 verbose = False
-
-
-@functools.total_ordering
-class Version(object):
-
-    def __init__(self, obj):
-
-        if isinstance(obj, str):
-
-            # parse <version>-<release>
-            pos = obj.find('-')
-
-            if pos > 0:
-                self.version = obj[0:pos]
-            elif pos < 0:
-                self.version = obj
-            else:
-                raise Exception('Invalid version number: ' + obj)
-
-            # parse <major>.<minor>.<patch>
-            match = re.match(r'^(\d+)\.(\d+)\.(\d+)$', self.version)
-
-            if match is None:
-                raise Exception('Invalid version number: ' + self.version)
-
-            self.major = int(match.group(1))
-            self.minor = int(match.group(2))
-            self.patch = int(match.group(3))
-
-        elif isinstance(obj, Version):
-
-            self.major = obj.major
-            self.minor = obj.minor
-            self.patch = obj.patch
-
-        else:
-            raise Exception('Unsupported version type: ' + str(type(obj)))
-
-    # release is ignored in comparisons
-    def __eq__(self, other):
-        return (self.major == other.major and
-                self.minor == other.minor and
-                self.patch == other.patch)
-
-    def __lt__(self, other):
-        if self.major < other.major:
-            return True
-
-        if self.major == other.major and self.minor < other.minor:
-            return True
-
-        if (self.major == other.major and
-                self.minor == other.minor and
-                self.patch < other.patch):
-            return True
-
-        return False
-
-    # not hashable
-    __hash__ = None
-
-    def __repr__(self):
-        return self.version
 
 
 class PKIUpgradeTracker(object):
@@ -203,9 +142,9 @@ class PKIUpgradeTracker(object):
 
         version = self.properties.get(self.version_key)
         if version:
-            return Version(version)
+            return pki.util.Version(version)
 
-        return Version(DEFAULT_VERSION)
+        return pki.util.Version(DEFAULT_VERSION)
 
     def set_version(self, version):
 
@@ -479,7 +418,7 @@ class PKIUpgrader(object):
 
         if os.path.exists(self.upgrade_dir):
             for version in os.listdir(self.upgrade_dir):
-                version = Version(version)
+                version = pki.util.Version(version)
                 all_versions.append(version)
 
         all_versions.sort()
@@ -489,25 +428,46 @@ class PKIUpgrader(object):
     def versions(self):
 
         current_version = self.get_current_version()
-        target_version = self.get_target_version()
+        logger.debug('Current version: %s', current_version)
 
-        current_versions = []
+        target_version = self.get_target_version()
+        logger.debug('Target version: %s', target_version)
+
+        upgrade_path = []
 
         for version in self.all_versions():
 
-            # skip old versions
-            if version >= current_version:
-                current_versions.append(version)
+            # skip older versions
+            if version < current_version:
+                continue
 
-        current_versions.sort()
+            # skip newer versions
+            if version > target_version:
+                continue
+
+            upgrade_path.append(version)
+
+        upgrade_path.sort()
+
+        # start from current version
+        if not upgrade_path or upgrade_path[0] != current_version:
+            upgrade_path.insert(0, current_version)
+
+        # stop at target version
+        if not upgrade_path or upgrade_path[-1] != target_version:
+            upgrade_path.append(target_version)
+
+        logger.debug('Upgrade path:')
+        for version in upgrade_path:
+            logger.debug(' - %s', version)
 
         versions = []
 
-        for index, version in enumerate(current_versions):
+        for index, version in enumerate(upgrade_path):
 
             # link versions
-            if index < len(current_versions) - 1:
-                version.next = current_versions[index + 1]
+            if index < len(upgrade_path) - 1:
+                version.next = upgrade_path[index + 1]
             else:
                 version.next = target_version
 
@@ -587,7 +547,7 @@ class PKIUpgrader(object):
         return tracker.get_version()
 
     def get_target_version(self):
-        return Version(pki.implementation_version())
+        return pki.util.Version(pki.implementation_version())
 
     def is_complete(self):
 
@@ -631,9 +591,6 @@ class PKIUpgrader(object):
             try:
                 scriptlet.init()
                 scriptlet.upgrade()
-
-            except pki.PKIException:
-                raise
 
             except Exception as e:  # pylint: disable=W0703
 
@@ -698,9 +655,6 @@ class PKIUpgrader(object):
 
             try:
                 scriptlet.revert()
-
-            except pki.PKIException:
-                raise
 
             except Exception as e:  # pylint: disable=W0703
 
