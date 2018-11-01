@@ -199,8 +199,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # remove Tomcat instance base
         deployer.directory.delete(deployer.mdict['pki_instance_path'])
-        # remove Tomcat instance logs
-        deployer.directory.delete(deployer.mdict['pki_instance_log_path'])
+
+        # remove Tomcat instance logs only if --remove-logs is specified
+        if deployer.mdict['pki_remove_logs']:
+            deployer.directory.delete(deployer.mdict['pki_instance_log_path'])
+
         # remove shared NSS security database path for this instance
         deployer.directory.delete(deployer.mdict['pki_database_path'])
         # remove Tomcat instance configuration

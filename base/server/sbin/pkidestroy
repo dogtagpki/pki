@@ -102,6 +102,13 @@ def main(argv):
         help='force removal of subsystem'
     )
 
+    parser.optional.add_argument(
+        '--remove-logs',
+        dest='pki_remove_logs',
+        action='store_true',
+        help='remove subsystem logs'
+    )
+
     args = parser.process_command_line_arguments()
 
     interactive = False
@@ -164,6 +171,9 @@ def main(argv):
 
     #   '--force'
     force_destroy = args.pki_force_destroy
+
+    #   '--remove-logs'
+    remove_logs = args.pki_remove_logs
 
     # verify that previously deployed instance exists
     deployed_pki_instance_path = os.path.join(
@@ -234,6 +244,9 @@ def main(argv):
 
     # Add force_destroy to master dictionary
     parser.mdict['pki_force_destroy'] = force_destroy
+
+    # Add remove logs to master dictionary
+    parser.mdict['pki_remove_logs'] = remove_logs
 
     config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
                          extra=config.PKI_INDENTATION_LEVEL_0)
