@@ -128,7 +128,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.security_domain.deregister(None)
 
         except Exception as e:  # pylint: disable=broad-except
-            config.pki_log.error(str(e))
+            config.pki_log.error(log.PKI_OSERROR_1, e,
+                                 extra=config.PKI_INDENTATION_LEVEL_0)
             # If it is a normal destroy, pass any exception
             if not deployer.mdict['pki_force_destroy']:
                 raise
