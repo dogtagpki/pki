@@ -5,132 +5,52 @@ services:
   - docker
 cache: pip
 
-jobs:
-  include:
+env:
+  - BASE_IMAGE_VERSION=28 TASK="PKI"
+  - BASE_IMAGE_VERSION=28 TASK="IPA"
+  - BASE_IMAGE_VERSION=29 TASK="PKI"
+  - BASE_IMAGE_VERSION=29 TASK="IPA"
 
-    # F27 Image
-    - env:
-        - TASK="PKI Test on F27"
-        - BASE_IMAGE_VERSION=27
-      before_install:
-        - set -a && source travis/global_variables
-        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-        - touch ${LOGS}
-        - travis/post-test-started.sh
-      install:
-        - travis/builder-init.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-install.sh
-      script:
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-create.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-create.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-create.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ocsp-create.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tks-create.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tps-create.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tps-remove.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tks-remove.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ocsp-remove.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-remove.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-remove.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-remove.sh
-      after_failure:
-        - travis/post-test-failed.sh
-      after_script:
-        - cat ${LOGS}
-        - docker kill ${CONTAINER}
-        - docker rm ${CONTAINER}
+before_install:
+  - set -a && source travis/global_variables
+  - touch ${LOGS}
 
-    - env:
-        - TASK="IPA Test on F27"
-        - BASE_IMAGE_VERSION=27
-      before_install:
-        - set -a && source travis/global_variables
-        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-        - touch ${LOGS}
-      install:
-        # Setup the required build environment
-        - travis/builder-init.sh
-        # Initialize PKI build env
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh
-        # Trigger build process
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh --with-pkgs=base,server,ca,kra
-        # Initialize IPA test environment
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ipa-init.sh
-        # Install recently build Dogtag RPMS
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-install.sh
-      script:
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ipa-test.sh
-      after_failure:
-        - travis/post-test-failed.sh
-      after_script:
-        - cat ${LOGS}
-        - docker kill ${CONTAINER}
-        - docker rm ${CONTAINER}
+install:
+  # Setup the required build environment
+  - travis/builder-init.sh
 
-    # F28 image
-    - env:
-        - TASK="PKI Test on F28"
-        - BASE_IMAGE_VERSION=28
-      before_install:
-        - set -a && source travis/global_variables
-        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-        - touch ${LOGS}
-      install:
-        - travis/builder-init.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-install.sh
-      script:
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-create.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-create.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-create.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ocsp-create.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tks-create.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tps-create.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tps-remove.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/tks-remove.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ocsp-remove.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-remove.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-remove.sh
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-remove.sh
-      after_failure:
-        - travis/post-test-failed.sh
-      after_script:
-        - cat ${LOGS}
-        - docker kill ${CONTAINER}
-        - docker rm ${CONTAINER}
+  # Initialize PKI build env
+  - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh
 
-    - env:
-        - TASK="IPA Test on F28"
-        - BASE_IMAGE_VERSION=28
-      before_install:
-        - set -a && source travis/global_variables
-        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-        - touch ${LOGS}
-      install:
-        # Setup the required build environment
-        - travis/builder-init.sh
-        # Initialize PKI build env
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-init.sh
-        # Trigger build process
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh --with-pkgs=base,server,ca,kra
-        # Initialize IPA test environment
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ipa-init.sh
-        # Install recently build Dogtag RPMS
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-install.sh
-      script:
-        - docker exec -i ${CONTAINER} ${SCRIPTDIR}/ipa-test.sh
-      after_failure:
-        - travis/post-test-failed.sh
-      after_script:
-        - cat ${LOGS}
-        - docker kill ${CONTAINER}
-        - docker rm ${CONTAINER}
+  # Trigger build process
+  - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-build.sh
 
-    - stage: Verification Label
-      before_install:
-        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-      script:
-        - travis/post-test-passed.sh
+  # If IPA, first initialize IPA env, then install new PKI RPMS
+  - if [ $TASK = "IPA" ]; then docker exec -i ${CONTAINER} ${SCRIPTDIR}/ipa-init.sh; fi
+
+  # Install recently build Dogtag RPMS
+  - docker exec -i ${CONTAINER} ${SCRIPTDIR}/pki-install.sh
+  
+script:
+  - >
+    if [ $TASK = "IPA" ]; then
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/ipa-test.sh
+    else
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-create.sh
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-create.sh
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-create.sh
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/ocsp-create.sh
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/tks-create.sh
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/tps-create.sh
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/tps-remove.sh
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/tks-remove.sh
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/ocsp-remove.sh
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/kra-remove.sh
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/ca-remove.sh
+      docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-remove.sh
+    fi
+
+after_script:
+  - cat ${LOGS}
+  - docker kill ${CONTAINER}
+  - docker rm ${CONTAINER}
