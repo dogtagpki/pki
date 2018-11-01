@@ -259,7 +259,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         config.pki_log.info(log.SECURITY_DATABASES_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
         if len(deployer.instance.tomcat_instance_subsystems()) == 0:
-            deployer.file.delete(deployer.mdict['pki_cert_database'])
-            deployer.file.delete(deployer.mdict['pki_key_database'])
-            deployer.file.delete(deployer.mdict['pki_secmod_database'])
+
+            if deployer.directory.exists(deployer.mdict['pki_client_dir']):
+                deployer.directory.delete(deployer.mdict['pki_client_dir'])
+
+            deployer.directory.delete(deployer.mdict['pki_database_path'])
             deployer.file.delete(deployer.mdict['pki_shared_password_conf'])

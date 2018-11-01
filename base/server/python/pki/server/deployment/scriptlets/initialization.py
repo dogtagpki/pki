@@ -86,45 +86,53 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.configuration_file.verify_ds_secure_connection_data()
 
     def destroy(self, deployer):
+        try:
+            # begin official logging
+            config.pki_log.info(log.PKIDESTROY_BEGIN_MESSAGE_2,
+                                deployer.mdict['pki_subsystem'],
+                                deployer.mdict['pki_instance_name'],
+                                extra=config.PKI_INDENTATION_LEVEL_0)
+            config.pki_log.info(log.INITIALIZATION_DESTROY_1, __name__,
+                                extra=config.PKI_INDENTATION_LEVEL_1)
+            # verify that this type of "subsystem" currently EXISTS
+            # for this "instance"
+            deployer.instance.verify_subsystem_exists()
+            # verify that the command-line parameters match the values
+            # that are present in the corresponding configuration file
+            deployer.configuration_file.verify_command_matches_configuration_file()
+            # establish 'uid' and 'gid'
+            deployer.identity.set_uid(deployer.mdict['pki_user'])
+            deployer.identity.set_gid(deployer.mdict['pki_group'])
+            # get ports to remove selinux context
+            deployer.configuration_file.populate_non_default_ports()
 
-        # begin official logging
-        config.pki_log.info(log.PKIDESTROY_BEGIN_MESSAGE_2,
-                            deployer.mdict['pki_subsystem'],
-                            deployer.mdict['pki_instance_name'],
-                            extra=config.PKI_INDENTATION_LEVEL_0)
-        config.pki_log.info(log.INITIALIZATION_DESTROY_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
-        # verify that this type of "subsystem" currently EXISTS
-        # for this "instance"
-        deployer.instance.verify_subsystem_exists()
-        # verify that the command-line parameters match the values
-        # that are present in the corresponding configuration file
-        deployer.configuration_file.verify_command_matches_configuration_file()
-        # establish 'uid' and 'gid'
-        deployer.identity.set_uid(deployer.mdict['pki_user'])
-        deployer.identity.set_gid(deployer.mdict['pki_group'])
-        # get ports to remove selinux context
-        deployer.configuration_file.populate_non_default_ports()
+            # remove kra connector from CA if this is a KRA
+            deployer.kra_connector.deregister()
 
-        # remove kra connector from CA if this is a KRA
-        deployer.kra_connector.deregister()
+            # remove tps connector from TKS if this is a TPS
+            deployer.tps_connector.deregister()
 
-        # remove tps connector from TKS if this is a TPS
-        deployer.tps_connector.deregister()
+            # de-register instance from its Security Domain
+            #
+            #     NOTE:  Since the security domain of an instance must be up
+            #            and running in order to be de-registered, this step
+            #            must be done PRIOR to instance shutdown because this
+            #            instance's security domain may be a part of a
+            #            tightly-coupled shared instance.
+            #
 
-        # de-register instance from its Security Domain
-        #
-        #     NOTE:  Since the security domain of an instance must be up
-        #            and running in order to be de-registered, this step
-        #            must be done PRIOR to instance shutdown because this
-        #            instance's security domain may be a part of a
-        #            tightly-coupled shared instance.
-        #
+            # Previously we obtained the token through a command line interface
+            # no longer supported. Thus we assume no token and the deregister op will
+            # take place without the token using an alternate method.
 
-        # Previously we obtained the token through a command line interface
-        # no longer supported. Thus we assume no token and the deregister op will
-        # take place without the token using an alternate method.
+            deployer.security_domain.deregister(None)
 
-        deployer.security_domain.deregister(None)
-        # ALWAYS Stop this Tomcat PKI Process
-        deployer.systemd.stop()
+        except Exception as e:  # pylint: disable=broad-except
+            config.pki_log.error(str(e))
+            # If it is a normal destroy, pass any exception
+            if not deployer.mdict['pki_force_destroy']:
+                raise
+
+        finally:
+            # ALWAYS Stop this Tomcat PKI Process
+            deployer.systemd.stop()

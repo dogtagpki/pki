@@ -947,8 +947,10 @@ class Instance:
         rv = []
         try:
             for subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
-                path = self.mdict['pki_instance_path'] + \
-                    "/" + subsystem.lower()
+                path = os.path.join(
+                    self.mdict['pki_instance_path'],
+                    subsystem.lower()
+                )
                 if os.path.exists(path) and os.path.isdir(path):
                     rv.append(subsystem)
         except OSError as exc:

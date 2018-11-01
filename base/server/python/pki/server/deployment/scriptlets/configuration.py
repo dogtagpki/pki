@@ -1274,9 +1274,4 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             raise RuntimeError("server failed to restart")
 
     def destroy(self, deployer):
-
-        config.pki_log.info(log.CONFIGURATION_DESTROY_1, __name__,
-                            extra=config.PKI_INDENTATION_LEVEL_1)
-        if len(deployer.instance.tomcat_instance_subsystems()) == 1:
-            if deployer.directory.exists(deployer.mdict['pki_client_dir']):
-                deployer.directory.delete(deployer.mdict['pki_client_dir'])
+        pass
