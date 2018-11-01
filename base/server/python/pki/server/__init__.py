@@ -607,23 +607,104 @@ class PKISubsystem(object):
 
     def find_audit_events(self, enabled=None):
 
-        if not enabled:
-            raise Exception('This operation is not yet supported. Specify --enabled True.')
-
         events = []
 
-        names = self.config['log.instance.SignedAudit.events'].split(',')
-        names = list(map(str.strip, names))
-        names.sort()
+        # get enabled events
+        enabled_event_names = self.get_enabled_audit_events()
 
+        if enabled is None:
+            # get all events
+            names = self.get_audit_events()
+
+        elif enabled:  # enabled == True
+            # get enabled events
+            names = enabled_event_names
+
+        else:  # enabled == False
+            # get all events
+            all_event_names = self.get_audit_events()
+
+            # get disabled events by subtracting enabled events from all events
+            names = sorted(set(all_event_names) - set(enabled_event_names))
+
+        # get event properties
         for name in names:
             event = {}
             event['name'] = name
-            event['enabled'] = True
+            event['enabled'] = name in enabled_event_names
             event['filter'] = self.config.get('log.instance.SignedAudit.filters.%s' % name)
             events.append(event)
 
         return events
+
+    def get_audit_events(self):
+
+        # get the full list of audit events from LogMessages.properties
+
+        properties = {}
+        tmpdir = tempfile.mkdtemp()
+
+        try:
+            # export LogMessages.properties from cmsbundle.jar
+            cmsbundle_jar = \
+                '/usr/share/pki/%s/webapps/%s/WEB-INF/lib/pki-cmsbundle.jar' \
+                % (self.name, self.name)
+
+            cmd = [
+                'jar',
+                'xf',
+                cmsbundle_jar,
+                'LogMessages.properties'
+            ]
+
+            logger.debug('Command: %s', ' '.join(cmd))
+
+            subprocess.check_output(
+                cmd,
+                cwd=tmpdir,
+                stderr=subprocess.STDOUT)
+
+            # load LogMessages.properties
+            log_messages_properties = os.path.join(tmpdir, 'LogMessages.properties')
+            pki.util.load_properties(log_messages_properties, properties)
+
+        finally:
+            shutil.rmtree(tmpdir)
+
+        # get audit events
+        events = set()
+        name_pattern = re.compile(r'LOGGING_SIGNED_AUDIT_')
+        value_pattern = re.compile(r'<type=(.*)>:')
+
+        for name in properties:
+
+            name_match = name_pattern.match(name)
+            if not name_match:
+                continue
+
+            value = properties[name]
+
+            value_match = value_pattern.match(value)
+            if not value_match:
+                continue
+
+            event = value_match.group(1)
+            events.add(event)
+
+        return sorted(events)
+
+    def get_enabled_audit_events(self):
+
+        # parse enabled audit events
+        value = self.config['log.instance.SignedAudit.events']
+        event_list = value.replace(' ', '').split(',')
+
+        # remove duplicates
+        events = set()
+        for event in event_list:
+            events.add(event)
+
+        return sorted(events)
 
     def get_audit_log_dir(self):
 
