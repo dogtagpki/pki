@@ -70,7 +70,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         config.pki_log.info(log.WEBAPP_DEPLOYMENT_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
 
-        # Delete <instance>/conf/Catalina/localhost/<subsystem>.xml
+        # Delete <instance>/Catalina/localhost/<subsystem>.xml
         deployer.file.delete(
             os.path.join(
                 deployer.mdict['pki_instance_configuration_path'],
