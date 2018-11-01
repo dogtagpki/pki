@@ -946,7 +946,7 @@ class Instance:
         # Return list of PKI subsystems in the specified tomcat instance
         rv = []
         try:
-            for subsystem in config.PKI_TOMCAT_SUBSYSTEMS:
+            for subsystem in config.PKI_SUBSYSTEMS:
                 path = os.path.join(
                     self.mdict['pki_instance_path'],
                     subsystem.lower()
