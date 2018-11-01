@@ -16,6 +16,9 @@
   lineinfile: dest=/etc/hosts regexp='.*{{ inventory_hostname }}$' create=yes insertafter=EOF line="{{ inventory_hostname }} {{ansible_fqdn}}" state=present
   tags: platform-ci
 
+- name: Add 127.0.0.1 mapping to master hostname in /etc/hosts for 389ds
+  lineinfile: dest=/etc/hosts create=yes insertafter=ROF line="127.0.0.1 {{ansible_fqdn}}" state=present
+
 - name: pip install pexpect
   shell: pip2 install pexpect
 
