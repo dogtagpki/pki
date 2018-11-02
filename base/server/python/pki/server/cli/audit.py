@@ -18,7 +18,8 @@
 # All rights reserved.
 #
 
-from __future__ import absolute_import, print_function
+from __future__ import absolute_import
+from __future__ import print_function
 
 import getopt
 import os
@@ -37,6 +38,7 @@ class AuditCLI(pki.cli.CLI):
             'audit', 'Audit management commands')
 
         self.parent = parent
+        self.add_module(AuditConfigShowCLI(self))
         self.add_module(AuditConfigModifyCLI(self))
         self.add_module(AuditEventFindCLI(self))
         self.add_module(AuditEventEnableCLI(self))
@@ -45,21 +47,49 @@ class AuditCLI(pki.cli.CLI):
         self.add_module(AuditFileFindCLI(self))
         self.add_module(AuditFileVerifyCLI(self))
 
+    @staticmethod
+    def print_audit_config(subsystem):
 
-class AuditConfigModifyCLI(pki.cli.CLI):
+        name = 'log.instance.SignedAudit.%s'
+
+        enabled = subsystem.config[name % 'enable'].lower() == 'true'
+
+        fileName = subsystem.config[name % 'fileName']
+        bufferSize = subsystem.config[name % 'bufferSize']
+        flushInterval = subsystem.config[name % 'flushInterval']
+
+        maxFileSize = subsystem.config[name % 'maxFileSize']
+        rolloverInterval = subsystem.config[name % 'rolloverInterval']
+        expirationTime = subsystem.config[name % 'expirationTime']
+
+        logSigning = subsystem.config[name % 'logSigning'].lower() == 'true'
+        signedAuditCertNickname = subsystem.config[name % 'signedAuditCertNickname']
+
+        print('  Enabled: %s' % enabled)
+
+        print('  Log File: %s' % fileName)
+        print('  Buffer Size (bytes): %s' % bufferSize)
+        print('  Flush Interval (seconds): %s' % flushInterval)
+
+        print('  Max File Size (bytes): %s' % maxFileSize)
+        print('  Rollover Interval (seconds): %s' % rolloverInterval)
+        print('  Expiration Time (seconds): %s' % expirationTime)
+
+        print('  Log Signing: %s' % logSigning)
+        print('  Signing Certificate: %s' % signedAuditCertNickname)
+
+
+class AuditConfigShowCLI(pki.cli.CLI):
 
     def __init__(self, parent):
-        super(AuditConfigModifyCLI, self).__init__(
-            'config-mod', 'Modify audit configuration')
+        super(AuditConfigShowCLI, self).__init__(
+            'config-show', 'Display audit configuration')
         self.parent = parent
 
     def print_help(self):
-        print('Usage: pki-server %s-audit-config-mod [OPTIONS]' % self.parent.parent.name)
+        print('Usage: pki-server %s-audit-config-show [OPTIONS]' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --enabled <True|False>         Enable/disable audit logging.')
-        print('      --logSigning <True|False>      Enable/disable log signing.')
-        print('      --maxFileSize <size>           Set maximum file size.')
         print('      --help                         Show help message.')
         print()
 
@@ -67,7 +97,6 @@ class AuditConfigModifyCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'enabled=', 'logSigning=', 'maxFileSize=',
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -76,28 +105,10 @@ class AuditConfigModifyCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
-        enabled = None
-        logSigning = None
-        maxFileSize = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
-
-            elif o == '--enabled':
-                if a.lower().title() not in ['True', 'False']:
-                    raise ValueError("Not valid input. Specify True or False")
-                enabled = a.lower() == 'true'
-
-            elif o == '--logSigning':
-                if a.lower().title() not in ['True', 'False']:
-                    raise ValueError("Not valid input. Specify True or False")
-                logSigning = a.lower() == 'true'
-
-            elif o == '--maxFileSize':
-                if not a.isdigit():
-                    raise ValueError("Not valid input. Specify file size in digits")
-                maxFileSize = a
 
             elif o == '--help':
                 self.print_help()
@@ -123,32 +134,167 @@ class AuditConfigModifyCLI(pki.cli.CLI):
                   % (subsystem_name.upper(), instance_name))
             sys.exit(1)
 
+        AuditCLI.print_audit_config(subsystem)
+
+
+class AuditConfigModifyCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super(AuditConfigModifyCLI, self).__init__(
+            'config-mod', 'Modify audit configuration')
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-audit-config-mod [OPTIONS]' % self.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --enabled <True|False>         Enable/disable audit logging.')
+        print('      --logFile <path>               Set log file.')
+        print('      --bufferSize <size>            Set buffer size (bytes).')
+        print('      --flushInterval <interval>     Set flush interval (seconds).')
+        print('      --maxFileSize <size>           Set maximum file size (bytes).')
+        print('      --rolloverInterval <interval>  Set rollover interval (seconds).')
+        print('      --expirationTime <time>        Set expiration time (seconds).')
+        print('      --logSigning <True|False>      Enable/disable log signing.')
+        print('      --signingCert <nickname>       Set signing certificate.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'enabled=',
+                'logFile=', 'bufferSize=', 'flushInterval=',
+                'maxFileSize=', 'rolloverInterval=', 'expirationTime=',
+                'logSigning=', 'signingCert=',
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        enabled = None
+        logFile = None
+        bufferSize = None
+        flushInterval = None
+        maxFileSize = None
+        rolloverInterval = None
+        expirationTime = None
+        logSigning = None
+        signingCert = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--enabled':
+                if a.lower().title() not in ['True', 'False']:
+                    raise ValueError("Invalid input: Enabled must be True or False")
+                enabled = a.lower() == 'true'
+
+            elif o == '--logFile':
+                logFile = a
+
+            elif o == '--bufferSize':
+                if not a.isdigit():
+                    raise ValueError("Invalid input: Buffer size must be a number")
+                bufferSize = a
+
+            elif o == '--flushInterval':
+                if not a.isdigit():
+                    raise ValueError("Invalid input: Flush interval must be a number")
+                flushInterval = a
+
+            elif o == '--maxFileSize':
+                if not a.isdigit():
+                    raise ValueError("Invalid input: Max file size must be a number")
+                maxFileSize = a
+
+            elif o == '--rolloverInterval':
+                if not a.isdigit():
+                    raise ValueError("Invalid input: Rollover interval must be a number")
+                rolloverInterval = a
+
+            elif o == '--expirationTime':
+                if not a.isdigit():
+                    raise ValueError("Invalid input: Expiration time must be a number")
+                expirationTime = a
+
+            elif o == '--logSigning':
+                if a.lower().title() not in ['True', 'False']:
+                    raise ValueError("Invalid input: Log signing must be True or False")
+                logSigning = a.lower() == 'true'
+
+            elif o == '--signingCert':
+                signingCert = a
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: unknown option ' + o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem_name = self.parent.parent.name
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance %s.'
+                  % (subsystem_name.upper(), instance_name))
+            sys.exit(1)
+
+        name = 'log.instance.SignedAudit.%s'
+
         if enabled is None:
             pass
         elif enabled:
-            subsystem.config['log.instance.SignedAudit.enable'] = 'true'
+            subsystem.config[name % 'enable'] = 'true'
         else:
-            subsystem.config['log.instance.SignedAudit.enable'] = 'false'
+            subsystem.config[name % 'enable'] = 'false'
+
+        if logFile:
+            subsystem.config[name % 'fileName'] = logFile
+
+        if bufferSize:
+            subsystem.config[name % 'bufferSize'] = bufferSize
+
+        if flushInterval:
+            subsystem.config[name % 'flushInterval'] = flushInterval
+
+        if maxFileSize:
+            subsystem.config[name % 'maxFileSize'] = maxFileSize
+
+        if rolloverInterval:
+            subsystem.config[name % 'rolloverInterval'] = rolloverInterval
+
+        if expirationTime:
+            subsystem.config[name % 'expirationTime'] = expirationTime
 
         if logSigning is None:
             pass
         elif logSigning:
-            subsystem.config['log.instance.SignedAudit.logSigning'] = 'true'
+            subsystem.config[name % 'logSigning'] = 'true'
         else:
-            subsystem.config['log.instance.SignedAudit.logSigning'] = 'false'
+            subsystem.config[name % 'logSigning'] = 'false'
 
-        if maxFileSize:
-            subsystem.config['log.instance.SignedAudit.maxFileSize'] = maxFileSize
+        if signingCert:
+            subsystem.config[name % 'signedAuditCertNickname'] = signingCert
 
         subsystem.save()
 
-        enabled = subsystem.config['log.instance.SignedAudit.enable'].lower() == 'true'
-        logSigning = subsystem.config['log.instance.SignedAudit.logSigning'].lower() == 'true'
-        maxFileSize = subsystem.config['log.instance.SignedAudit.maxFileSize']
-
-        print('  Enabled: %s' % enabled)
-        print('  Log Signing: %s' % logSigning)
-        print('  Max File Size: %s' % maxFileSize)
+        AuditCLI.print_audit_config(subsystem)
 
 
 class AuditEventFindCLI(pki.cli.CLI):
