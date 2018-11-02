@@ -164,12 +164,25 @@ def read_text(message,
     return value
 
 
+def specification_version():
+    """
+    Return specification version.
+
+    :returns: str -- specification version
+    """
+    return get_info('Specification-Version')
+
+
 def implementation_version():
     """
     Return implementation version.
 
-    :returns: str --implementation version
+    :returns: str -- implementation version
     """
+    return get_info('Implementation-Version')
+
+
+def get_info(name):
     with open(PACKAGE_VERSION, 'r') as input_file:
         for line in input_file:
             line = line.strip('\n')
@@ -183,12 +196,10 @@ def implementation_version():
             key = match.group(1)
             value = match.group(2)
 
-            if key.lower() != 'implementation-version':
-                continue
+            if key.lower() == name.lower():
+                return value
 
-            return value
-
-    raise Exception('Missing implementation version.')
+    raise Exception('Property not found: %s' % name)
 
 
 def generate_password():
