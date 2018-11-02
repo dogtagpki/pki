@@ -37,36 +37,37 @@ class AuditCLI(pki.cli.CLI):
             'audit', 'Audit management commands')
 
         self.parent = parent
+        self.add_module(AuditConfigModifyCLI(self))
         self.add_module(AuditEventFindCLI(self))
         self.add_module(AuditEventEnableCLI(self))
-        self.add_module(AuditEventUpdateCLI(self))
         self.add_module(AuditEventDisableCLI(self))
+        self.add_module(AuditEventUpdateCLI(self))
         self.add_module(AuditFileFindCLI(self))
         self.add_module(AuditFileVerifyCLI(self))
-        self.add_module(AuditConfigModifyCLI(self))
 
 
 class AuditConfigModifyCLI(pki.cli.CLI):
 
     def __init__(self, parent):
         super(AuditConfigModifyCLI, self).__init__(
-            'config-mod', 'Enable/Disable signed audit logs')
+            'config-mod', 'Modify audit configuration')
         self.parent = parent
 
     def print_help(self):
         print('Usage: pki-server %s-audit-config-mod [OPTIONS]' % self.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --enabled <True|False>         Show enabled/disabled events only.')
-        print('      --fileSize                     Set Audit file size. (Default 2000)')
+        print('      --enabled <True|False>         Enable/disable audit logging.')
+        print('      --logSigning <True|False>      Enable/disable log signing.')
+        print('      --maxFileSize <size>           Set maximum file size.')
         print('      --help                         Show help message.')
         print()
 
     def execute(self, argv):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'fileSize=',
-                'enabled=',
+                'instance=',
+                'enabled=', 'logSigning=', 'maxFileSize=',
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -76,7 +77,9 @@ class AuditConfigModifyCLI(pki.cli.CLI):
 
         instance_name = 'pki-tomcat'
         enabled = None
-        file_size = 2000
+        logSigning = None
+        maxFileSize = None
+
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
@@ -84,16 +87,17 @@ class AuditConfigModifyCLI(pki.cli.CLI):
             elif o == '--enabled':
                 if a.lower().title() not in ['True', 'False']:
                     raise ValueError("Not valid input. Specify True or False")
-                if a.lower() == 'true':
-                    enabled = True
-                else:
-                    enabled = False
+                enabled = a.lower() == 'true'
 
-            elif o == '--fileSize':
-                if o.isdigit():
-                    file_size = o
-                else:
-                    raise ValueError("Not valid input, Specify file size in digits")
+            elif o == '--logSigning':
+                if a.lower().title() not in ['True', 'False']:
+                    raise ValueError("Not valid input. Specify True or False")
+                logSigning = a.lower() == 'true'
+
+            elif o == '--maxFileSize':
+                if not a.isdigit():
+                    raise ValueError("Not valid input. Specify file size in digits")
+                maxFileSize = a
 
             elif o == '--help':
                 self.print_help()
@@ -113,18 +117,38 @@ class AuditConfigModifyCLI(pki.cli.CLI):
 
         subsystem_name = self.parent.parent.name
         subsystem = instance.get_subsystem(subsystem_name)
+
         if not subsystem:
             print('ERROR: No %s subsystem in instance %s.'
                   % (subsystem_name.upper(), instance_name))
             sys.exit(1)
 
-        subsystem.signed_audit_log(enabled, file_size)
-        subsystem.save()
-        if enabled:
-            self.print_message("Signed Audit enabled for {}".format(instance_name))
+        if enabled is None:
+            pass
+        elif enabled:
+            subsystem.config['log.instance.SignedAudit.enable'] = 'true'
         else:
-            self.print_message("Signed Audit disabled for {}".format(instance_name))
-        self.print_message("You might need to restart the instance")
+            subsystem.config['log.instance.SignedAudit.enable'] = 'false'
+
+        if logSigning is None:
+            pass
+        elif logSigning:
+            subsystem.config['log.instance.SignedAudit.logSigning'] = 'true'
+        else:
+            subsystem.config['log.instance.SignedAudit.logSigning'] = 'false'
+
+        if maxFileSize:
+            subsystem.config['log.instance.SignedAudit.maxFileSize'] = maxFileSize
+
+        subsystem.save()
+
+        enabled = subsystem.config['log.instance.SignedAudit.enable'].lower() == 'true'
+        logSigning = subsystem.config['log.instance.SignedAudit.logSigning'].lower() == 'true'
+        maxFileSize = subsystem.config['log.instance.SignedAudit.maxFileSize']
+
+        print('  Enabled: %s' % enabled)
+        print('  Log Signing: %s' % logSigning)
+        print('  Max File Size: %s' % maxFileSize)
 
 
 class AuditEventFindCLI(pki.cli.CLI):

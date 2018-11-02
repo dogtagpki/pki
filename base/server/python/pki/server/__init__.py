@@ -728,14 +728,6 @@ class PKISubsystem(object):
 
         return files
 
-    def set_signed_audit_log(self, enable=False, maxFileSize=2000):
-        if enable:
-            self.config['log.instance.SignedAudit.logSigning'] = 'true'
-            self.config['log.instance.SignedAudit.maxFileSize'] = maxFileSize
-        else:
-            self.config['log.instance.SignedAudit.logSigning'] = 'false'
-            self.config['log.instance.SignedAudit.maxFileSize'] = maxFileSize
-
     def __repr__(self):
         return str(self.instance) + '/' + self.name
 
