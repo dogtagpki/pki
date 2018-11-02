@@ -581,14 +581,17 @@ class PKISubsystem(object):
         else:
             return False
 
-    def update_audit_event_filter(self, e_name, filter_name):
-        if not e_name:
-            raise ValueError("Please specify the Event name")
-        if not e_name:
-            raise ValueError("Please specify the filter")
+    def update_audit_event_filter(self, event_name, event_filter):
 
-        self.config['log.instance.SignedAudit.filters.%s' % e_name] = filter_name
-        self.save()
+        if not event_name:
+            raise ValueError("Please specify the Event name")
+
+        name = 'log.instance.SignedAudit.filters.%s' % event_name
+
+        if event_filter:
+            self.config[name] = event_filter
+        else:
+            self.config.pop(name, None)
 
     def disable_audit_event(self, e_name):
         if not e_name:

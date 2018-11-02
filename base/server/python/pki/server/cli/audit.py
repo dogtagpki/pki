@@ -318,14 +318,14 @@ class AuditEventUpdateCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
-        filter_name = None
+        event_filter = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
 
             elif o in ('-f', '--filter'):
-                filter_name = a
+                event_filter = a
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -360,7 +360,8 @@ class AuditEventUpdateCLI(pki.cli.CLI):
                   % (subsystem_name.upper(), instance_name))
             sys.exit(1)
 
-        subsystem.update_audit_event_filter(event_name, filter_name)
+        subsystem.update_audit_event_filter(event_name, event_filter)
+        subsystem.save()
 
 
 class AuditEventDisableCLI(pki.cli.CLI):
