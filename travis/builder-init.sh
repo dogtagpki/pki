@@ -38,7 +38,7 @@ docker run \
     -e BUILDUSER="builduser" \
     -e TRAVIS=${TRAVIS} \
     -e TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER} \
-    -e PKI_VERSION=${PKI_VERSION} \
+    -e COPR_REPO=${COPR_REPO} \
     -e container=docker \
     -e test_set="${test_set}" \
     -e LOGS=${LOGS} \
