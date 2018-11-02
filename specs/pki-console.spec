@@ -6,13 +6,13 @@
 
 Name:             pki-console
 %if 0%{?rhel}
-Version:                10.5.1
-%define redhat_release  4
+Version:                10.5.9
+%define redhat_release  1
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.7
+Version:                10.5.9
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -42,10 +42,11 @@ Group:            System Environment/Base
 %bcond_without    javadoc
 
 %if 0%{?rhel}
-%define pki_core_rhel_version      10.5.1
+%define pki_core_rhel_version      10.5.9
 %define pki_core_version           %{pki_core_rhel_version}
 %else
-%define pki_core_version           %{version}
+%define pki_core_fedora_version    10.5.13
+%define pki_core_version           %{pki_core_fedora_version}
 %endif
 
 BuildArch:        noarch
@@ -60,11 +61,7 @@ BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.28.3
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 1.7.5-10
-%if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    jss >= 4.4.0-11
-%else
-BuildRequires:    jss >= 4.4.2-9
-%endif
+BuildRequires:    jss >= 4.4.4-3
 BuildRequires:    pki-base-java >= %{pki_core_version}
 
 Requires:         idm-console-framework >= 1.1.17-4
@@ -73,11 +70,7 @@ Requires:         ldapjdk >= 4.19-5
 Requires:         pki-base-java >= %{pki_core_version}
 Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         jss >= 4.4.0-11
-%else
-Requires:         jss >= 4.4.2-9
-%endif
+Requires:         jss >= 4.4.4-3
 
 %if 0%{?rhel}
 # NOTE:  In the future, as a part of its path, this URL will contain a release
@@ -141,6 +134,10 @@ cd build
 
 
 %changelog
+* Tue Oct 16 2018 Dogtag Team <pki-devel@redhat.com> 10.5.9-1
+- Re-base Dogtag to 10.5.9
+- Require "jss >= 4.4.4-3" as a build and runtime requirement
+
 * Fri Mar 23 2018 Dogtag Team <pki-devel@redhat.com> 10.5.7-1
 - Re-base Dogtag to 10.5.7
 
