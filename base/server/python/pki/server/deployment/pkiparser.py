@@ -272,7 +272,7 @@ class PKIConfigParser:
         default_https_port = '8443'
 
         application_version = str(pki.util.Version(
-            pki.implementation_version()))
+            pki.specification_version()))
 
         self.deployer.main_config = configparser.SafeConfigParser({
             'application_version': application_version,

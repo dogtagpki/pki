@@ -547,7 +547,7 @@ class PKIUpgrader(object):
         return tracker.get_version()
 
     def get_target_version(self):
-        return pki.util.Version(pki.implementation_version())
+        return pki.util.Version(pki.specification_version())
 
     def is_complete(self):
 
