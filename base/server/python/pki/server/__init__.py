@@ -568,18 +568,22 @@ class PKISubsystem(object):
 
         pki.util.customize_file(input_file, output_file, params)
 
-    def enable_audit_event(self, e_name):
+    def enable_audit_event(self, event_name):
 
-        if not e_name:
+        if not event_name:
             raise ValueError("Please specify the Event name")
 
-        events = self.config['log.instance.SignedAudit.events'].split(',')
-        if e_name not in events:
-            self.config['log.instance.SignedAudit.events'] += ',{}'.format(e_name)
-            self.save()
-            return True
-        else:
+        value = self.config['log.instance.SignedAudit.events']
+        events = set(value.replace(' ', '').split(','))
+
+        if event_name in events:
             return False
+
+        events.add(event_name)
+        event_list = ','.join(sorted(events))
+        self.config['log.instance.SignedAudit.events'] = event_list
+
+        return True
 
     def update_audit_event_filter(self, event_name, event_filter):
 
@@ -593,20 +597,22 @@ class PKISubsystem(object):
         else:
             self.config.pop(name, None)
 
-    def disable_audit_event(self, e_name):
-        if not e_name:
+    def disable_audit_event(self, event_name):
+
+        if not event_name:
             raise ValueError("Please specify the Event name")
 
-        events = self.config['log.instance.SignedAudit.events'].split(',')
-        if e_name not in events:
+        value = self.config['log.instance.SignedAudit.events']
+        events = set(value.replace(' ', '').split(','))
+
+        if event_name not in events:
             return False
 
-        elif e_name in events:
-            index = events.index(e_name)
-            del events[index]
-            self.config['log.instance.SignedAudit.events'] = ','.join(events)
-            self.save()
-            return True
+        events.remove(event_name)
+        event_list = ','.join(sorted(events))
+        self.config['log.instance.SignedAudit.events'] = event_list
+
+        return True
 
     def find_audit_events(self, enabled=None):
 

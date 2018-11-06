@@ -445,13 +445,16 @@ class AuditEventEnableCLI(pki.cli.CLI):
                   % (subsystem_name.upper(), instance_name))
             sys.exit(1)
 
-        msg = None
         enabled = subsystem.enable_audit_event(event_name)
+        subsystem.save()
+
+        msg = None
         if enabled:
             msg = 'Event "{}" enabled successfully. You may need to ' \
                   'restart the instance.'.format(event_name)
         else:
             msg = 'Event "{}" may be already enabled.'.format(event_name)
+
         print(len(msg) * '-')
         print(msg)
         print(len(msg) * '-')
@@ -601,8 +604,10 @@ class AuditEventDisableCLI(pki.cli.CLI):
                   % (subsystem_name.upper(), instance_name))
             sys.exit(1)
 
-        msg = None
         disable = subsystem.disable_audit_event(event_name)
+        subsystem.save()
+
+        msg = None
         if disable:
             msg = 'Audit event "{}" disabled. You may need to restart the ' \
                   'instance.'.format(event_name)
