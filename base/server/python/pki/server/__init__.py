@@ -173,6 +173,60 @@ class PKIServer(object):
 
         return connection
 
+    @staticmethod
+    def renew_certificate(connection,
+                          output, serial):
+        """
+        Renew cert associated with the provided serial
+
+        :param connection: Secure authenticated connection to PKI Server
+        :type connection: PKIConnection
+        :param output: Location of the new cert file to be written to
+        :type output: str
+        :param serial: Serial number of the cert to be renewed
+        :type serial: str
+        :return: None
+        :rtype: None
+        """
+
+        # Instantiate the CertClient
+        cert_client = pki.cert.CertClient(connection)
+
+        inputs = dict()
+        inputs['serial_num'] = serial
+
+        # request: CertRequestInfo object for request generated.
+        # cert: CertData object for certificate generated (if any)
+        ret = cert_client.enroll_cert(inputs=inputs, profile_id='caManualRenewal')
+
+        request_data = ret[0].request
+        cert_data = ret[0].cert
+
+        logger.info('Request ID: %s', request_data.request_id)
+        logger.info('Request Status: %s', request_data.request_status)
+        logger.debug('request_data: %s', request_data)
+        logger.debug('cert_data: %s', cert_data)
+
+        if not cert_data:
+            raise PKIServerException('Unable to renew system '
+                                     'certificate for serial: %s' % serial)
+
+        # store cert_id for usage later
+        cert_serial_number = cert_data.serial_number
+        if not cert_serial_number:
+            raise PKIServerException('Unable to retrieve serial number of '
+                                     'renewed certificate.')
+
+        logger.info('Serial Number: %s', cert_serial_number)
+        logger.info('Issuer: %s', cert_data.issuer_dn)
+        logger.info('Subject: %s', cert_data.subject_dn)
+        logger.debug('Pretty Print:')
+        logger.debug(cert_data.pretty_repr)
+
+        new_cert_data = cert_client.get_cert(cert_serial_number=cert_serial_number)
+        with open(output, 'w') as f:
+            f.write(new_cert_data.encoded)
+
 
 @functools.total_ordering
 class PKISubsystem(object):
@@ -1477,6 +1531,95 @@ class PKIInstance(object):
             else:
                 raise PKIServerException('No subsystem can be loaded for %s in '
                                          'instance %s.' % (cert_id, self.name))
+
+    def cert_create(self, cert_id, c_cert=None, c_nssdb=None, c_nssdb_pass=None,
+                    c_nssdb_pass_file=None, serial=None, temp_cert=False, renew=False,
+                    output=None):
+        """
+        Create a new cert for the subsystem provided
+
+        :param cert_id: New cert's ID
+        :type cert_id: str
+        :param c_cert: Client cert nickname
+        :type c_cert: str
+        :param c_nssdb: Path to nssdb
+        :type c_nssdb: str
+        :param c_nssdb_pass: Password to the nssdb
+        :type c_nssdb_pass: str
+        :param c_nssdb_pass_file: File containing nssdb's password
+        :type c_nssdb_pass_file: str
+        :param serial: Serial number to be assigned to new cert
+        :type serial: str
+        :param temp_cert: Whether new cert is a temporary cert
+        :type temp_cert: bool
+        :param renew: Whether to place a renewal request to ca
+        :type renew: bool
+        :param output: Path to which new cert needs to be written to
+        :type output: str
+        :return: None
+        :rtype: None
+        :raises PKIServerException
+        """
+        nssdb = self.open_nssdb()
+        tmpdir = tempfile.mkdtemp()
+        try:
+            cert_folder = os.path.join(pki.CONF_DIR, self.name, 'certs')
+            if not os.path.exists(cert_folder):
+                os.makedirs(cert_folder)
+
+            if output:
+                new_cert_file = output
+            else:
+                new_cert_file = os.path.join(cert_folder, cert_id + '.crt')
+
+            subsystem_name, cert_tag = PKIServer.split_cert_id(cert_id)
+
+            if not subsystem_name:
+                subsystem_name = self.subsystems[0].name
+
+            subsystem = self.get_subsystem(subsystem_name)
+
+            if not serial:
+                # If admin doesn't provide a serial number, set the serial to
+                # the same serial number available in the nssdb
+                serial = subsystem.get_subsystem_cert(cert_tag)["serial_number"]
+
+            if temp_cert:
+                logger.info('Trying to create a new temp cert for %s.', cert_id)
+
+                # Create Temp Cert and write it to new_cert_file
+                subsystem.temp_cert_create(nssdb, tmpdir, cert_tag, serial, new_cert_file)
+
+                logger.info('Temp cert for %s is available at %s.', cert_id, new_cert_file)
+
+            else:
+                # Create permanent certificate
+                if not renew:
+                    # TODO: Support rekey
+                    raise PKIServerException('Rekey is not supported yet.')
+
+                if not c_cert:
+                    raise PKIServerException('Client cert nick name required.')
+
+                if not c_nssdb_pass and not c_nssdb_pass_file:
+                    raise PKIServerException('NSS db password required.')
+
+                logger.info('Trying to setup a secure connection to CA subsystem.')
+                connection = PKIServer.setup_authentication(c_nssdb_pass=c_nssdb_pass,
+                                                            c_cert=c_cert,
+                                                            c_nssdb_pass_file=c_nssdb_pass_file,
+                                                            c_nssdb=c_nssdb,
+                                                            tmpdir=tmpdir,
+                                                            subsystem_name='ca')
+                logger.info('Secure connection with CA is established.')
+
+                logger.info('Placing cert creation request for serial: %s', serial)
+                PKIServer.renew_certificate(connection, new_cert_file, serial)
+                logger.info('New cert is available at: %s', new_cert_file)
+
+        finally:
+            nssdb.close()
+            shutil.rmtree(tmpdir)
 
 
 class PKIDatabaseConnection(object):
