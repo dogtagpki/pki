@@ -468,10 +468,10 @@ class CertCreateCLI(pki.cli.CLI):
         instance_name = 'pki-tomcat'
         temp_cert = False
         serial = None
-        c_nssdb = os.getenv('HOME') + '/.dogtag/nssdb'
-        c_nssdb_password = None
-        c_nssdb_pass_file = None
-        c_cert = None
+        client_nssdb = os.getenv('HOME') + '/.dogtag/nssdb'
+        client_nssdb_password = None
+        client_nssdb_pass_file = None
+        client_cert = None
         output = None
         renew = False
 
@@ -480,16 +480,16 @@ class CertCreateCLI(pki.cli.CLI):
                 instance_name = a
 
             elif o == '-d':
-                c_nssdb = a
+                client_nssdb = a
 
             elif o == '-c':
-                c_nssdb_password = a
+                client_nssdb_password = a
 
             elif o == '-C':
-                c_nssdb_pass_file = a
+                client_nssdb_pass_file = a
 
             elif o == '-n':
-                c_cert = a
+                client_cert = a
 
             elif o == '--temp':
                 temp_cert = True
@@ -529,7 +529,7 @@ class CertCreateCLI(pki.cli.CLI):
 
         if not temp_cert:
             # For permanent certificate, password of NSS db is required.
-            if not c_nssdb_password and not c_nssdb_pass_file:
+            if not client_nssdb_password and not client_nssdb_pass_file:
                 logger.error('NSS database password is required.')
                 self.print_help()
                 sys.exit(1)
@@ -546,8 +546,8 @@ class CertCreateCLI(pki.cli.CLI):
         instance.load()
 
         try:
-            instance.cert_create(cert_id, c_cert, c_nssdb, c_nssdb_password,
-                                 c_nssdb_pass_file, serial, temp_cert, renew, output)
+            instance.cert_create(cert_id, client_cert, client_nssdb, client_nssdb_password,
+                                 client_nssdb_pass_file, serial, temp_cert, renew, output)
 
         except server.PKIServerException as e:
             logger.error(str(e))

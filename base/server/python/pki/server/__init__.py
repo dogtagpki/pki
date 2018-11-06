@@ -94,20 +94,20 @@ class PKIServer(object):
         return subsystem_name, cert_tag
 
     @staticmethod
-    def setup_authentication(c_nssdb_pass, c_nssdb_pass_file, c_cert,
-                             c_nssdb, tmpdir, subsystem_name):
+    def setup_authentication(client_nssdb_pass, client_nssdb_pass_file, client_cert,
+                             client_nssdb, tmpdir, subsystem_name):
         """
         Utility method to set up a secure authenticated connection with a
         subsystem of PKI Server through PKI client
 
-        :param c_nssdb_pass: Client NSS db plain password
-        :type c_nssdb_pass: str
-        :param c_nssdb_pass_file: File containing client NSS db password
-        :type c_nssdb_pass_file: str
-        :param c_cert: Client Cert nick name
-        :type c_cert: str
-        :param c_nssdb: Client NSS db path
-        :type c_nssdb: str
+        :param client_nssdb_pass: Client NSS db plain password
+        :type client_nssdb_pass: str
+        :param client_nssdb_pass_file: File containing client NSS db password
+        :type client_nssdb_pass_file: str
+        :param client_cert: Client Cert nick name
+        :type client_cert: str
+        :param client_nssdb: Client NSS db path
+        :type client_nssdb: str
         :param tmpdir: Absolute path of temp dir to store p12 and pem files
         :type tmpdir: str
         :param subsystem_name: Name of the subsystem
@@ -117,7 +117,7 @@ class PKIServer(object):
         temp_auth_p12 = os.path.join(tmpdir, 'auth.p12')
         temp_auth_cert = os.path.join(tmpdir, 'auth.pem')
 
-        if not c_cert:
+        if not client_cert:
             raise PKIServerException('Client cert nickname is required.')
 
         # Create a PKIConnection object that stores the details of subsystem.
@@ -130,8 +130,8 @@ class PKIServer(object):
         cmd_generate_pk12 = [
             'pk12util',
             '-o', temp_auth_p12,
-            '-n', c_cert,
-            '-d', c_nssdb
+            '-n', client_cert,
+            '-d', client_nssdb
         ]
 
         # The pem file used for authentication. Created from a p12 file using the
@@ -146,16 +146,16 @@ class PKIServer(object):
 
         ]
 
-        if c_nssdb_pass_file:
+        if client_nssdb_pass_file:
             # Use the same password file for the generated pk12 file
-            cmd_generate_pk12.extend(['-k', c_nssdb_pass_file,
-                                      '-w', c_nssdb_pass_file])
-            cmd_generate_pem.extend(['-passin', 'file:' + c_nssdb_pass_file])
+            cmd_generate_pk12.extend(['-k', client_nssdb_pass_file,
+                                      '-w', client_nssdb_pass_file])
+            cmd_generate_pem.extend(['-passin', 'file:' + client_nssdb_pass_file])
         else:
             # Use the same password for the generated pk12 file
-            cmd_generate_pk12.extend(['-K', c_nssdb_pass,
-                                      '-W', c_nssdb_pass])
-            cmd_generate_pem.extend(['-passin', 'pass:' + c_nssdb_pass])
+            cmd_generate_pk12.extend(['-K', client_nssdb_pass,
+                                      '-W', client_nssdb_pass])
+            cmd_generate_pem.extend(['-passin', 'pass:' + client_nssdb_pass])
 
         # Generate temp_auth_p12 file
         res_pk12 = subprocess.check_output(cmd_generate_pk12,
@@ -174,8 +174,7 @@ class PKIServer(object):
         return connection
 
     @staticmethod
-    def renew_certificate(connection,
-                          output, serial):
+    def renew_certificate(connection, output, serial):
         """
         Renew cert associated with the provided serial
 
@@ -1532,22 +1531,22 @@ class PKIInstance(object):
                 raise PKIServerException('No subsystem can be loaded for %s in '
                                          'instance %s.' % (cert_id, self.name))
 
-    def cert_create(self, cert_id, c_cert=None, c_nssdb=None, c_nssdb_pass=None,
-                    c_nssdb_pass_file=None, serial=None, temp_cert=False, renew=False,
+    def cert_create(self, cert_id, client_cert=None, client_nssdb=None, client_nssdb_pass=None,
+                    client_nssdb_pass_file=None, serial=None, temp_cert=False, renew=False,
                     output=None):
         """
         Create a new cert for the subsystem provided
 
         :param cert_id: New cert's ID
         :type cert_id: str
-        :param c_cert: Client cert nickname
-        :type c_cert: str
-        :param c_nssdb: Path to nssdb
-        :type c_nssdb: str
-        :param c_nssdb_pass: Password to the nssdb
-        :type c_nssdb_pass: str
-        :param c_nssdb_pass_file: File containing nssdb's password
-        :type c_nssdb_pass_file: str
+        :param client_cert: Client cert nickname
+        :type client_cert: str
+        :param client_nssdb: Path to nssdb
+        :type client_nssdb: str
+        :param client_nssdb_pass: Password to the nssdb
+        :type client_nssdb_pass: str
+        :param client_nssdb_pass_file: File containing nssdb's password
+        :type client_nssdb_pass_file: str
         :param serial: Serial number to be assigned to new cert
         :type serial: str
         :param temp_cert: Whether new cert is a temporary cert
@@ -1598,19 +1597,21 @@ class PKIInstance(object):
                     # TODO: Support rekey
                     raise PKIServerException('Rekey is not supported yet.')
 
-                if not c_cert:
+                if not client_cert:
                     raise PKIServerException('Client cert nick name required.')
 
-                if not c_nssdb_pass and not c_nssdb_pass_file:
+                if not client_nssdb_pass and not client_nssdb_pass_file:
                     raise PKIServerException('NSS db password required.')
 
                 logger.info('Trying to setup a secure connection to CA subsystem.')
-                connection = PKIServer.setup_authentication(c_nssdb_pass=c_nssdb_pass,
-                                                            c_cert=c_cert,
-                                                            c_nssdb_pass_file=c_nssdb_pass_file,
-                                                            c_nssdb=c_nssdb,
-                                                            tmpdir=tmpdir,
-                                                            subsystem_name='ca')
+                connection = PKIServer.setup_authentication(
+                    client_nssdb_pass=client_nssdb_pass,
+                    client_cert=client_cert,
+                    client_nssdb_pass_file=client_nssdb_pass_file,
+                    client_nssdb=client_nssdb,
+                    tmpdir=tmpdir,
+                    subsystem_name='ca'
+                )
                 logger.info('Secure connection with CA is established.')
 
                 logger.info('Placing cert creation request for serial: %s', serial)
