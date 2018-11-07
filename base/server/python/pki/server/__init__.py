@@ -699,6 +699,22 @@ class PKISubsystem(object):
 
         return events
 
+    def get_audit_event_config(self, name):
+
+        names = self.get_audit_events()
+
+        if name not in names:
+            raise PKIServerException('Invalid audit event: %s' % name)
+
+        enabled_event_names = self.get_enabled_audit_events()
+
+        event = {}
+        event['name'] = name
+        event['enabled'] = name in enabled_event_names
+        event['filter'] = self.config.get('log.instance.SignedAudit.filters.%s' % name)
+
+        return event
+
     def get_audit_events(self):
 
         # get the full list of audit events from LogMessages.properties
