@@ -614,7 +614,7 @@ class PKISubsystem(object):
 
         return True
 
-    def find_audit_events(self, enabled=None):
+    def find_audit_event_configs(self, enabled=None):
 
         events = []
 
@@ -706,12 +706,7 @@ class PKISubsystem(object):
 
         # parse enabled audit events
         value = self.config['log.instance.SignedAudit.events']
-        event_list = value.replace(' ', '').split(',')
-
-        # remove duplicates
-        events = set()
-        for event in event_list:
-            events.add(event)
+        events = set(value.replace(' ', '').split(','))
 
         return sorted(events)
 

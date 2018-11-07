@@ -363,7 +363,7 @@ class AuditEventFindCLI(pki.cli.CLI):
                   % (subsystem_name.upper(), instance_name))
             sys.exit(1)
 
-        events = subsystem.find_audit_events(enabled)
+        events = subsystem.find_audit_event_configs(enabled)
 
         self.print_message('%s entries matched' % len(events))
 
