@@ -180,22 +180,42 @@ def load_properties(filename, properties):
     with open(filename) as f:
 
         lines = f.read().splitlines()
+        name = None
+        multi_line = False
 
         for index, line in enumerate(lines):
 
-            line = line.strip()
+            if multi_line:
+                # append line to previous property
 
-            if not line or line.startswith('#'):
-                continue
+                value = properties[name]
+                value = value + line
 
-            parts = line.split('=', 1)
+            else:
+                # parse line for new property
 
-            if len(parts) < 2:
-                raise Exception('Missing delimiter in %s line %d' %
-                                (filename, index + 1))
+                line = line.lstrip()
+                if not line or line.startswith('#'):
+                    continue
 
-            name = parts[0].strip()
-            value = parts[1].strip()
+                parts = line.split('=', 1)
+                if len(parts) < 2:
+                    raise Exception('Missing delimiter in %s line %d' %
+                                    (filename, index + 1))
+
+                name = parts[0].rstrip()
+                value = parts[1].lstrip()
+
+            # check if the value is multi-line
+            if value.endswith('\\'):
+                value = value[:-1]
+                multi_line = True
+
+            else:
+                value = value.rstrip()
+                multi_line = False
+
+            # store value in properties
             properties[name] = value
 
 
