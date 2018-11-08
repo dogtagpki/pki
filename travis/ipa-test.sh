@@ -19,7 +19,7 @@
 # Copyright (C) 2017 Red Hat, Inc.
 # All rights reserved.
 #
-set -e
+set -eE
 
 exit_handler() {
 
@@ -41,7 +41,6 @@ exit_handler() {
     curl -k -w "\n" --upload /tmp/${LOGS_TAR_NAME} https://transfer.sh/${LOGS_TAR_NAME} >> ${BUILDDIR}/pki/logs.txt
 }
 
-trap "exit_handler" EXIT
 
 # Print the version of installed components
 rpm -qa tomcat* pki-* freeipa-* nss* 389-ds* jss*| sort
@@ -83,3 +82,5 @@ ${cert_test_file_loc}
 
 # Uninstall ipa-server
 ipa-server-install --uninstall -U
+
+trap "exit_handler" EXIT

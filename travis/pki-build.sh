@@ -24,6 +24,10 @@ if test "${TRAVIS}" != "true"; then
     compose
 
 else
+    # Always invoke upload() while exiting the script
     trap "upload" EXIT
-    compose "$@" >> $BUILDLOG 2>&1
+
+    # If IPA task is run, we just need to build base, server, ca and kra packages
+    [[ $TASK == 'IPA' ]] && args="$@ --with-pkgs=base,server,ca,kra" || args="$@"
+    compose $args >> $BUILDLOG 2>&1
 fi
