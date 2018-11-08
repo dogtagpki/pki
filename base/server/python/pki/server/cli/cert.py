@@ -813,19 +813,5 @@ class CertRemoveCLI(pki.cli.CLI):
         # Load the instance. Default: pki-tomcat
         instance.load()
 
-        subsystem_name, cert_tag = server.PKIServer.split_cert_id(cert_id)
-
-        # If cert ID is instance specific, get it from first subsystem
-        if not subsystem_name:
-            subsystem_name = instance.subsystems[0].name
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error(
-                'No %s subsystem in instance %s.',
-                subsystem_name, instance_name)
-            sys.exit(1)
-
         logger.info('Removing %s certificate from NSS database', cert_id)
-        subsystem.cert_del(cert_tag=cert_tag, remove_key=remove_key)
+        instance.cert_del(cert_id=cert_id, remove_key=remove_key)
