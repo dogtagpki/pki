@@ -837,24 +837,6 @@ class PKISubsystem(object):
                 target_tests[testID] = critical
         self.set_startup_tests(target_tests)
 
-    def cert_del(self, cert_tag, remove_key=False):
-        """
-        Delete a cert from NSS db
-        :param cert_tag: Cert Tag
-        :param remove_key: Remove associate private key
-        """
-        cert = self.get_subsystem_cert(cert_tag)
-        nssdb = self.instance.open_nssdb()
-        try:
-            logger.debug('Removing %s certificate from NSS database for '
-                         'subsystem %s instance %s', cert_tag, self.name, self.instance)
-            nssdb.remove_cert(
-                nickname=cert['nickname'],
-                token=cert['token'],
-                remove_key=remove_key)
-        finally:
-            nssdb.close()
-
     def nssdb_import_cert(self, cert_tag, cert_file=None):
         """
         Add cert from cert_file to NSS db with appropriate trust flags
@@ -1511,6 +1493,34 @@ class PKIInstance(object):
         if self.type == 9:
             return "Dogtag 9 " + self.name
         return self.name
+
+    def cert_del(self, cert_id, remove_key=False):
+        """
+        Delete a cert from NSS db
+
+        :param cert_id: Cert ID
+        :param remove_key: Remove associate private key
+        """
+
+        subsystem_name, cert_tag = PKIServer.split_cert_id(cert_id)
+
+        if not subsystem_name:
+            subsystem_name = self.subsystems[0].name
+
+        subsystem = self.get_subsystem(subsystem_name)
+
+        cert = subsystem.get_subsystem_cert(cert_tag)
+        nssdb = self.open_nssdb()
+
+        try:
+            logger.debug('Removing %s certificate from NSS database from '
+                         'subsystem %s in instance %s', cert_tag, subsystem.name, self.name)
+            nssdb.remove_cert(
+                nickname=cert['nickname'],
+                token=cert['token'],
+                remove_key=remove_key)
+        finally:
+            nssdb.close()
 
     def cert_update_config(self, cert_id, cert):
         """
