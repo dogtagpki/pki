@@ -626,6 +626,10 @@ class PKISubsystem(object):
         if not event_name:
             raise ValueError("Please specify the Event name")
 
+        names = self.get_audit_events()
+        if event_name not in names:
+            raise PKIServerException('Invalid audit event: %s' % event_name)
+
         value = self.config['log.instance.SignedAudit.events']
         events = set(value.replace(' ', '').split(','))
 
@@ -643,6 +647,10 @@ class PKISubsystem(object):
         if not event_name:
             raise ValueError("Please specify the Event name")
 
+        names = self.get_audit_events()
+        if event_name not in names:
+            raise PKIServerException('Invalid audit event: %s' % event_name)
+
         name = 'log.instance.SignedAudit.filters.%s' % event_name
 
         if event_filter:
@@ -654,6 +662,10 @@ class PKISubsystem(object):
 
         if not event_name:
             raise ValueError("Please specify the Event name")
+
+        names = self.get_audit_events()
+        if event_name not in names:
+            raise PKIServerException('Invalid audit event: %s' % event_name)
 
         value = self.config['log.instance.SignedAudit.events']
         events = set(value.replace(' ', '').split(','))
