@@ -227,6 +227,51 @@ class PKIServer(object):
         with open(output, 'w') as f:
             f.write(new_cert_data.encoded)
 
+    @staticmethod
+    def load_audit_events(filename):
+
+        logger.info('Loading %s', filename)
+
+        with open(filename) as f:
+            lines = f.read().splitlines()
+
+        events = {}
+
+        event_pattern = re.compile(r'# Event: (\S+)')
+        subsystems_pattern = re.compile(r'# Applicable subsystems: (.*)')
+        event = None
+
+        for line in lines:
+
+            logger.debug('Parsing: %s', line)
+
+            event_match = event_pattern.match(line)
+            if event_match:
+
+                event = event_match.group(1)
+                logger.info('Found event %s', event)
+
+                events[event] = []
+                continue
+
+            subsystems_match = subsystems_pattern.match(line)
+            if subsystems_match:
+
+                subsystems = subsystems_match.group(1)
+                logger.info('Found subsystems %s', subsystems)
+
+                subsystems = subsystems.replace(' ', '').split(',')
+                event_subsystems = events.get(event)
+                event_subsystems.extend(subsystems)
+
+        logger.info('Events:')
+
+        for event in events:
+            subsystems = events[event]
+            logger.info('- %s: %s', event, subsystems)
+
+        return events
+
 
 @functools.total_ordering
 class PKISubsystem(object):
@@ -732,7 +777,6 @@ class PKISubsystem(object):
 
         # get the full list of audit events from audit-events.properties
 
-        properties = {}
         tmpdir = tempfile.mkdtemp()
 
         try:
@@ -756,28 +800,25 @@ class PKISubsystem(object):
                 stderr=subprocess.STDOUT)
 
             # load audit-events.properties
-            log_messages_properties = os.path.join(tmpdir, 'audit-events.properties')
-            pki.util.load_properties(log_messages_properties, properties)
+            filename = os.path.join(tmpdir, 'audit-events.properties')
+            events = PKIServer.load_audit_events(filename)
 
         finally:
             shutil.rmtree(tmpdir)
 
-        # get audit events
-        events = set()
-        value_pattern = re.compile(r'<type=(.*)>:')
+        # get audit events for the subsystem
+        results = set()
+        subsystem = self.name.upper()
 
-        for name in properties:
+        for event, subsystems in events.items():
 
-            value = properties[name]
-
-            value_match = value_pattern.match(value)
-            if not value_match:
+            if subsystem not in subsystems:
                 continue
 
-            event = value_match.group(1)
-            events.add(event)
+            logger.info('Returning %s', event)
+            results.add(event)
 
-        return sorted(events)
+        return sorted(results)
 
     def get_enabled_audit_events(self):
 
