@@ -32,7 +32,6 @@ import sys
 import pki.cert
 import pki.cli
 import pki.nssdb
-
 import pki.server as server
 
 logger = logging.getLogger(__name__)
@@ -49,6 +48,7 @@ class CertCLI(pki.cli.CLI):
         self.add_module(CertImportCLI())
         self.add_module(CertExportCLI())
         self.add_module(CertRemoveCLI())
+        self.add_module(CertFixCLI())
 
     @staticmethod
     def print_system_cert(cert, show_all=False):
@@ -960,3 +960,211 @@ class CertRemoveCLI(pki.cli.CLI):
 
         logger.info('Removing %s certificate from NSS database', cert_id)
         instance.cert_del(cert_id=cert_id, remove_key=remove_key)
+
+
+class CertFixCLI(pki.cli.CLI):
+    def __init__(self):
+        super(CertFixCLI, self).__init__(
+            'fix', 'Fix expired system certificate(s).')
+
+    def print_help(self):  # flake8: noqa
+        print('Usage: pki-server cert-fix [OPTIONS]')
+        # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
+        # ca_audit_signing, kra_audit_signing
+        # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
+        print()
+        print('      --cert <Cert ID>            Fix specified system cert (default: all certs).')
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -d <NSS database>               NSS database location (default: ~/.dogtag/nssdb)')
+        print('  -c <NSS DB password>            NSS database password')
+        print('  -C <path>                       Input file containing the password for the NSS database.')
+        print('  -n <nickname>                   Client certificate nickname')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
+        print('      --help                      Show help message.')
+        print()
+
+    def execute(self, argv):
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:d:c:C:n:v', [
+                'instance=', 'cert=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logger.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        all_certs = True
+        client_nssdb = os.getenv('HOME') + '/.dogtag/nssdb'
+        client_nssdb_pass = None
+        client_nssdb_pass_file = None
+        client_cert = None
+        fix_certs = []
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--cert':
+                all_certs = False
+                fix_certs.append(a)
+
+            elif o == '-d':
+                client_nssdb = a
+
+            elif o == '-c':
+                client_nssdb_pass = a
+
+            elif o == '-C':
+                client_nssdb_pass_file = a
+
+            elif o == '-n':
+                client_cert = a
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                self.set_verbose(True)
+                self.set_debug(True)
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logger.error('option %s not recognized', o)
+                self.print_help()
+                sys.exit(1)
+
+        if not client_cert:
+            logger.error('Client nick name is required.')
+            self.print_help()
+            sys.exit(1)
+
+        if not client_nssdb_pass and not client_nssdb_pass_file:
+            logger.error('Client NSS db password is required.')
+            self.print_help()
+            sys.exit(1)
+
+        instance = server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            logger.error('Invalid instance %s.', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        # 1. Make a list of certs to fix OR use the list provided through CLI options
+        if all_certs:
+            # TODO: Identify only certs that are EXPIRED or ALMOST EXPIRED
+            for subsystem in instance.subsystems:
+                # Retrieve the subsystem's system certificate
+                certs = subsystem.find_system_certs()
+
+                # Iterate on all subsystem's system certificate to prepend
+                # subsystem name to the ID
+                for cert in certs:
+                    if cert['id'] != 'sslserver' and cert['id'] != 'subsystem':
+                        cert['id'] = subsystem.name + '_' + cert['id']
+
+                    # Append only unique certificates to other subsystem certificate list
+                    # ca_signing isn't supported yet
+                    if cert['id'] in fix_certs or cert['id'] == 'ca_signing':
+                        continue
+
+                    fix_certs.append(cert['id'])
+
+        logger.info('Fixing the following certs: %s', fix_certs)
+
+        # 2. Stop the server, if it's up
+        instance.stop()
+
+        # 3. Find the subsystem and disable Self-tests
+        try:
+            # Placeholder used to hold subsystems whose selftest have been turned off
+            # Note: This is initialized as a set to avoid duplicates
+            # Example of duplicates:
+            # fix_certs = [ca_ocsp_signing, ca_audit_signing] -> will add 'ca' entry twice
+            target_subsys = set()
+
+            if 'sslserver' in fix_certs or 'subsystem' in fix_certs:
+                # If the cert is either sslserver/subsystem, disable selftest for all
+                # subsystems since all subsystems use these 2 certs.
+                target_subsys = set(instance.subsystems)
+
+            else:
+                for cert_id in fix_certs:
+                    # Since we already filtered sslserver/subsystem, we can be quite sure
+                    # that this split will definitely be of form: <subsys>_<cert_tag>
+                    subsystem_name = cert_id.split('_', 1)[0]
+                    subsystem = instance.get_subsystem(subsystem_name)
+
+                    # If the subsystem is wrong, stop the process
+                    if not subsystem:
+                        logger.error('No %s subsystem in instance %s.',
+                                     subsystem_name, instance_name)
+                        sys.exit(1)
+
+                    target_subsys.add(subsystem)
+
+            # Convert set to list
+            target_subsys = list(target_subsys)
+
+            for subsystem in target_subsys:
+                subsystem.set_startup_test_criticality(False)
+                subsystem.save()
+
+            logger.info('Selftests disabled for subsystems: %s', ', '.join(
+                str(x.name) for x in target_subsys))
+
+            # 4. Bring up the server using a temp SSL cert if the sslcert is expired
+            if 'sslserver' in fix_certs:
+                # 4a. Create temp SSL cert
+                instance.cert_create(cert_id='sslserver', temp_cert=True)
+
+                # 4b. Delete the existing SSL Cert
+                instance.cert_del('sslserver')
+
+                # 4d. Import the temp sslcert into the instance
+                instance.cert_import('sslserver')
+
+            # 5. Bring up the server temporarily
+            instance.start()
+
+            # 6. Place renewal request for all certs in fix_certs
+            for cert_id in fix_certs:
+                instance.cert_create(cert_id=cert_id,
+                                     client_cert=client_cert,
+                                     client_nssdb=client_nssdb,
+                                     client_nssdb_pass=client_nssdb_pass,
+                                     client_nssdb_pass_file=client_nssdb_pass_file,
+                                     renew=True)
+
+            # 7. Stop the server
+            instance.stop()
+
+            # 8. Delete existing certs and then import the renewed system cert(s)
+            for cert_id in fix_certs:
+                # Delete the existing cert from the instance
+                instance.cert_del(cert_id)
+
+                # Import this new cert into the instance
+                instance.cert_import(cert_id)
+
+            # 9. Enable self tests for the subsystems disabled earlier
+            for subsystem in target_subsys:
+                subsystem.set_startup_test_criticality(True)
+
+            # 10. Bring up the server
+            instance.start()
+
+        except server.PKIServerException as e:
+            logger.error(str(e))
+            sys.exit(1)
