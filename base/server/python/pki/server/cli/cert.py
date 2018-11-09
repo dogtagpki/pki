@@ -520,25 +520,9 @@ class CertImportCLI(pki.cli.CLI):
         # Load the instance. Default: pki-tomcat
         instance.load()
 
-        subsystem_name, cert_tag = server.PKIServer.split_cert_id(cert_id)
-
-        # If cert ID is instance specific, get it from first subsystem
-        if not subsystem_name:
-            subsystem_name = instance.subsystems[0].name
-
-        subsystem = instance.get_subsystem(subsystem_name)
-
-        if not subsystem:
-            logger.error(
-                'No %s subsystem in instance %s.',
-                subsystem_name, instance_name)
-            sys.exit(1)
-
         try:
-            # Load the cert into NSS db
-            cert = subsystem.nssdb_import_cert(cert_tag, cert_file)
-            # Update the CS.cfg file for (all) corresponding subsystems
-            instance.cert_update_config(cert_id, cert)
+            # Load the cert into NSS db and update all corresponding subsystem's CS.cfg
+            instance.cert_import(cert_id, cert_file)
 
         except server.PKIServerException as e:
             logger.error(str(e))
