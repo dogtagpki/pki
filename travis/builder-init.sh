@@ -38,11 +38,11 @@ docker run \
     -e BUILDUSER="builduser" \
     -e TRAVIS=${TRAVIS} \
     -e TRAVIS_JOB_NUMBER=${TRAVIS_JOB_NUMBER} \
-    -e TASK=${TASK} \
-    -e COPR_REPO=${COPR_REPO} \
+    -e TASK="${TASK}" \
+    -e COPR_REPO="${COPR_REPO}" \
     -e container=docker \
     -e test_set="${test_set}" \
-    -e LOGS=${LOGS} \
+    -e LOGS="${LOGS}" \
     --expose=389 \
     --expose=8080 \
     --expose=8443 \
