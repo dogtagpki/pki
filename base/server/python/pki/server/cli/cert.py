@@ -975,7 +975,7 @@ class CertFixCLI(pki.cli.CLI):
         print()
         print('      --cert <Cert ID>            Fix specified system cert (default: all certs).')
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('  -d <database>                   Security database location (default: ~/.dogtag/nssdb)')
+        print('  -d <NSS database>               NSS database location (default: ~/.dogtag/nssdb)')
         print('  -c <NSS DB password>            NSS database password')
         print('  -C <path>                       Input file containing the password for the NSS database.')
         print('  -n <nickname>                   Client certificate nickname')
@@ -1097,8 +1097,7 @@ class CertFixCLI(pki.cli.CLI):
             if 'sslserver' in fix_certs or 'subsystem' in fix_certs:
                 # If the cert is either sslserver/subsystem, disable selftest for all
                 # subsystems since all subsystems use these 2 certs.
-                for subsystem in instance.subsystems:
-                    target_subsys.add(subsystem)
+                target_subsys = set(instance.subsystems)
 
             else:
                 for cert_id in fix_certs:
