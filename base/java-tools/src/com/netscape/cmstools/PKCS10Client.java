@@ -18,6 +18,7 @@
 package com.netscape.cmstools;
 
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.security.KeyPair;
@@ -83,11 +84,11 @@ public class PKCS10Client {
         System.out.println(
                 "   available ECC curve names (if provided by the crypto module): nistp256 (secp256r1),nistp384 (secp384r1),nistp521 (secp521r1),nistk163 (sect163k1),sect163r1,nistb163 (sect163r2),sect193r1,sect193r2,nistk233 (sect233k1),nistb233 (sect233r1),sect239k1,nistk283 (sect283k1),nistb283 (sect283r1),nistk409 (sect409k1),nistb409 (sect409r1),nistk571 (sect571k1),nistb571 (sect571r1),secp160k1,secp160r1,secp160r2,secp192k1,nistp192 (secp192r1, prime192v1),secp224k1,nistp224 (secp224r1),secp256k1,prime192v2,prime192v3,prime239v1,prime239v2,prime239v3,c2pnb163v1,c2pnb163v2,c2pnb163v3,c2pnb176v1,c2tnb191v1,c2tnb191v2,c2tnb191v3,c2pnb208w1,c2tnb239v1,c2tnb239v2,c2tnb239v3,c2pnb272w1,c2pnb304w1,c2tnb359w1,c2pnb368w1,c2tnb431r1,secp112r1,secp112r2,secp128r1,secp128r2,sect113r1,sect113r2,sect131r1,sect131r2\n");
         System.out.println(
-                "In addition: -y <true for adding SubjectKeyIdentifier extensionfor self-signed cmc requests; false otherwise; default false>\n");
+                "In addition: -y <true for adding SubjectKeyIdentifier extensionfor CMC SharedSecret requests; false otherwise; default false> To be used with 'request.useSharedSecret=true' when running CMCRequest.\n");
     }
 
     public static void main(String args[]) throws Exception {
-        String dbdir = null, ofilename = null, password = null, subjectName = null, tokenName = null;
+        String dbdir = null, ofilename = null, kid_ofilename = null, password = null, subjectName = null, tokenName = null;
 
         String alg = "rsa";
         String ecc_curve = "nistp256";
@@ -99,7 +100,7 @@ public class PKCS10Client {
         boolean ec_ssl_ecdh = false;
         int rsa_keylen = 2048;
 
-        boolean self_sign = false;
+        boolean use_shared_secret = false;
 
         if (args.length < 4) {
             printUsage();
@@ -163,6 +164,7 @@ public class PKCS10Client {
                 rsa_keylen = Integer.parseInt(args[i+1]);
             } else if (name.equals("-o")) {
                 ofilename = args[i+1];
+                kid_ofilename = ofilename + ".keyId";
             } else if (name.equals("-n")) {
                 subjectName = args[i+1];
             } else if (name.equals("-h")) {
@@ -170,9 +172,9 @@ public class PKCS10Client {
             } else if (name.equals("-y")) {
                 String temp = args[i+1];
                 if (temp.equals("true"))
-                    self_sign = true;
+                    use_shared_secret = true;
                 else
-                    self_sign = false;
+                    use_shared_secret = false;
             } else if (name.equals("-v")) {
                 verbose = true;
             } else {
@@ -287,9 +289,9 @@ public class PKCS10Client {
 
 
             Extensions extns = new Extensions();
-            if (self_sign) { // per rfc 5272
+            if (use_shared_secret) { // per rfc 5272
                 if(verbose) {
-                    System.out.println("PKCS10Client: self_sign true. Generating SubjectKeyIdentifier extension.");
+                    System.out.println("PKCS10Client: use_shared_secret true. Generating SubjectKeyIdentifier extension.");
                 }
 
                 KeyIdentifier subjKeyId = CryptoUtil.createKeyIdentifier(pair);
@@ -330,6 +332,12 @@ public class PKCS10Client {
             }
 
             System.out.println("PKCS10Client: Certificate request written into " + ofilename);
+
+            try (FileWriter out_kid = new FileWriter(kid_ofilename)) {
+                out_kid.write(kid);
+            }
+            System.out.println("PKCS10Client: PKCS#10 request key id written into " + kid_ofilename);
+
 
         } catch (Exception e) {
             System.out.println("PKCS10Client: Exception caught: "+e.toString());

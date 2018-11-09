@@ -268,13 +268,19 @@ public class CMCRequest {
     }
 
     /*
-     * signData self-signs the PKIData using the private key that matches
-     * the public key in the request
+     * signData self-signs (for Shared Token) the PKIData using the private key
+     * that matches the public key in the request
      */
     static SignedData signData(
             java.security.PrivateKey privKey,
             PKIData pkidata) {
-        String method = "signData for selfSign: ";
+        return signData(privKey, pkidata, null);
+    }
+    static SignedData signData(
+            java.security.PrivateKey privKey,
+            PKIData pkidata,
+            SignerIdentifier test_cmc_si /*for TEST_CMC use_shared_secret case only*/) {
+        String method = "signData for useSharedSecret begins: ";
         System.out.println(method + "begins: ");
         SignedData req = null;
 
@@ -286,10 +292,15 @@ public class CMCRequest {
 
         KeyIdentifier keyIdObj = null;
         try {
-            keyIdObj = (KeyIdentifier) skiExtn.get(SubjectKeyIdentifierExtension.KEY_ID);
-            SignerIdentifier si = new SignerIdentifier(
+            SignerIdentifier si = null;
+            if (test_cmc_si == null) {
+                keyIdObj = (KeyIdentifier) skiExtn.get(SubjectKeyIdentifierExtension.KEY_ID);
+                si = new SignerIdentifier(
                     SignerIdentifier.SUBJECT_KEY_IDENTIFIER,
                     null, new OCTET_STRING(keyIdObj.getIdentifier()));
+            } else //TEST_CMC use_shared_secret case
+                si = test_cmc_si;
+
             req = createSignedData(privKey, si, null /*certChain*/, pkidata);
         } catch (Exception e) {
             e.printStackTrace();
@@ -430,7 +441,7 @@ public class CMCRequest {
      * @return request in PKIData
      */
     static PKIData createPKIData(
-            String selfSign,
+            String useSharedSecret,
             String[] rValue, String format, String transactionMgtEnable,
             String transactionMgtId,
             String identificationEnable, String identification,
@@ -495,16 +506,16 @@ public class CMCRequest {
 
                         CertRequest certReq = certReqMsg.getCertReq();
                         CertTemplate certTemplate = certReq.getCertTemplate();
-                        if (selfSign.equals("true")) {
+                        if (useSharedSecret.equals("true")) {
                             skiExtn = (SubjectKeyIdentifierExtension) CryptoUtil.getExtensionFromCertTemplate(
                                     certTemplate,
                                     PKIXExtensions.SubjectKey_Id);
                             if (skiExtn != null) {
                                 System.out.println(method +
-                                        " SubjectKeyIdentifier extension found in self-signed request");
+                                        " SubjectKeyIdentifier extension found in use_shared_secret request");
                             } else {
                                 System.out.println(method +
-                                        " SubjectKeyIdentifier extension missing in self-signed request");
+                                        " SubjectKeyIdentifier extension missing in use_shared_secret request");
                                 System.exit(1);
                             }
                         }
@@ -569,7 +580,7 @@ public class CMCRequest {
                             System.exit(1);
                         }
 
-                        if (selfSign.equals("true")) {
+                        if (useSharedSecret.equals("true")) {
                             try {
                                 skiExtn = (SubjectKeyIdentifierExtension) CryptoUtil.getExtensionFromPKCS10(
                                         pkcs, "SubjectKeyIdentifier");
@@ -798,13 +809,13 @@ public class CMCRequest {
         System.out.println("#nickname: nickname for user certificate which will be used");
         System.out.println("#to sign the CMC full request (enrollment or revocation).");
         System.out.println("");
-        System.out.println("#selfSign: if selfSign is true, the CMC request will be");
+        System.out.println("#request.useSharedSecret: if request.useSharedSecret is true, the CMC request will be");
         System.out.println("#signed with the pairing private key of the enrollment request;");
         System.out.println("#and in which case the nickname will be ignored");
         System.out.println("#If revRequest.sharedSecret is specified, then nickname will also be ignored.");
         System.out.println("nickname=CMS User Signing Certificate");
         System.out.println("");
-        System.out.println("selfSign=false");
+        System.out.println("request.useSharedSecret=false");
         System.out.println("");
         System.out.println("#dbdir: directory for NSS database");
         System.out.println("dbdir=./");
@@ -1219,7 +1230,7 @@ public class CMCRequest {
  * Constructing OtherMsg to include the SignerInfo makes no sense here
  * as the outer layer SignedData would have SignerInfo.
  * It is possibly done because the original code assumed a self-signed
- * revocation request that is subsequently signed by an agent...
+ * Shared Secret revocation request that is subsequently signed by an agent...
  * which is not conforming to the RFC.
 
             EncapsulatedContentInfo revokeContent = new EncapsulatedContentInfo(
@@ -1881,6 +1892,7 @@ public class CMCRequest {
                 HMACDigest hmacDigest = new HMACDigest(SHA2Digest, challenge);
                 hmacDigest.update(ASN1Util.encode(request));
                 popProofValue = hmacDigest.digest();
+                System.out.println(method + "popProofValue length = " + popProofValue.length);
             } catch (Exception ex) {
                 CryptoUtil.obscureBytes(challenge, "random");
                 System.out.println(method + "calculating POP Proof Value failed: " + ex);
@@ -1926,6 +1938,137 @@ public class CMCRequest {
         return pkidata;
     }
 
+    static void outputContentInfo(ContentInfo cmcblob, String ofilename) {
+            try (FileOutputStream os = new FileOutputStream(ofilename)){
+                cmcblob.encode(os);
+                System.out.println("");
+                System.out.println("");
+                System.out.println("The CMC enrollment request in binary format is stored in " +
+                        ofilename);
+            } catch (IOException e) {
+                System.out.println("CMCRequest:  unable to open file " + ofilename +
+                        " for writing:\n" + e);
+            }
+    }
+
+
+    /*
+     *  processResignCMC
+     *
+     *  This is for testing only, for the purpose of producing
+     *  negative tests consisted of deliberate alteration of
+     *  CMC controls to see how CA reacts to these variations.
+     *
+     *  It takes in a blob of the format cmc (with altered fields):
+     *      format=test_cmc
+     *  which is the same as output format from CMCRequest,
+     *  and re-signs it with either signerCert or privKeyID
+     *  and spits out to output
+     *  Note: if signerCert is not null, then privKeyID is ignored
+     *
+     * @author cfu
+     */
+    static void processResignCMC(String ifilename, String ofilename, X509Certificate signerCert, String privKeyId, String tokenName, String nickname, CryptoManager cm) {
+        try {
+            if (ifilename == null || ifilename.equals("")) {
+                System.out.println("TEST_CMC: param input needed for test_cmc");
+                System.exit(1);
+            }
+            if (ofilename == null || ofilename.equals("")) {
+                System.out.println("TEST_CMC: param output needed for test_cmc");
+                System.exit(1);
+            }
+
+            PrivateKey privk = null;
+            if (signerCert == null) {
+                if (privKeyId == null) {
+                    System.out.println("TEST_CMC: signerCert not supplied, need privKeyId to re-sign.");
+                    System.exit(1);
+                } else {
+                    System.out.println("TEST_CMC: got re-signing privKeyId: " + privKeyId);
+
+                    byte[] keyIDb = CryptoUtil.decodeKeyID(privKeyId);
+
+                    privk = CryptoUtil.findPrivateKeyFromID(keyIDb);
+
+                    if (privk != null) {
+                        System.out.println("TEST_CMC: got private key");
+                    } else {
+                        System.out.println("TEST_CMC: error getting private key null");
+                        System.exit(1);
+                    }
+                }
+            }
+
+            FileInputStream inputBlob = null;
+            FileOutputStream outputBlob = null;
+            try {
+                inputBlob = new FileInputStream(ifilename);
+            } catch (FileNotFoundException e) {
+                System.out.println("can''t find file " +
+                        ifilename + e);
+                System.exit(1);
+            }
+
+            byte data[] = new byte[inputBlob.available()];
+            inputBlob.read(data);
+            System.out.println("TEST_CMC: input read");
+            ContentInfo.Template ci_template = new ContentInfo.Template();
+            ContentInfo ci =
+                    (ContentInfo) ci_template.decode(new ByteArrayInputStream(data));
+            if (ci != null)
+                System.out.println("TEST_CMC: ContentInfo template decoded");
+
+            SignedData signedData = (SignedData) ci.getInterpretedContent();
+            if (signedData != null)
+                System.out.println("TEST_CMC: SignedData retrieved");
+
+            EncapsulatedContentInfo eci = signedData.getContentInfo();
+            if (eci != null)
+                System.out.println("TEST_CMC: EncapsulatedContentInfo retrieved");
+            OCTET_STRING os = eci.getContent(); //this is the orig data
+            if (os != null)
+                System.out.println("TEST_CMC: orig data retrieved");
+            byte origData [] = os.toByteArray();
+            PKIData.Template pkidata_template = new PKIData.Template();
+            PKIData pkidata =
+                    (PKIData) pkidata_template.decode(new ByteArrayInputStream(origData));
+            if (pkidata != null)
+                System.out.println("TEST_CMC: PKIData decoded");
+
+            // now re-sign
+            SignedData newSignedData = null;
+            if (signerCert != null) {
+                System.out.println("TEST_CMC: re-signing using signer cert:" +
+                    nickname);
+                newSignedData = signData(signerCert, tokenName, nickname, cm, pkidata);
+            } else { // use_shared_secret
+                System.out.println("TEST_CMC: re-signing using private key: " +
+                    privKeyId);
+                SET signInfos = signedData.getSignerInfos();
+                SignerInfo si = (SignerInfo) (ASN1Util.decode(SignerInfo.getTemplate(), ASN1Util.encode(signInfos.elementAt(0))));
+                newSignedData = signData(privk, pkidata, si.getSignerIdentifier());
+            }
+
+            if (newSignedData == null) {
+                System.out.println("TEST_CMC: PKIData signing returned null");
+                System.exit(1);
+            }
+            System.out.println("TEST_CMC: PKIData signed");
+            ContentInfo  cmcblob = getCMCBlob(newSignedData, null);
+            if (cmcblob == null) {
+                System.out.println("TEST_CMC: getCMCBlob returned null");
+                System.exit(1);
+            }
+
+            outputContentInfo(cmcblob, ofilename);
+            System.out.println("TEST_CMC: completed");
+        } catch (Exception ex) {
+            System.out.println("TEST_CMC: exception caught: " + ex);
+            System.exit(1);
+        }
+    }
+
     public static void main(String[] s) {
         String numRequests = null;
         String dbdir = null, nickname = null;
@@ -1948,7 +2091,7 @@ public class CMCRequest {
         String popLinkWitnessV2Enable = "false", popLinkWitnessV2keyGenAlg = "SHA256", popLinkWitnessV2macAlg = "SHA256";
         String popLinkWitnessEnable = "false";
         String bodyPartIDs = null, lraPopWitnessEnable = "false";
-        String selfSign = "false";
+        String useSharedSecret = "false";
 
         System.out.println("");
 
@@ -2009,8 +2152,9 @@ public class CMCRequest {
                         decryptedPopEnable = val;
                     } else if (name.equals("encryptedPopResponseFile")) {
                         encryptedPopResponseFile = val;
-                    } else if (name.equals("request.selfSign")) {
-                        selfSign = val;
+                    } else if (name.equals("request.useSharedSecret") ||
+                            name.equals("request.selfSign")) {
+                        useSharedSecret = val;
                     } else if (name.equals("request.privKeyId")) {
                         privKeyId = val;
                     } else if (name.equals("decryptedPopRequestFile")) {
@@ -2095,11 +2239,12 @@ public class CMCRequest {
             printUsage();
         }
 
-        if ((!selfSign.equals("true") && (revRequestSharedSecret == null))
+        if ((!useSharedSecret.equals("true") && (revRequestSharedSecret == null))
                 && nickname == null) {
             System.out.println("Missing nickname.");
             printUsage();
         }
+
 
         try {
             // initialize CryptoManager
@@ -2142,7 +2287,7 @@ public class CMCRequest {
                 certname.append(tokenName);
                 certname.append(":");
             }
-            if ((!selfSign.equals("true") || (revRequestSharedSecret == null))
+            if ((!useSharedSecret.equals("true") || (revRequestSharedSecret == null))
                     && nickname != null) {
                 certname.append(nickname);
                 signerCert = cm.findCertByNickname(certname.toString());
@@ -2151,14 +2296,22 @@ public class CMCRequest {
                 }
             }
 
+            // TEST_CMC
+            if (format.equals("test_cmc")) {
+                System.out.println("TEST_CMC: request format is test_cmc; re-signing the request");
+                processResignCMC(ifilename, ofilename, signerCert, privKeyId,
+                        tokenName, nickname, cm);
+                System.exit(0);
+            }
+
             ContentInfo cmcblob = null;
             PKIData pkidata = null;
             PrivateKey privk = null;
-            if (selfSign.equalsIgnoreCase("true") ||
+            if (useSharedSecret.equalsIgnoreCase("true") ||
                     decryptedPopEnable.equalsIgnoreCase("true") ||
                     popLinkWitnessV2Enable.equalsIgnoreCase("true")) {
                 if (privKeyId == null) {
-                    System.out.println("selfSign or ecryptedPop.enable or popLinkWitnessV2 true, but privKeyId not specified.");
+                    System.out.println("useSharedSecret or ecryptedPop.enable or popLinkWitnessV2 true, but privKeyId not specified.");
                     printUsage();
                 } else {
                     System.out.println("got request privKeyId: " + privKeyId);
@@ -2353,7 +2506,7 @@ public class CMCRequest {
 
                     // create the request PKIData
                     pkidata = createPKIData(
-                        selfSign,
+                        useSharedSecret,
                         requests,
                         format, transactionMgtEnable, transactionMgtId,
                         identificationEnable, identification,
@@ -2381,13 +2534,13 @@ public class CMCRequest {
                 SignedData signedData = null;
 
                 // sign the request
-                if (selfSign.equalsIgnoreCase("true")) {
-                    // selfSign signs with private key
-                    System.out.println("selfSign is true...");
+                if (useSharedSecret.equalsIgnoreCase("true")) {
+                    // useSharedSecret signs with private key
+                    System.out.println("useSharedSecret is true...");
                     signedData = signData(privk, pkidata);
                 } else {
-                    // none selfSign signs with  existing cert
-                    System.out.println("selfSign is false...");
+                    // none useSharedSecret signs with  existing cert
+                    System.out.println("useSharedSecret is false...");
                     signedData = signData(signerCert, tokenName, nickname, cm, pkidata);
                 }
                 if (signedData == null) {
@@ -2404,27 +2557,7 @@ public class CMCRequest {
 
             // (6) Finally, print the actual CMC blob to the
             //     specified output file
-            FileOutputStream os = null;
-            try {
-                os = new FileOutputStream(ofilename);
-                cmcblob.encode(os);
-                System.out.println("");
-                System.out.println("");
-                System.out.println("The CMC enrollment request in binary format is stored in " +
-                        ofilename);
-            } catch (IOException e) {
-                System.out.println("CMCRequest:  unable to open file " + ofilename +
-                        " for writing:\n" + e);
-            }
-
-            try {
-                os.close();
-            } catch (IOException e) {
-                System.out.println("CMCRequest:  Unexpected error " +
-                        "encountered while attempting to close() " +
-                        "\n" + e);
-            }
-
+            outputContentInfo(cmcblob, ofilename);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);

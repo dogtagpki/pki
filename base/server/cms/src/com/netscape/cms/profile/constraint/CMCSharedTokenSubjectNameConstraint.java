@@ -35,15 +35,16 @@ import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertInfo;
 
 /**
- * This class implements the user subject name constraint for self-signed cmc requests.
- * It makes sure the SharedSecret authenticated subjectDN and the rsulting cert match
+ * This class implements the user subject name constraint for cmc requests
+ * authenticated by the SharedSecret
+ * The resulting cert should match that of the authenticating DN
  *
  * @author cfu
  * @version $Revision$, $Date$
  */
-public class CMCSelfSignedSubjectNameConstraint extends EnrollConstraint {
+public class CMCSharedTokenSubjectNameConstraint extends EnrollConstraint {
 
-    public CMCSelfSignedSubjectNameConstraint() {
+    public CMCSharedTokenSubjectNameConstraint() {
     }
 
     public void init(IProfile profile, IConfigStore config)
@@ -66,7 +67,7 @@ public class CMCSelfSignedSubjectNameConstraint extends EnrollConstraint {
      */
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
-        String method = "CMCSelfSignedSubjectNameConstraint: ";
+        String method = "CMCSharedTokenSubjectNameConstraint: ";
         String msg = "";
 
         CertificateSubjectName infoCertSN = null;
@@ -116,7 +117,7 @@ public class CMCSelfSignedSubjectNameConstraint extends EnrollConstraint {
     }
 
     public boolean isApplicable(IPolicyDefault def) {
-        String method = "CMCSelfSignedSubjectNameConstraint: isApplicable: ";
+        String method = "CMCSharedTokenSubjectNameConstraint: isApplicable: ";
         if (def instanceof AuthTokenSubjectNameDefault) {
             CMS.debug(method + "true");
             return true;
