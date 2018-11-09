@@ -880,73 +880,6 @@ class PKISubsystem(object):
                 target_tests[testID] = critical
         self.set_startup_tests(target_tests)
 
-    def nssdb_import_cert(self, cert_tag, cert_file=None):
-        """
-        Add cert from cert_file to NSS db with appropriate trust flags
-
-        :param cert_tag: Cert Tag
-        :type cert_tag: str
-        :param cert_file: Cert file to be imported into NSS db
-        :type cert_file: str
-        :return: New cert data loaded into nssdb
-        :rtype: dict
-        :raises PKIServerException
-        """
-        # audit and CA signing cert require special flags set in NSSDB
-        trust_attributes = None
-        if self.name == 'ca' and cert_tag == 'signing':
-            trust_attributes = 'CT,C,C'
-        elif cert_tag == 'audit_signing':
-            trust_attributes = ',,P'
-
-        nssdb = self.instance.open_nssdb()
-
-        try:
-            cert_folder = os.path.join(pki.CONF_DIR, self.instance.name, 'certs')
-
-            # If cert_file is not provided, load the cert from /etc/pki/certs/<cert_id>.crt
-            if not cert_file:
-                cert_file = os.path.join(cert_folder,
-                                         self.name + '_' + cert_tag + '.crt')
-
-            if not os.path.isfile(cert_file):
-                raise PKIServerException('%s does not exist.' % cert_file)
-
-            cert = self.get_subsystem_cert(cert_tag)
-
-            logger.debug('Checking existing %s certificate in NSS database'
-                         ' for subsystem: %s, instance: %s',
-                         cert_tag, self.name, self.instance.name)
-
-            if nssdb.get_cert(
-                    nickname=cert['nickname'],
-                    token=cert['token']):
-                raise PKIServerException('Certificate already exists: %s in'
-                                         'subsystem %s' % (cert_tag, self.name))
-
-            logger.debug('Importing new %s certificate into NSS database'
-                         ' for subsys %s, instance %s',
-                         cert_tag, self.name, self.instance.name)
-            nssdb.add_cert(
-                nickname=cert['nickname'],
-                token=cert['token'],
-                cert_file=cert_file,
-                trust_attributes=trust_attributes)
-
-            logger.info('Updating CS.cfg with the new certificate')
-            data = nssdb.get_cert(
-                nickname=cert['nickname'],
-                token=cert['token'],
-                output_format='base64')
-
-            # Store the cert data retrieved from NSS db
-            cert['data'] = data
-
-            return cert
-
-        finally:
-            nssdb.close()
-
     def setup_temp_renewal(self, tmpdir, cert_tag):
         """
         Retrieve CA's cert, Subject Key Identifier (SKI aka AKI) and CSR for
@@ -1467,7 +1400,9 @@ class PKIInstance(object):
         Delete a cert from NSS db
 
         :param cert_id: Cert ID
+        :type cert_id: str
         :param remove_key: Remove associate private key
+        :type remove_key: bool
         """
 
         subsystem_name, cert_tag = PKIServer.split_cert_id(cert_id)
@@ -1525,6 +1460,97 @@ class PKIInstance(object):
             else:
                 raise PKIServerException('No subsystem can be loaded for %s in '
                                          'instance %s.' % (cert_id, self.name))
+
+    def nssdb_import_cert(self, cert_id, cert_file=None):
+        """
+        Add cert from cert_file to NSS db with appropriate trust flags
+
+        :param cert_id: Cert ID
+        :type cert_id: str
+        :param cert_file: Cert file to be imported into NSS db
+        :type cert_file: str
+        :return: New cert data loaded into nssdb
+        :rtype: dict
+
+        :raises PKIServerException
+        """
+
+        subsystem_name, cert_tag = PKIServer.split_cert_id(cert_id)
+
+        if not subsystem_name:
+            subsystem_name = self.subsystems[0].name
+
+        subsystem = self.get_subsystem(subsystem_name)
+
+        # audit and CA signing cert require special flags set in NSSDB
+        trust_attributes = None
+        if subsystem_name == 'ca' and cert_tag == 'signing':
+            trust_attributes = 'CT,C,C'
+        elif cert_tag == 'audit_signing':
+            trust_attributes = ',,P'
+
+        nssdb = self.open_nssdb()
+
+        try:
+            cert_folder = os.path.join(pki.CONF_DIR, self.name, 'certs')
+
+            # If cert_file is not provided, load the cert from /etc/pki/certs/<cert_id>.crt
+            if not cert_file:
+                cert_file = os.path.join(cert_folder, cert_id + '.crt')
+
+            if not os.path.isfile(cert_file):
+                raise PKIServerException('%s does not exist.' % cert_file)
+
+            cert = subsystem.get_subsystem_cert(cert_tag)
+
+            logger.debug('Checking existing %s certificate in NSS database'
+                         ' for subsystem: %s, instance: %s',
+                         cert_tag, subsystem_name, self.name)
+
+            if nssdb.get_cert(
+                    nickname=cert['nickname'],
+                    token=cert['token']):
+                raise PKIServerException('Certificate already exists: %s in'
+                                         'subsystem %s' % (cert_tag, self.name))
+
+            logger.debug('Importing new %s certificate into NSS database'
+                         ' for subsys %s, instance %s',
+                         cert_tag, subsystem_name, self.name)
+
+            nssdb.add_cert(
+                nickname=cert['nickname'],
+                token=cert['token'],
+                cert_file=cert_file,
+                trust_attributes=trust_attributes)
+
+            logger.info('Updating CS.cfg with the new certificate')
+            data = nssdb.get_cert(
+                nickname=cert['nickname'],
+                token=cert['token'],
+                output_format='base64')
+
+            # Store the cert data retrieved from NSS db
+            cert['data'] = data
+
+            return cert
+
+        finally:
+            nssdb.close()
+
+    def cert_import(self, cert_id, cert_file=None):
+        """
+        Import cert from cert_file into NSS db with appropriate trust flags and update
+        all corresponding subsystem's CS.cfg
+
+        :param cert_id: Cert ID
+        :type cert_id: str
+        :param cert_file: Cert file to be imported into NSS db
+        :type cert_file: str
+        :return: None
+        :rtype: None
+        """
+        updated_cert = self.nssdb_import_cert(cert_id, cert_file)
+        self.cert_update_config(cert_id, updated_cert)
 
     def cert_create(self, cert_id, client_cert=None, client_nssdb=None, client_nssdb_pass=None,
                     client_nssdb_pass_file=None, serial=None, temp_cert=False, renew=False,
