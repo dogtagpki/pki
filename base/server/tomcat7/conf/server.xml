@@ -173,6 +173,11 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
         In case of an ocsp signing certificate, one must import the cert
         into the subsystem's nss db and set trust. e.g.:
           certutil -d . -A -n "ocspSigningCert cert-pki-ca" -t "C,," -a -i ocspCert.b64
+
+        If both ocspResponderURL and ocspResponderCertNickname are both unset
+        all OCSP checks will be made using the URL encoded within the AIA extension
+        of each cert being verified.
+
         ocspCacheSize - sets max cache entries
         ocspMinCacheEntryDuration - sets minimum seconds to next fetch attempt
         ocspMaxCacheEntryDuration - sets maximum seconds to next fetch attempt
@@ -192,8 +197,8 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
            ocspResponderURL="http://[PKI_HOSTNAME]:[PKI_UNSECURE_PORT]/ca/ocsp"
            ocspResponderCertNickname="ocspSigningCert cert-pki-ca"
            ocspCacheSize="1000"
-           ocspMinCacheEntryDuration="60"
-           ocspMaxCacheEntryDuration="120"
+           ocspMinCacheEntryDuration="7200"
+           ocspMaxCacheEntryDuration="14400"
            ocspTimeout="10"
            strictCiphers="true"
            clientAuth="[PKI_AGENT_CLIENTAUTH]"

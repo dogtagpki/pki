@@ -36,6 +36,7 @@ import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
+import com.netscape.cmscore.cert.CertUtils;
 
 //////////////////////
 // class definition //
@@ -60,7 +61,9 @@ public class SystemCertsVerification
 
     // parameter information
     public static final String PROP_SUB_ID = "SubId";
+    public static final String PROP_FULL_CA_OCSP_VERIFY = "FullCAandOCSPVerify";
     private String mSubId = null;
+    private boolean mFullCAandOCSPVerify = false;
 
     /////////////////////
     // default methods //
@@ -121,6 +124,13 @@ public class SystemCertsVerification
         }
 
         // retrieve optional parameter(s)
+
+        try {
+            mFullCAandOCSPVerify = mConfig.getBoolean(PROP_FULL_CA_OCSP_VERIFY, false);
+        } catch (EBaseException e) {
+            //Since this is fully optional, keep going.
+            mFullCAandOCSPVerify = false;
+        }
 
         return;
     }
@@ -190,7 +200,12 @@ public class SystemCertsVerification
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
         try {
-            CMS.verifySystemCerts();
+            if (("ca".equalsIgnoreCase(mSubId) || "ocsp".equalsIgnoreCase(mSubId)) && !mFullCAandOCSPVerify) {
+                //Perform validity only
+                CertUtils.verifySystemCerts(true);
+            } else {
+                CertUtils.verifySystemCerts(false);
+            }
 
             String logMessage = CMS.getLogMessage(
                     "SELFTESTS_COMMON_SYSTEM_CERTS_VERIFICATION_SUCCESS",
