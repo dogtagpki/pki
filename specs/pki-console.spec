@@ -12,11 +12,10 @@ Version:                10.5.9
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.9
+Version:                10.5.14
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
-#%define default_release %{fedora_release}
 %endif
 
 %if 0%{?use_pki_release}
@@ -45,7 +44,7 @@ Group:            System Environment/Base
 %define pki_core_rhel_version      10.5.9
 %define pki_core_version           %{pki_core_rhel_version}
 %else
-%define pki_core_fedora_version    10.5.13
+%define pki_core_fedora_version    10.5.14
 %define pki_core_version           %{pki_core_fedora_version}
 %endif
 
