@@ -968,13 +968,12 @@ class CertFixCLI(pki.cli.CLI):
             'fix', 'Fix expired system certificate(s).')
 
     def print_help(self):  # flake8: noqa
-        print('Usage: pki-server cert-fix [OPTIONS] [--all | --cert <Cert ID>]')
+        print('Usage: pki-server cert-fix [OPTIONS]')
         # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
         # ca_audit_signing, kra_audit_signing
         # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
         print()
-        print('      --all (default)             Fix all expired system certs.')
-        print('      --cert <Cert ID>            Fix specified system cert.')
+        print('      --cert <Cert ID>            Fix specified system cert (default: all certs).')
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -d <database>                   Security database location (default: ~/.dogtag/nssdb)')
         print('  -c <NSS DB password>            NSS database password')
@@ -990,7 +989,7 @@ class CertFixCLI(pki.cli.CLI):
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:d:c:C:n:v', [
-                'instance=', 'all', 'cert=',
+                'instance=', 'cert=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -1010,10 +1009,8 @@ class CertFixCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
-            elif o == '--all':
-                all_certs = True
-
             elif o == '--cert':
+                all_certs = False
                 fix_certs.append(a)
 
             elif o == '-d':
@@ -1056,9 +1053,6 @@ class CertFixCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        if fix_certs:
-            all_certs = False
-
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
@@ -1089,23 +1083,26 @@ class CertFixCLI(pki.cli.CLI):
 
         logger.info('Fixing the following certs: %s', fix_certs)
 
-        # 2. Stop the server if it's up
+        # 2. Stop the server, if it's up
         instance.stop()
 
         # 3. Find the subsystem and disable Self-tests
         try:
             # Placeholder used to hold subsystems whose selftest have been turned off
-            target_subsys = []
+            # Note: This is initialized as a set to avoid duplicates
+            # Example of duplicates:
+            # fix_certs = [ca_ocsp_signing, ca_audit_signing] -> will add 'ca' entry twice
+            target_subsys = set()
 
-            if any(cert_id in fix_certs for cert_id in ('sslserver', 'subsystem')):
+            if 'sslserver' in fix_certs or 'subsystem' in fix_certs:
                 # If the cert is either sslserver/subsystem, disable selftest for all
                 # subsystems since all subsystems use these 2 certs.
                 for subsystem in instance.subsystems:
-                    target_subsys.append(subsystem)
+                    target_subsys.add(subsystem)
 
             else:
                 for cert_id in fix_certs:
-                    # Since we already filtered sslserver/subsystem we can be quite sure
+                    # Since we already filtered sslserver/subsystem, we can be quite sure
                     # that this split will definitely be of form: <subsys>_<cert_tag>
                     subsystem_name = cert_id.split('_', 1)[0]
                     subsystem = instance.get_subsystem(subsystem_name)
@@ -1116,12 +1113,10 @@ class CertFixCLI(pki.cli.CLI):
                                      subsystem_name, instance_name)
                         sys.exit(1)
 
-                    target_subsys.append(subsystem)
+                    target_subsys.add(subsystem)
 
-            # Remove duplicate subsystem entries, if any.
-            # Example of duplicates:
-            # fix_certs = [ca_ocsp_signing, ca_audit_signing] -> will add 'ca' entry twice
-            target_subsys = list(set(target_subsys))
+            # Convert set to list
+            target_subsys = list(target_subsys)
 
             for subsystem in target_subsys:
                 subsystem.set_startup_test_criticality(False)
@@ -1130,19 +1125,16 @@ class CertFixCLI(pki.cli.CLI):
             logger.info('Selftests disabled for subsystems: %s', ', '.join(
                 str(x.name) for x in target_subsys))
 
-            # 4. Bring up the server using a temp SSL cert
-            # 4a. Create temp SSL cert
-            instance.cert_create(cert_id='sslserver', temp_cert=True)
+            # 4. Bring up the server using a temp SSL cert if the sslcert is expired
+            if 'sslserver' in fix_certs:
+                # 4a. Create temp SSL cert
+                instance.cert_create(cert_id='sslserver', temp_cert=True)
 
-            # 4b. Delete the existing SSL Cert
-            target_subsys[0].cert_del('sslserver')
+                # 4b. Delete the existing SSL Cert
+                instance.cert_del('sslserver')
 
-            # 4d. Import it into NSS DB (since sslserver is used by ALL subsystems, you can
-            # just use the first subsystem in target_subsys)
-            cert = target_subsys[0].nssdb_import_cert('sslserver')
-
-            # 4e. Import into all subsystem's CS.cfg
-            instance.cert_update_config('sslserver', cert)
+                # 4d. Import the temp sslcert into the instance
+                instance.cert_import('sslserver')
 
             # 5. Bring up the server temporarily
             instance.start()
@@ -1161,21 +1153,11 @@ class CertFixCLI(pki.cli.CLI):
 
             # 8. Delete existing certs and then import the renewed system cert(s)
             for cert_id in fix_certs:
-                subsystem_name, cert_tag = server.PKIServer.split_cert_id(cert_id)
-                if not subsystem_name:
-                    subsystem_name = instance.subsystems[0].name
+                # Delete the existing cert from the instance
+                instance.cert_del(cert_id)
 
-                subsystem = instance.get_subsystem(subsystem_name)
-
-                # Delete the existing cert from the subsys
-                subsystem.cert_del(cert_tag)
-
-                # Import new cert from /etc/pki/<instance>/certs into subsystem's
-                # nssdb
-                cert = subsystem.nssdb_import_cert(cert_tag)
-
-                # Import this new cert into (all) corresponding subsystem's CS.cfg
-                instance.cert_update_config(cert_id, cert)
+                # Import this new cert into the instance
+                instance.cert_import(cert_id)
 
             # 9. Enable self tests for the subsystems disabled earlier
             for subsystem in target_subsys:
