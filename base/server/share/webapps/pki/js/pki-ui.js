@@ -22,6 +22,7 @@
 var Page = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
+        options = options || {};
         Page.__super__.initialize.call(self, options);
 
         self.url = options.url;
@@ -41,6 +42,7 @@ var Page = Backbone.View.extend({
 var Dialog = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
+        options = options || {};
         Dialog.__super__.initialize.call(self, options);
 
         self.body = self.$(".modal-body");
@@ -190,6 +192,7 @@ var Dialog = Backbone.View.extend({
 var ErrorDialog = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
+        options = options || {};
         ErrorDialog.__super__.initialize.call(self, options);
 
         var response = options.response;
@@ -236,7 +239,9 @@ var ErrorDialog = Backbone.View.extend({
 var TableItem = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
+        options = options || {};
         TableItem.__super__.initialize.call(self, options);
+
         self.table = options.table;
         self.reset();
     },
@@ -347,7 +352,7 @@ var TableItem = Backbone.View.extend({
                 if (! value) break;
             }
 
-            if (value === undefined) value = "";
+            if (value === undefined || value === null) value = "";
             if (value instanceof Date) value = value.toUTCString();
 
             // replace pattern occurance with attribute value
@@ -364,7 +369,7 @@ var TableItem = Backbone.View.extend({
 var Table = Backbone.View.extend({
     initialize: function(options) {
         var self = this;
-
+        options = options || {};
         Table.__super__.initialize.call(self, options);
 
         self.entries = options.entries || [];
@@ -651,8 +656,10 @@ var Table = Backbone.View.extend({
 var ModelTable = Table.extend({
     initialize: function(options) {
         var self = this;
+        options = options || {};
         options.mode = options.mode || "edit";
         ModelTable.__super__.initialize.call(self, options);
+
         self.collection = options.collection;
     },
     render: function() {
@@ -843,7 +850,9 @@ var ModelTable = Table.extend({
 var EntryPage = Page.extend({
     initialize: function(options) {
         var self = this;
+        options = options || {};
         EntryPage.__super__.initialize.call(self, options);
+
         self.model = options.model;
         self.mode = options.mode || "view";
         self.title = options.title;

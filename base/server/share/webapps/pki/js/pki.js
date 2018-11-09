@@ -110,10 +110,12 @@ var Model = Backbone.Model.extend({
 });
 
 var Collection = Backbone.Collection.extend({
-    urlRoot: null,
     initialize: function(models, options) {
         var self = this;
+        options = options || {};
         Collection.__super__.initialize.call(self, models, options);
+
+        self.urlRoot = options.urlRoot || self.urlRoot;
 
         self.options = options;
         self.links = {};
@@ -183,6 +185,7 @@ var Collection = Backbone.Collection.extend({
         // generate query string
         var query = "";
         _(params).each(function(value, name) {
+            if (name === 'urlRoot') return;
             // skip null or empty string, but don't skip 0
             if (value === null || value === "") return;
             query = query == "" ? "?" : query + "&";
