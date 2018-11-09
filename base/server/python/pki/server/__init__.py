@@ -1556,7 +1556,7 @@ class PKIInstance(object):
                     client_nssdb_pass_file=None, serial=None, temp_cert=False, renew=False,
                     output=None):
         """
-        Create a new cert for the subsystem provided
+        Create a new cert for the cert_id provided
 
         :param cert_id: New cert's ID
         :type cert_id: str
