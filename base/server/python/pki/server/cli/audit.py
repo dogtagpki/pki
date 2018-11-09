@@ -79,6 +79,12 @@ class AuditCLI(pki.cli.CLI):
         print('  Log Signing: %s' % logSigning)
         print('  Signing Certificate: %s' % signedAuditCertNickname)
 
+    @staticmethod
+    def print_audit_event_config(event):
+        print('  Event Name: %s' % event.get('name'))
+        print('  Enabled: %s' % event.get('enabled'))
+        print('  Filter: %s' % event.get('filter'))
+
 
 class AuditConfigShowCLI(pki.cli.CLI):
 
@@ -451,10 +457,7 @@ class AuditEventShowCLI(pki.cli.CLI):
             sys.exit(1)
 
         event = subsystem.get_audit_event_config(event_name)
-
-        print('  Event Name: %s' % event.get('name'))
-        print('  Enabled: %s' % event.get('enabled'))
-        print('  Filter: %s' % event.get('filter'))
+        AuditCLI.print_audit_event_config(event)
 
 
 class AuditEventEnableCLI(pki.cli.CLI):
@@ -537,6 +540,9 @@ class AuditEventEnableCLI(pki.cli.CLI):
         print(msg)
         print(len(msg) * '-')
 
+        event = subsystem.get_audit_event_config(event_name)
+        AuditCLI.print_audit_event_config(event)
+
 
 class AuditEventUpdateCLI(pki.cli.CLI):
 
@@ -613,6 +619,9 @@ class AuditEventUpdateCLI(pki.cli.CLI):
 
         subsystem.update_audit_event_filter(event_name, event_filter)
         subsystem.save()
+
+        event = subsystem.get_audit_event_config(event_name)
+        AuditCLI.print_audit_event_config(event)
 
 
 class AuditEventDisableCLI(pki.cli.CLI):
@@ -695,6 +704,9 @@ class AuditEventDisableCLI(pki.cli.CLI):
         print(len(msg) * '-')
         print(msg)
         print(len(msg) * '-')
+
+        event = subsystem.get_audit_event_config(event_name)
+        AuditCLI.print_audit_event_config(event)
 
 
 class AuditFileFindCLI(pki.cli.CLI):
