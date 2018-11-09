@@ -63,7 +63,7 @@ name of crypto token where user signing certificate key can be found (default is
 .B nickname
 The nickname of the user certificate that corresponds to the private key that is used to sign the request.
 
-This parameter is ignored if \fBselfSign\fP or \fBidentityProofV2.enable\fP is true.
+This parameter is ignored if \fBuseSharedSecret\fP or \fBidentityProofV2.enable\fP is true.
 
 .TP
 .B password
@@ -114,27 +114,27 @@ Supported keyGenAlg are: \fBSHA-256, SHA-384, and SHA-512\fP
 Supported macAlg are: \fBSHA-256-HMAC, SHA-384-HMAC, and SHA-512-HMAC\fP
 
 .TP
-.B request.selfSign
-\fBtrue\fP or \fBfalse\fP.  If \fBselfSign\fP is true, the CMC request will be "signed" with the pairing private key of the enrollment request; and in which case the \fBnickname\fP parameter will be ignored.
+.B request.useSharedSecret
+\fBtrue\fP or \fBfalse\fP.  If \fBuseSharedSecret\fP is true, the CMC request will be "signed" with the pairing private key of the enrollment request; and in which case the \fBnickname\fP parameter will be ignored.
 
-\fBrequest.selfSign\fP is only used if a signing certificate (of the agent or user herself) is not available to sign. Because the request itself is not signed with a certificate (a proven identity), the proof of origin (proof of identification) must be provided by some other means.
+\fBrequest.useSharedSecret\fP is only used if a signing certificate (of the agent or user herself) is not available to sign. Because the request itself is not signed with a certificate (a proven identity), the proof of origin (proof of identification) must be provided by some other means.
 
-In Dogtag, if \fBselfSign\fP is true, it must be used in conjunction with the \fBidentityProofV2\fP and \fBidentification\fP parameters.  And in that case the Proof Of Origin is accomplished by the Shared Secret (\fBwitness.sharedSecret\fP) mechanism.
+In Dogtag, if \fBrequest.useSharedSecret\fP is true, it must be used in conjunction with the \fBidentityProofV2\fP and \fBidentification\fP parameters.  And in that case the Proof Of Origin is accomplished by the Shared Secret (\fBwitness.sharedSecret\fP) mechanism.
 
-The \fBselfSign\fP option is normally used to enroll for a user's first signing certificate while auto-approval (without agent's pre-approval) is preferred. In general, once a user has obtained the first signing certificate, such signing certificate can be used to sign (thus proving origin) and obtain other certificate such as encryption-only ceritifcate, or when doing a renewal or revocation.
+The \fBrequest.useSharedSecret\fP option is normally used to enroll for a user's first signing certificate while auto-approval (without agent's pre-approval) is preferred. In general, once a user has obtained the first signing certificate, such signing certificate can be used to sign (thus proving origin) and obtain other certificate such as encryption-only ceritifcate, or when doing a renewal or revocation.
 
-By default, if unspecified, \fBselfSign\fP is false.
+By default, if unspecified, \fBrequest.useSharedSecret\fP is false.
 
-\fBNote\fP: to employ the \fBselfSign\fP option, the PKCS#10 or CRMF requests must have the \fBSubjectKeyIdentifier extension\fP. (hint: \fBCRMFPopClient\fP and \fBPKCS10Client\fP should be called with the "-y" option)
+\fBNote\fP: to employ the \fBrequest.useSharedSecret\fP option, the PKCS#10 or CRMF requests must have the \fBSubjectKeyIdentifier extension\fP. (hint: \fBCRMFPopClient\fP and \fBPKCS10Client\fP should be called with the "-y" option)
 
-If \fBselfSign\fP is true, \fBrequest.privKeyId\fP must be specified.
+If \fBrequest.useSharedSecret\fP is true, \fBrequest.privKeyId\fP must be specified.
 It is crutial that the caller that employs this option has access to the private key of the certificate request.
 
 .TP
 .B request.privKeyId
 The \fBrequest.privKeyId\fP parameter is required in the following cases:
 
-\fBselfSign\fP, \fBpopLinkWitnessV2\fP, and \fBdecryptedPop\fP
+\fBrequest.useSharedSecret\fP, \fBpopLinkWitnessV2\fP, and \fBdecryptedPop\fP
 
 .TP
 .B decryptedPop.enable, encryptedPopResponseFile, decryptedPopRequestFile
@@ -149,7 +149,7 @@ When preparing for the second trip, the following parameters must be present:
 
 \fBrequest.privKeyId\fP - see descripton for \fBrequest.privKeyId\fP; It is used to decrypt the EncryptedPop, thereby proving the possession of the private key.
 
-Please note that the \fBPopLinkWitnessV2\fP control as well as the \fBselfSign\fP directive do not apply to EncryptedPOP/DecryptedPOP for the simple fact that the enrollment private key is not capable of signing.
+Please note that the \fBPopLinkWitnessV2\fP control as well as the \fBrequest.useSharedSecret\fP directive do not apply to EncryptedPOP/DecryptedPOP for the simple fact that the enrollment private key is not capable of signing.
 
 .TP
 .B revRequest.[enable, serial, reason, comment, issuer, sharedSecret]
