@@ -29,10 +29,10 @@
     <script src="/pki/js/pki.js"></script>
     <script src="/pki/js/pki-ui.js"></script>
     <script src="/pki/js/pki-banner.js"></script>
+    <script src="/pki/js/pki-account.js"></script>
     <script src="/pki/js/pki-user.js"></script>
     <script src="/pki/js/pki-group.js"></script>
     <script src="/tps/js/tps.js"></script>
-    <script src="/tps/js/account.js"></script>
     <script src="/tps/js/activity.js"></script>
     <script src="/tps/js/audit.js"></script>
     <script src="/tps/js/authenticator.js"></script>
@@ -83,7 +83,7 @@ $(function() {
         }
     }
 
-    var account = new Account();
+    var account = new Account("/tps/rest/account");
     account.login({
         success: function(data, textStatus, jqXHR) {
             tps.user = data;

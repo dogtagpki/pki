@@ -19,9 +19,9 @@
  * @author Endi S. Dewata
  */
 
-function Account() {
+function Account(url) {
 
-    this.url = "/tps/rest/account";
+    this.url = url;
 
     this.login = function(options) {
         var self = this;

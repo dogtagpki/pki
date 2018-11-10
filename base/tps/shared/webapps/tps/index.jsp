@@ -27,10 +27,10 @@
     <script src="/pki/js/bootstrap.js"></script>
     <script src="/pki/js/pki.js"></script>
     <script src="/pki/js/pki-banner.js"></script>
-    <script src="/tps/js/account.js"></script>
+    <script src="/pki/js/pki-account.js"></script>
     <script>
 $(function() {
-    var account = new Account();
+    var account = new Account("/tps/rest/account");
     $("form").submit(function(e) {
         account.login({
             success: function() {
