@@ -1039,9 +1039,9 @@ class Instance:
         root = ET.fromstring(response)
         status = root.findtext("Status")
 
-        config.pki_log.debug(
-            'status: %s', status,
-            extra=config.PKI_INDENTATION_LEVEL_3)
+        config.pki_log.info(
+            'Server status: %s', status,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         return status
 
@@ -1078,8 +1078,8 @@ class Instance:
             trust_env=False)
 
         config.pki_log.info(
-            "checking %s", connection.serverURI,
-            extra=config.PKI_INDENTATION_LEVEL_3)
+            "Checking server at %s", connection.serverURI,
+            extra=config.PKI_INDENTATION_LEVEL_0)
 
         start_time = datetime.today()
         status = None
@@ -1117,9 +1117,9 @@ class Instance:
                     break
 
                 config.pki_log.info(
-                    "waiting for server to start (%ds)",
+                    "Waiting for server to start (%ds)",
                     int(round(counter)),
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+                    extra=config.PKI_INDENTATION_LEVEL_0)
 
                 continue
 
