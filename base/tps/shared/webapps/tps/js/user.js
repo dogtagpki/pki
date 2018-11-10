@@ -20,7 +20,12 @@
  */
 
 var UserModel = Model.extend({
-    urlRoot: "/tps/rest/admin/users",
+    initialize: function(attrs, options) {
+        var self = this;
+        UserModel.__super__.initialize.call(self, attrs, options);
+        options = options || {};
+        self.urlRoot = options.urlRoot;
+    },
     parseResponse: function(response) {
 
         var attrs = {};
@@ -65,8 +70,17 @@ var UserModel = Model.extend({
 });
 
 var UserCollection = Collection.extend({
-    model: UserModel,
-    urlRoot: "/tps/rest/admin/users",
+    initialize: function(models, options) {
+        var self = this;
+        UserCollection.__super__.initialize.call(self, models, options);
+        options = options || {};
+        self.urlRoot = options.urlRoot;
+    },
+    model: function(attrs, options) {
+        var self = this;
+        options.urlRoot = self.urlRoot;
+        return new UserModel(attrs, options);
+    },
     getEntries: function(response) {
         return response.entries;
     },
@@ -74,24 +88,23 @@ var UserCollection = Collection.extend({
         return response.Link;
     },
     parseEntry: function(entry) {
+        var self = this;
         return new UserModel({
             id: entry.id,
             userID: entry.UserID,
             fullName: entry.FullName
+        }, {
+            urlRoot: self.urlRoot
         });
     }
 });
 
 var UserRoleModel = Model.extend({
-    url: function() {
+    initialize: function(attrs, options) {
         var self = this;
-
-        var userID = self.get("userID");
-        var url = "/tps/rest/admin/users/" + userID + "/memberships";
-
-        if (self.id) url = url + "/" + self.id;
-
-        return url;
+        UserRoleModel.__super__.initialize.call(self, attrs, options);
+        options = options || {};
+        self.urlRoot = options.urlRoot;
     },
     parseResponse: function(response) {
         return {
@@ -128,7 +141,7 @@ var UserRoleCollection = Collection.extend({
         UserRoleCollection.__super__.initialize.call(self, models, options);
         options = options || {};
         self.userID = options.userID;
-        self.urlRoot = "/tps/rest/admin/users/" + self.userID + "/memberships";
+        self.urlRoot = options.urlRoot;
     },
     getEntries: function(response) {
         return response.Membership;
@@ -137,29 +150,31 @@ var UserRoleCollection = Collection.extend({
         return response.Link;
     },
     model: function(attrs, options) {
+        var self = this;
         return new UserRoleModel({
-            userID: this.userID
+            userID: self.userID
+        }, {
+            urlRoot: self.urlRoot
         });
     },
     parseEntry: function(entry) {
+        var self = this;
         return new UserRoleModel({
             id: entry.id,
             roleID: entry.id,
             userID: entry.UserID
+        }, {
+            urlRoot: self.urlRoot
         });
     }
 });
 
 var UserCertModel = Model.extend({
-    url: function() {
+    initialize: function(attrs, options) {
         var self = this;
-
-        var userID = self.get("userID");
-        var url = "/tps/rest/admin/users/" + userID + "/certs";
-
-        if (self.id) url = url + "/" + encodeURIComponent(self.id);
-
-        return url;
+        UserCertModel.__super__.initialize.call(self, attrs, options);
+        options = options || {};
+        self.urlRoot = options.urlRoot;
     },
     parseResponse: function(response) {
         return {
@@ -200,7 +215,7 @@ var UserCertCollection = Collection.extend({
         UserCertCollection.__super__.initialize.call(self, models, options);
         options = options || {};
         self.userID = options.userID;
-        self.urlRoot = "/tps/rest/admin/users/" + self.userID + "/certs";
+        self.urlRoot = options.urlRoot;
     },
     getEntries: function(response) {
         return response.Cert;
@@ -212,6 +227,8 @@ var UserCertCollection = Collection.extend({
         var self = this;
         return new UserCertModel({
             userID: self.userID
+        }, {
+            urlRoot: self.urlRoot
         });
     },
     parseEntry: function(entry) {
@@ -223,6 +240,8 @@ var UserCertCollection = Collection.extend({
             subjectDN: entry.SubjectDN,
             issuerDN: entry.IssuerDN,
             userID: self.userID
+        }, {
+            urlRoot: self.urlRoot
         });
     }
 });
@@ -447,12 +466,18 @@ var UsersTable = ModelTable.extend({
 });
 
 var UsersPage = Page.extend({
+    initialize: function(options) {
+        var self = this;
+        UsersPage.__super__.initialize.call(self, options);
+        options = options || {};
+        self.collection = options.collection;
+    },
     load: function() {
         var self = this;
 
         var table = new UsersTable({
             el: $("table[name='users']"),
-            collection: new UserCollection()
+            collection: self.collection
         });
 
         table.render();

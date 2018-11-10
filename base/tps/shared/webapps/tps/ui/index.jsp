@@ -388,6 +388,9 @@ $(function() {
     router.route("users", "users", function() {
         new UsersPage({
             el: content,
+            collection: new UserCollection(null, {
+                urlRoot: "/tps/rest/admin/users"
+            }),
             url: "users.html"
         }).open();
     });
@@ -396,7 +399,9 @@ $(function() {
         new UserPage({
             el: content,
             url: "user.html",
-            model: new UserModel({ id: id }),
+            model: new UserModel({ id: id }, {
+                urlRoot: "/tps/rest/admin/users"
+            }),
             editable: ["fullName", "email", "tpsProfiles"]
         }).open();
     });
@@ -405,7 +410,10 @@ $(function() {
         new UserRolesPage({
             el: content,
             url: "user-roles.html",
-            collection: new UserRoleCollection(null, { userID: id })
+            collection: new UserRoleCollection(null, {
+                userID: id,
+                urlRoot: "/tps/rest/admin/users/" + id + "/memberships"
+            })
         }).open();
     });
 
@@ -413,7 +421,10 @@ $(function() {
         new UserCertsPage({
             el: content,
             url: "user-certs.html",
-            collection: new UserCertCollection(null, { userID: id })
+            collection: new UserCertCollection(null, {
+                userID: id,
+                urlRoot: "/tps/rest/admin/users/" + id + "/certs"
+            })
         }).open();
     });
 
@@ -421,7 +432,9 @@ $(function() {
         new UserPage({
             el: content,
             url: "user.html",
-            model: new UserModel(),
+            model: new UserModel(null, {
+                urlRoot: "/tps/rest/admin/users"
+            }),
             mode: "add",
             title: "New User",
             editable: ["userID", "fullName", "email", "tpsProfiles"],
