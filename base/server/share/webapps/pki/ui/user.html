@@ -1,0 +1,53 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2018 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<div class="pki-header">
+<ol class="breadcrumb">
+    <li><a href="#">Home</a></li>
+    <li><a href="#users">Users</a></li>
+    <li class="active"><strong><span name="title">User ${id}</span></strong></li>
+</ol>
+
+<span name="title" class="pki-title">User ${id}</span>
+
+<span class="pki-actions">
+
+<ul name="view" class="pki-actions-menu">
+<li name="edit"><a href="#">Edit</a></li>
+<li name="showRoles"><a href="#">Show Roles</a></li>
+<li name="showCerts"><a href="#">Show Certificates</a></li>
+</ul>
+
+<span name="edit" class="pki-actions-menu" style="display: none;">
+<button name="cancel">Cancel</button>
+<button name="save" class="primary">Save</button>
+</span>
+
+</span>
+
+</div>
+
+<div name="user" class="pki-fields">
+<fieldset>
+    <label>User ID</label>
+    <input name="userID" readonly="readonly"><br>
+    <label>Full Name</label>
+    <input name="fullName" readonly="readonly"><br>
+    <label>Email</label>
+    <input name="email" readonly="readonly"><br>
+</fieldset>
+</div>

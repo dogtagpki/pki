@@ -392,7 +392,7 @@ $(function() {
             collection: new UserCollection(null, {
                 urlRoot: "/tps/rest/admin/users"
             }),
-            url: "users.html"
+            url: "/pki/ui/users.html"
         }).open();
     });
 
@@ -410,7 +410,7 @@ $(function() {
     router.route("users/:id/roles", "user-roles", function(id) {
         new UserRolesPage({
             el: content,
-            url: "user-roles.html",
+            url: "/pki/ui/user-roles.html",
             collection: new UserRoleCollection(null, {
                 userID: id,
                 urlRoot: "/tps/rest/admin/users/" + id + "/memberships"
@@ -421,7 +421,7 @@ $(function() {
     router.route("users/:id/certs", "user-certs", function(id) {
         new UserCertsPage({
             el: content,
-            url: "user-certs.html",
+            url: "/pki/ui/user-certs.html",
             collection: new UserCertCollection(null, {
                 userID: id,
                 urlRoot: "/tps/rest/admin/users/" + id + "/certs"
