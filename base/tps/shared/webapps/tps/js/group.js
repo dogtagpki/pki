@@ -20,7 +20,12 @@
  */
 
 var GroupModel = Model.extend({
-    urlRoot: "/tps/rest/admin/groups",
+    initialize: function(attrs, options) {
+        var self = this;
+        GroupModel.__super__.initialize.call(self, attrs, options);
+        options = options || {};
+        self.urlRoot = options.urlRoot;
+    },
     parseResponse: function(response) {
         return {
             id: response.id,
@@ -38,8 +43,17 @@ var GroupModel = Model.extend({
 });
 
 var GroupCollection = Collection.extend({
-    model: GroupModel,
-    urlRoot: "/tps/rest/admin/groups",
+    initialize: function(models, options) {
+        var self = this;
+        GroupCollection.__super__.initialize.call(self, models, options);
+        options = options || {};
+        self.urlRoot = options.urlRoot;
+    },
+    model: function(attrs, options) {
+        var self = this;
+        options.urlRoot = self.urlRoot;
+        return new GroupModel(attrs, options);
+    },
     getEntries: function(response) {
         return response.entries;
     },
@@ -47,37 +61,23 @@ var GroupCollection = Collection.extend({
         return response.Link;
     },
     parseEntry: function(entry) {
+        var self = this;
         return new GroupModel({
             id: entry.id,
             groupID: entry.GroupID,
             description: entry.Description
+        }, {
+            urlRoot: self.urlRoot
         });
     }
 });
 
 var GroupMemberModel = Model.extend({
-    url: function() {
+    initialize: function(attrs, options) {
         var self = this;
-
-        // There's an attribute name mismatch for group ID: the
-        // server uses GroupID and the client uses groupID. In other
-        // models the mismatch can be translated just fine, but in
-        // this model it becomes a problem because the model needs
-        // to construct the URL using the attribute.
-        //
-        // During read operation it needs to use the attribute that's
-        // already translated for client (i.e. groupID), but during
-        // add it needs to use the attribute meant for server (i.e.
-        // GroupID). So the workaround is to read whichever available.
-        var groupID = self.get("groupID");        // for read
-        groupID = groupID || self.get("GroupID"); // for add
-
-        var url = "/tps/rest/admin/groups/" + groupID + "/members";
-
-        // append member ID for read
-        if (self.id) url = url + "/" + self.id;
-
-        return url;
+        GroupMemberModel.__super__.initialize.call(self, attrs, options);
+        options = options || {};
+        self.urlRoot = options.urlRoot;
     },
     parseResponse: function(response) {
         return {
@@ -100,7 +100,7 @@ var GroupMemberCollection = Collection.extend({
         GroupMemberCollection.__super__.initialize.call(self, models, options);
         options = options || {};
         self.groupID = options.groupID;
-        self.urlRoot = "/tps/rest/admin/groups/" + self.groupID + "/members";
+        self.urlRoot = options.urlRoot;
     },
     getEntries: function(response) {
         return response.Member;
@@ -109,15 +109,21 @@ var GroupMemberCollection = Collection.extend({
         return response.Link;
     },
     model: function(attrs, options) {
+        var self = this;
         return new GroupMemberModel({
-            groupID: this.groupID
+            groupID: self.groupID
+        }, {
+            urlRoot: self.urlRoot
         });
     },
     parseEntry: function(entry) {
+        var self = this;
         return new GroupMemberModel({
             id: entry.id,
             memberID: entry.id,
             groupID: entry.GroupID
+        }, {
+            urlRoot: self.urlRoot
         });
     }
 });
@@ -187,7 +193,10 @@ var GroupPage = EntryPage.extend({
             // In page edit mode, the members tables is read-only.
             self.membersTable.mode = "view";
 
-            self.membersTable.collection = new GroupMemberCollection(null, { groupID: self.entry.id });
+            self.membersTable.collection = new GroupMemberCollection(null, {
+                groupID: self.entry.id,
+                urlRoot: self.model.urlRoot + "/" + self.entry.id + "/members"
+            });
 
         } else if (self.mode == "add") {
             // In page add mode, the members table is read-only.
@@ -199,7 +208,10 @@ var GroupPage = EntryPage.extend({
             // In page view mode, the members table is editable.
             self.membersTable.mode = "edit";
 
-            self.membersTable.collection = new GroupMemberCollection(null, { groupID: self.entry.id });
+            self.membersTable.collection = new GroupMemberCollection(null, {
+                groupID: self.entry.id,
+                urlRoot: self.model.urlRoot + "/" + self.entry.id + "/members"
+            });
         }
 
         self.membersTable.render();
@@ -219,12 +231,18 @@ var GroupsTable = ModelTable.extend({
 });
 
 var GroupsPage = Page.extend({
+    initialize: function(options) {
+        var self = this;
+        GroupsPage.__super__.initialize.call(self, options);
+        options = options || {};
+        self.collection = options.collection;
+    },
     load: function() {
         var self = this;
 
         var table = new GroupsTable({
             el: $("table[name='groups']"),
-            collection: new GroupCollection()
+            collection: self.collection
         });
 
         table.render();

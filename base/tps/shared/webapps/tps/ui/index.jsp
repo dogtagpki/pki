@@ -251,6 +251,9 @@ $(function() {
     router.route("groups", "groups", function() {
         new GroupsPage({
             el: content,
+            collection: new GroupCollection(null, {
+                urlRoot: "/tps/rest/admin/groups"
+            }),
             url: "groups.html"
         }).open();
     });
@@ -259,7 +262,9 @@ $(function() {
         new GroupPage({
             el: content,
             url: "group.html",
-            model: new GroupModel({ id: id }),
+            model: new GroupModel({ id: id }, {
+                urlRoot: "/tps/rest/admin/groups"
+            }),
             editable: ["description"]
         }).open();
     });
@@ -268,7 +273,9 @@ $(function() {
         new GroupPage({
             el: content,
             url: "group.html",
-            model: new GroupModel(),
+            model: new GroupModel(null, {
+                urlRoot: "/tps/rest/admin/groups"
+            }),
             mode: "add",
             title: "New Group",
             editable: ["groupID", "description"],
