@@ -29,6 +29,7 @@
     <script src="/pki/js/pki.js"></script>
     <script src="/pki/js/pki-ui.js"></script>
     <script src="/pki/js/pki-banner.js"></script>
+    <script src="/pki/js/pki-user.js"></script>
     <script src="/pki/js/pki-group.js"></script>
     <script src="/tps/js/tps.js"></script>
     <script src="/tps/js/account.js"></script>
@@ -396,7 +397,7 @@ $(function() {
     });
 
     router.route("users/:id", "user", function(id) {
-        new UserPage({
+        new TPSUserPage({
             el: content,
             url: "user.html",
             model: new UserModel({ id: id }, {
@@ -429,7 +430,7 @@ $(function() {
     });
 
     router.route("new-user", "new-user", function() {
-        new UserPage({
+        new TPSUserPage({
             el: content,
             url: "user.html",
             model: new UserModel(null, {
