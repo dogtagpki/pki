@@ -29,6 +29,7 @@
     <script src="/pki/js/pki.js"></script>
     <script src="/pki/js/pki-ui.js"></script>
     <script src="/pki/js/pki-banner.js"></script>
+    <script src="/pki/js/pki-group.js"></script>
     <script src="/tps/js/tps.js"></script>
     <script src="/tps/js/account.js"></script>
     <script src="/tps/js/activity.js"></script>
@@ -37,7 +38,6 @@
     <script src="/tps/js/cert.js"></script>
     <script src="/tps/js/config.js"></script>
     <script src="/tps/js/connector.js"></script>
-    <script src="/tps/js/group.js"></script>
     <script src="/tps/js/profile.js"></script>
     <script src="/tps/js/profile-mapping.js"></script>
 <!--
@@ -254,14 +254,14 @@ $(function() {
             collection: new GroupCollection(null, {
                 urlRoot: "/tps/rest/admin/groups"
             }),
-            url: "groups.html"
+            url: "/pki/ui/groups.html"
         }).open();
     });
 
     router.route("groups/:id", "group", function(id) {
         new GroupPage({
             el: content,
-            url: "group.html",
+            url: "/pki/ui/group.html",
             model: new GroupModel({ id: id }, {
                 urlRoot: "/tps/rest/admin/groups"
             }),
@@ -272,7 +272,7 @@ $(function() {
     router.route("new-group", "new-group", function() {
         new GroupPage({
             el: content,
-            url: "group.html",
+            url: "/pki/ui/group.html",
             model: new GroupModel(null, {
                 urlRoot: "/tps/rest/admin/groups"
             }),
