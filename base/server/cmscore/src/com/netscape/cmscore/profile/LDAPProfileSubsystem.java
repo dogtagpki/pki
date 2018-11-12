@@ -57,13 +57,16 @@ import netscape.ldap.controls.LDAPEntryChangeControl;
 import netscape.ldap.controls.LDAPPersistSearchControl;
 import netscape.ldap.util.DN;
 
+
 public class LDAPProfileSubsystem
         extends AbstractProfileSubsystem
         implements IProfileSubsystem, Runnable {
 
     public final static Logger logger = LoggerFactory.getLogger(GetStatus.class);
 
-    private String dn;
+    private String profileContainerDNString;
+    private DN profileContainerDN;
+
     private ILdapConnFactory dbFactory;
 
     private boolean stopped = false;
@@ -78,7 +81,7 @@ public class LDAPProfileSubsystem
     /* Set of nsUniqueIds of deleted entries */
     private TreeSet<String> deletedNsUniqueIds;
 
-    private AsyncLoader loader = new AsyncLoader();
+    private AsyncLoader loader = new AsyncLoader(10 /*10s timeout*/);
 
     /**
      * Initializes this subsystem with the given configuration
@@ -116,7 +119,8 @@ public class LDAPProfileSubsystem
 
         // read profile id, implementation, and its configuration files
         String basedn = cs.getString("internaldb.basedn");
-        dn = "ou=certificateProfiles,ou=ca," + basedn;
+        profileContainerDNString = "ou=certificateProfiles,ou=ca," + basedn;
+        profileContainerDN = new DN(profileContainerDNString);
 
         monitor = new Thread(this, "profileChangeMonitor");
         monitor.start();
@@ -124,7 +128,9 @@ public class LDAPProfileSubsystem
             loader.awaitLoadDone();
         } catch (InterruptedException e) {
             logger.warn("LDAPProfileSubsystem: caught InterruptedException "
-                    + "while waiting for initial load of profiles: " + e, e);
+                    + "while waiting for initial load of profiles.");
+            logger.warn("You may have replication conflict entries or "
+                    + "extraneous data under " + profileContainerDNString);
         }
         logger.debug("LDAPProfileSubsystem: finished init");
     }
@@ -298,12 +304,10 @@ public class LDAPProfileSubsystem
     }
 
     private synchronized void handleMODDN(DN oldDN, LDAPEntry entry) {
-        DN profilesDN = new DN(dn);
-
-        if (oldDN.isDescendantOf(profilesDN))
+        if (oldDN.isDescendantOf(profileContainerDN))
             forgetProfile(oldDN.explodeDN(true)[0]);
 
-        if ((new DN(entry.getDN())).isDescendantOf(profilesDN))
+        if ((new DN(entry.getDN())).isDescendantOf(profileContainerDN))
             readProfile(entry);
     }
 
@@ -389,12 +393,14 @@ public class LDAPProfileSubsystem
         if (id == null) {
             throw new EProfileException("CMS_PROFILE_ID_NOT_FOUND");
         }
-        return "cn=" + id + "," + dn;
+        return "cn=" + id + "," + profileContainerDNString;
     }
 
     private void ensureProfilesOU(LDAPConnection conn) throws LDAPException {
         try {
-            conn.search(dn, LDAPConnection.SCOPE_BASE, "(objectclass=*)", null, false);
+            conn.search(
+                profileContainerDNString, LDAPConnection.SCOPE_BASE,
+                "(objectclass=*)", null, false);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
                 logger.info("Adding LDAP certificate profiles container");
@@ -403,7 +409,7 @@ public class LDAPProfileSubsystem
                     new LDAPAttribute("ou", "certificateProfiles")
                 };
                 LDAPAttributeSet attrSet = new LDAPAttributeSet(attrs);
-                LDAPEntry entry = new LDAPEntry(dn, attrSet);
+                LDAPEntry entry = new LDAPEntry(profileContainerDNString, attrSet);
                 conn.add(entry);
             }
         }
@@ -431,8 +437,8 @@ public class LDAPProfileSubsystem
                 cons.setServerTimeLimit(0 /* seconds */);
                 String[] attrs = {"*", "entryUSN", "nsUniqueId", "numSubordinates"};
                 LDAPSearchResults results = conn.search(
-                    dn, LDAPConnection.SCOPE_SUB, "(objectclass=*)",
-                    attrs, false, cons);
+                    profileContainerDNString, LDAPConnection.SCOPE_SUB,
+                    "(objectclass=*)", attrs, false, cons);
 
                 /* Wait until the last possible moment before taking
                  * the load lock and dropping all profiles, so that
@@ -448,15 +454,43 @@ public class LDAPProfileSubsystem
 
                 while (!stopped && results.hasMoreElements()) {
                     LDAPEntry entry = results.next();
+                    DN entryDN = new DN(entry.getDN());
 
-                    String[] objectClasses =
-                        entry.getAttribute("objectClass").getStringValueArray();
-                    if (Arrays.asList(objectClasses).contains("organizationalUnit")) {
+                    if (entryDN.countRDNs() == profileContainerDN.countRDNs()) {
+                        /* This is the profile container.  Read numSubordinates to get
+                         * the expected number of profiles entries to read.
+                         *
+                         * numSubordinates is not reliable; it may be too high
+                         * due to objects we cannot see (e.g. replication conflict
+                         * entries).  In that case AsyncLoader has a watchdog
+                         * timer to interrupt waiting threads.
+                         */
                         loader.setNumItems(new Integer(
                             entry.getAttribute("numSubordinates")
                                 .getStringValueArray()[0]));
                         continue;
                     }
+
+                    if (entryDN.countRDNs() > profileContainerDN.countRDNs() + 1) {
+                        /* This entry is unexpectedly deep.  We ignore it.
+                         * numSubordinates only counts immediate subordinates
+                         * (https://tools.ietf.org/html/draft-boreham-numsubordinates-01)
+                         * so don't increment() the AsyncLoader.
+                         */
+                        continue;
+                    }
+
+                    /* This entry is at the expected depth.  Is it a certProfile? */
+                    String[] objectClasses =
+                        entry.getAttribute("objectClass").getStringValueArray();
+                    if (!Arrays.asList(objectClasses).contains("certProfile")) {
+                        /* It is not a certProfile; ignore it.  But it does
+                         * contribute to numSubordinates so increment the loader. */
+                        loader.increment();
+                        continue;
+                    }
+
+                    /* We have a profile.  Process it. */
 
                     LDAPEntryChangeControl changeControl = (LDAPEntryChangeControl)
                         LDAPUtil.getControl(
