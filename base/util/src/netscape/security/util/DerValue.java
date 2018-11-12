@@ -312,11 +312,6 @@ public class DerValue {
         tag = (byte) in.read();
         length = DerInputStream.getLength(in);
 
-        /*
-        if (length == 0)
-        return;
-        */
-
         if (fullyBuffered && in.available() != length)
             throw new IOException("extra DER value data (constructor)");
 
@@ -382,8 +377,23 @@ public class DerValue {
 
         byte[] bytes = new byte[length];
 
-        if (buffer.read(bytes) != length)
-            throw new IOException("short read on DerValue buffer");
+        int n = buffer.read(bytes);
+        if (n != length && !(n == -1 && length == 0)) {
+            /* We read less (or more, somehow?) than expected.
+             *
+             * The second condition handles a corner case: when
+             * ByteArrayInputStream has no more data, read returns -1, even if
+             * are asking to read 0 bytes.  This seems to violate the contract
+             * of the superclass InputStream.read() which says that if the
+             * requested read length is 0, the return value is 0.  So we have
+             * to treat a return value of (-1) as acceptable iff the length is
+             * zero.
+             */
+            throw new IOException(
+                "getOctetString: short read on DerValue buffer: "
+                + "expected to read " + length + " bytes; "
+                + "actually read " + n + " bytes.");
+        }
         return bytes;
     }
 
