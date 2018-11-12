@@ -19,8 +19,6 @@
  * @author Endi S. Dewata
  */
 
-var tps = {};
-
 var PropertiesTableItem = TableItem.extend({
     initialize: function(options) {
         var self = this;
@@ -122,17 +120,17 @@ var HomePage = Page.extend({
         self.update();
     },
     update: function() {
-        if (!tps.user) return;
-        var roles = tps.user.Roles.Role;
-        var home_accounts = self.$("[name=home-accounts]");
-        var home_system = self.$("[name=home-system]");
+        if (!PKI.user) return;
+        var roles = PKI.user.Roles.Role;
 
+        var home_accounts = self.$("[name=home-accounts]");
         if (_.contains(roles, "Administrators")) {
             home_accounts.show();
         } else {
             home_accounts.hide();
         }
 
+        var home_system = self.$("[name=home-system]");
         if (_.contains(roles, "Administrators")) {
             home_system.show();
             $("li", home_system).show();
@@ -241,7 +239,7 @@ var ConfigEntryPage = EntryPage.extend({
 
         ConfigEntryPage.__super__.renderContent.call(self);
 
-        var roles = tps.user.Roles.Role;
+        var roles = PKI.user.Roles.Role;
         var status = self.entry.status;
 
         if (_.contains(roles, "Administrators") && _.contains(roles, "TPS Agents")) {

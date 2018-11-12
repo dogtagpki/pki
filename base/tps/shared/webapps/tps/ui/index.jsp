@@ -84,24 +84,22 @@ $(function() {
     }
 
     var account = new Account("/tps/rest/account");
+
     account.login({
         success: function(data, textStatus, jqXHR) {
-            tps.user = data;
-            var roles = tps.user.Roles.Role;
+            var roles = PKI.user.Roles.Role;
 
             var user = $("#navigation [name=account] [name=username]");
             user.text(data.FullName);
 
             var accounts_menu = $("#navigation [name=accounts]");
-            var system_menu = $("#navigation [name=system]");
-
             if (_.contains(roles, "Administrators")) {
                 accounts_menu.show();
             } else {
                 accounts_menu.hide();
             }
 
-            var attributes = tps.user.Attributes.Attribute;
+            var attributes = PKI.user.Attributes.Attribute;
             var values = getAttribute(attributes, "components");
 
             var components;
@@ -111,6 +109,7 @@ $(function() {
                 components = [];
             }
 
+            var system_menu = $("#navigation [name=system]");
             if (components.length > 0) {
                 // display menu items for accessible components
                 system_menu.show();
@@ -124,7 +123,7 @@ $(function() {
                 system_menu.hide();
             }
 
-            // homePage.update();
+            Backbone.history.start();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             window.location.href = "/tps";
@@ -447,7 +446,6 @@ $(function() {
         // destroy server session
         account.logout({
             success: function() {
-                tps.user = null;
                 // clear browser cache
                 PKI.logout({
                     success: function() {
@@ -463,8 +461,6 @@ $(function() {
             }
         });
     });
-
-    Backbone.history.start();
 });
     </script>
 </head>

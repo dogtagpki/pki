@@ -31,6 +31,7 @@ function Account(url) {
             url: self.url + "/login",
             dataType: "json"
         }).done(function(data, textStatus, jqXHR) {
+            PKI.user = data;
             if (options.success) options.success.call(self, data, textStatus, jqXHR);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
@@ -45,6 +46,7 @@ function Account(url) {
             url: self.url + "/logout",
             dataType: "json"
         }).done(function(data, textStatus, jqXHR) {
+            PKI.user = null;
             if (options.success) options.success.call(self, data, textStatus, jqXHR);
         }).fail(function(jqXHR, textStatus, errorThrown) {
             if (options.error) options.error.call(self, jqXHR, textStatus, errorThrown);
