@@ -49,31 +49,6 @@
     <script>
 $(function() {
 
-    function getElementName(component) {
-
-        if (component == "Generals") {
-            return "config";
-
-        } else if (component == "Authentication_Sources") {
-            return "authenticators";
-
-        } else if (component == "Subsystem_Connections") {
-            return "connectors";
-
-        } else if (component == "Profiles") {
-            return "profiles";
-
-        } else if (component == "Profile_Mappings") {
-            return "profile-mappings";
-
-        } else if (component == "Audit_Logging") {
-            return "audit";
-
-        } else {
-            return null;
-        }
-    }
-
     var account = new Account("/tps/rest/account");
 
     account.login({
@@ -104,7 +79,7 @@ $(function() {
             if (components.length > 0) {
                 system_menu.show();
                 for (var i=0; i<components.length; i++) {
-                    var name = getElementName(components[i]);
+                    var name = TPS.getElementName(components[i]);
                     if (!name) continue;
                     $("[name=" + name + "]", system_menu).show();
                 }
