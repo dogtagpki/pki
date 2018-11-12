@@ -99,7 +99,7 @@ $(function() {
 
     var router = new Backbone.Router();
 /*
-    var homePage = new HomePage({
+    var homePage = new TPSHomePage({
         el: content,
         url: "home.html"
     });

@@ -141,21 +141,13 @@ var PropertiesTable = Table.extend({
     }
 });
 
-var HomePage = Page.extend({
-    load: function() {
-        var self = this;
-        self.update();
-    },
+var TPSHomePage = HomePage.extend({
     update: function() {
+
+        TPSHomePage.__super__.update.call(self);
+
         if (!PKI.user) return;
         var roles = PKI.user.Roles.Role;
-
-        var home_accounts = self.$("[name=home-accounts]");
-        if (_.contains(roles, "Administrators")) {
-            home_accounts.show();
-        } else {
-            home_accounts.hide();
-        }
 
         var home_system = self.$("[name=home-system]");
         if (_.contains(roles, "Administrators")) {

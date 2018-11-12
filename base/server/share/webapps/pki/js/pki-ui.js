@@ -1082,3 +1082,21 @@ var EntryPage = Page.extend({
         dialog.open();
     }
 });
+
+var HomePage = Page.extend({
+    load: function() {
+        var self = this;
+        self.update();
+    },
+    update: function() {
+        if (!PKI.user) return;
+        var roles = PKI.user.Roles.Role;
+
+        var home_accounts = self.$("[name=home-accounts]");
+        if (_.contains(roles, "Administrators")) {
+            home_accounts.show();
+        } else {
+            home_accounts.hide();
+        }
+    }
+});
