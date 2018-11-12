@@ -49,15 +49,6 @@
     <script>
 $(function() {
 
-    function getAttribute(attributes, name) {
-        for (var i=0; i<attributes.length; i++) {
-            var attribute = attributes[i];
-            if (name != attribute.name) continue;
-            return attribute.value;
-        }
-        return null;
-    }
-
     function getElementName(component) {
 
         if (component == "Generals") {
@@ -90,7 +81,7 @@ $(function() {
             var roles = PKI.user.Roles.Role;
 
             var user = $("#navigation [name=account] [name=username]");
-            user.text(data.FullName);
+            user.text(PKI.user.FullName);
 
             var accounts_menu = $("#navigation [name=accounts]");
             if (_.contains(roles, "Administrators")) {
@@ -100,7 +91,7 @@ $(function() {
             }
 
             var attributes = PKI.user.Attributes.Attribute;
-            var values = getAttribute(attributes, "components");
+            var values = PKI.getAttribute(attributes, "components");
 
             var components;
             if (values) {
@@ -111,7 +102,6 @@ $(function() {
 
             var system_menu = $("#navigation [name=system]");
             if (components.length > 0) {
-                // display menu items for accessible components
                 system_menu.show();
                 for (var i=0; i<components.length; i++) {
                     var name = getElementName(components[i]);

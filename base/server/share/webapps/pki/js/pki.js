@@ -20,6 +20,14 @@
  */
 
 var PKI = {
+    getAttribute: function(attributes, name) {
+        for (var i=0; i<attributes.length; i++) {
+            var attribute = attributes[i];
+            if (name != attribute.name) continue;
+            return attribute.value;
+        }
+        return null;
+    },
     substitute: function(content, map) {
 
         var newContent = "";
