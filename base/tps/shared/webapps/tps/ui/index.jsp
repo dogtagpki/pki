@@ -98,20 +98,12 @@ $(function() {
     var content = $("#content");
 
     var router = new Backbone.Router();
-/*
-    var homePage = new TPSHomePage({
-        el: content,
-        url: "home.html"
-    });
-*/
-    var tokensPage = new TokensPage({
-        el: content,
-        url: "tokens.html"
-    });
 
     router.route("", "home", function() {
-        // homePage.open();
-        tokensPage.open();
+        new TPSHomePage({
+            el: content,
+            url: "home.html"
+        }).open();
     });
 
     router.route("activities", "activities", function() {
@@ -318,7 +310,10 @@ $(function() {
     });
 */
     router.route("tokens", "tokens", function() {
-        tokensPage.open();
+        var tokensPage = new TokensPage({
+            el: content,
+            url: "tokens.html"
+        }).open();
     });
 
     router.route("tokens/:id", "token", function(id) {
@@ -459,9 +454,9 @@ $(function() {
     </li>
     </ul>
     <ul class="nav navbar-nav navbar-primary">
-<!--
+
     <li name="home"><a href="#"><span class="glyphicon glyphicon-home"></span> Home</a></li>
--->
+
     <li name="tokens"><a href="#tokens">Tokens</a></li>
     <li name="certs"><a href="#certs">Certificates</a></li>
     <li name="activities"><a href="#activities">Activities</a></li>

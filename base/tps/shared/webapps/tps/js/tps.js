@@ -149,15 +149,24 @@ var TPSHomePage = HomePage.extend({
         if (!PKI.user) return;
         var roles = PKI.user.Roles.Role;
 
-        var home_system = self.$("[name=home-system]");
-        if (_.contains(roles, "Administrators")) {
-            home_system.show();
-            $("li", home_system).show();
+        var attributes = PKI.user.Attributes.Attribute;
+        var values = PKI.getAttribute(attributes, "components");
 
-        } else if (_.contains(roles, "TPS Agents")) {
+        var components;
+        if (values) {
+            components = values.split(",");
+        } else {
+            components = [];
+        }
+
+        var home_system = self.$("[name=home-system]");
+        if (components.length > 0) {
             home_system.show();
-            $("li", home_system).hide();
-            $("[name=profiles]", home_system).show();
+            for (var i=0; i<components.length; i++) {
+                var name = TPS.getElementName(components[i]);
+                if (!name) continue;
+                $("[name=" + name + "]", home_system).show();
+            }
 
         } else {
             home_system.hide();
