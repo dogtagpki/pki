@@ -32,6 +32,7 @@
     <script src="/pki/js/pki-account.js"></script>
     <script src="/pki/js/pki-group.js"></script>
     <script src="/pki/js/pki-user.js"></script>
+    <script src="/ca/js/cert.js"></script>
     <script>
 $(function() {
 
@@ -43,6 +44,22 @@ $(function() {
         new HomePage({
             el: content,
             url: "/ca/ui/home.html"
+        }).open();
+    });
+
+    router.route("certs", "certs", function() {
+        new CertificatesPage({
+            el: content,
+            url: "certs.html",
+            collection: new CertificateCollection()
+        }).open();
+    });
+
+    router.route("certs/:id", "cert", function(id) {
+        new CertificatePage({
+            el: content,
+            url: "cert.html",
+            model: new CertificateModel({ id: id })
         }).open();
     });
 
@@ -215,6 +232,8 @@ $(function() {
     <ul class="nav navbar-nav navbar-primary">
 
     <li name="home"><a href="#"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+
+    <li name="certs"><a href="#certs">Certificates</a></li>
 
     <li name="accounts" class="dropdown context" style="display: none;">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">

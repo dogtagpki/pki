@@ -18,30 +18,28 @@
 <div class="pki-header">
 <ol class="breadcrumb">
     <li><a href="#">Home</a></li>
+    <li><a href="#certs">Certificates</a></li>
+    <li class="active"><strong><span name="title">Certificate ${id}</span></strong></li>
 </ol>
 
-<span name="title" class="pki-title">Certificate Authority</span>
+<span name="title" class="pki-title">Certificate ${id}</span>
 </div>
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3 class="panel-title">Certificate Management</h3>
-    </div>
-    <div class="panel-body pki-menu">
-        <ul>
-        <li><a href="#certs">Certificates</a></li>
-        </ul>
-    </div>
-</div>
-
-<div name="home-accounts" class="panel panel-default" style="display: none;">
-    <div class="panel-heading">
-        <h3 class="panel-title">Account Management</h3>
-    </div>
-    <div class="panel-body pki-menu">
-        <ul>
-        <li><a href="#users">Users</a></li>
-        <li><a href="#groups">Groups</a></li>
-        </ul>
-    </div>
+<div name="certificate" class="pki-fields">
+<fieldset>
+    <label>Serial Number</label>
+    <input name="id" readonly="readonly"><br>
+    <label>Subject DN</label>
+    <input name="subjectDN" size="80" readonly="readonly"><br>
+    <label>Issuer DN</label>
+    <input name="issuerDN" size="80" readonly="readonly"><br>
+    <label>Status</label>
+    <input name="status" readonly="readonly"><br>
+    <label>Not Valid Before</label>
+    <input name="notValidBefore" readonly="readonly"><br>
+    <label>Not Valid After</label>
+    <input name="notValidAfter" readonly="readonly"><br>
+    <label>Certificate</label>
+    <textarea name="encoded" cols="80" rows="20" readonly="readonly"></textarea><br>
+</fieldset>
 </div>
