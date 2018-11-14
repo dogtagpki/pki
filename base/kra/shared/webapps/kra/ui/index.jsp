@@ -32,6 +32,7 @@
     <script src="/pki/js/pki-account.js"></script>
     <script src="/pki/js/pki-group.js"></script>
     <script src="/pki/js/pki-user.js"></script>
+    <script src="/kra/js/key.js"></script>
     <script>
 $(function() {
 
@@ -43,6 +44,22 @@ $(function() {
         new HomePage({
             el: content,
             url: "/kra/ui/home.html"
+        }).open();
+    });
+
+    router.route("keys", "keys", function() {
+        new KeysPage({
+            el: content,
+            url: "keys.html",
+            collection: new KeyCollection()
+        }).open();
+    });
+
+    router.route("keys/:id", "key", function(id) {
+        new KeyPage({
+            el: content,
+            url: "key.html",
+            model: new KeyModel({ id: id })
         }).open();
     });
 
@@ -215,6 +232,8 @@ $(function() {
     <ul class="nav navbar-nav navbar-primary">
 
     <li name="home"><a href="#"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+
+    <li name="keys"><a href="#keys">Keys</a></li>
 
     <li name="accounts" class="dropdown context" style="display: none;">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">

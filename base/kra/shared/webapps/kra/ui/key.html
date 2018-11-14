@@ -18,30 +18,24 @@
 <div class="pki-header">
 <ol class="breadcrumb">
     <li><a href="#">Home</a></li>
+    <li><a href="#keys">Keys</a></li>
+    <li class="active"><strong><span name="title">Key ${id}</span></strong></li>
 </ol>
 
-<span name="title" class="pki-title">Key Recovery Authority</span>
+<span name="title" class="pki-title">Key ${id}</span>
 </div>
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3 class="panel-title">Key Management</h3>
-    </div>
-    <div class="panel-body pki-menu">
-        <ul>
-        <li><a href="#keys">Keys</a></li>
-        </ul>
-    </div>
-</div>
-
-<div name="home-accounts" class="panel panel-default" style="display: none;">
-    <div class="panel-heading">
-        <h3 class="panel-title">Account Management</h3>
-    </div>
-    <div class="panel-body pki-menu">
-        <ul>
-        <li><a href="#users">Users</a></li>
-        <li><a href="#groups">Groups</a></li>
-        </ul>
-    </div>
+<div name="key" class="pki-fields">
+<fieldset>
+    <label>ID</label>
+    <input name="id" readonly="readonly"><br>
+    <label>Algorithm</label>
+    <input name="algorithm" size="80" readonly="readonly"><br>
+    <label>Size</label>
+    <input name="size" size="80" readonly="readonly"><br>
+    <label>Owner</label>
+    <input name="ownerName" readonly="readonly"><br>
+    <label>Public Key</label>
+    <textarea name="publicKey" cols="80" rows="20" readonly="readonly"></textarea><br>
+</fieldset>
 </div>

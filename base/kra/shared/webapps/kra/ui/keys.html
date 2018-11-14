@@ -18,16 +18,16 @@
 <div class="pki-header">
 <ol class="breadcrumb">
     <li><a href="#">Home</a></li>
-    <li class="active"><strong>Certificates</strong></li>
+    <li class="active"><strong>Keys</strong></li>
 </ol>
 
-<span class="pki-title">Certificates</span>
+<span class="pki-title">Keys</span>
 </div>
 
-<table name="certificates">
+<table name="keys">
 <thead>
     <tr>
-         <th class="pki-table-actions" colspan="7">
+         <th class="pki-table-actions" colspan="5">
              <span name="search">
                  <input name="search" type="text" placeholder="Search...">
              </span>
@@ -36,29 +36,25 @@
          </th>
     </tr>
     <tr>
-        <th class="pki-select-column"><input id="certs-selectall" type="checkbox"><label for="certs-selectall">&nbsp;</label></tdh>
-        <th>Serial Number</th>
-        <th>Subject DN</th>
-        <th>Issued By</th>
-        <th>Status</th>
-        <th>Not Valid Before</th>
-        <th>Not Valid After</th>
+        <th class="pki-select-column"><input id="keys-selectall" type="checkbox"><label for="keys-selectall">&nbsp;</label></tdh>
+        <th>ID</th>
+        <th>Algorithm</th>
+        <th>Size</th>
+        <th>Owner</th>
     </tr>
 </thead>
 <tbody>
     <tr>
-        <td class="pki-select-column"><input id="certs-select" type="checkbox"><label for="certs-select">&nbsp;</label></td>
-        <td name="id"><a href="#certs/${id}">${id}</a></td>
-        <td name="subjectDN">${subjectDN}</td>
-        <td name="issuedBy">${issuedBy}</td>
-        <td name="status">${status}</td>
-        <td name="notValidBefore">${notValidBefore}</td>
-        <td name="notValidAfter">${notValidAfter}</td>
+        <td class="pki-select-column"><input id="keys-select" type="checkbox"><label for="keys-select">&nbsp;</label></td>
+        <td name="id"><a href="#keys/${id}">${id}</a></td>
+        <td name="algorithm">${subjectDN}</td>
+        <td name="size">${issuedBy}</td>
+        <td name="ownerName">${status}</td>
     </tr>
 </tbody>
 <tfoot>
     <tr>
-         <th class="pki-table-actions" colspan="7">
+         <th class="pki-table-actions" colspan="5">
              <div class="pki-table-info">
                  Total: <span name="totalEntries">0</span> entries
              </div>
