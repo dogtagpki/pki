@@ -20,8 +20,11 @@
  */
 
 var AuditModel = Model.extend({
-    url: function() {
-        return "/tps/rest/audit";
+    initialize: function(attrs, options) {
+        options = options || {};
+        var self = this;
+        AuditModel.__super__.initialize.call(self, attrs, options);
+        self.url = options.url;
     },
     parseResponse: function(response) {
         return {
@@ -120,8 +123,6 @@ var AuditTableItem = TableItem.extend({
 var AuditPage = EntryPage.extend({
     initialize: function(options) {
         var self = this;
-        options.model = new AuditModel();
-        options.editable = ["signed", "interval", "bufferSize"];
         AuditPage.__super__.initialize.call(self, options);
     },
     setup: function() {

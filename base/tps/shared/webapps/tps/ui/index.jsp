@@ -124,7 +124,11 @@ $(function() {
     router.route("audit", "audit", function() {
         new AuditPage({
             el: content,
-            url: "audit.html"
+            url: "audit.html",
+            model: new AuditModel(null, {
+                url: "/tps/rest/audit"
+            }),
+            editable: ["signed", "interval", "bufferSize"]
         }).open();
     });
 
