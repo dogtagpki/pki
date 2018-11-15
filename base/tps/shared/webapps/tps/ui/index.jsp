@@ -32,9 +32,9 @@
     <script src="/pki/js/pki-account.js"></script>
     <script src="/pki/js/pki-user.js"></script>
     <script src="/pki/js/pki-group.js"></script>
+    <script src="/pki/js/pki-audit.js"></script>
     <script src="/tps/js/tps.js"></script>
     <script src="/tps/js/activity.js"></script>
-    <script src="/tps/js/audit.js"></script>
     <script src="/tps/js/authenticator.js"></script>
     <script src="/tps/js/cert.js"></script>
     <script src="/tps/js/config.js"></script>
@@ -124,7 +124,7 @@ $(function() {
     router.route("audit", "audit", function() {
         new AuditPage({
             el: content,
-            url: "audit.html",
+            url: "/pki/ui/audit.html",
             model: new AuditModel(null, {
                 url: "/tps/rest/audit"
             }),

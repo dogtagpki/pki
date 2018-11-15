@@ -49,9 +49,15 @@ var AuditModel = Model.extend({
     },
     changeStatus: function(action, options) {
         var self = this;
+        var url;
+        if (typeof self.url == 'function') {
+            url = self.url();
+        } else {
+            url = self.url;
+        }
         $.ajax({
             type: "POST",
-            url: self.url() + "?action=" + action,
+            url: url + "?action=" + action,
             dataType: "json"
         }).done(function(data, textStatus, jqXHR) {
             self.set(self.parseResponse(data));
