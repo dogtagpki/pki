@@ -139,10 +139,7 @@ public class AuditEvent extends LogEvent {
             "LOGGING_SIGNED_AUDIT_TOKEN_FORMAT_FAILURE_9";
     public final static String TOKEN_KEY_CHANGEOVER_REQUIRED =
             "LOGGING_SIGNED_AUDIT_TOKEN_KEY_CHANGEOVER_REQUIRED_10";
-    public final static String TOKEN_AUTH_FAILURE =
-            "LOGGING_SIGNED_AUDIT_TOKEN_AUTH_FAILURE_9";
-    public final static String TOKEN_AUTH_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_TOKEN_AUTH_SUCCESS_9";
+
     public final static String CONFIG_TOKEN_GENERAL =
             "LOGGING_SIGNED_AUDIT_CONFIG_TOKEN_GENERAL_5";
     public final static String CONFIG_TOKEN_PROFILE =

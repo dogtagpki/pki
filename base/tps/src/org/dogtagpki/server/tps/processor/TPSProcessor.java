@@ -96,6 +96,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.TokenAppletUpgradeEvent;
+import com.netscape.certsrv.logging.event.TokenAuthEvent;
 import com.netscape.certsrv.logging.event.TokenKeyChangeoverEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.logging.Logger;
@@ -2089,11 +2090,13 @@ public class TPSProcessor {
                     userAuth = getAuthentication(authId);
 
                     processAuthentication(TPSEngine.FORMAT_OP, userAuth, cuid, tokenRecord);
-                    auditAuth(userid, currentTokenOperation, appletInfo, "success", authId);
+                    auditAuthSuccess(userid, currentTokenOperation, appletInfo, authId);
+
                 } catch (Exception e) {
-                    auditAuth(userid, currentTokenOperation, appletInfo, "failure",
-                            (userAuth != null) ? userAuth.getID() : null);
                     // all exceptions are considered login failure
+                    auditAuthFailure(userid, currentTokenOperation, appletInfo,
+                            (userAuth != null) ? userAuth.getID() : null);
+
                     CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
                     logMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
 
@@ -2216,12 +2219,14 @@ public class TPSProcessor {
                 try {
                     userAuth = getAuthentication(TPSEngine.OP_FORMAT_PREFIX, tokenType);
                     processAuthentication(TPSEngine.FORMAT_OP, userAuth, cuid, tokenRecord);
-                    auditAuth(userid, currentTokenOperation, appletInfo, "success",
+                    auditAuthSuccess(userid, currentTokenOperation, appletInfo,
                             (userAuth != null) ? userAuth.getID() : null);
+
                 } catch (Exception e) {
-                    auditAuth(userid, currentTokenOperation, appletInfo, "failure",
-                            (userAuth != null) ? userAuth.getID() : null);
                     // all exceptions are considered login failure
+                    auditAuthFailure(userid, currentTokenOperation, appletInfo,
+                            (userAuth != null) ? userAuth.getID() : null);
+
                     CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
                     logMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
 
@@ -3662,13 +3667,14 @@ public class TPSProcessor {
                 try {
                     userAuth = getAuthentication(opPrefix, tokenType);
                     processAuthentication(TPSEngine.ENROLL_OP, userAuth, appletInfo.getCUIDhexString(), tokenRecord);
-                    auditAuth(userid, currentTokenOperation, appletInfo, "success",
+                    auditAuthSuccess(userid, currentTokenOperation, appletInfo,
                             (userAuth != null) ? userAuth.getID() : null);
 
                 } catch (Exception e) {
                     // all exceptions are considered login failure
-                    auditAuth(userid, currentTokenOperation, appletInfo, "failure",
+                    auditAuthFailure(userid, currentTokenOperation, appletInfo,
                             (userAuth != null) ? userAuth.getID() : null);
+
                     CMS.debug("TPSProcessor.checkAndAuthenticateUser:: authentication exception thrown: " + e);
                     String msg = "TPS error user authentication failed:" + e;
                     tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), msg,
@@ -4089,27 +4095,38 @@ public class TPSProcessor {
     }
     */
 
-    protected void auditAuth(String subjectID, String op,
+    protected void auditAuthSuccess(String subjectID, String op,
             AppletInfo aInfo,
-            String status,
             String authMgrId) {
 
-        String auditType = AuditEvent.TOKEN_AUTH_FAILURE;
-        if (status.equals("success"))
-            auditType = AuditEvent.TOKEN_AUTH_SUCCESS;
-
-        String auditMessage = CMS.getLogMessage(
-                auditType,
+        TokenAuthEvent event = TokenAuthEvent.success(
                 session.getIpAddress(),
                 subjectID,
                 (aInfo != null) ? aInfo.getCUIDhexStringPlain() : null,
                 (aInfo != null) ? aInfo.getMSNString() : null,
-                status,
                 op,
                 getSelectedTokenType(),
                 (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
                 authMgrId);
-        audit(auditMessage);
+
+        signedAuditLogger.log(event);
+    }
+
+    protected void auditAuthFailure(String subjectID, String op,
+            AppletInfo aInfo,
+            String authMgrId) {
+
+        TokenAuthEvent event = TokenAuthEvent.failure(
+                session.getIpAddress(),
+                subjectID,
+                (aInfo != null) ? aInfo.getCUIDhexStringPlain() : null,
+                (aInfo != null) ? aInfo.getMSNString() : null,
+                op,
+                getSelectedTokenType(),
+                (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
+                authMgrId);
+
+        signedAuditLogger.log(event);
     }
 
     /*
