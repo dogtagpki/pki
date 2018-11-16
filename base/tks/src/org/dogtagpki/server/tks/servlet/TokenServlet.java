@@ -48,6 +48,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.DiversifyKeyRequestProcessedEvent;
 import com.netscape.certsrv.logging.event.EncryptDataRequestProcessedEvent;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -1875,9 +1876,9 @@ public class TokenServlet extends CMSServlet {
             // AC: KDF SPEC CHANGE - Log both CUID and KDD
             //                       Also added TKSKeyset, OldKeyInfo_KeyVersion, NewKeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
             //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
-            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+            DiversifyKeyRequestProcessedEvent event = DiversifyKeyRequestProcessedEvent.success(
+                    log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
                     log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
-                    ILogger.SUCCESS, // Outcome
                     status, // status
                     agentId, // AgentID
 
@@ -1890,15 +1891,17 @@ public class TokenServlet extends CMSServlet {
                     log_string_from_keyInfo(xnewkeyInfo), // NewKeyInfo_KeyVersion
                     "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
-            };
-            auditMessage = CMS.getLogMessage(AuditEvent.DIVERSIFY_KEY_REQUEST_PROCESSED_SUCCESS, logParams);
+            );
+
+            signedAuditLogger.log(event);
+
         } else {
             // AC: KDF SPEC CHANGE - Log both CUID and KDD
             //                       Also added TKSKeyset, OldKeyInfo_KeyVersion, NewKeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
             //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
-            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+            DiversifyKeyRequestProcessedEvent event = DiversifyKeyRequestProcessedEvent.failure(
+                    log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
                     log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
-                    ILogger.FAILURE, // Outcome
                     status, // status
                     agentId, // AgentID
 
@@ -1912,11 +1915,10 @@ public class TokenServlet extends CMSServlet {
                     "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd), // NistSP800_108KdfUseCuidAsKdd
                     errorMsg // Error
-            };
-            auditMessage = CMS.getLogMessage(AuditEvent.DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE, logParams);
-        }
+            );
 
-        audit(auditMessage);
+            signedAuditLogger.log(event);
+        }
     }
 
     private void processEncryptData(HttpServletRequest req,
