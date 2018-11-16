@@ -107,10 +107,6 @@ public class AuditEvent extends LogEvent {
             "LOGGING_SIGNED_AUDIT_DIVERSIFY_KEY_REQUEST_PROCESSED_FAILURE_13"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.  Also added TKSKeyset, OldKeyInfo_KeyVersion, NewKeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd.
     public final static String ENCRYPT_DATA_REQUEST =
             "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_5"; // AC: KDF SPEC CHANGE:  Need to log both KDD and CUID.
-    public final static String ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_SUCCESS_12";
-    public final static String ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE =
-            "LOGGING_SIGNED_AUDIT_ENCRYPT_DATA_REQUEST_PROCESSED_FAILURE_13";
 
     public final static String SECURITY_DOMAIN_UPDATE =
             "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";
