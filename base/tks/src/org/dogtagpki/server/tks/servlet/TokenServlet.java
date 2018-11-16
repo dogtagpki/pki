@@ -49,6 +49,7 @@ import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.ComputeSessionKeyRequestProcessedEvent;
 import com.netscape.certsrv.logging.event.DiversifyKeyRequestProcessedEvent;
 import com.netscape.certsrv.logging.event.EncryptDataRequestProcessedEvent;
 import com.netscape.cms.logging.Logger;
@@ -792,9 +793,9 @@ public class TokenServlet extends CMSServlet {
 
         if (status.equals("0")) {
 
-            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+            ComputeSessionKeyRequestProcessedEvent event = ComputeSessionKeyRequestProcessedEvent.success(
+                    log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
                     log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
-                    ILogger.SUCCESS, // Outcome
                     status, // status
                     agentId, // AgentID
                     isCryptoValidate ? "true" : "false", // IsCryptoValidate
@@ -805,15 +806,15 @@ public class TokenServlet extends CMSServlet {
                     log_string_from_keyInfo(keyInfo), // KeyInfo_KeyVersion
                     "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
-            };
-            auditMessage = CMS.getLogMessage(AuditEvent.COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
-                    logParams);
+            );
+
+            signedAuditLogger.log(event);;
 
         } else {
 
-            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+            ComputeSessionKeyRequestProcessedEvent event = ComputeSessionKeyRequestProcessedEvent.failure(
+                    log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
                     log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
-                    ILogger.FAILURE, // Outcome
                     status, // status
                     agentId, // AgentID
                     isCryptoValidate ? "true" : "false", // IsCryptoValidate
@@ -825,13 +826,10 @@ public class TokenServlet extends CMSServlet {
                     "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd), // NistSP800_108KdfUseCuidAsKdd
                     errorMsg // Error
-            };
-            auditMessage = CMS.getLogMessage(AuditEvent.COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
-                    logParams);
+            );
+
+            signedAuditLogger.log(event);
         }
-
-        audit(auditMessage);
-
     }
 
     private void processComputeSessionKey(HttpServletRequest req,
@@ -1449,9 +1447,9 @@ public class TokenServlet extends CMSServlet {
             // AC: KDF SPEC CHANGE - Log both CUID and KDD.
             //                       Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
             //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
-            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+            ComputeSessionKeyRequestProcessedEvent event = ComputeSessionKeyRequestProcessedEvent.success(
+                    log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
                     log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
-                    ILogger.SUCCESS, // Outcome
                     status, // status
                     agentId, // AgentID
                     isCryptoValidate ? "true" : "false", // IsCryptoValidate
@@ -1462,17 +1460,17 @@ public class TokenServlet extends CMSServlet {
                     log_string_from_keyInfo(xkeyInfo), // KeyInfo_KeyVersion
                     "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd) // NistSP800_108KdfUseCuidAsKdd
-            };
-            auditMessage = CMS.getLogMessage(AuditEvent.COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
-                    logParams);
+            );
+
+            signedAuditLogger.log(event);
 
         } else {
             // AC: KDF SPEC CHANGE - Log both CUID and KDD
             //                       Also added TKSKeyset, KeyInfo_KeyVersion, NistSP800_108KdfOnKeyVersion, NistSP800_108KdfUseCuidAsKdd
             //                       Finally, log CUID and KDD in ASCII-HEX format, as long as special-decoded version is available.
-            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+            ComputeSessionKeyRequestProcessedEvent event = ComputeSessionKeyRequestProcessedEvent.failure(
+                    log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
                     log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
-                    ILogger.FAILURE, // Outcome
                     status, // status
                     agentId, // AgentID
                     isCryptoValidate ? "true" : "false", // IsCryptoValidate
@@ -1484,13 +1482,10 @@ public class TokenServlet extends CMSServlet {
                     "0x" + Integer.toHexString(nistSP800_108KdfOnKeyVersion & 0x000000FF), // NistSP800_108KdfOnKeyVersion
                     Boolean.toString(nistSP800_108KdfUseCuidAsKdd), // NistSP800_108KdfUseCuidAsKdd
                     errorMsg // Error
-            };
-            auditMessage = CMS.getLogMessage(AuditEvent.COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
-                    logParams);
+            );
 
+            signedAuditLogger.log(event);
         }
-
-        audit(auditMessage);
     }
 
     // This method will return the shared secret name.  In new 10.1 subsystems, this
@@ -2915,9 +2910,9 @@ public class TokenServlet extends CMSServlet {
         }
 
         if (status.equals("0")) {
-            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+            ComputeSessionKeyRequestProcessedEvent event = ComputeSessionKeyRequestProcessedEvent.success(
+                    log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
                     log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
-                    ILogger.SUCCESS, // Outcome
                     status, // status
                     agentId, // AgentID
                     isCryptoValidate ? "true" : "false", // IsCryptoValidate
@@ -2926,14 +2921,16 @@ public class TokenServlet extends CMSServlet {
                     keyNickName, // KeyNickName
                     keySet, // TKSKeyset
                     log_string_from_keyInfo(xkeyInfo), // KeyInfo_KeyVersion
-            };
-            auditMessage = CMS.getLogMessage(AuditEvent.COMPUTE_SESSION_KEY_REQUEST_PROCESSED_SUCCESS,
-                    logParams);
+                    null,
+                    null
+            );
+
+            signedAuditLogger.log(event);
 
         } else {
-            String[] logParams = { log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
+            ComputeSessionKeyRequestProcessedEvent event = ComputeSessionKeyRequestProcessedEvent.failure(
+                    log_string_from_specialDecoded_byte_array(xCUID), // CUID_decoded
                     log_string_from_specialDecoded_byte_array(xKDD), // KDD_decoded
-                    ILogger.FAILURE, // Outcome
                     status, // status
                     agentId, // AgentID
                     isCryptoValidate ? "true" : "false", // IsCryptoValidate
@@ -2942,15 +2939,14 @@ public class TokenServlet extends CMSServlet {
                     keyNickName, // KeyNickName
                     keySet, // TKSKeyset
                     log_string_from_keyInfo(xkeyInfo), // KeyInfo_KeyVersion
+                    null,
+                    null,
                     errorMsg // Error
-            };
-            auditMessage = CMS.getLogMessage(AuditEvent.COMPUTE_SESSION_KEY_REQUEST_PROCESSED_FAILURE,
-                    logParams);
+            );
+
+            signedAuditLogger.log(event);
 
         }
-
-        audit(auditMessage);
-
     }
 
     /**
