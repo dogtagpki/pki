@@ -48,6 +48,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.ComputeRandomDataRequestProcessedEvent;
 import com.netscape.certsrv.logging.event.ComputeSessionKeyRequestProcessedEvent;
 import com.netscape.certsrv.logging.event.DiversifyKeyRequestProcessedEvent;
 import com.netscape.certsrv.logging.event.EncryptDataRequestProcessedEvent;
@@ -2368,21 +2369,20 @@ public class TokenServlet extends CMSServlet {
         }
 
         if (status.equals("0")) {
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_SUCCESS,
-                    ILogger.SUCCESS,
+            ComputeRandomDataRequestProcessedEvent event = ComputeRandomDataRequestProcessedEvent.success(
                     status,
                     agentId);
+
+            signedAuditLogger.log(event);
+
         } else {
-            auditMessage = CMS.getLogMessage(
-                    AuditEvent.COMPUTE_RANDOM_DATA_REQUEST_PROCESSED_FAILURE,
-                    ILogger.FAILURE,
+            ComputeRandomDataRequestProcessedEvent event = ComputeRandomDataRequestProcessedEvent.failure(
                     status,
                     agentId,
                     errorMsg);
-        }
 
-        audit(auditMessage);
+            signedAuditLogger.log(event);
+        }
     }
 
     public void process(CMSRequest cmsReq) throws EBaseException {
