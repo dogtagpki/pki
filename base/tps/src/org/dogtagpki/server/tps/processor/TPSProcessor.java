@@ -97,6 +97,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.TokenAppletUpgradeEvent;
 import com.netscape.certsrv.logging.event.TokenAuthEvent;
+import com.netscape.certsrv.logging.event.TokenFormatEvent;
 import com.netscape.certsrv.logging.event.TokenKeyChangeoverEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.logging.Logger;
@@ -2204,8 +2205,8 @@ public class TPSProcessor {
                 isAuthRequired = configStore.getBoolean(configName, true);
             } catch (EBaseException e) {
                 String info = " Internal Error obtaining mandatory config values. Error: " + e;
-                auditFormat(userid, appletInfo, "failure",
-                        null, info);
+                auditFormatFailure(userid, appletInfo, info);
+
                 CMS.debug("TPSProcessor.format: " + info);
                 logMsg = "TPS error: " + info;
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
@@ -2252,8 +2253,7 @@ public class TPSProcessor {
                         " to " + newState;
                 CMS.debug("TPSProcessor.format: token transition: " + info);
                 logMsg = "Operation for CUID " + appletInfo.getCUIDhexStringPlain() + " Disabled. " + info;
-                auditFormat(userid, appletInfo, "failure",
-                        null, info);
+                auditFormatFailure(userid, appletInfo, info);
 
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
@@ -2327,7 +2327,7 @@ public class TPSProcessor {
         }
         channel.externalAuthenticate();
 
-        auditFormat(userid, appletInfo, "success", channel.getKeyInfoData().toHexStringPlain(), null);
+        auditFormatSuccess(userid, appletInfo, channel.getKeyInfoData().toHexStringPlain());
 
         if (isTokenPresent && revokeCertsAtFormat()) {
             // Revoke certificates on token, if so configured
@@ -4149,32 +4149,36 @@ public class TPSProcessor {
         audit(auditMessage);
     }
 
-    protected void auditFormat(String subjectID,
+    protected void auditFormatSuccess(String subjectID,
             AppletInfo aInfo,
-            String status,
-            String keyVersion,
-            String info) {
-        String auditType = "";
-        switch (status) {
-        case "success":
-            auditType = AuditEvent.TOKEN_FORMAT_SUCCESS;
-            break;
-        default:
-            auditType = AuditEvent.TOKEN_FORMAT_FAILURE;
-        }
+            String keyVersion) {
 
-        String auditMessage = CMS.getLogMessage(
-                auditType,
+        TokenFormatEvent event = TokenFormatEvent.success(
                 session.getIpAddress(),
                 subjectID,
                 (aInfo != null) ? aInfo.getCUIDhexStringPlain() : null,
                 (aInfo != null) ? aInfo.getMSNString() : null,
-                status,
                 getSelectedTokenType(),
                 (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
-                keyVersion,
+                keyVersion);
+
+        signedAuditLogger.log(event);
+    }
+
+    protected void auditFormatFailure(String subjectID,
+            AppletInfo aInfo,
+            String info) {
+
+        TokenFormatEvent event = TokenFormatEvent.failure(
+                session.getIpAddress(),
+                subjectID,
+                (aInfo != null) ? aInfo.getCUIDhexStringPlain() : null,
+                (aInfo != null) ? aInfo.getMSNString() : null,
+                getSelectedTokenType(),
+                (aInfo != null) ? aInfo.getFinalAppletVersion() : null,
                 info);
-        audit(auditMessage);
+
+        signedAuditLogger.log(event);
     }
 
     protected void auditAppletUpgrade(AppletInfo aInfo,
