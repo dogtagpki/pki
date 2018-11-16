@@ -123,10 +123,6 @@ public class AuditEvent extends LogEvent {
             "LOGGING_SIGNED_AUDIT_TOKEN_KEY_RECOVERY_10";
     public final static String TOKEN_CERT_STATUS_CHANGE_REQUEST =
             "LOGGING_SIGNED_AUDIT_TOKEN_CERT_STATUS_CHANGE_REQUEST_10";
-    public final static String TOKEN_PIN_RESET_SUCCESS =
-            "LOGGING_SIGNED_AUDIT_TOKEN_PIN_RESET_SUCCESS_6";
-    public final static String TOKEN_PIN_RESET_FAILURE =
-            "LOGGING_SIGNED_AUDIT_TOKEN_PIN_RESET_FAILURE_6";
     public final static String TOKEN_OP_REQUEST =
             "LOGGING_SIGNED_AUDIT_TOKEN_OP_REQUEST_6";
     public final static String TOKEN_KEY_CHANGEOVER_REQUIRED =

@@ -110,7 +110,7 @@ import netscape.security.x509.RevocationReason;
 
 public class TPSProcessor {
 
-    private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
+    protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final int RESULT_NO_ERROR = 0;
     public static final int RESULT_ERROR = -1;
