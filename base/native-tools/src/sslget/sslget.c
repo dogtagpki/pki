@@ -809,7 +809,7 @@ main(int argc, char **argv)
     char *		passwd      = NULL;
     char *		passwdfile      = NULL;
     char *		url = NULL;
-	FILE *fp;
+	FILE *fp = NULL;
     char pwbuf[256];
 	int co;
 	char *crlf;
