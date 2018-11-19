@@ -12,16 +12,12 @@ jobs:
         - TASK_TO_RUN="pki-test"
       before_install:
         - set -a && source travis/global_variables
-        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
         - touch ${TRANSFER_SH_URLS}
-        - travis/post-test-started.sh
       install:
         - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*' | uniq >> ${TRANSFER_SH_URLS}
       script:
         - set -o pipefail
         - travis/run_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*' | uniq >> ${TRANSFER_SH_URLS}
-      after_failure:
-        - travis/post-test-failed.sh
       after_script:
         - cat ${TRANSFER_SH_URLS}
         - docker kill ${CONTAINER}
@@ -31,26 +27,13 @@ jobs:
         - TASK_TO_RUN="ipa-test"
       before_install:
         - set -a && source travis/global_variables
-        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
         - touch ${TRANSFER_SH_URLS}
       install:
         - travis/init_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*' | uniq >> ${TRANSFER_SH_URLS}
       script:
         - set -o pipefail
         - travis/run_task.sh | tee /dev/tty | grep -Eo '(http|https)://transfer.sh/[a-zA-Z0-9./?=_-]*' | uniq >> ${TRANSFER_SH_URLS}
-      after_failure:
-        # The built .tar file has all the required logs packed
-        - travis/post-test-failed.sh
       after_script:
         - cat ${TRANSFER_SH_URLS}
         - docker kill ${CONTAINER}
         - docker rm ${CONTAINER}
-
-    - stage: Verification Label
-      before_install:
-        - echo -e $gerrit_ssh_key >> ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
-      script:
-        - travis/post-test-passed.sh
-      after_script:
-        # Add remote repo in SSH form. Using existing 'origin' will result in user/pass authentication
-        - travis/delete_branch.sh
