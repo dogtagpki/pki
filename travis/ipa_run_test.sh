@@ -75,6 +75,6 @@ tar --ignore-failed-read -cvf /tmp/${LOGS_TAR_NAME} \
     /var/log/pki
 
 chown ${BUILDUSER_UID}:${BUILDUSER_GID} /tmp/${LOGS_TAR_NAME}
-curl --upload /tmp/${LOGS_TAR_NAME} https://transfer.sh/${LOGS_TAR_NAME}
-curl --upload systemd_journal.txt https://transfer.sh/systemd_journal.txt
+curl --upload /tmp/${LOGS_TAR_NAME} https://transfer.sh/${LOGS_TAR_NAME} || true
+curl --upload systemd_journal.txt https://transfer.sh/systemd_journal.txt || true
 

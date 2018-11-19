@@ -14,7 +14,7 @@ function compose {
 function upload {
     if test -f $BUILDLOG; then
         echo "Uploading build log to transfer"
-        curl --upload-file $BUILDLOG https://transfer.sh/pkitravis_$1.txt
+        curl --upload-file $BUILDLOG https://transfer.sh/pkitravis_$1.txt || true
         # Add new line for readability of logs
         printf "\n\n=====================================\n\n"
     fi
