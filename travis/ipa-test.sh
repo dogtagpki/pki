@@ -25,7 +25,7 @@ exit_handler() {
 
     # Save systemd journal
     journalctl -b --no-pager > systemd_journal.txt
-    curl -k -w "\n" --upload systemd_journal.txt https://transfer.sh/systemd_journal.txt >> ${BUILDDIR}/pki/logs.txt
+    curl -k -w "\n" --upload systemd_journal.txt https://transfer.sh/systemd_journal.txt >> ${BUILDDIR}/pki/logs.txt || true
 
     # Save other logs
     LOGS_TAR_NAME="var_log.tar"
@@ -38,7 +38,7 @@ exit_handler() {
         /var/log/pki
 
     chown ${BUILDUSER_UID}:${BUILDUSER_GID} /tmp/${LOGS_TAR_NAME}
-    curl -k -w "\n" --upload /tmp/${LOGS_TAR_NAME} https://transfer.sh/${LOGS_TAR_NAME} >> ${BUILDDIR}/pki/logs.txt
+    curl -k -w "\n" --upload /tmp/${LOGS_TAR_NAME} https://transfer.sh/${LOGS_TAR_NAME} >> ${BUILDDIR}/pki/logs.txt || true
 }
 
 
