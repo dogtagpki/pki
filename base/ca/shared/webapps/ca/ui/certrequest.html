@@ -18,31 +18,26 @@
 <div class="pki-header">
 <ol class="breadcrumb">
     <li><a href="#">Home</a></li>
+    <li><a href="#certrequests">Requests</a></li>
+    <li class="active"><strong><span name="title">Request ${id}</span></strong></li>
 </ol>
 
-<span name="title" class="pki-title">Certificate Authority</span>
+<span name="title" class="pki-title">Request ${id}</span>
 </div>
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3 class="panel-title">Certificate Management</h3>
-    </div>
-    <div class="panel-body pki-menu">
-        <ul>
-        <li><a href="#certs">Certificates</a></li>
-        <li><a href="#certrequests">Requests</a></li>
-        </ul>
-    </div>
-</div>
-
-<div name="home-accounts" class="panel panel-default" style="display: none;">
-    <div class="panel-heading">
-        <h3 class="panel-title">Account Management</h3>
-    </div>
-    <div class="panel-body pki-menu">
-        <ul>
-        <li><a href="#users">Users</a></li>
-        <li><a href="#groups">Groups</a></li>
-        </ul>
-    </div>
+<div name="certrequest" class="pki-fields">
+<fieldset>
+    <label>ID</label>
+    <input name="id" readonly="readonly"><br>
+    <label>Type</label>
+    <input name="type" readonly="readonly"><br>
+    <label>Status</label>
+    <input name="status" readonly="readonly"><br>
+    <label>CSR Type</label>
+    <input name="certRequestType" readonly="readonly"><br>
+    <label>Certificate ID</label>
+    <input name="certId" readonly="readonly"><br>
+    <label>Result</label>
+    <input name="operationResult" readonly="readonly"><br>
+</fieldset>
 </div>
