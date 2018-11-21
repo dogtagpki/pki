@@ -68,7 +68,6 @@ import com.netscape.cmsutil.password.IPasswordStore;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.security.x509.GeneralName;
 
 /**
  * This represents the CMS server. Plugins can access other
@@ -925,19 +924,6 @@ public final class CMS {
      */
     public static String getAdminPort() {
         return _engine.getAdminPort();
-    }
-
-    /**
-     * Creates a general name.
-     *
-     * @param generalNameChoice type of general name
-     * @param value general name string
-     * @return general name object
-     * @exception EBaseException failed to create general name
-     */
-    public static GeneralName form_GeneralName(String generalNameChoice,
-            String value) throws EBaseException {
-        return _engine.form_GeneralName(generalNameChoice, value);
     }
 
     /**

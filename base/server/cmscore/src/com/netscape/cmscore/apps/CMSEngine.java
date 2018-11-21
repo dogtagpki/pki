@@ -142,7 +142,6 @@ import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.CertificateChain;
-import netscape.security.x509.GeneralName;
 import netscape.security.x509.X509CertImpl;
 
 public class CMSEngine implements ICMSEngine {
@@ -1507,11 +1506,6 @@ public class CMSEngine implements ICMSEngine {
     public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured)
             throws EBaseException {
         return new GeneralNameUtil.SubjAltNameGN(name, config, isValueConfigured);
-    }
-
-    public GeneralName form_GeneralName(String generalNameChoice,
-            String value) throws EBaseException {
-        return GeneralNameUtil.form_GeneralName(generalNameChoice, value);
     }
 
     public void getGeneralNameConfigDefaultParams(String name,

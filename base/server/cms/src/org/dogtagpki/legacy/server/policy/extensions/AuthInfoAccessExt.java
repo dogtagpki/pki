@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
@@ -200,7 +201,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
 
             if (location == null)
                 break;
-            GeneralName gn = CMS.form_GeneralName(location_type, location);
+            GeneralName gn = GeneralNameUtil.form_GeneralName(location_type, location);
             Vector<Serializable> e = new Vector<Serializable>();
 
             e.addElement(methodOID);

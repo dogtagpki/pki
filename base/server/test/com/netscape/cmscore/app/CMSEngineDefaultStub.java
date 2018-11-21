@@ -35,7 +35,6 @@ import com.netscape.cmsutil.password.IPasswordStore;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.security.x509.GeneralName;
 
 /**
  * Default engine stub for testing.
@@ -322,10 +321,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public IMailNotification getMailNotification() {
-        return null;
-    }
-
-    public GeneralName form_GeneralName(String generalNameChoice, String value) throws EBaseException {
         return null;
     }
 

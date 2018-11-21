@@ -51,7 +51,6 @@ import com.netscape.cmsutil.password.IPasswordStore;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.security.x509.GeneralName;
 
 /**
  * This interface represents the CMS core framework. The
@@ -621,17 +620,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return email notification
      */
     public IMailNotification getMailNotification();
-
-    /**
-     * Creates a general name.
-     *
-     * @param generalNameChoice type of general name
-     * @param value general name string
-     * @return general name object
-     * @exception EBaseException failed to create general name
-     */
-    public GeneralName form_GeneralName(String generalNameChoice,
-            String value) throws EBaseException;
 
     /**
      * Retrieves default general name configuration.
