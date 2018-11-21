@@ -9,7 +9,6 @@ import java.util.Locale;
 
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
-import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 
 import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.authentication.ISharedToken;
@@ -319,11 +318,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public IMailNotification getMailNotification() {
-        return null;
-    }
-
-    public IGeneralNamesConfig createGeneralNamesConfig(String name, IConfigStore config, boolean isValueConfigured,
-            boolean isPolicyEnabled) throws EBaseException {
         return null;
     }
 

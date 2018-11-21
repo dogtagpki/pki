@@ -117,7 +117,7 @@ public class IssuerAltNameExt extends APolicyRule
                     IPolicyProcessor.PROP_ENABLE, false);
 
         // form general names.
-        mGNs = CMS.createGeneralNamesConfig(null, config, true, mEnabled);
+        mGNs = new GeneralNameUtil.GeneralNamesConfig(null, config, true, mEnabled);
 
         // form extension
         try {
