@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
-import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
@@ -394,11 +393,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     @Override
     public String getEEClientAuthSSLPort() {
         return null;
-    }
-
-    @Override
-    public void getGeneralNamesConfigExtendedPluginInfo(String name,
-            boolean isValueConfigured, Vector<String> info) {
     }
 
     @Override

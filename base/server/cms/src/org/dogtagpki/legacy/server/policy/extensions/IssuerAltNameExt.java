@@ -79,7 +79,7 @@ public class IssuerAltNameExt extends APolicyRule
                 ";This policy inserts the Issuer Alternative Name " +
                 "Extension into the certificate. See RFC 2459 (4.2.1.8). ");
 
-        CMS.getGeneralNamesConfigExtendedPluginInfo(null, true, info);
+        GeneralNameUtil.GeneralNamesConfig.getExtendedPluginInfo(null, true, info);
 
         mInfo = new String[info.size()];
         info.copyInto(mInfo);

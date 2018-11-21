@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
-import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
@@ -923,19 +922,6 @@ public final class CMS {
      */
     public static String getAdminPort() {
         return _engine.getAdminPort();
-    }
-
-    /**
-     * Retrieves extended plugin info for general name configuration.
-     *
-     * @param name configuration name
-     * @param isValueConfigured true if value is configured
-     * @param info configuration parameters
-     */
-    public static void getGeneralNamesConfigExtendedPluginInfo(String name,
-            boolean isValueConfigured, Vector<String> info) {
-        _engine.getGeneralNamesConfigExtendedPluginInfo(name,
-                isValueConfigured, info);
     }
 
     /**

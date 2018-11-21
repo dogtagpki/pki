@@ -1492,11 +1492,6 @@ public class CMSEngine implements ICMSEngine {
         return getLogMessage(msgID, params);
     }
 
-    public void getGeneralNamesConfigExtendedPluginInfo(String name,
-            boolean isValueConfigured, Vector<String> info) {
-        GeneralNameUtil.GeneralNamesConfig.getExtendedPluginInfo(name, isValueConfigured, info);
-    }
-
     public IGeneralNamesConfig createGeneralNamesConfig(String name,
             IConfigStore config, boolean isValueConfigured,
             boolean isPolicyEnabled) throws EBaseException {
