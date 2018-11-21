@@ -311,7 +311,7 @@ public class SubjectAltNameExt extends APolicyRule
                 + ";boolean;RFC2459 recommendation: If the certificate subject field contains an empty sequence, the extension MUST be marked critical.");
         info.addElement(IGeneralNameUtil.PROP_NUM_GENERALNAMES_INFO);
         for (int i = 0; i < IGeneralNameUtil.DEF_NUM_GENERALNAMES; i++) {
-            CMS.getSubjAltNameConfigExtendedPluginInfo(
+            GeneralNameUtil.SubjAltNameGN.getExtendedPluginInfo(
                     IGeneralNameUtil.PROP_GENERALNAME + i, info);
         }
         info.addElement(IExtendedPluginInfo.HELP_TOKEN +

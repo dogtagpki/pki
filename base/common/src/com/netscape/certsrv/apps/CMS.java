@@ -927,17 +927,6 @@ public final class CMS {
     }
 
     /**
-     * Get extended plugin info for subject alt name configuration.
-     *
-     * @param name configuration name
-     * @param params configuration parameters
-     */
-    public static void getSubjAltNameConfigExtendedPluginInfo(String name,
-            Vector<String> params) {
-        _engine.getSubjAltNameConfigExtendedPluginInfo(name, params);
-    }
-
-    /**
      * Creates subject alt name configuration.
      *
      * @param name configuration name

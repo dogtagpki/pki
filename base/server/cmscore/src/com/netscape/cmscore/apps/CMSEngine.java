@@ -1493,11 +1493,6 @@ public class CMSEngine implements ICMSEngine {
         return getLogMessage(msgID, params);
     }
 
-    public void getSubjAltNameConfigExtendedPluginInfo(String name,
-            Vector<String> params) {
-        GeneralNameUtil.SubjAltNameGN.getExtendedPluginInfo(name, params);
-    }
-
     public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured)
             throws EBaseException {
         return new GeneralNameUtil.SubjAltNameGN(name, config, isValueConfigured);

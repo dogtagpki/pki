@@ -423,11 +423,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     @Override
-    public void getSubjAltNameConfigExtendedPluginInfo(String name,
-            Vector<String> params) {
-    }
-
-    @Override
     public IArgBlock createArgBlock(String realm,
             Hashtable<String, String> httpReq) {
         return null;
