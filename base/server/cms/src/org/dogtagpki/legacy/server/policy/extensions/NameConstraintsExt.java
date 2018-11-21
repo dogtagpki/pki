@@ -438,7 +438,7 @@ class Subtree {
         mMax = mConfig.getInteger(PROP_MAX, DEF_MAX);
         if (mMax < -1)
             mMax = -1;
-        mBase = CMS.createGeneralNameAsConstraintsConfig(
+        mBase = new GeneralNameUtil.GeneralNameAsConstraintsConfig(
                     mNameDot + PROP_BASE, mConfig.getSubStore(PROP_BASE),
                     true, policyEnabled);
 
