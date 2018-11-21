@@ -34,6 +34,7 @@
     <script src="/pki/js/pki-user.js"></script>
     <script src="/ca/js/cert.js"></script>
     <script src="/ca/js/certrequest.js"></script>
+    <script src="/ca/js/profile.js"></script>
     <script>
 $(function() {
 
@@ -77,6 +78,22 @@ $(function() {
             el: content,
             url: "certrequest.html",
             model: new CertRequestModel({ id: id })
+        }).open();
+    });
+
+    router.route("profiles", "profiles", function() {
+        new ProfilesPage({
+            el: content,
+            url: "profiles.html",
+            collection: new ProfileCollection()
+        }).open();
+    });
+
+    router.route("profiles/:id", "profile", function(id) {
+        new ProfilePage({
+            el: content,
+            url: "profile.html",
+            model: new ProfileModel({ id: id })
         }).open();
     });
 
@@ -252,7 +269,9 @@ $(function() {
 
     <li name="certs"><a href="#certs">Certificates</a></li>
 
-    <li name="certs"><a href="#certrequests">Requests</a></li>
+    <li name="certrequests"><a href="#certrequests">Requests</a></li>
+
+    <li name="profiles"><a href="#profiles">Profiles</a></li>
 
     <li name="accounts" class="dropdown context" style="display: none;">
       <a href="#" class="dropdown-toggle" data-toggle="dropdown">

@@ -18,16 +18,16 @@
 <div class="pki-header">
 <ol class="breadcrumb">
     <li><a href="#">Home</a></li>
-    <li class="active"><strong>Requests</strong></li>
+    <li class="active"><strong>Profiles</strong></li>
 </ol>
 
-<span class="pki-title">Requests</span>
+<span class="pki-title">Profiles</span>
 </div>
 
-<table name="certrequests">
+<table name="profiles">
 <thead>
     <tr>
-         <th class="pki-table-actions" colspan="7">
+         <th class="pki-table-actions" colspan="4">
              <span name="search">
                  <input name="search" type="text" placeholder="Search...">
              </span>
@@ -36,29 +36,23 @@
          </th>
     </tr>
     <tr>
-        <th class="pki-select-column"><input id="certrequests-selectall" type="checkbox"><label for="certrequests-selectall">&nbsp;</label></tdh>
+        <th class="pki-select-column"><input id="profiles-selectall" type="checkbox"><label for="profiles-selectall">&nbsp;</label></tdh>
         <th>ID</th>
-        <th>Type</th>
-        <th>Status</th>
-        <th>CSR Type</th>
-        <th>Certificate ID</th>
-        <th>Result</th>
+        <th>Name</th>
+        <th>Description</th>
     </tr>
 </thead>
 <tbody>
     <tr>
-        <td class="pki-select-column"><input id="certrequests-select" type="checkbox"><label for="certrequests-select">&nbsp;</label></td>
-        <td name="id"><a href="#certrequests/${id}">${id}</a></td>
-        <td name="type">${type}</td>
-        <td name="status">${status}</td>
-        <td name="certRequestType">${certRequestType}</td>
-        <td name="certId"><a href="#certs/${certId}">${certId}</a></td>
-        <td name="operationResult">${operationResult}</td>
+        <td class="pki-select-column"><input id="profiles-select" type="checkbox"><label for="profiles-select">&nbsp;</label></td>
+        <td name="id"><a href="#profiles/${id}">${id}</a></td>
+        <td name="name">${name}</td>
+        <td name="description">${description}</td>
     </tr>
 </tbody>
 <tfoot>
     <tr>
-         <th class="pki-table-actions" colspan="7">
+         <th class="pki-table-actions" colspan="4">
              <div class="pki-table-info">
                  Total: <span name="totalEntries">0</span> entries
              </div>

@@ -1,0 +1,49 @@
+<!-- --- BEGIN COPYRIGHT BLOCK ---
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; version 2 of the License.
+
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program; if not, write to the Free Software Foundation, Inc.,
+     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+     Copyright (C) 2018 Red Hat, Inc.
+     All rights reserved.
+     --- END COPYRIGHT BLOCK --- -->
+<div class="pki-header">
+<ol class="breadcrumb">
+    <li><a href="#">Home</a></li>
+    <li><a href="#profiles">Profiles</a></li>
+    <li class="active"><strong><span name="title">Profile ${id}</span></strong></li>
+</ol>
+
+<span name="title" class="pki-title">Profile ${id}</span>
+</div>
+
+<div name="profile" class="pki-fields">
+<fieldset>
+    <label>ID</label>
+    <input name="id" readonly="readonly"><br>
+    <label>Name</label>
+    <input name="name" size="80" readonly="readonly"><br>
+    <label>Description</label>
+    <input name="description" size="80" readonly="readonly"><br>
+    <label>Enabled</label>
+    <input name="enabled" readonly="readonly"><br>
+    <label>Enabled By</label>
+    <input name="enabledBy" readonly="readonly"><br>
+    <label>Visible</label>
+    <input name="visible" readonly="readonly"><br>
+    <label>Authentication</label>
+    <input name="authenticatorId" readonly="readonly"><br>
+    <label>Authorization</label>
+    <input name="authzAcl" readonly="readonly"><br>
+    <label>Renewal</label>
+    <input name="renewal" readonly="readonly"><br>
+</fieldset>
+</div>
