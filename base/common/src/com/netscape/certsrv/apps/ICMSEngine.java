@@ -28,7 +28,6 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
-import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
@@ -699,17 +698,6 @@ public interface ICMSEngine extends ISubsystem {
     public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config,
             boolean isValueConfigured,
             boolean isPolicyEnabled) throws EBaseException;
-
-    /**
-     * Creates subject alt name configuration.
-     *
-     * @param name configuration name
-     * @param config configuration store
-     * @param isValueConfigured true if value is configured
-     * @exception EBaseException failed to create subject alt name configuration
-     */
-    public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured)
-            throws EBaseException;
 
     /**
      * Retrieves the request sender for use with connector.

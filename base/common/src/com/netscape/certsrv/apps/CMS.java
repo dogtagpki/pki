@@ -28,7 +28,6 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
-import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -924,20 +923,6 @@ public final class CMS {
      */
     public static String getAdminPort() {
         return _engine.getAdminPort();
-    }
-
-    /**
-     * Creates subject alt name configuration.
-     *
-     * @param name configuration name
-     * @param config configuration store
-     * @param isValueConfigured true if value is configured
-     * @exception EBaseException failed to create subject alt name configuration
-     */
-    public static ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured)
-            throws EBaseException {
-        return _engine.createSubjAltNameConfig(
-                name, config, isValueConfigured);
     }
 
     /**

@@ -50,7 +50,6 @@ import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
-import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -1491,11 +1490,6 @@ public class CMSEngine implements ICMSEngine {
         String params[] = { p1, p2, p3, p4, p5, p6, p7, p8, p9, p10 };
 
         return getLogMessage(msgID, params);
-    }
-
-    public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured)
-            throws EBaseException {
-        return new GeneralNameUtil.SubjAltNameGN(name, config, isValueConfigured);
     }
 
     public void getGeneralNameConfigDefaultParams(String name,

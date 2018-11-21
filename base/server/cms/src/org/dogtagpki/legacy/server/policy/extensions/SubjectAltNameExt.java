@@ -137,7 +137,7 @@ public class SubjectAltNameExt extends APolicyRule
             String name = IGeneralNameUtil.PROP_GENERALNAME + i;
             IConfigStore substore = mConfig.getSubStore(name);
 
-            mGNs[i] = CMS.createSubjAltNameConfig(name, substore, mEnabled);
+            mGNs[i] = new GeneralNameUtil.SubjAltNameGN(name, substore, mEnabled);
         }
 
         // init instance params.
