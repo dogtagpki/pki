@@ -932,19 +932,6 @@ public final class CMS {
      * @param isValueConfigured true if value is configured
      * @param info configuration parameters
      */
-    public static void getGeneralNameConfigExtendedPluginInfo(String name,
-            boolean isValueConfigured, Vector<String> info) {
-        _engine.getGeneralNameConfigExtendedPluginInfo(name,
-                isValueConfigured, info);
-    }
-
-    /**
-     * Retrieves extended plugin info for general name configuration.
-     *
-     * @param name configuration name
-     * @param isValueConfigured true if value is configured
-     * @param info configuration parameters
-     */
     public static void getGeneralNamesConfigExtendedPluginInfo(String name,
             boolean isValueConfigured, Vector<String> info) {
         _engine.getGeneralNamesConfigExtendedPluginInfo(name,

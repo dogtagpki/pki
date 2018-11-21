@@ -1492,11 +1492,6 @@ public class CMSEngine implements ICMSEngine {
         return getLogMessage(msgID, params);
     }
 
-    public void getGeneralNameConfigExtendedPluginInfo(String name,
-            boolean isValueConfigured, Vector<String> info) {
-        GeneralNameUtil.GeneralNameConfig.getExtendedPluginInfo(name, isValueConfigured, info);
-    }
-
     public void getGeneralNamesConfigExtendedPluginInfo(String name,
             boolean isValueConfigured, Vector<String> info) {
         GeneralNameUtil.GeneralNamesConfig.getExtendedPluginInfo(name, isValueConfigured, info);

@@ -397,11 +397,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     @Override
-    public void getGeneralNameConfigExtendedPluginInfo(String name,
-            boolean isValueConfigured, Vector<String> info) {
-    }
-
-    @Override
     public void getGeneralNamesConfigExtendedPluginInfo(String name,
             boolean isValueConfigured, Vector<String> info) {
     }

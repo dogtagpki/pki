@@ -469,7 +469,7 @@ class Subtree {
 
         if (name != null && name.length() > 0)
             nameDot = name + ".";
-        CMS.getGeneralNameConfigExtendedPluginInfo(nameDot + PROP_BASE, true, info);
+        GeneralNameUtil.GeneralNameConfig.getExtendedPluginInfo(nameDot + PROP_BASE, true, info);
         info.addElement(nameDot + PROP_MIN + ";" + MINMAX_INFO);
         info.addElement(nameDot + PROP_MAX + ";" + MINMAX_INFO);
     }

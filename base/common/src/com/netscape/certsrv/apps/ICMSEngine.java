@@ -627,16 +627,6 @@ public interface ICMSEngine extends ISubsystem {
      * @param isValueConfigured true if value is configured
      * @param info configuration parameters
      */
-    public void getGeneralNameConfigExtendedPluginInfo(String name,
-            boolean isValueConfigured, Vector<String> info);
-
-    /**
-     * Retrieves extended plugin info for general name configuration.
-     *
-     * @param name configuration name
-     * @param isValueConfigured true if value is configured
-     * @param info configuration parameters
-     */
     public void getGeneralNamesConfigExtendedPluginInfo(String name,
             boolean isValueConfigured, Vector<String> info);
 
