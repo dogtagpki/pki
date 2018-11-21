@@ -325,10 +325,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public GeneralName form_GeneralNameAsConstraints(String generalNameChoice, String value) throws EBaseException {
-        return null;
-    }
-
     public GeneralName form_GeneralName(String generalNameChoice, String value) throws EBaseException {
         return null;
     }

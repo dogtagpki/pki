@@ -928,19 +928,6 @@ public final class CMS {
     }
 
     /**
-     * Creates a general name constraints.
-     *
-     * @param generalNameChoice type of general name
-     * @param value general name string
-     * @return general name object
-     * @exception EBaseException failed to create general name constraint
-     */
-    public static GeneralName form_GeneralNameAsConstraints(String generalNameChoice, String value)
-            throws EBaseException {
-        return _engine.form_GeneralName(generalNameChoice, value);
-    }
-
-    /**
      * Creates a general name.
      *
      * @param generalNameChoice type of general name

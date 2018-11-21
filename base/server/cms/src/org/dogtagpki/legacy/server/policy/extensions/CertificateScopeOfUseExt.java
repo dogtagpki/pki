@@ -22,6 +22,7 @@ import java.security.cert.CertificateException;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
@@ -146,7 +147,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
 
             if (name == null || name.equals(""))
                 break;
-            GeneralName gn = CMS.form_GeneralNameAsConstraints(name_type, name);
+            GeneralName gn = GeneralNameUtil.form_GeneralNameAsConstraints(name_type, name);
 
             entries.addElement(new CertificateScopeEntry(gn, portNumber));
         }

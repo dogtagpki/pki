@@ -1509,10 +1509,6 @@ public class CMSEngine implements ICMSEngine {
         return new GeneralNameUtil.SubjAltNameGN(name, config, isValueConfigured);
     }
 
-    public GeneralName form_GeneralNameAsConstraints(String generalNameChoice, String value) throws EBaseException {
-        return GeneralNameUtil.form_GeneralNameAsConstraints(generalNameChoice, value);
-    }
-
     public GeneralName form_GeneralName(String generalNameChoice,
             String value) throws EBaseException {
         return GeneralNameUtil.form_GeneralName(generalNameChoice, value);

@@ -623,16 +623,6 @@ public interface ICMSEngine extends ISubsystem {
     public IMailNotification getMailNotification();
 
     /**
-     * Creates a general name constraints.
-     *
-     * @param generalNameChoice type of general name
-     * @param value general name string
-     * @return general name object
-     * @exception EBaseException failed to create general name constraint
-     */
-    public GeneralName form_GeneralNameAsConstraints(String generalNameChoice, String value) throws EBaseException;
-
-    /**
      * Creates a general name.
      *
      * @param generalNameChoice type of general name
