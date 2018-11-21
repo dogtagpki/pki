@@ -1493,11 +1493,6 @@ public class CMSEngine implements ICMSEngine {
         return getLogMessage(msgID, params);
     }
 
-    public void getSubjAltNameConfigDefaultParams(String name,
-            Vector<String> params) {
-        GeneralNameUtil.SubjAltNameGN.getDefaultParams(name, params);
-    }
-
     public void getSubjAltNameConfigExtendedPluginInfo(String name,
             Vector<String> params) {
         GeneralNameUtil.SubjAltNameGN.getExtendedPluginInfo(name, params);

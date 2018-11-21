@@ -701,14 +701,6 @@ public interface ICMSEngine extends ISubsystem {
             boolean isPolicyEnabled) throws EBaseException;
 
     /**
-     * Get default parameters for subject alt name configuration.
-     *
-     * @param name configuration name
-     * @param params configuration parameters
-     */
-    public void getSubjAltNameConfigDefaultParams(String name, Vector<String> params);
-
-    /**
      * Get extended plugin info for subject alt name configuration.
      *
      * @param name configuration name

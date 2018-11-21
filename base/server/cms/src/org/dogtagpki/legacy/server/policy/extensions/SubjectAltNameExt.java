@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
@@ -91,7 +92,7 @@ public class SubjectAltNameExt extends APolicyRule
                 IGeneralNameUtil.PROP_NUM_GENERALNAMES + "=" +
                         IGeneralNameUtil.DEF_NUM_GENERALNAMES);
         for (int i = 0; i < IGeneralNameUtil.DEF_NUM_GENERALNAMES; i++) {
-            CMS.getSubjAltNameConfigDefaultParams(
+            GeneralNameUtil.SubjAltNameGN.getDefaultParams(
                     IGeneralNameUtil.PROP_GENERALNAME + i, mDefParams);
         }
     }
