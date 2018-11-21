@@ -24,8 +24,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
 
-import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
-
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -616,19 +614,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return email notification
      */
     public IMailNotification getMailNotification();
-
-    /**
-     * Created general name constraints configuration.
-     *
-     * @param name configuration name
-     * @param config configuration store
-     * @param isValueConfigured true if value is configured
-     * @param isPolicyEnabled true if policy is enabled
-     * @exception EBaseException failed to create subject alt name configuration
-     */
-    public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config,
-            boolean isValueConfigured,
-            boolean isPolicyEnabled) throws EBaseException;
 
     /**
      * Retrieves the request sender for use with connector.

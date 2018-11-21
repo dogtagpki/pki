@@ -46,8 +46,6 @@ import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.xerces.parsers.DOMParser;
-import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
-import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -1488,12 +1486,6 @@ public class CMSEngine implements ICMSEngine {
         String params[] = { p1, p2, p3, p4, p5, p6, p7, p8, p9, p10 };
 
         return getLogMessage(msgID, params);
-    }
-
-    public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config,
-            boolean isValueConfigured,
-            boolean isPolicyEnabled) throws EBaseException {
-        return new GeneralNameUtil.GeneralNamesAsConstraintsConfig(name, config, isValueConfigured, isPolicyEnabled);
     }
 
     public String getEncodedCert(X509Certificate cert) {

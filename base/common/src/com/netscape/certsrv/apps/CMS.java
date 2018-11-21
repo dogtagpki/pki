@@ -24,7 +24,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
 
-import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -920,22 +919,6 @@ public final class CMS {
      */
     public static String getAdminPort() {
         return _engine.getAdminPort();
-    }
-
-    /**
-     * Created general name constraints configuration.
-     *
-     * @param name configuration name
-     * @param config configuration store
-     * @param isValueConfigured true if value is configured
-     * @param isPolicyEnabled true if policy is enabled
-     * @exception EBaseException failed to create subject alt name configuration
-     */
-    public static IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name,
-            IConfigStore config, boolean isValueConfigured,
-            boolean isPolicyEnabled) throws EBaseException {
-        return _engine.createGeneralNamesAsConstraintsConfig(
-                name, config, isValueConfigured, isPolicyEnabled);
     }
 
     /**
