@@ -11,7 +11,6 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
-import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
 
 import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.authentication.ISharedToken;
@@ -339,11 +338,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured)
-            throws EBaseException {
-        return null;
-    }
-
     public IResender getResender(IAuthority authority, String nickname, String clientCiphers, IRemoteAuthority remote, int interval) {
         return null;
     }
@@ -400,11 +394,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     @Override
     public String getEEClientAuthSSLPort() {
         return null;
-    }
-
-    @Override
-    public void getGeneralNameConfigDefaultParams(String name,
-            boolean isValueConfigured, Vector<String> params) {
     }
 
     @Override

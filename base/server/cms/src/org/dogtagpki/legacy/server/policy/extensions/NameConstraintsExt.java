@@ -22,6 +22,7 @@ import java.security.cert.CertificateException;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
@@ -458,7 +459,7 @@ class Subtree {
 
         if (name != null && name.length() >= 0)
             nameDot = name + ".";
-        CMS.getGeneralNameConfigDefaultParams(nameDot + PROP_BASE, true, params);
+        GeneralNameUtil.GeneralNameConfig.getDefaultParams(nameDot + PROP_BASE, true, params);
         params.addElement(nameDot + PROP_MIN + "=" + DEF_MIN);
         params.addElement(nameDot + PROP_MAX + "=" + DEF_MAX);
     }
