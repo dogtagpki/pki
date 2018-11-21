@@ -621,16 +621,6 @@ public interface ICMSEngine extends ISubsystem {
     public IMailNotification getMailNotification();
 
     /**
-     * Retrieves default general names configuration.
-     *
-     * @param name configuration name
-     * @param isValueConfigured true if value is configured
-     * @param params configuration parameters
-     */
-    public void getGeneralNamesConfigDefaultParams(String name,
-            boolean isValueConfigured, Vector<String> params);
-
-    /**
      * Retrieves extended plugin info for general name configuration.
      *
      * @param name configuration name

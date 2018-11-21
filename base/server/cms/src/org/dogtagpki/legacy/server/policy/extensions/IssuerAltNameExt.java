@@ -22,6 +22,7 @@ import java.security.cert.CertificateException;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
@@ -67,7 +68,7 @@ public class IssuerAltNameExt extends APolicyRule
 
     static {
         defaultParams.addElement(PROP_CRITICAL + "=" + DEFAULT_CRITICALITY);
-        CMS.getGeneralNamesConfigDefaultParams(null, true, defaultParams);
+        GeneralNameUtil.GeneralNamesConfig.getDefaultParams(null, true, defaultParams);
 
         Vector<String> info = new Vector<String>();
 

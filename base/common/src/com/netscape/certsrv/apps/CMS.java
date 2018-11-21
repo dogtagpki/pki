@@ -926,19 +926,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves default general names configuration.
-     *
-     * @param name configuration name
-     * @param isValueConfigured true if value is configured
-     * @param params configuration parameters
-     */
-    public static void getGeneralNamesConfigDefaultParams(String name,
-            boolean isValueConfigured, Vector<String> params) {
-        _engine.getGeneralNamesConfigDefaultParams(name,
-                isValueConfigured, params);
-    }
-
-    /**
      * Retrieves extended plugin info for general name configuration.
      *
      * @param name configuration name
