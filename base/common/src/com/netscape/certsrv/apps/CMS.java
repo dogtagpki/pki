@@ -44,7 +44,6 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IMailNotification;
@@ -220,17 +219,6 @@ public final class CMS {
      */
     public static ILogger getLogger() {
         return _engine.getLogger();
-    }
-
-    /**
-     * Returns the auditor of the current server. The auditor can
-     * be used to audit critical informational or critical error
-     * messages.
-     *
-     * @return auditor
-     */
-    public static IAuditor getAuditor() {
-        return _engine.getAuditor();
     }
 
     /**

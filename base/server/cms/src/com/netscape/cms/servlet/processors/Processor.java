@@ -10,18 +10,18 @@ import javax.ws.rs.FormParam;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.logging.Auditor;
 
 public class Processor {
 
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected ILogger logger = CMS.getLogger();
-    protected IAuditor auditor = CMS.getAuditor();
+    protected Auditor auditor = Auditor.getAuditor();
 
     protected String id;
     protected Locale locale;

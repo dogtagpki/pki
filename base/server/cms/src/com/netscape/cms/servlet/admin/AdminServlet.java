@@ -49,7 +49,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.AuthEvent;
@@ -61,6 +60,7 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.UserInfo;
+import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.x509.X509CertImpl;
@@ -101,7 +101,7 @@ public class AdminServlet extends HttpServlet {
     private final static String HDR_LANG = "accept-language";
 
     protected ILogger mLogger = CMS.getLogger();
-    protected IAuditor auditor = CMS.getAuditor();
+    protected Auditor auditor = Auditor.getAuditor();
     private IUGSubsystem mUG = null;
     protected IConfigStore mConfig = null;
     protected IAuthzSubsystem mAuthz = null;

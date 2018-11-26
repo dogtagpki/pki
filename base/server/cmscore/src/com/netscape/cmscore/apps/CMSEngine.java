@@ -78,7 +78,6 @@ import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
-import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogQueue;
@@ -110,7 +109,6 @@ import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
-import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.logging.LogSubsystem;
 import com.netscape.cmscore.registry.PluginRegistry;
 import com.netscape.cmscore.request.CertRequestConstants;
@@ -1558,10 +1556,6 @@ public class CMSEngine implements ICMSEngine {
 
     public ILogger getLogger() {
         return Logger.getLogger();
-    }
-
-    public IAuditor getAuditor() {
-        return Auditor.getAuditor();
     }
 
     private void startupSubsystems(Map<String, SubsystemInfo> subsystems)

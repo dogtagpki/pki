@@ -29,18 +29,18 @@ import javax.ws.rs.core.HttpHeaders;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.logging.Auditor;
 
 public class SubsystemService extends PKIService {
 
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
-    protected IAuditor auditor = CMS.getAuditor();
+    protected Auditor auditor = Auditor.getAuditor();
     protected ILogger logger = CMS.getLogger();
 
     public String getSubsystemName() {

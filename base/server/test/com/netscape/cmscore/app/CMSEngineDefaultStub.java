@@ -19,7 +19,6 @@ import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
-import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
@@ -108,10 +107,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public ILogger getLogger() {
-        return null;
-    }
-
-    public IAuditor getAuditor() {
         return null;
     }
 

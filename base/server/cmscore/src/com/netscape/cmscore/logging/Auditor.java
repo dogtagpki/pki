@@ -36,7 +36,7 @@ public class Auditor implements IAuditor {
 
     public final static Auditor auditor = new Auditor();
 
-    public static IAuditor getAuditor() {
+    public static Auditor getAuditor() {
         return auditor;
     }
 

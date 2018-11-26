@@ -35,7 +35,6 @@ import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
-import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
@@ -161,15 +160,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return logger
      */
     public ILogger getLogger();
-
-    /**
-     * Returns the auditor of the current server. The auditor can
-     * be used to audit critical informational or critical error
-     * messages.
-     *
-     * @return auditor
-     */
-    public IAuditor getAuditor();
 
     /**
      * Puts data of an byte array into the debug file.
