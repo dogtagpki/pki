@@ -23,6 +23,7 @@ import java.util.Vector;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 
 /**
  * class representing one Job cron item
@@ -39,7 +40,7 @@ public class CronItem {
     protected static final String ALL = "*";
     protected static final String DELIM = ",";
     protected static final String RANGE = "-";
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     int mMin; // minimum
     int mMax; // maximum

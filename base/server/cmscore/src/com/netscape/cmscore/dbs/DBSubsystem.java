@@ -20,9 +20,6 @@ package com.netscape.cmscore.dbs;
 import java.math.BigInteger;
 import java.util.Hashtable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
@@ -38,6 +35,7 @@ import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -69,7 +67,7 @@ import netscape.security.x509.CertificateValidity;
  */
 public class DBSubsystem implements IDBSubsystem {
 
-    public static Logger logger = LoggerFactory.getLogger(DBSubsystem.class);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSubsystem.class);
 
     public static String ID = IDBSubsystem.SUB_ID;
 
@@ -144,7 +142,7 @@ public class DBSubsystem implements IDBSubsystem {
     private static final String PROP_INCREMENT_NAME = "increment_name";
     private static final String PROP_RANGE_DN = "rangeDN";
 
-    private ILogger mLogger = null;
+    private Logger mLogger = null;
 
     // singleton enforcement
 
@@ -534,7 +532,7 @@ public class DBSubsystem implements IDBSubsystem {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 
-        mLogger = CMS.getLogger();
+        mLogger = Logger.getLogger();
         mDBConfig = config;
         mRepos = new Hashtable[IDBSubsystem.NUM_REPOS];
 

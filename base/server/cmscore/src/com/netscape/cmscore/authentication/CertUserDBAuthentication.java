@@ -33,6 +33,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.User;
 
@@ -61,7 +62,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
     private IConfigStore mConfig = null;
 
     private ICertUserLocator mCULocator = null;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     private boolean mRevocationCheckingEnabled = false;
     private IConfigStore mRevocationChecking = null;

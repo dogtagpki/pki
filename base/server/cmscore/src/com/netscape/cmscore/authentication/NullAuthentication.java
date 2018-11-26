@@ -27,6 +27,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 
 /**
  * This authentication does nothing but just returns an empty authToken.
@@ -44,7 +45,7 @@ public class NullAuthentication implements IAuthManager {
     private String mName = null;
     private String mImplName = null;
     private IConfigStore mConfig = null;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     public NullAuthentication() {
     }

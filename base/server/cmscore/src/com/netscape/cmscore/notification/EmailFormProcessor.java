@@ -25,6 +25,7 @@ import java.util.Vector;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
+import com.netscape.cms.logging.Logger;
 
 /**
  * formulates the final email. Escape character '\' is understood.
@@ -42,7 +43,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
     protected final static char TOK_END = ' ';
     protected final static String TOK_VALUE_UNKNOWN = "VALUE UNKNOWN";
     protected final static String TOK_TOKEN_UNKNOWN = "UNKNOWN TOKEN:";
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger mLogger = Logger.getLogger();
 
     // stores all the available token keys; added so that we can
     // parse strings to replace unresolvable token keys and replace

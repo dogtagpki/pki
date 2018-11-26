@@ -19,9 +19,6 @@ package com.netscape.cmscore.dbs;
 
 import java.util.Enumeration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
@@ -36,6 +33,7 @@ import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -63,11 +61,11 @@ import netscape.ldap.controls.LDAPSortControl;
  */
 public class DBSSession implements IDBSSession {
 
-    public final static Logger logger = LoggerFactory.getLogger(DBSSession.class);
+    public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSSession.class);
 
     private IDBSubsystem mDBSystem = null;
     private LDAPConnection mConn = null;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     /**
      * Constructs a database session.

@@ -45,6 +45,7 @@ import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.util.Debug;
@@ -57,7 +58,7 @@ import netscape.security.x509.X509CertImpl;
 public class LdapPublishModule implements ILdapPublishModule {
     protected IConfigStore mConfig = null;
     protected LdapBoundConnFactory mLdapConnFactory = null;
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger mLogger = Logger.getLogger();
     private boolean mInited = false;
     protected ICertAuthority mAuthority = null;
 

@@ -21,9 +21,6 @@ import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
@@ -32,6 +29,10 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 
 /**
  * A class represents a mapper to serialize
@@ -44,7 +45,7 @@ import com.netscape.certsrv.logging.ILogger;
 public class KeyRecordMapper implements IDBAttrMapper {
 
     private IKeyRepository mDB = null;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     public KeyRecordMapper(IKeyRepository db) {
         mDB = db;

@@ -53,6 +53,7 @@ import com.netscape.certsrv.dbs.certdb.RenewableCertificateCollection;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.security.JssSubsystem;
 
 import netscape.ldap.LDAPAttributeSet;
@@ -642,22 +643,22 @@ public class CertificateRepository extends Repository
 
         CMS.debug("In updateCertStatus()");
 
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 CMS.getLogMessage("CMSCORE_DBS_START_VALID_SEARCH"));
         transitInvalidCertificates();
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 CMS.getLogMessage("CMSCORE_DBS_FINISH_VALID_SEARCH"));
 
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 CMS.getLogMessage("CMSCORE_DBS_START_EXPIRED_SEARCH"));
         transitValidCertificates();
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 CMS.getLogMessage("CMSCORE_DBS_FINISH_EXPIRED_SEARCH"));
 
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 CMS.getLogMessage("CMSCORE_DBS_START_REVOKED_EXPIRED_SEARCH"));
         transitRevokedExpiredCertificates();
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
     }
 

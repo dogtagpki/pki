@@ -21,18 +21,19 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AVAValueConverter;
-import netscape.security.x509.DirStrConverter;
-import netscape.security.x509.X500NameAttrMap;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.util.Debug;
+
+import netscape.security.util.DerValue;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.AVAValueConverter;
+import netscape.security.x509.DirStrConverter;
+import netscape.security.x509.X500NameAttrMap;
 
 /**
  * Subsystem for configuring X500Name related things.
@@ -133,7 +134,7 @@ public class X500NameSubsystem implements ISubsystem {
      */
     public synchronized void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        mLogger = CMS.getLogger();
+        mLogger = Logger.getLogger();
         if (Debug.ON) {
             Debug.trace(ID + " started");
         }
@@ -280,7 +281,7 @@ public class X500NameSubsystem implements ISubsystem {
         return mConfig;
     }
 
-    protected ILogger mLogger = null;
+    protected Logger mLogger = null;
 
     protected synchronized void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM,

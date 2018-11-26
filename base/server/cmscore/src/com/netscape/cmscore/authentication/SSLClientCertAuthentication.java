@@ -42,6 +42,7 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.util.Debug;
 
 import netscape.security.x509.X509CertImpl;
@@ -63,7 +64,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
 
     private ICertificateAuthority mCA = null;
     private ICertificateRepository mCertDB = null;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
     private String mName = null;
     private String mImplName = null;
     private IConfigStore mConfig = null;

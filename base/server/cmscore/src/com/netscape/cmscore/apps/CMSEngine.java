@@ -1554,10 +1554,6 @@ public class CMSEngine implements ICMSEngine {
         return tokenClass;
     }
 
-    public ILogger getLogger() {
-        return Logger.getLogger();
-    }
-
     private void startupSubsystems(Map<String, SubsystemInfo> subsystems)
             throws EBaseException {
 

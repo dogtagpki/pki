@@ -40,6 +40,7 @@ import org.mozilla.jss.util.Password;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
 
@@ -54,7 +55,7 @@ public class PWsdrCache {
     public static final String PROP_PWC_KEY_ID = "pwcKeyid";
     public static final String PROP_PWC_NICKNAME = "sso_key";
 
-    private ILogger mLogger = null;
+    private Logger mLogger = null;
     private String mPWcachedb = null;
     // mTool tells if this is called from the PasswordCache tool
     private boolean mIsTool = false;
@@ -64,7 +65,7 @@ public class PWsdrCache {
 
     // for CMSEngine
     public PWsdrCache() throws EBaseException {
-        mLogger = CMS.getLogger();
+        mLogger = Logger.getLogger();
         try {
             mPWcachedb = CMS.getConfigStore().getString("pwCache");
             CMS.debug("got pwCache file path from configstore");
@@ -191,7 +192,7 @@ public class PWsdrCache {
     }
 
     // for PWCBsdr
-    public PWsdrCache(String pwCache, ILogger logger) throws
+    public PWsdrCache(String pwCache, Logger logger) throws
             EBaseException {
         mLogger = logger;
         mPWcachedb = pwCache;

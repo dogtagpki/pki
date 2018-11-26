@@ -26,6 +26,7 @@ import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPControl;
@@ -73,7 +74,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
     private int mJumpToDirection = 1; // Do we proceed forward or backwards
     private String mJumpTo = null; // Determines if this is the jumpto case
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     /**
      * Constructs a virtual list.

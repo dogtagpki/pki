@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -29,6 +28,7 @@ import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestSubsystem;
 import com.netscape.certsrv.request.IService;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
@@ -126,7 +126,7 @@ public class RequestSubsystem
      */
     public void startup()
             throws EBaseException {
-        mLogger = CMS.getLogger();
+        mLogger = Logger.getLogger();
 
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_REQQUEUE, ILogger.LL_INFO,
                 "Request subsystem started");
@@ -176,5 +176,5 @@ public class RequestSubsystem
     private ISubsystem mParent;
     private String mId = IRequestSubsystem.SUB_ID;
 
-    protected ILogger mLogger;
+    protected Logger mLogger;
 }

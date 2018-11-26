@@ -35,6 +35,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.publish.IXcertPublisherProcessor;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -80,7 +81,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     protected IPublisherProcessor mPublisherProcessor = null;
 
     private String mId = ID;
-    private ILogger mLogger = null;
+    private Logger mLogger = null;
 
     public CrossCertPairSubsystem() {
     }
@@ -103,7 +104,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
         try {
             mConfig = config;
-            mLogger = CMS.getLogger();
+            mLogger = Logger.getLogger();
             synchronized (this) {
                 mCa = (ICertificateAuthority) CMS.getSubsystem("ca");
                 mPublisherProcessor = mCa.getPublisherProcessor();

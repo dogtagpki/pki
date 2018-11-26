@@ -45,7 +45,6 @@ import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogSubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.password.IPasswordCheck;
@@ -208,17 +207,6 @@ public final class CMS {
      */
     public static boolean isInRunningState() {
         return _engine.isInRunningState();
-    }
-
-    /**
-     * Returns the logger of the current server. The logger can
-     * be used to log critical informational or critical error
-     * messages.
-     *
-     * @return logger
-     */
-    public static ILogger getLogger() {
-        return _engine.getLogger();
     }
 
     /**

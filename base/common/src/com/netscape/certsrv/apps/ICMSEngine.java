@@ -35,7 +35,6 @@ import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.request.IRequest;
@@ -151,15 +150,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return subsystem of the given name
      */
     public ISubsystem getSubsystem(String name);
-
-    /**
-     * Returns the logger of the current server. The logger can
-     * be used to log critical informational or critical error
-     * messages.
-     *
-     * @return logger
-     */
-    public ILogger getLogger();
 
     /**
      * Puts data of an byte array into the debug file.

@@ -39,7 +39,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IAttrSet;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.IEnrollmentRequest;
 import com.netscape.certsrv.request.INotify;
@@ -52,6 +51,7 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.util.DerInputStream;
@@ -724,7 +724,7 @@ public abstract class ARequestQueue
         mNotify = notify;
         mPendingNotify = pendingNotify;
 
-        mLogger = CMS.getLogger();
+        mLogger = Logger.getLogger();
     }
 
     // Instance variables
@@ -735,7 +735,7 @@ public abstract class ARequestQueue
     INotify mNotify;
     INotify mPendingNotify;
 
-    protected ILogger mLogger;
+    protected Logger mLogger;
 }
 
 //

@@ -44,6 +44,7 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -91,7 +92,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
     protected String mBaseDN = null;
     protected static UGSubsystem mUG = null;
 
-    private transient ILogger mLogger = null;
+    private transient Logger mLogger = null;
 
     // singleton enforcement
 
@@ -138,7 +139,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
         super.init(owner, config);
 
-        mLogger = CMS.getLogger();
+        mLogger = Logger.getLogger();
 
         // initialize LDAP connection factory
         try {

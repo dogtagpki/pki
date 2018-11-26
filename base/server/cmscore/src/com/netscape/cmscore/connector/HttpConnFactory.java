@@ -26,6 +26,7 @@ import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
 
@@ -36,7 +37,7 @@ public class HttpConnFactory {
     protected int mMinConns = 1;
     protected int mMaxConns = 30;
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     private int mNumConns = 0; // number of available conns in array
     private int mTotal = 0; // total num conns

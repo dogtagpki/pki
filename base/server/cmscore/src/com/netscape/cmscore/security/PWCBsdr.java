@@ -23,6 +23,7 @@ import org.mozilla.jss.util.PasswordCallbackInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.base.JDialogPasswordCallback;
 
 /*
@@ -37,7 +38,7 @@ public class PWCBsdr implements PasswordCallback {
     boolean firsttime = true;
     private PasswordCallback mCB = null;
     private String mPWcachedb = null;
-    private ILogger mLogger = null;
+    private Logger mLogger = null;
 
     public PWCBsdr() {
         this(null);
@@ -50,7 +51,7 @@ public class PWCBsdr implements PasswordCallback {
          System.out.println("before CMS.getLogger");
          try {
          */
-        mLogger = CMS.getLogger();
+        mLogger = Logger.getLogger();
 
         /*
          } catch (NullPointerException e) {

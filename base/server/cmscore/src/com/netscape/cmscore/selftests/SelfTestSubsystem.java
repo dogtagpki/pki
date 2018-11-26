@@ -70,7 +70,7 @@ public class SelfTestSubsystem
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfTestSubsystem.class);
 
     private static ILogEventListener mLogger;
-    private static ILogger mErrorLogger = CMS.getLogger();
+    private static Logger mErrorLogger = Logger.getLogger();
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     ////////////////////////

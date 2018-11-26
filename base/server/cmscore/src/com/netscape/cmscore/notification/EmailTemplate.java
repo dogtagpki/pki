@@ -26,6 +26,7 @@ import java.io.IOException;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailTemplate;
+import com.netscape.cms.logging.Logger;
 
 /**
  * Files to be processed and returned to the requested parties. It
@@ -44,7 +45,7 @@ public class EmailTemplate implements IEmailTemplate {
 
     /* private variables */
     private String mTemplateFile = "";
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     /* public vaiables */
     public String mFileContents;

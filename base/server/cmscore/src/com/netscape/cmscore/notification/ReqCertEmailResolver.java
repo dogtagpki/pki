@@ -27,6 +27,7 @@ import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.logging.Logger;
 
 import netscape.security.x509.X500Name;
 
@@ -39,7 +40,7 @@ import netscape.security.x509.X500Name;
  * @version $Revision$, $Date$
  */
 public class ReqCertEmailResolver implements IEmailResolver {
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     public static final String KEY_REQUEST = "request";
     public static final String KEY_CERT = "cert";

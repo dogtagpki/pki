@@ -32,6 +32,7 @@ import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.jobs.JobPlugin;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.util.Debug;
 
 /**
@@ -68,7 +69,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
     private Hashtable<String, Thread> mJobThreads = new Hashtable<String, Thread>();
 
     private IConfigStore mConfig = null;
-    private ILogger mLogger = null;
+    private Logger mLogger = null;
 
     // in milliseconds. daemon wakeup interval, default 1 minute.
     private long mInterval = 0;
@@ -98,7 +99,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException, EJobsException {
-        mLogger = CMS.getLogger();
+        mLogger = Logger.getLogger();
 
         // read in config parameters and set variables
         mConfig = config;

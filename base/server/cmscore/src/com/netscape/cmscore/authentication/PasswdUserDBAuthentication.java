@@ -30,6 +30,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -60,7 +61,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
     private String mImplName = null;
     private IConfigStore mConfig;
     private LdapAnonConnFactory mAnonConnFactory = null;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     public PasswdUserDBAuthentication() {
     }

@@ -26,6 +26,7 @@ import com.netscape.certsrv.ldap.ILdapBoundConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -35,7 +36,7 @@ import netscape.ldap.LDAPConnection;
 public class LdapConnModule implements ILdapConnModule {
     protected IConfigStore mConfig = null;
     protected LdapBoundConnFactory mLdapConnFactory = null;
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger mLogger = Logger.getLogger();
     private boolean mInited = false;
 
     /**

@@ -28,6 +28,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.util.Debug;
 
 /**
@@ -41,7 +42,7 @@ public class PolicySet implements IPolicySet {
     private String mName;
     private Vector<String> mRuleNames = new Vector<String>();
     private Vector<IPolicyRule> mRules = new Vector<IPolicyRule>();
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     public PolicySet(String name) {
         mName = name;

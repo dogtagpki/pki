@@ -26,6 +26,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 
 /**
  * class representing one Job cron information
@@ -54,7 +55,7 @@ public class JobCron implements IJobCron {
     public static final String CRON_DAY_OF_MONTH = "dom";
     public static final String CRON_MONTH_OF_YEAR = "moy";
     public static final String CRON_DAY_OF_WEEK = "dow";
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     String mCronString = null;
 

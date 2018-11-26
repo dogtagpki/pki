@@ -19,13 +19,13 @@ package com.netscape.cmscore.dbs;
 
 import java.util.Enumeration;
 
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
+
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
 
 /**
  * A class represents the search results. A search
@@ -39,7 +39,7 @@ public class DBSearchResults implements IDBSearchResults {
 
     private IDBRegistry mRegistry = null;
     private Enumeration<Object> mRes = null;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     /**
      * Constructs search results.

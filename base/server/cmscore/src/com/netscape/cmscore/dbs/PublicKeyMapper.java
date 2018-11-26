@@ -22,15 +22,16 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.cert.CertUtils;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 
 /**
  * A class represents an attribute mapper that maps
@@ -46,7 +47,7 @@ public class PublicKeyMapper implements IDBAttrMapper {
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     /**
      * Constructs a byte array mapper.

@@ -88,6 +88,7 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.certsrv.security.KeyCertData;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.util.Debug;
@@ -119,7 +120,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     private static final String mId = ID;
     protected IConfigStore mConfig = null;
     private boolean mInited = false;
-    private ILogger mLogger = null;
+    private Logger mLogger = null;
     private CryptoManager mCryptoManager = null;
     private SecureRandom random;
     private String obscureMethod = "zeroes";
@@ -272,7 +273,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         CMS.debug("JssSubsystem: initializing JSS subsystem");
 
-        mLogger = CMS.getLogger();
+        mLogger = Logger.getLogger();
 
         if (mInited) {
             // This used to throw an exeception (e.g. - on Solaris).

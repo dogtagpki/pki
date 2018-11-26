@@ -37,6 +37,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.util.Debug;
 
 /**
@@ -55,7 +56,7 @@ public class AuthSubsystem implements IAuthSubsystem {
     private String mId = "auths";
     private IConfigStore mConfig = null;
 
-    private ILogger mLogger = null;
+    private Logger mLogger = null;
 
     // singleton enforcement
 
@@ -81,7 +82,7 @@ public class AuthSubsystem implements IAuthSubsystem {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
         try {
-            mLogger = CMS.getLogger();
+            mLogger = Logger.getLogger();
             mConfig = config;
 
             // hardcode admin and agent plugins required for the server to be
