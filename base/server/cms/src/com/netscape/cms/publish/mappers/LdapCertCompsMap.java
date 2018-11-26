@@ -22,16 +22,17 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Vector;
 
-import netscape.ldap.LDAPConnection;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.logging.Logger;
+
+import netscape.ldap.LDAPConnection;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
 
 /**
  * Maps a X509 certificate to a LDAP entry using AVAs in the certificate's
@@ -48,7 +49,7 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class LdapCertCompsMap
         extends LdapDNCompsMap implements ILdapMapper {
-    ILogger mLogger = CMS.getLogger();
+    Logger mLogger = Logger.getLogger();
 
     public LdapCertCompsMap() {
         // need to support baseDN, dnComps, and filterComps

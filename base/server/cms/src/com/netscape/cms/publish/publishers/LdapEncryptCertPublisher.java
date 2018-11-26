@@ -36,6 +36,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.cert.CertUtils;
 
 import netscape.ldap.LDAPAttribute;
@@ -61,7 +62,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
     public static final String PROP_REVOKE_CERT = "revokeCert";
 
     protected String mCertAttr = LDAP_USERCERT_ATTR;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
     private IConfigStore mConfig = null;
     private boolean mInited = false;
 

@@ -29,6 +29,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.security.util.DerValue;
@@ -62,7 +63,7 @@ public class CMSIssuerAlternativeNameExtension
     private static final String PROP_OID_NAME = "OID";
     private static final String PROP_OTHER_NAME = "otherName";
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     public CMSIssuerAlternativeNameExtension() {
     }

@@ -49,6 +49,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.LDAPConnection;
@@ -72,7 +73,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     private static final String PROP_MAX_FULL_CRLS = "maxFullCRLs";
     private IConfigStore mConfig = null;
     private String mDir = null;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
     private String mCrlIssuingPointId;
     protected boolean mDerAttr = true;
     protected boolean mB64Attr = false;

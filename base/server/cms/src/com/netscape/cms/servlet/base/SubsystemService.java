@@ -41,7 +41,7 @@ public class SubsystemService extends PKIService {
 
     protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
     protected Auditor auditor = Auditor.getAuditor();
-    protected ILogger logger = CMS.getLogger();
+    protected Logger logger = Logger.getLogger();
 
     public String getSubsystemName() {
         // get web application path: /<subsystem>

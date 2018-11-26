@@ -21,15 +21,6 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-import netscape.ldap.LDAPv3;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -39,6 +30,16 @@ import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.logging.Logger;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
+import netscape.ldap.LDAPv3;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
 
 /**
  * Maps a X509 certificate to a LDAP entry by finding an LDAP entry
@@ -52,7 +53,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
     protected String mCertSubjNameAttr = LDAP_CERTSUBJNAME_ATTR;
     protected boolean mUseAllEntries = false;
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
     protected IConfigStore mConfig = null;
     boolean mInited = false;
 

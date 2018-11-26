@@ -30,6 +30,8 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.dogtagpki.server.PKIClientSocketListener;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -37,12 +39,11 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.util.Utils;
-
-import org.dogtagpki.server.PKIClientSocketListener;
 
 import netscape.ldap.LDAPConnection;
 
@@ -65,7 +66,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     private String mPath = null;
     private String mNickname = null;
     private boolean mClientAuthEnabled = true;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     /**
      * Returns the implementation name.

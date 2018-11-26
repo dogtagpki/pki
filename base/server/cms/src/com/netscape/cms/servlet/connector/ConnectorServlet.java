@@ -60,6 +60,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.connector.HttpPKIMessage;
@@ -87,7 +88,7 @@ import netscape.security.x509.X509CertInfo;
  */
 public class ConnectorServlet extends CMSServlet {
 
-    private static ILogger mLogger = CMS.getLogger();
+    private static Logger mLogger = Logger.getLogger();
 
     private static final long serialVersionUID = 1221916495803185863L;
     public static final String INFO = "Connector Servlet";

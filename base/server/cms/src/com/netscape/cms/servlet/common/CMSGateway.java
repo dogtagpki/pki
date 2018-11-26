@@ -39,6 +39,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 
 /**
  * This class is to hold some general method for servlets.
@@ -59,7 +60,7 @@ public class CMSGateway {
     private static IConfigStore mConfig = null;
 
     // system logger.
-    protected static ILogger mLogger = CMS.getLogger();
+    protected static Logger mLogger = Logger.getLogger();
 
     static {
         mEnableFileServing = true;

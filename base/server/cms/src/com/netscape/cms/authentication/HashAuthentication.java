@@ -37,6 +37,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -61,7 +62,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     private IConfigStore mConfig;
     private String mName = null;
     private String mImplName = null;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
     private static Vector<String> mExtendedPluginInfo = null;
     private HashAuthData mHosts = null;
 

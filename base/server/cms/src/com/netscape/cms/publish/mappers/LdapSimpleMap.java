@@ -22,6 +22,17 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.ELdapServerDownException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.publish.ILdapMapper;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.logging.Logger;
+
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
@@ -33,16 +44,6 @@ import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.publish.ILdapMapper;
-import com.netscape.certsrv.request.IRequest;
 
 /**
  * Maps a request to an entry in the LDAP server.
@@ -58,7 +59,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     protected static final String PROP_DNPATTERN = "dnPattern";
     protected String mDnPattern = null;
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
     private boolean mInited = false;
     protected IConfigStore mConfig = null;
 

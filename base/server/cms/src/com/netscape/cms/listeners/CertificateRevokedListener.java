@@ -42,6 +42,7 @@ import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.EmailTemplate;
@@ -88,7 +89,7 @@ public class CertificateRevokedListener implements IRequestListener {
     protected final static String REJECT_FILE_NAME = "certRequestRejected";
 
     private boolean mEnabled = false;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
     private String mSenderEmail = null;
     private String mSubject = null;
     private String mSubject_Success = null;

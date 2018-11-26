@@ -36,9 +36,9 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
@@ -65,7 +65,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
     public static int ERROR = 1;
     PrettyPrintFormat pp = new PrettyPrintFormat(":");
     protected IAuthSubsystem mAuthSubsystem = null;
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger mLogger = Logger.getLogger();
     private Hashtable<String, String> supportedECCurves_ht = null;
 
     /**

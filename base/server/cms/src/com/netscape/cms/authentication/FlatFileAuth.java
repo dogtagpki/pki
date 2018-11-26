@@ -47,6 +47,7 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.logging.Logger;
 
 /**
  * This represents the authentication manager that authenticates
@@ -106,7 +107,7 @@ public class FlatFileAuth
     protected IConfigStore mConfig = null;
 
     /** system logger */
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger mLogger = Logger.getLogger();
 
     /**
      * This array is created as to include all the requested attributes

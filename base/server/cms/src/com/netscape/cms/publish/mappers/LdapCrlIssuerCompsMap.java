@@ -20,16 +20,17 @@ package com.netscape.cms.publish.mappers;
 import java.security.cert.CRLException;
 import java.util.Vector;
 
-import netscape.ldap.LDAPConnection;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.logging.Logger;
+
+import netscape.ldap.LDAPConnection;
+import netscape.security.util.ObjectIdentifier;
+import netscape.security.x509.X500Name;
+import netscape.security.x509.X509CRLImpl;
 
 /**
  * Default crl mapper.
@@ -40,7 +41,7 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class LdapCrlIssuerCompsMap
         extends LdapDNCompsMap implements ILdapMapper {
-    ILogger mLogger = CMS.getLogger();
+    Logger mLogger = Logger.getLogger();
 
     public LdapCrlIssuerCompsMap() {
         // need to support baseDN, dnComps, and filterComps

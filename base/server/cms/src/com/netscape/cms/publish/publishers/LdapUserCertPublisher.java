@@ -32,6 +32,7 @@ import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -52,7 +53,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
     public static final String LDAP_USERCERT_ATTR = "userCertificate;binary";
 
     protected String mCertAttr = LDAP_USERCERT_ATTR;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
     private IConfigStore mConfig = null;
     private boolean mInited = false;
 

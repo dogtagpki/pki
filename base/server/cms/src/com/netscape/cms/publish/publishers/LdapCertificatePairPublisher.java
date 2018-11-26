@@ -20,15 +20,6 @@ package com.netscape.cms.publish.publishers;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -37,6 +28,16 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.cms.logging.Logger;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
+import netscape.ldap.LDAPModificationSet;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
 
 /**
  * module for publishing a cross certificate pair to ldap
@@ -57,7 +58,7 @@ public class LdapCertificatePairPublisher
     protected String mObjAdded = "";
     protected String mObjDeleted = "";
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
     private boolean mInited = false;
     protected IConfigStore mConfig = null;
 

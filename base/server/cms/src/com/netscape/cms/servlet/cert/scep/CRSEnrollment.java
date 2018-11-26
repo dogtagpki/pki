@@ -172,7 +172,7 @@ public class CRSEnrollment extends HttpServlet {
     private String[] mAllowedEncryptionAlgorithm;
     private SecureRandom mRandom = null;
     private int mNonceSizeLimit = 0;
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger mLogger = Logger.getLogger();
     private ICertificateAuthority ca;
     /* for hashing challenge password */
     protected MessageDigest mSHADigest = null;

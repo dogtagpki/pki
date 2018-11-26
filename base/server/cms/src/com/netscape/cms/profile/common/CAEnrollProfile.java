@@ -38,6 +38,7 @@ import com.netscape.certsrv.profile.IProfileUpdater;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.cert.CertUtils;
 
 import netscape.security.x509.X500Name;
@@ -213,7 +214,7 @@ public class CAEnrollProfile extends EnrollProfile {
                           + (String) sc.get(SessionContext.USER_ID);
         String authMgr = (String) sc.get(SessionContext.AUTH_MANAGER_ID);
 
-        ILogger logger = CMS.getLogger();
+        Logger logger = Logger.getLogger();
         if (logger != null) {
             logger.log(ILogger.EV_AUDIT,
                         ILogger.S_OTHER, AuditFormat.LEVEL, AuditFormat.FORMAT,

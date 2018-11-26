@@ -23,6 +23,7 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -34,7 +35,7 @@ import com.netscape.cmsutil.util.Utils;
 public class UserAccessEvaluator implements IAccessEvaluator {
     private String mType = "user";
     private String mDescription = "user equivalence evaluator";
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     private final static String ANYBODY = "anybody";
     private final static String EVERYBODY = "everybody";

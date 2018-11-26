@@ -237,7 +237,7 @@ public abstract class CMSServlet extends HttpServlet {
     protected IRequestQueue mRequestQueue = null;
 
     // system logger.
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger mLogger = Logger.getLogger();
     protected LogSource mLogCategory = ILogger.S_OTHER;
     private MessageDigest mSHADigest = null;
 

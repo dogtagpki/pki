@@ -36,6 +36,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cms.logging.Logger;
 
 import netscape.security.x509.CertificateX509Key;
 import netscape.security.x509.KeyIdentifier;
@@ -59,7 +60,7 @@ public abstract class APolicyRule implements IPolicyRule {
     protected String DESC = null;
     protected IExpression mFilterExp = null;
     protected String mInstanceName = null;
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger mLogger = Logger.getLogger();
 
     public APolicyRule() {
     }

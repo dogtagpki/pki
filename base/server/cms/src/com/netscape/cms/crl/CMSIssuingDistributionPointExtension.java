@@ -29,6 +29,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 
 import netscape.security.util.BitArray;
 import netscape.security.x509.Extension;
@@ -67,7 +68,7 @@ public class CMSIssuingDistributionPointExtension
             "certificateHold",
             "privilegeWithdrawn" };
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     public CMSIssuingDistributionPointExtension() {
     }

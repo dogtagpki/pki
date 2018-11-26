@@ -43,6 +43,7 @@ import com.netscape.certsrv.template.ArgSet;
 import com.netscape.certsrv.template.ArgString;
 import com.netscape.certsrv.template.IArgValue;
 import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -156,7 +157,7 @@ public class ProfileServlet extends CMSServlet {
     protected IAuthzSubsystem mAuthz = null;
     protected String mAclMethod = null;
     protected String mAuthzResourceName = null;
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger mLogger = Logger.getLogger();
     protected LogSource mLogCategory = ILogger.S_OTHER;
     protected String mProfileSubId = null;
 

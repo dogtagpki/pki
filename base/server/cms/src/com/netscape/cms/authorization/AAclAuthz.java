@@ -37,6 +37,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -84,7 +85,7 @@ public abstract class AAclAuthz implements IAuthzManager {
 
     private Hashtable<String, ACL> mACLs = new Hashtable<String, ACL>();
     private Hashtable<String, IAccessEvaluator> mEvaluators = new Hashtable<String, IAccessEvaluator>();
-    private ILogger mLogger = null;
+    private Logger mLogger = null;
 
     /* Vector of extendedPluginInfo strings */
     protected static Vector<String> mExtendedPluginInfo = null;
@@ -109,7 +110,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         mName = name;
         mImplName = implName;
         mConfig = config;
-        mLogger = CMS.getLogger();
+        mLogger = Logger.getLogger();
         CMS.debug("AAclAuthz: init begins");
 
         // load access evaluators specified in the config file

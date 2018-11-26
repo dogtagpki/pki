@@ -31,6 +31,7 @@ import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.notification.EmailTemplate;
 
 import netscape.security.x509.X509CertImpl;
@@ -62,7 +63,7 @@ public abstract class AJobBase implements IJob, Runnable {
     protected String mCron = null;
     protected IJobCron mJobCron = null;
 
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger mLogger = Logger.getLogger();
     protected static String[] mConfigParams = null;
 
     protected String mSummaryMailSubject = null;

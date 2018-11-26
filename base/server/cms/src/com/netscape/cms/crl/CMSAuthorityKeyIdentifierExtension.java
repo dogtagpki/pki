@@ -30,6 +30,7 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 
 import netscape.security.x509.AuthorityKeyIdentifierExtension;
 import netscape.security.x509.CertificateExtensions;
@@ -49,7 +50,7 @@ import netscape.security.x509.X509CertInfo;
  */
 public class CMSAuthorityKeyIdentifierExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     public CMSAuthorityKeyIdentifierExtension() {
     }

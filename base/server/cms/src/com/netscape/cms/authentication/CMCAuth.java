@@ -114,7 +114,7 @@ import netscape.security.x509.X509Key;
 public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         IProfileAuthenticator {
 
-    private static ILogger mLogger = CMS.getLogger();
+    private static Logger mLogger = Logger.getLogger();
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     ////////////////////////

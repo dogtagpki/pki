@@ -28,6 +28,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 
 import netscape.security.x509.CRLDistributionPoint;
 import netscape.security.x509.Extension;
@@ -51,7 +52,7 @@ public class CMSFreshestCRLExtension
     public static final String PROP_DIRNAME = "DirectoryName";
     public static final String PROP_URINAME = "URI";
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     public CMSFreshestCRLExtension() {
     }

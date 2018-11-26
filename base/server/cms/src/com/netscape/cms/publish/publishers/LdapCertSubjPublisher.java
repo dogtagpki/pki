@@ -24,6 +24,15 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.ELdapServerDownException;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.cms.logging.Logger;
+
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
@@ -34,14 +43,6 @@ import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.publish.ILdapPublisher;
 
 /**
  * Interface for mapping a X509 certificate to a LDAP entry
@@ -55,7 +56,7 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
     protected String mCertAttr = LdapUserCertPublisher.LDAP_USERCERT_ATTR;
     protected String mSubjNameAttr = LDAP_CERTSUBJNAME_ATTR;
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
     private boolean mInited = false;
     protected IConfigStore mConfig = null;
 

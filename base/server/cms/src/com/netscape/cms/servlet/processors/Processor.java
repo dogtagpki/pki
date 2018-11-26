@@ -20,7 +20,7 @@ public class Processor {
 
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    protected ILogger logger = CMS.getLogger();
+    protected Logger logger = Logger.getLogger();
     protected Auditor auditor = Auditor.getAuditor();
 
     protected String id;

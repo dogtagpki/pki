@@ -34,6 +34,7 @@ import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cms.profile.input.SubjectNameInput;
 import com.netscape.cms.profile.input.SubmitterInfoInput;
 import com.netscape.cmscore.notification.EmailFormProcessor;
@@ -66,7 +67,7 @@ public class RequestInQListener implements IRequestListener {
     protected final static String PROP_REQ_IN_Q_SUBSTORE = "requestInQ";
 
     private boolean mEnabled = false;
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
     private String mSenderEmail = null;
     private String mRecipientEmail = null;
     private String mEmailSubject = null;

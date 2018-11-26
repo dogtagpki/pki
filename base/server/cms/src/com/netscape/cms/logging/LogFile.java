@@ -451,12 +451,12 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
         if (mOn) {
             if (mRegister) {
-                CMS.getLogger().getLogQueue().addLogEventListener(this);
+                Logger.getLogger().getLogQueue().addLogEventListener(this);
             }
         } else {
             // shutdown the listener, remove the listener
             if (mRegister) {
-                CMS.getLogger().getLogQueue().removeLogEventListener(this);
+                Logger.getLogger().getLogQueue().removeLogEventListener(this);
                 shutdown();
             }
         }
@@ -1392,7 +1392,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                     lineNo++;
 
                 } catch (IOException e) {
-                    CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                    Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                             ILogger.LL_FAILURE,
                             CMS.getLogMessage("LOGGING_READ_ERROR", fileName,
                                     Integer.toString(lineNo)));
@@ -1459,13 +1459,13 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             try {
                 fBuffer.close();
             } catch (IOException e) {
-                CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                         ILogger.LL_FAILURE, "logging:" + fileName +
                                 " failed to close for reading");
             }
 
         } catch (FileNotFoundException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+            Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                     ILogger.LL_FAILURE,
                     CMS.getLogMessage("LOGGING_FILE_NOT_FOUND",
                             fileName));
@@ -1519,7 +1519,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                         entries.elementAt(i).getEntry(), "");
             }
         } catch (Exception e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+            Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                     ILogger.LL_WARN,
                     "System log parse error");
         }

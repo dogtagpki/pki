@@ -100,7 +100,7 @@ public class AdminServlet extends HttpServlet {
     private final static String HDR_AUTHORIZATION = "Authorization";
     private final static String HDR_LANG = "accept-language";
 
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger mLogger = Logger.getLogger();
     protected Auditor auditor = Auditor.getAuditor();
     private IUGSubsystem mUG = null;
     protected IConfigStore mConfig = null;

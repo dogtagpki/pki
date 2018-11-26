@@ -287,12 +287,12 @@ public class PKIProcessor implements IPKIProcessor {
      * log according to authority category.
      */
     public static void log(LogCategory event, int level, String msg) {
-        CMS.getLogger().log(event, ILogger.S_OTHER, level,
+        Logger.getLogger().log(event, ILogger.S_OTHER, level,
                 "PKIProcessor " + ": " + msg);
     }
 
     public static void log(int level, String msg) {
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level,
+        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level,
                 "PKIProcessor " + ": " + msg);
     }
 

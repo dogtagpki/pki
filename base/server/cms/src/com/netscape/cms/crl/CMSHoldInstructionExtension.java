@@ -28,6 +28,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.Extension;
@@ -46,7 +47,7 @@ public class CMSHoldInstructionExtension
     public static final String PROP_INSTR_CALLISSUER = "callissuer";
     public static final String PROP_INSTR_REJECT = "reject";
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     public CMSHoldInstructionExtension() {
     }

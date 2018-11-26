@@ -27,6 +27,7 @@ import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.util.Utils;
 
 /**
@@ -39,7 +40,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
     private String mType = "group";
     private IUGSubsystem mUG = null;
     private String mDescription = "group membership evaluator";
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     /**
      * Class constructor.

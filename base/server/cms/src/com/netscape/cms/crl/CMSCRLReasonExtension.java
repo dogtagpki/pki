@@ -26,6 +26,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 
 import netscape.security.x509.CRLReasonExtension;
 import netscape.security.x509.Extension;
@@ -39,7 +40,7 @@ import netscape.security.x509.RevocationReason;
  */
 public class CMSCRLReasonExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     public CMSCRLReasonExtension() {
     }

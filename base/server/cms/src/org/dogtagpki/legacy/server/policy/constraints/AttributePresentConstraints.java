@@ -34,6 +34,7 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -62,7 +63,7 @@ public class AttributePresentConstraints extends APolicyRule
     protected String mName = null;
     protected String mImplName = null;
 
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     private IConfigStore mConfig = null;
     private IConfigStore mLdapConfig = null;

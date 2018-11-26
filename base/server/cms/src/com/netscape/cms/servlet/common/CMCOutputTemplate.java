@@ -1370,7 +1370,7 @@ public class CMCOutputTemplate {
                         }
                     }
 
-                    ILogger logger = CMS.getLogger();
+                    Logger logger = Logger.getLogger();
                     String initiative = AuditFormat.FROMUSER;
                     logger.log(ILogger.EV_AUDIT, ILogger.S_OTHER, AuditFormat.LEVEL,
                             AuditFormat.DOREVOKEFORMAT, new Object[] {

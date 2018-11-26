@@ -45,6 +45,7 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -327,12 +328,12 @@ public class RecoverBySerial extends CMSServlet {
                     "Failed to recover key for key id " +
                             seq + ".\nException: " + e.toString();
 
-            CMS.getLogger().log(ILogger.EV_SYSTEM,
+            Logger.getLogger().log(ILogger.EV_SYSTEM,
                     ILogger.S_KRA, ILogger.LL_FAILURE, error);
             try {
                 ((IKeyRecoveryAuthority) mService).createError(seq, error);
             } catch (EBaseException eb) {
-                CMS.getLogger().log(ILogger.EV_SYSTEM,
+                Logger.getLogger().log(ILogger.EV_SYSTEM,
                         ILogger.S_KRA, ILogger.LL_FAILURE, eb.toString());
             }
         }
@@ -520,12 +521,12 @@ public class RecoverBySerial extends CMSServlet {
                         "Failed to get required approvals for recovery id " +
                                 theRecoveryID + ".\nException: " + e.toString();
 
-                CMS.getLogger().log(ILogger.EV_SYSTEM,
+                Logger.getLogger().log(ILogger.EV_SYSTEM,
                         ILogger.S_KRA, ILogger.LL_FAILURE, error);
                 try {
                     ((IKeyRecoveryAuthority) mService).createError(theRecoveryID, error);
                 } catch (EBaseException eb) {
-                    CMS.getLogger().log(ILogger.EV_SYSTEM,
+                    Logger.getLogger().log(ILogger.EV_SYSTEM,
                             ILogger.S_KRA, ILogger.LL_FAILURE, eb.toString());
                 }
                 return;
@@ -546,12 +547,12 @@ public class RecoverBySerial extends CMSServlet {
                         "Failed to recover key for recovery id " +
                                 theRecoveryID + ".\nException: " + e.toString();
 
-                CMS.getLogger().log(ILogger.EV_SYSTEM,
+                Logger.getLogger().log(ILogger.EV_SYSTEM,
                         ILogger.S_KRA, ILogger.LL_FAILURE, error);
                 try {
                     ((IKeyRecoveryAuthority) mService).createError(theRecoveryID, error);
                 } catch (EBaseException eb) {
-                    CMS.getLogger().log(ILogger.EV_SYSTEM,
+                    Logger.getLogger().log(ILogger.EV_SYSTEM,
                             ILogger.S_KRA, ILogger.LL_FAILURE, eb.toString());
                 }
             }

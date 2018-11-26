@@ -28,6 +28,7 @@ import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 
 import netscape.security.x509.DeltaCRLIndicatorExtension;
 import netscape.security.x509.Extension;
@@ -40,7 +41,7 @@ import netscape.security.x509.PKIXExtensions;
  */
 public class CMSDeltaCRLIndicatorExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
-    private ILogger mLogger = CMS.getLogger();
+    private Logger mLogger = Logger.getLogger();
 
     public CMSDeltaCRLIndicatorExtension() {
     }

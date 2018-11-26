@@ -42,6 +42,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.util.Utils;
@@ -119,7 +120,7 @@ public abstract class DirBasedAuthentication
     protected ILdapConnFactory mConnFactory = null;
 
     /* the system logger */
-    protected ILogger mLogger = CMS.getLogger();
+    protected Logger mLogger = Logger.getLogger();
 
     /* the subject DN pattern */
     protected DNPattern mPattern = null;
