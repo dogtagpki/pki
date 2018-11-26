@@ -42,15 +42,9 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 message( STATUS "Javac_VERSION_OUTPUT = '${Javac_VERSION_OUTPUT}'" )
-execute_process(
-    COMMAND
-        echo ${Javac_VERSION_OUTPUT}
-    COMMAND
-        cut -f2 -d.
-    OUTPUT_VARIABLE
-        Javadoc_VERSION_MINOR
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+string(REGEX REPLACE ".* ([0-9]+).*" "\\1" Javadoc_VERSION_MAJOR ${Javac_VERSION_OUTPUT})
+message( STATUS "Javadoc_VERSION_MAJOR = '${Javadoc_VERSION_MAJOR}'" )
+string(REGEX REPLACE ".* [0-9]+\\.([0-9]+).*" "\\1" Javadoc_VERSION_MINOR ${Javac_VERSION_OUTPUT})
 message( STATUS "Javadoc_VERSION_MINOR = '${Javadoc_VERSION_MINOR}'" )
 
 # REMINDER:  Eventually, it would almost certainly be safer to obtain the
@@ -58,9 +52,9 @@ message( STATUS "Javadoc_VERSION_MINOR = '${Javadoc_VERSION_MINOR}'" )
 #            on "'Javadoc_VERSION_MAJOR'.'Javadoc_VERSION_MINOR'".
 #
 set(doclintstr "")
-if(NOT (${Javadoc_VERSION_MINOR} LESS 8))
+if(((${Javadoc_VERSION_MAJOR} EQUAL 1) AND (${Javadoc_VERSION_MINOR} EQUAL 8)) OR (${Javadoc_VERSION_MAJOR} GREATER 8))
     set(doclintstr "-Xdoclint:none")
-endif(NOT (${Javadoc_VERSION_MINOR} LESS 8))
+endif()
 
 javadoc(pki-javadoc
     SOURCEPATH
