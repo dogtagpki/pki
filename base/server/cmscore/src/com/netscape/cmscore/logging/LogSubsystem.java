@@ -17,9 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.logging;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -58,6 +64,7 @@ public class LogSubsystem implements ILogSubsystem {
 
     public Hashtable<String, LogPlugin> mLogPlugins = new Hashtable<String, LogPlugin>();
     public Hashtable<String, ILogEventListener> mLogInsts = new Hashtable<String, ILogEventListener>();
+    public Set<String> auditEvents = new TreeSet<>();
 
     /**
      * Constructs a log subsystem.
@@ -139,6 +146,33 @@ public class LogSubsystem implements ILogSubsystem {
                 Debug.trace("loaded log instance " + insName + " impl " + implName);
         }
 
+        // load audit events from LogMessages.properties
+        ResourceBundle rb = ResourceBundle.getBundle("LogMessages");
+        Pattern name_pattern = Pattern.compile("^LOGGING_SIGNED_AUDIT_.*");
+        Pattern value_pattern = Pattern.compile("^<type=(.*)>:.*");
+
+        for (String name : rb.keySet()) {
+
+            Matcher name_matcher = name_pattern.matcher(name);
+            if (!name_matcher.matches())  {
+                continue;
+            }
+
+            String value = rb.getString(name);
+
+            Matcher value_matcher = value_pattern.matcher(value);
+            if (!value_matcher.matches()) {
+                continue;
+            }
+
+            String event = value_matcher.group(1);
+
+            auditEvents.add(event.trim());
+        }
+    }
+
+    public Collection<String> getAuditEvents() {
+        return auditEvents;
     }
 
     public void startup() throws EBaseException {
