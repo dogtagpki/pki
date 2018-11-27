@@ -218,13 +218,12 @@ public class ConfigurationUtils {
         return connection.post(path, content);
     }
 
-    public static void importCertChain(String host, int port, String serverPath, String tag)
+    public static String getCertChain(String host, int port, String serverPath)
             throws Exception {
 
         String url = "https://" + host + ":" + port + serverPath;
         logger.debug("ConfigurationUtils: Getting cert chain from " + url);
 
-        IConfigStore cs = CMS.getConfigStore();
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
         // Ignore untrusted/unknown issuer to get cert chain.
         certApprovalCallback.ignoreError(ValidityStatus.UNTRUSTED_ISSUER);
@@ -247,13 +246,21 @@ public class ConfigurationUtils {
             throw e;
         }
 
-        String certchain = parser.getValue("ChainBase64");
+        return parser.getValue("ChainBase64");
+    }
+
+    public static void importCertChain(String certchain, String tag)
+            throws Exception {
+
+        logger.debug("ConfigurationUtils: Importing cert chain for " + tag);
 
         if (certchain == null || certchain.length() <= 0) {
             throw new IOException("Missing cert chain");
         }
 
         certchain = CryptoUtil.normalizeCertStr(certchain);
+
+        IConfigStore cs = CMS.getConfigStore();
         cs.putString("preop." + tag + ".pkcs7", certchain);
 
         // separate individual certs in chain for display

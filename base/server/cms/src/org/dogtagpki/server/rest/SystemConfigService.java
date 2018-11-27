@@ -992,7 +992,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     cs.putInteger("preop.ca.httpsadminport", admin_port);
 
                     if (!data.isClone() && !data.getSystemCertsImported()) {
-                        ConfigurationUtils.importCertChain(host, admin_port, "/ca/admin/ca/getCertChain", "ca");
+                        String certchain = ConfigurationUtils.getCertChain(host, admin_port, "/ca/admin/ca/getCertChain");
+                        ConfigurationUtils.importCertChain(certchain, "ca");
                     }
 
                     if (csType.equals("CA")) {
@@ -1036,8 +1037,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.debug("SystemConfigService: import certificate chain from master");
             int masterAdminPort = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
                     masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
-            ConfigurationUtils.importCertChain(masterHost, masterAdminPort,
-                    "/ca/admin/ca/getCertChain", "clone");
+
+            String certchain = ConfigurationUtils.getCertChain(masterHost, masterAdminPort,
+                    "/ca/admin/ca/getCertChain");
+            ConfigurationUtils.importCertChain(certchain, "clone");
         }
 
         logger.debug("SystemConfigService: get configuration entries from master");
@@ -1120,7 +1123,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (!data.getSystemCertsImported()) {
             logger.debug("Getting security domain cert chain");
-            ConfigurationUtils.importCertChain(host, port, "/ca/admin/ca/getCertChain", "securitydomain");
+            String certchain = ConfigurationUtils.getCertChain(host, port, "/ca/admin/ca/getCertChain");
+            ConfigurationUtils.importCertChain(certchain, "securitydomain");
         }
 
         getInstallToken(data, host, port);
