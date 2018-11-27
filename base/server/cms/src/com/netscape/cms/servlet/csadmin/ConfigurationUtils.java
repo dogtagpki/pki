@@ -249,46 +249,44 @@ public class ConfigurationUtils {
 
         String certchain = parser.getValue("ChainBase64");
 
-        if (certchain != null && certchain.length() > 0) {
+        if (certchain == null || certchain.length() <= 0) {
+            throw new IOException("Missing cert chain");
+        }
 
-            certchain = CryptoUtil.normalizeCertStr(certchain);
-            cs.putString("preop." + tag + ".pkcs7", certchain);
+        certchain = CryptoUtil.normalizeCertStr(certchain);
+        cs.putString("preop." + tag + ".pkcs7", certchain);
 
-            // separate individual certs in chain for display
-            byte[] decoded = CryptoUtil.base64Decode(certchain);
-            java.security.cert.X509Certificate[] b_certchain = CryptoUtil.getX509CertificateFromPKCS7(decoded);
+        // separate individual certs in chain for display
+        byte[] decoded = CryptoUtil.base64Decode(certchain);
+        java.security.cert.X509Certificate[] b_certchain = CryptoUtil.getX509CertificateFromPKCS7(decoded);
 
-            int size;
+        int size;
 
-            if (b_certchain == null) {
-                logger.debug("ConfigurationUtils: no certificate chain");
+        if (b_certchain == null) {
+            logger.debug("ConfigurationUtils: no certificate chain");
 
-                size = 0;
-
-            } else {
-                logger.debug("ConfigurationUtils: certificate chain:");
-                for (java.security.cert.X509Certificate cert : b_certchain) {
-                    logger.debug("ConfigurationUtils: - " + cert.getSubjectDN());
-                }
-
-                size = b_certchain.length;
-            }
-
-            cs.putInteger("preop." + tag + ".certchain.size", size);
-            for (int i = 0; i < size; i++) {
-                byte[] bb = b_certchain[i].getEncoded();
-                cs.putString("preop." + tag + ".certchain." + i,
-                        CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(bb)));
-            }
-
-            cs.commit(false);
-
-            byte[] bytes = CryptoUtil.base64Decode(certchain);
-            CryptoUtil.importCertificateChain(bytes);
+            size = 0;
 
         } else {
-            throw new IOException("importCertChain: Security Domain response does not contain certificate chain");
+            logger.debug("ConfigurationUtils: certificate chain:");
+            for (java.security.cert.X509Certificate cert : b_certchain) {
+                logger.debug("ConfigurationUtils: - " + cert.getSubjectDN());
+            }
+
+            size = b_certchain.length;
         }
+
+        cs.putInteger("preop." + tag + ".certchain.size", size);
+        for (int i = 0; i < size; i++) {
+            byte[] bb = b_certchain[i].getEncoded();
+            cs.putString("preop." + tag + ".certchain." + i,
+                    CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(bb)));
+        }
+
+        cs.commit(false);
+
+        byte[] bytes = CryptoUtil.base64Decode(certchain);
+        CryptoUtil.importCertificateChain(bytes);
     }
 
     public static String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
