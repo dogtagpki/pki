@@ -2608,14 +2608,11 @@ class Certutil:
                     raise Exception(
                         log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
             # Execute this "certutil" command
-            #
-            #     NOTE:  ALWAYS mask the command-line output of this command
-            #
-            with open(os.devnull, "w") as fnull:
-                subprocess.check_call(command, stdout=fnull, stderr=fnull)
+            subprocess.check_output(command, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as exc:
             config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
+                log.PKI_SUBPROCESS_ERROR_2, exc,
+                "Output (incl. stderr):\n" + exc.output.decode('utf-8'),
                 extra=config.PKI_INDENTATION_LEVEL_2)
             if critical_failure:
                 raise

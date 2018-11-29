@@ -98,6 +98,7 @@ PKI_ARCHIVE_MANIFEST_MESSAGE_1 = "archiving manifest into '%s'"
 PKI_OSERROR_1 = "OSError:  %s!"
 PKI_SHUTIL_ERROR_1 = "shutil.Error:  %s!"
 PKI_SUBPROCESS_ERROR_1 = "subprocess.CalledProcessError:  %s!"
+PKI_SUBPROCESS_ERROR_2 = "subprocess.CalledProcessError:  %s! %s"
 PKI_SYMLINK_ALREADY_EXISTS_1 = "Symlink '%s' already exists!"
 PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1 = \
     "Symlink '%s' already exists BUT it is NOT a symlink!"
