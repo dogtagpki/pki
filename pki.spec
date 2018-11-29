@@ -15,7 +15,7 @@ License:          GPLv2 and LGPLv2
 ExcludeArch:      s390 s390x
 %endif
 
-Version:          10.6.7
+Version:          10.6.8
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 # global           _phase -a1
 
@@ -682,6 +682,9 @@ Requires:         tomcatjss >= 7.2.1-4
 %else
 Requires:         tomcatjss >= 7.3.6
 %endif
+
+# https://pagure.io/freeipa/issue/7742
+Conflicts:        freeipa-server < 4.7.1
 
 %description -n   pki-server
 The PKI Server Package contains libraries and utilities needed by the
