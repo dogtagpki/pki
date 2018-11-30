@@ -7,14 +7,6 @@ URL:              http://www.dogtagpki.org/
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-# no arch exclusion
-%else
-# Exclude 's390' and 's390x' architectures since
-# 'esc' does not exist on these two platforms
-ExcludeArch:      s390 s390x
-%endif
-
 Version:          10.6.8
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 # global           _phase -a1
@@ -248,7 +240,7 @@ BuildRequires:    resteasy-jackson2-provider >= 3.0.17-1
 %endif
 
 %if 0%{?with_python2}
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
 # no pylint
 %else
 BuildRequires:    pylint
@@ -263,7 +255,7 @@ BuildRequires:    python2-pyflakes >= 1.2.3
 %endif  # with_python2
 
 %if 0%{?with_python3}
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
 # no pylint
 %else
 BuildRequires:    python3-pylint
@@ -890,12 +882,6 @@ Requires:         pki-console-theme >= %{version}
 %description -n   pki-console
 The PKI Console is a Java application used to administer PKI server.
 
-For deployment purposes, a PKI Console requires ONE AND ONLY ONE of the
-following "Mutually-Exclusive" PKI Theme packages:
-
-  * dogtag-pki-console-theme (Dogtag Certificate System deployments)
-  * redhat-pki-console-theme (Red Hat Certificate System deployments)
-
 %endif # with console
 
 %if %{with theme}
@@ -965,6 +951,7 @@ cd build
 %if 0%{?with_python3_default}
     -DWITH_PYTHON3_DEFAULT:BOOL=ON \
 %endif
+    -DPYTHON_EXECUTABLE=%{__python3} \
     -DWITH_TEST:BOOL=%{?with_test:ON}%{!?with_test:OFF} \
 %if ! %{with server} && ! %{with ca} && ! %{with kra} && ! %{with ocsp} && ! %{with tks} && ! %{with tps}
     -DWITH_SERVER:BOOL=OFF \
@@ -1090,7 +1077,7 @@ fi
     rm -f %{buildroot}%{_datadir}/pki/server/lib/slf4j-jdk14.jar
 %endif
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
 # no pylint
 %else
 
