@@ -65,7 +65,7 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.9
-%define redhat_release  7
+%define redhat_release  8
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
@@ -108,9 +108,9 @@ BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.28.3
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    nuxwdog-client-java >= 1.0.3-7
+BuildRequires:    nuxwdog-client-java >= 1.0.3-8
 %else
-BuildRequires:    nuxwdog-client-java >= 1.0.3-13
+BuildRequires:    nuxwdog-client-java >= 1.0.3-14
 %endif
 
 BuildRequires:    openldap-devel
@@ -493,9 +493,9 @@ Requires:         hostname
 Requires:         net-tools
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:    nuxwdog-client-java >= 1.0.3-7
+Requires:    nuxwdog-client-java >= 1.0.3-8
 %else
-Requires:    nuxwdog-client-java >= 1.0.3-13
+Requires:    nuxwdog-client-java >= 1.0.3-14
 %endif
 
 Requires:         policycoreutils
