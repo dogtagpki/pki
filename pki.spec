@@ -370,26 +370,21 @@ Summary:          %{brand} PKI Package
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI theme packages
-Requires:         %{vendor}-pki-server-theme >= %{version}
-Requires:         %{vendor}-pki-console-theme >= %{version}
+Requires:         %{vendor}-pki-server-theme = %{version}-%{release}
+Requires:         %{vendor}-pki-console-theme = %{version}-%{release}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI core packages
-Requires:         pki-base-java >= %{version}
-%if 0%{?with_python3}
-Requires:         pki-base-python3 >= %{version}
-%endif
-Requires:         pki-tools >= %{version}
-Requires:         pki-server >= %{version}
-Requires:         pki-ca >= %{version}
-Requires:         pki-kra >= %{version}
-Requires:         pki-ocsp >= %{version}
-Requires:         pki-tks >= %{version}
-Requires:         pki-tps >= %{version}
+Requires:         pki-ca = %{version}-%{release}
+Requires:         pki-kra = %{version}-%{release}
+Requires:         pki-ocsp = %{version}-%{release}
+Requires:         pki-tks = %{version}-%{release}
+Requires:         pki-tps = %{version}-%{release}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of PKI console
-Requires:         pki-console >= %{version}
+Requires:         pki-console = %{version}-%{release}
+Requires:         pki-javadoc = %{version}-%{release}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI clients
@@ -431,9 +426,15 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.1
+Requires:         jss >= 4.5.2-3
 %endif
 Requires:         nss >= 3.38.0
+
+# Ensure we end up with a useful installation
+Conflicts:        pki-symkey < %{version}-%{release}
+Conflicts:        pki-javadoc < %{version}-%{release}
+Conflicts:        pki-server-theme < %{version}-%{release}
+Conflicts:        pki-console-theme < %{version}-%{release}
 
 %description -n   pki-symkey
 The PKI Symmetric Key Java Package supplies various native
@@ -455,6 +456,12 @@ Requires:         python2-pki = %{version}-%{release}
 Requires(post):   python2-pki = %{version}-%{release}
 %endif  # with_python3_default
 
+# Ensure we end up with a useful installation
+Conflicts:        pki-symkey < %{version}-%{release}
+Conflicts:        pki-javadoc < %{version}-%{release}
+Conflicts:        pki-server-theme < %{version}-%{release}
+Conflicts:        pki-console-theme < %{version}-%{release}
+
 %description -n   pki-base
 The PKI Base Package contains the common and client libraries and utilities
 written in Python.
@@ -473,7 +480,7 @@ Provides:         pki-base-python2 = %{version}-%{release}
 %{?python_provide:%python_provide python2-pki}
 %endif
 
-Requires:         pki-base >= %{version}-%{release}
+Requires:         pki-base = %{version}-%{release}
 Requires:         python2-cryptography
 %if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
 Requires:         python-nss
@@ -504,7 +511,7 @@ Provides:         pki-base-python3 = %{version}-%{release}
 %{?python_provide:%python_provide python3-pki}
 %endif
 
-Requires:         pki-base >= %{version}-%{release}
+Requires:         pki-base = %{version}-%{release}
 Requires:         python3-cryptography
 Requires:         python3-lxml
 Requires:         python3-nss
@@ -542,10 +549,10 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.1
+Requires:         jss >= 4.5.2-3
 %endif
 Requires:         ldapjdk >= 4.20
-Requires:         pki-base >= %{version}-%{release}
+Requires:         pki-base = %{version}-%{release}
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
 # 'resteasy-base' is a subset of the complete set of
@@ -582,7 +589,7 @@ Summary:          PKI Tools Package
 
 Requires:         openldap-clients
 Requires:         nss-tools >= 3.36.1
-Requires:         pki-base-java >= %{version}-%{release}
+Requires:         pki-base-java = %{version}-%{release}
 
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make
@@ -609,9 +616,8 @@ Requires:         openssl >= 1.0.2k-11
 %else
 Requires:         openssl
 %endif
-Requires:         pki-symkey >= %{version}-%{release}
-Requires:         pki-base-java >= %{version}-%{release}
-Requires:         pki-tools >= %{version}-%{release}
+Requires:         pki-symkey = %{version}-%{release}
+Requires:         pki-tools = %{version}-%{release}
 
 Requires:         keyutils
 
@@ -694,7 +700,7 @@ following PKI subsystems:
 Summary:          PKI CA Package
 BuildArch:        noarch
 
-Requires:         pki-server >= %{version}-%{release}
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -718,7 +724,7 @@ where it obtains its own signing certificate from a public CA.
 Summary:          PKI KRA Package
 BuildArch:        noarch
 
-Requires:         pki-server >= %{version}-%{release}
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -748,7 +754,7 @@ since such archival would undermine non-repudiation properties of signing keys.
 Summary:          PKI OCSP Package
 BuildArch:        noarch
 
-Requires:         pki-server >= %{version}-%{release}
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -785,7 +791,7 @@ whenever they are issued or updated.
 Summary:          PKI TKS Package
 BuildArch:        noarch
 
-Requires:         pki-server >= %{version}-%{release}
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -815,7 +821,7 @@ behind the firewall with restricted access.
 
 Summary:          PKI TPS Package
 
-Requires:         pki-server >= %{version}-%{release}
+Requires:         pki-server = %{version}-%{release}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -856,6 +862,12 @@ smart card.
 Summary:          PKI Javadoc Package
 BuildArch:        noarch
 
+# Ensure we end up with a useful installation
+Conflicts:        pki-base < %{version}-%{release}
+Conflicts:        pki-symkey < %{version}-%{release}
+Conflicts:        pki-server-theme < %{version}-%{release}
+Conflicts:        pki-console-theme < %{version}-%{release}
+
 %description -n   pki-javadoc
 This package contains PKI API documentation.
 
@@ -872,8 +884,8 @@ BuildArch:        noarch
 BuildRequires:    idm-console-framework >= 1.2.0
 
 Requires:         idm-console-framework >= 1.2.0
-Requires:         pki-base-java >= %{version}
-Requires:         pki-console-theme >= %{version}
+Requires:         pki-base-java = %{version}-%{release}
+Requires:         pki-console-theme = %{version}-%{release}
 
 %description -n   pki-console
 The PKI Console is a Java application used to administer PKI server.
@@ -890,6 +902,12 @@ BuildArch:        noarch
 
 Provides:         pki-server-theme = %{version}-%{release}
 
+# Ensure we end up with a useful installation
+Conflicts:        pki-base < %{version}-%{release}
+Conflicts:        pki-symkey < %{version}-%{release}
+Conflicts:        pki-console-theme < %{version}-%{release}
+Conflicts:        pki-javadoc < %{version}-%{release}
+
 %description -n   %{vendor}-pki-server-theme
 This PKI Server Theme Package contains
 %{brand} textual and graphical user interface for PKI Server.
@@ -902,6 +920,12 @@ Summary:          %{brand} PKI Console Theme Package
 BuildArch:        noarch
 
 Provides:         pki-console-theme = %{version}-%{release}
+
+# Ensure we end up with a useful installation
+Conflicts:        pki-base < %{version}-%{release}
+Conflicts:        pki-symkey < %{version}-%{release}
+Conflicts:        pki-server-theme < %{version}-%{release}
+Conflicts:        pki-javadoc < %{version}-%{release}
 
 %description -n   %{vendor}-pki-console-theme
 This PKI Console Theme Package contains
