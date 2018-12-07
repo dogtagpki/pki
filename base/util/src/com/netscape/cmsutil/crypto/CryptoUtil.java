@@ -2859,21 +2859,6 @@ public class CryptoUtil {
 
         throw new NoSuchAlgorithmException();
     }
-
-    public static KeyWrapAlgorithm getKeyWrapAlgorithmFromOID(String wrapOID) throws NoSuchAlgorithmException {
-        OBJECT_IDENTIFIER oid = new OBJECT_IDENTIFIER(wrapOID);
-        if (oid.equals(KW_AES_KEY_WRAP_PAD))
-            return KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
-
-        if (oid.equals(KW_AES_CBC_PAD))
-            return KeyWrapAlgorithm.AES_CBC_PAD;
-
-        if (oid.equals(KW_DES_CBC_PAD))
-            return KeyWrapAlgorithm.DES3_CBC_PAD;
-
-        throw new NoSuchAlgorithmException();
-    }
-
 }
 
 // START ENABLE_ECC
