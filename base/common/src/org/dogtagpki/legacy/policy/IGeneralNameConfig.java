@@ -21,7 +21,7 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 
-import netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
 
 /**
  * Class that can be used to form general names from configuration file.

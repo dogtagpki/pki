@@ -18,9 +18,9 @@ import java.lang.Exception;
 import org.mozilla.jss.pkcs11.*;
 import org.mozilla.jss.pkcs11.PK11Token;
 
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.cmsutil.ocsp.*;
 import com.netscape.cmsutil.ocsp.Request;

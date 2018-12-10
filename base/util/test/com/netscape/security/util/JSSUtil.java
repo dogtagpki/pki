@@ -1,6 +1,6 @@
 package com.netscape.security.util;
 
-import netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.DerValue;
 
 import org.mozilla.jss.asn1.ASN1Template;
 import org.mozilla.jss.asn1.ASN1Util;

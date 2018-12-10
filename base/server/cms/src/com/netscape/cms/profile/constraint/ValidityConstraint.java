@@ -38,8 +38,8 @@ import com.netscape.cms.profile.def.RandomizedValidityDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
 import com.netscape.cms.profile.def.ValidityDefault;
 
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements the validity constraint.

@@ -27,7 +27,7 @@ import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * An interface represents a Registration Authority that is

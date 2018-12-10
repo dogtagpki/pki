@@ -34,7 +34,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
-import netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 /**
  * @author Endi S. Dewata

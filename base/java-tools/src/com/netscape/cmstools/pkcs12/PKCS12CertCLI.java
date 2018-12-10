@@ -23,8 +23,8 @@ import org.apache.commons.codec.binary.Hex;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.CLI;
 
-import netscape.security.pkcs.PKCS12;
-import netscape.security.pkcs.PKCS12CertInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12CertInfo;
 
 /**
  * @author Endi S. Dewata

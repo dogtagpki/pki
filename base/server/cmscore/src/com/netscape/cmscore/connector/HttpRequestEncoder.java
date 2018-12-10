@@ -26,7 +26,7 @@ import java.io.OptionalDataException;
 
 import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.cmscore.util.Debug;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * encodes a request by serializing it.

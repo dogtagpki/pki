@@ -33,7 +33,7 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.base.PKIService;
 
-import netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 /**
  * @author Ade Lee

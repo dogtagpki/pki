@@ -20,7 +20,7 @@ package com.netscape.cmscore.cert;
 import java.util.Comparator;
 import java.util.Date;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * Compares validity dates for use in sorting.

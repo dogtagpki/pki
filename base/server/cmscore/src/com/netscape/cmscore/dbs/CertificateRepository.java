@@ -59,11 +59,11 @@ import com.netscape.cmscore.security.JssSubsystem;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchResults;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * A class represents a certificate repository. It

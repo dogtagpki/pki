@@ -19,9 +19,9 @@ package com.netscape.cms.profile.input;
 
 import java.util.Locale;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.util.DerInputStream;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 

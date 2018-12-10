@@ -36,19 +36,19 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 
-import netscape.security.util.BitArray;
-import netscape.security.x509.CRLDistributionPoint;
-import netscape.security.x509.CRLDistributionPointsExtension;
-import netscape.security.x509.CRLDistributionPointsExtension.Reason;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.GeneralNamesException;
-import netscape.security.x509.RDN;
-import netscape.security.x509.URIName;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.BitArray;
+import org.mozilla.jss.netscape.security.x509.CRLDistributionPoint;
+import org.mozilla.jss.netscape.security.x509.CRLDistributionPointsExtension;
+import org.mozilla.jss.netscape.security.x509.CRLDistributionPointsExtension.Reason;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.GeneralNamesException;
+import org.mozilla.jss.netscape.security.x509.RDN;
+import org.mozilla.jss.netscape.security.x509.URIName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * The type of the distribution point or issuer name. The name is expressed
@@ -201,7 +201,7 @@ public class CRLDistributionPointsExt extends APolicyRule
                 "Extension into the certificate. See RFC 2459 (4.2.1.14). "
                 );
 
-        mExtParams = com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
+        mExtParams = org.mozilla.jss.netscape.security.util.Utils.getStringArrayFromVector(v);
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
@@ -219,7 +219,7 @@ public class CRLDistributionPointsExt extends APolicyRule
             throws EBaseException {
         // Register the CRL Distribution Points extension.
         try {
-            netscape.security.x509.OIDMap.addAttribute(
+            org.mozilla.jss.netscape.security.x509.OIDMap.addAttribute(
                     CRLDistributionPointsExtension.class.getName(),
                     CRLDistributionPointsExtension.OID,
                     CRLDistributionPointsExtension.NAME);

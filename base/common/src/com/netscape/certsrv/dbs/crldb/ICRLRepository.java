@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import netscape.security.x509.RevokedCertificate;
+import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.ModificationSet;

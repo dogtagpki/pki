@@ -21,7 +21,7 @@ import java.io.File;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 public final class Upgrade {
     public static void perform422to45(IConfigStore c)

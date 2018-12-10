@@ -29,7 +29,7 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepository;
 
 import netscape.ldap.LDAPEntry;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * An interface represents a CMS certificate repository.

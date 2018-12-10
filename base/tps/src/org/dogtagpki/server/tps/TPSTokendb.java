@@ -41,8 +41,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.tps.token.TokenStatus;
 
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /*
  * TPSTokendb class offers a collection of tokendb management convenience routines

@@ -30,8 +30,8 @@ import org.mozilla.jss.util.Password;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
-import netscape.security.pkcs.PKCS12;
-import netscape.security.pkcs.PKCS12Util;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 
 /**
  * Tool for exporting NSS database into PKCS #12 file

@@ -52,7 +52,7 @@ import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.tomcat.ExternalPrincipal;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 public class CertProcessor extends CAProcessor {
 

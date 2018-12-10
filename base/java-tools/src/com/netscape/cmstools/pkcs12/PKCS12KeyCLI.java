@@ -22,7 +22,7 @@ import org.apache.commons.codec.binary.Hex;
 
 import com.netscape.cmstools.cli.CLI;
 
-import netscape.security.pkcs.PKCS12KeyInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12KeyInfo;
 
 /**
  * @author Endi S. Dewata

@@ -22,9 +22,9 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequestListener;
 
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * Authority that handles certificates needed by the cert registration

@@ -41,20 +41,20 @@ import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.base.SubsystemRegistry;
 
-import netscape.security.extensions.AuthInfoAccessExtension;
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLNumberExtension;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.DeltaCRLIndicatorExtension;
-import netscape.security.x509.Extension;
-import netscape.security.x509.FreshestCRLExtension;
-import netscape.security.x509.HoldInstructionExtension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.IssuerAlternativeNameExtension;
-import netscape.security.x509.IssuingDistributionPointExtension;
-import netscape.security.x509.OIDMap;
-import netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLNumberExtension;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
+import org.mozilla.jss.netscape.security.x509.HoldInstructionExtension;
+import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
+import org.mozilla.jss.netscape.security.x509.IssuerAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.IssuingDistributionPointExtension;
+import org.mozilla.jss.netscape.security.x509.OIDMap;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 
 public class CMSCRLExtensions implements ICMSCRLExtensions {
     public static final String PROP_ENABLE = "enable";

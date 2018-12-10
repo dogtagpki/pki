@@ -21,7 +21,7 @@ import java.math.BigInteger;
 import java.security.PublicKey;
 import java.util.Enumeration;
 
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.ModificationSet;

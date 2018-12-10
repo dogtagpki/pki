@@ -49,7 +49,7 @@ import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-import netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 /**
  * This implementation implements SecurityData archival operations.

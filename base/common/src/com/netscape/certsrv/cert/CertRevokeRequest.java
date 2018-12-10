@@ -30,8 +30,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevocationReasonAdapter;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevocationReasonAdapter;
 
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.util.DateAdapter;

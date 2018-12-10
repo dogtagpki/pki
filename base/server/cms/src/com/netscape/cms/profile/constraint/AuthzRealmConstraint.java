@@ -34,7 +34,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.AuthzRealmDefault;
 import com.netscape.cms.profile.def.NoDefault;
 
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements the authz realm constraint.

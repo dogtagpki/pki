@@ -50,7 +50,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import netscape.ldap.LDAPConnection;
 
@@ -273,7 +273,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             format.setTimeZone(tz);
         String timeStamp = format.format(crl.getThisUpdate()).toString();
         namePrefix[0] += "-" + timeStamp;
-        if (((netscape.security.x509.X509CRLImpl) crl).isDeltaCRL()) {
+        if (((org.mozilla.jss.netscape.security.x509.X509CRLImpl) crl).isDeltaCRL()) {
             namePrefix[0] += "-delta";
             namePrefix[1] += "-delta";
         }
@@ -283,7 +283,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     private void createLink(String linkName, String fileName) {
         String cmd = "ln -s " + fileName + " " + linkName + ".new";
-        if (com.netscape.cmsutil.util.Utils.exec(cmd)) {
+        if (org.mozilla.jss.netscape.security.util.Utils.exec(cmd)) {
             File oldLink = new File(linkName + ".old");
             if (oldLink.exists()) { // remove old link if exists
                 oldLink.delete();

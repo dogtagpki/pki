@@ -32,10 +32,10 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 
 public class PKCS7CertExportCLI extends CLI {
 

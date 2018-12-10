@@ -81,14 +81,14 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Cert;
+import org.mozilla.jss.netscape.security.util.Cert;
 import com.netscape.cmsutil.util.HMACDigest;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import netscape.security.util.WrappingParams;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * A command-line utility used to generate a Certificate Request Message
@@ -979,7 +979,7 @@ public class CRMFPopClient {
         X500Name x500Name = new X500Name(dn);
         Name jssName = new Name();
 
-        for (netscape.security.x509.RDN rdn : x500Name.getNames()) {
+        for (org.mozilla.jss.netscape.security.x509.RDN rdn : x500Name.getNames()) {
 
             String rdnStr = rdn.toString();
             if (verbose) System.out.println("RDN: " + rdnStr);

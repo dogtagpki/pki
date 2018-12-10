@@ -57,8 +57,8 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.util.Debug;
 
 import netscape.ldap.LDAPConnection;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 public class PublisherProcessor implements
         IPublisherProcessor, IXcertPublisherProcessor {

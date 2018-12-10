@@ -6,8 +6,8 @@ import org.junit.Assert;
 import com.netscape.security.util.JSSUtil;
 import com.netscape.security.util.StringTestUtil;
 
-import netscape.security.util.DerValue;
-import netscape.security.x509.GenericValueConverter;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.x509.GenericValueConverter;
 
 public class GenericValueConverterTest {
 

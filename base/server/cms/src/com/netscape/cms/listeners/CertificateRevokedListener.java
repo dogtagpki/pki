@@ -48,7 +48,7 @@ import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
 
-import netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
 /**
  * a listener for every completed enrollment request

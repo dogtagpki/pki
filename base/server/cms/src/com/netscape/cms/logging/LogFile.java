@@ -81,7 +81,7 @@ import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import netscape.ldap.client.JDAPAVA;
 import netscape.ldap.client.JDAPFilter;

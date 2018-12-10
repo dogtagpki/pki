@@ -52,8 +52,9 @@ import com.netscape.cmscore.util.Debug;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.X509CertInfo;
+
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 //
 // A request record is the stored version of a request.

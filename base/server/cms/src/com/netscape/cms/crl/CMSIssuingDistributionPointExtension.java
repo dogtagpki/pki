@@ -31,16 +31,16 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
 
-import netscape.security.util.BitArray;
-import netscape.security.x509.Extension;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.GeneralNamesException;
-import netscape.security.x509.IssuingDistributionPoint;
-import netscape.security.x509.IssuingDistributionPointExtension;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.RDN;
-import netscape.security.x509.URIName;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.util.BitArray;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.GeneralNamesException;
+import org.mozilla.jss.netscape.security.x509.IssuingDistributionPoint;
+import org.mozilla.jss.netscape.security.x509.IssuingDistributionPointExtension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.RDN;
+import org.mozilla.jss.netscape.security.x509.URIName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * This represents a issuing distribution point extension.

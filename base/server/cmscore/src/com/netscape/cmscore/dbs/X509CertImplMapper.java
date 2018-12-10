@@ -27,11 +27,11 @@ import java.util.Vector;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.Extension;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.AttributeNameHelper;

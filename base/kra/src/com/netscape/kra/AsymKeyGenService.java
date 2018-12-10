@@ -42,7 +42,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.dbs.KeyRecord;
 
-import netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 /**
  * Service class to handle asymmetric key generation requests.

@@ -39,7 +39,7 @@ import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * An interface represents key recovery authority. The

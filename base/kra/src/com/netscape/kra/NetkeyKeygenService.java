@@ -66,10 +66,10 @@ import com.netscape.cms.servlet.key.KeyRecordParser;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 /**
  * A class representing keygen/archival request procesor for requests
@@ -213,7 +213,7 @@ public class NetkeyKeygenService implements IService {
         request.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, "");
 
         //        CMS.debug("NetkeyKeygenService: received DRM-trans-wrapped DES key ="+rWrappedDesKeyString);
-        wrapped_des_key = com.netscape.cmsutil.util.Utils.SpecialDecode(rWrappedDesKeyString);
+        wrapped_des_key = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rWrappedDesKeyString);
         CMS.debug("NetkeyKeygenService: wrapped_des_key specialDecoded");
 
 
@@ -292,7 +292,7 @@ public class NetkeyKeygenService implements IService {
                     //CMS.debug("NetkeyKeygenService: public key binary length ="+ publicKeyData.length);
                     if (rKeytype.equals("EC")) {
                         /* url encode */
-                        PubKey = com.netscape.cmsutil.util.Utils.SpecialEncode(publicKeyData);
+                        PubKey = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(publicKeyData);
                         CMS.debug("NetkeyKeygenService: EC PubKey special encoded");
                     } else {
                         PubKey = base64Encode(publicKeyData);
@@ -358,7 +358,7 @@ public class NetkeyKeygenService implements IService {
                    }
                 */
                 String wrappedPrivKeyString = /*base64Encode(wrapped);*/
-                com.netscape.cmsutil.util.Utils.SpecialEncode(wrapped);
+                org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(wrapped);
                 if (wrappedPrivKeyString == null) {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
                     CMS.debug("NetkeyKeygenService: failed generating wrapped private key");
@@ -383,7 +383,7 @@ public class NetkeyKeygenService implements IService {
                             PubKey));
                 }
 
-                iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
+                iv_s = /*base64Encode(iv);*/org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);
 
             } catch (Exception e) {

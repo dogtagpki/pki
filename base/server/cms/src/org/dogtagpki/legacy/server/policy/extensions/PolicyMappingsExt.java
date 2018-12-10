@@ -36,13 +36,13 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.cert.CertUtils;
 
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificatePolicyId;
-import netscape.security.x509.CertificatePolicyMap;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.PolicyMappingsExtension;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyId;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyMap;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.PolicyMappingsExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Policy Mappings Extension Policy

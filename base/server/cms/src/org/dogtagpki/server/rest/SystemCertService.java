@@ -23,7 +23,7 @@ import java.security.Principal;
 
 import javax.ws.rs.core.Response;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.crypto.X509Certificate;
@@ -40,8 +40,8 @@ import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.certsrv.system.SystemCertResource;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This is the class used to list, retrieve and modify system certificates for all Java subsystems.

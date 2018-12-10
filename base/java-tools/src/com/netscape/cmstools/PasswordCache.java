@@ -43,7 +43,7 @@ import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * Tool for interacting with the PWcache

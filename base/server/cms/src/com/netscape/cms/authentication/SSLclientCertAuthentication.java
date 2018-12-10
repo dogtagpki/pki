@@ -42,8 +42,8 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.Certificates;
 
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * Certificate server SSL client authentication.

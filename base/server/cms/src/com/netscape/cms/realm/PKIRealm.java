@@ -26,7 +26,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  *  PKI Realm
@@ -101,7 +101,7 @@ public class PKIRealm extends RealmBase {
                 X509Certificate cert = certs[i];
                 logger.info(" - " + cert.getSubjectDN());
 
-                // Convert sun.security.x509.X509CertImpl to netscape.security.x509.X509CertImpl
+                // Convert sun.security.x509.X509CertImpl to org.mozilla.jss.netscape.security.x509.X509CertImpl
                 certImpls[i] = new X509CertImpl(cert.getEncoded());
             }
             IAuthSubsystem authSub = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);

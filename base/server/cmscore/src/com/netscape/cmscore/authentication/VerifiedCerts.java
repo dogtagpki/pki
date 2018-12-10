@@ -19,7 +19,7 @@ package com.netscape.cmscore.authentication;
 
 import java.math.BigInteger;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * class storing verified certificates.

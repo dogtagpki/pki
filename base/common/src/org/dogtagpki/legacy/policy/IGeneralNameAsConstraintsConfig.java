@@ -19,7 +19,7 @@ package org.dogtagpki.legacy.policy;
 
 import java.util.Vector;
 
-import netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
 
 /**
  * Class that can be used to form general names from configuration file.

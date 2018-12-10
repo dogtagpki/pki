@@ -3,7 +3,7 @@ package com.netscape.security.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.DerValue;
 
 public class UTF8StringTest {
 

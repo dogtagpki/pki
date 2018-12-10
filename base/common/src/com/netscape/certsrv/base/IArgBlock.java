@@ -21,7 +21,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Enumeration;
 
-import netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 
 /**
  * This interface defines the abstraction for the generic collection

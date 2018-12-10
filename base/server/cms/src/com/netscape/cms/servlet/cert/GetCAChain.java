@@ -46,9 +46,9 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
 
 /**
  * Retrieve the Certificates comprising the CA Chain for this CA.

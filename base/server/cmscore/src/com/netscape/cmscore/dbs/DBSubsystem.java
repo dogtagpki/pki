@@ -52,7 +52,7 @@ import netscape.ldap.LDAPObjectClassSchema;
 import netscape.ldap.LDAPSchema;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv3;
-import netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 
 /**
  * A class represents the database subsystem that manages

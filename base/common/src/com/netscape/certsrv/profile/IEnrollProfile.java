@@ -87,7 +87,7 @@ public interface IEnrollProfile extends IProfile {
      * Name of request attribute that stores the End-User Supplied
      * Key.
      * <p>
-     * The value is of type netscape.security.x509.CertificateX509Key
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateX509Key
      */
     public static final String REQUEST_KEY = "req_key";
 
@@ -95,7 +95,7 @@ public interface IEnrollProfile extends IProfile {
      * Name of request attribute that stores the End-User Supplied
      * Subject Name.
      * <p>
-     * The value is of type netscape.security.x509.CertificateSubjectName
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateSubjectName
      */
     public static final String REQUEST_SUBJECT_NAME = "req_subject_name";
 
@@ -103,7 +103,7 @@ public interface IEnrollProfile extends IProfile {
      * Name of request attribute that stores the End-User Supplied
      * Validity.
      * <p>
-     * The value is of type netscape.security.x509.CertificateValidity
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateValidity
      */
     public static final String REQUEST_VALIDITY = "req_validity";
 
@@ -111,7 +111,7 @@ public interface IEnrollProfile extends IProfile {
      * Name of request attribute that stores the End-User Supplied
      * Signing Algorithm.
      * <p>
-     * The value is of type netscape.security.x509.CertificateAlgorithmId
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId
      */
     public static final String REQUEST_SIGNING_ALGORITHM = "req_signing_alg";
 
@@ -119,7 +119,7 @@ public interface IEnrollProfile extends IProfile {
      * Name of request attribute that stores the End-User Supplied
      * Extensions.
      * <p>
-     * The value is of type netscape.security.x509.CertificateExtensions
+     * The value is of type org.mozilla.jss.netscape.security.x509.CertificateExtensions
      */
     public static final String REQUEST_EXTENSIONS = "req_extensions";
 
@@ -136,14 +136,14 @@ public interface IEnrollProfile extends IProfile {
      * Name of request attribute that stores the certificate template
      * that will be signed and then become a certificate.
      * <p>
-     * The value is of type netscape.security.x509.X509CertInfo
+     * The value is of type org.mozilla.jss.netscape.security.x509.X509CertInfo
      */
     public static final String REQUEST_CERTINFO = "req_x509info";
 
     /**
      * Name of request attribute that stores the issued certificate.
      * <p>
-     * The value is of type netscape.security.x509.X509CertImpl
+     * The value is of type org.mozilla.jss.netscape.security.x509.X509CertImpl
      */
     public static final String REQUEST_ISSUED_CERT = "req_issued_cert";
 

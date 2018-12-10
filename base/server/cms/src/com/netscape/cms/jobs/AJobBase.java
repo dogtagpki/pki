@@ -34,7 +34,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.notification.EmailTemplate;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * This abstract class is a base job for real job extentions for the

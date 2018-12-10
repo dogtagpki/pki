@@ -22,8 +22,8 @@ import java.io.PushbackReader;
 import java.io.StringReader;
 import java.util.Vector;
 
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.ldap.ELdapException;

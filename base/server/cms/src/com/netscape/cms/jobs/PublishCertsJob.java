@@ -42,7 +42,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * a job for the Jobs Scheduler. This job checks in the internal ldap

@@ -40,11 +40,11 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * This class implements an OCSP utility.

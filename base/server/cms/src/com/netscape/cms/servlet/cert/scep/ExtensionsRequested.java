@@ -25,10 +25,10 @@ import java.security.cert.CertificateException;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.CertAttrSet;
-import netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.x509.CertAttrSet;
+import org.mozilla.jss.netscape.security.x509.Extension;
 
 public class ExtensionsRequested implements CertAttrSet {
 

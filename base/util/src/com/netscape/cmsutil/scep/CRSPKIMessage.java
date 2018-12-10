@@ -49,7 +49,7 @@ import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.pkix.cert.CertificateInfo;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
-import netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 
 public class CRSPKIMessage {
 

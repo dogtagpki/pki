@@ -38,7 +38,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * An abstract class represents an authorization manager that governs the

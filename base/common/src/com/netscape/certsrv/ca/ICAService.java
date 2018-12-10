@@ -22,9 +22,9 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.request.IRequest;
 
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * An interface representing a CA request services.

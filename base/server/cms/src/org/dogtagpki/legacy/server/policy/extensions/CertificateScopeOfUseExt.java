@@ -36,13 +36,13 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 
-import netscape.security.extensions.CertificateScopeEntry;
-import netscape.security.extensions.CertificateScopeOfUseExtension;
-import netscape.security.util.BigInt;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.extensions.CertificateScopeEntry;
+import org.mozilla.jss.netscape.security.extensions.CertificateScopeOfUseExtension;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Certificate Scope Of Use extension policy. This extension
@@ -95,7 +95,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
             v.addElement(PROP_ENTRY
                     + Integer.toString(i) + "_" + PROP_PORT_NUMBER + ";string;" + "The port number (optional).");
         }
-        return com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
+        return org.mozilla.jss.netscape.security.util.Utils.getStringArrayFromVector(v);
     }
 
     /**

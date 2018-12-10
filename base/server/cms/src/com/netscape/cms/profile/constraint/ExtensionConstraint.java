@@ -34,8 +34,8 @@ import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserExtensionDefault;
 import com.netscape.cmscore.cert.CertUtils;
 
-import netscape.security.x509.Extension;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements the general extension constraint.
