@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
-import netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 
@@ -28,7 +28,7 @@ import com.netscape.certsrv.base.ICRLPrettyPrint;
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */
-public class CrlPrettyPrint extends netscape.security.util.CrlPrettyPrint implements ICRLPrettyPrint {
+public class CrlPrettyPrint extends org.mozilla.jss.netscape.security.util.CrlPrettyPrint implements ICRLPrettyPrint {
 
     public CrlPrettyPrint(X509CRLImpl crl) {
         super(crl);

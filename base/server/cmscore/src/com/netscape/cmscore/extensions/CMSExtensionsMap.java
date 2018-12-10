@@ -20,7 +20,7 @@ package com.netscape.cmscore.extensions;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;

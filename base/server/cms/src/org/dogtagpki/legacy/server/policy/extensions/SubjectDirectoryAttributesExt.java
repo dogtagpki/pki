@@ -35,15 +35,15 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AVAValueConverter;
-import netscape.security.x509.Attribute;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.SubjectDirAttributesExtension;
-import netscape.security.x509.X500NameAttrMap;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.AVAValueConverter;
+import org.mozilla.jss.netscape.security.x509.Attribute;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.SubjectDirAttributesExtension;
+import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Policy to add the subject directory attributes extension.
@@ -238,7 +238,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
                 +
                 ";Adds Subject Directory Attributes extension. See RFC 2459 (4.2.1.9). It's not recommended as an essential part of the profile, but may be used in local environments.");
 
-        mEPI = com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
+        mEPI = org.mozilla.jss.netscape.security.util.Utils.getStringArrayFromVector(v);
     }
 
     private SubjectDirAttributesExtension formExt(IRequest req)

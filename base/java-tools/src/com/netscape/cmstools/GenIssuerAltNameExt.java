@@ -20,18 +20,18 @@ package com.netscape.cmstools;
 import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
 
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.DNSName;
-import netscape.security.x509.GeneralNameInterface;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.IPAddressName;
-import netscape.security.x509.IssuerAlternativeNameExtension;
-import netscape.security.x509.OIDName;
-import netscape.security.x509.RFC822Name;
-import netscape.security.x509.URIName;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.DNSName;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.IPAddressName;
+import org.mozilla.jss.netscape.security.x509.IssuerAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.OIDName;
+import org.mozilla.jss.netscape.security.x509.RFC822Name;
+import org.mozilla.jss.netscape.security.x509.URIName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * This program generates an issuer alternative name extension

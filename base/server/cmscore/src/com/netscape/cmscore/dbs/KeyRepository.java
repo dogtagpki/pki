@@ -40,7 +40,7 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.repository.IRepository;
 
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * A class represents a Key repository. This is the container of

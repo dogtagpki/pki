@@ -129,7 +129,7 @@ public class OCSPInstallerService extends SystemConfigService {
         }
 
         // this could be a chain
-        java.security.cert.X509Certificate[] certs = com.netscape.cmsutil.util.Cert.mapCertFromPKCS7(b64);
+        java.security.cert.X509Certificate[] certs = org.mozilla.jss.netscape.security.util.Cert.mapCertFromPKCS7(b64);
         if (certs == null || certs.length == 0) {
             return;
         }

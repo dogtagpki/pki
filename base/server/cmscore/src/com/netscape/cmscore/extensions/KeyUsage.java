@@ -27,10 +27,10 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.extensions.EExtensionsException;
 import com.netscape.certsrv.extensions.ICMSExtension;
 
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.Extension;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 
 public class KeyUsage implements ICMSExtension {
 

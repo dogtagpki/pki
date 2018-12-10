@@ -27,8 +27,8 @@ package com.netscape.cms.selftests.ca;
 import java.security.cert.CertificateParsingException;
 import java.util.Locale;
 
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;

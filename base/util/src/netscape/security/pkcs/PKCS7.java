@@ -35,7 +35,7 @@ import java.util.Vector;
 
 import org.apache.commons.codec.binary.Base64;
 
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;

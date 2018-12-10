@@ -40,12 +40,12 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.cert.CertUtils;
 
-import netscape.security.extensions.GenericASN1Extension;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.OIDMap;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.extensions.GenericASN1Extension;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.OIDMap;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Private Integer extension policy.
@@ -266,7 +266,7 @@ public class GenericASN1Ext extends APolicyRule implements
             ObjectIdentifier tmpid = new ObjectIdentifier(oid);
 
             if (OIDMap.getName(tmpid) == null)
-                OIDMap.addAttribute("netscape.security.extensions.GenericASN1Extension", oid, name);
+                OIDMap.addAttribute("org.mozilla.jss.netscape.security.extensions.GenericASN1Extension", oid, name);
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE, "" + e.toString());
         }

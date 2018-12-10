@@ -151,7 +151,7 @@ public class TKSKnownSessionKey
             if (tksConfig != null) {
                 try {
                     defKeySetMacKey = tksConfig.getString("defKeySet.mac_key");
-                    byte defMacKey[] = com.netscape.cmsutil.util.Utils.SpecialDecode(defKeySetMacKey);
+                    byte defMacKey[] = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(defKeySetMacKey);
                     if (!Arrays.equals(mMacKey, defMacKey)) {
                         defKeySetMacKey = null;
                     }
@@ -244,7 +244,7 @@ public class TKSKnownSessionKey
                                                                      EInvalidSelfTestException {
         String stringValue = getConfigString(name);
 
-        byte byteValue[] = com.netscape.cmsutil.util.Utils.SpecialDecode(stringValue);
+        byte byteValue[] = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(stringValue);
         if (byteValue == null) {
             mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(),
                                     CMS.getLogMessage("SELFTESTS_MISSING_NAME",

@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
@@ -33,7 +34,7 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 
-import netscape.security.x509.RevokedCertificate;
+import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 /**
  * A class represents a CRL repository. It stores all the

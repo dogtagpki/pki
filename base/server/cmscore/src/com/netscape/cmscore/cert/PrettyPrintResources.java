@@ -19,8 +19,8 @@ package com.netscape.cmscore.cert;
 
 import java.util.ListResourceBundle;
 
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 
 /**
  * Resource Boundle for the Pretty Print

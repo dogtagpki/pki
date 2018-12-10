@@ -34,11 +34,11 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 
-import netscape.security.extensions.ExtendedKeyUsageExtension;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * This implements the extended key usage extension.
@@ -219,7 +219,7 @@ public class ExtendedKeyUsageExt extends APolicyRule
                 ";Adds Extended Key Usage Extension. Defined in RFC 2459 " +
                 "(4.2.1.13)");
 
-        mParams = com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
+        mParams = org.mozilla.jss.netscape.security.util.Utils.getStringArrayFromVector(v);
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {

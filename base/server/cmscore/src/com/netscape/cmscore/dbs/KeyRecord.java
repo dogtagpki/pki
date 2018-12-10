@@ -35,7 +35,7 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyState;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 
-import netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 /**
  * A class represents a Key record. It maintains the key

@@ -94,17 +94,17 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import netscape.security.extensions.CertInfo;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.extensions.CertInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 //import com.netscape.cmscore.util.*;
 //////////////////////
@@ -1084,10 +1084,10 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                 throw new EMissingCredential(
                                         CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
                             }
-                            netscape.security.x509.X500Name clientPrincipal =
+                            org.mozilla.jss.netscape.security.x509.X500Name clientPrincipal =
                                     (X500Name) clientCert.getSubjectDN();
 
-                            netscape.security.x509.X500Name cmcPrincipal =
+                            org.mozilla.jss.netscape.security.x509.X500Name cmcPrincipal =
                                     (X500Name) x509Certs[0].getSubjectDN();
 
                             // capture signer principal to be checked against
@@ -1173,7 +1173,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                         }
 
                         IAuthToken tempToken = new AuthToken(null);
-                        netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
+                        org.mozilla.jss.netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
                         String ID = tempPrincipal.getName(); //tempToken.get("userid");
                         CMS.debug(method + " Principal name = " + ID);
                         authToken.set(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, ID);
@@ -1233,7 +1233,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         String method = "CMCUserSignedAuth:createAuditSubjectFromCert: ";
 
         // capture auditSubjectID first in case of failure
-        netscape.security.x509.X500Name principal =
+        org.mozilla.jss.netscape.security.x509.X500Name principal =
                 (X500Name) cert.getSubjectDN();
 
         CMS.debug(method + " Principal name = " + principal.toString());

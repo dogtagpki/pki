@@ -41,25 +41,25 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 
-import netscape.security.extensions.KerberosName;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CIDRNetmask;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.DNSName;
-import netscape.security.x509.EDIPartyName;
-import netscape.security.x509.Extension;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNameInterface;
-import netscape.security.x509.IPAddressName;
-import netscape.security.x509.OIDName;
-import netscape.security.x509.OtherName;
-import netscape.security.x509.RFC822Name;
-import netscape.security.x509.URIName;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.extensions.KerberosName;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.CIDRNetmask;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.DNSName;
+import org.mozilla.jss.netscape.security.x509.EDIPartyName;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
+import org.mozilla.jss.netscape.security.x509.IPAddressName;
+import org.mozilla.jss.netscape.security.x509.OIDName;
+import org.mozilla.jss.netscape.security.x509.OtherName;
+import org.mozilla.jss.netscape.security.x509.RFC822Name;
+import org.mozilla.jss.netscape.security.x509.URIName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements an enrollment default policy.

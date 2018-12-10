@@ -27,7 +27,7 @@ import java.security.PublicKey;
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */
-public class PubKeyPrettyPrint extends netscape.security.util.PubKeyPrettyPrint {
+public class PubKeyPrettyPrint extends org.mozilla.jss.netscape.security.util.PubKeyPrettyPrint {
 
     public PubKeyPrettyPrint(PublicKey key) {
         super(key);

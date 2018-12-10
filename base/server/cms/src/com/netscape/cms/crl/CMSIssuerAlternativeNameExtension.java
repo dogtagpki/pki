@@ -30,22 +30,22 @@ import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.DNSName;
-import netscape.security.x509.EDIPartyName;
-import netscape.security.x509.Extension;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.IPAddressName;
-import netscape.security.x509.IssuerAlternativeNameExtension;
-import netscape.security.x509.OIDName;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.RFC822Name;
-import netscape.security.x509.URIName;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.DNSName;
+import org.mozilla.jss.netscape.security.x509.EDIPartyName;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.IPAddressName;
+import org.mozilla.jss.netscape.security.x509.IssuerAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.OIDName;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.RFC822Name;
+import org.mozilla.jss.netscape.security.x509.URIName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * This represents a issuer alternative name extension.

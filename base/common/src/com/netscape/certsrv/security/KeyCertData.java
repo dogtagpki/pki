@@ -21,8 +21,8 @@ import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.Properties;
 
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 

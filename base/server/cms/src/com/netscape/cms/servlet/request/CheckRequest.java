@@ -34,10 +34,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.pkcs.PKCS7;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
@@ -80,7 +80,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * Check the status of a certificate request
@@ -392,9 +392,9 @@ public class CheckRequest extends CMSServlet {
 
                                 try {
                                     PKCS7 p7 = new PKCS7(new AlgorithmId[0],
-                                            new netscape.security.pkcs.ContentInfo(new byte[0]),
+                                            new org.mozilla.jss.netscape.security.pkcs.ContentInfo(new byte[0]),
                                             certsInChain,
-                                            new netscape.security.pkcs.SignerInfo[0]);
+                                            new org.mozilla.jss.netscape.security.pkcs.SignerInfo[0]);
                                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
                                     p7.encodeSignedData(bos);

@@ -18,7 +18,7 @@
 
 package org.dogtagpki.server.tps.cms;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import java.util.Hashtable;
 
 import org.dogtagpki.server.connector.IRemoteRequest;

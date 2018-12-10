@@ -39,12 +39,12 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPv3;
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AVA;
-import netscape.security.x509.RDN;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500NameAttrMap;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.AVA;
+import org.mozilla.jss.netscape.security.x509.RDN;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
 
 /**
  * Maps a Subject name to an entry in the LDAP server.

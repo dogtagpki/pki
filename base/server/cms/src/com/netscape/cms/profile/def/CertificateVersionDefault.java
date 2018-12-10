@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
 
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;

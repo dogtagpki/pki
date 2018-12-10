@@ -68,7 +68,7 @@ import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.CertRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * @author alee

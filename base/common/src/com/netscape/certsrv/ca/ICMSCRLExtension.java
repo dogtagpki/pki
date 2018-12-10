@@ -20,7 +20,7 @@ package com.netscape.certsrv.ca;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 
-import netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.Extension;
 
 /**
  * An interface representing a CRL extension plugin.

@@ -27,9 +27,9 @@ import java.util.Vector;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPDN;
 import netscape.ldap.LDAPEntry;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AVA;
-import netscape.security.x509.LdapV3DNStrConverter;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.AVA;
+import org.mozilla.jss.netscape.security.x509.LdapV3DNStrConverter;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;

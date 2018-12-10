@@ -23,16 +23,16 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.util.BitArray;
-import netscape.security.x509.CRLDistributionPoint;
-import netscape.security.x509.CRLDistributionPointsExtension;
-import netscape.security.x509.CRLDistributionPointsExtension.Reason;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.GeneralNamesException;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.RDN;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.BitArray;
+import org.mozilla.jss.netscape.security.x509.CRLDistributionPoint;
+import org.mozilla.jss.netscape.security.x509.CRLDistributionPointsExtension;
+import org.mozilla.jss.netscape.security.x509.CRLDistributionPointsExtension.Reason;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.GeneralNamesException;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.RDN;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;

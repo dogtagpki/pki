@@ -28,9 +28,9 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 
 import netscape.ldap.LDAPConnection;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 /**
  * Default crl mapper.

@@ -106,7 +106,7 @@ import com.netscape.cms.servlet.tks.SecureChannelProtocol;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
 
-import netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 public class TPSProcessor {
 

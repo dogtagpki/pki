@@ -343,7 +343,7 @@ public class TokenServlet extends CMSServlet {
             missingParam = true;
         }
 
-        keyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
+        keyInfo = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKeyInfo);
 
         String keySet = req.getParameter(IRemoteRequest.TOKEN_KEYSET);
 
@@ -387,7 +387,7 @@ public class TokenServlet extends CMSServlet {
         audit(auditMessage);
 
         if (!missingParam) {
-            xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
+            xCUID = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rCUID);
 
             if (xCUID == null || xCUID.length != 10) {
                 badParams += " CUID length,";
@@ -401,14 +401,14 @@ public class TokenServlet extends CMSServlet {
                 missingParam = true;
             }
 
-            xKDD = com.netscape.cmsutil.util.Utils.SpecialDecode(rKDD);
+            xKDD = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKDD);
             if (xKDD == null || xKDD.length != 10) {
                 badParams += " KDD length,";
                 CMS.debug("TokenServlet.processComputeSessionKeySCP02: Invalid KDD length");
                 missingParam = true;
             }
 
-            keyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
+            keyInfo = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKeyInfo);
             if (keyInfo == null || keyInfo.length != 2) {
                 badParams += " KeyInfo length,";
                 CMS.debug("TokenServlet.processComputeSessionKeySCP02: Invalid key info length.");
@@ -527,11 +527,11 @@ public class TokenServlet extends CMSServlet {
 
         if (selectedToken != null && keyNickName != null && transportKeyName != null && missingSettingException == null) {
             try {
-                macKeyArray = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                macKeyArray = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
                         + keySet + ".mac_key"));
 
-                sequenceCounter = com.netscape.cmsutil.util.Utils.SpecialDecode(rSequenceCounter);
-                derivationConstant = com.netscape.cmsutil.util.Utils.SpecialDecode(rDerivationConstant);
+                sequenceCounter = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rSequenceCounter);
+                derivationConstant = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rDerivationConstant);
 
                 //Use old style for the moment.
                 //ToDo: We need to use the nistXP800 params we have collected and send them down to symkey
@@ -627,7 +627,7 @@ public class TokenServlet extends CMSServlet {
                     }
 
                     dek_wrapped_desKeyString =
-                            com.netscape.cmsutil.util.Utils.SpecialEncode(encDesKey);
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(encDesKey);
 
                     byte[] keycheck =
                             SessionKey.ComputeKeyCheck(desKey);
@@ -638,7 +638,7 @@ public class TokenServlet extends CMSServlet {
                     }
 
                     keycheck_s =
-                            com.netscape.cmsutil.util.Utils.SpecialEncode(keycheck);
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(keycheck);
 
                     //use DRM transport cert to wrap desKey
                     String drmTransNickname = CMS.getConfigStore().getString("tks.drm_transport_cert_nickname", "");
@@ -690,7 +690,7 @@ public class TokenServlet extends CMSServlet {
 
         if (session_key != null && session_key.length > 0 && errorFound == false) {
             outputString =
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(session_key);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(session_key);
         } else {
 
             status = "1";
@@ -743,7 +743,7 @@ public class TokenServlet extends CMSServlet {
 
                 if (drm_trans_wrapped_desKey != null && drm_trans_wrapped_desKey.length > 0) {
                     drm_trans_wrapped_desKeyString =
-                            com.netscape.cmsutil.util.Utils.SpecialEncode(drm_trans_wrapped_desKey);
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(drm_trans_wrapped_desKey);
                 }
 
                 StringBuffer sb = new StringBuffer();
@@ -970,7 +970,7 @@ public class TokenServlet extends CMSServlet {
 
         if (!missingParam) {
 
-            xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
+            xCUID = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rCUID);
             if (xCUID == null || xCUID.length != 10) {
                 badParams += " CUID length,";
                 CMS.debug("TokenServlet: Invalid CUID length");
@@ -978,28 +978,28 @@ public class TokenServlet extends CMSServlet {
             }
 
             // AC: KDF SPEC CHANGE - read new KDD parameter from TPS
-            xKDD = com.netscape.cmsutil.util.Utils.SpecialDecode(rKDD);
+            xKDD = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKDD);
             if (xKDD == null || xKDD.length != 10) {
                 badParams += " KDD length,";
                 CMS.debug("TokenServlet: Invalid KDD length");
                 missingParam = true;
             }
 
-            xkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
+            xkeyInfo = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKeyInfo);
             if (xkeyInfo == null || xkeyInfo.length != 2) {
                 badParams += " KeyInfo length,";
                 CMS.debug("TokenServlet: Invalid key info length.");
                 missingParam = true;
             }
             xcard_challenge =
-                    com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_challenge);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rcard_challenge);
             if (xcard_challenge == null || xcard_challenge.length != 8) {
                 badParams += " card_challenge length,";
                 CMS.debug("TokenServlet: Invalid card challenge length.");
                 missingParam = true;
             }
 
-            xhost_challenge = com.netscape.cmsutil.util.Utils.SpecialDecode(rhost_challenge);
+            xhost_challenge = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rhost_challenge);
             if (xhost_challenge == null || xhost_challenge.length != 8) {
                 badParams += " host_challenge length,";
                 CMS.debug("TokenServlet: Invalid host challenge length");
@@ -1010,10 +1010,10 @@ public class TokenServlet extends CMSServlet {
 
         if (!missingParam) {
             card_challenge =
-                    com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_challenge);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rcard_challenge);
 
-            host_challenge = com.netscape.cmsutil.util.Utils.SpecialDecode(rhost_challenge);
-            keyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
+            host_challenge = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rhost_challenge);
+            keyInfo = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKeyInfo);
 
             // AC: KDF SPEC CHANGE - read new config file values (needed for symkey)
             //ToDo: Will use these values after completing next ticket
@@ -1063,7 +1063,7 @@ public class TokenServlet extends CMSServlet {
                 try {
 
                     byte macKeyArray[] =
-                            com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
                                     + keySet + ".mac_key"));
                     CMS.debug("TokenServlet about to try ComputeSessionKey selectedToken="
                             + selectedToken + " keyNickName=" + keyNickName);
@@ -1084,7 +1084,7 @@ public class TokenServlet extends CMSServlet {
                     }
 
                     byte encKeyArray[] =
-                            com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
                                     + keySet + ".auth_key"));
                     SymmetricKey encKey = protocol.computeSessionKey_SCP01(SecureChannelProtocol.encType,
                             selectedToken,
@@ -1112,7 +1112,7 @@ public class TokenServlet extends CMSServlet {
                         CMS.debug("TokenServlet: calling ComputeKekKey");
 
                         byte kekKeyArray[] =
-                                com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                                org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
                                         + keySet + ".kek_key"));
 
                         kek_key = protocol.computeKEKKey_SCP01(selectedToken,
@@ -1186,7 +1186,7 @@ public class TokenServlet extends CMSServlet {
                         */
 
                         kek_wrapped_desKeyString =
-                                com.netscape.cmsutil.util.Utils.SpecialEncode(encDesKey);
+                                org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(encDesKey);
 
                         // get keycheck
 
@@ -1196,7 +1196,7 @@ public class TokenServlet extends CMSServlet {
                         CMS.debug(keycheck);
                         */
                         keycheck_s =
-                                com.netscape.cmsutil.util.Utils.SpecialEncode(keycheck);
+                                org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(keycheck);
 
                         //use DRM transport cert to wrap desKey
                         String drmTransNickname = CMS.getConfigStore().getString("tks.drm_transport_cert_nickname", "");
@@ -1236,7 +1236,7 @@ public class TokenServlet extends CMSServlet {
                     } // if (serversideKeygen == true)
 
                     byte authKeyArray[] =
-                            com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
                                     + keySet + ".auth_key"));
 
                     host_cryptogram = protocol.computeCryptogram_SCP01(selectedToken, keyNickName, card_challenge,
@@ -1266,7 +1266,7 @@ public class TokenServlet extends CMSServlet {
                             throw new Exception("Missing card cryptogram");
                         }
                         input_card_crypto =
-                                com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_cryptogram);
+                                org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rcard_cryptogram);
 
                         //SecureChannelProtocol.debugByteArray(input_card_crypto, "input_card_crypto");
                         //SecureChannelProtocol.debugByteArray(card_crypto, "card_crypto");
@@ -1310,7 +1310,7 @@ public class TokenServlet extends CMSServlet {
         String status = "0";
         if (session_key != null && session_key.length > 0) {
             outputString =
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(session_key);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(session_key);
         } else {
 
             status = "1";
@@ -1318,7 +1318,7 @@ public class TokenServlet extends CMSServlet {
 
         if (enc_session_key != null && enc_session_key.length > 0) {
             encSessionKeyString =
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(enc_session_key);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(enc_session_key);
         } else {
             status = "1";
         }
@@ -1326,7 +1326,7 @@ public class TokenServlet extends CMSServlet {
         if (serversideKeygen == true) {
             if (drm_trans_wrapped_desKey != null && drm_trans_wrapped_desKey.length > 0)
                 drm_trans_wrapped_desKeyString =
-                        com.netscape.cmsutil.util.Utils.SpecialEncode(drm_trans_wrapped_desKey);
+                        org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(drm_trans_wrapped_desKey);
             else {
                 status = "1";
             }
@@ -1334,7 +1334,7 @@ public class TokenServlet extends CMSServlet {
 
         if (host_cryptogram != null && host_cryptogram.length > 0) {
             cryptogram =
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(host_cryptogram);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(host_cryptogram);
         } else {
             // AC: Bugfix: Don't override status's value if an error was already flagged
             if (status.equals("0") == true) {
@@ -1643,13 +1643,13 @@ public class TokenServlet extends CMSServlet {
         xnewkeyInfo = null; // avoid errors about non-initialization
 
         if (!missingParam) {
-            xkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(oldMasterKeyName);
+            xkeyInfo = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(oldMasterKeyName);
             if (xkeyInfo == null || (xkeyInfo.length != 2 && xkeyInfo.length != 3)) {
                 badParams += " KeyInfo length,";
                 CMS.debug("TokenServlet: Invalid key info length");
                 missingParam = true;
             }
-            xnewkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(newMasterKeyName);
+            xnewkeyInfo = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(newMasterKeyName);
             if (xnewkeyInfo == null || (xnewkeyInfo.length != 2 && xnewkeyInfo.length != 3)) {
                 badParams += " NewKeyInfo length,";
                 CMS.debug("TokenServlet: Invalid new key info length");
@@ -1673,7 +1673,7 @@ public class TokenServlet extends CMSServlet {
                 } else {
 
                     CMS.debug("process DiversifyKey: wrappedDekKey value: " + rWrappedDekKey);
-                    xWrappedDekKey = com.netscape.cmsutil.util.Utils.SpecialDecode(rWrappedDekKey);
+                    xWrappedDekKey = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rWrappedDekKey);
                 }
 
             }
@@ -1684,7 +1684,7 @@ public class TokenServlet extends CMSServlet {
 
         KeySetData = null;
         if (!missingParam) {
-            xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
+            xCUID = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rCUID);
             if (xCUID == null || xCUID.length != 10) {
                 badParams += " CUID length,";
                 CMS.debug("TokenServlet: Invalid CUID length");
@@ -1692,7 +1692,7 @@ public class TokenServlet extends CMSServlet {
             }
 
             // AC: KDF SPEC CHANGE - read new KDD parameter from TPS
-            xKDD = com.netscape.cmsutil.util.Utils.SpecialDecode(rKDD);
+            xKDD = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKDD);
             if (xKDD == null || xKDD.length != 10) {
                 badParams += " KDD length,";
                 CMS.debug("TokenServlet: Invalid KDD length");
@@ -1700,7 +1700,7 @@ public class TokenServlet extends CMSServlet {
             }
         }
         if (!missingParam) {
-            // CUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID); // AC: KDF SPEC CHANGE: Removed duplicative variable/processing.
+            // CUID = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rCUID); // AC: KDF SPEC CHANGE: Removed duplicative variable/processing.
 
             // AC: KDF SPEC CHANGE - read new config file values (needed for symkey)
 
@@ -1779,7 +1779,7 @@ public class TokenServlet extends CMSServlet {
             byte macKeyArray[] = getDeveKeyArray("auth_key", sconfig, keySet);
             byte encKeyArray[] = getDeveKeyArray("mac_key", sconfig, keySet);
 
-            //        com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
+            //        org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
 
             //GPParams for scp03 right now, reads some scp03 specific values from the config of a given keyset
             // passed down to the SecureChannelProtocol functions that deal with SCP03
@@ -1834,7 +1834,7 @@ public class TokenServlet extends CMSServlet {
 
         if (KeySetData != null && KeySetData.length > 1) {
             value = IRemoteRequest.RESPONSE_STATUS + "=0&" + IRemoteRequest.TKS_RESPONSE_KeySetData + "=" +
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(KeySetData);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(KeySetData);
             //CMS.debug("TokenServlet:process DiversifyKey.encode " + value);
             CMS.debug("TokenServlet:process DiversifyKey.encode returning KeySetData");
             // AC: KDF SPEC CHANGE - check for settings file issue (flag)
@@ -2033,7 +2033,7 @@ public class TokenServlet extends CMSServlet {
         xkeyInfo = null; // avoid errors about non-initialization
 
         if (!missingParam) {
-            xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
+            xCUID = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rCUID);
             if (xCUID == null || xCUID.length != 10) {
                 badParams += " CUID length,";
                 CMS.debug("TokenServlet: Invalid CUID length");
@@ -2041,14 +2041,14 @@ public class TokenServlet extends CMSServlet {
             }
 
             // AC: KDF SPEC CHANGE - read new KDD parameter from TPS
-            xKDD = com.netscape.cmsutil.util.Utils.SpecialDecode(rKDD);
+            xKDD = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKDD);
             if (xKDD == null || xKDD.length != 10) {
                 badParams += " KDD length,";
                 CMS.debug("TokenServlet: Invalid KDD length");
                 missingParam = true;
             }
 
-            xkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
+            xkeyInfo = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKeyInfo);
             if (xkeyInfo == null || (xkeyInfo.length != 2 && xkeyInfo.length != 3)) {
                 badParams += " KeyInfo length,";
                 CMS.debug("TokenServlet: Invalid key info length");
@@ -2091,8 +2091,8 @@ public class TokenServlet extends CMSServlet {
             }
 
             if (!isRandom)
-                data = com.netscape.cmsutil.util.Utils.SpecialDecode(rdata);
-            keyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
+                data = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rdata);
+            keyInfo = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKeyInfo);
 
             String keyInfoMap = "tks." + keySet + ".mk_mappings." +  rKeyInfo.substring(0,6);
             String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
@@ -2128,7 +2128,7 @@ public class TokenServlet extends CMSServlet {
             }
 
             byte kekKeyArray[] =
-                    com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
             // AC: KDF SPEC CHANGE - check for error reading settings
             if (missingSetting_exception == null) {
 
@@ -2175,9 +2175,9 @@ public class TokenServlet extends CMSServlet {
             // sending both the pre-encrypted and encrypted data back
             value = IRemoteRequest.RESPONSE_STATUS + "=0&"
                     + IRemoteRequest.TOKEN_DATA + "=" +
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(data) +
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(data) +
                     "&" + IRemoteRequest.TKS_RESPONSE_EncryptedData + "=" +
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(encryptedData);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(encryptedData);
             // AC: KDF SPEC CHANGE - check for settings file issue (flag)
         } else if (missingSetting_exception != null) {
             status = "6";
@@ -2333,7 +2333,7 @@ public class TokenServlet extends CMSServlet {
         if (status.equals("0")) {
             if (randomData != null && randomData.length == dataSize) {
                 randomDataOut =
-                        com.netscape.cmsutil.util.Utils.SpecialEncode(randomData);
+                        org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(randomData);
             } else {
                 status = "2";
                 errorMsg = "Can't convert random data!";
@@ -2585,35 +2585,35 @@ public class TokenServlet extends CMSServlet {
         xhost_challenge = null;
 
         if (!missingParam) {
-            xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
+            xCUID = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rCUID);
             if (xCUID == null || xCUID.length != 10) {
                 badParams += " CUID length,";
                 CMS.debug("TokenServlet: Invalid CUID length");
                 missingParam = true;
             }
 
-            xKDD = com.netscape.cmsutil.util.Utils.SpecialDecode(rKDD);
+            xKDD = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKDD);
             if (xKDD == null || xKDD.length != 10) {
                 badParams += " KDD length,";
                 CMS.debug("TokenServlet: Invalid KDD length");
                 missingParam = true;
             }
 
-            xkeyInfo = com.netscape.cmsutil.util.Utils.SpecialDecode(rKeyInfo);
+            xkeyInfo = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKeyInfo);
             if (xkeyInfo == null || xkeyInfo.length != 3) {
                 badParams += " KeyInfo length,";
                 CMS.debug("TokenServlet: Invalid key info length.");
                 missingParam = true;
             }
             xcard_challenge =
-                    com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_challenge);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rcard_challenge);
             if (xcard_challenge == null || xcard_challenge.length != 8) {
                 badParams += " card_challenge length,";
                 CMS.debug("TokenServlet: Invalid card challenge length.");
                 missingParam = true;
             }
 
-            xhost_challenge = com.netscape.cmsutil.util.Utils.SpecialDecode(rhost_challenge);
+            xhost_challenge = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rhost_challenge);
             if (xhost_challenge == null || xhost_challenge.length != 8) {
                 badParams += " host_challenge length,";
                 CMS.debug("TokenServlet: Invalid host challenge length");
@@ -2625,9 +2625,9 @@ public class TokenServlet extends CMSServlet {
 
         if (!missingParam) {
             card_challenge =
-                    com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_challenge);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rcard_challenge);
 
-            host_challenge = com.netscape.cmsutil.util.Utils.SpecialDecode(rhost_challenge);
+            host_challenge = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rhost_challenge);
 
             String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo.substring(0,6); //#xx#xx
             String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
@@ -2657,7 +2657,7 @@ public class TokenServlet extends CMSServlet {
                 try {
 
                     byte macKeyArray[] =
-                            com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
                                     + keySet + ".mac_key"));
                     CMS.debug("TokenServlet about to try ComputeSessionKey selectedToken="
                             + selectedToken + " keyNickName=" + keyNickName);
@@ -2677,7 +2677,7 @@ public class TokenServlet extends CMSServlet {
                     }
 
                     byte encKeyArray[] =
-                            com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
                                     + keySet + ".auth_key"));
 
                     encSessionKey = protocol.computeSessionKey_SCP03(selectedToken, keyNickName,xkeyInfo,
@@ -2693,7 +2693,7 @@ public class TokenServlet extends CMSServlet {
                     }
 
                     byte kekKeyArray[] =
-                            com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
                                     + keySet + ".kek_key"));
 
                     kekSessionKey = protocol.computeSessionKey_SCP03(selectedToken, keyNickName, xkeyInfo,
@@ -2740,7 +2740,7 @@ public class TokenServlet extends CMSServlet {
                            throw new Exception(method + "Missing card cryptogram");
                        }
                        input_card_crypto =
-                               com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_cryptogram);
+                               org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rcard_cryptogram);
                        card_crypto = protocol.computeCryptogram_SCP03(macSessionKey, selectedToken, contextStream.toByteArray(),NistSP800_108KDF.CARD_CRYPTO_KDF_CONSTANT);
                        SecureChannelProtocol.debugByteArray(card_crypto, method + " calculated card crypto: ");
                        SecureChannelProtocol.debugByteArray(input_card_crypto, method + " original card crypto: ");
@@ -2773,21 +2773,21 @@ public class TokenServlet extends CMSServlet {
 
         if (enc_session_key != null && enc_session_key.length > 0) {
             encSessionKeyString =
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(enc_session_key);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(enc_session_key);
         } else {
             status = "1";
         }
 
         if (mac_session_key != null && mac_session_key.length > 0) {
             macSessionKeyString =
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(mac_session_key);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(mac_session_key);
         } else {
             status = "1";
         }
 
         if (kek_session_key != null && kek_session_key.length > 0) {
             kekSessionKeyString =
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(kek_session_key);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(kek_session_key);
         } else {
             status = "1";
         }
@@ -2805,7 +2805,7 @@ public class TokenServlet extends CMSServlet {
 
         if (host_cryptogram != null && host_cryptogram.length > 0) {
             cryptogram =
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(host_cryptogram);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(host_cryptogram);
         } else {
             if (status.equals("0") == true) {
                 status = "2";
@@ -3068,7 +3068,7 @@ public class TokenServlet extends CMSServlet {
         byte[] encDesKey = protocol.ecbEncrypt(kekSessionKey, desKey, selectedToken);
 
         String kek_wrapped_desKeyString =
-                com.netscape.cmsutil.util.Utils.SpecialEncode(encDesKey);
+                org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(encDesKey);
 
         CMS.debug(method + "kek_wrapped_desKeyString: " + kek_wrapped_desKeyString);
 
@@ -3081,7 +3081,7 @@ public class TokenServlet extends CMSServlet {
         keycheck = protocol.computeKeyCheck(desKey, selectedToken);
 
         String keycheck_s =
-                com.netscape.cmsutil.util.Utils.SpecialEncode(keycheck);
+                org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(keycheck);
 
         CMS.debug(method + "keycheck_s " + keycheck_s);
 
@@ -3125,7 +3125,7 @@ public class TokenServlet extends CMSServlet {
             byte[] drm_trans_wrapped_desKey = keyWrapper.wrap(desKey);
 
             String drmWrappedDesStr =
-                    com.netscape.cmsutil.util.Utils.SpecialEncode(drm_trans_wrapped_desKey);
+                    org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(drm_trans_wrapped_desKey);
 
             CMS.debug(method + " drmWrappedDesStr: " + drmWrappedDesStr);
             values.add(drmWrappedDesStr);
@@ -3212,7 +3212,7 @@ public class TokenServlet extends CMSServlet {
     private byte[] getDeveKeyArray(String keyType,IConfigStore sconfig,String keySet) throws EBaseException {
         byte devKeyArray[] = null;
         try {
-            devKeyArray = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+            devKeyArray = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(sconfig.getString("tks."
                     + keySet + "." + keyType));
         } catch (Exception e) {
             throw new EBaseException("Can't read static developer key array: " + keySet + ": " + keyType);

@@ -54,10 +54,10 @@ import org.mozilla.jss.pkix.cms.ContentInfo;
 import org.mozilla.jss.pkix.cms.EncapsulatedContentInfo;
 import org.mozilla.jss.pkix.cms.SignedData;
 
-import com.netscape.cmsutil.util.Utils;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.util.CertPrettyPrint;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * Tool for parsing a CMC response
