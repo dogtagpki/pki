@@ -23,7 +23,7 @@ import java.util.Hashtable;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.security.Credential;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * An interface representing a recovery service.

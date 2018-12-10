@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 public class PKITrustManager implements X509TrustManager {
 

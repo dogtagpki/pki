@@ -44,7 +44,7 @@ import org.mozilla.jss.ssl.SSLVersionRange;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This class implements a CMC Enroll client for testing.

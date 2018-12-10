@@ -20,16 +20,16 @@ package com.netscape.cmscore.cert;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
 
-import netscape.security.extensions.CertificateRenewalWindowExtension;
-import netscape.security.extensions.CertificateScopeOfUseExtension;
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.DeltaCRLIndicatorExtension;
-import netscape.security.x509.FreshestCRLExtension;
-import netscape.security.x509.HoldInstructionExtension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.IssuingDistributionPointExtension;
-import netscape.security.x509.OIDMap;
+import org.mozilla.jss.netscape.security.extensions.CertificateRenewalWindowExtension;
+import org.mozilla.jss.netscape.security.extensions.CertificateScopeOfUseExtension;
+import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
+import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
+import org.mozilla.jss.netscape.security.x509.HoldInstructionExtension;
+import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
+import org.mozilla.jss.netscape.security.x509.IssuingDistributionPointExtension;
+import org.mozilla.jss.netscape.security.x509.OIDMap;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;

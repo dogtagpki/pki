@@ -37,19 +37,19 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.cert.CertUtils;
 
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CPSuri;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificatePoliciesExtension;
-import netscape.security.x509.CertificatePolicyId;
-import netscape.security.x509.CertificatePolicyInfo;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.DisplayText;
-import netscape.security.x509.NoticeReference;
-import netscape.security.x509.PolicyQualifierInfo;
-import netscape.security.x509.PolicyQualifiers;
-import netscape.security.x509.UserNotice;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.CPSuri;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificatePoliciesExtension;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyId;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.DisplayText;
+import org.mozilla.jss.netscape.security.x509.NoticeReference;
+import org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo;
+import org.mozilla.jss.netscape.security.x509.PolicyQualifiers;
+import org.mozilla.jss.netscape.security.x509.UserNotice;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Certificate Policies.

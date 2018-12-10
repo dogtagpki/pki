@@ -23,14 +23,14 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AVAValueConverter;
-import netscape.security.x509.Attribute;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectDirAttributesExtension;
-import netscape.security.x509.X500NameAttrMap;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.AVAValueConverter;
+import org.mozilla.jss.netscape.security.x509.Attribute;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectDirAttributesExtension;
+import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;

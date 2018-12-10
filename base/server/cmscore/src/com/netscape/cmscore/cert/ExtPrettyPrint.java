@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
-import netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.Extension;
 
 import com.netscape.certsrv.base.IExtPrettyPrint;
 
@@ -28,7 +28,7 @@ import com.netscape.certsrv.base.IExtPrettyPrint;
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */
-public class ExtPrettyPrint extends netscape.security.util.ExtPrettyPrint implements IExtPrettyPrint {
+public class ExtPrettyPrint extends org.mozilla.jss.netscape.security.util.ExtPrettyPrint implements IExtPrettyPrint {
 
     public ExtPrettyPrint(Extension ext, int indentSize) {
         super(ext, indentSize);

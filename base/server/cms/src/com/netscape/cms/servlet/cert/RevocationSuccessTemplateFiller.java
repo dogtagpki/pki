@@ -21,7 +21,7 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;

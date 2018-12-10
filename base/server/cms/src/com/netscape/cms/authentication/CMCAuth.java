@@ -91,14 +91,14 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import netscape.security.extensions.CertInfo;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.extensions.CertInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 //import com.netscape.cmscore.util.*;
 //////////////////////
@@ -894,10 +894,10 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                                             CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
                                 }
                             } else {
-                                netscape.security.x509.X500Name clientPrincipal =
+                                org.mozilla.jss.netscape.security.x509.X500Name clientPrincipal =
                                         (X500Name) clientCert.getSubjectDN();
 
-                                netscape.security.x509.X500Name cmcPrincipal =
+                                org.mozilla.jss.netscape.security.x509.X500Name cmcPrincipal =
                                         (X500Name) x509Certs[0].getSubjectDN();
 
                                 // check ssl client cert against cmc signer
@@ -964,7 +964,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                         agentCred.set(IAuthManager.CRED_SSL_CLIENT_CERT, x509Certs);
 
                         IAuthToken tempToken = agentAuth.authenticate(agentCred);
-                        netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
+                        org.mozilla.jss.netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
                         String ID = tempPrincipal.getName();
                         CMS.debug(method + " Principal name = " + ID);
                         authToken.set(IAuthToken.TOKEN_AUTHENTICATED_CERT_SUBJECT, ID);

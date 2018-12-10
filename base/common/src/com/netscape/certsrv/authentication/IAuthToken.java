@@ -23,8 +23,8 @@ import java.security.cert.CertificateException;
 import java.util.Date;
 import java.util.Enumeration;
 
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.usrgrp.Certificates;

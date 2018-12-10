@@ -44,7 +44,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.util.Debug;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * Challenge phrase based authentication.

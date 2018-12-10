@@ -57,8 +57,8 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 public class RenewalProcessor extends CertProcessor {
 

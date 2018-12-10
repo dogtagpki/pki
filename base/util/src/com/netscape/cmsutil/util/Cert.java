@@ -24,9 +24,9 @@ import java.security.cert.X509Certificate;
 
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 
-import netscape.security.pkcs.PKCS7;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 public class Cert {
 

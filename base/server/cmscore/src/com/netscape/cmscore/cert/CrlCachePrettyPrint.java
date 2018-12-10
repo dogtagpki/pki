@@ -24,13 +24,14 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.RevokedCertificate;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 /**
  * This class will display the certificate content in predefined

@@ -54,11 +54,11 @@ import com.netscape.cmstools.ca.CACertCLI;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Cert;
+import org.mozilla.jss.netscape.security.util.Cert;
 
 import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * @author Endi S. Dewata

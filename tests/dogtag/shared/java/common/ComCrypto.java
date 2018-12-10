@@ -49,11 +49,11 @@ import org.mozilla.jss.asn1.*;
 import org.mozilla.jss.pkix.primitive.*;
 import org.mozilla.jss.pkix.crmf.*;
 
-//import netscape.security.provider.RSAPublicKey;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.X500Name;
-import netscape.security.util.BigInt;
-import netscape.security.x509.X500Signer;
+//import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.x509.X500Signer;
 
 import sun.misc.BASE64Encoder;
 import sun.misc.BASE64Decoder;

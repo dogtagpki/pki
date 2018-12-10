@@ -39,11 +39,11 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * Generates an ECC or RSA key pair in the security database, constructs a
@@ -396,11 +396,11 @@ public class PKCS10Client {
         }
 
         Name ret = new Name();
-        netscape.security.x509.RDN[] names = null;
+        org.mozilla.jss.netscape.security.x509.RDN[] names = null;
         names = x5Name.getNames();
         int nameLen = x5Name.getNamesLength();
 
-        netscape.security.x509.RDN cur = null;
+        org.mozilla.jss.netscape.security.x509.RDN cur = null;
 
         for (int i = 0; i < nameLen; i++) {
             cur = names[i];

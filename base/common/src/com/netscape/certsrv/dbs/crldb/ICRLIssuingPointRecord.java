@@ -21,7 +21,7 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.Hashtable;
 
-import netscape.security.x509.RevokedCertificate;
+import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
 import com.netscape.certsrv.dbs.IDBObj;
 

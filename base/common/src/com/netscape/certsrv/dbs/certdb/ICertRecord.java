@@ -21,9 +21,9 @@ import java.math.BigInteger;
 import java.util.Date;
 
 import com.netscape.certsrv.base.EBaseException;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509ExtensionException;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.IDBObj;

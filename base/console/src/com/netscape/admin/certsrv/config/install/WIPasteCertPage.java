@@ -42,7 +42,7 @@ import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.TaskId;
-import com.netscape.cmsutil.util.Cert;
+import org.mozilla.jss.netscape.security.util.Cert;
 
 /**
  * This page is to install the certificate in the internal token. The user can

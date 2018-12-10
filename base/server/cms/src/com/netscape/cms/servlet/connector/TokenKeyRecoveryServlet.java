@@ -234,7 +234,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             BigInteger serialNo = kr.getSerialNumber();
 
             String serialNumberString =
-                com.netscape.cmsutil.util.Utils.SpecialEncode(serialNo.toByteArray());
+                org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(serialNo.toByteArray());
 
             recoveryBlobString = (String)
                 thisreq.get("recoveryBlob");

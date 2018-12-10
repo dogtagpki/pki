@@ -20,7 +20,7 @@ package com.netscape.cmscore.dbs;
 import java.io.Serializable;
 import java.util.Date;
 
-import netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 

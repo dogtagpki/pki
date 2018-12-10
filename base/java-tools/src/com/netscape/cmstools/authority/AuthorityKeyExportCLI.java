@@ -22,7 +22,7 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-import netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 public class AuthorityKeyExportCLI extends CLI {
 

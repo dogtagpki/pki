@@ -5,8 +5,8 @@ import java.net.*;
 import java.security.*;
 import java.security.cert.*;
 import sun.misc.*;
-import netscape.security.x509.*;
-import netscape.security.util.*;
+import org.mozilla.jss.netscape.security.x509.*;
+import org.mozilla.jss.netscape.security.util.*;
 
 
 public class Utilities

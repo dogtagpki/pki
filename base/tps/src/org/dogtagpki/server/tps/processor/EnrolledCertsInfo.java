@@ -30,7 +30,7 @@ import org.dogtagpki.tps.main.Util;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 public class EnrolledCertsInfo {
 

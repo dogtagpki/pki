@@ -60,13 +60,13 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Cert;
+import org.mozilla.jss.netscape.security.util.Cert;
 
-import netscape.security.util.BigInt;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerValue;
-import netscape.security.util.WrappingParams;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * A class represents recovery request processor.
@@ -249,7 +249,7 @@ public class TokenKeyRecoveryService implements IService {
 
         //CMS.debug("TokenKeyRecoveryService: received DRM-trans-wrapped des key =" + rWrappedDesKeyString);
         CMS.debug("TokenKeyRecoveryService: received DRM-trans-wrapped des key");
-        wrapped_des_key = com.netscape.cmsutil.util.Utils.SpecialDecode(rWrappedDesKeyString);
+        wrapped_des_key = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rWrappedDesKeyString);
         CMS.debug("TokenKeyRecoveryService: wrapped_des_key specialDecoded");
 
         if ((wrapped_des_key != null) &&
@@ -460,7 +460,7 @@ public class TokenKeyRecoveryService implements IService {
                 }
                 CMS.debug("TokenKeyRecoveryService: got private key...about to verify");
 
-                iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
+                iv_s = /*base64Encode(iv);*/org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);
 
                 CMS.debug("request.setExtData: iv_s: " + iv_s);
@@ -530,12 +530,12 @@ public class TokenKeyRecoveryService implements IService {
                         algParam,
                         KeyWrapAlgorithm.DES3_CBC_PAD);
 
-                iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
+                iv_s = /*base64Encode(iv);*/org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);
             }
 
             String wrappedPrivKeyString =
-                com.netscape.cmsutil.util.Utils.SpecialEncode(wrapped);
+                org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(wrapped);
 
             if (wrappedPrivKeyString == null) {
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
@@ -560,7 +560,7 @@ public class TokenKeyRecoveryService implements IService {
             String PubKey = "";
             if (keyType == PrivateKey.EC) {
                 /* url encode */
-                PubKey = com.netscape.cmsutil.util.Utils.SpecialEncode(pubData);
+                PubKey = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(pubData);
                 CMS.debug("TokenKeyRecoveryService: EC PubKey special encoded");
             } else {
                 PubKey = base64Encode(pubData);

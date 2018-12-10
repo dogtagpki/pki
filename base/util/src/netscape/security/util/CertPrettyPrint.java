@@ -30,7 +30,7 @@ import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.pkcs7.ContentInfo;
 import org.mozilla.jss.pkcs7.SignedData;
 
-import com.netscape.cmsutil.util.Cert;
+import org.mozilla.jss.netscape.security.util.Cert;
 
 import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.CertificateX509Key;

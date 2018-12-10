@@ -55,17 +55,17 @@ public class Setup {
     }
 
     public static final String[][] oidmapEntries = new String[][] {
-            { "oidmap.pse.class", "netscape.security.extensions.PresenceServerExtension" },
+            { "oidmap.pse.class", "org.mozilla.jss.netscape.security.extensions.PresenceServerExtension" },
             { "oidmap.pse.oid", "2.16.840.1.113730.1.18" },
-            { "oidmap.ocsp_no_check.class", "netscape.security.extensions.OCSPNoCheckExtension" },
+            { "oidmap.ocsp_no_check.class", "org.mozilla.jss.netscape.security.extensions.OCSPNoCheckExtension" },
             { "oidmap.ocsp_no_check.oid", "1.3.6.1.5.5.7.48.1.5" },
-            { "oidmap.netscape_comment.class", "netscape.security.x509.NSCCommentExtension" },
+            { "oidmap.netscape_comment.class", "org.mozilla.jss.netscape.security.x509.NSCCommentExtension" },
             { "oidmap.netscape_comment.oid", "2.16.840.1.113730.1.13" },
-            { "oidmap.extended_key_usage.class", "netscape.security.extensions.ExtendedKeyUsageExtension" },
+            { "oidmap.extended_key_usage.class", "org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension" },
             { "oidmap.extended_key_usage.oid", "2.5.29.37" },
-            { "oidmap.subject_info_access.class", "netscape.security.extensions.SubjectInfoAccessExtension" },
+            { "oidmap.subject_info_access.class", "org.mozilla.jss.netscape.security.extensions.SubjectInfoAccessExtension" },
             { "oidmap.subject_info_access.oid", "1.3.6.1.5.5.7.1.11" },
-            { "oidmap.auth_info_access.class", "netscape.security.extensions.AuthInfoAccessExtension" },
+            { "oidmap.auth_info_access.class", "org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension" },
             { "oidmap.auth_info_access.oid", "1.3.6.1.5.5.7.1.1" },
             { "oidmap.challenge_password.class", "com.netscape.cms.servlet.cert.scep.ChallengePassword" },
             { "oidmap.challenge_password.oid", "1.2.840.113549.1.9.7" },

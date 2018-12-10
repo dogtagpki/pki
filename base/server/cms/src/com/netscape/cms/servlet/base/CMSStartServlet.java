@@ -37,7 +37,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.cms.realm.PKIRealm;
 import com.netscape.cms.tomcat.ProxyRealm;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This servlet is started by the web server at startup, and

@@ -4,8 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.Hashtable;
 
-import netscape.security.extensions.GenericASN1Extension;
-import netscape.security.x509.OIDMap;
+import org.mozilla.jss.netscape.security.extensions.GenericASN1Extension;
+import org.mozilla.jss.netscape.security.x509.OIDMap;
 
 import org.junit.Assert;
 import org.junit.Test;

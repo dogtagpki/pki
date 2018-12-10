@@ -31,7 +31,7 @@ import com.netscape.cms.logging.Logger;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * A class represents ann attribute mapper that maps

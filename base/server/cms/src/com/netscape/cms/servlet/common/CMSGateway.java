@@ -131,7 +131,7 @@ public class CMSGateway {
 
         if (clientCert instanceof java.security.cert.X509Certificate) {
             try {
-                clientCert = new netscape.security.x509.X509CertImpl(clientCert.getEncoded());
+                clientCert = new org.mozilla.jss.netscape.security.x509.X509CertImpl(clientCert.getEncoded());
             } catch (Exception e) {
                 CMS.debug("CMSGateway: getAuthCreds " + e.toString());
             }

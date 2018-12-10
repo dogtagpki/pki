@@ -28,10 +28,10 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
 
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.Extension;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 /**
  * This represents a CRL reason extension.

@@ -54,7 +54,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-import netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,

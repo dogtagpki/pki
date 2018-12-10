@@ -27,14 +27,14 @@ import java.io.InputStreamReader;
 import java.security.cert.CertificateException;
 import java.util.Locale;
 
-import netscape.security.util.CertPrettyPrint;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.RDN;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.CertPrettyPrint;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.RDN;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * The PrettyPrintCert class is a utility program designed to "pretty print"

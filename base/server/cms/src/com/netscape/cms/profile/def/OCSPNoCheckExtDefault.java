@@ -19,8 +19,8 @@ package com.netscape.cms.profile.def;
 
 import java.util.Locale;
 
-import netscape.security.extensions.OCSPNoCheckExtension;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.extensions.OCSPNoCheckExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;

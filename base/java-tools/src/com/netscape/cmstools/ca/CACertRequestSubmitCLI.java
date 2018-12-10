@@ -25,7 +25,7 @@ import com.netscape.cmstools.cli.MainCLI;
 
 import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 public class CACertRequestSubmitCLI extends CLI {
 

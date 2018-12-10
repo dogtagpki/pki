@@ -3,7 +3,7 @@ package com.netscape.cmscore.test;
 import java.security.cert.CertificateException;
 
 import junit.framework.TestCase;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.dbs.IDBRegistry;

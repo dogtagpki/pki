@@ -18,7 +18,7 @@
 package com.netscape.certsrv.publish;
 
 import netscape.ldap.LDAPConnection;
-import netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;

@@ -18,7 +18,7 @@
 package com.netscape.certsrv.logging.event;
 
 import com.netscape.certsrv.logging.SignedAuditEvent;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 public class ConfigRoleEvent extends SignedAuditEvent {
 

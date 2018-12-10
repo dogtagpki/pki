@@ -36,7 +36,7 @@ import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
 import netscape.security.x509.URIName;
 
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This represents the subject information access extension
