@@ -104,6 +104,7 @@ import netscape.security.x509.X509ExtensionException;
  */
 public class CAService implements ICAService, IService {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAService.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String CRMF_REQUEST = "CRMFRequest";
@@ -179,13 +180,13 @@ public class CAService implements ICAService, IService {
             //				;
             //			}
             //			else
-            //				Debug.trace("Something is wrong in CMS install !");
+            //				logger.debug("Something is wrong in CMS install !");
             java.security.cert.CertificateFactory cf = java.security.cert.CertificateFactory.getInstance("X.509");
 
-            Debug.trace("CertificateFactory Type : " + cf.getType());
-            Debug.trace("CertificateFactory Provider : " + cf.getProvider().getInfo());
+            logger.debug("CertificateFactory Type : " + cf.getType());
+            logger.debug("CertificateFactory Provider : " + cf.getProvider().getInfo());
         } catch (java.security.cert.CertificateException e) {
-            Debug.trace("Something is happen in install CMS provider !" + e.toString());
+            logger.warn("Something is happen in install CMS provider !" + e.toString());
         }
     }
 
@@ -197,9 +198,7 @@ public class CAService implements ICAService, IService {
                     "archivalRequired", true);
             mKRAConnector = getConnector(kraConfig);
             if (mKRAConnector != null) {
-                if (Debug.ON) {
-                    Debug.trace("Started KRA Connector");
-                }
+                logger.info("Started KRA Connector");
                 mKRAConnector.start();
             }
         }
@@ -210,10 +209,8 @@ public class CAService implements ICAService, IService {
         if (claConfig != null) {
             mCLAConnector = getConnector(claConfig);
             if (mCLAConnector != null) {
-                CMS.debug(CMS.getLogMessage("CMSCORE_CA_START_CONNECTOR"));
-                if (Debug.ON) {
-                    Debug.trace("Started CLA Connector in CCA");
-                }
+                logger.debug(CMS.getLogMessage("CMSCORE_CA_START_CONNECTOR"));
+                logger.info("Started CLA Connector in CCA");
                 mCLAConnector.start();
             }
         }
@@ -324,7 +321,7 @@ public class CAService implements ICAService, IService {
      */
     public void serviceProfileRequest(IRequest request)
             throws EBaseException {
-        CMS.debug("CAService: serviceProfileRequest requestId=" +
+        logger.debug("CAService: serviceProfileRequest requestId=" +
                 request.getRequestId().toString());
 
         String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
@@ -380,17 +377,17 @@ public class CAService implements ICAService, IService {
         // short cut profile-based request
         if (isProfileRequest(request)) {
             try {
-                CMS.debug("CAService: x0 requestStatus="
+                logger.debug("CAService: x0 requestStatus="
                         + request.getRequestStatus().toString() + " instance=" + request);
                 serviceProfileRequest(request);
                 request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
-                CMS.debug("CAService: x1 requestStatus=" + request.getRequestStatus().toString());
+                logger.debug("CAService: x1 requestStatus=" + request.getRequestStatus().toString());
 
                 return true;
             } catch (EBaseException e) {
-                CMS.debug("CAService: x2 requestStatus=" + request.getRequestStatus().toString());
+                logger.debug("CAService: x2 requestStatus=" + request.getRequestStatus().toString());
                 // need to put error into the request
-                CMS.debug("CAService: serviceRequest " + e.toString());
+                logger.debug("CAService: serviceRequest " + e.toString());
                 request.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
                 request.setExtData(IRequest.ERROR, e.toString());
 
@@ -419,7 +416,7 @@ public class CAService implements ICAService, IService {
             if (type.equals(IRequest.ENROLLMENT_REQUEST) &&
                     isPKIArchiveOptionPresent(request) && mKRAConnector != null) {
 
-                CMS.debug("CAService: Sending enrollment request to KRA");
+                logger.debug("CAService: Sending enrollment request to KRA");
 
                 signedAuditLogger.log(SecurityDataArchivalRequestEvent.createSuccessEvent(
                         auditSubjectID,
@@ -465,9 +462,7 @@ public class CAService implements ICAService, IService {
                     }
                 }
             } else {
-                if (Debug.ON) {
-                    Debug.trace("*** NOT Send to KRA type=" + type + " ENROLLMENT=" + IRequest.ENROLLMENT_REQUEST);
-                }
+                logger.debug("*** NOT Send to KRA type=" + type + " ENROLLMENT=" + IRequest.ENROLLMENT_REQUEST);
             }
 
             completed = servant.service(request);
@@ -491,8 +486,7 @@ public class CAService implements ICAService, IService {
         }
 
         // XXX in case of key archival this may not always be the case.
-        if (Debug.ON)
-            Debug.trace("serviceRequest completed = " + completed);
+        logger.debug("serviceRequest completed = " + completed);
 
         if (!(type.equals(IRequest.REVOCATION_REQUEST) ||
                 type.equals(IRequest.UNREVOCATION_REQUEST) || type.equals(IRequest.CMCREVOKE_REQUEST))) {
@@ -529,9 +523,7 @@ public class CAService implements ICAService, IService {
                 IRequest.HTTP_PARAMS, CRMF_REQUEST);
 
         if (crmfBlob == null) {
-            if (Debug.ON) {
-                Debug.trace("CRMF not found");
-            }
+            logger.debug("CRMF not found");
         } else {
             try {
                 PKIArchiveOptionsContainer opts[] = CRMFParser.getPKIArchiveOptions(crmfBlob);
@@ -557,12 +549,12 @@ public class CAService implements ICAService, IService {
             AuthorityID aid, X509CertInfo certi,
             String profileId, String rid)
             throws EBaseException {
-        CMS.debug("issueX509Cert");
+        logger.debug("issueX509Cert");
         X509CertImpl certImpl = issueX509Cert(aid, "", certi, false, null);
 
-        CMS.debug("storeX509Cert " + certImpl.getSerialNumber());
+        logger.debug("storeX509Cert " + certImpl.getSerialNumber());
         storeX509Cert(profileId, rid, certImpl);
-        CMS.debug("done storeX509Cert");
+        logger.debug("done storeX509Cert");
         return certImpl;
     }
 
@@ -620,7 +612,7 @@ public class CAService implements ICAService, IService {
 
         boolean doUTF8 = mConfig.getBoolean("dnUTF8Encoding", false);
 
-        CMS.debug("dnUTF8Encoding " + doUTF8);
+        logger.debug("dnUTF8Encoding " + doUTF8);
 
         try {
             // check required fields in certinfo.
@@ -654,9 +646,7 @@ public class CAService implements ICAService, IService {
             }
             if (validity == null ||
                     (begin.getTime() == 0 && end.getTime() == 0)) {
-                if (Debug.ON) {
-                    Debug.trace("setting default validity");
-                }
+                logger.debug("setting default validity");
 
                 begin = CMS.getCurrentDate();
                 end = new Date(begin.getTime() + ca.getDefaultValidity());
@@ -695,7 +685,7 @@ public class CAService implements ICAService, IService {
                     }
                 } // exts != null
             } catch (Exception e) {
-                CMS.debug("EnrollDefault: getExtension " + e.toString());
+                logger.warn("EnrollDefault: getExtension " + e.toString());
             }
 
             Date caNotAfter =
@@ -712,12 +702,12 @@ public class CAService implements ICAService, IService {
                         end = caNotAfter;
                         certi.set(CertificateValidity.NAME,
                                 new CertificateValidity(begin, caNotAfter));
-                        CMS.debug("CAService: issueX509Cert: cert past CA's NOT_AFTER...ca.enablePastCATime != true...resetting");
+                        logger.debug("CAService: issueX509Cert: cert past CA's NOT_AFTER...ca.enablePastCATime != true...resetting");
                     } else {
-                        CMS.debug("CAService: issueX509Cert: cert past CA's NOT_AFTER...ca.enablePastCATime = true...not resetting");
+                        logger.debug("CAService: issueX509Cert: cert past CA's NOT_AFTER...ca.enablePastCATime = true...not resetting");
                     }
                 } else {
-                    CMS.debug("CAService: issueX509Cert: CA cert issuance past CA's NOT_AFTER.");
+                    logger.debug("CAService: issueX509Cert: CA cert issuance past CA's NOT_AFTER.");
                 } //!is_ca
                 mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_PAST_NOT_AFTER"));
             }
@@ -737,25 +727,25 @@ public class CAService implements ICAService, IService {
                         algor.get(CertificateAlgorithmId.ALGORITHM);
                 algname = algid.getName();
             }
+
         } catch (CertificateException e) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_BAD_FIELD", e.toString()));
-            if (Debug.ON) {
-                e.printStackTrace();
-            }
+            String message = CMS.getLogMessage("CMSCORE_CA_BAD_FIELD", e.toString());
+            mCA.log(ILogger.LL_FAILURE, message);
+            logger.error(message, e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_ERROR_GETTING_FIELDS_IN_ISSUE"));
+
         } catch (IOException e) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_BAD_FIELD", e.toString()));
-            if (Debug.ON) {
-                e.printStackTrace();
-            }
+            String message = CMS.getLogMessage("CMSCORE_CA_BAD_FIELD", e.toString());
+            mCA.log(ILogger.LL_FAILURE, message);
+            logger.error(message, e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_ERROR_GETTING_FIELDS_IN_ISSUE"));
+
         } catch (NoSuchAlgorithmException e) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname));
-            if (Debug.ON) {
-                e.printStackTrace();
-            }
+            String message = CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname);
+            mCA.log(ILogger.LL_FAILURE, message);
+            logger.error(message, e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname));
         }
@@ -817,11 +807,11 @@ public class CAService implements ICAService, IService {
             if (ca.getIssuerObj() != null) {
                 // this ensures the isserDN has the same encoding as the
                 // subjectDN of the CA signing cert
-                CMS.debug("CAService: issueX509Cert: setting issuerDN using exact CA signing cert subjectDN encoding");
+                logger.debug("CAService: issueX509Cert: setting issuerDN using exact CA signing cert subjectDN encoding");
                 certi.set(X509CertInfo.ISSUER,
                         ca.getIssuerObj());
             } else {
-                CMS.debug("CAService: issueX509Cert: ca.getIssuerObj() is null, creating new CertificateIssuerName");
+                logger.debug("CAService: issueX509Cert: ca.getIssuerObj() is null, creating new CertificateIssuerName");
                 certi.set(X509CertInfo.ISSUER,
                         new CertificateIssuerName(ca.getX500Name()));
             }
@@ -838,7 +828,7 @@ public class CAService implements ICAService, IService {
         if (doUTF8 == true) {
             try {
 
-                CMS.debug("doUTF8 true, updating subject.");
+                logger.debug("doUTF8 true, updating subject.");
 
                 String subject = certi.get(X509CertInfo.SUBJECT).toString();
 
@@ -855,7 +845,7 @@ public class CAService implements ICAService, IService {
             }
         }
 
-        CMS.debug("About to ca.sign cert.");
+        logger.debug("About to ca.sign cert.");
         cert = ca.sign(certi, algname);
         return cert;
     }
@@ -873,7 +863,7 @@ public class CAService implements ICAService, IService {
         // if renewal, set the old serial number in the new cert,
         // set the new serial number in the old cert.
 
-        CMS.debug("In storeX509Cert");
+        logger.debug("In storeX509Cert");
         try {
             BigInteger newSerialNo = cert.getSerialNumber();
             MetaInfo metaInfo = new MetaInfo();
@@ -906,28 +896,26 @@ public class CAService implements ICAService, IService {
                         mCA.getCertificateRepository().readCertificateRecord(oldSerialNo);
 
                 if (oldCertRec == null) {
-                    Exception e =
-                            new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                                    "Cannot read cert record for " + oldSerialNo));
-
-                    e.printStackTrace();
+                    String message = CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
+                            "Cannot read cert record for " + oldSerialNo);
+                    Exception e = new EBaseException(message);
+                    logger.warn(message, e);
                 }
+
                 if (oldCertRec != null)
                     oldMeta = oldCertRec.getMetaInfo();
                 if (oldMeta == null) {
-                    if (Debug.ON) {
-                        Debug.trace("No meta info! for " + oldSerialNo);
-                    }
+                    logger.debug("No meta info! for " + oldSerialNo);
                     oldMeta = new MetaInfo();
                 } else {
                     if (Debug.ON) {
-                        System.out.println("Old meta info");
+                        logger.debug("Old meta info");
                         Enumeration<String> n = oldMeta.getElements();
 
                         while (n.hasMoreElements()) {
                             String name = n.nextElement();
 
-                            System.out.println("name " + name + " value " +
+                            logger.debug("name " + name + " value " +
                                     oldMeta.get(name));
                         }
                     }
@@ -958,10 +946,9 @@ public class CAService implements ICAService, IService {
                 }
             }
         } catch (EBaseException e) {
-            mCA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_NO_STORE_SERIAL", cert.getSerialNumber().toString(16)));
-            if (Debug.ON)
-                e.printStackTrace();
+            String message = CMS.getLogMessage("CMSCORE_CA_NO_STORE_SERIAL", cert.getSerialNumber().toString(16));
+            mCA.log(ILogger.LL_FAILURE, message);
+            logger.error(message, e);
             throw e;
         }
     }
@@ -981,7 +968,7 @@ public class CAService implements ICAService, IService {
         CRLExtensions crlentryexts = crlentry.getExtensions();
         String msg = "";
 
-        CMS.debug("CAService.revokeCert: revokeCert begins");
+        logger.debug("CAService.revokeCert: revokeCert begins");
 
         // Get the revocation reason
         Enumeration<Extension> enum1 = crlentryexts.getElements();
@@ -994,7 +981,7 @@ public class CAService implements ICAService, IService {
             }
         }
         if (revReason == null) {
-            CMS.debug("CAService.revokeCert: missing revocation reason");
+            logger.error("CAService.revokeCert: missing revocation reason");
             mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_MISSING_REV_REASON=", serialno.toString(16)));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_MISSING_REV_REASON",
@@ -1004,7 +991,7 @@ public class CAService implements ICAService, IService {
         CertRecord certRec = (CertRecord) mCA.getCertificateRepository().readCertificateRecord(serialno);
 
         if (certRec == null) {
-            CMS.debug("CAService.revokeCert: cert record not found");
+            logger.debug("CAService.revokeCert: cert record not found");
             mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CERT_NOT_FOUND", serialno.toString(16)));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
@@ -1023,7 +1010,7 @@ public class CAService implements ICAService, IService {
             }
             if (recRevReason == null) {
                 msg = "existing revoked cert missing revocation reason";
-                CMS.debug("CAService.revokeCert: " + msg);
+                logger.error("CAService.revokeCert: " + msg);
                 throw new EBaseException(msg);
             }
         }
@@ -1035,7 +1022,7 @@ public class CAService implements ICAService, IService {
                         revReason != RevocationReason.KEY_COMPROMISE))
                 ||
                 certStatus.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
-            CMS.debug("CAService.revokeCert: cert already revoked:" +
+            logger.debug("CAService.revokeCert: cert already revoked:" +
                     serialno.toString());
             throw new ECAException(CMS.getUserMessage("CMS_CA_CERT_ALREADY_REVOKED",
                     "0x" + Long.toHexString(serialno.longValue())));
@@ -1043,12 +1030,12 @@ public class CAService implements ICAService, IService {
 
         try {
             // if cert has already revoked, update the revocation info only
-            CMS.debug("CAService.revokeCert: about to call markAsRevoked");
+            logger.debug("CAService.revokeCert: about to call markAsRevoked");
             if (certStatus.equals(ICertRecord.STATUS_REVOKED) && certRec.isCertOnHold()) {
                 mCA.getCertificateRepository().markAsRevoked(serialno,
                         new RevocationInfo(revdate, crlentryexts),
                         true /*isAlreadyRevoked*/);
-                CMS.debug("CAService.revokeCert: on_hold cert marked revoked");
+                logger.debug("CAService.revokeCert: on_hold cert marked revoked");
                 mCA.log(ILogger.LL_INFO,
                         CMS.getLogMessage("CMSCORE_CA_CERT_REVO_INFO_UPDATE",
                                 recRevReason.toString(),
@@ -1059,7 +1046,7 @@ public class CAService implements ICAService, IService {
                         new RevocationInfo(revdate, crlentryexts));
             }
 
-            CMS.debug("CAService.revokeCert: cert now revoked");
+            logger.debug("CAService.revokeCert: cert now revoked");
             mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_CERT_REVOKED",
                     serialno.toString(16)));
             // inform all CRLIssuingPoints about revoked certificate
@@ -1091,10 +1078,9 @@ public class CAService implements ICAService, IService {
                 }
             }
         } catch (EBaseException e) {
-            CMS.debug("CAService.revokeCert: " + e.toString());
-            mCA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_ERROR_REVOCATION", serialno.toString(), e.toString()));
-            //e.printStackTrace();
+            logger.error("CAService.revokeCert: " + e, e);
+            String message = CMS.getLogMessage("CMSCORE_CA_ERROR_REVOCATION", serialno.toString(), e.toString());
+            mCA.log(ILogger.LL_FAILURE, message);
             throw e;
         }
         return;
@@ -1266,6 +1252,9 @@ interface IServant {
 }
 
 class serviceIssue implements IServant {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceIssue.class);
+
     private ICertificateAuthority mCA;
     private CAService mService;
 
@@ -1322,9 +1311,9 @@ class serviceIssue implements IServant {
             try {
                 mService.storeX509Cert(rid, certs[i], crmfReqId, challengePassword);
             } catch (EBaseException e) {
-                e.printStackTrace();
-                mCA.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_STORE_ERROR", Integer.toString(i), rid, e.toString()));
+                String message = CMS.getLogMessage("CMSCORE_CA_STORE_ERROR", Integer.toString(i), rid, e.toString());
+                mCA.log(ILogger.LL_FAILURE, message);
+                logger.warn(message, e);
                 ex = e; // save to throw later.
                 break;
             }
@@ -1353,6 +1342,9 @@ class serviceIssue implements IServant {
 }
 
 class serviceRenewal implements IServant {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceRenewal.class);
+
     private ICertificateAuthority mCA;
     private CAService mService;
 
@@ -1399,19 +1391,22 @@ class serviceRenewal implements IServant {
                     }
                     serialnum = (SerialNumber)
                             serialno.get(CertificateSerialNumber.NUMBER);
+
                 } catch (IOException e) {
-                    if (Debug.ON)
-                        e.printStackTrace();
-                    mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ERROR_GET_CERT", e.toString()));
+                    String message = CMS.getLogMessage("CMSCORE_CA_ERROR_GET_CERT", e.toString());
+                    mCA.log(ILogger.LL_FAILURE, message);
+                    logger.error(message, e);
                     throw new ECAException(
                             CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
+
                 } catch (CertificateException e) {
-                    if (Debug.ON)
-                        e.printStackTrace();
-                    mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ERROR_GET_CERT", e.toString()));
+                    String message = CMS.getLogMessage("CMSCORE_CA_ERROR_GET_CERT", e.toString());
+                    mCA.log(ILogger.LL_FAILURE, message);
+                    logger.error(message, e);
                     throw new ECAException(
                             CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
                 }
+
                 if (serialnum == null) {
                     mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ERROR_GET_CERT", ""));
                     throw new ECAException(
@@ -1481,10 +1476,10 @@ class serviceRenewal implements IServant {
 
                         if (status.equals(ICertRecord.STATUS_REVOKED) ||
                                 status.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
-                            Debug.trace("It is already revoked or Expired !!!");
+                            logger.debug("It is already revoked or Expired !!!");
                         } // it is still new ... So just return this certificate to user
                         else {
-                            Debug.trace("It is still new !!!");
+                            logger.debug("It is still new !!!");
                             issuedCerts[i] = cert;
                             continue;
                         }
@@ -1546,6 +1541,9 @@ class getCertsForChallenge implements IServant {
 }
 
 class getCertStatus implements IServant {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(getCertStatus.class);
+
     private ICertificateAuthority mCA;
     private CAService mService;
 
@@ -1568,7 +1566,7 @@ class getCertStatus implements IServant {
             try {
                 record = (CertRecord) certDB.readCertificateRecord(serialno);
             } catch (EBaseException ee) {
-                Debug.trace(ee.toString());
+                logger.warn(ee.toString());
             }
 
             if (record != null) {
@@ -1590,6 +1588,9 @@ class getCertStatus implements IServant {
 }
 
 class serviceCheckChallenge implements IServant {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceCheckChallenge.class);
+
     private ICertificateAuthority mCA;
     private CAService mService;
     private MessageDigest mSHADigest = null;
@@ -1620,7 +1621,7 @@ class serviceCheckChallenge implements IServant {
             try {
                 record = (CertRecord) certDB.readCertificateRecord(serialno);
             } catch (EBaseException ee) {
-                Debug.trace(ee.toString());
+                logger.warn(ee.toString());
             }
             if (record != null) {
                 String status = record.getStatus();
@@ -1704,6 +1705,9 @@ class serviceCheckChallenge implements IServant {
 }
 
 class serviceRevoke implements IServant {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceRevoke.class);
+
     private ICertificateAuthority mCA;
     private CAService mService;
 
@@ -1753,7 +1757,7 @@ class serviceRevoke implements IServant {
 
         // if clone ca, send revoked cert records to CLA
         if (CAService.mCLAConnector != null) {
-            CMS.debug(CMS.getLogMessage("CMSCORE_CA_CLONE_READ_REVOKED"));
+            logger.debug(CMS.getLogMessage("CMSCORE_CA_CLONE_READ_REVOKED"));
             BigInteger revokedCertIds[] =
                     new BigInteger[revokedCerts.length];
 
@@ -1764,7 +1768,7 @@ class serviceRevoke implements IServant {
             request.deleteExtData(IRequest.OLD_CERTS);
             request.setExtData(IRequest.REVOKED_CERT_RECORDS, revokedCertIds);
 
-            CMS.debug(CMS.getLogMessage("CMSCORE_CA_CLONE_READ_REVOKED_CONNECTOR"));
+            logger.debug(CMS.getLogMessage("CMSCORE_CA_CLONE_READ_REVOKED_CONNECTOR"));
 
             request.setRequestType(IRequest.CLA_CERT4CRL_REQUEST);
             sendStatus = CAService.mCLAConnector.send(request);
@@ -1790,9 +1794,7 @@ class serviceRevoke implements IServant {
             throw new ECAException(CMS.getUserMessage("CMS_CA_REVOKE_FAILED"));
         }
 
-        if (Debug.ON) {
-            Debug.trace("serviceRevoke sendStatus=" + sendStatus);
-        }
+        logger.debug("serviceRevoke sendStatus=" + sendStatus);
 
         return sendStatus;
     }
