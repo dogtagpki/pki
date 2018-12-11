@@ -689,17 +689,6 @@
    </servlet-mapping>
    [PKI_CLOSE_STANDALONE_COMMENT]
 
-
-   <!-- ==================== Default Session Configuration =============== -->
-   <!-- You can set the default session timeout (in minutes) for all newly -->
-   <!-- created sessions by modifying the value below.                     -->
-   <!--                                                                    -->
-   <!-- To disable session timeouts for this instance, set a value of -1.  -->
-
-   <session-config>
-        <session-timeout>30</session-timeout>
-   </session-config>
-
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Account Services</web-resource-name>
