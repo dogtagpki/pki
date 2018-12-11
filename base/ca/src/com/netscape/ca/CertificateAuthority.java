@@ -147,7 +147,6 @@ import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmscore.security.KeyCertUtil;
-import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPPostReadControl;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -2070,8 +2069,7 @@ public class CertificateAuthority
                 while (names.hasMoreElements()) {
                     String id = names.nextElement();
 
-                    if (Debug.ON)
-                        Debug.trace("registering listener impl: " + id);
+                    logger.debug("registering listener impl: " + id);
                     String cl = implc.getString(id + "." + PROP_CLASS);
 
                     ListenerPlugin plugin = new ListenerPlugin(id, cl);
@@ -2085,8 +2083,7 @@ public class CertificateAuthority
                 while (instances.hasMoreElements()) {
                     String id = instances.nextElement();
 
-                    if (Debug.ON)
-                        Debug.trace("registering listener instance: " + id);
+                    logger.debug("registering listener instance: " + id);
                     IConfigStore iConfig = instc.getSubStore(id);
                     String implName = instc.getString(id + "." + PROP_PLUGIN);
                     ListenerPlugin plugin = mListenerPlugins.get(implName);
@@ -2110,10 +2107,7 @@ public class CertificateAuthority
                         //   "Listener instance " + id + " added");
 
                     } catch (Exception e) {
-                        if (Debug.ON) {
-                            e.printStackTrace();
-                        }
-                        Debug.trace("failed to add listener instance");
+                        logger.error("Unable to add listener instance: " + e, e);
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_INIT_LISTENER", id, e.toString()));
                         throw e;
                     }
