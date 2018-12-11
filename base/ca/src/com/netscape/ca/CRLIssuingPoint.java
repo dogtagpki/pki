@@ -68,7 +68,6 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-import com.netscape.cmscore.util.Debug;
 
 import netscape.security.util.BitArray;
 import netscape.security.x509.AlgorithmId;
@@ -106,6 +105,8 @@ import netscape.security.x509.X509CertImpl;
  */
 
 public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRLIssuingPoint.class);
 
     private static Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_CA);
     private static Logger transactionLogger = Logger.getLogger(ILogger.EV_AUDIT, ILogger.S_OTHER);
@@ -470,7 +471,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         IConfigStore crlSubStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
         mPageSize = crlSubStore.getInteger(ICertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
-        CMS.debug("CRL Page Size: " + mPageSize);
+        logger.debug("CRL Page Size: " + mPageSize);
 
         mCountMod = config.getInteger("countMod", 0);
         mCRLRepository = mCA.getCRLRepository();
@@ -554,7 +555,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
             }
         }
-        CMS.debug("areTimeListsIdentical:  identical: " + identical);
+        logger.debug("areTimeListsIdentical:  identical: " + identical);
         return identical;
     }
 
@@ -564,7 +565,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             Vector<Integer> listedTimes = listedDays.elementAt(i);
             listSize += ((listedTimes != null) ? listedTimes.size() : 0);
         }
-        CMS.debug("getTimeListSize:  ListSize=" + listSize);
+        logger.debug("getTimeListSize:  ListSize=" + listSize);
         return listSize;
     }
 
@@ -727,10 +728,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mNextUpdateGracePeriod = MINUTE * config.getInteger(Constants.PR_GRACE_PERIOD, 0);
         // get unexpected exception wait time; default to 30 minutes
         mUnexpectedExceptionWaitTime = MINUTE * config.getInteger("unexpectedExceptionWaitTime", 30);
-        CMS.debug("CRLIssuingPoint:initConfig: mUnexpectedExceptionWaitTime set to " + mUnexpectedExceptionWaitTime);
+        logger.debug("CRLIssuingPoint:initConfig: mUnexpectedExceptionWaitTime set to " + mUnexpectedExceptionWaitTime);
         // get unexpected exception loop max; default to 10 times
         mUnexpectedExceptionLoopMax = config.getInteger("unexpectedExceptionLoopMax", 10);
-        CMS.debug("CRLIssuingPoint:initConfig: mUnexpectedExceptionLoopMax set to " + mUnexpectedExceptionLoopMax);
+        logger.debug("CRLIssuingPoint:initConfig: mUnexpectedExceptionLoopMax set to " + mUnexpectedExceptionLoopMax);
 
         // get next update as this update extension
         mNextAsThisUpdateExtension = MINUTE * config.getInteger(Constants.PR_NEXT_AS_THIS_EXTENSION, 0);
@@ -851,10 +852,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
 
             mFirstUnsaved = crlRecord.getFirstUnsaved();
-            if (Debug.on()) {
-                Debug.trace("initCRL  CRLNumber=" + mCRLNumber.toString() + "  CRLSize=" + mCRLSize +
+            logger.debug("initCRL  CRLNumber=" + mCRLNumber.toString() + "  CRLSize=" + mCRLSize +
                             "  FirstUnsaved=" + mFirstUnsaved);
-            }
             if (mFirstUnsaved == null ||
                     (mFirstUnsaved != null && mFirstUnsaved.equals(ICRLIssuingPointRecord.NEW_CACHE))) {
                 clearCRLCache();
@@ -935,7 +934,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             try {
 
                 BigInteger startingCrlNumberBig = ipStore.getBigInteger(PROP_CRL_STARTING_NUMBER, BigInteger.ZERO);
-                CMS.debug("startingCrlNumber: " + startingCrlNumberBig);
+                logger.debug("startingCrlNumber: " + startingCrlNumberBig);
 
                 // Check for bogus negative value
 
@@ -1584,7 +1583,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         long next = 0L;
         long nextUpdate = 0L;
 
-        CMS.debug("findNextUpdate:  fromLastUpdate: " + fromLastUpdate + "  delta: " + delta);
+        logger.debug("findNextUpdate:  fromLastUpdate: " + fromLastUpdate + "  delta: " + delta);
 
         int numberOfDays = (int) ((startOfToday - lastUpdateDay) / oneDay);
         if (numberOfDays > 0 && mDailyUpdates.size() > 1 &&
@@ -1752,7 +1751,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             next = nextUpdate;
         }
 
-        CMS.debug("findNextUpdate:  "
+        logger.debug("findNextUpdate:  "
                 + ((new Date(next)).toString()) + ((fromLastUpdate) ? "  delay: " + (next - now) : ""));
 
         return (fromLastUpdate) ? next - now : next;
@@ -1830,14 +1829,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             // it gets mUnexpectedExceptionLoopMax tries
                             loopCounter++;
                             if (loopCounter > mUnexpectedExceptionLoopMax) {
-                                CMS.debug("CRLIssuingPoint:run(): in unexpectedFailure. mUnexpectedExceptionLoopMax reached with loopCounter =" + loopCounter +
+                                logger.debug("CRLIssuingPoint:run(): in unexpectedFailure. mUnexpectedExceptionLoopMax reached with loopCounter =" + loopCounter +
                                     ", loop slowdown procedure ensues");
                                 long now = System.currentTimeMillis();
                                 long timeLapse = now - timeOfUnexpectedFailure;
-                                CMS.debug("CRLIssuingPoint:run(): in unexpectedFailure.  now= "+ now + "; timeOfUnexpectedFailure = " + timeOfUnexpectedFailure);
+                                logger.debug("CRLIssuingPoint:run(): in unexpectedFailure.  now= "+ now + "; timeOfUnexpectedFailure = " + timeOfUnexpectedFailure);
                                 if (timeLapse < mUnexpectedExceptionWaitTime) {
                                     long waitTime = mUnexpectedExceptionWaitTime - timeLapse;
-                                    CMS.debug("CRLIssuingPoint:run(): wait time after last failure:" + waitTime);
+                                    logger.debug("CRLIssuingPoint:run(): wait time after last failure:" + waitTime);
                                     try {
                                         wait (waitTime);
                                     } catch (InterruptedException e) {
@@ -1848,15 +1847,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                                     // timeOfUnexpectedFailure will be reset again
                                     // if it still fails below
                                 } else {
-                                    CMS.debug("CRLIssuingPoint:run(): no wait after failure: (now - timeOfUnexpectedFailure) !< mUnexpectedExceptionWaitTime");
+                                    logger.debug("CRLIssuingPoint:run(): no wait after failure: (now - timeOfUnexpectedFailure) !< mUnexpectedExceptionWaitTime");
                                 }
                             } else {
-                                CMS.debug("CRLIssuingPoint:run(): in unexpectedFailure. mUnexpectedExceptionLoopMax not reached with loopCounter =" + loopCounter +
+                                logger.debug("CRLIssuingPoint:run(): in unexpectedFailure. mUnexpectedExceptionLoopMax not reached with loopCounter =" + loopCounter +
                                     ", no wait time");
                             }
                         }
 
-                        CMS.debug("CRLIssuingPoint:run(): before CRL generation");
+                        logger.debug("CRLIssuingPoint:run(): before CRL generation");
                         try {
                             if (doCacheUpdate) {
                                 updateCRLCacheRepository();
@@ -1865,29 +1864,26 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             }
                             // reset if no exception
                             if (unexpectedFailure == true) {
-                                CMS.debug("CRLIssuingPoint:run(): reset unexpectedFailure values if no Exception.");
+                                logger.debug("CRLIssuingPoint:run(): reset unexpectedFailure values if no Exception.");
                                 unexpectedFailure = false;
                                 timeOfUnexpectedFailure = 0;
                                 loopCounter = 0;
                             }
                         } catch (Exception e) {
-                            CMS.debug("CRLIssuingPoint:run(): unexpectedFailure occurred:" + e);
+                            logger.debug("CRLIssuingPoint:run(): unexpectedFailure occurred:" + e);
                             unexpectedFailure = true;
                             timeOfUnexpectedFailure = System.currentTimeMillis();
                             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_CRL",
                                     (doCacheUpdate) ? "update CRL cache" : "update CRL", e.toString()));
-                            if (Debug.on()) {
-                                Debug.trace((doCacheUpdate) ? "update CRL cache" : "update CRL" + " error " + e);
-                                Debug.printStackTrace(e);
-                            }
+                            logger.warn((doCacheUpdate) ? "update CRL cache" : "update CRL" + " error " + e, e);
                         }
                         // put this here to prevent continuous loop if internal
                         // db is down.
                         if (mDoLastAutoUpdate)
-                            CMS.debug("CRLIssuingPoint:run(): mDoLastAutoUpdate set to false");
+                            logger.debug("CRLIssuingPoint:run(): mDoLastAutoUpdate set to false");
                             mDoLastAutoUpdate = false;
                         if (mDoManualUpdate) {
-                            CMS.debug("CRLIssuingPoint:run(): mDoManualUpdate set to false");
+                            logger.debug("CRLIssuingPoint:run(): mDoManualUpdate set to false");
                             mDoManualUpdate = false;
                             mSignatureAlgorithmForManualUpdate = null;
                         }
@@ -1898,7 +1894,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         } catch (EBaseException e1) {
             e1.printStackTrace();
         }
-        CMS.debug("CRLIssuingPoint:run(): out of the while loop");
+        logger.debug("CRLIssuingPoint:run(): out of the while loop");
         mUpdateThread = null;
     }
 
@@ -2011,7 +2007,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         CertificateRepository cr = (CertificateRepository) mCertRepository;
 
         synchronized (cr.certStatusUpdateTask) {
-            CMS.debug("Starting processRevokedCerts (entered lock)");
+            logger.debug("Starting processRevokedCerts (entered lock)");
             ICertRecordList list = mCertRepository.findCertRecordsInList(
                     filter,
                     new String[] {
@@ -2023,7 +2019,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             int totalSize = list.getSize();
 
             list.processCertRecords(0, totalSize - 1, cp);
-            CMS.debug("processRevokedCerts done");
+            logger.debug("processRevokedCerts done");
         }
     }
 
@@ -2060,16 +2056,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             //                 "(|(requestType=" + IRequest.REVOCATION_REQUEST + ")"+
             //                 "(requestType=" + IRequest.UNREVOCATION_REQUEST + ")))";
             String filter = "(requeststate=complete)";
-            if (Debug.on()) {
-                Debug.trace("recoverCRLCache  mFirstUnsaved=" + mFirstUnsaved + "  filter=" + filter);
-            }
+            logger.debug("recoverCRLCache  mFirstUnsaved=" + mFirstUnsaved + "  filter=" + filter);
+
             IRequestQueue mQueue = mCA.getRequestQueue();
 
             IRequestVirtualList list = mQueue.getPagedRequestsByFilter(
                         new RequestId(mFirstUnsaved), filter, 500, "requestId");
-            if (Debug.on()) {
-                Debug.trace("recoverCRLCache  size=" + list.getSize() + "  index=" + list.getCurrentIndex());
-            }
+            logger.debug("recoverCRLCache  size=" + list.getSize() + "  index=" + list.getCurrentIndex());
 
             CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mAllowExtensions);
             boolean includeCert = true;
@@ -2085,19 +2078,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 if (request == null) {
                     continue;
                 }
-                if (Debug.on()) {
-                    Debug.trace("recoverCRLCache  request=" + request.getRequestId().toString() +
+                logger.debug("recoverCRLCache  request=" + request.getRequestId().toString() +
                                 "  type=" + request.getRequestType());
-                }
                 if (IRequest.REVOCATION_REQUEST.equals(request.getRequestType())) {
                     RevokedCertImpl revokedCert[] =
                             request.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
                     if (revokedCert != null) {
                         for (int j = 0; j < revokedCert.length; j++) {
-                            if (Debug.on()) {
-                                Debug.trace("recoverCRLCache R j=" + j + "  length=" + revokedCert.length +
+                            logger.debug("recoverCRLCache R j=" + j + "  length=" + revokedCert.length +
                                         "  SerialNumber=0x" + revokedCert[j].getSerialNumber().toString(16));
-                            }
                             if (cp != null)
                                 includeCert = cp.checkRevokedCertExtensions(revokedCert[j].getExtensions());
                             if (includeCert) {
@@ -2105,9 +2094,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             }
                         }
                     } else {
-                        if (Debug.on()) {
-                            Debug.trace("Revocation Request : Revoked Certificates is a Null or has Invalid Values");
-                        }
+                        logger.error("Revocation Request : Revoked Certificates is a Null or has Invalid Values");
                         log(ILogger.LL_FAILURE, "Revoked Certificates is a Null or has Invalid Values");
                         throw new EBaseException("Revocation Request : Revoked Certificates is a Null or has Invalid Values");
                     }
@@ -2115,16 +2102,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     BigInteger serialNo[] = request.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
                     if (serialNo != null) {
                         for (int j = 0; j < serialNo.length; j++) {
-                            if (Debug.on()) {
-                                Debug.trace("recoverCRLCache U j=" + j + "  length=" + serialNo.length +
+                            logger.debug("recoverCRLCache U j=" + j + "  length=" + serialNo.length +
                                         "  SerialNumber=0x" + serialNo[j].toString(16));
-                            }
                             updateRevokedCert(UNREVOKED_CERT, serialNo[j], null);
                         }
                     } else {
-                        if (Debug.on()) {
-                            Debug.trace("Unrevocation Request : Serial Numbers is a Null or has Invalid Values");
-                        }
+                        logger.error("Unrevocation Request : Serial Numbers is a Null or has Invalid Values");
                         log(ILogger.LL_FAILURE, "Unrevocation Request : Serial Numbers is a Null or has Invalid Values");
                         throw new EBaseException("Unrevocation Request : Serial Numbers is a Null or has Invalid Values");
                     }
@@ -2180,7 +2163,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         } catch (Exception e) {
         }
 
-        CMS.debug("CRLIssuingPoint.getCRLExtension extension: " + theExt);
+        logger.debug("CRLIssuingPoint.getCRLExtension extension: " + theExt);
         return theExt;
     }
 
@@ -2487,13 +2470,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     public synchronized void updateCRLNow(String signingAlgorithm)
             throws EBaseException {
 
-        CMS.debug("updateCRLNow: mEnable =" + mEnable);
-        CMS.debug("updateCRLNow: mEnableCRLUpdates =" + mEnableCRLUpdates);
-        CMS.debug("updateCRLNow: mDoLastAutoUpdate =" + mDoLastAutoUpdate);
+        logger.debug("updateCRLNow: mEnable =" + mEnable);
+        logger.debug("updateCRLNow: mEnableCRLUpdates =" + mEnableCRLUpdates);
+        logger.debug("updateCRLNow: mDoLastAutoUpdate =" + mDoLastAutoUpdate);
 
         if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate))
             return;
-        CMS.debug("Updating CRL");
+        logger.debug("Updating CRL");
         transactionLogger.log(AuditFormat.LEVEL,
                     CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATE_STARTED"),
                     new Object[] {
@@ -2762,7 +2745,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             // #56123 - dont generate CRL if no revoked certificates
             if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
                 if (deltaCRLCerts.size() == 0) {
-                    CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No Delta CRL Generated");
+                    logger.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No Delta CRL Generated");
                     mDeltaCRLSize = -1;
                     signedAuditLogger.log(DeltaCRLGenerationEvent.createSuccessEvent(
                             getAuditSubjectID(),
@@ -2817,8 +2800,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     mCRLNumber));
 
         } catch (EBaseException e) {
-            CMS.debug(e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA", e.toString()));
+            String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA", e.toString());
+            logger.error(message, e);
+            log(ILogger.LL_FAILURE, message);
             mDeltaCRLSize = -1;
             signedAuditLogger.log(DeltaCRLGenerationEvent.createFailureEvent(
                     getAuditSubjectID(),
@@ -2826,8 +2810,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             return;
 
         } catch (Throwable e) {
-            CMS.debug(e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
+            String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString());
+            logger.error(message, e);
+            log(ILogger.LL_FAILURE, message);
             mDeltaCRLSize = -1;
             signedAuditLogger.log(DeltaCRLGenerationEvent.createFailureEvent(
                     getAuditSubjectID(),
@@ -2843,9 +2828,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             signedAuditLogger.log(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber));
 
         } catch (Throwable e) {
-            CMS.debug(e);
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString()));
+            String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString());
+            logger.error(message, e);
+            log(ILogger.LL_FAILURE, message);
             signedAuditLogger.log(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
         }
     }
@@ -2871,7 +2856,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         X509CRLImpl newX509CRL = null;
 
         try {
-            CMS.debug("Making CRL with algorithm " +
+            logger.debug("Making CRL with algorithm " +
                     signingAlgorithm + " " + AlgorithmId.get(signingAlgorithm));
 
             mSplits[7] -= System.currentTimeMillis();
@@ -2879,7 +2864,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             // #56123 - dont generate CRL if no revoked certificates
             if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
                 if (mCRLCerts.size() == 0) {
-                    CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No CRL Generated");
+                    logger.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No CRL Generated");
                     signedAuditLogger.log(FullCRLGenerationEvent.createSuccessEvent(
                             getAuditSubjectID(),
                             "No Revoked Certificates"));
@@ -2887,15 +2872,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
             }
 
-            CMS.debug("CRLIssuingPoint: creating CRL object");
+            logger.debug("CRLIssuingPoint: creating CRL object");
             X509CRLImpl crl = new X509CRLImpl(mCA.getCRLX500Name(),
                     AlgorithmId.get(signingAlgorithm),
                     thisUpdate, nextUpdate, mCRLCerts, ext);
 
-            CMS.debug("CRLIssuingPoint: signing CRL");
+            logger.debug("CRLIssuingPoint: signing CRL");
             newX509CRL = mCA.sign(crl, signingAlgorithm);
 
-            CMS.debug("CRLIssuingPoint: encoding CRL");
+            logger.debug("CRLIssuingPoint: encoding CRL");
             byte[] newCRL = newX509CRL.getEncoded();
 
             mSplits[7] += System.currentTimeMillis();
@@ -2931,7 +2916,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mNextCRLNumber = mCRLNumber.add(BigInteger.ONE);
             mNextDeltaCRLNumber = mNextCRLNumber;
 
-            CMS.debug("CRLIssuingPoint: Logging CRL Update to transaction log");
+            logger.debug("CRLIssuingPoint: Logging CRL Update to transaction log");
             long totalTime = 0;
             long crlTime = 0;
             long deltaTime = 0;
@@ -2964,25 +2949,27 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         }
             );
 
-            CMS.debug("CRLIssuingPoint: Finished Logging CRL Update to transaction log");
+            logger.debug("CRLIssuingPoint: Finished Logging CRL Update to transaction log");
 
             signedAuditLogger.log(FullCRLGenerationEvent.createSuccessEvent(
                     getAuditSubjectID(),
                     mCRLNumber));
 
         } catch (EBaseException e) {
-            CMS.debug(e);
             mUpdatingCRL = CRL_UPDATE_DONE;
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_CRL", e.toString()));
+            String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_CRL", e.toString());
+            logger.error(message, e);
+            log(ILogger.LL_FAILURE, message);
             signedAuditLogger.log(FullCRLGenerationEvent.createFailureEvent(
                     getAuditSubjectID(),
                     e.getMessage()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()), e);
 
         } catch (Throwable e) {
-            CMS.debug(e);
             mUpdatingCRL = CRL_UPDATE_DONE;
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
+            String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString());
+            logger.error(message, e);
+            log(ILogger.LL_FAILURE, message);
             signedAuditLogger.log(FullCRLGenerationEvent.createFailureEvent(
                     getAuditSubjectID(),
                     e.getMessage()));
@@ -2998,9 +2985,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             signedAuditLogger.log(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber));
 
         } catch (Throwable e) {
-            CMS.debug(e);
             mUpdatingCRL = CRL_UPDATE_DONE;
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString());
+            logger.error(message, e);
             log(ILogger.LL_FAILURE, message);
             signedAuditLogger.log(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
             throw new ECAException(message, e);
@@ -3050,7 +3037,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         ICRLIssuingPointRecord crlRecord = null;
 
-        CMS.debug("Publish CRL");
+        logger.debug("Publish CRL");
         try {
             if (x509crl == null) {
                 crlRecord = mCRLRepository.readCRLIssuingPointRecord(mId);
@@ -3066,20 +3053,20 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     mPublisherProcessor != null && mPublisherProcessor.isCRLPublishingEnabled()) {
                 Enumeration<ILdapRule> rules = mPublisherProcessor.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
                 if (rules == null || !rules.hasMoreElements()) {
-                    CMS.debug("CRL publishing is not enabled.");
+                    logger.debug("CRL publishing is not enabled.");
                 } else {
                     if (mPublishDN != null) {
                         mPublisherProcessor.publishCRL(mPublishDN, x509crl);
-                        CMS.debug("CRL published to " + mPublishDN);
+                        logger.debug("CRL published to " + mPublishDN);
                     } else {
                         mPublisherProcessor.publishCRL(x509crl, getId());
-                        CMS.debug("CRL published.");
+                        logger.debug("CRL published.");
                     }
                 }
             }
         } catch (Exception e) {
-            CMS.debug("Could not publish CRL. Error " + e);
-            CMS.debug("Could not publish CRL. ID " + mId);
+            logger.error("Could not publish CRL: " + e, e);
+            logger.error("Could not publish CRL. ID " + mId);
             throw new EErrorPublishCRL(
                     CMS.getUserMessage("CMS_CA_ERROR_PUBLISH_CRL", mId, e.toString()));
         } finally {
@@ -3116,10 +3103,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 return;
             }
 
-            CMS.debug("Revocation listener called.");
+            logger.debug("Revocation listener called.");
             // check if serial number is in begin/end range if set.
             if (mBeginSerial != null || mEndSerial != null) {
-                CMS.debug(
+                logger.debug(
                         "Checking if serial number is between " +
                                 mBeginSerial + " and " + mEndSerial);
                 BigInteger[] serialNos =
@@ -3171,9 +3158,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     r.setExtData(mCrlUpdateStatus, IRequest.RES_ERROR);
                     r.setExtData(mCrlUpdateError, e);
                 } catch (Exception e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()));
-                    if (Debug.on())
-                        Debug.printStackTrace(e);
+                    String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString());
+                    log(ILogger.LL_FAILURE, message);
+                    logger.warn(message, e);
                     r.setExtData(mCrlUpdateStatus, IRequest.RES_ERROR);
                     r.setExtData(mCrlUpdateError,
                             new EBaseException(
@@ -3207,6 +3194,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 }
 
 class CertRecProcessor implements IElementProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecProcessor.class);
+
     private Hashtable<BigInteger, RevokedCertificate> mCRLCerts = null;
     private boolean mAllowExtensions = false;
     private CRLIssuingPoint mIP = null;
@@ -3283,7 +3273,7 @@ class CertRecProcessor implements IElementProcessor {
 
         if (onlySomeReasons != null) {
             applyReasonMatch = !onlySomeReasons.toString().equals("0000000");
-            CMS.debug("applyReasonMatch " + applyReasonMatch);
+            logger.debug("applyReasonMatch " + applyReasonMatch);
             if (applyReasonMatch == true) {
                 mOnlySomeReasons = onlySomeReasons;
                 result = true;
@@ -3314,7 +3304,7 @@ class CertRecProcessor implements IElementProcessor {
                 CRLReasonExtension theReason = (CRLReasonExtension) crlReasonExt;
                 reason = (RevocationReason) theReason.get("value");
                 reasonIndex = reason.toInt();
-                CMS.debug("revoked reason " + reason);
+                logger.debug("revoked reason " + reason);
             } catch (Exception e) {
                 return includeCert;
             }
@@ -3327,7 +3317,7 @@ class CertRecProcessor implements IElementProcessor {
             if (reasonMatch != true) {
                 includeCert = false;
             } else {
-                CMS.debug("onlySomeReasons match! reason: " + reason);
+                logger.debug("onlySomeReasons match! reason: " + reason);
             }
         }
 
@@ -3375,12 +3365,11 @@ class CertRecProcessor implements IElementProcessor {
 
             if (includeCert == true) {
                 mCRLCerts.put(serialNumber, newRevokedCert);
-                CMS.debug("Putting certificate serial: 0x" + serialNumber.toString(16) + " into CRL hashtable");
+                logger.debug("Putting certificate serial: 0x" + serialNumber.toString(16) + " into CRL hashtable");
             }
         } catch (EBaseException e) {
-            CMS.debug(
-                    "CA failed constructing CRL entry: " +
-                            (mCRLCerts.size() + 1) + " " + e);
+            logger.error("CA failed constructing CRL entry: " +
+                            (mCRLCerts.size() + 1) + " " + e, e);
             throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
         }
     }
