@@ -65,13 +65,13 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.9
-%define redhat_release  8
+%define redhat_release  9
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
 Version:                10.5.14
-%define fedora_release  1
+%define fedora_release  2
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
 %endif
@@ -204,6 +204,8 @@ Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{
 %else
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
 %endif
+
+#Patch0:           pki-core-CA-OCSP-SystemCertsVerification.patch
 
 # Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
 #
@@ -796,6 +798,7 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %prep
 %setup -q -n %{name}-%{version}%{?prerel}
+#%patch0 -p1
 
 %clean
 %{__rm} -rf %{buildroot}
