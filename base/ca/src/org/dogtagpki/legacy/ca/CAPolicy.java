@@ -30,7 +30,6 @@ import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cmscore.util.Debug;
 
 /**
  * XXX Just inherit 'GenericPolicyProcessor' (from RA) for now.
@@ -43,6 +42,9 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class CAPolicy implements IPolicy {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAPolicy.class);
+
     IConfigStore mConfig = null;
     ICertificateAuthority mCA = null;
 
@@ -70,7 +72,7 @@ public class CAPolicy implements IPolicy {
         String processorType = // XXX - need to upgrade 4.2
         config.getString(PROP_PROCESSOR, PR_TYPE_CLASSIC);
 
-        Debug.trace("selected policy processor = " + processorType);
+        logger.debug("selected policy processor = " + processorType);
         if (processorType.equals(PR_TYPE_CLASSIC)) {
             mPolicies = new GenericPolicyProcessor();
         } else {
@@ -94,20 +96,20 @@ public class CAPolicy implements IPolicy {
      */
     public PolicyResult apply(IRequest r) {
         if (r == null) {
-            Debug.trace("in CAPolicy.apply(request=null)");
+            logger.debug("in CAPolicy.apply(request=null)");
             return PolicyResult.REJECTED;
         }
 
-        Debug.trace("in CAPolicy.apply(requestType=" +
+        logger.debug("in CAPolicy.apply(requestType=" +
                 r.getRequestType() + ",requestId=" +
                 r.getRequestId().toString() + ",requestStatus=" +
                 r.getRequestStatus().toString() + ")");
 
         if (isProfileRequest(r)) {
-            Debug.trace("CAPolicy: Profile-base Request " +
+            logger.debug("CAPolicy: Profile-base Request " +
                     r.getRequestId().toString());
 
-            CMS.debug("CAPolicy: requestId=" +
+            logger.debug("CAPolicy: requestId=" +
                     r.getRequestId().toString());
 
             String profileId = r.getExtDataInString(IRequest.PROFILE_ID);
@@ -127,11 +129,11 @@ public class CAPolicy implements IPolicy {
                 profile.validate(r);
                 return PolicyResult.ACCEPTED;
             } catch (EBaseException e) {
-                CMS.debug("CAPolicy: " + e.toString());
+                logger.error("CAPolicy: " + e, e);
                 return PolicyResult.REJECTED;
             }
         }
-        Debug.trace("mPolicies = " + mPolicies.getClass());
+        logger.debug("mPolicies = " + mPolicies.getClass());
         return mPolicies.apply(r);
     }
 
