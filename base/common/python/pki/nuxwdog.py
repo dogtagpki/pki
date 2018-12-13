@@ -19,18 +19,17 @@
 #
 # Copyright (C) 2018 Red Hat, Inc.
 # All rights reserved.
-#
 
-import subprocess
-import pki.server as server
 
-import sys
-import os
 import getopt
 import logging
+import os
+import subprocess
+import sys
+
+import pki.server as server
 
 from pki.keyring import Keyring
-
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +38,10 @@ logging.basicConfig(format='%(levelname)s: %(message)s')
 tags = set()
 keyring = Keyring()
 
+
 def split_entries(entry):
     return entry.split(',')
+
 
 def print_help():
     print('Usage: nuxwdog [OPTIONS]')
@@ -48,6 +49,7 @@ def print_help():
     print('      --clear                Clear values stored in keyring.')
     print('      --help                 Show help message.')
     print()
+
 
 try:
     opts, _ = getopt.gnu_getopt(sys.argv, '', ['clear', 'help'])
@@ -90,7 +92,7 @@ for subsystem in subsystems:
     token = subsystem.config['cmc.token']
     tokenList = subsystem.config['cms.tokenList']
 
-    tags.update (password_list)
+    tags.update(password_list)
     tags.add(token)
     tags.add(tokenList)
 
@@ -110,7 +112,6 @@ for tag in sorted(iter(tags)):
     key_name = instance_name + '/' + tag
 
     keyring.put_password(key_name=key_name, password=entered_pass)
-
 
 # Search the key and get the key ID
 # cmd = ["keyctl", "search", "@p", "user", "nuxwdog:usertest"]

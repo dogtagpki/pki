@@ -1,18 +1,14 @@
 package com.netscape.cms.tomcat;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.redhat.nuxwdog.WatchdogClient;
-
+import com.netscape.cmsutil.util.Keyring;
 
 public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPasswordStore {
 
@@ -22,9 +18,6 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
     private Hashtable<String, String> pwCache = null;
     private ArrayList<String> tags = null;
 
-    private final String PROMPT_PREFIX = "Please provide the password for ";
-    private String instanceId;
-
     @Override
     public void init(String confFile) throws IOException {
         if (!startedByNuxwdog()) {
@@ -32,10 +25,6 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
         }
 
         tags = new ArrayList<String>();
-
-        if (confFile != null) {
-            populateTokenTags(confFile);
-        }
 
         pwCache = new Hashtable<String, String>();
     }
@@ -50,40 +39,24 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
 
     }
 
-    private void populateTokenTags(String confFile) throws IOException {
-        Properties props = new Properties();
-        InputStream in = new FileInputStream(confFile);
-        props.load(in);
-
-        tags.add("internal");
-
-        String tokenList = props.getProperty("cms.tokenList");
-        if (StringUtils.isNotEmpty(tokenList)) {
-            for (String token: StringUtils.split(tokenList,',')) {
-                tags.add("hardware-" + token);
-            }
-        }
-
-        instanceId = props.getProperty("instanceId");
-    }
-
     private void addTag(String tag) {
         if (!tags.contains(tag)) {
             tags.add(tag);
         }
     }
 
+    @Override
     public String getPassword(String tag, int iteration) {
         if (pwCache.containsKey(tag)) {
             return pwCache.get(tag);
         }
+        String pwd = null;
 
-        String prompt = PROMPT_PREFIX + tag + ":";
-        if (StringUtils.isNotEmpty(instanceId)) {
-            prompt = "[" + instanceId + "] " + prompt;
+        try {
+            pwd = Keyring.getPassword(tag, "");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        String pwd = WatchdogClient.getPassword(prompt, iteration);
 
         if (pwd != null) {
             addTag(tag);
@@ -92,13 +65,13 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
     }
 
     @Override
-    public String getPassword(String tag){
+    public String getPassword(String tag) {
         return getPassword(tag, 0);
     }
 
     @Override
     public Enumeration<String> getTags() {
-        return  Collections.enumeration(tags);
+        return Collections.enumeration(tags);
     }
 
     @Override
