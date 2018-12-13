@@ -26,7 +26,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cmscore.util.Debug;
 
 /**
  * A class represents a KRA request queue service. This
@@ -41,6 +40,8 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class KRAService implements IService {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAService.class);
 
     public final static String ENROLLMENT = IRequest.ENROLLMENT_REQUEST;
     public final static String RECOVERY = IRequest.KEYRECOVERY_REQUEST;
@@ -79,8 +80,7 @@ public class KRAService implements IService {
      * @exception EBaseException failed to serve
      */
     public boolean serviceRequest(IRequest r) throws EBaseException {
-        if (Debug.ON)
-            Debug.trace("KRA services request " +
+        logger.debug("KRA services request " +
                     r.getRequestId().toString());
         mKRA.log(ILogger.LL_INFO, "KRA services request " +
                 r.getRequestId().toString());
@@ -97,7 +97,7 @@ public class KRAService implements IService {
         } catch (EBaseException e) {
             r.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
             r.setExtData(IRequest.ERROR, e);
-            CMS.debug("KRAService serviceRequest EBaseException:" + e.getMessage());
+            logger.error("KRAService serviceRequest " + e, e);
             if ((e.getMessage()).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
                 r.setRequestStatus(RequestStatus.REJECTED);
                 return true;
