@@ -1,10 +1,13 @@
 package com.netscape.cms.tomcat;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -18,6 +21,8 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
     private Hashtable<String, String> pwCache = null;
     private ArrayList<String> tags = null;
 
+    private String id;
+
     @Override
     public void init(String confFile) throws IOException {
         if (!startedByNuxwdog()) {
@@ -27,6 +32,10 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
         tags = new ArrayList<String>();
 
         pwCache = new Hashtable<String, String>();
+
+        if(confFile != null) {
+            loadInstanceID(confFile);
+        }
     }
 
     private boolean startedByNuxwdog() {
@@ -37,6 +46,14 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
         }
         return false;
 
+    }
+
+    private void loadInstanceID(String confFile) throws IOException {
+        Properties props = new Properties();
+        InputStream in = new FileInputStream(confFile);
+        props.load(in);
+
+        id = props.getProperty("instanceId");
     }
 
     private void addTag(String tag) {
@@ -53,7 +70,8 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
         String pwd = null;
 
         try {
-            pwd = Keyring.getPassword(tag, "");
+            String keyringTag = id + "/" + tag;
+            pwd = Keyring.getPassword(keyringTag, "");
         } catch (Exception e) {
             e.printStackTrace();
         }

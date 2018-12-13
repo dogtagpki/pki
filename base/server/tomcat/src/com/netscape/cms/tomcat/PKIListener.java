@@ -41,13 +41,9 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.redhat.nuxwdog.WatchdogClient;
-
 public class PKIListener implements LifecycleListener {
 
     final static Logger logger = LoggerFactory.getLogger(PKIListener.class);
-
-    private boolean startedByWD = false;
 
     @Override
     public void lifecycleEvent(LifecycleEvent event) {
@@ -59,9 +55,7 @@ public class PKIListener implements LifecycleListener {
 
             String wdPipeName = System.getenv("WD_PIPE_NAME");
             if (StringUtils.isNotEmpty(wdPipeName)) {
-                startedByWD = true;
                 logger.info("PKIListener: Initializing the watchdog");
-                WatchdogClient.init();
             }
 
             logger.info("PKIListener: Initializing TomcatJSS");
@@ -147,11 +141,6 @@ public class PKIListener implements LifecycleListener {
             }
 
         } else if (type.equals(Lifecycle.AFTER_START_EVENT)) {
-
-            if (startedByWD) {
-                logger.info("PKIListener: Sending endInit to the watchdog");
-                WatchdogClient.sendEndInit(0);
-            }
 
             verifySubsystems((Server)event.getLifecycle());
         }

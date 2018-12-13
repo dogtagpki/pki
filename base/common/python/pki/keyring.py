@@ -40,8 +40,8 @@ class Keyring:
         :type key_name: str
         :param password: Password value to be stored
         :type password: bytearray
-        :return: Key ID
-        :rtype: int
+        :return: Key ID, Error (if any)
+        :rtype: (int, str)
         """
 
         cmd = ['keyctl', 'padd', self.key_type, key_name, self.keyring]
@@ -96,7 +96,8 @@ class Keyring:
         """
         Clear the default keyring
 
-        :return: None
+        :return: Return code
+        :rtype: int
         """
         cmd = ['keyctl', 'clear', self.keyring]
         return subprocess.check_call(cmd)

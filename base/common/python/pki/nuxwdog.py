@@ -87,32 +87,36 @@ instance.load()
 subsystems = instance.subsystems
 
 for subsystem in subsystems:
-
     password_list = split_entries(subsystem.config['cms.passwordlist'])
     token = subsystem.config['cmc.token']
-    tokenList = subsystem.config['cms.tokenList']
-
     tags.update(password_list)
     tags.add(token)
-    tags.add(tokenList)
+
+    if 'cmd.tokenList' in subsystem.config:
+        tokenList = subsystem.config['cms.tokenList']
+        tags.add('hardware-' + tokenList)
 
 # 3a. Prompt the user using systemd-ask-password
 # 3b. Put into the keyring using keyctl
 
 
 for tag in sorted(iter(tags)):
-    prompt = '[' + instance_name + '] Please provide the password for ' + tag + ': '
+    if tag.startswith('hardware-'):
+        prompt_tag = tag[9:]
+    else:
+        prompt_tag = tag
+
+    prompt = '[' + instance_name + '] Please provide the password for ' + prompt_tag + ': '
 
     cmd_ask_password = ['systemd-ask-password', prompt]
 
     entered_pass = subprocess.check_output(cmd_ask_password)
 
-    print(entered_pass)
-
     key_name = instance_name + '/' + tag
 
     keyring.put_password(key_name=key_name, password=entered_pass)
 
+    print("retrieved: " + key_name + " - " + keyring.get_password(key_name))
 # Search the key and get the key ID
 # cmd = ["keyctl", "search", "@p", "user", "nuxwdog:usertest"]
 # p = subprocess.Popen(cmd, stdout=subprocess.PIPE)

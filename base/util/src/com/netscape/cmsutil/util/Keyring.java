@@ -29,7 +29,8 @@ public class Keyring {
 
     public static long getKeyID(String keyName) {
         String cmd = "keyctl search " + keyring + " " + keyType + " " + keyName;
-        return Long.parseLong(Utils.exec(cmd, ""));
+        String output = Utils.exec(cmd, null);
+        return Long.parseLong(output);
     }
 
     public static String getPassword(String keyName, String output_format) throws Exception {
@@ -50,7 +51,7 @@ public class Keyring {
 
         String cmd = "keyctl " + mode + " " + keyID;
 
-        return Utils.exec(cmd, "");
+        return Utils.exec(cmd, null);
 
     }
 

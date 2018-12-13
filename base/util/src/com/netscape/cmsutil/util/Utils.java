@@ -141,9 +141,11 @@ public class Utils {
 
             Process p = pb.start();
 
-            if (!input.isEmpty()) {
+            if (input != null) {
                 writeToStream(p.getOutputStream(), input);
             }
+
+            p.waitFor();
 
             String output;
             if (p.exitValue() == 0) {

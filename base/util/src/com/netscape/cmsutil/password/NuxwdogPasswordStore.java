@@ -1,10 +1,13 @@
 package com.netscape.cmsutil.password;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -28,6 +31,10 @@ public class NuxwdogPasswordStore implements IPasswordStore {
         tags = new ArrayList<String>();
 
         pwCache = new Hashtable<String, String>();
+
+        if(confFile != null) {
+            loadInstanceID(confFile);
+        }
     }
 
     private boolean startedByNuxwdog() {
@@ -40,22 +47,13 @@ public class NuxwdogPasswordStore implements IPasswordStore {
 
     }
 
-   /* private void populateTokenTags(String confFile) throws IOException {
+    private void loadInstanceID(String confFile) throws IOException {
         Properties props = new Properties();
         InputStream in = new FileInputStream(confFile);
         props.load(in);
 
-        tags.add(CryptoUtil.INTERNAL_TOKEN_NAME);
-
-        String tokenList = props.getProperty("cms.tokenList");
-        if (StringUtils.isNotEmpty(tokenList)) {
-            for (String token: StringUtils.split(tokenList,',')) {
-                tags.add("hardware-" + token);
-            }
-        }
-
         id = props.getProperty("instanceId");
-    }*/
+    }
 
     private void addTag(String tag) {
         if (!tags.contains(tag)) {
@@ -65,13 +63,15 @@ public class NuxwdogPasswordStore implements IPasswordStore {
 
     @Override
     public String getPassword(String tag, int iteration) {
+        // Check the Hash table for availability
         if (pwCache.containsKey(tag)) {
             return pwCache.get(tag);
         }
         String pwd = null;
 
         try {
-            pwd = Keyring.getPassword(tag, "");
+            String keyringTag = id + "/" + tag;
+            pwd = Keyring.getPassword(keyringTag, "");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -84,7 +84,7 @@ public class NuxwdogPasswordStore implements IPasswordStore {
 
     @Override
     public Enumeration<String> getTags() {
-        return  Collections.enumeration(tags);
+        return Collections.enumeration(tags);
     }
 
     @Override
