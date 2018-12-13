@@ -66,7 +66,6 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
-import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import netscape.security.util.BigInt;
@@ -89,6 +88,8 @@ import netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class RecoveryService implements IService {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RecoveryService.class);
 
     public static final String ATTR_NICKNAME = "nickname";
     public static final String ATTR_OWNER_NAME = "ownerName";
@@ -144,13 +145,12 @@ public class RecoveryService implements IService {
             cm = CryptoManager.getInstance();
             config = CMS.getConfigStore();
             tokName = config.getString("kra.storageUnit.hardware", CryptoUtil.INTERNAL_TOKEN_NAME);
-            CMS.debug("RecoveryService: serviceRequest: token: " + tokName);
+            logger.debug("RecoveryService: serviceRequest: token: " + tokName);
             ct = CryptoUtil.getCryptoToken(tokName);
 
             allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
         } catch (Exception e) {
-            CMS.debug("RecoveryService exception: use internal token :"
-                    + e.toString());
+            logger.error("RecoveryService exception: use internal token: " + e, e);
             ct = cm.getInternalCryptoToken();
         }
         if (ct == null) {
@@ -162,8 +162,7 @@ public class RecoveryService implements IService {
             statsSub.startTiming("recovery", true /* main action */);
         }
 
-        if (Debug.ON)
-            Debug.trace("KRA services recovery request");
+        logger.debug("KRA services recovery request");
         mKRA.log(ILogger.LL_INFO, "KRA services recovery request");
 
         // byte publicKey[] = (byte[])request.get(ATTR_PUBLIC_KEY_DATA);
@@ -214,7 +213,7 @@ public class RecoveryService implements IService {
         boolean isRSA = true;
         String keyAlg = x509cert.getPublicKey().getAlgorithm();
         if (keyAlg != null) {
-            CMS.debug("RecoveryService: publicKey alg =" + keyAlg);
+            logger.debug("RecoveryService: publicKey alg =" + keyAlg);
             if (!keyAlg.equals("RSA"))
                 isRSA = false;
         }
@@ -383,20 +382,20 @@ public class RecoveryService implements IService {
             BigInt privateKeyExponent = privateKeyDerIn.getInteger();
 
             if (!publicKeyModulus.equals(privateKeyModulus)) {
-                CMS.debug("verifyKeyPair modulus mismatch publicKeyModulus="
+                logger.debug("verifyKeyPair modulus mismatch publicKeyModulus="
                         + publicKeyModulus + " privateKeyModulus=" + privateKeyModulus);
                 return false;
             }
 
             if (!publicKeyExponent.equals(privateKeyExponent)) {
-                CMS.debug("verifyKeyPair exponent mismatch publicKeyExponent="
+                logger.debug("verifyKeyPair exponent mismatch publicKeyExponent="
                         + publicKeyExponent + " privateKeyExponent=" + privateKeyExponent);
                 return false;
             }
 
             return true;
         } catch (Exception e) {
-            CMS.debug("verifyKeyPair error " + e);
+            logger.debug("verifyKeyPair error " + e);
             return false;
         }
     }
@@ -408,7 +407,7 @@ public class RecoveryService implements IService {
     public synchronized PrivateKey recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord, boolean isRSA)
             throws EBaseException {
 
-        CMS.debug("RecoverService: recoverKey: key to recover is RSA? "+
+        logger.debug("RecoverService: recoverKey: key to recover is RSA? "+
             isRSA);
 
         try {
@@ -423,7 +422,7 @@ public class RecoveryService implements IService {
             try {
                 pubkey = X509Key.parsePublicKey(new DerValue(keyRecord.getPublicKeyData()));
             } catch (Exception e) {
-                CMS.debug("RecoverService: after parsePublicKey:" + e.toString());
+                logger.error("RecoverService: after parsePublicKey:" + e.toString(), e);
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "public key parsing failure"));
             }
 
@@ -444,7 +443,7 @@ public class RecoveryService implements IService {
             }
             return privKey;
         } catch (Exception e) {
-            CMS.debug("RecoverService: recoverKey() failed with allowEncDecrypt_recovery=false:" + e.toString());
+            logger.error("RecoverService: recoverKey() failed with allowEncDecrypt_recovery=false:" + e, e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
                     "recoverKey() failed with allowEncDecrypt_recovery=false:" + e.toString()));
         }
@@ -460,7 +459,7 @@ public class RecoveryService implements IService {
      */
     public void createPFX(IRequest request, Hashtable<String, Object> params,
             PrivateKey priKey, CryptoToken ct) throws EBaseException {
-        CMS.debug("RecoverService: createPFX() allowEncDecrypt_recovery=false");
+        logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=false");
         org.mozilla.jss.util.Password pass = null;
         try {
             // create p12
@@ -473,7 +472,7 @@ public class RecoveryService implements IService {
 
             // add certificate
             mKRA.log(ILogger.LL_INFO, "KRA adds certificate to P12");
-            CMS.debug("RecoverService: createPFX() adds certificate to P12");
+            logger.debug("RecoverService: createPFX() adds certificate to P12");
             SEQUENCE encSafeContents = new SEQUENCE();
             ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
             String nickname = request.getExtDataInString(ATTR_NICKNAME);
@@ -493,7 +492,7 @@ public class RecoveryService implements IService {
 
             // add key
             mKRA.log(ILogger.LL_INFO, "KRA adds key to P12");
-            CMS.debug("RecoverService: createPFX() adds key to P12");
+            logger.debug("RecoverService: createPFX() adds key to P12");
             char[] pwdChar = pwd.toCharArray();
             pass = new
                     org.mozilla.jss.util.Password(
@@ -520,12 +519,12 @@ public class RecoveryService implements IService {
                 key = EncryptedPrivateKeyInfo.createPBE(
                         PBEAlgorithm.PBE_SHA1_DES3_CBC,
                         pass, salt, 1, passConverter, priKey, ct);
-                CMS.debug("RecoverService: createPFX() EncryptedPrivateKeyInfo.createPBE() returned");
+                logger.debug("RecoverService: createPFX() EncryptedPrivateKeyInfo.createPBE() returned");
                 if (key == null) {
-                    CMS.debug("RecoverService: createPFX() key null");
+                    logger.error("RecoverService: createPFX() key null");
                     throw new EBaseException("EncryptedPrivateKeyInfo.createPBE() failed");
                 } else {
-                    CMS.debug("RecoverService: createPFX() key not null");
+                    logger.debug("RecoverService: createPFX() key not null");
                 }
             } else {
                 byte[] epkiBytes = ct.getCryptoStore().getEncryptedPrivateKeyInfo(
@@ -544,12 +543,12 @@ public class RecoveryService implements IService {
                     EncryptionAlgorithm.AES_256_CBC,
                     0 /* iterations (use default) */,
                     priKey);
-                CMS.debug("RecoverService: createPFX() getEncryptedPrivateKeyInfo() returned");
+                logger.debug("RecoverService: createPFX() getEncryptedPrivateKeyInfo() returned");
                 if (epkiBytes == null) {
-                    CMS.debug("RecoverService: createPFX() epkiBytes null");
+                    logger.error("RecoverService: createPFX() epkiBytes null");
                     throw new EBaseException("getEncryptedPrivateKeyInfo returned null");
                 } else {
-                    CMS.debug("RecoverService: createPFX() epkiBytes not null");
+                    logger.debug("RecoverService: createPFX() epkiBytes not null");
                 }
                 key = new ANY(epkiBytes);
             }
@@ -589,12 +588,13 @@ public class RecoveryService implements IService {
 
             // put final PKCS12 into volatile request
             params.put(ATTR_PKCS12, fos.toByteArray());
-            CMS.debug("RecoverService: createPFX() completed.");
+            logger.debug("RecoverService: createPFX() completed.");
+
         } catch (Exception e) {
             mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_CONSTRUCT_P12", e.toString()));
-            CMS.debug("RecoverService: createPFX() exception caught:"+
-                e.toString());
+            logger.error("RecoverService: createPFX() exception caught:" + e, e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1", e.toString()));
+
         } finally {
             if(pass != null) {
                 pass.clear();
@@ -645,7 +645,7 @@ public class RecoveryService implements IService {
      */
     public void createPFX(IRequest request, Hashtable<String, Object> params,
             byte priData[]) throws EBaseException {
-        CMS.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
+        logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
         org.mozilla.jss.util.Password pass = null;
         try {
             // create p12
