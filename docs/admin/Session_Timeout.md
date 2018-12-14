@@ -9,18 +9,20 @@ As long as the user remains active, the user can execute multiple operations ove
 Session timeout determines how long the server will wait since the last operation before terminating the session due to inactivity.
 Once the session is terminated, the user will be required to re-authenticate to continue accessing the server, and the server will create a new session.
 
-There are two types of sessions:
-* TLS session
-* HTTP session
+There are two types of timeouts:
+* TLS session timeout
+* HTTP session timeout
 
-Due to differences in the way the clients works, the clients will be affected differently by these sessions.
+Due to differences in the way the clients works, the clients will be affected differently by these timeouts.
 
-### TLS Session
+### TLS Session Timeout
 
-TLS session is a secure communication channel via a TLS connection established through TLS handshake protocol.
-If the connection is successfully created, PKI server will generate a ACCESS_SESSION_ESTABLISH audit event with Outcome=Success.
-If the connection failed to be created, PKI server will generate a ACCESS_SESSION_ESTABLISH audit event with Outcome=Failure.
-When the connection is closed, PKI server will generate a ACCESS_SESSION_TERMINATED audit event.
+TLS session is a secure communication channel over a TLS connection established through TLS handshake protocol.
+
+PKI server generates audit events for TLS session activities.
+If the connection is successfully created, the server will generate an ACCESS_SESSION_ESTABLISH audit event with Outcome=Success.
+If the connection fails to be created, the server will generate an ACCESS_SESSION_ESTABLISH audit event with Outcome=Failure.
+When the connection is closed, the server will generate an ACCESS_SESSION_TERMINATED audit event.
 
 TLS session timeout (i.e. TLS connection timeout) can be configured in the **keepAliveTimeout** parameter in the **Secure** &lt;Connector&gt; element in /etc/pki/&lt;instance&gt;/server.xml:
 
@@ -47,12 +49,12 @@ However, it may also increase the number of connections that the server has to s
 
 See also [Tomcat HTTP Connector](https://tomcat.apache.org/tomcat-8.5-doc/config/http.html).
 
-### HTTP Session
+### HTTP Session Timeout
 
 HTTP session is a mechanism to track a user across multiple HTTP requests using HTTP cookies.
 PKI server does not generate audit events for HTTP sessions.
 
-The HTTP session timeout can be configured in the **&lt;session-timeout&gt;** element in /etc/pki/&lt;instance&gt;/web.xml:
+HTTP session timeout can be configured in the **&lt;session-timeout&gt;** element in /etc/pki/&lt;instance&gt;/web.xml:
 
 <pre>
 &lt;web-app&gt;
@@ -74,38 +76,39 @@ However, it may also increase the security risk since it takes longer for abando
 ### Session Timeout for PKI Web UI
 
 PKI Web UI is an interactive web-based client that runs in a browser.
+Currently it only supports client certificate authentication.
 
-When the Web UI is opened, the browser may create multiple TLS connections to send HTTP requests to the server.
-These HTTP requests are associated to the same HTTP session using HTTP cookies.
+When the Web UI is opened, the browser may create multiple TLS connections to the server.
+These connections are associated to a single HTTP session.
 
-Depending on the configuration, the TLS session or the HTTP session may expire after some idle time.
-If the TLS session has expired, when the user executes another operation the browser will automatically establish a new TLS session.
-If the HTTP session has expired, when the user executes another operation the server will automatically create a new HTTP session.
+To configure a timeout for the Web UI, follow the instruction on configuring HTTP session timeout above.
+The TLS session timeout is normally irrelevant since the browser caches the client certificate so it can recreate the TLS session automatically.
 
-If access banner is enabled, the Web UI will display it when the HTTP session is initially created and whenever it is recreated after expiration.
+When the HTTP session expires, the Web UI will not indicate anything about that immediately.
+However, when the user tries to execute another operation, the Web UI will display the access banner (if enabled) before executing the operation.
 
 ### Session Timeout for PKI Console
 
 PKI Console is an interactive standalone graphical UI client.
+It supports username/password and client certificate authentication.
 
-When the console is started, it will create a single TLS connection to the server and keep it alive as long as the console is running.
+When the console is started, it will create a single TLS connection to the server.
+The console will display the access banner (if enabled) before opening the graphical interface.
 Unlike the Web UI, the console does not maintain an HTTP session with the server.
 
-Depending on the configuration, the TLS session may expire after some idle time.
-When the TLS session expires, the TLS connection will be closed, and the console will exit immediately to the system.
-If the user wants to continue, the user will need to restart the console.
+To configure a timeout for the console, follow the instruction on configuring TLS session timeout above.
+The HTTP session timeout is irrelevant since the console does not use HTTP session.
 
-If access banner is enabled, the console will display it when the HTTP session is initially created on startup.
+When the TLS session expires, the TLS connection will close, and the console will exit immediately to the system.
+If the user wants to continue, the user will need to restart the console.
 
 ### Session Timeout for PKI CLI
 
-PKI CLI is a command-line client that executes a series of operations.
+PKI CLI is a command-line client that executes a series of operations. It supports username/password and client certificate authentication.
 
-When the CLI is started, it will create a single TLS connection to the server.
-The operations will be executed over the same TLS connection and they are associated to the same HTTP session.
+When the CLI is started, it will create a single TLS connection to the server and an HTTP session.
+The CLI will display the access banner (if enabled) before executing the operations.
 
-Session timeout is generally irrelevant to PKI CLI since the operations are executed in sequence without delay and the CLI exits immediately upon completion.
-However, if the CLI waits for user inputs or for some reason hangs, the TLS session or the HTTP session may expire and the remaining operations may fail.
-If such delay is expected, the timeout values should be configured to accommodate that delay.
-
-If access banner is enabled, the CLI will display it when the HTTP session is initially created before executing the operations.
+Both timeouts are generally irrelevant to PKI CLI since the operations are executed in sequence without delay and the CLI exits immediately upon completion.
+However, if the CLI waits for user inputs or for some reason is slow or hangs, the TLS session or the HTTP session may expire and the remaining operations may fail.
+If such delay is expected, follow the instruction on configuring the TLS session timeout and HTTP session timeout above to accommodate the expected delay.
