@@ -28,7 +28,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cmscore.util.Debug;
 
 /**
  * KRA Policy.
@@ -36,6 +35,9 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class KRAPolicy implements IPolicy {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAPolicy.class);
+
     IConfigStore mConfig = null;
     IKeyRecoveryAuthority mKRA = null;
 
@@ -58,19 +60,16 @@ public class KRAPolicy implements IPolicy {
     /**
      */
     public PolicyResult apply(IRequest r) {
-        if (Debug.ON)
-            Debug.trace("KRA applies policies");
+        logger.debug("KRA applies policies");
         mKRA.log(ILogger.LL_INFO, "KRA applies policies");
         PolicyResult result = mPolicies.apply(r);
 
         if (result.equals(PolicyResult.DEFERRED)) {
             // For KRA request, there is deferred
-            if (Debug.ON)
-                Debug.trace("KRA policies return DEFERRED");
+            logger.debug("KRA policies return DEFERRED");
             return PolicyResult.REJECTED;
         } else {
-            if (Debug.ON)
-                Debug.trace("KRA policies return ACCEPTED");
+            logger.debug("KRA policies return ACCEPTED");
             return mPolicies.apply(r);
         }
     }
