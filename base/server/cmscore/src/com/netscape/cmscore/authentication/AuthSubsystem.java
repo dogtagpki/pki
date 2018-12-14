@@ -38,7 +38,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.util.Debug;
 
 /**
  * Default authentication subsystem
@@ -49,6 +48,9 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class AuthSubsystem implements IAuthSubsystem {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthSubsystem.class);
+
     public static final String ID = "auths";
 
     public Hashtable<String, AuthMgrPlugin> mAuthMgrPlugins = new Hashtable<String, AuthMgrPlugin>();
@@ -133,9 +135,8 @@ public class AuthSubsystem implements IAuthSubsystem {
 
                 mAuthMgrPlugins.put(id, plugin);
             }
-            if (Debug.ON) {
-                Debug.trace("loaded auth plugins");
-            }
+
+            logger.debug("loaded auth plugins");
 
             // hardcode admin and agent auth manager instances for the server
             // to be functional
@@ -145,50 +146,44 @@ public class AuthSubsystem implements IAuthSubsystem {
             passwdUserDBAuth.init(PASSWDUSERDB_AUTHMGR_ID, PASSWDUSERDB_PLUGIN_ID, null);
             mAuthMgrInsts.put(PASSWDUSERDB_AUTHMGR_ID, new
                     AuthManagerProxy(true, passwdUserDBAuth));
-            if (Debug.ON) {
-                Debug.trace("loaded password based auth manager");
-            }
+
+            logger.debug("loaded password based auth manager");
 
             IAuthManager certUserDBAuth = new CertUserDBAuthentication();
 
             certUserDBAuth.init(CERTUSERDB_AUTHMGR_ID, CERTUSERDB_PLUGIN_ID, config);
             mAuthMgrInsts.put(CERTUSERDB_AUTHMGR_ID, new AuthManagerProxy(true, certUserDBAuth));
-            if (Debug.ON) {
-                Debug.trace("loaded certificate based auth manager");
-            }
+
+            logger.debug("loaded certificate based auth manager");
 
             IAuthManager challengeAuth = new ChallengePhraseAuthentication();
 
             challengeAuth.init(CHALLENGE_AUTHMGR_ID, CHALLENGE_PLUGIN_ID, config);
             mAuthMgrInsts.put(CHALLENGE_AUTHMGR_ID, new AuthManagerProxy(true, challengeAuth));
-            if (Debug.ON) {
-                Debug.trace("loaded challenge phrase auth manager");
-            }
+
+            logger.debug("loaded challenge phrase auth manager");
 
             IAuthManager cmcAuth = new com.netscape.cms.authentication.CMCAuth();
 
             cmcAuth.init(CMCAUTH_AUTHMGR_ID, CMCAUTH_PLUGIN_ID, config);
             mAuthMgrInsts.put(CMCAUTH_AUTHMGR_ID, new AuthManagerProxy(true, cmcAuth));
-            if (Debug.ON) {
-                Debug.trace("loaded cmc auth manager");
-            }
+
+            logger.debug("loaded cmc auth manager");
 
             // #56659
             // IAuthManager nullAuth = new NullAuthentication();
 
             // nullAuth.init(NULL_AUTHMGR_ID, NULL_PLUGIN_ID, config);
             // mAuthMgrInsts.put(NULL_AUTHMGR_ID, new AuthManagerProxy(true, nullAuth));
-            // if (Debug.ON) {
-            //    Debug.trace("loaded null auth manager");
-            // }
+            //
+            // logger.debug("loaded null auth manager");
 
             IAuthManager sslClientCertAuth = new SSLClientCertAuthentication();
 
             sslClientCertAuth.init(SSLCLIENTCERT_AUTHMGR_ID, SSLCLIENTCERT_PLUGIN_ID, config);
             mAuthMgrInsts.put(SSLCLIENTCERT_AUTHMGR_ID, new AuthManagerProxy(true, sslClientCertAuth));
-            if (Debug.ON) {
-                Debug.trace("loaded sslClientCert auth manager");
-            }
+
+            logger.debug("loaded sslClientCert auth manager");
 
             // get auth manager instances.
             c = config.getSubStore(PROP_INSTANCE);
@@ -196,7 +191,7 @@ public class AuthSubsystem implements IAuthSubsystem {
 
             while (instances.hasMoreElements()) {
                 String insName = instances.nextElement();
-                CMS.debug("AuthSubsystem: initializing authentication manager " + insName);
+                logger.debug("AuthSubsystem: initializing authentication manager " + insName);
 
                 String implName = c.getString(insName + "." + PROP_PLUGIN);
                 AuthMgrPlugin plugin =
@@ -236,16 +231,18 @@ public class AuthSubsystem implements IAuthSubsystem {
                     throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className), e);
 
                 } catch (EBaseException e) {
-                    CMS.debug(e);
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", insName, e.toString()));
+                    String message = CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", insName, e.toString());
+                    logger.warn(message, e);
+                    log(ILogger.LL_FAILURE, message);
                     // Skip the authenticaiton instance if
                     // it is mis-configurated. This give
                     // administrator another chance to
                     // fix the problem via console
 
                 } catch (Throwable e) {
-                    CMS.debug(e);
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", insName, e.toString()));
+                    String message = CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", insName, e.toString());
+                    logger.warn(message, e);
+                    log(ILogger.LL_FAILURE, message);
                     // Skip the authenticaiton instance if
                     // it is mis-configurated. This give
                     // administrator another chance to
@@ -254,16 +251,15 @@ public class AuthSubsystem implements IAuthSubsystem {
                 // add manager instance to list.
                 mAuthMgrInsts.put(insName, new
                         AuthManagerProxy(isEnable, authMgrInst));
-                if (Debug.ON) {
-                    Debug.trace("loaded auth instance " + insName + " impl " + implName);
-                }
+
+                logger.debug("loaded auth instance " + insName + " impl " + implName);
             }
             log(ILogger.LL_INFO, CMS.getLogMessage("INIT_DONE", getId()));
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("Unable to initialize AuthSubsystem: " + e.getMessage(), e);
             if (CMS.isPreOpMode()) {
-                CMS.debug("AuthSubsystem.init(): Swallow exception in pre-op mode");
+                logger.warn("AuthSubsystem.init(): Swallow exception in pre-op mode");
                 return;
             }
             throw e;
