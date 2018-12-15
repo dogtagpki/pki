@@ -8,7 +8,7 @@ URL:              http://www.dogtagpki.org/
 License:          GPLv2 and LGPLv2
 
 Version:          10.6.8
-Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
+Release:          3%{?_timestamp}%{?_commit_id}%{?dist}
 # global           _phase -a1
 
 # To create a tarball from a version tag:
@@ -190,12 +190,6 @@ BuildRequires:    slf4j-jdk14
 %endif
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.36.1
-
-%if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    nuxwdog-client-java >= 1.0.3-7
-%else
-BuildRequires:    nuxwdog-client-java >= 1.0.5
-%endif
 
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
@@ -602,11 +596,6 @@ BuildArch:        noarch
 Requires:         hostname
 Requires:         net-tools
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         nuxwdog-client-java >= 1.0.3-7
-%else
-Requires:         nuxwdog-client-java >= 1.0.5
-%endif
 
 Requires:         policycoreutils
 Requires:         procps-ng
@@ -1400,7 +1389,6 @@ fi
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 %{_sbindir}/pki-server
-%{_sbindir}/pki-server-nuxwdog
 %{_sbindir}/pki-server-upgrade
 %if 0%{?with_python3_default}
 %{python3_sitelib}/pki/server/
@@ -1413,6 +1401,7 @@ fi
 %{_datadir}/pki/deployment/config/
 %{_datadir}/pki/scripts/operations
 %{_bindir}/pkidaemon
+%{_bindir}/nuxwdog
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
 %attr(644,-,-) %{_unitdir}/pki-tomcatd@.service
 %attr(644,-,-) %{_unitdir}/pki-tomcatd.target

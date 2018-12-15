@@ -64,7 +64,6 @@ javac(pki-server-classes
         ${SERVLET_JAR} ${TOMCAT_CATALINA_JAR} ${TOMCAT_UTIL_JAR}
         ${TOMCATJSS_JAR} ${VELOCITY_JAR}
         ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR} ${RESTEASY_ATOM_PROVIDER_JAR}
-        ${NUXWDOG_JAR}
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR} ${PKI_CERTSRV_JAR} ${PKI_TOMCAT_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
@@ -143,7 +142,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/javassist.jar common/lib/javassist.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} common/lib/jss4.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} common/lib/ldapjdk.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${NUXWDOG_JAR} common/lib/nuxwdog.jar
     COMMAND ln -sf /usr/share/java/pki/pki-nsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-nsutil.jar
     COMMAND ln -sf /usr/share/java/pki/pki-cmsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-cmsutil.jar
     COMMAND ln -sf /usr/share/java/pki/pki-tomcat.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-tomcat.jar
@@ -279,7 +277,6 @@ install(
 # install executables
 install(
     FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-server-nuxwdog
         ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-server
         ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-server-upgrade
         ${CMAKE_CURRENT_BINARY_DIR}/sbin/pkidestroy
@@ -307,6 +304,7 @@ install(
 install(
     FILES
         scripts/pkidaemon
+        scripts/nuxwdog
     DESTINATION
         ${BIN_INSTALL_DIR}
     PERMISSIONS

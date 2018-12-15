@@ -1088,13 +1088,6 @@ class PKIConfigParser:
                     "+TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384," + \
                     "-TLS_RSA_WITH_AES_256_GCM_SHA384"
 
-            if self.deployer.architecture == 64:
-                self.mdict['NUXWDOG_JNI_PATH_SLOT'] = (
-                    '/usr/lib64/nuxwdog-jni')
-            else:
-                self.mdict['NUXWDOG_JNI_PATH_SLOT'] = (
-                    '/usr/lib/nuxwdog-jni')
-
             # tps parameters
             self.mdict['TOKENDB_HOST_SLOT'] = \
                 self.mdict['pki_ds_hostname']
