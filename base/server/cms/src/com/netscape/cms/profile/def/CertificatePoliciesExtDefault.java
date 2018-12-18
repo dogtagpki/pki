@@ -324,7 +324,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                                 if (qualifierInfo != null)
                                     policyQualifiers.add(qualifierInfo);
                             } else if (usernoticeEnable != null && enable.equals("true")) {
-                                String org =
+                                String orgName =
                                         h.get(CONFIG_PREFIX
                                         + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
                                         + CONFIG_USERNOTICE_ORG);
@@ -336,7 +336,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                                         h.get(CONFIG_PREFIX
                                         + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
                                         + CONFIG_USERNOTICE_TEXT);
-                                netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(org,
+                                netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(orgName,
                                         noticenumbers, explicitText);
                                 if (qualifierInfo != null)
                                     policyQualifiers.add(qualifierInfo);
@@ -492,7 +492,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                     String cpsuriEnable = "false";
                     String usernoticeEnable = "false";
                     String cpsuri = "";
-                    String org = "";
+                    String orgName = "";
                     StringBuffer noticeNum = new StringBuffer();
                     String explicitText = "";
 
@@ -505,7 +505,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                         UserNotice content = (UserNotice) qualifier;
                         NoticeReference ref = content.getNoticeReference();
                         if (ref != null) {
-                            org = ref.getOrganization().getText();
+                            orgName = ref.getOrganization().getText();
                             int[] nums = ref.getNumbers();
                             for (int k = 0; k < nums.length; k++) {
                                 if (k != 0) {
@@ -534,7 +534,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                     sb.append("\n");
                     sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_USERNOTICE_ORG);
                     sb.append(":");
-                    sb.append(org);
+                    sb.append(orgName);
                     sb.append("\n");
                     sb.append(CONFIG_PREFIX
                             + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_USERNOTICE_NUMBERS);
@@ -591,9 +591,9 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                     sb.append(POLICY_QUALIFIER_USERNOTICE_ENABLE + ":");
                     sb.append(usernoticeEnable);
                     sb.append(",");
-                    String org = substore1.getString(CONFIG_USERNOTICE_ORG, "");
+                    String orgName = substore1.getString(CONFIG_USERNOTICE_ORG, "");
                     sb.append(USERNOTICE_REF_ORG + ":");
-                    sb.append(org);
+                    sb.append(orgName);
                     sb.append(",");
                     String refNums = substore1.getString(CONFIG_USERNOTICE_NUMBERS, "");
                     sb.append(USERNOTICE_REF_NUMBERS + ":");
@@ -669,10 +669,10 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                         } else if (usernoticeEnable != null &&
                                      usernoticeEnable.equals("true")) {
 
-                            String org = substore1.getString(CONFIG_USERNOTICE_ORG);
+                            String orgName = substore1.getString(CONFIG_USERNOTICE_ORG);
                             String noticenumbers = substore1.getString(CONFIG_USERNOTICE_NUMBERS);
                             String explicitText = substore1.getString(CONFIG_USERNOTICE_TEXT);
-                            netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(org,
+                            netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(orgName,
                                     noticenumbers, explicitText);
                             if (qualifierInfo != null)
                                 policyQualifiers.add(qualifierInfo);
