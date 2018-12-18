@@ -42,7 +42,6 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.util.Utils;
 import com.netscape.symkey.SessionKey;
@@ -54,6 +53,8 @@ import netscape.security.x509.SubjectKeyIdentifierExtension;
 import netscape.security.x509.X509CertImpl;
 
 public class Util {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Util.class);
 
     //SCP03 AES-CMAC related constants
     private static final byte AES_CMAC_CONSTANT = (byte) 0x87;
@@ -189,7 +190,7 @@ public class Util {
             throw new EBaseException("Util.computeEncEcbDes: invalid input data!");
         }
 
-        CMS.debug("Util.computeEncEcbDes entering... ");
+        logger.debug("Util.computeEncEcbDes entering... ");
 
         TPSBuffer result = null;
         CryptoToken token = null;
@@ -198,7 +199,7 @@ public class Util {
 
         TPSBuffer message = new TPSBuffer(input);
 
-        CMS.debug("Util.computeEncEcbDes: input data. " + message.toHexString() + " input len: " + inputLen);
+        logger.debug("Util.computeEncEcbDes: input data. " + message.toHexString() + " input len: " + inputLen);
 
         try {
 
@@ -212,7 +213,7 @@ public class Util {
 
             TPSBuffer desDebug = new TPSBuffer(des.getEncoded());
 
-            CMS.debug("des key debug bytes: " + desDebug.toHexString());
+            logger.debug("des key debug bytes: " + desDebug.toHexString());
 
             Cipher cipher = token.getCipherContext(EncryptionAlgorithm.DES_ECB);
 
@@ -227,7 +228,7 @@ public class Util {
 
             result.set(ciphResult);
 
-            CMS.debug("Util.computeEncEcbDes: encrypted bloc: " + result.toHexString());
+            logger.debug("Util.computeEncEcbDes: encrypted bloc: " + result.toHexString());
 
         } catch (Exception e) {
             throw new EBaseException("Util.computeMACdes3des: Cryptographic problem encountered! " + e.toString());
@@ -243,7 +244,7 @@ public class Util {
             throw new EBaseException("Util.coputeMACdes3des: invalid input data!");
         }
 
-        CMS.debug("Util.computeMACdes3des entering... Initial icv: " + initialIcv.toHexString());
+        logger.debug("Util.computeMACdes3des entering... Initial icv: " + initialIcv.toHexString());
 
         TPSBuffer output = null;
         TPSBuffer mac = null;
@@ -252,13 +253,13 @@ public class Util {
         int inputLen = input.size();
 
         TPSBuffer message = new TPSBuffer(input);
-        CMS.debug("Util.computeMACdes3des entering... Input message: " + message.toHexString() + " message.size(): "
+        logger.debug("Util.computeMACdes3des entering... Input message: " + message.toHexString() + " message.size(): "
                 + message.size());
 
         //Add the padding, looks like we need this even if the remainder is 0
         int remainder = inputLen % 8;
 
-        CMS.debug("Util.computeMACdes3des remainder: " + remainder);
+        logger.debug("Util.computeMACdes3des remainder: " + remainder);
 
         TPSBuffer macPad = new TPSBuffer(8);
         macPad.setAt(0, (byte) 0x80);
@@ -268,7 +269,7 @@ public class Util {
         message.add(padBuff);
         inputLen += (8 - remainder);
 
-        CMS.debug("Util.computeMACdes3des: padded input data. " + message.toHexString() + " input len: " + inputLen);
+        logger.debug("Util.computeMACdes3des: padded input data. " + message.toHexString() + " input len: " + inputLen);
 
         try {
 
@@ -282,7 +283,7 @@ public class Util {
 
             TPSBuffer desDebug = new TPSBuffer(des.getEncoded());
 
-            CMS.debug("des key debug bytes: " + desDebug.toHexString());
+            logger.debug("des key debug bytes: " + desDebug.toHexString());
 
             Cipher cipher = token.getCipherContext(EncryptionAlgorithm.DES_CBC);
             Cipher cipher3des = token.getCipherContext(EncryptionAlgorithm.DES3_CBC);
@@ -297,7 +298,7 @@ public class Util {
 
                 mac.set(message.substr(inputOffset, 8));
 
-                // CMS.debug("About to encrypt1des: " + mac.toHexString());
+                // logger.debug("About to encrypt1des: " + mac.toHexString());
                 cipher.initEncrypt(des, algSpec);
                 byte[] ciphResult = cipher.doFinal(mac.toBytesArray());
 
@@ -308,7 +309,7 @@ public class Util {
                 mac.set(ciphResult);
                 algSpec = new IVParameterSpec(ciphResult);
 
-                // CMS.debug("Util.computeMACdes3des: des encrypted bloc: " + mac.toHexString());
+                // logger.debug("Util.computeMACdes3des: des encrypted bloc: " + mac.toHexString());
 
                 inputLen -= 8;
                 inputOffset += 8;
@@ -318,11 +319,11 @@ public class Util {
 
             TPSBuffer newICV = new TPSBuffer(mac);
 
-            CMS.debug("Util.computeMACdes3des: inputOffset: " + inputOffset);
+            logger.debug("Util.computeMACdes3des: inputOffset: " + inputOffset);
 
             mac.set(message.substr(inputOffset, 8));
 
-            CMS.debug("About to encrypt 3des: " + mac.toHexString() + " icv: " + newICV.toHexString());
+            logger.debug("About to encrypt 3des: " + mac.toHexString() + " icv: " + newICV.toHexString());
 
             cipher3des.initEncrypt(symKey, new IVParameterSpec(newICV.toBytesArray()));
             byte[] ciphResultFinal = cipher3des.doFinal(mac.toBytesArray());
@@ -333,7 +334,7 @@ public class Util {
 
             output = new TPSBuffer(ciphResultFinal);
 
-            CMS.debug("Util.computeMACdes3des: final mac results: " + output.toHexString());
+            logger.debug("Util.computeMACdes3des: final mac results: " + output.toHexString());
 
         } catch (Exception e) {
             throw new EBaseException("Util.computeMACdes3des: Cryptographic problem encountered! " + e.toString());
@@ -669,7 +670,7 @@ public class Util {
             throw new EBaseException("Util.encryptData: called with no sym key or no data!");
         }
 
-        //CMS.debug("Util.encryptData: dataToEnc: " + dataToEnc.toHexString());
+        //logger.debug("Util.encryptData: dataToEnc: " + dataToEnc.toHexString());
 
         CryptoToken token = null;
         try {
