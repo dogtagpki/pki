@@ -108,7 +108,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     public static final String PROP_SIGNED_AUDIT_CERT_NICKNAME =
                               "signedAuditCertNickname";
     public static final String PROP_SIGNED_AUDIT_SELECTED_EVENTS = "events";
-    public static final String PROP_SIGNED_AUDIT_UNSELECTED_EVENTS = "unselected.events";
     public static final String PROP_SIGNED_AUDIT_MANDATORY_EVENTS = "mandatory.events";
     public static final String PROP_SIGNED_AUDIT_FILTERS = "filters";
 
@@ -205,11 +204,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * The selected log event types
      */
     protected Set<String> selectedEvents = new LinkedHashSet<String>();
-
-    /**
-     * The unselected log event types
-     */
-    protected Set<String> unselectedEvents = new LinkedHashSet<String>();
 
     /**
      * The event filters
@@ -311,12 +305,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             selectedEvents.add(event);
         }
 
-        // unselected events
-        String unselectedEventsList = config.getString(PROP_SIGNED_AUDIT_UNSELECTED_EVENTS, "");
-        for (String event : StringUtils.split(unselectedEventsList, ", ")) {
-            unselectedEvents.add(event);
-        }
-
         CMS.debug("Event filters:");
         IConfigStore filterStore = config.getSubStore(PROP_SIGNED_AUDIT_FILTERS);
         for (Enumeration<String> e = filterStore.getPropertyNames(); e.hasMoreElements(); ) {
@@ -369,7 +357,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      */
     public void selectEvent(String event) {
         selectedEvents.add(event);
-        unselectedEvents.remove(event);
     }
 
     /**
@@ -379,7 +366,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      */
     public void deselectEvent(String event) {
         selectedEvents.remove(event);
-        unselectedEvents.add(event);
     }
 
     /**
@@ -389,7 +375,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      */
     public void replaceEvents(String events) {
         // unselect all events
-        unselectedEvents.addAll(selectedEvents);
         selectedEvents.clear();
 
         // select specified events
@@ -1580,7 +1565,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         v.addElement(PROP_SIGNED_AUDIT_CERT_NICKNAME + "=");
         v.addElement(PROP_SIGNED_AUDIT_MANDATORY_EVENTS + "=");
         v.addElement(PROP_SIGNED_AUDIT_SELECTED_EVENTS + "=");
-        v.addElement(PROP_SIGNED_AUDIT_UNSELECTED_EVENTS + "=");
         //}
 
         return v;
@@ -1635,7 +1619,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
                 v.addElement(PROP_SIGNED_AUDIT_MANDATORY_EVENTS + "=" + StringUtils.join(mandatoryEvents, ","));
                 v.addElement(PROP_SIGNED_AUDIT_SELECTED_EVENTS + "=" + StringUtils.join(selectedEvents, ","));
-                v.addElement(PROP_SIGNED_AUDIT_UNSELECTED_EVENTS + "=" + StringUtils.join(unselectedEvents, ","));
             }
         } catch (Exception e) {
         }
@@ -1671,9 +1654,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                     PROP_SIGNED_AUDIT_MANDATORY_EVENTS +
                             ";string;A comma-separated list of strings used to specify mandatory signed audit log events",
                     PROP_SIGNED_AUDIT_SELECTED_EVENTS +
-                            ";string;A comma-separated list of strings used to specify selected signed audit log events",
-                    PROP_SIGNED_AUDIT_UNSELECTED_EVENTS +
-                            ";string;A comma-separated list of strings used to specify unselected signed audit log events",
+                            ";string;A comma-separated list of strings used to specify selected signed audit log events"
             };
 
             return params;
