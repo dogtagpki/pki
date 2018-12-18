@@ -37,7 +37,9 @@ import com.netscape.certsrv.logging.SystemEvent;
  */
 public class SignedAuditLogger extends Logger {
 
-    private final static SignedAuditLogger logger =
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SignedAuditLogger.class);
+
+    private final static SignedAuditLogger INSTANCE =
             new SignedAuditLogger();
 
     public SignedAuditLogger() {
@@ -48,7 +50,7 @@ public class SignedAuditLogger extends Logger {
     }
 
     public static SignedAuditLogger getLogger() {
-        return logger;
+        return INSTANCE;
     }
 
     public void log(LogCategory category, LogSource source, int level, String message,
@@ -131,7 +133,7 @@ public class SignedAuditLogger extends Logger {
             eventType = message.substring(i + 6, j).trim();
             message = message.substring(j + 2).trim();
 
-            CMS.debug("SignedAuditLogger: event " + eventType);
+            logger.debug("SignedAuditLogger: event " + eventType);
         }
 
         event.setEventType(eventType);
