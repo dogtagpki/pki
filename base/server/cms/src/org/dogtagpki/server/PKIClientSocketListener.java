@@ -31,7 +31,6 @@ import org.mozilla.jss.ssl.SSLSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionTerminatedEvent;
@@ -54,7 +53,7 @@ public class PKIClientSocketListener implements SSLSocketListener {
     @Override
     public void alertReceived(SSLAlertEvent event) {
         String method = "PKIClientSocketListener.alertReceived: ";
-CMS.debug(method + "begins");
+        logger.debug(method + "begins");
         try {
             SSLSocket socket = event.getSocket();
 
@@ -89,25 +88,25 @@ String subjectID = "SYSTEM";
                     subjectID,
                     reason));
 
-        CMS.debug(method + "CS_CLIENT_ACCESS_SESSION_TERMINATED");
-CMS.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " serverPort=" + serverPort + " reason=" + reason);
+            logger.debug(method + "CS_CLIENT_ACCESS_SESSION_TERMINATED");
+            logger.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " serverPort=" + serverPort + " reason=" + reason);
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
         }
     }
 
     @Override
     public void alertSent(SSLAlertEvent event) {
         String method = "PKIClientSocketListener.alertSent: ";
-CMS.debug(method + "begins");
+        logger.debug(method + "begins");
         try {
             SSLSocket socket = event.getSocket();
 
             int description = event.getDescription();
-CMS.debug(method + "got description:"+ description);
+            logger.debug(method + "got description:"+ description);
             String reason = SSLAlertDescription.valueOf(description).toString();
-CMS.debug(method + "got reason:"+ reason);
+            logger.debug(method + "got reason:"+ reason);
 
             SignedAuditEvent auditEvent;
             String clientIP;
@@ -131,8 +130,8 @@ CMS.debug(method + "got reason:"+ reason);
                         subjectID,
                         reason);
 
-        CMS.debug(method + "CS_CLIENT_ACCESS_SESSION_TERMINATED");
-	CMS.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP+ " serverPort=" + serverPort + " reason=" + reason);
+                logger.debug(method + "CS_CLIENT_ACCESS_SESSION_TERMINATED");
+                logger.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP+ " serverPort=" + serverPort + " reason=" + reason);
 
             } else {
 
@@ -169,18 +168,18 @@ subjectID = "SYSTEM";
 
             signedAuditLogger.log(auditEvent);
 
-        CMS.debug(method + "CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE");
-CMS.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " serverPort=" + serverPort + " reason=" + reason);
+            logger.debug(method + "CS_CLIENT_ACCESS_SESSION_ESTABLISH_FAILURE");
+            logger.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " serverPort=" + serverPort + " reason=" + reason);
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
         }
     }
 
     @Override
     public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
         String method = "PKIClientSocketListener.handshakeCompleted: ";
-CMS.debug(method + "begins");
+        logger.debug(method + "begins");
         try {
             SSLSocket socket = event.getSocket();
 
@@ -217,11 +216,11 @@ String subjectID = "SYSTEM";
                     serverPort,
                     subjectID));
 
-        CMS.debug(method + "CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS");
-CMS.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " serverPort=" + serverPort);
+            logger.debug(method + "CS_CLIENT_ACCESS_SESSION_ESTABLISH_SUCCESS");
+            logger.debug(method + "clientIP=" + clientIP + " serverIP=" + serverIP + " serverPort=" + serverPort);
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
         }
     }
 }
