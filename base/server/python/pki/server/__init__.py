@@ -1258,7 +1258,6 @@ class PKIInstance(object):
             keyring = Keyring()
             key_name = self.name + '/' + name
             password = keyring.get_password(key_name=key_name)
-            print("MKD get-password: " + password)
             self.passwords[name] = password
             return password
 
@@ -1289,7 +1288,6 @@ class PKIInstance(object):
             keyring = Keyring()
             key_name = self.name + '/' + name
             password = keyring.get_password(key_name=key_name)
-            print("MKD: " + password)
             self.passwords[name] = password
             return password
 

@@ -87,12 +87,15 @@ instance.load()
 subsystems = instance.subsystems
 
 for subsystem in subsystems:
-    password_list = split_entries(subsystem.config['cms.passwordlist'])
-    token = subsystem.config['cmc.token']
-    tags.update(password_list)
-    tags.add(token)
+    if 'cms.passwordlist' in subsystem.config:
+        password_list = split_entries(subsystem.config['cms.passwordlist'])
+        tags.update(password_list)
 
-    if 'cmd.tokenList' in subsystem.config:
+    if 'cmc.token' in subsystem.config:
+        token = subsystem.config['cmc.token']
+        tags.add(token)
+
+    if 'cms.tokenList' in subsystem.config:
         tokenList = subsystem.config['cms.tokenList']
         tags.add('hardware-' + tokenList)
 
@@ -115,32 +118,3 @@ for tag in sorted(iter(tags)):
     key_name = instance_name + '/' + tag
 
     keyring.put_password(key_name=key_name, password=entered_pass)
-
-    print("retrieved: " + key_name + " - " + keyring.get_password(key_name))
-# Search the key and get the key ID
-# cmd = ["keyctl", "search", "@p", "user", "nuxwdog:usertest"]
-# p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-#
-# keyID, errs = p.communicate()
-#
-# keyID = keyID.decode().strip()
-#
-# print("Python KeyID: " + keyID)
-#
-# if errs:
-#     print("errors1: " + errs.decode())
-#
-#
-# # Retrieve the value of the key
-# cmd = ["keyctl", "print", keyID]
-#
-# p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-#
-# keyValue, errs = p.communicate()
-#
-# keyValue = keyValue.decode().strip()
-#
-# print("Python KeyValue: " + keyValue)
-#
-# if errs:
-#     print("errors: " + errs.decode())

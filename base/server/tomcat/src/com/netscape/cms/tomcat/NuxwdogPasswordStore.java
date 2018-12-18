@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Keyring;
 
 public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPasswordStore {
@@ -34,7 +35,7 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
         pwCache = new Hashtable<String, String>();
 
         if(confFile != null) {
-            loadInstanceID(confFile);
+            loadTags(confFile);
         }
     }
 
@@ -48,10 +49,27 @@ public class NuxwdogPasswordStore implements org.apache.tomcat.util.net.jss.IPas
 
     }
 
-    private void loadInstanceID(String confFile) throws IOException {
+    /**
+     * Load the required tags by reading CS.cfg. PKI server does not have any idea about the required
+     * tags when Nuxwdog is enabled. This method must be part of init in order for the PKI server to
+     * load the corresponding values during server start
+     *
+     * @param confFile Path to CS.cfg
+     * @throws IOException
+     */
+    private void loadTags(String confFile) throws IOException {
         Properties props = new Properties();
         InputStream in = new FileInputStream(confFile);
         props.load(in);
+
+        tags.add(CryptoUtil.INTERNAL_TOKEN_NAME);
+
+        String tokenList = props.getProperty("cms.tokenList");
+        if (StringUtils.isNotEmpty(tokenList)) {
+            for (String token: StringUtils.split(tokenList,',')) {
+                tags.add("hardware-" + token);
+            }
+        }
 
         id = props.getProperty("instanceId");
     }
