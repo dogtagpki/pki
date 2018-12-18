@@ -23,12 +23,12 @@ import java.util.Map;
 
 import org.dogtagpki.tps.main.Util;
 
-import com.netscape.certsrv.apps.CMS;
-
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
  */
 public class TPSMessage {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSMessage.class);
 
     public enum OpType {
         OP_ENROLL,
@@ -415,9 +415,9 @@ public class TPSMessage {
         String op_type = get(OPERATION_TYPE_NAME);
         String extensions = get(EXTENSIONS_NAME);
 
-        CMS.debug("TPSMessage msg_type: " + msg_type);
-        CMS.debug("TPSMessage operation: " + op_type);
-        CMS.debug("TPSMessage extensions: " + extensions);
+        logger.debug("TPSMessage msg_type: " + msg_type);
+        logger.debug("TPSMessage operation: " + op_type);
+        logger.debug("TPSMessage extensions: " + extensions);
 
         String decoded = null;
         Map<String, String> extsMap = null;
@@ -473,7 +473,7 @@ public class TPSMessage {
         case MSG_NEW_PIN_RESPONSE:
 
             String pin = get(TPSMessage.NEW_PIN_NAME);
-            CMS.debug("TPSMessage.createMessage: MSG_NEW_PIN_RESPONSE pin: " + pin);
+            logger.debug("TPSMessage.createMessage: MSG_NEW_PIN_RESPONSE pin: " + pin);
             result = new NewPinResponseMsg(pin);
             break;
         case MSG_SECUREID_REQUEST:
@@ -485,9 +485,9 @@ public class TPSMessage {
         case MSG_STATUS_UPDATE_RESPONSE:
 
             String statusValue = get(TPSMessage.STATUS_NAME);
-            CMS.debug("statusValue: " + statusValue);
+            logger.debug("statusValue: " + statusValue);
             int statusInt = Integer.parseInt(statusValue);
-            CMS.debug("statusInt: " + statusInt);
+            logger.debug("statusInt: " + statusInt);
             result = new StatusUpdateResponseMsg(statusInt);
             break;
         case MSG_TOKEN_PDU_REQUEST:
@@ -516,21 +516,21 @@ public class TPSMessage {
         String toDebug1 = null;
         String toDebug2 = null;
         if (idx1 == -1)
-            CMS.debug("TPSMessage.createMessage: message: " + message);
+            logger.debug("TPSMessage.createMessage: message: " + message);
         else {
             toDebug1 = message.substring(0, idx1-1);
             if (idx2 == -1)
-                CMS.debug("TPSMessage.createMessage: message: " + toDebug1 + "pdu_data=<do not print>...");
+                logger.debug("TPSMessage.createMessage: message: " + toDebug1 + "pdu_data=<do not print>...");
             else {
                 toDebug2 = message.substring(idx2-1);
-                CMS.debug("TPSMessage.createMessage: message: " + toDebug1 + "&pdu_data=<do not print>"+ toDebug2);
+                logger.debug("TPSMessage.createMessage: message: " + toDebug1 + "&pdu_data=<do not print>"+ toDebug2);
             }
         }
 
         int debug = 1;
 
         if (debug == 1) {
-            CMS.debug("TPSMessage.createMessage: message: " + message);
+            logger.debug("TPSMessage.createMessage: message: " + message);
         }
 
         TPSMessage new_msg = new TPSMessage(message);
