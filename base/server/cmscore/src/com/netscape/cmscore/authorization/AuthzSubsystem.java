@@ -40,7 +40,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.util.Debug;
 
 /**
  * Default authorization subsystem
@@ -50,6 +49,9 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class AuthzSubsystem implements IAuthzSubsystem {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthzSubsystem.class);
+
     public static final String ID = "authz";
 
     public Hashtable<String, AuthzMgrPlugin> mAuthzMgrPlugins = new Hashtable<String, AuthzMgrPlugin>();
@@ -99,9 +101,8 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
                 mAuthzMgrPlugins.put(id, plugin);
             }
-            if (Debug.ON) {
-                Debug.trace("loaded authz plugins");
-            }
+
+            logger.debug("loaded authz plugins");
 
             // get authz manager instances.
 
@@ -120,8 +121,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                     throw new EAuthzMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_PLUGIN_NOT_FOUND",
                             implName));
                 } else {
-                    CMS.debug(
-                            CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_FOUND", implName));
+                    logger.debug(CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_FOUND", implName));
                 }
 
                 String className = plugin.getClassPath();
@@ -156,33 +156,33 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", errMsg));
                     throw new EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString()));
+                    String message = CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString());
+                    log(ILogger.LL_FAILURE, message);
                     // it is mis-configurated. This give
                     // administrator another chance to
                     // fix the problem via console
-                    CMS.debug(e);
+                    logger.warn(message, e);
+
                 } catch (Throwable e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString()));
+                    String message = CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString());
+                    log(ILogger.LL_FAILURE, message);
                     // Skip the authorization instance if
                     // it is mis-configurated. This give
                     // administrator another chance to
                     // fix the problem via console
-                    CMS.debug(e);
+                    logger.warn(message, e);
                 }
                 // add manager instance to list.
                 mAuthzMgrInsts.put(insName, new
                         AuthzManagerProxy(isEnable, authzMgrInst));
-                if (Debug.ON) {
-                    Debug.trace("loaded authz instance " + insName + " impl " + implName);
-                }
+
+                logger.debug("loaded authz instance " + insName + " impl " + implName);
             }
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("Unable to initialize AuthzSubsystem: " + e.getMessage(), e);
             if (CMS.isPreOpMode()) {
-                CMS.debug("AuthzSubsystem.init(): Swallow exception in pre-op mode");
+                logger.warn("AuthzSubsystem.init(): Swallow exception in pre-op mode");
                 return;
             }
             throw e;
