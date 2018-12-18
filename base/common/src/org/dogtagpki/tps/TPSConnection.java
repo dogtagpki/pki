@@ -24,12 +24,12 @@ import java.io.PrintStream;
 
 import org.dogtagpki.tps.msg.TPSMessage;
 
-import com.netscape.certsrv.apps.CMS;
-
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
  */
 public class TPSConnection {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSConnection.class);
 
     public InputStream in;
     public PrintStream out;
@@ -46,7 +46,7 @@ public class TPSConnection {
     }
 
     public TPSMessage read() throws IOException {
-        CMS.debug("TPSConnection read()");
+        logger.debug("TPSConnection read()");
 
         StringBuilder sb = new StringBuilder();
         int b;
@@ -81,9 +81,9 @@ public class TPSConnection {
         }
 
         if (size <= 38) // for pdu_data size is 2 and only contains status
-            CMS.debug("TPSConnection.read: Reading:  " + sb.toString());
+            logger.debug("TPSConnection.read: Reading:  " + sb);
         else
-            CMS.debug("TPSConnection.read: Reading...");
+            logger.debug("TPSConnection.read: Reading...");
 
         // parse the entire message
         return TPSMessage.createMessage(sb.toString());
@@ -98,10 +98,10 @@ public class TPSConnection {
         int debug = 0;
         String toDebug = null;
         if (idx == -1 || debug == 1)
-            CMS.debug("TPSConnection.write: Writing: " + s);
+            logger.debug("TPSConnection.write: Writing: " + s);
         else {
             toDebug = s.substring(0, idx-1);
-            CMS.debug("TPSConnection.write: Writing: " + toDebug + "pdu_data=<do not print>");
+            logger.debug("TPSConnection.write: Writing: " + toDebug + "pdu_data=<do not print>");
         }
         // send message
         out.print(s);
