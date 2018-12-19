@@ -1413,6 +1413,7 @@ fi
 %{_datadir}/pki/deployment/config/
 %{_datadir}/pki/scripts/operations
 %{_bindir}/pkidaemon
+%{_bindir}/nuxwdog
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
 %attr(644,-,-) %{_unitdir}/pki-tomcatd@.service
 %attr(644,-,-) %{_unitdir}/pki-tomcatd.target
