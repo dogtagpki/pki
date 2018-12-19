@@ -169,6 +169,7 @@ fi;
 
 # autosetup
 BuildRequires:    git
+BuildRequires:    make
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    gcc-c++
