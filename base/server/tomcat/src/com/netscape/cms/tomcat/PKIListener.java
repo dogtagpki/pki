@@ -34,20 +34,15 @@ import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Server;
 import org.apache.catalina.Service;
-import org.apache.commons.lang.StringUtils;
 import org.apache.tomcat.util.net.jss.TomcatJSS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.redhat.nuxwdog.WatchdogClient;
-
 public class PKIListener implements LifecycleListener {
 
     final static Logger logger = LoggerFactory.getLogger(PKIListener.class);
-
-    private boolean startedByWD = false;
 
     @Override
     public void lifecycleEvent(LifecycleEvent event) {
@@ -56,13 +51,6 @@ public class PKIListener implements LifecycleListener {
         logger.info("PKIListener: " + event.getLifecycle().getClass().getName() + " [" + type + "]");
 
         if (type.equals(Lifecycle.BEFORE_INIT_EVENT)) {
-
-            String wdPipeName = System.getenv("WD_PIPE_NAME");
-            if (StringUtils.isNotEmpty(wdPipeName)) {
-                startedByWD = true;
-                logger.info("PKIListener: Initializing the watchdog");
-                WatchdogClient.init();
-            }
 
             logger.info("PKIListener: Initializing TomcatJSS");
 
@@ -77,68 +65,87 @@ public class PKIListener implements LifecycleListener {
                 XPathFactory xPathfactory = XPathFactory.newInstance();
                 XPath xpath = xPathfactory.newXPath();
 
-                Element connector = (Element)xpath.evaluate(
+                Element connector = (Element) xpath.evaluate(
                         "/Server/Service[@name='Catalina']/Connector[@name='Secure']",
                         doc, XPathConstants.NODE);
 
                 TomcatJSS tomcatjss = TomcatJSS.getInstance();
 
                 String certDb = connector.getAttribute("certdbDir");
-                if (certDb != null) tomcatjss.setCertdbDir(certDb);
+                if (certDb != null)
+                    tomcatjss.setCertdbDir(certDb);
 
                 String passwordClass = connector.getAttribute("passwordClass");
-                if (passwordClass != null) tomcatjss.setPasswordClass(passwordClass);
+                if (passwordClass != null)
+                    tomcatjss.setPasswordClass(passwordClass);
 
                 String passwordFile = connector.getAttribute("passwordFile");
-                if (passwordFile != null) tomcatjss.setPasswordFile(passwordFile);
+                if (passwordFile != null)
+                    tomcatjss.setPasswordFile(passwordFile);
 
                 String serverCertNickFile = connector.getAttribute("serverCertNickFile");
-                if (serverCertNickFile != null) tomcatjss.setServerCertNickFile(serverCertNickFile);
+                if (serverCertNickFile != null)
+                    tomcatjss.setServerCertNickFile(serverCertNickFile);
 
                 String enableOCSP = connector.getAttribute("enableOCSP");
-                if (enableOCSP != null) tomcatjss.setEnableOCSP(Boolean.parseBoolean(enableOCSP));
+                if (enableOCSP != null)
+                    tomcatjss.setEnableOCSP(Boolean.parseBoolean(enableOCSP));
 
                 String ocspResponderURL = connector.getAttribute("ocspResponderURL");
-                if (ocspResponderURL != null) tomcatjss.setOcspResponderURL(ocspResponderURL);
+                if (ocspResponderURL != null)
+                    tomcatjss.setOcspResponderURL(ocspResponderURL);
 
                 String ocspResponderCertNickname = connector.getAttribute("ocspResponderCertNickname");
-                if (ocspResponderCertNickname != null) tomcatjss.setOcspResponderCertNickname(ocspResponderCertNickname);
+                if (ocspResponderCertNickname != null)
+                    tomcatjss.setOcspResponderCertNickname(ocspResponderCertNickname);
 
                 String ocspCacheSize = connector.getAttribute("ocspCacheSize");
-                if (ocspCacheSize != null) tomcatjss.setOcspCacheSize(Integer.parseInt(ocspCacheSize));
+                if (ocspCacheSize != null)
+                    tomcatjss.setOcspCacheSize(Integer.parseInt(ocspCacheSize));
 
                 String ocspMinCacheEntryDuration = connector.getAttribute("ocspMinCacheEntryDuration");
-                if (ocspMinCacheEntryDuration != null) tomcatjss.setOcspMinCacheEntryDuration(Integer.parseInt(ocspMinCacheEntryDuration));
+                if (ocspMinCacheEntryDuration != null)
+                    tomcatjss.setOcspMinCacheEntryDuration(Integer.parseInt(ocspMinCacheEntryDuration));
 
                 String ocspMaxCacheEntryDuration = connector.getAttribute("ocspMaxCacheEntryDuration");
-                if (ocspMaxCacheEntryDuration != null) tomcatjss.setOcspMaxCacheEntryDuration(Integer.parseInt(ocspMaxCacheEntryDuration));
+                if (ocspMaxCacheEntryDuration != null)
+                    tomcatjss.setOcspMaxCacheEntryDuration(Integer.parseInt(ocspMaxCacheEntryDuration));
 
                 String ocspTimeout = connector.getAttribute("ocspTimeout");
-                if (ocspTimeout != null) tomcatjss.setOcspTimeout(Integer.parseInt(ocspTimeout));
+                if (ocspTimeout != null)
+                    tomcatjss.setOcspTimeout(Integer.parseInt(ocspTimeout));
 
                 String strictCiphers = connector.getAttribute("strictCiphers");
-                if (strictCiphers != null) tomcatjss.setStrictCiphers(strictCiphers);
+                if (strictCiphers != null)
+                    tomcatjss.setStrictCiphers(strictCiphers);
 
                 String sslVersionRangeStream = connector.getAttribute("sslVersionRangeStream");
-                if (sslVersionRangeStream != null) tomcatjss.setSslVersionRangeStream(sslVersionRangeStream);
+                if (sslVersionRangeStream != null)
+                    tomcatjss.setSslVersionRangeStream(sslVersionRangeStream);
 
                 String sslVersionRangeDatagram = connector.getAttribute("sslVersionRangeDatagram");
-                if (sslVersionRangeDatagram != null) tomcatjss.setSslVersionRangeDatagram(sslVersionRangeDatagram);
+                if (sslVersionRangeDatagram != null)
+                    tomcatjss.setSslVersionRangeDatagram(sslVersionRangeDatagram);
 
                 String sslRangeCiphers = connector.getAttribute("sslRangeCiphers");
-                if (sslRangeCiphers != null) tomcatjss.setSslRangeCiphers(sslRangeCiphers);
+                if (sslRangeCiphers != null)
+                    tomcatjss.setSslRangeCiphers(sslRangeCiphers);
 
                 String sslOptions = connector.getAttribute("sslOptions");
-                if (sslOptions != null) tomcatjss.setSslOptions(sslOptions);
+                if (sslOptions != null)
+                    tomcatjss.setSslOptions(sslOptions);
 
                 String ssl2Ciphers = connector.getAttribute("ssl2Ciphers");
-                if (ssl2Ciphers != null) tomcatjss.setSsl2Ciphers(ssl2Ciphers);
+                if (ssl2Ciphers != null)
+                    tomcatjss.setSsl2Ciphers(ssl2Ciphers);
 
                 String ssl3Ciphers = connector.getAttribute("ssl3Ciphers");
-                if (ssl3Ciphers != null) tomcatjss.setSsl3Ciphers(ssl3Ciphers);
+                if (ssl3Ciphers != null)
+                    tomcatjss.setSsl3Ciphers(ssl3Ciphers);
 
                 String tlsCiphers = connector.getAttribute("tlsCiphers");
-                if (tlsCiphers != null) tomcatjss.setTlsCiphers(tlsCiphers);
+                if (tlsCiphers != null)
+                    tomcatjss.setTlsCiphers(tlsCiphers);
 
                 tomcatjss.init();
 
@@ -148,38 +155,35 @@ public class PKIListener implements LifecycleListener {
 
         } else if (type.equals(Lifecycle.AFTER_START_EVENT)) {
 
-            if (startedByWD) {
-                logger.info("PKIListener: Sending endInit to the watchdog");
-                WatchdogClient.sendEndInit(0);
-            }
-
-            verifySubsystems((Server)event.getLifecycle());
+            verifySubsystems((Server) event.getLifecycle());
         }
     }
 
     public void verifySubsystems(Server server) {
 
         Service service = server.findService("Catalina");
-        Engine engine = (Engine)service.getContainer();
+        Engine engine = service.getContainer();
         String defaultHost = engine.getDefaultHost();
-        Host host = (Host)engine.findChild(defaultHost);
+        Host host = (Host) engine.findChild(defaultHost);
 
         File instanceDir = new File(System.getProperty("catalina.base"));
         String instanceName = instanceDir.getName();
 
         for (File file : instanceDir.listFiles()) {
 
-            if (!file.isDirectory()) continue;
+            if (!file.isDirectory())
+                continue;
 
             File csCfg = new File(file, "conf" + File.separator + "CS.cfg");
-            if (!csCfg.exists()) continue;
+            if (!csCfg.exists())
+                continue;
 
             String subsystemName = file.getName();
 
             File contextXml = new File(
                     instanceDir,
                     "conf" + File.separator + "Catalina" + File.separator +
-                    defaultHost + File.separator + subsystemName + ".xml");
+                            defaultHost + File.separator + subsystemName + ".xml");
 
             if (!contextXml.exists()) {
 
@@ -194,7 +198,7 @@ public class PKIListener implements LifecycleListener {
                 continue;
             }
 
-            Context context = (Context)host.findChild("/" + subsystemName);
+            Context context = (Context) host.findChild("/" + subsystemName);
 
             if (context == null) {
 

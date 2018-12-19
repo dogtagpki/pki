@@ -12,7 +12,7 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.redhat.nuxwdog.WatchdogClient;
+import com.netscape.cmsutil.util.Keyring;
 
 public class NuxwdogPasswordStore implements IPasswordStore {
 
@@ -22,7 +22,6 @@ public class NuxwdogPasswordStore implements IPasswordStore {
     private Hashtable<String, String> pwCache = null;
     private ArrayList<String> tags = null;
 
-    private final String PROMPT_PREFIX = "Please provide the password for ";
     private String id;
 
     @Override
@@ -50,6 +49,14 @@ public class NuxwdogPasswordStore implements IPasswordStore {
 
     }
 
+    /**
+     * Load the required tags by reading CS.cfg. PKI server does not have any idea about the required
+     * tags when Nuxwdog is enabled. This method must be part of init in order for the PKI server to
+     * load the corresponding values during server start
+     *
+     * @param confFile Path to CS.cfg
+     * @throws IOException
+     */
     private void populateTokenTags(String confFile) throws IOException {
         Properties props = new Properties();
         InputStream in = new FileInputStream(confFile);
@@ -59,7 +66,7 @@ public class NuxwdogPasswordStore implements IPasswordStore {
 
         String tokenList = props.getProperty("cms.tokenList");
         if (StringUtils.isNotEmpty(tokenList)) {
-            for (String token: StringUtils.split(tokenList,',')) {
+            for (String token : StringUtils.split(tokenList, ',')) {
                 tags.add("hardware-" + token);
             }
         }
@@ -79,11 +86,10 @@ public class NuxwdogPasswordStore implements IPasswordStore {
             return pwCache.get(tag);
         }
 
-        String prompt = PROMPT_PREFIX + tag + ":";
-        if (StringUtils.isNotEmpty(id)) {
-            prompt = "[" + id + "] " + prompt;
-        }
-        String pwd = WatchdogClient.getPassword(prompt, iteration);
+        String pwd = null;
+
+        String keyringTag = id + "/" + tag;
+        pwd = Keyring.getPassword(keyringTag, "raw");
 
         if (pwd != null) {
             addTag(tag);
@@ -93,7 +99,7 @@ public class NuxwdogPasswordStore implements IPasswordStore {
 
     @Override
     public Enumeration<String> getTags() {
-        return  Collections.enumeration(tags);
+        return Collections.enumeration(tags);
     }
 
     @Override
