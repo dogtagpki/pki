@@ -183,14 +183,6 @@ find_file(LDAPJDK_JAR
         /usr/share/java
 )
 
-find_file(NUXWDOG_JAR
-    NAMES
-        nuxwdog.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(RESTEASY_JAXRS_JAR
     NAMES
         resteasy-jaxrs.jar

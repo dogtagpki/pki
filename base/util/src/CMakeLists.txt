@@ -53,7 +53,7 @@ javac(pki-cmsutil-classes
     CLASSPATH
         ${COMMONS_LANG_JAR} ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
         ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
-        ${JSS_JAR} ${COMMONS_CODEC_JAR} ${NUXWDOG_JAR}
+        ${JSS_JAR} ${COMMONS_CODEC_JAR}
         ${SLF4J_API_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
