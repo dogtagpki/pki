@@ -25,6 +25,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -94,6 +95,60 @@ public class Utils {
             Thread.currentThread().interrupt();
         }
         return false;
+    }
+
+    public static String readFromStream(InputStream inputStream) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(inputStream));
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                sb.append(line + System.getProperty("line.separator"));
+            }
+        } finally {
+            br.close();
+        }
+        return sb.toString().trim();
+    }
+
+    public static void writeToStream(OutputStream outputStream, String input) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+        writer.write(input);
+        writer.flush();
+        writer.close();
+    }
+
+    /**
+     * Utility method to execute system commands
+     *
+     * @param cmd       The command to be executed and its arguments
+     * @param input     The stdin input to be passed to the cmd
+     * @return stdout or stderr of the command executed
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public static String exec(String cmd, String input) throws IOException, InterruptedException {
+
+        ProcessBuilder pb = new ProcessBuilder(cmd.split(" "));
+
+        Process p = pb.start();
+
+        if (input != null) {
+            writeToStream(p.getOutputStream(), input);
+        }
+
+        p.waitFor();
+
+        String output;
+        if (p.exitValue() == 0) {
+            output = readFromStream(p.getInputStream());
+        } else {
+            output = readFromStream(p.getErrorStream());
+        }
+        p.destroy();
+
+        return output;
     }
 
     public static String SpecialURLDecode(String s) {
@@ -308,7 +363,6 @@ public class Utils {
     public static String base64encodeMultiLine(byte[] bytes) {
         return new Base64(64).encodeToString(bytes);
     }
-
 
     /**
      * Converts a byte array into a single-line Base-64 encoded string.
