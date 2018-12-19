@@ -1400,7 +1400,6 @@ fi
 %{_sbindir}/pkispawn
 %{_sbindir}/pkidestroy
 %{_sbindir}/pki-server
-%{_sbindir}/pki-server-nuxwdog
 %{_sbindir}/pki-server-upgrade
 %if 0%{?with_python3_default}
 %{python3_sitelib}/pki/server/

@@ -279,7 +279,6 @@ install(
 # install executables
 install(
     FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-server-nuxwdog
         ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-server
         ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-server-upgrade
         ${CMAKE_CURRENT_BINARY_DIR}/sbin/pkidestroy

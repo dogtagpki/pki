@@ -1,5 +1,6 @@
 # Authors:
 #     Endi S. Dewata <edewata@redhat.com>
+#     Dinesh Prasanth M K <dmoluguw@redhat.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,7 +15,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright (C) 2013 Red Hat, Inc.
+# Copyright (C) 2018 Red Hat, Inc.
 # All rights reserved.
 #
 
@@ -35,12 +36,14 @@ import tempfile
 
 import ldap
 import ldap.filter
+import six
+from lxml import etree
+
 import pki
 import pki.client as client
 import pki.nssdb
 import pki.util
-import six
-from lxml import etree
+from pki.keyring import Keyring
 
 INSTANCE_BASE_DIR = '/var/lib/pki'
 CONFIG_BASE_DIR = '/etc/pki'
@@ -1250,6 +1253,17 @@ class PKIInstance(object):
         if name in self.passwords:
             return self.passwords[name]
 
+        # find password in keyring
+        try:
+            keyring = Keyring()
+            key_name = self.name + '/' + name
+            password = keyring.get_password(key_name=key_name)
+            self.passwords[name] = password
+            return password
+
+        except subprocess.CalledProcessError:
+            logger.info('Password unavailable in Keyring.')
+
         # prompt for password if not found
         password = getpass.getpass(prompt='Enter password for %s: ' % name)
         self.passwords[name] = password
@@ -1268,6 +1282,17 @@ class PKIInstance(object):
         # find password in password.conf
         if name in self.passwords:
             return self.passwords[name]
+
+        # find password in keyring
+        try:
+            keyring = Keyring()
+            key_name = self.name + '/' + name
+            password = keyring.get_password(key_name=key_name)
+            self.passwords[name] = password
+            return password
+
+        except subprocess.CalledProcessError:
+            logger.info('Password unavailable in Keyring.')
 
         # prompt for password if not found
         password = getpass.getpass(prompt='Enter password for %s: ' % token)

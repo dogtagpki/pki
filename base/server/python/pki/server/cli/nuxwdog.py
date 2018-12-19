@@ -20,18 +20,18 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
-import getopt
+
 import fileinput
+import getopt
 import os
 import re
-import struct
 import subprocess
 import sys
 
+import pki.server
 from lxml import etree
 
 import pki.cli
-import pki.server
 
 
 class NuxwdogCLI(pki.cli.CLI):
@@ -96,14 +96,9 @@ class NuxwdogEnableCLI(pki.cli.CLI):
         self.print_message('Nuxwdog enabled for system.')
 
     def enable_nuxwdog(self, instance):
-        # add nuxwdog link
-        self.add_nuxwdog_link(instance)
 
         # modify sysconfig file
         self.enable_nuxwdog_sysconfig_file(instance)
-
-        # create nuxwdog conf file
-        subprocess.call(['pki-server-nuxwdog', instance.name])
 
         # modify server.xml
         server_xml = os.path.join(instance.conf_dir, 'server.xml')
@@ -115,42 +110,12 @@ class NuxwdogEnableCLI(pki.cli.CLI):
         # modify CS.cfg
         self.modify_password_class_in_cs_cfg(instance)
 
-    def add_nuxwdog_link(self, instance):
-        nuxwdog_jar_path = '/usr/lib/java/nuxwdog.jar'
-        if not os.path.exists(nuxwdog_jar_path):
-            print(
-                "Error: nuxwdog jar file does not exist.  "
-                "Is nuxwdog installed?"
-            )
-            sys.exit(1)
-        instance_jar_path = os.path.join(
-            instance.base_dir,
-            'common',
-            'lib',
-            'nuxwdog.jar')
-
-        if os.path.exists(instance_jar_path):
-            os.remove(instance_jar_path)
-
-        os.symlink(nuxwdog_jar_path, instance_jar_path)
-
     def enable_nuxwdog_sysconfig_file(self, instance):
         sysconfig_file = os.path.join('/etc/sysconfig', instance.name)
-
-        arch = struct.calcsize("P") * 8
-        if arch == 64:
-            jni_str = "-Djava.library.path=/usr/lib64/nuxwdog-jni"
-        else:
-            jni_str = "-Djava.library.path=/usr/lib/nuxwdog-jni"
 
         got_use_nuxwdog = False
 
         for line in fileinput.input(sysconfig_file, inplace=1):
-            match = re.search("^JAVA_OPTS=\"(.*)\"", line)
-            if match:
-                opts = match.group(1)
-                if jni_str not in opts:
-                    line = "JAVA_OPTS=\"" + opts + " " + jni_str + "\"\n"
 
             match = re.search("^USE_NUXWDOG=.*", line)
             if match:
@@ -303,11 +268,6 @@ class NuxwdogDisableCLI(pki.cli.CLI):
 
     def disable_nuxwdog(self, instance):
         self.disable_nuxwdog_sysconfig_file(instance)
-        self.remove_nuxwdog_link(instance)
-
-        nuxwdog_conf = os.path.join(instance.conf_dir, 'nuxwdog.conf')
-        if os.path.exists(nuxwdog_conf):
-            os.remove(nuxwdog_conf)
 
         server_xml = os.path.join(instance.conf_dir, 'server.xml')
         self.disable_nuxwdog_server_xml(server_xml, instance)
@@ -319,17 +279,7 @@ class NuxwdogDisableCLI(pki.cli.CLI):
     def disable_nuxwdog_sysconfig_file(self, instance):
         sysconfig_file = os.path.join('/etc/sysconfig', instance.name)
 
-        arch = struct.calcsize("P") * 8
-        if arch == 64:
-            jni_str = "-Djava.library.path=/usr/lib64/nuxwdog-jni"
-        else:
-            jni_str = "-Djava.library.path=/usr/lib/nuxwdog-jni"
-
         for line in fileinput.input(sysconfig_file, inplace=1):
-            match = re.search("^JAVA_OPTS=\"(.*)\"", line)
-            if match:
-                opts = match.group(1)
-                line = "JAVA_OPTS=\"" + opts.replace(jni_str, '') + "\"\n"
 
             match = re.search("^USE_NUXWDOG=.*", line)
             if match:
@@ -338,16 +288,6 @@ class NuxwdogDisableCLI(pki.cli.CLI):
             print(line, end='')
 
         os.chown(sysconfig_file, instance.uid, instance.gid)
-
-    def remove_nuxwdog_link(self, instance):
-        instance_jar_path = os.path.join(
-            instance.base_dir,
-            'common',
-            'lib',
-            'nuxwdog.jar')
-
-        if os.path.exists(instance_jar_path):
-            os.remove(instance_jar_path)
 
     def disable_nuxwdog_server_xml(self, filename, instance):
         if self.verbose:
