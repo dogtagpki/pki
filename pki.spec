@@ -191,11 +191,8 @@ BuildRequires:    slf4j-jdk14
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.36.1
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    nuxwdog-client-java >= 1.0.3-7
-%else
-BuildRequires:    nuxwdog-client-java >= 1.0.5
-%endif
+# https://bugzilla.redhat.com/show_bug.cgi?id=1652269
+Conflicts: nuxwdog-client-java
 
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
@@ -602,11 +599,8 @@ BuildArch:        noarch
 Requires:         hostname
 Requires:         net-tools
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         nuxwdog-client-java >= 1.0.3-7
-%else
-Requires:         nuxwdog-client-java >= 1.0.5
-%endif
+# https://bugzilla.redhat.com/show_bug.cgi?id=1652269
+Conflicts: nuxwdog-client-java
 
 Requires:         policycoreutils
 Requires:         procps-ng
