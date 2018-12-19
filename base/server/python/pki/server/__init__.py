@@ -1221,7 +1221,8 @@ class PKIInstance(object):
                     self.subsystems.append(subsystem)
 
     def load_external_certs(self, conf_file):
-        self.external_certs = PKIInstance.read_external_certs(conf_file)
+        for external_cert in PKIInstance.read_external_certs(conf_file):
+            self.external_certs.append(external_cert)
 
     @staticmethod
     def read_external_certs(conf_file):
@@ -1302,7 +1303,7 @@ class PKIInstance(object):
         self.save_external_cert_data()
 
     def save_external_cert_data(self):
-        with io.open(self.external_certs_conf, 'wb') as f:
+        with open(self.external_certs_conf, 'w') as f:
             indx = 0
             for cert in self.external_certs:
                 f.write('%s.nickname=%s\n' % (str(indx), cert.nickname))
