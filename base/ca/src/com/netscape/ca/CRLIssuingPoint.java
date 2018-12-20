@@ -372,7 +372,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     public void enableCRLIssuingPoint(boolean enable) {
-        if ((!enable) && (mEnable ^ enable)) {
+        if (!enable && mEnable) {
             clearCRLCache();
             updateCRLCacheRepository();
         }
@@ -1794,9 +1794,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     if (mInitialized == CRL_IP_NOT_INITIALIZED)
                         initCRL();
 
-                    if (mInitialized == CRL_IP_INITIALIZED && (!mEnable))
-                        break;
-
                     if ((mEnableCRLUpdates && mDoManualUpdate) || mDoLastAutoUpdate) {
                         delay = 0;
                     } else if (scheduledUpdates) {
@@ -1902,25 +1899,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     /**
      * Updates CRL and publishes it.
-     * If time elapsed since last CRL update is less than
-     * minUpdateInterval silently returns.
-     * Otherwise determines nextUpdate by adding autoUpdateInterval or
-     * minUpdateInterval to the current time. If neither of the
-     * intervals are defined nextUpdate will be null.
-     * Then using specified configuration parameters it formulates new
-     * CRL, signs it, updates CRLIssuingPointRecord in the database
-     * and publishes CRL in the directory.
-     * <P>
      */
     private void updateCRL() throws EBaseException {
-        /*
-        if (mEnableUpdateFreq && mAutoUpdateInterval > 0 &&
-            (System.currentTimeMillis() - mLastUpdate.getTime() <
-                mMinUpdateInterval)) {
-            // log or alternatively throw an Exception
-            return;
-        }
-        */
         if (mDoManualUpdate && mSignatureAlgorithmForManualUpdate != null) {
             updateCRLNow(mSignatureAlgorithmForManualUpdate);
         } else {
