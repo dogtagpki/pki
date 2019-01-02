@@ -755,7 +755,8 @@ public final class CMSAdminServlet extends AdminServlet {
             //XXX Send response first then shutdown
             sendResponse(SUCCESS, null, params, resp);
             logger.debug("CMSAdminServlet.performTasks(): shutdown server");
-            CMS.shutdown();
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            engine.shutdown();
             return;
         }
 
