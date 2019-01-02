@@ -76,6 +76,8 @@ import netscape.security.x509.X500Name;
  */
 public class CertRequestService extends PKIService implements CertRequestResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRequestService.class);
+
     public static final int DEFAULT_START = 0;
     public static final int DEFAULT_PAGESIZE = 20;
     public static final int DEFAULT_MAXRESULTS = 100;
@@ -87,8 +89,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response getRequestInfo(RequestId id) {
         if (id == null) {
-            CMS.debug("getRequestInfo: id is null");
-            throw new BadRequestException("Unable to get request: invalid id");
+            String message = "Unable to get cert request info: Missing request ID";
+            logger.error(message);
+            throw new BadRequestException(message);
         }
         CertRequestInfo info;
 
@@ -96,8 +99,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         try {
             info = dao.getRequest(id, uriInfo);
         } catch (EBaseException e) {
-            CMS.debug(e);
-            throw new PKIException("Error getting Cert request info!", e);
+            String message = "Unable to get cert request info: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
         }
 
         if (info == null) {
@@ -110,8 +114,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response enrollCert(CertEnrollmentRequest data, String aidString, String adnString) {
         if (data == null) {
-            CMS.debug("enrollCert: data is null");
-            throw new BadRequestException("Unable to create enrollment reequest: Invalid input data");
+            String message = "Unable to create enrollment request: Missing input data";
+            logger.error(message);
+            throw new BadRequestException(message);
         }
 
         if (aidString != null && adnString != null)
@@ -153,21 +158,31 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         CertRequestInfos infos;
         try {
             infos = dao.submitRequest(aid, data, servletRequest, uriInfo, getLocale(headers));
+
         } catch (EAuthException e) {
-            CMS.debug("enrollCert: authentication failed: " + e);
-            throw new UnauthorizedException(e.toString(), e);
+            String message = "Authentication failed: " + e.getMessage();
+            logger.error(message, e);
+            throw new UnauthorizedException(message, e);
+
         } catch (EAuthzException e) {
-            CMS.debug("enrollCert: authorization failed: " + e);
-            throw new UnauthorizedException(e.toString(), e);
+            String message = "Authorization failed: " + e.getMessage();
+            logger.error(message, e);
+            throw new UnauthorizedException(message, e);
+
         } catch (BadRequestDataException e) {
-            CMS.debug("enrollCert: bad request data: " + e);
-            throw new BadRequestException(e.toString(), e);
+            String message = "Bad request data: " + e.getMessage();
+            logger.error(message, e);
+            throw new BadRequestException(message, e);
+
         } catch (EBaseException e) {
-            CMS.debug(e);
-            throw new PKIException(e);
+            String message = "Unable to create enrollment request: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
+
         } catch (Exception e) {
-            CMS.debug(e);
-            throw new PKIException(e);
+            String message = "Unable to create enrollment request: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
         }
 
         // this will return an error code of 200, instead of 201
@@ -220,44 +235,66 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     }
 
     public void changeRequestState(RequestId id, CertReviewResponse data, String op) {
+
         if (id == null) {
-            throw new BadRequestException("Bad data input in CertRequestResourceService. op:" + op);
+            throw new BadRequestException("Unable to change request state: Missing input data");
         }
+
         CertRequestDAO dao = new CertRequestDAO();
+
         try {
             dao.changeRequestState(id, servletRequest, data, getLocale(headers), op);
+
         } catch (ERejectException e) {
-            CMS.debug("changeRequestState: execution rejected " + e);
-            throw new BadRequestException(CMS.getUserMessage(getLocale(headers), "CMS_PROFILE_REJECTED", e.toString()), e);
+            String message = CMS.getUserMessage(getLocale(headers), "CMS_PROFILE_REJECTED", e.getMessage());
+            logger.error(message, e);
+            throw new BadRequestException(message, e);
+
         } catch (EDeferException e) {
-            CMS.debug("changeRequestState: execution defered " + e);
+            String message = CMS.getUserMessage(getLocale(headers), "CMS_PROFILE_DEFERRED", e.toString());
+            logger.error(message, e);
             // TODO do we throw an exception here?
-            throw new BadRequestException(CMS.getUserMessage(getLocale(headers), "CMS_PROFILE_DEFERRED", e.toString()), e);
+            throw new BadRequestException(message, e);
+
         } catch (BadRequestDataException e) {
-            CMS.debug("changeRequestState: bad request data: " + e);
-            throw new BadRequestException(e.toString(), e);
+            String message = "Bad request data: " + e.getMessage();
+            logger.error(message, e);
+            throw new BadRequestException(message, e);
+
         } catch (CANotFoundException e) {
             // The target CA does not exist (deleted between
             // request submission and approval).
-            CMS.debug("changeRequestState: CA not found: " + e);
-            throw new HTTPGoneException(e.toString(), e);
+            String message = "CA not found: " + e.getMessage();
+            logger.error(message, e);
+            throw new HTTPGoneException(message, e);
+
         } catch (CADisabledException e) {
-            CMS.debug("changeRequestState: CA disabled: " + e);
-            throw new ConflictingOperationException(e.toString(), e);
+            String message = "CA disabled: " + e.getMessage();
+            logger.error(message, e);
+            throw new ConflictingOperationException(message, e);
+
         } catch (CAMissingCertException | CAMissingKeyException e) {
             throw new ServiceUnavailableException(e.toString(), e);
+
         } catch (EPropertyException e) {
-            CMS.debug("changeRequestState: execution error " + e);
-            throw new PKIException(CMS.getUserMessage(getLocale(headers),
-                    "CMS_PROFILE_PROPERTY_ERROR", e.toString()), e);
+            String message = CMS.getUserMessage(getLocale(headers),
+                    "CMS_PROFILE_PROPERTY_ERROR", e.getMessage());
+            logger.error(message, e);
+            throw new PKIException(message, e);
+
         } catch (EProfileException e) {
-            CMS.debug("ProfileProcessServlet: execution error " + e);
-            throw new PKIException(CMS.getUserMessage(getLocale(headers), "CMS_INTERNAL_ERROR"), e);
+            String message = CMS.getUserMessage(getLocale(headers), "CMS_INTERNAL_ERROR") + ": " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
+
         } catch (EBaseException e) {
-            CMS.debug(e);
-            throw new PKIException("Problem approving request in CertRequestResource.assignRequest! " + e, e);
+            String message = "Unable to change request state: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
+
         } catch (RequestNotFoundException e) {
-            CMS.debug(e);
+            String message = "Unable to change request state: " + e.getMessage();
+            logger.error(message, e);
             throw e;
         }
     }
@@ -265,8 +302,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response reviewRequest(@PathParam("id") RequestId id) {
         if (id == null) {
-            CMS.debug("reviewRequest: id is null");
-            throw new BadRequestException("Unable to review request: invalid id");
+            String message = "Unable to review cert request: Missing request ID";
+            logger.error(message);
+            throw new BadRequestException(message);
         }
         CertReviewResponse info;
 
@@ -274,8 +312,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         try {
             info = dao.reviewRequest(servletRequest, id, uriInfo, getLocale(headers));
         } catch (EBaseException e) {
-            CMS.debug(e);
-            throw new PKIException("Error getting Cert request info!", e);
+            String message = "Unable to review cert request: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
         }
 
         if (info == null) {
@@ -294,7 +333,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             RequestId start, Integer pageSize, Integer maxResults, Integer maxTime) {
         // get ldap filter
         String filter = createSearchFilter(requestState, requestType);
-        CMS.debug("listRequests: filter is " + filter);
+        logger.debug("listRequests: filter is " + filter);
 
         start = start == null ? new RequestId(CertRequestService.DEFAULT_START) : start;
         pageSize = pageSize == null ? DEFAULT_PAGESIZE : pageSize;
@@ -306,9 +345,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         try {
             requests =  reqDAO.listRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
         } catch (EBaseException e) {
-            CMS.debug("listRequests: error in obtaining request results" + e);
-            CMS.debug(e);
-            throw new PKIException("Error listing cert requests!", e);
+            String message = "Unable to list cert requests: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
         }
         return createOKResponse(requests);
     }
@@ -342,32 +381,36 @@ public class CertRequestService extends PKIService implements CertRequestResourc
     @Override
     public Response getEnrollmentTemplate(String profileId) {
         if (profileId == null) {
-            CMS.debug("getEnrollmenTemplate: invalid request. profileId is null");
-            throw new BadRequestException("Invalid ProfileId");
+            String message = "Unable to get enrollment template: Missing Profile ID";
+            logger.error(message);
+            throw new BadRequestException(message);
         }
 
         IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
         if (ps == null) {
-            CMS.debug("getEnrollmentTemplate: ps is null");
-            throw new PKIException("Error modifying profile state.  Profile Service not available");
+            String message = "Unable to get enrollment template: Profile Service not available";
+            logger.error(message);
+            throw new PKIException(message);
         }
 
         IProfile profile = null;
         try {
             profile = ps.getProfile(profileId);
             if (profile == null) {
-                throw new BadRequestException("Cannot provide enrollment template for profile `" + profileId +
-                        "`.  Profile not found");
+                String message = "Unable to get enrollment template for " + profileId + ": Profile not found";
+                logger.error(message);
+                throw new BadRequestException(message);
             }
+
         } catch (EBaseException e) {
-            CMS.debug("getEnrollmentTemplate(): error obtaining profile `" + profileId + "`: " + e);
-            CMS.debug(e);
-            throw new PKIException("Error generating enrollment template.  Cannot obtain profile.", e);
+            String message = "Unable to get enrollment template for " + profileId + ": " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
         }
 
         if (! profile.isVisible()) {
-            CMS.debug("getEnrollmentTemplate(): attempt to get enrollment template for non-visible profile. This is ok since command line enrollments should be able to use enabled but non visible profiles.");
-
+            logger.debug("getEnrollmentTemplate(): getting enrollment template for non-visible profile.");
+            // This is ok since command line enrollments should be able to use enabled but non visible profiles.
         }
 
         CertEnrollmentRequest request = new CertEnrollmentRequest();
@@ -387,9 +430,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
                 }
                 request.addInput(input);
             } catch (EBaseException e) {
-                CMS.debug("getEnrollmentTemplate(): Failed to add input " + id + " to request template: " + e);
-                CMS.debug(e);
-                throw new PKIException("Failed to add input" + id + "to request template", e);
+                String message = "Unable to add input " + id + " to request template: " + e.getMessage();
+                logger.error(message, e);
+                throw new PKIException(message, e);
             }
         }
 
@@ -423,7 +466,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
                 if (info == null) continue;
                 results.add(info);
             } catch (EBaseException ex) {
-                CMS.debug("CertRequestService: " + ex.getMessage());
+                logger.warn("CertRequestService: " + ex.getMessage());
                 continue;
             }
         }
