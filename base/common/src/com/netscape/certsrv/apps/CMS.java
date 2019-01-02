@@ -20,7 +20,6 @@ package com.netscape.certsrv.apps;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
 
@@ -128,31 +127,6 @@ public final class CMS {
     }
 
     /**
-     * Blocks all new incoming requests.
-     */
-    public static void disableRequests() {
-        _engine.disableRequests();
-    }
-
-    /**
-     * Terminates all requests that are currently in process.
-     */
-    public static void terminateRequests() {
-        _engine.terminateRequests();
-    }
-
-    /**
-     * Checks to ensure that all new incoming requests have been blocked.
-     * This method is used for reentrancy protection.
-     * <P>
-     *
-     * @return true or false
-     */
-    public static boolean areRequestsDisabled() {
-        return _engine.areRequestsDisabled();
-    }
-
-    /**
      * Shuts down subsystems in backwards order
      * exceptions are ignored. process exists at end to force exit.
      */
@@ -160,33 +134,8 @@ public final class CMS {
         _engine.shutdown();
     }
 
-    /**
-     * Shuts down subsystems in backwards order
-     * exceptions are ignored. process exists at end to force exit.
-     */
-    public static void forceShutdown() {
-
-        _engine.forceShutdown();
-    }
-
-    public static void autoShutdown() {
-        _engine.autoShutdown();
-    }
-
     public static void checkForAndAutoShutdown() {
         _engine.checkForAndAutoShutdown();
-    }
-
-    /**
-     * mode = 0 (pre-operational)
-     * mode = 1 (running)
-     */
-    public static void setCSState(int mode) {
-        _engine.setCSState(mode);
-    }
-
-    public static int getCSState() {
-        return _engine.getCSState();
     }
 
     public static boolean isPreOpMode() {
@@ -288,17 +237,6 @@ public final class CMS {
     }
 
     /**
-     * Puts a message into the debug file.
-     *
-     * @param level 0-10 (0 is less detail, 10 is more detail)
-     * @param msg debugging message
-     */
-    public static void debug(int level, String msg) {
-        if (_engine != null)
-            _engine.debug(level, msg);
-    }
-
-    /**
      * Puts an exception into the debug file.
      *
      * @param e exception
@@ -359,15 +297,6 @@ public final class CMS {
         if (_engine != null) {
             _engine.traceHashKey(type, key, val, def);
         }
-    }
-
-    /**
-     * Returns the names of all the registered subsystems.
-     *
-     * @return a list of string-based subsystem names
-     */
-    public static Enumeration<String> getSubsystemNames() {
-        return _engine.getSubsystemNames();
     }
 
     public static byte[] getPKCS7(Locale locale, IRequest req) {
@@ -790,15 +719,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the IP address of the server's non-secure end entity service.
-     *
-     * @return ip address of end-entity non-secure service
-     */
-    public static String getEENonSSLIP() {
-        return _engine.getEENonSSLIP();
-    }
-
-    /**
      * Retrieves the port number of the server's non-secure end entity service.
      *
      * @return port of end-entity non-secure service
@@ -826,15 +746,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the IP address of the server's secure end entity service.
-     *
-     * @return ip address of end-entity secure service
-     */
-    public static String getEESSLIP() {
-        return _engine.getEESSLIP();
-    }
-
-    /**
      * Retrieves the port number of the server's secure end entity service.
      *
      * @return port of end-entity secure service
@@ -853,39 +764,12 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the IP address of the server's agent service.
-     *
-     * @return ip address of agent service
-     */
-    public static String getAgentIP() {
-        return _engine.getAgentIP();
-    }
-
-    /**
      * Retrieves the port number of the server's agent service.
      *
      * @return port of agent service
      */
     public static String getAgentPort() {
         return _engine.getAgentPort();
-    }
-
-    /**
-     * Retrieves the host name of the server's administration service.
-     *
-     * @return host name of administration service
-     */
-    public static String getAdminHost() {
-        return _engine.getAdminHost();
-    }
-
-    /**
-     * Retrieves the IP address of the server's administration service.
-     *
-     * @return ip address of administration service
-     */
-    public static String getAdminIP() {
-        return _engine.getAdminIP();
     }
 
     /**
@@ -987,15 +871,6 @@ public final class CMS {
 
     public static String getServerStatus() {
         return _engine.getServerStatus();
-    }
-
-    // for debug only
-    public static void sleepOneMinute() {
-        _engine.sleepOneMinute();
-    }
-
-    public static boolean isExcludedLdapAttrsEnabled() {
-        return _engine.isExcludedLdapAttrsEnabled();
     }
 
     public static boolean isExcludedLdapAttr(String key) {
