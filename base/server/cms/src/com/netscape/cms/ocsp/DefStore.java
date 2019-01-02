@@ -54,6 +54,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
@@ -180,7 +181,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public IRepositoryRecord createRepositoryRecord() {
-        return CMS.createRepositoryRecord();
+        return new RepositoryRecord();
     }
 
     /**

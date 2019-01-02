@@ -18,7 +18,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.request.IRequest;
@@ -215,10 +214,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public String getCRLIssuingPointRecordName() {
-        return null;
-    }
-
-    public IRepositoryRecord createRepositoryRecord() {
         return null;
     }
 

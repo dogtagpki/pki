@@ -40,7 +40,6 @@ import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogSubsystem;
@@ -148,15 +147,6 @@ public final class CMS {
      */
     public static boolean isInRunningState() {
         return _engine.isInRunningState();
-    }
-
-    /**
-     * Creates a repository record in the internal database.
-     *
-     * @return repository record
-     */
-    public static IRepositoryRecord createRepositoryRecord() {
-        return _engine.createRepositoryRecord();
     }
 
     /**

@@ -74,7 +74,6 @@ import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
@@ -104,7 +103,6 @@ import com.netscape.cmscore.connector.Resender;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmscore.jobs.JobsScheduler;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -697,10 +695,6 @@ public class CMSEngine implements ICMSEngine {
         } catch (Exception e) {
         }
         return mode;
-    }
-
-    public IRepositoryRecord createRepositoryRecord() {
-        return new RepositoryRecord();
     }
 
     public ICRLIssuingPointRecord createCRLIssuingPointRecord(String

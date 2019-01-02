@@ -34,7 +34,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.request.IRequest;
@@ -425,13 +424,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return CRL issuing point record name
      */
     public String getCRLIssuingPointRecordName();
-
-    /**
-     * Creates a repository record in the internal database.
-     *
-     * @return repository record
-     */
-    public IRepositoryRecord createRepositoryRecord();
 
     /**
      * Retrieves the certifcate in MIME-64 encoded format
