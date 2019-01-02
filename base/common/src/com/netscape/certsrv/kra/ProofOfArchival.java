@@ -31,15 +31,15 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.IDBObj;
+
 import netscape.security.util.BigInt;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.X500Name;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBObj;
 
 /**
  * A class represents a proof of escrow. It indicates a key
@@ -71,10 +71,9 @@ import com.netscape.certsrv.dbs.IDBObj;
  */
 public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -2533562170977678799L;
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProofOfArchival.class);
 
     /**
      * Constants
@@ -295,7 +294,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
             out.write(DerValue.tag_Sequence, seq);
 
         } catch (IOException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED", e.toString()));
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED", e.toString()), e);
         }
     }
 
@@ -335,17 +334,17 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
             out.write(DerValue.tag_Sequence, tmp);
             return;
         } catch (NoSuchAlgorithmException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()), e);
         } catch (NoSuchProviderException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()), e);
         } catch (InvalidKeyException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()), e);
         } catch (SignatureException e) {
-            CMS.debug("ProofOfArchival.encodeAndSign: " + e.toString());
+            logger.error("Unable to sign proof of escrow: " + e.getMessage(), e);
             CMS.checkForAndAutoShutdown();
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()), e);
         } catch (IOException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()), e);
         }
     }
 
@@ -391,7 +390,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
                 decodePOA(val, seq[0]);
             }
         } catch (IOException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED_1", e.toString()), e);
         }
     }
 
@@ -446,7 +445,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
             // date of archival
             mDateOfArchival = val.data.getUTCTime();
         } catch (IOException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED_1", e.toString()), e);
         }
     }
 
