@@ -116,6 +116,7 @@ import netscape.security.x509.X509CertImpl;
  */
 public abstract class CMSServlet extends HttpServlet {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSServlet.class);
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final long serialVersionUID = -3886300199374147160L;
@@ -394,7 +395,7 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     public void outputHttpParameters(HttpServletRequest httpReq) {
-        CMS.debug("CMSServlet:service() uri = " + httpReq.getRequestURI());
+        logger.debug("CMSServlet:service() uri: " + httpReq.getRequestURI());
         Enumeration<?> paramNames = httpReq.getParameterNames();
         while (paramNames.hasMoreElements()) {
             String pn = (String) paramNames.nextElement();
@@ -404,10 +405,10 @@ public abstract class CMSServlet extends HttpServlet {
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed
             if (CMS.isSensitive(pn)) {
-                CMS.debug("CMSServlet::service() param name='" + pn +
+                logger.debug("CMSServlet::service() param name='" + pn +
                         "' value='(sensitive)'");
             } else {
-                CMS.debug("CMSServlet::service() param name='" + pn +
+                logger.debug("CMSServlet::service() param name='" + pn +
                         "' value='" + httpReq.getParameter(pn) + "'");
             }
         }
@@ -434,18 +435,18 @@ public abstract class CMSServlet extends HttpServlet {
 
         httpReq.setCharacterEncoding("UTF-8");
 
-        if (CMS.debugOn()) {
+        if (logger.isDebugEnabled()) {
             outputHttpParameters(httpReq);
         }
-        CMS.debug("CMSServlet: " + mId + " start to service.");
+        logger.debug("CMSServlet: " + mId + " start to service.");
         /* cfu test
-        CMS.debug("CMSServlet: content length=" +httpReq.getContentLength());
+        logger.debug("CMSServlet: content length: " +httpReq.getContentLength());
         Enumeration<String> reqParams = httpReq.getParameterNames();
         while (reqParams.hasMoreElements()) {
             String reqName = reqParams.nextElement();
             String reqValue = httpReq.getParameter(reqName);
 
-            CMS.debug("CMSServlet: process() cfu debug: HttpServletRequest "+
+            logger.debug("CMSServlet: process() cfu debug: HttpServletRequest "+
                reqName+"="+reqValue);
         }
         */
@@ -494,10 +495,8 @@ public abstract class CMSServlet extends HttpServlet {
             renderResult(cmsRequest);
             Date endDate = CMS.getCurrentDate();
             long endTime = endDate.getTime();
-            if (CMS.debugOn()) {
-                CMS.debug(CMS.DEBUG_INFORM, "CMSServlet: curDate="
-                        + endDate + " id=" + mId + " time=" + (endTime - startTime));
-            }
+            logger.info("CMSServlet: curDate: "
+                    + endDate + " id: " + mId + " time: " + (endTime - startTime));
             iCommandQueue.unRegisterProccess(cmsRequest, this);
         } catch (EBaseException e) {
             iCommandQueue.unRegisterProccess(cmsRequest, this);
@@ -611,7 +610,7 @@ public abstract class CMSServlet extends HttpServlet {
             os.write(cb);
             os.flush();
         } catch (Exception e) {
-            CMS.debug("failed in outputing XML " + e);
+            logger.warn("Failed in outputing XML: " + e.getMessage(), e);
         }
     }
 
@@ -632,10 +631,10 @@ public abstract class CMSServlet extends HttpServlet {
             }
 
             // just output arg blocks as XML
-            CMS.debug("CMSServlet.java: renderTemplate");
+            logger.debug("CMSServlet.java: renderTemplate");
             String xmlOutput = cmsReq.getHttpReq().getParameter("xml");
             if (xmlOutput != null && xmlOutput.equals("true")) {
-                CMS.debug("CMSServlet.java: xml parameter detected, returning xml");
+                logger.debug("CMSServlet.java: xml parameter detected, returning xml");
                 outputXML(cmsReq.getHttpResp(), templateParams);
                 return;
             }
@@ -725,10 +724,10 @@ public abstract class CMSServlet extends HttpServlet {
             }
 
             // just output arg blocks as XML
-            CMS.debug("CMSServlet.java: renderTemplate");
+            logger.debug("CMSServlet.java: renderTemplate");
             String xmlOutput = cmsReq.getHttpReq().getParameter("xml");
             if (xmlOutput != null && xmlOutput.equals("true")) {
-                CMS.debug("CMSServlet.java: xml parameter detected, returning xml");
+                logger.debug("CMSServlet.java: xml parameter detected, returning xml");
                 outputXML(cmsReq.getHttpResp(), templateParams);
                 return;
             }
@@ -746,8 +745,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     public void renderFinalError(CMSRequest cmsReq, Exception ex)
             throws IOException {
-        CMS.debug("Caught exception in renderFinalError:");
-        CMS.debug(ex);
+        logger.debug("Caught exception in renderFinalError: " + ex.getMessage(), ex);
         // this template is the last resort for all other unexpected
         // errors in other templates so we can only output text.
         HttpServletResponse httpResp = cmsReq.getHttpResp();
@@ -779,9 +777,7 @@ public abstract class CMSServlet extends HttpServlet {
          try {
          s = (SSLSocket) ((HTTPRequest) httpReq).getConnection().getSocket();
          } catch (ClassCastException e) {
-         CMS.getLogger().log(
-         ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_WARN,
-         CMS.getLogMessage("CMSGW_SSL_NO_INVALIDATE"));
+            logger.warn(CMS.getLogMessage("CMSGW_SSL_NO_INVALIDATE"), e);
          // ignore.
          return;
          }
@@ -887,7 +883,7 @@ public abstract class CMSServlet extends HttpServlet {
             throws EBaseException, IOException {
         // this converts to system dependent file seperator char.
         if (mServletConfig == null) {
-            CMS.debug("CMSServlet:getTemplate() - mServletConfig is null!");
+            logger.warn("CMSServlet:getTemplate() - mServletConfig is null!");
             return null;
         }
         if (mServletConfig.getServletContext() == null) {
@@ -1388,7 +1384,7 @@ public abstract class CMSServlet extends HttpServlet {
         ServletOutputStream out = null;
         byte[] encoding = null;
 
-        CMS.debug("CMSServlet: importCertToNav " +
+        logger.debug("CMSServlet: importCertToNav " +
                        "contentType=" + contentType + " " +
                        "importCAChain=" + importCAChain);
         try {
@@ -1425,10 +1421,10 @@ public abstract class CMSServlet extends HttpServlet {
 
                 p7.encodeSignedData(bos, false);
                 encoding = bos.toByteArray();
-                CMS.debug("CMServlet: return P7 " + Utils.base64encode(encoding, true));
+                logger.debug("CMServlet: return P7 " + Utils.base64encode(encoding, true));
             } else {
                 encoding = cert.getEncoded();
-                CMS.debug("CMServlet: return Certificate " + Utils.base64encode(encoding, true));
+                logger.debug("CMServlet: return Certificate " + Utils.base64encode(encoding, true));
             }
             httpResp.setContentType(contentType);
             out.write(encoding);
@@ -1459,7 +1455,7 @@ public abstract class CMSServlet extends HttpServlet {
                 String[] x1 = token.getInStringArray(n);
                 if (x1 != null) {
                     for (int i = 0; i < x1.length; i++) {
-                        CMS.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n +
+                        logger.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n +
                                 "(" + i + ")=" + x1[i]);
                         req.setExtData(IRequest.AUTH_TOKEN + "-" + n + "(" + i + ")",
                                 x1[i]);
@@ -1467,7 +1463,7 @@ public abstract class CMSServlet extends HttpServlet {
                 } else {
                     String x = token.getInString(n);
                     if (x != null) {
-                        CMS.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n + "=" + x);
+                        logger.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n + "=" + x);
                         req.setExtData(IRequest.AUTH_TOKEN + "-" + n, x);
                     }
                 }
@@ -1712,13 +1708,13 @@ public abstract class CMSServlet extends HttpServlet {
             IArgBlock httpArgs = CMS.createArgBlock(toHashtable(httpReq));
             SessionContext ctx = SessionContext.getContext();
             String ip = httpReq.getRemoteAddr();
-            CMS.debug("IP: " + ip);
+            logger.debug("IP: " + ip);
 
             if (ip != null) {
                 ctx.put(SessionContext.IPADDRESS, ip);
             }
             if (authMgrName != null) {
-                CMS.debug("AuthMgrName: " + authMgrName);
+                logger.debug("AuthMgrName: " + authMgrName);
                 ctx.put(SessionContext.AUTH_MANAGER_ID, authMgrName);
             }
             // put locale into session context
@@ -1730,7 +1726,7 @@ public abstract class CMSServlet extends HttpServlet {
             X509Certificate clientCert = null;
 
             if (getClientCert != null && getClientCert.equals("true")) {
-                CMS.debug("CMSServlet: retrieving SSL certificate");
+                logger.debug("CMSServlet: retrieving SSL certificate");
                 clientCert = getSSLClientCertificate(httpReq);
             }
 
@@ -1746,16 +1742,16 @@ public abstract class CMSServlet extends HttpServlet {
                 // audit message called LOGGING_SIGNED_AUDIT_AUTH_FAIL has
                 // been removed.
 
-                CMS.debug("CMSServlet: no authMgrName");
+                logger.debug("CMSServlet: no authMgrName");
                 return null;
             } else {
                 // save the "Subject DN" of this certificate in case it
                 // must be audited as an authentication failure
                 if (clientCert == null) {
-                    CMS.debug("CMSServlet: no client certificate found");
+                    logger.debug("CMSServlet: no client certificate found");
                 } else {
                     String certUID = clientCert.getSubjectDN().getName();
-                    CMS.debug("CMSServlet: certUID=" + certUID);
+                    logger.debug("CMSServlet: certUID=" + certUID);
 
                     if (certUID != null) {
                         certUID = certUID.trim();
@@ -1779,7 +1775,7 @@ public abstract class CMSServlet extends HttpServlet {
             }
             String userid = authToken.getInString(IAuthToken.USER_ID);
 
-            CMS.debug("CMSServlet: userid=" + userid);
+            logger.debug("CMSServlet: userid=" + userid);
 
             if (userid != null) {
                 ctx.put(SessionContext.USER_ID, userid);
@@ -1809,7 +1805,7 @@ public abstract class CMSServlet extends HttpServlet {
             String exp) throws EBaseException {
         AuthzToken authzToken = null;
 
-        CMS.debug("CMSServlet.authorize(" + authzMgrName + ", " + resource + ")");
+        logger.debug("CMSServlet.authorize(" + authzMgrName + ", " + resource + ")");
 
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
@@ -1882,7 +1878,7 @@ public abstract class CMSServlet extends HttpServlet {
             String resource, String operation)
             throws EBaseException {
 
-        CMS.debug("CMSServlet.authorize(" + authzMgrName + ")");
+        logger.debug("CMSServlet.authorize(" + authzMgrName + ")");
 
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
@@ -1899,7 +1895,7 @@ public abstract class CMSServlet extends HttpServlet {
             if (authManagerId != null && authManagerId.equals("TokenAuth")) {
                 if (auditSubjectID.equals(ILogger.NONROLEUSER) ||
                         auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
-                    CMS.debug("CMSServlet: in authorize... TokenAuth auditSubjectID unavailable, changing to auditGroupID");
+                    logger.debug("CMSServlet: in authorize... TokenAuth auditSubjectID unavailable, changing to auditGroupID");
                     auditID = auditGroupID;
                 }
             }
@@ -2023,18 +2019,18 @@ public abstract class CMSServlet extends HttpServlet {
      */
     protected String auditSubjectID() {
 
-        CMS.debug("CMSServlet: in auditSubjectID");
+        logger.debug("CMSServlet: in auditSubjectID");
         String subjectID = null;
 
         // Initialize subjectID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        CMS.debug("CMSServlet: auditSubjectID auditContext " + auditContext);
+        logger.debug("CMSServlet: auditSubjectID auditContext " + auditContext);
         if (auditContext != null) {
             subjectID = (String)
                     auditContext.get(SessionContext.USER_ID);
 
-            CMS.debug("CMSServlet auditSubjectID: subjectID: " + subjectID);
+            logger.debug("CMSServlet auditSubjectID: subjectID: " + subjectID);
             if (subjectID != null) {
                 subjectID = subjectID.trim();
             } else {
@@ -2059,18 +2055,18 @@ public abstract class CMSServlet extends HttpServlet {
      */
     protected String auditGroupID() {
 
-        CMS.debug("CMSServlet: in auditGroupID");
+        logger.debug("CMSServlet: in auditGroupID");
         String groupID = null;
 
         // Initialize groupID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        CMS.debug("CMSServlet: auditGroupID auditContext " + auditContext);
+        logger.debug("CMSServlet: auditGroupID auditContext " + auditContext);
         if (auditContext != null) {
             groupID = (String)
                     auditContext.get(SessionContext.GROUP_ID);
 
-            CMS.debug("CMSServlet auditGroupID: groupID: " + groupID);
+            logger.debug("CMSServlet auditGroupID: groupID: " + groupID);
             if (groupID != null) {
                 groupID = groupID.trim();
             } else {
@@ -2156,8 +2152,7 @@ public abstract class CMSServlet extends HttpServlet {
             os.write(content);
             os.flush();
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()), e);
             return;
         }
     }
@@ -2189,9 +2184,7 @@ public abstract class CMSServlet extends HttpServlet {
             os.flush();
             return;
         } catch (Exception ee) {
-            CMS.debug("Failed to send XML output to the server.");
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", ee.toString()));
+            logger.warn(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", ee.toString()), ee);
         }
     }
 }

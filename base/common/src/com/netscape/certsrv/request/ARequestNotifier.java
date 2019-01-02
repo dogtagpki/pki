@@ -343,13 +343,7 @@ public class ARequestNotifier implements IRequestNotifier {
             try {
                 new Thread(new RunListeners(r, mListeners.elements())).start();
             } catch (Throwable e) {
-
-                /*
-                 CMS.getLogger().log(
-                 ILogger.EV_SYSTEM, ILogger.S_REQQUEUE, ILogger.LL_FAILURE,
-                 "Could not run listeners for request " + r.getRequestId() +
-                 ". Error " + e + ";" + e.getMessage());
-                 */
+                logger.warn("Could not run listeners for request " + r.getRequestId() + ": " + e.getMessage(), e);
             }
         }
     }
