@@ -2,9 +2,9 @@ package org.dogtagpki.tps.apdu;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-import com.netscape.certsrv.apps.CMS;
-
 public class InstallLoadGP211APDU extends APDU {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(InstallLoadGP211APDU.class);
 
     public InstallLoadGP211APDU(TPSBuffer packageAID, TPSBuffer sdAID,
             int fileLen) {
@@ -14,7 +14,7 @@ public class InstallLoadGP211APDU extends APDU {
         setP2((byte) 0x00);
 
 
-        CMS.debug("InstlalLoadGP211APDU: packageAID " + packageAID.toHexString() + " aid size: " + packageAID.size() + " fileLen: " + fileLen);
+        logger.debug("InstlalLoadGP211APDU: packageAID: " + packageAID.toHexString() + " aid size: " + packageAID.size() + " fileLen: " + fileLen);
 
         TPSBuffer inputData = new TPSBuffer();
 

@@ -19,15 +19,15 @@ package org.dogtagpki.tps.msg;
 
 import java.util.Map;
 
-import com.netscape.certsrv.apps.CMS;
-
 public class BeginOpMsg extends TPSMessage {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BeginOpMsg.class);
 
     private Map<String, String> extensions;
 
     public BeginOpMsg(OpType theOp, Map<String, String> theExtensions) {
 
-        CMS.debug("BeingOp op: " + theOp + " extensions: " + theExtensions);
+        logger.debug("BeingOp op: " + theOp + " extensions: " + theExtensions);
         put(OPERATION_TYPE_NAME, opTypeToInt(theOp));
         put(MSG_TYPE_NAME, msgTypeToInt(MsgType.MSG_BEGIN_OP));
         extensions = theExtensions;

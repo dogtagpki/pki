@@ -24,9 +24,9 @@ package org.dogtagpki.tps.apdu;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
 
-import com.netscape.certsrv.apps.CMS;
-
 public class APDUResponse extends APDU {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(APDUResponse.class);
 
     public APDUResponse() {
         super();
@@ -78,7 +78,7 @@ public class APDUResponse extends APDU {
         int int1 = sw1 & 0xff;
         int int2 = sw2 & 0xff;
 
-        CMS.debug("APDUResponse.checkResult : sw1: " + "0x" + Util.intToHex(int1) + " sw2: " + "0x"
+        logger.debug("APDUResponse.checkResult: sw1: " + "0x" + Util.intToHex(int1) + " sw2: " + "0x"
                 + Util.intToHex(int2));
 
         if (sw1 == (byte) 0x90 && sw2 == 0x0)
