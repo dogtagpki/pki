@@ -67,6 +67,7 @@ import netscape.security.x509.X500Name;
  */
 public class AuthorityService extends SubsystemService implements AuthorityResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthorityService.class);
     ICertificateAuthority hostCA;
 
     public AuthorityService() {
@@ -224,10 +225,11 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         } catch (CAMissingCertException | CAMissingKeyException e) {
             throw new ServiceUnavailableException(e.toString());
         } catch (Exception e) {
-            CMS.debug(e);
+            String message = "Error creating CA: " + e.getMessage();
+            logger.error(message, e);
             auditParams.put("exception", e.toString());
             audit(ILogger.FAILURE, OpDef.OP_ADD, "<unknown>", auditParams);
-            throw new PKIException("Error creating CA: " + e.toString());
+            throw new PKIException(message, e);
         }
     }
 
@@ -266,10 +268,11 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             audit(ILogger.FAILURE, OpDef.OP_MODIFY, ca.getAuthorityID().toString(), auditParams);
             throw new ConflictingOperationException(e.toString());
         } catch (EBaseException e) {
-            CMS.debug(e);
+            String message = "Error modifying authority: " + e.getMessage();
+            logger.error(message, e);
             auditParams.put("exception", e.toString());
             audit(ILogger.FAILURE, OpDef.OP_MODIFY, ca.getAuthorityID().toString(), auditParams);
-            throw new PKIException("Error modifying authority: " + e.toString());
+            throw new PKIException(message, e);
         }
     }
 
@@ -311,10 +314,11 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             audit(ILogger.FAILURE, OpDef.OP_MODIFY, aidString, auditParams);
             throw new ConflictingOperationException(e.toString());
         } catch (EBaseException e) {
-            CMS.debug(e);
+            String message = "Error renewing authority: " + e.getMessage();
+            logger.error(message, e);
             auditParams.put("exception", e.toString());
             audit(ILogger.FAILURE, OpDef.OP_MODIFY, aidString, auditParams);
-            throw new PKIException("Error renewing authority: " + e.toString());
+            throw new PKIException(message, e);
         }
     }
 
@@ -346,10 +350,11 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             audit(ILogger.FAILURE, OpDef.OP_DELETE, aidString, auditParams);
             throw new ConflictingOperationException(e.toString());
         } catch (EBaseException e) {
-            CMS.debug(e);
+            String message = "Error modifying authority: " + e.getMessage();
+            logger.error(message, e);
             auditParams.put("exception", e.toString());
             audit(ILogger.FAILURE, OpDef.OP_DELETE, aidString, auditParams);
-            throw new PKIException("Error modifying authority: " + e.toString());
+            throw new PKIException(message, e);
         }
     }
 
