@@ -77,6 +77,8 @@ import netscape.security.x509.X509CertInfo;
 public class CertificateRepository extends Repository
         implements ICertificateRepository {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateRepository.class);
+
     public final String CERT_X509ATTRIBUTE = "x509signedcert";
     private static final String PROP_ENABLE_RANDOM_SERIAL_NUMBERS = "enableRandomSerialNumbers";
     private static final String PROP_RANDOM_SERIAL_NUMBER_COUNTER = "randomSerialNumberCounter";
@@ -133,10 +135,10 @@ public class CertificateRepository extends Repository
     }
 
     public void setEnableRandomSerialNumbers(boolean random, boolean updateMode, boolean forceModeChange) {
-        CMS.debug("CertificateRepository:  setEnableRandomSerialNumbers   random="+random+"  updateMode="+updateMode);
+        logger.debug("CertificateRepository:  setEnableRandomSerialNumbers   random="+random+"  updateMode="+updateMode);
         if (mEnableRandomSerialNumbers ^ random || forceModeChange) {
             mEnableRandomSerialNumbers = random;
-            CMS.debug("CertificateRepository:  setEnableRandomSerialNumbers   switching to " +
+            logger.debug("CertificateRepository:  setEnableRandomSerialNumbers   switching to " +
                       ((random)?PROP_RANDOM_MODE:PROP_SEQUENTIAL_MODE) + " mode");
             if (updateMode) {
                 setCertificateRepositoryMode((mEnableRandomSerialNumbers)? PROP_RANDOM_MODE: PROP_SEQUENTIAL_MODE);
@@ -152,7 +154,7 @@ public class CertificateRepository extends Repository
                 super.setLastSerialNo(lastSerialNumber);
                 if (mEnableRandomSerialNumbers) {
                     mCounter = lastSerialNumber.subtract(mMinSerialNo).add(BigInteger.ONE);
-                    CMS.debug("CertificateRepository:  setEnableRandomSerialNumbers  mCounter="+
+                    logger.debug("CertificateRepository:  setEnableRandomSerialNumbers  mCounter="+
                                mCounter+"="+lastSerialNumber+"-"+mMinSerialNo+"+1");
                     long t = System.currentTimeMillis();
                     mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, mCounter.toString()+","+t);
@@ -175,15 +177,15 @@ public class CertificateRepository extends Repository
 
         if (mRangeSize == null) {
             mRangeSize = (mMaxSerialNo.subtract(mMinSerialNo)).add(BigInteger.ONE);
-            CMS.debug("CertificateRepository: getRandomNumber  mRangeSize="+mRangeSize);
+            logger.debug("CertificateRepository: getRandomNumber  mRangeSize="+mRangeSize);
             mBitLength = mRangeSize.bitLength();
-            CMS.debug("CertificateRepository: getRandomNumber  mBitLength="+mBitLength+
+            logger.debug("CertificateRepository: getRandomNumber  mBitLength="+mBitLength+
                       " >mMinRandomBitLength="+mMinRandomBitLength);
         }
         if (mBitLength < mMinRandomBitLength) {
-            CMS.debug("CertificateRepository: getRandomNumber  mBitLength="+mBitLength+
+            logger.debug("CertificateRepository: getRandomNumber  mBitLength="+mBitLength+
                       " <mMinRandomBitLength="+mMinRandomBitLength);
-            CMS.debug("CertificateRepository: getRandomNumber:  Range size is too small to support random certificate serial numbers.");
+            logger.debug("CertificateRepository: getRandomNumber:  Range size is too small to support random certificate serial numbers.");
             throw new EBaseException ("Range size is too small to support random certificate serial numbers.");
         }
 
@@ -192,7 +194,7 @@ public class CertificateRepository extends Repository
 
         BigInteger randomNumber = new BigInteger(mBitLength, random);
         randomNumber = (randomNumber.multiply(mRangeSize)).shiftRight(mBitLength);
-        CMS.debug("CertificateRepository: getRandomNumber  randomNumber="+randomNumber);
+        logger.debug("CertificateRepository: getRandomNumber  randomNumber="+randomNumber);
 
         return randomNumber;
     }
@@ -201,7 +203,7 @@ public class CertificateRepository extends Repository
         BigInteger nextSerialNumber = null;
 
         nextSerialNumber = randomNumber.add(mMinSerialNo);
-        CMS.debug("CertificateRepository: getRandomSerialNumber  nextSerialNumber="+nextSerialNumber);
+        logger.debug("CertificateRepository: getRandomSerialNumber  nextSerialNumber="+nextSerialNumber);
 
         return nextSerialNumber;
     }
@@ -214,16 +216,16 @@ public class CertificateRepository extends Repository
         int n = mMaxCollisionRecoverySteps;
 
         do {
-            CMS.debug("CertificateRepository: checkSerialNumbers  checking("+(i+1)+")="+serialNumber);
+            logger.debug("CertificateRepository: checkSerialNumbers  checking("+(i+1)+")="+serialNumber);
             try {
                 if (readCertificateRecord(serialNumber) != null) {
-                    CMS.debug("CertificateRepository: checkSerialNumbers  collision detected for serialNumber="+serialNumber);
+                    logger.debug("CertificateRepository: checkSerialNumbers  collision detected for serialNumber="+serialNumber);
                 }
             } catch (EDBRecordNotFoundException nfe) {
-                CMS.debug("CertificateRepository: checkSerialNumbers  serial number "+serialNumber+" is available");
+                logger.debug("CertificateRepository: checkSerialNumbers  serial number "+serialNumber+" is available");
                 nextSerialNumber = serialNumber;
             } catch (Exception e) {
-                CMS.debug("CertificateRepository: checkSerialNumbers  Exception="+e.getMessage());
+                logger.warn("CertificateRepository: checkSerialNumbers: " + e.getMessage(), e);
             }
 
             if (nextSerialNumber == null) {
@@ -261,13 +263,13 @@ public class CertificateRepository extends Repository
         BigInteger randomNumber = null;
 
         super.initCacheIfNeeded();
-        CMS.debug("CertificateRepository: getNextSerialNumber  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
+        logger.debug("CertificateRepository: getNextSerialNumber  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
 
         if (mEnableRandomSerialNumbers) {
             int i = 0;
             do {
                 if (i > 0) {
-                    CMS.debug("CertificateRepository: getNextSerialNumber  regenerating serial number");
+                    logger.debug("CertificateRepository: getNextSerialNumber  regenerating serial number");
                 }
                 randomNumber = getRandomNumber();
                 nextSerialNumber = getRandomSerialNumber(randomNumber);
@@ -276,7 +278,7 @@ public class CertificateRepository extends Repository
             } while (nextSerialNumber == null && i < mMaxCollisionRecoveryRegenerations);
 
             if (nextSerialNumber == null) {
-                CMS.debug("CertificateRepository: in getNextSerialNumber  nextSerialNumber is null");
+                logger.error("CertificateRepository: in getNextSerialNumber  nextSerialNumber is null");
                 throw new EBaseException( "nextSerialNumber is null" );
             }
 
@@ -287,7 +289,7 @@ public class CertificateRepository extends Repository
                 nextSerialNumber.compareTo(mMaxSerialNo) <= 0) {
                 mCounter = mCounter.add(BigInteger.ONE);
             }
-            CMS.debug("CertificateRepository: getNextSerialNumber  nextSerialNumber="+
+            logger.debug("CertificateRepository: getNextSerialNumber  nextSerialNumber="+
                       nextSerialNumber+"  mCounter="+mCounter);
 
             super.checkRange();
@@ -299,21 +301,21 @@ public class CertificateRepository extends Repository
     }
 
     public void updateCounter() {
-        CMS.debug("CertificateRepository: updateCounter  mEnableRandomSerialNumbers="+
+        logger.debug("CertificateRepository: updateCounter  mEnableRandomSerialNumbers="+
                   mEnableRandomSerialNumbers+"  mCounter="+mCounter);
         try {
             super.initCacheIfNeeded();
         } catch (Exception e) {
-            CMS.debug("CertificateRepository: updateCounter  Exception from initCacheIfNeeded: "+e.getMessage());
+            logger.warn("CertificateRepository: updateCounter: " + e.getMessage(), e);
         }
 
         String crMode = mDBService.getEntryAttribute(mBaseDN, IRepositoryRecord.ATTR_DESCRIPTION, "", null);
 
         boolean modeChange = (mEnableRandomSerialNumbers && crMode != null && crMode.equals(PROP_SEQUENTIAL_MODE)) ||
                              ((!mEnableRandomSerialNumbers) && crMode != null && crMode.equals(PROP_RANDOM_MODE));
-        CMS.debug("CertificateRepository: updateCounter  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
-        CMS.debug("CertificateRepository: updateCounter  CertificateRepositoryMode ="+crMode);
-        CMS.debug("CertificateRepository: updateCounter  modeChange="+modeChange);
+        logger.debug("CertificateRepository: updateCounter  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
+        logger.debug("CertificateRepository: updateCounter  CertificateRepositoryMode ="+crMode);
+        logger.debug("CertificateRepository: updateCounter  modeChange="+modeChange);
         if (modeChange) {
             if (mForceModeChange) {
                 setEnableRandomSerialNumbers(mEnableRandomSerialNumbers, true, mForceModeChange);
@@ -327,10 +329,10 @@ public class CertificateRepository extends Repository
             try {
                 CMS.getConfigStore().commit(false);
             } catch (Exception e) {
-                CMS.debug("CertificateRepository: updateCounter  Exception committing ConfigStore="+e.getMessage());
+                logger.warn("CertificateRepository: updateCounter: " + e.getMessage(), e);
             }
         }
-        CMS.debug("CertificateRepository: UpdateCounter  mEnableRandomSerialNumbers="+
+        logger.debug("CertificateRepository: UpdateCounter  mEnableRandomSerialNumbers="+
                   mEnableRandomSerialNumbers+"  mCounter="+mCounter);
     }
 
@@ -345,7 +347,7 @@ public class CertificateRepository extends Repository
             filter = "(&("+ICertRecord.ATTR_ID+">="+minSerialNo+")("+
                            ICertRecord.ATTR_ID+"<="+maxSerialNo+"))";
         }
-        CMS.debug("CertificateRepository: getInRangeCount  filter="+filter+
+        logger.debug("CertificateRepository: getInRangeCount  filter="+filter+
                   "  minSerialNo="+minSerialNo+"  maxSerialNo="+maxSerialNo);
 
         Enumeration<Object> e = findCertRecs(filter, new String[] {ICertRecord.ATTR_ID, "objectclass"});
@@ -361,7 +363,7 @@ public class CertificateRepository extends Repository
                 }
             }
         }
-        CMS.debug("CertificateRepository: getInRangeCount  count=" + count);
+        logger.debug("CertificateRepository: getInRangeCount  count=" + count);
 
         return count;
     }
@@ -371,7 +373,7 @@ public class CertificateRepository extends Repository
         String c = null;
         String t = null;
         String s = (mDBConfig.getString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, "-1")).trim();
-        CMS.debug("CertificateRepository: getInRangeCounter:  saved counter string="+s);
+        logger.debug("CertificateRepository: getInRangeCounter:  saved counter string="+s);
         int i = s.indexOf(',');
         int n = s.length();
         if (i > -1) {
@@ -386,18 +388,18 @@ public class CertificateRepository extends Repository
         } else {
             c = s;
         }
-        CMS.debug("CertificateRepository: getInRangeCounter:  c="+c+"  t="+((t != null)?t:"null"));
+        logger.debug("CertificateRepository: getInRangeCounter:  c="+c+"  t="+((t != null)?t:"null"));
 
         BigInteger counter = new BigInteger(c);
         BigInteger count = BigInteger.ZERO;
         if (CMS.isPreOpMode()) {
-            CMS.debug("CertificateRepository: getInRangeCounter:  CMS.isPreOpMode");
+            logger.debug("CertificateRepository: getInRangeCounter:  CMS.isPreOpMode");
             counter = new BigInteger("-2");
             mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, "-2");
             try {
                 CMS.getConfigStore().commit(false);
             } catch (Exception e) {
-                CMS.debug("CertificateRepository: updateCounter  Exception committing ConfigStore="+e.getMessage());
+                logger.warn("CertificateRepository: getInRangeCounter: " + e.getMessage(), e);
             }
         } else if (t != null) {
             count = getInRangeCount(t, minSerialNo, maxSerialNo);
@@ -410,7 +412,7 @@ public class CertificateRepository extends Repository
                 counter = count;
             }
         }
-        CMS.debug("CertificateRepository: getInRangeCounter:  counter=" + counter);
+        logger.debug("CertificateRepository: getInRangeCounter:  counter=" + counter);
 
         return counter;
     }
@@ -418,7 +420,7 @@ public class CertificateRepository extends Repository
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound)
             throws EBaseException {
 
-        CMS.debug("CertificateRepository:  in getLastSerialNumberInRange: low "
+        logger.debug("CertificateRepository:  in getLastSerialNumberInRange: low "
                 + serial_low_bound + " high " + serial_upper_bound);
 
         if (serial_low_bound == null
@@ -437,11 +439,11 @@ public class CertificateRepository extends Repository
                              ((!mEnableRandomSerialNumbers) && crMode != null && crMode.equals(PROP_RANDOM_MODE));
         boolean enableRsnAtConfig = mEnableRandomSerialNumbers && CMS.isPreOpMode() &&
                                     (crMode == null || crMode.length() == 0);
-        CMS.debug("CertificateRepository: getLastSerialNumberInRange"+
+        logger.debug("CertificateRepository: getLastSerialNumberInRange"+
                   "  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers+
                   "  mMinRandomBitLength="+mMinRandomBitLength+
                   "  CollisionRecovery="+mMaxCollisionRecoveryRegenerations+","+mMaxCollisionRecoverySteps);
-        CMS.debug("CertificateRepository: getLastSerialNumberInRange  modeChange="+modeChange+
+        logger.debug("CertificateRepository: getLastSerialNumberInRange  modeChange="+modeChange+
                   "  enableRsnAtConfig="+enableRsnAtConfig+"  mForceModeChange="+mForceModeChange+
                   ((crMode != null)?"  mode="+crMode:""));
         if (modeChange || enableRsnAtConfig) {
@@ -466,7 +468,7 @@ public class CertificateRepository extends Repository
             CMS.getConfigStore().commit(false);
         } catch (Exception e) {
         }
-        CMS.debug("CertificateRepository: getLastSerialNumberInRange  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
+        logger.debug("CertificateRepository: getLastSerialNumberInRange  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
 
         String ldapfilter = "("+ICertRecord.ATTR_CERT_STATUS+"=*"+")";
 
@@ -477,20 +479,20 @@ public class CertificateRepository extends Repository
 
         int size = recList.getSize();
 
-        CMS.debug("CertificateRepository:getLastSerialNumberInRange: recList size " + size);
+        logger.debug("CertificateRepository:getLastSerialNumberInRange: recList size " + size);
 
         if (size <= 0) {
-            CMS.debug("CertificateRepository:getLastSerialNumberInRange: index may be empty");
+            logger.debug("CertificateRepository:getLastSerialNumberInRange: index may be empty");
 
             BigInteger ret = new BigInteger(serial_low_bound.toString(10));
 
             ret = ret.subtract(BigInteger.ONE);
-            CMS.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
+            logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
             return ret;
         }
         int ltSize = recList.getSizeBeforeJumpTo();
 
-        CMS.debug("CertificateRepository:getLastSerialNumberInRange: ltSize " + ltSize);
+        logger.debug("CertificateRepository:getLastSerialNumberInRange: ltSize " + ltSize);
 
         CertRecord curRec = null;
 
@@ -505,19 +507,19 @@ public class CertificateRepository extends Repository
 
                 BigInteger serial = curRec.getSerialNumber();
 
-                CMS.debug("CertificateRepository:getLastCertRecordSerialNo:  serialno  " + serial);
+                logger.debug("CertificateRepository:getLastCertRecordSerialNo:  serialno  " + serial);
 
                 if (((serial.compareTo(serial_low_bound) == 0) || (serial.compareTo(serial_low_bound) == 1)) &&
                         ((serial.compareTo(serial_upper_bound) == 0) || (serial.compareTo(serial_upper_bound) == -1))) {
-                    CMS.debug("getLastSerialNumberInRange returning: " + serial);
+                    logger.debug("getLastSerialNumberInRange returning: " + serial);
                     if (modeChange && mEnableRandomSerialNumbers) {
                         mCounter = serial.subtract(serial_low_bound).add(BigInteger.ONE);
-                        CMS.debug("getLastSerialNumberInRange mCounter: " + mCounter);
+                        logger.debug("getLastSerialNumberInRange mCounter: " + mCounter);
                     }
                     return serial;
                 }
             } else {
-                CMS.debug("getLastSerialNumberInRange:found null from getCertRecord");
+                logger.warn("getLastSerialNumberInRange:found null from getCertRecord");
             }
         }
 
@@ -525,10 +527,10 @@ public class CertificateRepository extends Repository
 
         ret = ret.subtract(BigInteger.ONE);
 
-        CMS.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
+        logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
         if (modeChange && mEnableRandomSerialNumbers) {
             mCounter = BigInteger.ZERO;
-            CMS.debug("getLastSerialNumberInRange mCounter: " + mCounter);
+            logger.debug("getLastSerialNumberInRange mCounter: " + mCounter);
         }
         return ret;
 
@@ -588,7 +590,7 @@ public class CertificateRepository extends Repository
     public void setCertStatusUpdateInterval(IRepository requestRepository, int interval,
             boolean listenToCloneModifications) {
 
-        CMS.debug("In setCertStatusUpdateInterval " + interval);
+        logger.debug("In setCertStatusUpdateInterval " + interval);
 
         // stop running tasks
         if (certStatusUpdateTask != null) {
@@ -599,19 +601,19 @@ public class CertificateRepository extends Repository
         }
 
         if (interval == 0) {
-            CMS.debug("In setCertStatusUpdateInterval interval = 0");
+            logger.debug("In setCertStatusUpdateInterval interval = 0");
             return;
         }
 
-        CMS.debug("In setCertStatusUpdateInterval listenToCloneModifications=" + listenToCloneModifications);
+        logger.debug("In setCertStatusUpdateInterval listenToCloneModifications=" + listenToCloneModifications);
 
         if (listenToCloneModifications) {
-            CMS.debug("In setCertStatusUpdateInterval listening to modifications");
+            logger.debug("In setCertStatusUpdateInterval listening to modifications");
             retrieveModificationsTask = new RetrieveModificationsTask(this);
             retrieveModificationsTask.start();
         }
 
-        CMS.debug("In setCertStatusUpdateInterval scheduling cert status update every " + interval + " seconds.");
+        logger.debug("In setCertStatusUpdateInterval scheduling cert status update every " + interval + " seconds.");
         certStatusUpdateTask = new CertStatusUpdateTask(this, requestRepository, interval);
         certStatusUpdateTask.start();
     }
@@ -622,7 +624,7 @@ public class CertificateRepository extends Repository
      * >0 - enable
      */
     public void setSerialNumberUpdateInterval(IRepository requestRepository, int interval) {
-        CMS.debug("In setCertStatusUpdateInterval " + interval);
+        logger.debug("In setCertStatusUpdateInterval " + interval);
 
         // stop running tasks
         if (serialNumberUpdateTask != null) {
@@ -630,18 +632,18 @@ public class CertificateRepository extends Repository
         }
 
         if (interval <= 0) {
-            CMS.debug("In setSerialNumberUpdateInterval interval <= 0");
+            logger.debug("In setSerialNumberUpdateInterval interval <= 0");
             return;
         }
 
-        CMS.debug("In setSerialNumberUpdateInterval scheduling serial number update every " + interval + " seconds.");
+        logger.debug("In setSerialNumberUpdateInterval scheduling serial number update every " + interval + " seconds.");
         serialNumberUpdateTask = new SerialNumberUpdateTask(this, requestRepository, interval);
         serialNumberUpdateTask.start();
     }
 
     public void updateCertStatus() throws EBaseException {
 
-        CMS.debug("In updateCertStatus()");
+        logger.debug("In updateCertStatus()");
 
         Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                 CMS.getLogMessage("CMSCORE_DBS_START_VALID_SEARCH"));
@@ -780,7 +782,7 @@ public class CertificateRepository extends Repository
         int size = recList.getSize();
 
         if (size <= 0) {
-            CMS.debug("index may be empty");
+            logger.debug("index may be empty");
             return;
         }
         int ltSize = recList.getSizeBeforeJumpTo();
@@ -789,8 +791,8 @@ public class CertificateRepository extends Repository
 
         Vector<Serializable> cList = new Vector<Serializable>(ltSize);
 
-        CMS.debug("transidValidCertificates: list size: " + size);
-        CMS.debug("transitValidCertificates: ltSize " + ltSize);
+        logger.debug("transidValidCertificates: list size: " + size);
+        logger.debug("transitValidCertificates: ltSize " + ltSize);
 
         CertRecord curRec = null;
 
@@ -805,13 +807,13 @@ public class CertificateRepository extends Repository
 
                 Date notAfter = curRec.getNotAfter();
 
-                //CMS.debug("notAfter " + notAfter.toString() + " now " + now.toString());
+                //logger.debug("notAfter " + notAfter.toString() + " now " + now.toString());
                 if (notAfter.after(now)) {
-                    CMS.debug("Record does not qualify,notAfter " + notAfter.toString() + " date " + now.toString());
+                    logger.debug("Record does not qualify,notAfter " + notAfter.toString() + " date " + now.toString());
                     continue;
                 }
 
-                CMS.debug("transitValid: curRec: " + i + " " + curRec.toString());
+                logger.debug("transitValid: curRec: " + i + " " + curRec.toString());
 
                 if (mConsistencyCheck) {
                     cList.add(curRec);
@@ -819,7 +821,7 @@ public class CertificateRepository extends Repository
                     cList.add(curRec.getSerialNumber());
                 }
             } else {
-                CMS.debug("found null from getCertRecord");
+                logger.warn("found null from getCertRecord");
             }
         }
 
@@ -837,7 +839,7 @@ public class CertificateRepository extends Repository
         int size = recList.getSize();
 
         if (size <= 0) {
-            CMS.debug("index may be empty");
+            logger.debug("index may be empty");
             return;
         }
 
@@ -846,8 +848,8 @@ public class CertificateRepository extends Repository
 
         ltSize = Math.min(ltSize, mTransitMaxRecords);
 
-        CMS.debug("transitRevokedExpiredCertificates: list size: " + size);
-        CMS.debug("transitRevokedExpiredCertificates: ltSize " + ltSize);
+        logger.debug("transitRevokedExpiredCertificates: list size: " + size);
+        logger.debug("transitRevokedExpiredCertificates: ltSize " + ltSize);
 
         CertRecord curRec = null;
         int i;
@@ -857,13 +859,13 @@ public class CertificateRepository extends Repository
             obj = recList.getCertRecord(i);
             if (obj != null) {
                 curRec = (CertRecord) obj;
-                CMS.debug("transitRevokedExpired: curRec: " + i + " " + curRec.toString());
+                logger.debug("transitRevokedExpired: curRec: " + i + " " + curRec.toString());
 
                 Date notAfter = curRec.getNotAfter();
 
-                // CMS.debug("notAfter " + notAfter.toString() + " now " + now.toString());
+                // logger.debug("notAfter " + notAfter.toString() + " now " + now.toString());
                 if (notAfter.after(now)) {
-                    CMS.debug("Record does not qualify,notAfter " + notAfter.toString() + " date " + now.toString());
+                    logger.debug("Record does not qualify,notAfter " + notAfter.toString() + " date " + now.toString());
                     continue;
                 }
 
@@ -873,7 +875,7 @@ public class CertificateRepository extends Repository
                     cList.add(curRec.getSerialNumber());
                 }
             } else {
-                CMS.debug("found null record in getCertRecord");
+                logger.warn("found null record in getCertRecord");
             }
         }
 
@@ -894,7 +896,7 @@ public class CertificateRepository extends Repository
         int size = recList.getSize();
 
         if (size <= 0) {
-            CMS.debug("index may be empty");
+            logger.debug("index may be empty");
             return;
         }
         int ltSize = recList.getSizeBeforeJumpTo();
@@ -903,8 +905,8 @@ public class CertificateRepository extends Repository
 
         Vector<Serializable> cList = new Vector<Serializable>(ltSize);
 
-        CMS.debug("transidInValidCertificates: list size: " + size);
-        CMS.debug("transitInValidCertificates: ltSize " + ltSize);
+        logger.debug("transidInValidCertificates: list size: " + size);
+        logger.debug("transitInValidCertificates: ltSize " + ltSize);
 
         CertRecord curRec = null;
 
@@ -920,13 +922,13 @@ public class CertificateRepository extends Repository
 
                 Date notBefore = curRec.getNotBefore();
 
-                //CMS.debug("notBefore " + notBefore.toString() + " now " + now.toString());
+                //logger.debug("notBefore " + notBefore.toString() + " now " + now.toString());
                 if (notBefore.after(now)) {
-                    CMS.debug("Record does not qualify,notBefore " + notBefore.toString() + " date " + now.toString());
+                    logger.debug("Record does not qualify,notBefore " + notBefore.toString() + " date " + now.toString());
                     continue;
 
                 }
-                CMS.debug("transitInValid: curRec: " + i + " " + curRec.toString());
+                logger.debug("transitInValid: curRec: " + i + " " + curRec.toString());
 
                 if (mConsistencyCheck) {
                     cList.add(curRec);
@@ -935,7 +937,7 @@ public class CertificateRepository extends Repository
                 }
 
             } else {
-                CMS.debug("found null from getCertRecord");
+                logger.warn("found null from getCertRecord");
             }
         }
 
@@ -949,7 +951,7 @@ public class CertificateRepository extends Repository
 
         int i;
 
-        CMS.debug("transitCertList " + newCertStatus);
+        logger.debug("transitCertList " + newCertStatus);
 
         for (i = 0; i < cList.size(); i++) {
             if (mConsistencyCheck) {
@@ -981,7 +983,7 @@ public class CertificateRepository extends Repository
 
             }
 
-            CMS.debug("transitCertList number at: " + i + " = " + serial);
+            logger.debug("transitCertList number at: " + i + " = " + serial);
         }
 
         cList.removeAllElements();
@@ -1062,7 +1064,7 @@ public class CertificateRepository extends Repository
     private void setCertificateRepositoryMode(String mode) {
         IDBSSession s = null;
 
-        CMS.debug("CertificateRepository: setCertificateRepositoryMode   setting mode: "+mode);
+        logger.debug("CertificateRepository: setCertificateRepositoryMode   setting mode: "+mode);
         try {
             s = mDBService.createSession();
             ModificationSet mods = new ModificationSet();
@@ -1070,12 +1072,12 @@ public class CertificateRepository extends Repository
             mods.add(IRepositoryRecord.ATTR_DESCRIPTION, Modification.MOD_REPLACE, mode);
             s.modify(name, mods);
         } catch (Exception e) {
-            CMS.debug("CertificateRepository: setCertificateRepositoryMode   Exception: "+e.getMessage());
+            logger.warn("CertificateRepository: setCertificateRepositoryMode: " + e.getMessage(), e);
         }
         try {
             if (s != null) s.close();
         } catch (Exception e) {
-            CMS.debug("CertificateRepository: setCertificateRepositoryMode   Exception: "+e.getMessage());
+            logger.warn("CertificateRepository: setCertificateRepositoryMode: " + e.getMessage(), e);
         }
     }
 
@@ -1187,7 +1189,7 @@ public class CertificateRepository extends Repository
      */
     public void updateStatus(BigInteger id, String status)
             throws EBaseException {
-        CMS.debug("updateStatus: " + id + " status " + status);
+        logger.debug("updateStatus: " + id + " status " + status);
         ModificationSet mods = new ModificationSet();
 
         mods.add(CertRecord.ATTR_CERT_STATUS, Modification.MOD_REPLACE,
@@ -1200,7 +1202,7 @@ public class CertificateRepository extends Repository
         IDBSSession s = mDBService.createSession();
         Enumeration<Object> e = null;
 
-        CMS.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
+        logger.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
         try {
             e = s.search(getDN(), filter, maxSize,sortAttribute);
         } finally {
@@ -1215,7 +1217,7 @@ public class CertificateRepository extends Repository
         IDBSSession s = mDBService.createSession();
         Enumeration<Object> e = null;
 
-        CMS.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
+        logger.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
         try {
             e = s.search(getDN(), filter, maxSize);
         } finally {
@@ -1230,7 +1232,7 @@ public class CertificateRepository extends Repository
         IDBSSession s = mDBService.createSession();
         Vector<ICertRecord> v = new Vector<ICertRecord>();
 
-        CMS.debug("searchCertificateswith time limit filter " + filter);
+        logger.debug("searchCertificateswith time limit filter " + filter);
         try {
             IDBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit);
             while (sr.hasMoreElements()) {
@@ -1248,7 +1250,7 @@ public class CertificateRepository extends Repository
         IDBSSession s = mDBService.createSession();
         Vector<ICertRecord> v = new Vector<ICertRecord>();
 
-        CMS.debug("searchCertificateswith time limit filter " + filter);
+        logger.debug("searchCertificateswith time limit filter " + filter);
         try {
             IDBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit,sortAttribute);
             while (sr.hasMoreElements()) {
@@ -1270,7 +1272,7 @@ public class CertificateRepository extends Repository
      */
     public Enumeration<Object> findCertRecs(String filter)
             throws EBaseException {
-        CMS.debug("findCertRecs " + filter);
+        logger.debug("findCertRecs " + filter);
         IDBSSession s = mDBService.createSession();
         Enumeration<Object> e = null;
         try {
@@ -1285,7 +1287,7 @@ public class CertificateRepository extends Repository
     public Enumeration<Object> findCertRecs(String filter, String[] attrs)
             throws EBaseException {
 
-        CMS.debug("findCertRecs " + filter
+        logger.debug("findCertRecs " + filter
                  + "attrs " + Arrays.toString(attrs));
         IDBSSession s = mDBService.createSession();
         Enumeration<Object> e = null;
@@ -1370,7 +1372,7 @@ public class CertificateRepository extends Repository
             String attrs[], String sortKey, int pageSize)
             throws EBaseException {
 
-        CMS.debug("CertificateRepository.findCertRecordsInList()");
+        logger.debug("CertificateRepository.findCertRecordsInList()");
 
         IDBSSession session = mDBService.createSession();
 
@@ -1702,7 +1704,7 @@ public class CertificateRepository extends Repository
             if (s != null)
                 s.close();
         }
-        CMS.debug("returning " + v.size() + " elements");
+        logger.debug("returning " + v.size() + " elements");
         return v.elements();
     }
 
@@ -1980,9 +1982,9 @@ public class CertificateRepository extends Repository
                 attrs = new String[] { "objectclass", CertRecord.ATTR_ID, CertRecord.ATTR_X509CERT };
             }
 
-            CMS.debug("getInvalidCertificatesByNotBeforeDate filter " + ldapfilter);
+            logger.debug("getInvalidCertificatesByNotBeforeDate filter " + ldapfilter);
             //e = s.search(getDN(), ldapfilter);
-            CMS.debug("getInvalidCertificatesByNotBeforeDate: about to call findCertRecordsInList");
+            logger.debug("getInvalidCertificatesByNotBeforeDate: about to call findCertRecordsInList");
 
             list = findCertRecordsInListRawJumpto(ldapfilter, attrs,
                         DateMapper.dateToDB(date), "notBefore", pageSize);
@@ -1992,7 +1994,7 @@ public class CertificateRepository extends Repository
         } finally {
             // XXX - transaction is not done at this moment
 
-            CMS.debug("In getInvalidCertsByNotBeforeDate finally.");
+            logger.debug("In getInvalidCertsByNotBeforeDate finally.");
 
             if (s != null)
                 s.close();
@@ -2016,7 +2018,7 @@ public class CertificateRepository extends Repository
                 attrs = new String[] { "objectclass", CertRecord.ATTR_ID, CertRecord.ATTR_X509CERT };
             }
 
-            CMS.debug("getValidCertsByNotAfterDate filter " + ldapfilter);
+            logger.debug("getValidCertsByNotAfterDate filter " + ldapfilter);
             //e = s.search(getDN(), ldapfilter);
             list = findCertRecordsInListRawJumpto(ldapfilter, attrs, DateMapper.dateToDB(date), "notAfter", pageSize);
 
@@ -2045,9 +2047,9 @@ public class CertificateRepository extends Repository
                             CertRecord.ATTR_REVO_INFO, CertificateValidity.NOT_AFTER, CertRecord.ATTR_X509CERT };
             }
 
-            CMS.debug("getRevokedCertificatesByNotAfterDate filter " + ldapfilter);
+            logger.debug("getRevokedCertificatesByNotAfterDate filter " + ldapfilter);
             //e = s.search(getDN(), ldapfilter);
-            CMS.debug("getRevokedCertificatesByNotAfterDate: about to call findCertRecordsInList");
+            logger.debug("getRevokedCertificatesByNotAfterDate: about to call findCertRecordsInList");
 
             list = findCertRecordsInListRawJumpto(ldapfilter, attrs,
                         DateMapper.dateToDB(date), "notafter", pageSize);
@@ -2247,14 +2249,14 @@ public class CertificateRepository extends Repository
     }
 
     LDAPSearchResults searchForModifiedCertificateRecords(IDBSSession session) throws EBaseException {
-        CMS.debug("Starting persistent search.");
+        logger.debug("Starting persistent search.");
         String filter = "(" + CertRecord.ATTR_CERT_STATUS + "=*)";
         return session.persistentSearch(getDN(), filter, null);
     }
 
     public void getModifications(LDAPEntry entry) {
         if (entry != null) {
-            CMS.debug("getModifications  entry DN=" + entry.getDN());
+            logger.debug("getModifications  entry DN=" + entry.getDN());
 
             LDAPAttributeSet entryAttrs = entry.getAttributeSet();
             ICertRecord certRec = null;
@@ -2264,7 +2266,7 @@ public class CertificateRepository extends Repository
             }
             if (certRec != null) {
                 String status = certRec.getStatus();
-                CMS.debug("getModifications  serialNumber=" + certRec.getSerialNumber() +
+                logger.debug("getModifications  serialNumber=" + certRec.getSerialNumber() +
                           "  status=" + status);
                 if (status != null && (status.equals(ICertRecord.STATUS_VALID) ||
                         status.equals(ICertRecord.STATUS_REVOKED))) {
@@ -2292,7 +2294,7 @@ public class CertificateRepository extends Repository
                 }
             }
         } else {
-            CMS.debug("getModifications  entry == null");
+            logger.warn("getModifications  entry == null");
         }
     }
 
@@ -2365,6 +2367,8 @@ public class CertificateRepository extends Repository
 
 class CertStatusUpdateTask implements Runnable {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertStatusUpdateTask.class);
+
     CertificateRepository repository;
     IRepository requestRepository;
 
@@ -2390,18 +2394,18 @@ class CertStatusUpdateTask implements Runnable {
 
     public void run() {
         try {
-            CMS.debug("About to start updateCertStatus");
+            logger.debug("About to start updateCertStatus");
             updateCertStatus();
 
         } catch (EBaseException e) {
-            CMS.debug("updateCertStatus done: " + e.toString());
+            logger.warn("updateCertStatus done: " + e.getMessage(), e);
         }
     }
 
     public synchronized void updateCertStatus() throws EBaseException {
-        CMS.debug("Starting updateCertStatus (entered lock)");
+        logger.debug("Starting updateCertStatus (entered lock)");
         repository.updateCertStatus();
-        CMS.debug("updateCertStatus done");
+        logger.debug("updateCertStatus done");
     }
 
     public void stop() {
@@ -2411,6 +2415,8 @@ class CertStatusUpdateTask implements Runnable {
 }
 
 class SerialNumberUpdateTask implements Runnable {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SerialNumberUpdateTask.class);
 
     CertificateRepository repository;
     IRepository requestRepository;
@@ -2437,24 +2443,24 @@ class SerialNumberUpdateTask implements Runnable {
 
     public void run() {
         try {
-            CMS.debug("About to start updateSerialNumbers");
+            logger.debug("About to start updateSerialNumbers");
             updateSerialNumbers();
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.warn("SerialNumberUpdateTask: " + e.getMessage(), e);
         }
     }
 
     public synchronized void updateSerialNumbers() throws EBaseException {
-        CMS.debug("Starting updateSerialNumbers (entered lock)");
+        logger.debug("Starting updateSerialNumbers (entered lock)");
         repository.updateCounter();
 
-        CMS.debug("Starting cert checkRanges");
+        logger.debug("Starting cert checkRanges");
         repository.checkRanges();
 
-        CMS.debug("Starting request checkRanges");
+        logger.debug("Starting request checkRanges");
         requestRepository.checkRanges();
-        CMS.debug("updateSerialNumbers done");
+        logger.debug("updateSerialNumbers done");
     }
 
     public void stop() {
@@ -2464,6 +2470,8 @@ class SerialNumberUpdateTask implements Runnable {
 }
 
 class RetrieveModificationsTask implements Runnable {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RetrieveModificationsTask.class);
 
     CertificateRepository repository;
 
@@ -2523,35 +2531,35 @@ class RetrieveModificationsTask implements Runnable {
             // results.hasMoreElements() will block until next result becomes available
             // or return false if the search is abandoned or the connection is closed
 
-            CMS.debug("Waiting for next result.");
+            logger.debug("Waiting for next result.");
             if (results.hasMoreElements()) {
                 LDAPEntry entry = results.next();
 
-                CMS.debug("Processing "+entry.getDN()+".");
+                logger.debug("Processing "+entry.getDN()+".");
                 repository.getModifications(entry);
-                CMS.debug("Done processing "+entry.getDN()+".");
+                logger.debug("Done processing "+entry.getDN()+".");
 
                 // wait for next result immediately
                 executorService.schedule(this, 0, TimeUnit.MINUTES);
 
             } else {
                 if (executorService.isShutdown()) {
-                    CMS.debug("Task has been shutdown.");
+                    logger.debug("Task has been shutdown.");
 
                 } else {
-                    CMS.debug("Persistence search ended.");
+                    logger.debug("Persistence search ended.");
                     close();
 
-                    CMS.debug("Retrying in 1 minute.");
+                    logger.debug("Retrying in 1 minute.");
                     executorService.schedule(this, 1, TimeUnit.MINUTES);
                 }
             }
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.warn("RetrieveModificationsTask: " + e.getMessage(), e);
             close();
 
-            CMS.debug("Retrying in 1 minute.");
+            logger.warn("Retrying in 1 minute.");
             executorService.schedule(this, 1, TimeUnit.MINUTES);
         }
     }
