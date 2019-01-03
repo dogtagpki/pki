@@ -40,6 +40,9 @@ import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
  * @version $Revision$, $Date$
  */
 public class CertificatePair implements ASN1Value {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificatePair.class);
+
     private byte[] mForward; // cert cross-siged by another CA
     private byte[] mReverse; // subordinate cert signed by this CA
     private static final Tag TAG = SEQUENCE.TAG;
@@ -56,7 +59,7 @@ public class CertificatePair implements ASN1Value {
             throws EBaseException {
         if ((cert1 == null) || (cert2 == null))
             throw new EBaseException("CertificatePair: both certs can not be null");
-        debug("in CertificatePair()");
+        logger.debug("CertifiatePair: in CertificatePair()");
         boolean rightOrder = certOrders(cert1, cert2);
 
         try {
@@ -101,12 +104,12 @@ public class CertificatePair implements ASN1Value {
      */
     private boolean certOrders(X509Certificate c1, X509Certificate c2)
             throws EBaseException {
-        debug("in certOrders() with X509Cert");
+        logger.debug("CertifiatePair: in certOrders() with X509Cert");
 
         ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
         X509Certificate caCert = ca.getCACert();
 
-        debug("got this caCert");
+        logger.debug("CertifiatePair: got this caCert");
         // reverse cert is the one signed by this ca
         // more check really should be done here regarding the
         // validity of the two certs...later
@@ -115,31 +118,31 @@ public class CertificatePair implements ASN1Value {
          * comparison
 
          if ((c1.getIssuerDN().equals((Object) caCert.getSubjectDN())))
-         debug("myCA signed c1");
+         logger.debug("CertifiatePair: myCA signed c1");
          else {
-         debug("c1 issuerDN="+c1.getIssuerDN().toString());
-         debug("myCA subjectDN="+caCert.getSubjectDN().toString());
+         logger.debug("CertifiatePair: c1 issuerDN="+c1.getIssuerDN().toString());
+         logger.debug("CertifiatePair: myCA subjectDN="+caCert.getSubjectDN().toString());
          }
 
          if(caCert.getSubjectDN().equals((Object) c2.getSubjectDN()))
-         debug("myCA subject == c2 subject");
+         logger.debug("CertifiatePair: myCA subject == c2 subject");
          else {
-         debug("caCert subjectDN="+caCert.getSubjectDN().toString());
-         debug("c2 subjectDN="+c2.getSubjectDN().toString());
+         logger.debug("CertifiatePair: caCert subjectDN="+caCert.getSubjectDN().toString());
+         logger.debug("CertifiatePair: c2 subjectDN="+c2.getSubjectDN().toString());
          }
 
          if ((c2.getIssuerDN().equals((Object) caCert.getSubjectDN())))
-         debug("myCA signed c2");
+         logger.debug("CertifiatePair: myCA signed c2");
          else {
-         debug("c2 issuerDN="+c1.getIssuerDN().toString());
-         debug("myCA subjectDN="+caCert.getSubjectDN().toString());
+         logger.debug("CertifiatePair: c2 issuerDN="+c1.getIssuerDN().toString());
+         logger.debug("CertifiatePair: myCA subjectDN="+caCert.getSubjectDN().toString());
          }
 
          if(caCert.getSubjectDN().equals((Object) c1.getSubjectDN()))
-         debug("myCA subject == c1 subject");
+         logger.debug("CertifiatePair: myCA subject == c1 subject");
          else {
-         debug("caCert subjectDN="+caCert.getSubjectDN().toString());
-         debug("c1 subjectDN="+c1.getSubjectDN().toString());
+         logger.debug("CertifiatePair: caCert subjectDN="+caCert.getSubjectDN().toString());
+         logger.debug("CertifiatePair: c1 subjectDN="+c1.getSubjectDN().toString());
          }
 
          if ((c1.getIssuerDN().equals((Object) caCert.getSubjectDN()))
@@ -165,9 +168,9 @@ public class CertificatePair implements ASN1Value {
         byte[] caCertBytes = caCert.getPublicKey().getEncoded();
 
         if (caCertBytes != null)
-            debug("got cacert public key bytes length=" + caCertBytes.length);
+            logger.debug("CertifiatePair: got cacert public key bytes length=" + caCertBytes.length);
         else {
-            debug("cacert public key bytes null");
+            logger.error("CertifiatePair: cacert public key bytes null");
             throw new EBaseException(
                     "CertificatePair: certOrders() fails to get this CA's signing certificate public key encoded");
         }
@@ -175,28 +178,28 @@ public class CertificatePair implements ASN1Value {
         byte[] c1Bytes = c1.getPublicKey().getEncoded();
 
         if (c1Bytes != null)
-            debug("got c1 public key bytes length=" + c1Bytes.length);
+            logger.debug("CertifiatePair: got c1 public key bytes length=" + c1Bytes.length);
         else {
-            debug("c1 cert public key bytes length null");
+            logger.error("CertifiatePair: c1 cert public key bytes length null");
             throw new EBaseException("CertificatePair::certOrders() public key bytes are of length null");
         }
 
         byte[] c2Bytes = c2.getPublicKey().getEncoded();
 
         if (c2Bytes != null)
-            debug("got c2 public key bytes length=" + c2Bytes.length);
+            logger.debug("CertifiatePair: got c2 public key bytes length=" + c2Bytes.length);
         else
-            debug("c2 cert public key bytes length null");
+            logger.debug("CertifiatePair: c2 cert public key bytes length null");
 
         if (byteArraysAreEqual(c1Bytes, caCertBytes)) {
-            debug("c1 has same public key as this ca");
+            logger.debug("CertifiatePair: c1 has same public key as this ca");
             return true;
         } else if (byteArraysAreEqual(c2Bytes, caCertBytes)) {
-            debug("c2 has same public key as this ca");
+            logger.debug("CertifiatePair: c2 has same public key as this ca");
 
             return false;
         } else {
-            debug("neither c1 nor c2 public key matches with this ca");
+            logger.error("CertifiatePair: neither c1 nor c2 public key matches with this ca");
             throw new EBaseException(
                     "CertificatePair: need correct forward and reverse relationship to construct CertificatePair");
         }
@@ -206,7 +209,7 @@ public class CertificatePair implements ASN1Value {
      * compares contents two byte arrays returning true if exactly same.
      */
     public boolean byteArraysAreEqual(byte[] a, byte[] b) {
-        debug("in byteArraysAreEqual()");
+        logger.debug("CertifiatePair: in byteArraysAreEqual()");
 
         if (a == null && b == null) {
             return true;
@@ -215,16 +218,16 @@ public class CertificatePair implements ASN1Value {
             return false;
         }
         if (a.length != b.length) {
-            debug("exiting byteArraysAreEqual(): false");
+            logger.debug("CertifiatePair: exiting byteArraysAreEqual(): false");
             return false;
         }
         for (int i = 0; i < a.length; i++) {
             if (a[i] != b[i]) {
-                debug("exiting byteArraysAreEqual(): false");
+                logger.debug("CertifiatePair: exiting byteArraysAreEqual(): false");
                 return false;
             }
         }
-        debug("exiting byteArraysAreEqual(): true");
+        logger.debug("CertifiatePair: exiting byteArraysAreEqual(): true");
         return true;
     }
 
@@ -234,7 +237,7 @@ public class CertificatePair implements ASN1Value {
      */
     private boolean certOrders(byte[] cert1, byte[] cert2)
             throws EBaseException {
-        debug("in certOrders() with byte[]");
+        logger.debug("CertifiatePair: in certOrders() with byte[]");
         ICrossCertPairSubsystem ccps =
                 (ICrossCertPairSubsystem) CMS.getSubsystem("CrossCertPair");
         X509Certificate c1 = null;
@@ -262,7 +265,7 @@ public class CertificatePair implements ASN1Value {
 
                 seq.addElement(any);
             } catch (InvalidBERException e) {
-                debug("encode error:" + e.toString());
+                logger.warn("CertifiatePair: encode error:" + e.toString());
             }
         }
         if (mReverse != null) {
@@ -271,7 +274,7 @@ public class CertificatePair implements ASN1Value {
 
                 seq.addElement(any);
             } catch (InvalidBERException e) {
-                debug("encode error:" + e.toString());
+                logger.warn("CertifiatePair: encode error:" + e.toString());
             }
         }
 
@@ -280,9 +283,5 @@ public class CertificatePair implements ASN1Value {
 
     public Tag getTag() {
         return TAG;
-    }
-
-    private void debug(String msg) {
-        CMS.debug("CertifiatePair: " + msg);
     }
 }
