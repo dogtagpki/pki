@@ -19,7 +19,6 @@ package org.dogtagpki.server.ca.rest;
 
 import javax.ws.rs.core.Response;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
@@ -33,6 +32,8 @@ import com.netscape.cms.servlet.base.PKIService;
  */
 public class KRAConnectorService extends PKIService implements KRAConnectorResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAConnectorService.class);
+
     @Override
     public Response addConnector(KRAConnectorInfo info) {
 
@@ -43,8 +44,9 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
             processor.addConnector(info);
             return createNoContentResponse();
         } catch (EBaseException e) {
-            CMS.debug(e);
-            throw new PKIException(e.getMessage());
+            String message = "Unable to add KRA connector: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
         }
     }
 
@@ -55,8 +57,9 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
             processor.addHost(host, port);
             return createNoContentResponse();
         } catch (EBaseException e) {
-            CMS.debug(e);
-            throw new PKIException(e.getMessage());
+            String message = "Unable to add KRA connector: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
         }
     }
 
@@ -71,8 +74,9 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
             processor.removeConnector(host, port);
             return createNoContentResponse();
         } catch (EBaseException e) {
-            CMS.debug(e);
-            throw new PKIException(e.getMessage());
+            String message = "Unable to remove KRA connector: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
         }
     }
 
@@ -83,8 +87,9 @@ public class KRAConnectorService extends PKIService implements KRAConnectorResou
             KRAConnectorProcessor processor = new KRAConnectorProcessor(getLocale(headers));
             return createOKResponse(processor.getConnectorInfo());
         } catch (EBaseException e) {
-            CMS.debug(e);
-            throw new PKIException(e.getMessage());
+            String message = "Unable to get KRA connector: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
         }
     }
 
