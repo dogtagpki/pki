@@ -56,6 +56,8 @@ import netscape.security.x509.X509CertImpl;
  */
 public class SSLClientCertAuthentication implements IAuthManager {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SSLClientCertAuthentication.class);
+
     /* required credential to authenticate, client certificate */
     public static final String CRED_CERT = IAuthManager.CRED_SSL_CLIENT_CERT;
     public static final String SERIALNUMBER = "serialNumber";
@@ -98,17 +100,17 @@ public class SSLClientCertAuthentication implements IAuthManager {
 
         AuthToken authToken = new AuthToken(this);
 
-        CMS.debug("SSLCertAuth: Retrieving client certificates");
+        logger.debug("SSLCertAuth: Retrieving client certificates");
         X509Certificate[] x509Certs =
                 (X509Certificate[]) authCred.get(CRED_CERT);
 
         if (x509Certs == null) {
-            CMS.debug("SSLCertAuth: No client certificate found");
+            logger.error("SSLCertAuth: No client certificate found");
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
             throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CERT));
         }
-        CMS.debug("SSLCertAuth: Got client certificate");
+        logger.debug("SSLCertAuth: Got client certificate");
 
         mCA = (ICertificateAuthority) CMS.getSubsystem("ca");
 
