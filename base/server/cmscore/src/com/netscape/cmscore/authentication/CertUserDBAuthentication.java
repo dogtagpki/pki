@@ -51,6 +51,8 @@ import netscape.security.x509.X509CertImpl;
  */
 public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthentication {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertUserDBAuthentication.class);
+
     /* required credentials */
     protected String[] mRequiredCreds = { CRED_CERT };
 
@@ -135,18 +137,18 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
      */
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
-        CMS.debug("CertUserDBAuth: started");
+        logger.debug("CertUserDBAuth: started");
         AuthToken authToken = new AuthToken(this);
-        CMS.debug("CertUserDBAuth: Retrieving client certificate");
+        logger.debug("CertUserDBAuth: Retrieving client certificate");
         X509Certificate[] x509Certs =
                 (X509Certificate[]) authCred.get(CRED_CERT);
 
         if (x509Certs == null) {
-            CMS.debug("CertUserDBAuth: no client certificate found");
+            logger.error("CertUserDBAuth: no client certificate found");
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
             throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CERT));
         }
-        CMS.debug("CertUserDBAuth: Got client certificate");
+        logger.debug("CertUserDBAuth: Got client certificate");
 
         if (mRevocationCheckingEnabled) {
             X509CertImpl cert0 = (X509CertImpl) x509Certs[0];
@@ -160,7 +162,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
             }
         }
 
-        CMS.debug("Authentication: client certificate found");
+        logger.debug("Authentication: client certificate found");
 
         // map cert to user
         User user = null;
@@ -169,7 +171,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         try {
             user = (User) mCULocator.locateUser(certs);
         } catch (EUsrGrpException e) {
-            CMS.debug("CertUserDBAuthentication: cannot map certificate to any user" + e);
+            logger.error("CertUserDBAuthentication: cannot map certificate to any user: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0].getSerialNumber()
                     .toString(16), x509Certs[0].getSubjectDN().toString(), e.toString()));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
@@ -181,12 +183,12 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         // any unexpected error occurs like internal db down,
         // UGSubsystem only returns null for user.
         if (user == null) {
-            CMS.debug("CertUserDBAuthentication: cannot map certificate to any user");
+            logger.error("CertUserDBAuthentication: cannot map certificate to any user");
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_USER_NOT_FOUND"));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
-        CMS.debug("Authentication: mapped certificate to user");
+        logger.debug("Authentication: mapped certificate to user");
 
         authToken.set(TOKEN_USERDN, user.getUserDN());
         authToken.set(TOKEN_USER_DN, user.getUserDN());
@@ -195,7 +197,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         authToken.set(CRED_CERT, certs);
 
         log(ILogger.LL_INFO, CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", user.getUserID()));
-        CMS.debug("authenticated " + user.getUserDN());
+        logger.info("Authenticated user: " + user.getUserDN());
 
         return authToken;
     }
