@@ -1,5 +1,5 @@
-Offline Cert Renewal
-====================
+Offline System Certificate Renewal
+==================================
 
 ## Overview
 
@@ -15,24 +15,39 @@ It is assumed that you have the following:
 
 To verify these assumptions are valid:
 
-1. List details of all system certificates. (Note down the `<cert ID>` of the certs that needs to be renewed)
+1. List details of all system certificates. (Note down the `<cert ID>` of the certificates that need to be renewed)
 
     ````
     # pki-server cert-find
+
+      Cert ID: ca_signing
+      Nickname: ca_signing
+      Serial Number: 0x1
+      Subject DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+      Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
+      Not Valid Before: Wed Dec 19 17:33:21 2018
+      Not Valid After: Sun Dec 19 17:33:21 2038
     ````
 
-2. Check details of admin cert
+2. Check details of the admin certificate
 
     ````
     # certutil -L \
-    -d <client NSS DB dir> \
+    -d <admin NSS database> \
     -n <admin cert nickname>
-    ````
 
-3. Check status of PKI server
+    Certificate:
+        Data:
+            Version: 3 (0x2)
+            Serial Number: 6 (0x6)
+            Signature Algorithm: PKCS #1 SHA-256 With RSA Encryption
+            Issuer: "CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE"
+            Validity:
+                Not Before: Sat Dec 15 02:16:26 2018
+                Not After : Fri Dec 04 02:16:26 2020
+            Subject: "CN=PKI Administrator,E=caadmin@example.com,OU=pki-tomcat,O=
+                EXAMPLE"
 
-    ````
-    # systemctl status pki-tomcatd@pki-tomcat
     ````
 
 ## Automated Renewal Process
@@ -40,17 +55,16 @@ To verify these assumptions are valid:
 One line tool that fixes all certificates:
 
     # pki-server cert-fix \
-    -n <admin nickname> \
-    -d <NSS db path> \
-    -c <NSS client DB password>
-
+    -n <admin cert nickname> \
+    -d <admin NSS database> \
+    -c <admin NSS database password>
 
 One line tool to fix one particular certificate:
 
     # pki-server cert-fix --cert <cert ID> \
-    -n <admin nickname> \
-    -d <NSS db path> \
-    -c <NSS client DB password>
+    -n <admin cert nickname> \
+    -d <admin NSS database> \
+    -c <admin NSS database password>
 
 For all available options, you can type:
 
@@ -59,32 +73,21 @@ For all available options, you can type:
 ## Manual Renewal Process
 ### Initialization
 
-It is recommended to run the following steps to ensure that `CS.cfg` and NSS db are synchronized and
-that the server can operate without any issues.
+It is recommended to run the following steps to ensure that `CS.cfg` and NSS database are synchronized and that the server can operate without any issues.
 
-1. Disable self tests. Remove the following line from CS.cfg for the <subsystem> you are renewing.
-The CS.cfg is located in `/etc/pki/<instance>/<subsystem>/CS.cfg`
-
-    ````
-    selftests.container.order.startup=CAPresence:critical, SystemCertsVerification:critical
-    ````
-
-    **OR**
-
-    Use the built-in tool:
-
+1. Disable self tests using the built-in tool:
     ````
     # pki-server selftest-disable -i <instance_name>
     ````
-2. Synchronize NSS DB and CS.cfg
 
+2. Synchronize NSS database and CS.cfg for all system certificates that are to be renewed
     ````
-    # pki-server cert-update <cert ID> # for all system certificates that is to be renewed
+    # pki-server cert-update <cert ID>
     ````
 
 ### Bringing up the PKI server
 
-1. Create temp SSL certificate
+1. Create temp SSL certificate. The temp cert will be created in `/etc/pki/<instance>/certs/sslserver.crt`
     ````
     # pki-server cert-create sslserver --temp
     ````
@@ -106,22 +109,18 @@ The CS.cfg is located in `/etc/pki/<instance>/<subsystem>/CS.cfg`
 
 ### System Certificate Renewal
 
-1. Renew required system certs using PKI tool:
+1. Renew required system certs using PKI tool. For **`sslserver`** cert provide the `serial number` from the **original SSL server cert** to avoid placing request for unintended cert.
     ````
     # pki-server cert-create --renew \
-    -n <admin nickname> \
-    -d <NSS db path> \
-    -c <NSS client DB password>
-    <cert ID> 
-    --serial <serial No.> # Provide it from SSL server cert to avoid placing request for unintended cert
+    -n <admin cert nickname> \
+    -d <admin NSS database> \
+    -c <admin NSS database password> \
+    <cert ID> \
+    --serial <serial number>
     ````
     **OR**
 
-    using 3rd party tool (like certmonger). **Skip to step #4 after this step, if using this option**.
-    ````
-    # getcert list
-    # getcert resubmit -i <id> # Get the ID of the tracked cert from the previous command
-    ````
+    using 3rd party tool, like certmonger. Please refer [certmonger manual](https://www.freeipa.org/page/Certmonger) to renew the certs.
 
 2. Stop server to update PKI server instance to use latest renewed certs
     ````
@@ -153,21 +152,7 @@ The CS.cfg is located in `/etc/pki/<instance>/<subsystem>/CS.cfg`
     ca_ocsp_signing                                              u,u,u
     ca_audit_signing                                             u,u,Pu
     ````
-5. Enable the self test. Add the following highlighted line CS.cfg of the corresponding subsystem
-    ````
-    selftests.container.instance.CAPresence=com.netscape.cms.selftests.ca.CAPresence
-    selftests.container.instance.CAValidity=com.netscape.cms.selftests.ca.CAValidity
-    selftests.container.instance.SystemCertsVerification=com.netscape.cms.selftests.common.SystemCertsVerification
-    selftests.container.order.onDemand=CAPresence:critical, SystemCertsVerification:critical, CAValidity:critical
-    <font color="blue">selftests.container.order.startup=CAPresence:critical, SystemCertsVerification:critical</font>
-    selftests.plugin.CAPresence.CaSubId=ca
-    selftests.plugin.CAValidity.CaSubId=ca
-    selftests.plugin.SystemCertsVerification.SubId=ca
-    ````
-
-    **OR** 
-
-    Use the built-in tool available:
+5. Enable the self test using the built-in tool available:
     ````
     # pki-server selftest-enable
     ````
