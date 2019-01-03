@@ -7,3 +7,5 @@ MANIFEST
 __pycache__
 .pytest_cache/
 .idea/
+tests/artifacts/
+tests/tests.retry
