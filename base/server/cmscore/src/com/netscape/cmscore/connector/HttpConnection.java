@@ -18,12 +18,14 @@
 package com.netscape.cmscore.connector;
 
 import java.io.IOException;
-import java.lang.Integer;
-import java.net.InetSocketAddress;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -31,8 +33,8 @@ import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IRequestEncoder;
-import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.certsrv.logging.SignedAuditEvent;
+import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.http.HttpClient;
@@ -40,13 +42,9 @@ import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.net.ISocketFactory;
 
-import org.dogtagpki.server.PKIClientSocketListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class HttpConnection implements IHttpConnection {
 
-    private static Logger logger = LoggerFactory.getLogger(PKIClientSocketListener.class);
+    private static Logger logger = LoggerFactory.getLogger(HttpConnection.class);
     private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected IRemoteAuthority mDest = null;
@@ -62,7 +60,7 @@ public class HttpConnection implements IHttpConnection {
             int timeout // seconds
             ) {
 
-        CMS.debug("HttpConnection: Creating HttpConnection with timeout=" + timeout);
+        logger.debug("HttpConnection: Creating HttpConnection with timeout=" + timeout);
         try {
             localIP = InetAddress.getLocalHost().getHostAddress();
         } catch (UnknownHostException e) {
@@ -87,7 +85,7 @@ public class HttpConnection implements IHttpConnection {
 
             String contentType = dest.getContentType();
             if (contentType != null) {
-                CMS.debug("HttpConnection: setting Content-Type");
+                logger.debug("HttpConnection: setting Content-Type");
                 mHttpreq.setHeader("Content-Type", contentType );
             }
 
@@ -97,7 +95,7 @@ public class HttpConnection implements IHttpConnection {
 
         } catch (IOException e) {
             // server's probably down. that's fine. try later.
-            CMS.debug("HttpConnection: Unable to create connection: " + e);
+            logger.warn("HttpConnection: Unable to create connection: " + e.getMessage(), e);
         }
     }
 
@@ -146,16 +144,16 @@ public class HttpConnection implements IHttpConnection {
             int port = target.getPort();
 
             try {
-                CMS.debug("HttpConnection: Connecting to " + hostname + ":" + port + " with timeout " + timeout + "s");
+                logger.debug("HttpConnection: Connecting to " + hostname + ":" + port + " with timeout " + timeout + "s");
 
                 mHttpClient.connect(hostname, port, timeout * 1000);
 
-                CMS.debug("HttpConnection: Connected to " + hostname + ":" + port);
+                logger.debug("HttpConnection: Connected to " + hostname + ":" + port);
                 return;
 
             } catch (IOException e) {
                 exception = e;
-                CMS.debug("HttpConnection: Unable to connect to " + hostname + ":" + port + ": " + e);
+                logger.warn("HttpConnection: Unable to connect to " + hostname + ":" + port + ": " + e.getMessage(), e);
                 auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
                         localIP,
                         hostname,
@@ -190,7 +188,7 @@ public class HttpConnection implements IHttpConnection {
         IPKIMessage replymsg = null;
         HttpResponse resp = null;
 
-        CMS.debug("in HttpConnection.send " + this);
+        logger.debug("in HttpConnection.send " + this);
         if (Debug.ON)
             Debug.trace("encoding request ");
 
@@ -219,18 +217,18 @@ public class HttpConnection implements IHttpConnection {
             Debug.trace(pcontent);
             Debug.trace("-------");
         }
-        //CMS.debug("HttpConnection.send response: " + pcontent);
+        //logger.debug("HttpConnection.send response: " + pcontent);
         if (pcontent != null && !pcontent.equals(""))
-            CMS.debug("HttpConnection.send response: got content");
+            logger.debug("HttpConnection.send response: got content");
         else
-            CMS.debug("HttpConnection.send response: null or empty content");
+            logger.debug("HttpConnection.send response: null or empty content");
 
         try {
             replymsg = (IPKIMessage) mReqEncoder.decode(pcontent);
         } catch (IOException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "Could not decode content"));
         }
-        CMS.debug("HttpConn:decoded reply");
+        logger.debug("HttpConn:decoded reply");
         return replymsg;
     }
 
@@ -243,11 +241,11 @@ public class HttpConnection implements IHttpConnection {
             throws EBaseException {
         HttpResponse resp = null;
         if ((content == null) || content.equals("")) {
-            CMS.debug("HttpConnection.send: with String content: null or empty");
+            logger.error("HttpConnection.send: with String content: null or empty");
             throw new EBaseException("HttpConnection.send: with String content: null or empty");
         }
 
-        //CMS.debug("HttpConnection.send: with String content: " + content);
+        //logger.debug("HttpConnection.send: with String content: " + content);
 
         resp = doSend(content);
         return resp;
@@ -271,7 +269,7 @@ public class HttpConnection implements IHttpConnection {
 
         mHttpreq.setHeader("Content-Length",
                 Integer.toString(content.length()));
-        CMS.debug("HttpConnection.doSend: with String content length: " + Integer.toString(content.length()));
+        logger.debug("HttpConnection.doSend: with String content length: " + Integer.toString(content.length()));
         mHttpreq.setContent(content);
 
         try {
@@ -282,7 +280,7 @@ public class HttpConnection implements IHttpConnection {
 
         } catch (IOException e) {
 
-            CMS.debug(e);
+            logger.error("Unable to send HTTP request: " + e.getMessage(), e);
 
             if (e.getMessage().indexOf("Peer's certificate issuer has been marked as not trusted") != -1) {
                 throw new EBaseException(
@@ -297,10 +295,12 @@ public class HttpConnection implements IHttpConnection {
         // if remote closed connection want to reconnect and resend.
         while (resp == null) {
             try {
-                CMS.debug("HttpConnection.doSend: sending request");
+                logger.debug("HttpConnection.doSend: sending request");
                 resp = mHttpClient.send(mHttpreq);
 
             } catch (IOException e) {
+                logger.error("Unable to send HTTP request: " + e.getMessage(), e);
+
                 auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
                         localIP,
                         mHttpClient.getHost(),
@@ -309,20 +309,18 @@ public class HttpConnection implements IHttpConnection {
                         "send:" +e.toString());
                 signedAuditLogger.log(auditEvent);
 
-                CMS.debug(e);
-
                 if (reconnected) {
-                    CMS.debug("HttpConnection.doSend: resend failed again.");
+                    logger.error("HttpConnection.doSend: resend failed again.");
                     throw new EBaseException(
                             CMS.getUserMessage("CMS_BASE_CONN_FAILED", "resend failed again: " + e), e);
                 }
 
                 try {
-                    CMS.debug("HttpConnection.doSend: trying a reconnect ");
+                    logger.warn("HttpConnection.doSend: trying a reconnect ");
                     connect();
 
                 } catch (IOException ex) {
-                    CMS.debug("HttpConnection.doSend: reconnect for resend failed. " + ex);
+                    logger.error("HttpConnection.doSend: reconnect for resend failed: " + ex.getMessage(), ex);
                     throw new EBaseException(
                             CMS.getUserMessage("CMS_BASE_CONN_FAILED", "reconnect for resend failed: " + ex), e);
                 }
@@ -334,7 +332,7 @@ public class HttpConnection implements IHttpConnection {
         // got reply; check status
         String statusStr = resp.getStatusCode();
 
-        CMS.debug("HttpConnection.doSend: server returned status " + statusStr);
+        logger.debug("HttpConnection.doSend: server returned status " + statusStr);
         int statuscode = -1;
 
         try {
@@ -351,14 +349,14 @@ public class HttpConnection implements IHttpConnection {
                 // XXX what to do here.
                 String msg = "request no good " + statuscode + " " + resp.getReasonPhrase();
 
-                CMS.debug("HttpConnection: " + msg);
+                logger.error("HttpConnection: " + msg);
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_AUTHENTICATE_FAILED", msg));
 
             } else {
                 // XXX what to do here.
                 String msg = "HttpConnection: request no good " + statuscode + " " + resp.getReasonPhrase();
 
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", msg));
             }
         }
