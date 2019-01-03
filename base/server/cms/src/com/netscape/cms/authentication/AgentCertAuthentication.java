@@ -57,6 +57,8 @@ import netscape.security.x509.X509CertImpl;
 public class AgentCertAuthentication implements IAuthManager,
         IProfileAuthenticator {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AgentCertAuthentication.class);
+
     /* required credentials */
     public static final String CRED_CERT = IAuthManager.CRED_SSL_CLIENT_CERT;
     protected String[] mRequiredCreds = { CRED_CERT };
@@ -130,8 +132,8 @@ public class AgentCertAuthentication implements IAuthManager,
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
-        CMS.debug("AgentCertAuthentication: start");
-        CMS.debug("authenticator instance name is " + getName());
+        logger.debug("AgentCertAuthentication: start");
+        logger.debug("authenticator instance name is " + getName());
 
         // force SSL handshake
         SessionContext context = SessionContext.getExistingContext();
@@ -139,18 +141,18 @@ public class AgentCertAuthentication implements IAuthManager,
                 context.get("sslClientCertProvider");
 
         if (provider == null) {
-            CMS.debug("AgentCertAuthentication: No SSL Client Cert Provider Found");
+            logger.error("AgentCertAuthentication: No SSL Client Cert Provider Found");
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
-        CMS.debug("AgentCertAuthenticator: got provider");
-        CMS.debug("AgentCertAuthenticator: retrieving client certificate");
+        logger.debug("AgentCertAuthenticator: got provider");
+        logger.debug("AgentCertAuthenticator: retrieving client certificate");
         X509Certificate[] allCerts = provider.getClientCertificateChain();
 
         if (allCerts == null) {
-            CMS.debug("AgentCertAuthentication: No SSL Client Certs Found");
+            logger.error("AgentCertAuthentication: No SSL Client Certs Found");
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
-        CMS.debug("AgentCertAuthenticator: got certificates");
+        logger.debug("AgentCertAuthenticator: got certificates");
 
         // retreive certificate from socket
         AuthToken authToken = new AuthToken(this);
@@ -165,7 +167,7 @@ public class AgentCertAuthentication implements IAuthManager,
                 ci[i] = new X509CertImpl(x509Certs[i].getEncoded());
             }
         } catch (CertificateException e) {
-            CMS.debug(e.toString());
+            logger.warn("Unable to parse certificate: " + e.getMessage(), e);
         }
 
         // check if certificate(s) is revoked
@@ -177,7 +179,7 @@ public class AgentCertAuthentication implements IAuthManager,
         }
         if (checkRevocation) {
             if (CMS.isRevoked(ci)) {
-                CMS.debug("AgentCertAuthentication: certificate revoked");
+                logger.error("AgentCertAuthentication: certificate revoked");
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
         }
@@ -211,10 +213,10 @@ public class AgentCertAuthentication implements IAuthManager,
         }
 
         if (!groupname.equals("")) {
-            CMS.debug("check if " + user.getUserID() + " is  in group " + groupname);
+            logger.debug("check if " + user.getUserID() + " is  in group " + groupname);
             IUGSubsystem uggroup = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
             if (!uggroup.isMemberOf(user, groupname)) {
-                CMS.debug(user.getUserID() + " is not in this group " + groupname);
+                logger.error(user.getUserID() + " is not in this group " + groupname);
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHORIZATION_ERROR"));
             }
         }
@@ -225,7 +227,7 @@ public class AgentCertAuthentication implements IAuthManager,
         authToken.set(IAuthToken.GROUP, groupname);
         authToken.set(CRED_CERT, certs);
 
-        CMS.debug("AgentCertAuthentication: authenticated " + user.getUserDN());
+        logger.info("AgentCertAuthentication: authenticated " + user.getUserDN());
 
         return authToken;
     }
