@@ -51,6 +51,8 @@ import netscape.ldap.LDAPException;
  */
 public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAuthentication {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PasswdUserDBAuthentication.class);
+
     /* required credentials. uid, pwd are strings */
     protected static String[] mRequiredCred = { CRED_UID, CRED_PWD };
 
@@ -86,7 +88,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         DBSubsystem dbs = (DBSubsystem) DBSubsystem.getInstance();
         LdapConnInfo ldapinfo = dbs.getLdapConnInfo();
         if (ldapinfo == null && CMS.isPreOpMode()) {
-            CMS.debug("PasswdUserDBAuthentication.init(): Abort due to missing LDAP connection info in pre-op mode");
+            logger.warn("PasswdUserDBAuthentication.init(): Abort due to missing LDAP connection info in pre-op mode");
             return;
         }
 
@@ -118,7 +120,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
 
         // make sure the required credentials are provided
         String uid = (String) authCred.get(CRED_UID);
-        CMS.debug("PasswdUserDBAuthentication: UID: " + uid);
+        logger.debug("PasswdUserDBAuthentication: UID: " + uid);
         if (uid == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_MISSING_UID"));
             throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_UID));
@@ -142,20 +144,20 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         try {
             user = ug.getUser(uid);
         } catch (EBaseException e) {
-            CMS.debug(e);
             // not a user in our user/group database.
+            logger.error("Unable to authenticate user: " + e.getMessage(), e);
             log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSCORE_AUTH_UID_NOT_FOUND", uid, e.toString()));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + " " + e.getMessage());
         }
 
         if (user == null) {
-            CMS.debug("PasswdUserDBAuthentication: User not found: " + uid);
+            logger.error("PasswdUserDBAuthentication: User not found: " + uid);
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR",
                     "Failure in User Group subsystem."));
         }
 
         String userdn = user.getUserDN();
-        CMS.debug("PasswdUserDBAuthentication: DN: " + userdn);
+        logger.debug("PasswdUserDBAuthentication: DN: " + userdn);
 
         LDAPConnection anonConn = null;
 
