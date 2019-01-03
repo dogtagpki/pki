@@ -37,6 +37,9 @@ import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
 
 public class HttpConnector implements IConnector {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HttpConnector.class);
+
     protected IAuthority mSource = null;
     protected IRemoteAuthority mDest = null;
     protected ISocketFactory mFactory = null;
@@ -65,13 +68,13 @@ public class HttpConnector implements IConnector {
         int minConns = config.getInteger("minHttpConns", 1);
         int maxConns = config.getInteger("maxHttpConns", 15);
 
-        CMS.debug("HttpConn: min " + minConns);
-        CMS.debug("HttpConn: max " + maxConns);
+        logger.debug("HttpConn: min " + minConns);
+        logger.debug("HttpConn: max " + maxConns);
 
         try {
             mConnFactory = new HttpConnFactory(minConns, maxConns, source, dest, nickName, clientCiphers, 0);
         } catch (EBaseException e) {
-            CMS.debug("can't create new HttpConnFactory " + e.toString());
+            logger.warn("HttpConn: can't create new HttpConnFactory: " + e.getMessage(), e);
         }
 
         //        mConn = CMS.getHttpConnection(dest, mFactory);
@@ -96,13 +99,13 @@ public class HttpConnector implements IConnector {
         int minConns = config.getInteger("minHttpConns", 1);
         int maxConns = config.getInteger("maxHttpConns", 15);
 
-        CMS.debug("HttpConn: min " + minConns);
-        CMS.debug("HttpConn: max " + maxConns);
+        logger.debug("HttpConn: min " + minConns);
+        logger.debug("HttpConn: max " + maxConns);
 
         try {
             mConnFactory = new HttpConnFactory(minConns, maxConns, source, dest, nickName, clientCiphers, timeout);
         } catch (EBaseException e) {
-            CMS.debug("can't create new HttpConnFactory");
+            logger.warn("HttpConn: can't create new HttpConnFactory: " + e.getMessage(), e);
         }
 
         // this will start resending past requests in parallel.
@@ -116,7 +119,7 @@ public class HttpConnector implements IConnector {
     // cfu
     public HttpResponse send(String op, String msg)
         throws EBaseException {
-        CMS.debug("HttpConnector: send(): begins");
+        logger.debug("HttpConnector: send(): begins");
         HttpResponse resp = null;
         IHttpConnection curConn = null;
         String uri;
@@ -134,8 +137,10 @@ public class HttpConnector implements IConnector {
             curConn = mConnFactory.getConn();
             curConn.setRequestURI(uri);
             resp = curConn.send(msg);
+
         } catch (EBaseException e) {
-            CMS.debug("HttpConnector: send():"+ e.toString());
+            logger.warn("HttpConnector: send(): "+ e.getMessage(), e);
+
         } finally {
             if (curConn != null) {
                 mConnFactory.returnConn(curConn);
@@ -153,20 +158,20 @@ public class HttpConnector implements IConnector {
             HttpPKIMessage replymsg = null;
 
             tomsg.fromRequest(r);
-            CMS.debug("Before synch");
+            logger.debug("Before synch");
 
             curConn = mConnFactory.getConn();
 
-            CMS.debug("HttpConnector.send " + curConn);
+            logger.debug("HttpConnector.send " + curConn);
 
             replymsg = (HttpPKIMessage) curConn.send(tomsg);
 
             if (replymsg == null) {
-                CMS.debug("HttpConncter. replymsg is null");
+                logger.warn("HttpConncter. replymsg is null");
                 return false;
             }
 
-            CMS.debug("HttpConncter.send has been called");
+            logger.debug("HttpConncter.send has been called");
 
             RequestStatus replyStatus;
             RequestId replyRequestId;
@@ -175,11 +180,11 @@ public class HttpConnector implements IConnector {
             int index = replymsg.reqId.lastIndexOf(':');
 
             replyRequestId = new RequestId(replymsg.reqId.substring(index + 1));
-            CMS.debug("reply request id " + replyRequestId);
+            logger.debug("reply request id " + replyRequestId);
             r.setExtData(IRequest.REMOTE_REQID, replyRequestId.toString());
 
-            CMS.debug("reply request type " + r.getRequestType());
-            CMS.debug("reply status " + replyStatus);
+            logger.debug("reply request type " + r.getRequestType());
+            logger.debug("reply status " + replyStatus);
 
             // non terminal states.
             // XXX hack: don't resend get revocation info requests since
@@ -190,7 +195,7 @@ public class HttpConnector implements IConnector {
                             replyStatus == RequestStatus.PENDING ||
                             replyStatus == RequestStatus.SVC_PENDING ||
                     replyStatus == RequestStatus.APPROVED)) {
-                CMS.debug("HttpConn:  remote request id still pending " +
+                logger.debug("HttpConn:  remote request id still pending " +
                         r.getRequestId() + " state " + replyStatus);
                 /*
                 mSource.log(ILogger.LL_INFO,
@@ -207,7 +212,7 @@ public class HttpConnector implements IConnector {
             // terminal states other than completed
             if (replyStatus == RequestStatus.REJECTED ||
                     replyStatus == RequestStatus.CANCELED) {
-                CMS.debug(
+                logger.debug(
                         "remote request id " + r.getRequestId() +
                                 " was rejected or cancelled.");
                 r.setExtData(IRequest.REMOTE_STATUS, replyStatus.toString());
@@ -222,18 +227,16 @@ public class HttpConnector implements IConnector {
                 }
             }
 
-            CMS.debug(
+            logger.debug(
                     "remote request id " + r.getRequestId() + " was completed");
             return true;
         } catch (EBaseException e) {
-            CMS.debug("HttpConn: inside EBaseException " + e.toString());
+            logger.error("HttpConn: error sending request to cert: " + e.getMessage(), e);
 
             if (!r.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST)) {
                 if (mResender != null)
                     mResender.addRequest(r);
             }
-
-            CMS.debug("HttpConn:  error sending request to cert " + e.toString());
             /*
             mSource.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CONNECTOR_SEND_REQUEST", r.getRequestId()
                     .toString(), mDest.getHost(), Integer.toString(mDest.getPort())));
@@ -250,13 +253,13 @@ public class HttpConnector implements IConnector {
     }
 
     public void start() {
-        CMS.debug("Starting HttpConnector resender thread");
+        logger.debug("Starting HttpConnector resender thread");
         if (mResender != null)
             mResender.start("HttpConnector");
     }
 
     public void stop() {
-        CMS.debug("Stopping HttpConnector resender thread");
+        logger.debug("Stopping HttpConnector resender thread");
         if (mResender != null)
             mResender.stop();
     }
