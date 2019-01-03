@@ -19,7 +19,6 @@ package com.netscape.cmscore.connector;
 
 import org.dogtagpki.server.PKIClientSocketListener;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.IHttpConnection;
@@ -34,6 +33,9 @@ import com.netscape.cmsutil.net.ISocketFactory;
  * Factory for getting HTTP Connections to a HTTPO server
  */
 public class HttpConnFactory {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HttpConnFactory.class);
+
     protected int mMinConns = 1;
     protected int mMaxConns = 30;
 
@@ -66,11 +68,11 @@ public class HttpConnFactory {
     public HttpConnFactory(int minConns, int maxConns, IAuthority source, IRemoteAuthority dest, String nickname, String clientCiphers,
             int timeout) throws EBaseException {
 
-        CMS.debug("In HttpConnFactory constructor mTimeout " + timeout);
+        logger.debug("In HttpConnFactory constructor mTimeout " + timeout);
         if (mClientCiphers != null)
-            CMS.debug("In HttpConnFactory constructor mClientCiphers: " + mClientCiphers);
+            logger.debug("In HttpConnFactory constructor mClientCiphers: " + mClientCiphers);
         else
-            CMS.debug("In HttpConnFactory constructor mClientCiphers not specified, will take default ");
+            logger.debug("In HttpConnFactory constructor mClientCiphers not specified, will take default ");
         mSource = source;
         mDest = dest;
         mNickname = nickname;
@@ -94,9 +96,9 @@ public class HttpConnFactory {
             )
                     throws EBaseException {
 
-        CMS.debug("min conns " + minConns + " maxConns " + maxConns);
+        logger.debug("min conns " + minConns + " maxConns " + maxConns);
         if (minConns <= 0 || maxConns <= 0 || minConns > maxConns) {
-            CMS.debug("bad values from CMS.cfg");
+            logger.warn("bad values from CMS.cfg");
 
         } else {
 
@@ -104,29 +106,29 @@ public class HttpConnFactory {
             mMaxConns = maxConns;
         }
 
-        CMS.debug("before creating httpconn array");
+        logger.debug("before creating httpconn array");
 
         mConns = new IHttpConnection[mMaxConns];
 
         // Create connection handle and make initial connection
 
-        CMS.debug("before makeConnection");
+        logger.debug("before makeConnection");
 
-        CMS.debug(
+        logger.debug(
                 "initializing HttpConnFactory with mininum " + mMinConns + " and maximum " + mMaxConns +
                         " connections to ");
 
         // initalize minimum number of connection handles available.
         //makeMinimum();
 
-        CMS.debug("leaving HttpConnFactory init.");
+        logger.debug("leaving HttpConnFactory init.");
     }
 
     private IHttpConnection createConnection() throws EBaseException {
 
         IHttpConnection retConn = null;
 
-        CMS.debug("In HttpConnFactory.createConnection.");
+        logger.debug("In HttpConnFactory.createConnection.");
 
         try {
             ISocketFactory tFactory = new JssSSLSocketFactory(mNickname, mClientCiphers);
@@ -139,12 +141,11 @@ public class HttpConnFactory {
             } else {
                 retConn = new HttpConnection(mDest, tFactory, mTimeout);
             }
+
         } catch (Exception e) {
-
-            CMS.debug("can't make new Htpp Connection");
-
-            throw new EBaseException(
-                    "Can't create new Http Connection");
+            String message = "Unable to create HTTP connection: " + e.getMessage();
+            logger.error(message, e);
+            throw new EBaseException(message, e);
         }
 
         return retConn;
@@ -155,7 +156,7 @@ public class HttpConnFactory {
      */
     private void makeMinimum() throws EBaseException {
 
-        CMS.debug("In HttpConnFactory.makeMinimum.");
+        logger.debug("In HttpConnFactory.makeMinimum.");
         int increment;
 
         if (mNumConns < mMinConns && mTotal <= mMaxConns) {
@@ -165,15 +166,14 @@ public class HttpConnFactory {
             if (increment == 0)
                 return;
 
-            CMS.debug(
-                    "increasing minimum connections by " + increment);
+            logger.debug("increasing minimum connections by " + increment);
             for (int i = increment - 1; i >= 0; i--) {
                 mConns[i] = createConnection();
             }
             mTotal += increment;
             mNumConns += increment;
-            CMS.debug("new total available http connections " + mTotal);
-            CMS.debug("new number of http connections " + mNumConns);
+            logger.debug("new total available http connections " + mTotal);
+            logger.debug("new number of http connections " + mNumConns);
         }
     }
 
@@ -227,22 +227,22 @@ public class HttpConnFactory {
             throws EBaseException {
         boolean waited = false;
 
-        CMS.debug("In HttpConnFactory.getConn");
+        logger.debug("In HttpConnFactory.getConn");
         if (mNumConns == 0)
             makeMinimum();
         if (mNumConns == 0) {
             if (!waitForConn)
                 return null;
             try {
-                CMS.debug("getConn: out of http connections");
+                logger.debug("getConn: out of http connections");
                 log(ILogger.LL_WARN,
                         "Ran out of http connections available ");
                 waited = true;
-                CMS.debug("HttpConn:about to wait for a new http connection");
+                logger.debug("HttpConn:about to wait for a new http connection");
                 while (mNumConns == 0)
                     wait();
 
-                CMS.debug("HttpConn:done waiting for new http connection");
+                logger.debug("HttpConn:done waiting for new http connection");
             } catch (InterruptedException e) {
             }
         }
@@ -252,11 +252,11 @@ public class HttpConnFactory {
         mConns[mNumConns] = null;
 
         if (waited) {
-            CMS.debug("HttpConn:had to wait for an available connection from pool");
+            logger.warn("HttpConn:had to wait for an available connection from pool");
             log(ILogger.LL_WARN,
                     "Http connections are available again in http connection pool ");
         }
-        CMS.debug("HttpgetConn: mNumConns now " + mNumConns);
+        logger.debug("HttpgetConn: mNumConns now " + mNumConns);
 
         return conn;
     }
@@ -281,7 +281,7 @@ public class HttpConnFactory {
      */
     public synchronized void returnConn(IHttpConnection conn) {
 
-        CMS.debug("In HttpConnFactory.returnConn");
+        logger.debug("In HttpConnFactory.returnConn");
         if (conn == null) {
             return;
         }
@@ -289,13 +289,12 @@ public class HttpConnFactory {
 
         for (int i = 0; i < mNumConns; i++) {
             if (mConns[i] == conn) {
-                CMS.debug(
-                        "returnConn: previously returned connection. " + conn);
+                logger.debug("returnConn: previously returned connection. " + conn);
 
             }
         }
         mConns[mNumConns++] = boundconn;
-        CMS.debug("HttpreturnConn: mNumConns now " + mNumConns);
+        logger.debug("HttpreturnConn: mNumConns now " + mNumConns);
         notify();
     }
 
