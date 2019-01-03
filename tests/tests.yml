@@ -1,0 +1,9 @@
+- hosts: localhost
+  roles:
+  - role: standard-test-basic
+    tags:
+    - classic
+    tests:
+    - simple:
+        dir: .
+        run: "pki --help"
