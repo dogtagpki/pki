@@ -923,6 +923,7 @@ class CertFixCLI(pki.cli.CLI):
         logger.info('Fixing the following certs: %s', fix_certs)
 
         # 2. Stop the server, if it's up
+        logger.info('Stopping the instance to proceed with system cert renewal')
         instance.stop()
 
         # 3. Find the subsystem and disable Self-tests
@@ -966,19 +967,24 @@ class CertFixCLI(pki.cli.CLI):
             # 4. Bring up the server using a temp SSL cert if the sslcert is expired
             if 'sslserver' in fix_certs:
                 # 4a. Create temp SSL cert
+                logger.debug('Creating a temp sslserver cert')
                 instance.cert_create(cert_id='sslserver', temp_cert=True)
 
                 # 4b. Delete the existing SSL Cert
+                logger.debug('Removing sslserver cert from instance')
                 instance.cert_del('sslserver')
 
                 # 4d. Import the temp sslcert into the instance
+                logger.debug('Importing temp sslserver cert')
                 instance.cert_import('sslserver')
 
             # 5. Bring up the server temporarily
+            logger.debug('Starting the instance with temp sslserver cert')
             instance.start()
 
             # 6. Place renewal request for all certs in fix_certs
             for cert_id in fix_certs:
+                logger.debug('Creating new cert for %s', cert_id)
                 instance.cert_create(cert_id=cert_id,
                                      client_cert=client_cert,
                                      client_nssdb=client_nssdb,
@@ -987,21 +993,29 @@ class CertFixCLI(pki.cli.CLI):
                                      renew=True)
 
             # 7. Stop the server
+            logger.debug('Stopping the instance')
             instance.stop()
 
             # 8. Delete existing certs and then import the renewed system cert(s)
             for cert_id in fix_certs:
                 # Delete the existing cert from the instance
+                logger.debug('Removing old %s cert from instance %s', cert_id, instance_name)
                 instance.cert_del(cert_id)
 
                 # Import this new cert into the instance
+                logger.debug('Importing new %s cert into instance %s', cert_id, instance_name)
                 instance.cert_import(cert_id)
 
             # 9. Enable self tests for the subsystems disabled earlier
             for subsystem in target_subsys:
                 subsystem.set_startup_test_criticality(True)
+                subsystem.save()
+
+            logger.info('Selftests enabled for subsystems: %s', ', '.join(
+                str(x.name) for x in target_subsys))
 
             # 10. Bring up the server
+            logger.info('Starting the instance with renewed certs')
             instance.start()
 
         except server.PKIServerException as e:
