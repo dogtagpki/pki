@@ -78,6 +78,7 @@ import netscape.security.x509.X509Key;
  */
 public class CertUtils {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertUtils.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String CERT_NEW_REQUEST_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
@@ -821,7 +822,7 @@ public class CertUtils {
 
         String method = "Certutils.verifySystemCertValidityByNickname: ";
 
-        CMS.debug(method + "(" + nickname + ")");
+        logger.debug(method + "(" + nickname + ")");
         try {
             CryptoManager cm = CryptoManager.getInstance();
             org.mozilla.jss.crypto.X509Certificate cert = cm.findCertByNickname(nickname);
@@ -834,11 +835,11 @@ public class CertUtils {
                 throw new Exception(method + " failed: nickname: " + nickname);
             }
         } catch (Exception e) {
-            CMS.debug(method + " failed : " + e);
+            logger.error(method + " failed : " + e.getMessage(), e);
             throw new Exception(method + " faliled: nickname: "+ nickname + "cause: " + e);
         }
 
-        CMS.debug(method + "success");
+        logger.debug(method + "success");
     }
 
     /*
@@ -846,23 +847,23 @@ public class CertUtils {
      * @throws Exception if something is wrong
      */
     public static void verifySystemCertByNickname(String nickname, String certusage) throws Exception {
-        CMS.debug("CertUtils: verifySystemCertByNickname(" + nickname + ", " + certusage + ")");
+        logger.debug("CertUtils: verifySystemCertByNickname(" + nickname + ", " + certusage + ")");
         CertificateUsage cu = getCertificateUsage(certusage);
         int ccu = 0;
 
         if (cu == null) {
-            CMS.debug("CertUtils: verifySystemCertByNickname() failed: " +
+            logger.debug("CertUtils: verifySystemCertByNickname() failed: " +
                     nickname + " with unsupported certusage =" + certusage);
             throw new Exception("Unsupported certificate usage " + certusage + " in certificate " + nickname);
         }
 
         if (certusage == null || certusage.equals(""))
-            CMS.debug("CertUtils: verifySystemCertByNickname(): required certusage not defined, getting current certusage");
+            logger.debug("CertUtils: verifySystemCertByNickname(): required certusage not defined, getting current certusage");
 
         try {
             CryptoManager cm = CryptoManager.getInstance();
             if (cu.getUsage() != CertificateUsage.CheckAllUsages.getUsage()) {
-                CMS.debug("CertUtils: verifySystemCertByNickname(): calling verifyCertificate(" + nickname + ", true, " + cu + ")");
+                logger.debug("CertUtils: verifySystemCertByNickname(): calling verifyCertificate(" + nickname + ", true, " + cu + ")");
                 try {
                     cm.verifyCertificate(nickname, true, cu);
                 } catch (CertificateException e) {
@@ -870,46 +871,46 @@ public class CertUtils {
                 }
 
             } else {
-                CMS.debug("CertUtils: verifySystemCertByNickname(): calling isCertValid(" + nickname + ", true)");
+                logger.debug("CertUtils: verifySystemCertByNickname(): calling isCertValid(" + nickname + ", true)");
                 // find out about current cert usage
                 ccu = cm.isCertValid(nickname, true);
                 if (ccu == CertificateUsage.basicCertificateUsages) {
                     /* cert is good for nothing */
-                    CMS.debug("CertUtils: verifySystemCertByNickname() failed: cert is good for nothing:" + nickname);
+                    logger.error("CertUtils: verifySystemCertByNickname() failed: cert is good for nothing:" + nickname);
                     throw new Exception("Unusable certificate " + nickname);
 
                 } else {
-                    CMS.debug("CertUtils: verifySystemCertByNickname() passed: " + nickname);
+                    logger.debug("CertUtils: verifySystemCertByNickname() passed: " + nickname);
 
                     if ((ccu & CertificateUsage.SSLServer.getUsage()) != 0)
-                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServer");
+                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServer");
                     if ((ccu & CertificateUsage.SSLClient.getUsage()) != 0)
-                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is SSLClient");
+                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLClient");
                     if ((ccu & CertificateUsage.SSLServerWithStepUp.getUsage()) != 0)
-                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServerWithStepUp");
+                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLServerWithStepUp");
                     if ((ccu & CertificateUsage.SSLCA.getUsage()) != 0)
-                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is SSLCA");
+                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is SSLCA");
                     if ((ccu & CertificateUsage.EmailSigner.getUsage()) != 0)
-                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is EmailSigner");
+                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is EmailSigner");
                     if ((ccu & CertificateUsage.EmailRecipient.getUsage()) != 0)
-                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is EmailRecipient");
+                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is EmailRecipient");
                     if ((ccu & CertificateUsage.ObjectSigner.getUsage()) != 0)
-                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is ObjectSigner");
+                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is ObjectSigner");
                     if ((ccu & CertificateUsage.UserCertImport.getUsage()) != 0)
-                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is UserCertImport");
+                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is UserCertImport");
                     if ((ccu & CertificateUsage.VerifyCA.getUsage()) != 0)
-                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is VerifyCA");
+                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is VerifyCA");
                     if ((ccu & CertificateUsage.ProtectedObjectSigner.getUsage()) != 0)
-                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is ProtectedObjectSigner");
+                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is ProtectedObjectSigner");
                     if ((ccu & CertificateUsage.StatusResponder.getUsage()) != 0)
-                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is StatusResponder");
+                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is StatusResponder");
                     if ((ccu & CertificateUsage.AnyCA.getUsage()) != 0)
-                        CMS.debug("CertUtils: verifySystemCertByNickname(): cert is AnyCA");
+                        logger.debug("CertUtils: verifySystemCertByNickname(): cert is AnyCA");
                 }
             }
 
         } catch (Exception e) {
-            CMS.debug("CertUtils: verifySystemCertByNickname() failed: " + e);
+            logger.error("CertUtils: verifySystemCertByNickname() failed: " + e.getMessage(), e);
             throw e;
         }
     }
@@ -928,7 +929,7 @@ public class CertUtils {
      */
     public static void verifySystemCertByTag(String tag,boolean checkValidityOnly) throws Exception {
 
-        CMS.debug("CertUtils: verifySystemCertByTag(" + tag + ")");
+        logger.debug("CertUtils: verifySystemCertByTag(" + tag + ")");
 
         String auditMessage = null;
         IConfigStore config = CMS.getConfigStore();
@@ -936,13 +937,13 @@ public class CertUtils {
         try {
             String subsysType = config.getString("cs.type", "");
             if (subsysType.equals("")) {
-                CMS.debug("CertUtils: verifySystemCertByTag() cs.type not defined in CS.cfg. System certificates verification not done");
+                logger.error("CertUtils: verifySystemCertByTag() cs.type not defined in CS.cfg. System certificates verification not done");
                 throw new Exception("Missing cs.type in CS.cfg");
             }
 
             subsysType = toLowerCaseSubsystemType(subsysType);
             if (subsysType == null) {
-                CMS.debug("CertUtils: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
+                logger.error("CertUtils: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CIMC_CERT_VERIFICATION,
                             ILogger.SYSTEM_UID,
@@ -955,13 +956,13 @@ public class CertUtils {
 
             String nickname = config.getString(subsysType + ".cert." + tag + ".nickname", "");
             if (nickname.equals("")) {
-                CMS.debug("CertUtils: verifySystemCertByTag() nickname for cert tag " + tag + " undefined in CS.cfg");
+                logger.error("CertUtils: verifySystemCertByTag() nickname for cert tag " + tag + " undefined in CS.cfg");
                 throw new Exception("Missing nickname for " + tag + " certificate");
             }
 
             String certusage = config.getString(subsysType + ".cert." + tag + ".certusage", "");
             if (certusage.equals("")) {
-                CMS.debug("CertUtils: verifySystemCertByTag() certusage for cert tag "
+                logger.warn("CertUtils: verifySystemCertByTag() certusage for cert tag "
                         + tag + " undefined in CS.cfg, getting current certificate usage");
                 // throw new Exception("Missing certificate usage for " + tag + " certificate"); ?
             }
@@ -981,8 +982,7 @@ public class CertUtils {
             audit(auditMessage);
 
         } catch (Exception e) {
-            CMS.debug("CertUtils: verifySystemCertsByTag() failed: " +
-                    e.toString());
+            logger.error("CertUtils: verifySystemCertsByTag() failed: " + e.getMessage(), e);
             auditMessage = CMS.getLogMessage(
                         AuditEvent.CIMC_CERT_VERIFICATION,
                         ILogger.SYSTEM_UID,
@@ -1045,7 +1045,7 @@ public class CertUtils {
         try {
             String subsysType = config.getString("cs.type", "");
             if (subsysType.equals("")) {
-                CMS.debug("CertUtils: verifySystemCerts() cs.type not defined in CS.cfg. System certificates verification not done");
+                logger.error("CertUtils: verifySystemCerts() cs.type not defined in CS.cfg. System certificates verification not done");
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CIMC_CERT_VERIFICATION,
                             ILogger.SYSTEM_UID,
@@ -1058,7 +1058,7 @@ public class CertUtils {
 
             subsysType = toLowerCaseSubsystemType(subsysType);
             if (subsysType == null) {
-                CMS.debug("CertUtils: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
+                logger.error("CertUtils: verifySystemCerts() invalid cs.type in CS.cfg. System certificates verification not done");
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CIMC_CERT_VERIFICATION,
                             ILogger.SYSTEM_UID,
@@ -1071,7 +1071,7 @@ public class CertUtils {
 
             String certlist = config.getString(subsysType + ".cert.list", "");
             if (certlist.equals("")) {
-                CMS.debug("CertUtils: verifySystemCerts() "
+                logger.error("CertUtils: verifySystemCerts() "
                         + subsysType + ".cert.list not defined in CS.cfg. System certificates verification not done");
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CIMC_CERT_VERIFICATION,
@@ -1087,7 +1087,7 @@ public class CertUtils {
             while (tokenizer.hasMoreTokens()) {
                 String tag = tokenizer.nextToken();
                 tag = tag.trim();
-                CMS.debug("CertUtils: verifySystemCerts() cert tag=" + tag);
+                logger.debug("CertUtils: verifySystemCerts() cert tag=" + tag);
 
                 if (!checkValidityOnly) {
                     verifySystemCertByTag(tag);
