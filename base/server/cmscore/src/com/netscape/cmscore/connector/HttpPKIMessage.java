@@ -26,7 +26,6 @@ import java.util.Hashtable;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.connector.IHttpPKIMessage;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.util.Debug;
@@ -35,10 +34,11 @@ import com.netscape.cmscore.util.Debug;
  * simple name/value pair message.
  */
 public class HttpPKIMessage implements IHttpPKIMessage {
-    /**
-     *
-     */
+
     private static final long serialVersionUID = -3378261119472034953L;
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HttpPKIMessage.class);
+
     // initialized to "" because nulls don't serialize well.
     public String reqType = "";
     public String reqId = "";
@@ -75,7 +75,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         reqStatus = r.getRequestStatus().toString();
         reqRealm = r.getRealm();
 
-        CMS.debug("HttpPKIMessage.fromRequest: requestId="
+        logger.debug("HttpPKIMessage.fromRequest: requestId="
                 + r.getRequestId().toString() + " requestStatus=" + reqStatus + " instance=" + r);
 
         String attrs[] = RequestTransfer.getTransferAttributes(r);
@@ -106,7 +106,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         // id is checked but not reset.
         // request status cannot be set, but can be looked at.
         reqStatus = r.getRequestStatus().toString();
-        CMS.debug("HttpPKMessage.toRequest: requestStatus=" + reqStatus);
+        logger.debug("HttpPKMessage.toRequest: requestStatus=" + reqStatus);
 
         String key;
         Object value;
@@ -121,18 +121,18 @@ public class HttpPKIMessage implements IHttpPKIMessage {
                 } else if (value instanceof Hashtable) {
                     r.setExtData(key, (Hashtable<String, String>) value);
                 } else {
-                    CMS.debug("HttpPKIMessage.toRequest(): key: " + key +
+                    logger.warn("HttpPKIMessage.toRequest(): key: " + key +
                             " has unexpected type " + value.getClass().toString());
                 }
             } catch (NoSuchElementException e) {
-                CMS.debug("Incorrect pairing of name/value for " + key);
+                logger.warn("Incorrect pairing of name/value for " + key);
             }
         }
     }
 
     private void writeObject(java.io.ObjectOutputStream out)
             throws IOException {
-        CMS.debug("writeObject");
+        logger.debug("writeObject");
         out.writeObject(reqType);
         if (Debug.ON)
             Debug.trace("read object req type " + reqType);
@@ -166,12 +166,12 @@ public class HttpPKIMessage implements IHttpPKIMessage {
             } catch (Exception e) {
                 // skip not serialiable attribute in DRM
                 // DRM does not need to store the enrollment request anymore
-                CMS.debug("HttpPKIMessage:skipped key=" +
+                logger.warn("HttpPKIMessage:skipped key=" +
                         key.getClass().getName());
                 if (val == null) {
-                    CMS.debug("HttpPKIMessage:skipped val= null");
+                    logger.warn("HttpPKIMessage:skipped val= null");
                 } else {
-                    CMS.debug("HttpPKIMessage:skipped val=" +
+                    logger.warn("HttpPKIMessage:skipped val=" +
                             val.getClass().getName());
                 }
             }
@@ -198,7 +198,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
                     throw e;
                 } catch (IOException e) {
                     // just skipped parameter
-                    CMS.debug("skipped attribute in request e=" + e);
+                    logger.warn("skipped attribute in request e=" + e);
                     if (!iskey) {
                         int s = mNameVals.size();
                         if (s > 0) {
