@@ -45,6 +45,8 @@ import netscape.ldap.LDAPv2;
 public class LDAPSecurityDomainSessionTable
         implements ISecurityDomainSessionTable {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPSecurityDomainSessionTable.class);
+
     private long m_timeToLive;
     private ILdapConnFactory mLdapConnFactory = null;
 
@@ -83,7 +85,7 @@ public class LDAPSecurityDomainSessionTable
                 if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
                     // continue
                 } else {
-                    CMS.debug("SecurityDomainSessionTable: Unable to create ou=sessions: " + e);
+                    logger.error("SecurityDomainSessionTable: Unable to create ou=sessions: " + e.getMessage(), e);
                     throw new PKIException("Unable to create ou=sessions", e);
                 }
             }
@@ -103,14 +105,14 @@ public class LDAPSecurityDomainSessionTable
 
             conn.add(entry);
 
-            CMS.debug("SecurityDomainSessionTable: added session entry " + sessionId);
+            logger.info("SecurityDomainSessionTable: added session entry " + sessionId);
             status = SUCCESS;
 
         } finally {
             try {
                 mLdapConnFactory.returnConn(conn);
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.warn("Unable to return LDAP connection: " + e.getMessage(), e);
             }
         }
 
@@ -132,7 +134,7 @@ public class LDAPSecurityDomainSessionTable
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
                 // continue
             } else {
-                CMS.debug("SecurityDomainSessionTable: unable to delete session " + sessionId + ": " + e);
+                logger.error("SecurityDomainSessionTable: unable to delete session " + sessionId + ": " + e.getMessage(), e);
                 throw new PKIException("Unable to delete session " + sessionId, e);
             }
 
@@ -140,7 +142,7 @@ public class LDAPSecurityDomainSessionTable
             try {
                 mLdapConnFactory.returnConn(conn);
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.warn("Unable to return LDAP connection: " + e.getMessage(), e);
             }
         }
 
@@ -167,7 +169,7 @@ public class LDAPSecurityDomainSessionTable
             try {
                 mLdapConnFactory.returnConn(conn);
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.warn("Unable to return LDAP connection: " + e.getMessage(), e);
             }
         }
 
@@ -176,7 +178,7 @@ public class LDAPSecurityDomainSessionTable
 
     public Enumeration<String> getSessionIDs() throws Exception {
 
-        CMS.debug("LDAPSecurityDomainSessionTable: getSessionIds() ");
+        logger.debug("LDAPSecurityDomainSessionTable: getSessionIds() ");
 
         IConfigStore cs = CMS.getConfigStore();
         LDAPConnection conn = null;
@@ -188,7 +190,7 @@ public class LDAPSecurityDomainSessionTable
             String filter = "(objectclass=securityDomainSessionEntry)";
             String[] attrs = { "cn" };
 
-            CMS.debug("LDAPSecurityDomainSessionTable: searching " + sessionsdn);
+            logger.debug("LDAPSecurityDomainSessionTable: searching " + sessionsdn);
 
             conn = mLdapConnFactory.getConn();
             LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB, filter, attrs, false);
@@ -196,7 +198,7 @@ public class LDAPSecurityDomainSessionTable
                 LDAPEntry entry = res.next();
                 LDAPAttribute sid = entry.getAttribute("cn");
                 if (sid == null) {
-                    CMS.debug("LDAPSecurityDomainSessionTable: Missing session ID: " + entry.getDN());
+                    logger.error("LDAPSecurityDomainSessionTable: Missing session ID: " + entry.getDN());
                     throw new Exception("Missing session ID: " + entry.getDN());
                 }
                 ret.add(sid.getStringValueArray()[0]);
@@ -205,10 +207,10 @@ public class LDAPSecurityDomainSessionTable
         } catch (LDAPException e) {
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
-                CMS.debug("SecurityDomainSessionTable: No active sessions.");
+                logger.warn("SecurityDomainSessionTable: No active sessions.");
                 break;
             default:
-                CMS.debug("SecurityDomainSessionTable: RC: " + e.getLDAPResultCode());
+                logger.error("SecurityDomainSessionTable: RC: " + e.getLDAPResultCode());
                 throw e;
             }
 
@@ -216,7 +218,7 @@ public class LDAPSecurityDomainSessionTable
             try {
                 mLdapConnFactory.returnConn(conn);
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.warn("Unable to return LDAP connection: " + e.getMessage(), e);
             }
         }
 
@@ -248,7 +250,7 @@ public class LDAPSecurityDomainSessionTable
             try {
                 mLdapConnFactory.returnConn(conn);
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.warn("Unable to return LDAP connection: " + e.getMessage(), e);
             }
         }
 
@@ -298,7 +300,7 @@ public class LDAPSecurityDomainSessionTable
             try {
                 mLdapConnFactory.returnConn(conn);
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.warn("Unable to return LDAP connection: " + e.getMessage(), e);
             }
         }
 
@@ -310,7 +312,7 @@ public class LDAPSecurityDomainSessionTable
         try {
             mLdapConnFactory.reset();
         } catch (ELdapException e) {
-            CMS.debug(e);
+            logger.warn("Unable to reset connection factory");
         }
     }
 }
