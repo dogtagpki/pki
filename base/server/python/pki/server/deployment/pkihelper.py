@@ -1018,11 +1018,6 @@ class Instance:
     def verify_subsystem_does_not_exist(self):
         try:
             if os.path.exists(self.mdict['pki_subsystem_path']):
-                config.pki_log.error(
-                    log.PKI_SUBSYSTEM_ALREADY_EXISTS_2,
-                    self.mdict['pki_subsystem'],
-                    self.mdict['pki_instance_name'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
                 raise Exception(
                     log.PKI_SUBSYSTEM_ALREADY_EXISTS_2 % (
                         self.mdict['pki_subsystem'],
