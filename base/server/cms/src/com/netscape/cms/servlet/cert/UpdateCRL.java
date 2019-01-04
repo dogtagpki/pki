@@ -344,8 +344,7 @@ public class UpdateCRL extends CMSServlet {
         if (clearCache != null && clearCache.equals("true") &&
                 crlIssuingPoint.isCRLGenerationEnabled() &&
                 crlIssuingPoint.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_UPDATE_DONE &&
-                crlIssuingPoint.isCRLIssuingPointInitialized()
-                            == ICRLIssuingPoint.CRL_IP_INITIALIZED) {
+                crlIssuingPoint.isCRLIssuingPointInitialized()) {
 
             CMS.debug("UpdateCRL: clearing CRL cache");
             crlIssuingPoint.clearCRLCache();
@@ -354,10 +353,9 @@ public class UpdateCRL extends CMSServlet {
         if (!(waitForUpdate != null && waitForUpdate.equals("true") &&
                 crlIssuingPoint.isCRLGenerationEnabled() &&
                 crlIssuingPoint.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_UPDATE_DONE &&
-                crlIssuingPoint.isCRLIssuingPointInitialized()
-                            == ICRLIssuingPoint.CRL_IP_INITIALIZED)) {
+                crlIssuingPoint.isCRLIssuingPointInitialized())) {
 
-            if (crlIssuingPoint.isCRLIssuingPointInitialized() != ICRLIssuingPoint.CRL_IP_INITIALIZED) {
+            if (!crlIssuingPoint.isCRLIssuingPointInitialized()) {
 
                 CMS.debug("UpdateCRL: CRL issuing point not initialized");
                 header.addStringValue("crlUpdate", "notInitialized");

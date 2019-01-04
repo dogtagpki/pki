@@ -326,7 +326,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * whether issuing point has been initialized.
      */
-    private int mInitialized = CRL_IP_NOT_INITIALIZED;
+    private CRLIssuingPointStatus mInitialized =
+        CRLIssuingPointStatus.NotInitialized;
 
     /**
      * number of entries in the CRL
@@ -403,8 +404,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return mCMSCRLExtensions;
     }
 
-    public int isCRLIssuingPointInitialized() {
-        return mInitialized;
+    public boolean isCRLIssuingPointInitialized() {
+        return mInitialized == CRLIssuingPointStatus.Initialized;
     }
 
     public boolean isManualUpdateSet() {
@@ -804,7 +805,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             crlRecord = mCRLRepository.readCRLIssuingPointRecord(mId);
         } catch (EDBNotAvailException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_INST_CRL", e.toString()));
-            mInitialized = CRL_IP_INITIALIZATION_FAILED;
+            mInitialized = CRLIssuingPointStatus.InitializationFailed;
             return;
         } catch (EBaseException e) {
             // CRL was never set.
@@ -873,7 +874,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         } catch (OutOfMemoryError e) {
                             clearCRLCache();
                             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_DECODE_CRL", e.toString()));
-                            mInitialized = CRL_IP_INITIALIZATION_FAILED;
+                            mInitialized = CRLIssuingPointStatus.InitializationFailed;
                             return;
                         }
                     }
@@ -903,7 +904,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             } else {
                                 mCRLCacheIsCleared = false;
                             }
-                            mInitialized = CRL_IP_INITIALIZED;
+                            mInitialized = CRLIssuingPointStatus.Initialized;
                         }
                         if (mPublishOnStart) {
                             try {
@@ -968,17 +969,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     if ((mDoManualUpdate == false) &&
                             (mEnableCRLCache || mAlwaysUpdate ||
                             (mEnableUpdateFreq && mAutoUpdateInterval > 0))) {
-                        mInitialized = CRL_IP_INITIALIZED;
+                        mInitialized = CRLIssuingPointStatus.Initialized;
                         setManualUpdate(null);
                     }
                 }
             } catch (EBaseException ex) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_CREATE_CRL", ex.toString()));
-                mInitialized = CRL_IP_INITIALIZATION_FAILED;
+                mInitialized = CRLIssuingPointStatus.InitializationFailed;
                 return;
             }
         }
-        mInitialized = CRL_IP_INITIALIZED;
+        mInitialized = CRLIssuingPointStatus.Initialized;
     }
 
     private Object configMonitor = new Object();
@@ -1494,7 +1495,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 ((mEnableDailyUpdates && mDailyUpdates != null &&
                         mTimeListSize > 0) ||
                         (mEnableUpdateFreq && mAutoUpdateInterval > 0) ||
-                        (mInitialized == CRL_IP_NOT_INITIALIZED) ||
+                        (mInitialized == CRLIssuingPointStatus.NotInitialized) ||
                         mDoLastAutoUpdate || mDoManualUpdate)))) {
             mUpdateThread = new Thread(this, "CRLIssuingPoint-" + mId);
             log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_ISSUING_START_CRL", mId));
@@ -1502,7 +1503,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mUpdateThread.start();
         }
 
-        if ((mInitialized == CRL_IP_INITIALIZED) && (((mNextUpdate != null) ^
+        if (isCRLIssuingPointInitialized() && (((mNextUpdate != null) ^
                 ((mEnableDailyUpdates && mDailyUpdates != null && mTimeListSize > 0) ||
                 (mEnableUpdateFreq && mAutoUpdateInterval > 0))) ||
                 (!mEnableCRLUpdates && mNextUpdate != null))) {
@@ -1773,7 +1774,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         try {
             while (mEnable && ((mEnableCRLCache && mCacheUpdateInterval > 0) ||
-                    (mInitialized == CRL_IP_NOT_INITIALIZED) ||
+                    (mInitialized == CRLIssuingPointStatus.NotInitialized) ||
                     mDoLastAutoUpdate || (mEnableCRLUpdates &&
                     ((mEnableDailyUpdates && mDailyUpdates != null &&
                             mTimeListSize > 0) ||
@@ -1789,7 +1790,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             mTimeListSize > 0) ||
                             (mEnableUpdateFreq && mAutoUpdateInterval > 0));
 
-                    if (mInitialized == CRL_IP_NOT_INITIALIZED)
+                    if (mInitialized == CRLIssuingPointStatus.NotInitialized)
                         initCRL();
 
                     if ((mEnableCRLUpdates && mDoManualUpdate) || mDoLastAutoUpdate) {
