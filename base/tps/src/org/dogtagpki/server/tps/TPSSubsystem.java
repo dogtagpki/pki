@@ -126,8 +126,8 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
         FileConfigStore defaultConfig = new FileConfigStore("/usr/share/pki/tps/conf/CS.cfg");
 
-        uiTransitions = loadAndValidateTokenStateTransitions(
-                defaultConfig, cs, TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS);
+        uiTransitions = loadTokenStateTransitions(
+                cs, TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS);
 
         operationTransitions = loadAndValidateTokenStateTransitions(
                 defaultConfig, cs, TPSEngine.CFG_OPERATIONS_ALLOWED_TRANSITIONS);
