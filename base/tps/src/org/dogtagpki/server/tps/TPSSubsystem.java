@@ -141,8 +141,8 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
             throw new EBaseException("Unable to load default TPS configuration: " + e.getMessage(), e);
         }
 
-        uiTransitions = loadAndValidateTokenStateTransitions(
-                defaultConfig, cs, TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS);
+        uiTransitions = loadTokenStateTransitions(
+                cs, TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS);
 
         operationTransitions = loadAndValidateTokenStateTransitions(
                 defaultConfig, cs, TPSEngine.CFG_OPERATIONS_ALLOWED_TRANSITIONS);
