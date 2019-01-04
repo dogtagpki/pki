@@ -922,15 +922,11 @@ def print_final_install_information(mdict):
 
 def log_error_details():
     e_type, e_value, e_stacktrace = sys.exc_info()
-    config.pki_log.debug(
-        "Error Type: %s", e_type.__name__, extra=config.PKI_INDENTATION_LEVEL_2)
-    config.pki_log.debug(
-        "Error Message: %s", e_value, extra=config.PKI_INDENTATION_LEVEL_2)
     stacktrace_list = traceback.format_list(traceback.extract_tb(e_stacktrace))
-    e_stacktrace = ""
+    e_stacktrace = "%s: %s\n" % (e_type.__name__, e_value)
     for l in stacktrace_list:
         e_stacktrace += l
-    config.pki_log.debug(e_stacktrace, extra=config.PKI_INDENTATION_LEVEL_2)
+    config.pki_log.error(e_stacktrace, extra=config.PKI_INDENTATION_LEVEL_0)
     del e_type, e_value, e_stacktrace
 
 
