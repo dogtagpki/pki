@@ -2341,58 +2341,45 @@ class Certutil:
             if path:
                 command.extend(["-d", path])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_PATH,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_PATH)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PATH)
             if password_file is not None:
                 command.extend(["-f", password_file])
             if prefix is not None:
                 command.extend(["-P", prefix])
             if not os.path.exists(path):
-                config.pki_log.error(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path)
                 raise Exception(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % path)
             if os.path.exists(cert_db) or\
                os.path.exists(key_db) or\
                os.path.exists(secmod_db):
                 # Simply notify user that the security databases exist
-                config.pki_log.info(
+                logger.info(
                     log.PKI_SECURITY_DATABASES_ALREADY_EXIST_3,
                     cert_db,
                     key_db,
-                    secmod_db,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    secmod_db)
             else:
                 if password_file is not None:
                     if not os.path.exists(password_file) or\
                        not os.path.isfile(password_file):
-                        config.pki_log.error(
+                        logger.error(
                             log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                            password_file,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                            password_file)
                         raise Exception(
                             log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
                             password_file)
                 # Display this "certutil" command
-                config.pki_log.info(
-                    log.PKIHELPER_CREATE_SECURITY_DATABASES_1,
-                    ' '.join(command),
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.info('Command: %s', ' '.join(command))
                 # Execute this "certutil" command
                 subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -2407,9 +2394,7 @@ class Certutil:
             if path:
                 command.extend(["-d", path])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_PATH,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_PATH)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PATH)
             #   Specify the 'token'
             if token:
@@ -2418,32 +2403,23 @@ class Certutil:
             if nickname:
                 command.extend(["-n", nickname])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_NICKNAME,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
             #   OPTIONALLY specify a password file
             if password_file is not None:
                 command.extend(["-f", password_file])
             if not os.path.exists(path):
-                config.pki_log.error(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path)
                 raise Exception(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % path)
             if password_file is not None:
                 if not os.path.exists(password_file) or\
                    not os.path.isfile(password_file):
-                    config.pki_log.error(
-                        log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                        password_file,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, password_file)
                     raise Exception(
                         log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
             # Display this "certutil" command
-            config.pki_log.info(
-                log.PKIHELPER_CERTUTIL_SELF_SIGNED_CERTIFICATE_1,
-                ' '.join(command), extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info('Command: %s', ' '.join(command))
             # Execute this "certutil" command
             if silent:
                 # By default, execute this command silently
@@ -2454,9 +2430,7 @@ class Certutil:
         except subprocess.CalledProcessError:
             return False
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return True
@@ -2474,9 +2448,7 @@ class Certutil:
             if path:
                 command.extend(["-d", path])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_PATH,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_PATH)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PATH)
 
             #   Specify the 'token'
@@ -2487,17 +2459,13 @@ class Certutil:
             if nickname:
                 command.extend(["-n", nickname])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_NICKNAME,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
             #   Specify the subject name (RFC1485)
             if subject:
                 command.extend(["-s", subject])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_SUBJECT,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_SUBJECT)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_SUBJECT)
             #   Specify the key type
             if key_type:
@@ -2507,9 +2475,7 @@ class Certutil:
                     if key_size:
                         command.extend(["-q", key_size])
                     else:
-                        config.pki_log.error(
-                            log.PKIHELPER_CERTUTIL_MISSING_CURVE_NAME,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        logger.error(log.PKIHELPER_CERTUTIL_MISSING_CURVE_NAME)
                         raise Exception(
                             log.PKIHELPER_CERTUTIL_MISSING_CURVE_NAME)
                 else:
@@ -2518,55 +2484,41 @@ class Certutil:
                     if key_size:
                         command.extend(["-g", key_size])
                     else:
-                        config.pki_log.error(
-                            log.PKIHELPER_CERTUTIL_MISSING_KEY_SIZE,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        logger.error(log.PKIHELPER_CERTUTIL_MISSING_KEY_SIZE)
                         raise Exception(
                             log.PKIHELPER_CERTUTIL_MISSING_KEY_SIZE)
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_KEY_TYPE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_KEY_TYPE)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_KEY_TYPE)
             #   Specify the serial number
             if serial_number is not None:
                 command.extend(["-m", str(serial_number)])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_SERIAL_NUMBER,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_SERIAL_NUMBER)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_SERIAL_NUMBER)
             #   Specify the months valid
             if validity_period is not None:
                 command.extend(["-v", str(validity_period)])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_VALIDITY_PERIOD,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_VALIDITY_PERIOD)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_VALIDITY_PERIOD)
             #   Specify the nickname of the issuer certificate
             if issuer_name:
                 command.extend(["-c", issuer_name])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME)
             #   Specify the certificate trust attributes
             if trustargs:
                 command.extend(["-t", trustargs])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS)
             #   Specify a noise file to be used for key generation
             if noise_file:
                 command.extend(["-z", noise_file])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_NOISE_FILE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_NOISE_FILE)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_NOISE_FILE)
             #   OPTIONALLY specify a password file
             if password_file is not None:
@@ -2574,44 +2526,35 @@ class Certutil:
             #   ALWAYS self-sign this certificate
             command.append("-x")
             # Display this "certutil" command
-            config.pki_log.info(
-                log.PKIHELPER_CERTUTIL_SELF_SIGNED_CERTIFICATE_1,
-                ' '.join(command), extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info('Command: %s', ' '.join(command))
             if not os.path.exists(path):
-                config.pki_log.error(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path)
                 raise Exception(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % path)
             if not os.path.exists(noise_file):
-                config.pki_log.error(
+                logger.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                    noise_file,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    noise_file)
                 raise Exception(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % noise_file)
             if password_file is not None:
                 if not os.path.exists(password_file) or\
                    not os.path.isfile(password_file):
-                    config.pki_log.error(
+                    logger.error(
                         log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                        password_file,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                        password_file)
                     raise Exception(
                         log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
             # Execute this "certutil" command
             subprocess.check_output(command, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
+            logger.error(
                 log.PKI_SUBPROCESS_ERROR_2, exc,
-                "Output (incl. stderr):\n" + exc.output.decode('utf-8'),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                "Output (incl. stderr):\n" + exc.output.decode('utf-8'))
             if critical_failure:
                 raise
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -2629,49 +2572,35 @@ class Certutil:
             if nickname:
                 command.extend(["-n", nickname])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_NICKNAME,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
 
             if trust:
                 command.extend(["-t", trust])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS)
 
             if input_file:
                 command.extend(["-i", input_file])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_INPUT_FILE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_INPUT_FILE)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_INPUT_FILE)
 
             if password_file:
                 command.extend(["-f", password_file])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE)
 
-            config.pki_log.info(
-                ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info('Command: %s', ' '.join(command))
             subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -2694,9 +2623,7 @@ class Certutil:
             if subject:
                 command.extend(["-s", subject])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_SUBJECT,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_SUBJECT)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_SUBJECT)
 
             if key_type:
@@ -2708,16 +2635,13 @@ class Certutil:
                 elif key_type == "rsa":
                     command.extend(["-k", str(key_type)])
                 else:
-                    config.pki_log.error(
+                    logger.error(
                         log.PKIHELPER_CERTUTIL_INVALID_KEY_TYPE_1,
-                        key_type,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                        key_type)
                     raise Exception(
                         log.PKIHELPER_CERTUTIL_INVALID_KEY_TYPE_1 % key_type)
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_KEY_TYPE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_KEY_TYPE)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_KEY_TYPE)
 
             if key_size:
@@ -2730,17 +2654,13 @@ class Certutil:
             if noise_file:
                 command.extend(["-z", noise_file])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_NOISE_FILE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_NOISE_FILE)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_NOISE_FILE)
 
             if password_file:
                 command.extend(["-f", password_file])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE)
 
             if output_file:
@@ -2751,37 +2671,29 @@ class Certutil:
                 command.append("-a")
 
             # Display this "certutil" command
-            config.pki_log.info(
-                log.PKIHELPER_CERTUTIL_GENERATE_CSR_1, ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info('Command: %s', ' '.join(command))
             if not os.path.exists(noise_file):
-                config.pki_log.error(
+                logger.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                    noise_file,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    noise_file)
                 raise Exception(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % noise_file)
             if not os.path.exists(password_file) or\
                not os.path.isfile(password_file):
-                config.pki_log.error(
+                logger.error(
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                    password_file,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    password_file)
                 raise Exception(
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
             # Execute this "certutil" command
             with open(os.devnull, "w") as fnull:
                 subprocess.check_call(command, stdout=fnull, stderr=fnull)
         except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
