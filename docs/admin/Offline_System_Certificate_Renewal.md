@@ -75,9 +75,9 @@ For all available options, you can type:
 
 It is recommended to run the following steps to ensure that `CS.cfg` and NSS database are synchronized and that the server can operate without any issues.
 
-1. Disable self tests using the built-in tool:
+1. Disable self tests using the following command:
     ````
-    # pki-server selftest-disable -i <instance_name>
+    # pki-server selftest-disable
     ````
 
 2. Synchronize NSS database and CS.cfg for all system certificates that are to be renewed
@@ -127,7 +127,7 @@ It is recommended to run the following steps to ensure that `CS.cfg` and NSS dat
     # systemctl stop pki-tomcatd@pki-tomcat
     ````
 
-3. Delete the existing NSS db certs
+3. Delete the existing NSS database certs
     ````
     # pki-server cert-del <cert ID>
     ````
@@ -152,7 +152,7 @@ It is recommended to run the following steps to ensure that `CS.cfg` and NSS dat
     ca_ocsp_signing                                              u,u,u
     ca_audit_signing                                             u,u,Pu
     ````
-5. Enable the self test using the built-in tool available:
+5. Enable the self test using the following command:
     ````
     # pki-server selftest-enable
     ````
