@@ -28,6 +28,7 @@ except ImportError:
     import ConfigParser as configparser
 
 import errno
+import logging
 import sys
 import os
 import fileinput
@@ -71,6 +72,10 @@ RETRYABLE_EXCEPTIONS = (
     requests.exceptions.ConnectionError,  # connection failed
     requests.exceptions.Timeout,  # connection or read time out
 )
+
+logger = logging.LoggerAdapter(
+    logging.getLogger('pkihelper'),
+    extra={'indent': ''})
 
 
 class Identity:

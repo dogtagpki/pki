@@ -69,20 +69,15 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
                                     '%Y-%m-%d %H:%M:%S')
     log_file.setFormatter(file_format)
 
-    # Configure pki logger
-    logger = logging.getLogger('pki')
-    logger.setLevel(log_level)
-    logger.addHandler(console)
-    logger.addHandler(log_file)
-
     # Configure pkispawn/pkidestroy logger
     config.pki_log = logging.getLogger(name)
     config.pki_log.setLevel(log_level)
     config.pki_log.addHandler(console)
     config.pki_log.addHandler(log_file)
 
-    # Configure scriptlet loggers
-    scriptlets = [
+    # Configure loggers
+    modules = [
+        'pki',
         'initialization',
         'infrastructure',
         'instance'
@@ -92,11 +87,12 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
         'selinux',
         'keygen',
         'configuration',
-        'finalization'
+        'finalization',
+        'pkihelper'
     ]
 
-    for scriptlet in scriptlets:
-        logger = logging.getLogger(scriptlet)
+    for module in modules:
+        logger = logging.getLogger(module)
         logger.setLevel(log_level)
         logger.addHandler(console)
         logger.addHandler(log_file)
