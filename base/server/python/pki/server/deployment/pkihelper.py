@@ -2238,9 +2238,7 @@ class FIPS:
 
             # Check if /proc/sys/crypto/fips_enabled exists
             if not os.path.exists("/proc/sys/crypto/fips_enabled"):
-                config.pki_log.info(
-                    log.PKIHELPER_FIPS_MODE_IS_NOT_ENABLED,
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+                logger.info(log.PKIHELPER_FIPS_MODE_IS_NOT_ENABLED)
                 return False
 
             # Check to see if FIPS is enabled on this system
@@ -2253,25 +2251,17 @@ class FIPS:
                 if output != "0":
                     # Set FIPS mode as enabled
                     self.mdict['pki_fips_mode_enabled'] = True
-                    config.pki_log.info(
-                        log.PKIHELPER_FIPS_MODE_IS_ENABLED,
-                        extra=config.PKI_INDENTATION_LEVEL_3)
+                    logger.info(log.PKIHELPER_FIPS_MODE_IS_ENABLED)
                     return True
                 else:
-                    config.pki_log.info(
-                        log.PKIHELPER_FIPS_MODE_IS_NOT_ENABLED,
-                        extra=config.PKI_INDENTATION_LEVEL_3)
+                    logger.info(log.PKIHELPER_FIPS_MODE_IS_NOT_ENABLED)
                     return False
         except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return False
