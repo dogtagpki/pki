@@ -2835,47 +2835,33 @@ class PK12util:
             if out_file:
                 command.extend(["-o", out_file])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_PK12UTIL_MISSING_OUTFILE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_PK12UTIL_MISSING_OUTFILE)
                 raise Exception(log.PKIHELPER_PK12UTIL_MISSING_OUTFILE)
             if nickname:
                 command.extend(["-n", nickname])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_PK12UTIL_MISSING_NICKNAME,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_PK12UTIL_MISSING_NICKNAME)
                 raise Exception(log.PKIHELPER_PK12UTIL_MISSING_NICKNAME)
             if out_pwfile:
                 command.extend(["-w", out_pwfile])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_PK12UTIL_MISSING_PWFILE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_PK12UTIL_MISSING_PWFILE)
                 raise Exception(log.PKIHELPER_PK12UTIL_MISSING_PWFILE)
             if db_pwfile:
                 command.extend(["-k", db_pwfile])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_PK12UTIL_MISSING_DBPWFILE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_PK12UTIL_MISSING_DBPWFILE)
                 raise Exception(log.PKIHELPER_PK12UTIL_MISSING_DBPWFILE)
 
-            config.pki_log.info(
-                ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info('Command: %s', ' '.join(command))
             with open(os.devnull, "w") as fnull:
                 subprocess.check_call(command, stdout=fnull, stderr=fnull)
         except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
