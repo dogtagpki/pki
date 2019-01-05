@@ -3529,15 +3529,11 @@ class Systemd(object):
             # Compose this "systemd" execution management lifecycle command
             command = ["systemctl", "daemon-reload"]
             # Display this "systemd" execution management lifecycle command
-            config.pki_log.debug(
-                'Command: %s', ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_0)
+            logger.debug('Command: %s', ' '.join(command))
             # Execute this "systemd" execution management lifecycle command
             subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -3575,15 +3571,11 @@ class Systemd(object):
                 command = ["systemctl", "disable", self.service_name]
 
             # Display this "systemd" execution managment command
-            config.pki_log.info(
-                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info('Command: %s', ' '.join(command))
             # Execute this "systemd" execution management command
             subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -3621,18 +3613,14 @@ class Systemd(object):
                 command = ["systemctl", "enable", self.service_name]
 
             # Display this "systemd" execution managment command
-            config.pki_log.info(
-                log.PKIHELPER_SYSTEMD_COMMAND_1, ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info('Command: %s', ' '.join(command))
             # Execute this "systemd" execution management command
             subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
             if pki.system.SYSTEM_TYPE == "debian":
                 if exc.returncode == 6:
                     return
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -3663,9 +3651,7 @@ class Systemd(object):
 
         """
 
-        config.pki_log.info(
-            'Starting %s instance', self.mdict['pki_instance_name'],
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Starting %s instance', self.mdict['pki_instance_name'])
 
         try:
             # Execute the "systemd daemon-reload" management lifecycle command
@@ -3679,9 +3665,7 @@ class Systemd(object):
                 command = ["systemctl", "start", self.service_name]
 
             # Display this "systemd" execution managment command
-            config.pki_log.debug(
-                'Command: %s', ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_0)
+            logger.debug('Command: %s', ' '.join(command))
 
             # Execute this "systemd" execution management command
             subprocess.check_call(command)
@@ -3690,9 +3674,7 @@ class Systemd(object):
             if pki.system.SYSTEM_TYPE == "debian":
                 if exc.returncode == 6:
                     return
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -3719,9 +3701,7 @@ class Systemd(object):
 
         """
 
-        config.pki_log.info(
-            'Stopping %s instance', self.mdict['pki_instance_name'],
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Stopping %s instance', self.mdict['pki_instance_name'])
 
         try:
             if pki.system.SYSTEM_TYPE == "debian":
@@ -3731,17 +3711,13 @@ class Systemd(object):
                 command = ["systemctl", "stop", self.service_name]
 
             # Display this "systemd" execution managment command
-            config.pki_log.debug(
-                'Command: %s', ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_0)
+            logger.debug('Command: %s', ' '.join(command))
 
             # Execute this "systemd" execution management command
             subprocess.check_call(command)
 
         except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -3772,9 +3748,7 @@ class Systemd(object):
 
         """
 
-        config.pki_log.info(
-            'Restarting %s instance', self.mdict['pki_instance_name'],
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Restarting %s instance', self.mdict['pki_instance_name'])
 
         try:
             # Compose this "systemd" execution management command
@@ -3789,7 +3763,7 @@ class Systemd(object):
                 command = ["systemctl", "restart", self.service_name]
 
             # Display this "systemd" execution managment command
-            config.pki_log.debug(
+            logger.debug(
                 'Command: %s', ' '.join(command),
                 extra=config.PKI_INDENTATION_LEVEL_0)
 
@@ -3800,9 +3774,7 @@ class Systemd(object):
             if pki.system.SYSTEM_TYPE == "debian":
                 if exc.returncode == 6:
                     return
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         return
