@@ -39,7 +39,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Skipping subsystem creation')
             return
 
-        logger.info('Creating subsystem')
+        logger.info('Creating %s subsystem', deployer.mdict['pki_subsystem'])
 
         # establish instance-based subsystem logs
         deployer.directory.create(deployer.mdict['pki_subsystem_log_path'])
@@ -49,6 +49,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_subsystem_signed_audit_log_path'])
 
         # create /var/lib/pki/<instance>/<subsystem>/conf
+        logger.info('Creating %s', deployer.mdict['pki_subsystem_configuration_path'])
         deployer.directory.create(
             deployer.mdict['pki_subsystem_configuration_path'])
 
@@ -57,6 +58,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         #   deployer.mdict['pki_subsystem_configuration_path'])
 
         # create /var/lib/pki/<instance>/<subsystem>/conf/CS.cfg
+        logger.info('Creating %s', deployer.mdict['pki_target_cs_cfg'])
         deployer.file.copy_with_slot_substitution(
             deployer.mdict['pki_source_cs_cfg'],
             deployer.mdict['pki_target_cs_cfg'])
@@ -65,19 +67,28 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # establish instance-based Tomcat PKI subsystem base
         if deployer.mdict['pki_subsystem'] == "CA":
+
+            logger.info('Creating %s', deployer.mdict['pki_subsystem_emails_path'])
             deployer.directory.copy(
                 deployer.mdict['pki_source_emails'],
                 deployer.mdict['pki_subsystem_emails_path'])
+
+            logger.info('Creating %s', deployer.mdict['pki_subsystem_profiles_path'])
             deployer.directory.copy(
                 deployer.mdict['pki_source_profiles'],
                 deployer.mdict['pki_subsystem_profiles_path'])
+
+            logger.info('Creating %s', deployer.mdict['pki_target_flatfile_txt'])
             deployer.file.copy(
                 deployer.mdict['pki_source_flatfile_txt'],
                 deployer.mdict['pki_target_flatfile_txt'])
+
+            logger.info('Creating %s', deployer.mdict['pki_target_registry_cfg'])
             deployer.file.copy(
                 deployer.mdict['pki_source_registry_cfg'],
                 deployer.mdict['pki_target_registry_cfg'])
-            # '*.profile'
+
+            logger.info('Creating bootstrap profiles')
             deployer.file.copy(
                 deployer.mdict['pki_source_admincert_profile'],
                 deployer.mdict['pki_target_admincert_profile'])
@@ -124,7 +135,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
-        logger.info('Removing subsystem')
+        logger.info('Removing %s subsystem', deployer.mdict['pki_subsystem'])
 
         # remove instance-based subsystem base
         if deployer.mdict['pki_subsystem'] == "CA":
