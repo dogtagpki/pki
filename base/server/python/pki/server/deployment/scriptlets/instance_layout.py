@@ -42,15 +42,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Skipping instance creation')
             return
 
-        logger.info('Creating instance')
-
         # if this is not the first subsystem, skip
         if len(deployer.instance.tomcat_instance_subsystems()) != 1:
+            logger.info('Installing %s instance', deployer.mdict['pki_instance_name'])
             return
+
+        logger.info('Creating new %s instance', deployer.mdict['pki_instance_name'])
 
         # establish instance logs
         deployer.directory.create(deployer.mdict['pki_instance_log_path'])
 
+        logger.info('Creating %s', deployer.mdict['pki_instance_configuration_path'])
         # copy /usr/share/pki/server/conf tree into
         # /var/lib/pki/<instance>/conf
         # except common ldif files and theme deployment descriptor
@@ -59,6 +61,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_instance_configuration_path'],
             ignore_cb=file_ignore_callback_src_server)
 
+        logger.info('Creating %s', deployer.mdict['pki_target_server_xml'])
         # Copy /usr/share/pki/server/conf/server.xml
         # to /etc/pki/<instance>/server.xml.
         deployer.file.copy_with_slot_substitution(
@@ -108,19 +111,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             os.path.join(deployer.mdict['pki_instance_configuration_path'],
                          "web.xml"))
 
+        logger.info('Creating %s', deployer.mdict['pki_target_tomcat_conf_instance_id'])
         # create /etc/sysconfig/<instance>
         deployer.file.copy_with_slot_substitution(
             deployer.mdict['pki_source_tomcat_conf'],
             deployer.mdict['pki_target_tomcat_conf_instance_id'],
             uid=0, gid=0, overwrite_flag=True)
 
+        logger.info('Creating %s', deployer.mdict['pki_target_tomcat_conf'])
         # create /var/lib/pki/<instance>/conf/tomcat.conf
         deployer.file.copy_with_slot_substitution(
             deployer.mdict['pki_source_tomcat_conf'],
             deployer.mdict['pki_target_tomcat_conf'],
             overwrite_flag=True)
 
-        # Deploy ROOT web application
+        logger.info('Deploying ROOT web application')
         deployer.deploy_webapp(
             "ROOT",
             os.path.join(
@@ -134,6 +139,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 "localhost",
                 "ROOT.xml"))
 
+        logger.info('Deploying /pki web application')
         # Deploy pki web application which includes themes,
         # admin templates, and JS libraries
         deployer.deploy_webapp(
@@ -149,6 +155,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 "localhost",
                 "pki.xml"))
 
+        logger.info('Creating %s', deployer.mdict['pki_instance_lib'])
         # Create Tomcat instance library
         deployer.directory.create(deployer.mdict['pki_instance_lib'])
         for name in os.listdir(deployer.mdict['pki_tomcat_lib_path']):
@@ -192,6 +199,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_tomcat_bin_path'],
             deployer.mdict['pki_tomcat_bin_link'])
 
+        logger.info('Creating %s', deployer.mdict['pki_instance_systemd_link'])
         # create systemd links
         deployer.symlink.create(
             deployer.mdict['pki_tomcat_systemd'],
@@ -233,7 +241,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
-        logger.info('Removing instance')
+        logger.info('Removing %s instance', deployer.mdict['pki_instance_name'])
 
         # if this is not the last subsystem, skip
         if len(deployer.instance.tomcat_instance_subsystems()) != 0:
