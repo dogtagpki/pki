@@ -375,6 +375,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if (!enable && mEnable) {
             clearCRLCache();
             updateCRLCacheRepository();
+        } else if (enable && !mEnable) {
+            // Mark the CRLIP as NotInitialized so that the CRL
+            // entry will be read afresh when it is reinitialised.
+            // This ensures monotonicity of the CRL number, if some
+            // other clone was issuing CRLs in the meantime.
+            //
+            // See also:
+            //   https://pagure.io/dogtagpki/issue/3085
+            //   https://pagure.io/freeipa/issue/7815
+            //
+            mInitialized = CRLIssuingPointStatus.NotInitialized;
         }
         mEnable = enable;
         setAutoUpdates();
