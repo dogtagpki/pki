@@ -38,7 +38,6 @@ default_error=0
 
 if [ -f /etc/debian_version ]; then
     debian=true
-    . /lib/lsb/init-functions
     SYSCONFIG_PKI=/etc/dogtag
 else
     debian=false
@@ -49,13 +48,6 @@ case $command in
     start)
         # 1 generic or unspecified error (current practice)
         default_error=1
-        ;;
-    stop|restart)
-        if $debian; then
-            default_error=1
-        else
-            default_error=2
-        fi
         ;;
     status)
         # 4 program or service status is unknown
@@ -137,9 +129,6 @@ usage()
 {
     echo -n "Usage: /usr/bin/pkidaemon "
     echo -n "{start"
-    if $debian; then
-        echo -n "|stop|restart"
-    fi
     echo -n "|status} "
     echo -n "[instance-name]"
     echo
@@ -730,23 +719,6 @@ display_instance_status_systemd()
     return $rv
 }
 
-display_instance_status_debian()
-{
-    set_debian_tomcat_parameters
-    start-stop-daemon --status --pidfile "$CATALINA_PID" \
-            --user $TOMCAT_USER --exec "$JAVA_HOME/bin/java" \
-            >/dev/null 2>&1
-    rv=$?
-
-    if [ $rv -eq 0 ] ; then
-        display_configuration_information
-    else
-        echo "Instance $PKI_INSTANCE_NAME is not running."
-    fi
-
-    return $rv
-}
-
 make_symlink()
 {
     symlink="${1}"
@@ -1078,39 +1050,6 @@ verify_symlinks()
     return 0
 }
 
-start_deb_instance()
-{
-    if start-stop-daemon --test --start --pidfile "$CATALINA_PID" \
-        --user $TOMCAT_USER --exec "$JAVA_HOME/bin/java" \
-        >/dev/null; then
-
-        # Remove / recreate JVM_TMP directory
-        rm -rf "$JVM_TMP"
-        mkdir "$JVM_TMP" || {
-            log_failure_msg "could not create JVM temporary directory"
-            exit 1
-        }
-        chown -h $TOMCAT_USER "$JVM_TMP"
-
-        catalina_sh start $SECURITY
-        sleep 5
-
-        if start-stop-daemon --test --start --pidfile "$CATALINA_PID" \
-            --user $TOMCAT_USER --exec "$JAVA_HOME/bin/java" \
-            >/dev/null; then
-            if [ -f "$CATALINA_PID" ]; then
-                rm -f "$CATALINA_PID"
-            fi
-            log_end_msg 1
-        else
-            log_end_msg 0
-        fi
-    else
-        log_progress_msg "(already running)"
-        log_end_msg 0
-    fi
-}
-
 backup_instance_configuration_files()
 {
     declare -a pki_subsystems=('ca'
@@ -1309,10 +1248,6 @@ start_instance()
         return $rv
     fi
 
-    if $debian; then
-        set_debian_tomcat_parameters
-    fi
-
     # Copy pki.policy template
     /bin/cp /usr/share/pki/server/conf/pki.policy /var/lib/pki/$PKI_INSTANCE_NAME/conf
 
@@ -1347,11 +1282,6 @@ EOF
 
     # We no longer start tomcat instances here.
     # instead we rely on the tomcat unit scripts
-
-    # except on Debian
-    if $debian; then
-        start_deb_instance
-    fi
 
     # From the PKI point of view a returned error code of 6 implies
     # that the program is not "configured". An error code of 1 implies
@@ -1395,228 +1325,6 @@ EOF
         return $?
     fi
 }
-
-# function used in debian to find the correct jdk
-# this is used to set OPENJDKS
-find_openjdks()
-{
-    for jvmdir in /usr/lib/jvm/java-7-openjdk-*
-    do
-        if [ -d "${jvmdir}" -a "${jvmdir}" != "/usr/lib/jvm/java-7-openjdk-common" ]
-        then
-            OPENJDKS=$jvmdir
-        fi
-    done
-    for jvmdir in /usr/lib/jvm/java-6-openjdk-*
-    do
-        if [ -d "${jvmdir}" -a "${jvmdir}" != "/usr/lib/jvm/java-6-openjdk-common" ]
-        then
-            OPENJDKS="${OPENJDKS} ${jvmdir}"
-        fi
-    done
-}
-
-# function used by debian to set JAVA_HOME
-# TODO: get JAVA_HOME for Debian from pki.conf
-set_java_home()
-{
-    find_openjdks
-    # The first existing directory is used for JAVA_HOME (if JAVA_HOME is not
-    # defined in $DEFAULT)
-    JDK_DIRS="/usr/lib/jvm/default-java ${OPENJDKS} /usr/lib/jvm/java-6-openjdk /usr/lib/jvm/java-6-sun /usr/lib/jvm/java-7-oracle"
-
-    # Look for the right JVM to use
-    for jdir in $JDK_DIRS; do
-        if [ -r "$jdir/bin/java" -a -z "${JAVA_HOME}" ]; then
-            JAVA_HOME="$jdir"
-        fi
-    done
-
-    export JAVA_HOME
-}
-
-# used to start debian instances
-catalina_sh() {
-    # Escape any double quotes in the value of JAVA_OPTS
-    JAVA_OPTS="$(echo $JAVA_OPTS | sed 's/\"/\\\"/g')"
-
-    AUTHBIND_COMMAND=""
-    if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then
-            JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true"
-            AUTHBIND_COMMAND="/usr/bin/authbind --deep /bin/bash -c "
-    fi
-
-    # Define the command to run Tomcat's catalina.sh as a daemon
-    # set -a tells sh to export assigned variables to spawned shells.
-    TOMCAT_SH="set -a; JAVA_HOME=\"$JAVA_HOME\"; . \"$DEFAULT\"; \
-            CATALINA_HOME=\"$CATALINA_HOME\"; \
-            CATALINA_BASE=\"$CATALINA_BASE\"; \
-            JAVA_OPTS=\"$JAVA_OPTS\"; \
-            CATALINA_PID=\"$CATALINA_PID\"; \
-            CATALINA_TMPDIR=\"$CATALINA_TMPDIR\"; \
-            LANG=\"$LANG\"; JSSE_HOME=\"$JSSE_HOME\"; \
-            cd \"$CATALINA_BASE\"; \
-            \"$CATALINA_SH\" $@"
-
-    if [ "$AUTHBIND" = "yes" -a "$1" = "start" ]; then
-            TOMCAT_SH="'$TOMCAT_SH'"
-    fi
-
-    # Run the catalina.sh script as a daemon
-    if [ ! -f "$CATALINA_BASE"/logs/catalina.out ]; then
-        # run install as pkiuser to work around #841371
-        su $TOMCAT_USER -s /bin/bash -c "install -m 644 /dev/null $CATALINA_BASE/logs/catalina.out"
-    fi
-    install -o $TOMCAT_USER -m 644 /dev/null "$CATALINA_PID"
-    start-stop-daemon --start -b -u "$TOMCAT_USER" -g "$TOMCAT_GROUP" \
-            -c "$TOMCAT_USER" -d "$CATALINA_TMPDIR" -p "$CATALINA_PID" \
-            -x /bin/bash -- -c "$AUTHBIND_COMMAND $TOMCAT_SH"
-    status="$?"
-    set +a
-    return $status
-}
-
-set_debian_tomcat_parameters()
-{
-    set_java_home
-    CATALINA_HOME=/usr/share/tomcat8
-    CATALINA_BASE=/var/lib/pki/${PKI_INSTANCE_NAME}
-    DESC="Tomcat instance for ${PKI_INSTANCE_NAME}"
-
-    if [ -z "$JAVA_OPTS" ]; then
-        JAVA_OPTS="-Djava.awt.headless=true"
-    fi
-
-    # overwrite with settings from the registry file
-    if [ -f /etc/default/${PKI_INSTANCE_NAME} ]; then
-        . /etc/default/${PKI_INSTANCE_NAME}
-    fi
-
-    JVM_TMP=/tmp/tomcat-${PKI_INSTANCE_NAME}-tmp
-    if [ -z "$CATALINA_TMPDIR" ]; then
-        CATALINA_TMPDIR="$JVM_TMP"
-    fi
-
-    # Set the JSP compiler if set in the tomcat8.default file
-    if [ -n "$JSP_COMPILER" ]; then
-        JAVA_OPTS="$JAVA_OPTS -Dbuild.compiler=\"$JSP_COMPILER\""
-    fi
-
-    # Generate catalina.policy dynamically.
-    # for now, do not generate policy here, because we need to figure out
-    # where to get the tomcat policy.
-
-    TOMCAT8_SECURITY=no
-    SECURITY=""
-    if [ "$TOMCAT8_SECURITY" = "True" ]; then
-        SECURITY="-security"
-    fi
-
-    # Define other required variables
-    CATALINA_PID="/var/run/${PKI_INSTANCE_NAME}.pid"
-    CATALINA_SH="$CATALINA_HOME/bin/catalina.sh"
-
-    # Look for Java Secure Sockets Extension (JSSE) JARs
-    if [ -z "${JSSE_HOME}" -a -r "${JAVA_HOME}/jre/lib/jsse.jar" ]; then
-        JSSE_HOME="${JAVA_HOME}/jre/"
-    fi
-}
-
-# used to stop debian instances
-stop_instance()
-{
-    set_debian_tomcat_parameters
-    log_daemon_msg "Stopping $DESC" "${PKI_INSTANCE_NAME}"
-
-    if [ -f "$CATALINA_PID" ]; then
-        start-stop-daemon --stop --pidfile "$CATALINA_PID" \
-                --user "$TOMCAT_USER" \
-                --retry=TERM/20/KILL/5 >/dev/null
-        if [ $? -eq 1 ]; then
-            log_progress_msg "$DESC is not running but pid file exists, cleaning up"
-        elif [ $? -eq 3 ]; then
-            PID="`cat $CATALINA_PID`"
-            log_failure_msg "Failed to stop $PKI_INSTANCE_NAME (pid $PID)"
-            exit 1
-        fi
-        rm -f "$CATALINA_PID"
-        rm -rf "$JVM_TMP"
-    else
-        log_progress_msg "(not running)"
-    fi
-    log_end_msg 0
-}
-
-stop()
-{
-    error_rv=0
-    rv=0
-    errors=0
-
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -eq 0 ]; then
-        echo
-        echo "ERROR:  No '${PKI_TYPE}' instances installed!"
-        # 5 program is not installed
-        return 5
-    fi
-
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
-        echo "BEGIN SHUTTING DOWN '${PKI_TYPE}' INSTANCE(S):"
-    fi
-
-    # Shutdown every PKI instance of this type that is running
-    for PKI_REGISTRY_ENTRY in ${PKI_REGISTRY_ENTRIES}; do
-        # Source values associated with this particular PKI instance
-        [ -f ${PKI_REGISTRY_ENTRY} ] &&
-        . ${PKI_REGISTRY_ENTRY}
-
-        [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] && echo
-
-        stop_instance
-        rv=$?
-        if [ $rv != 0 ] ; then
-            errors=`expr $errors + 1`
-            error_rv=$rv
-        fi
-    done
-
-    # ONLY print a "WARNING" message if multiple
-    # instances are being examined
-    if [ ${TOTAL_PKI_REGISTRY_ENTRIES} -gt 1 ] ; then
-        if [ ${errors} -eq 1 ]; then
-            # Since only ONE error exists, return that "bad" error code.
-            rv=${error_rv}
-        elif [ ${errors} -gt 1 ]; then
-            # Since MORE than ONE error exists, return an OVERALL status
-            # of "1 generic or unspecified error (current practice)"
-            rv=1
-        fi
-
-        if [ ${errors} -ge 1 ]; then
-            echo
-            echo -n "WARNING:  "
-            echo -n "${errors} of ${TOTAL_PKI_REGISTRY_ENTRIES} "
-            echo -n "'${PKI_TYPE}' instances were "
-            echo -n "unsuccessfully stopped!"
-            echo
-        fi
-
-        echo
-        echo "FINISHED SHUTTING DOWN '${PKI_TYPE}' INSTANCE(S)."
-    fi
-
-    return $rv
-}
-
-restart()
-{
-    stop
-    sleep 2
-    start
-
-    return $?
-}
-
 
 start()
 {
@@ -1731,13 +1439,8 @@ registry_status()
 
         case $PKI_WEB_SERVER_TYPE in
             tomcat)
-                if $debian; then
-                    display_instance_status_debian
-                    rv=$?
-                else
-                    display_instance_status_systemd
-                    rv=$?
-                fi
+                display_instance_status_systemd
+                rv=$?
                 ;;
         esac
         if [ $rv -ne 0 ] ; then
