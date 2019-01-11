@@ -3509,9 +3509,6 @@ class Systemd(object):
 
         """
         try:
-            # Un-defined command on Debian systems
-            if pki.system.SYSTEM_TYPE == "debian":
-                return
             # Compose this "systemd" execution management lifecycle command
             command = ["systemctl", "daemon-reload"]
             # Display this "systemd" execution management lifecycle command
@@ -3553,9 +3550,7 @@ class Systemd(object):
 
         """
         try:
-            if not pki.system.SYSTEM_TYPE == "debian":
-                command = ["systemctl", "disable", self.service_name]
-
+            command = ["systemctl", "disable", self.service_name]
             # Display this "systemd" execution managment command
             logger.info('Command: %s', ' '.join(command))
             # Execute this "systemd" execution management command
@@ -3595,17 +3590,12 @@ class Systemd(object):
 
         """
         try:
-            if not pki.system.SYSTEM_TYPE == "debian":
-                command = ["systemctl", "enable", self.service_name]
-
+            command = ["systemctl", "enable", self.service_name]
             # Display this "systemd" execution managment command
             logger.info('Command: %s', ' '.join(command))
             # Execute this "systemd" execution management command
             subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
-            if pki.system.SYSTEM_TYPE == "debian":
-                if exc.returncode == 6:
-                    return
             logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
@@ -3614,9 +3604,7 @@ class Systemd(object):
     def start(self, critical_failure=True, reload_daemon=True):
         """PKI Deployment execution management 'start' method.
 
-           Executes a 'systemd start <service>' system command, or
-           an '/etc/init.d/pki-tomcatd start <instance>' system command.
-           on Debian systems.
+           Executes a 'systemd start <service>' system command.
 
         Args:
           critical_failure (boolean, optional):  Raise exception on failures;
@@ -3644,11 +3632,7 @@ class Systemd(object):
             if reload_daemon:
                 self.daemon_reload(critical_failure)
 
-            if pki.system.SYSTEM_TYPE == "debian":
-                command = ["/etc/init.d/pki-tomcatd", "start",
-                           self.mdict['pki_instance_name']]
-            else:
-                command = ["systemctl", "start", self.service_name]
+            command = ["systemctl", "start", self.service_name]
 
             # Display this "systemd" execution managment command
             logger.debug('Command: %s', ' '.join(command))
@@ -3657,9 +3641,6 @@ class Systemd(object):
             subprocess.check_call(command)
 
         except subprocess.CalledProcessError as exc:
-            if pki.system.SYSTEM_TYPE == "debian":
-                if exc.returncode == 6:
-                    return
             logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
@@ -3668,9 +3649,7 @@ class Systemd(object):
     def stop(self, critical_failure=True):
         """PKI Deployment execution management 'stop' method.
 
-        Executes a 'systemd stop <service>' system command, or
-        an '/etc/init.d/pki-tomcatd stop <instance>' system command
-        on Debian systems.
+        Executes a 'systemd stop <service>' system command.
 
         Args:
           critical_failure (boolean, optional):  Raise exception on failures;
@@ -3690,11 +3669,7 @@ class Systemd(object):
         logger.info('Stopping %s instance', self.mdict['pki_instance_name'])
 
         try:
-            if pki.system.SYSTEM_TYPE == "debian":
-                command = ["/etc/init.d/pki-tomcatd", "stop",
-                           self.mdict['pki_instance_name']]
-            else:
-                command = ["systemctl", "stop", self.service_name]
+            command = ["systemctl", "stop", self.service_name]
 
             # Display this "systemd" execution managment command
             logger.debug('Command: %s', ' '.join(command))
@@ -3711,9 +3686,7 @@ class Systemd(object):
     def restart(self, critical_failure=True, reload_daemon=True):
         """PKI Deployment execution management 'restart' method.
 
-        Executes a 'systemd restart <service>' system command, or
-        an '/etc/init.d/pki-tomcatd restart <instance>' system command
-        on Debian systems.
+        Executes a 'systemd restart <service>' system command.
 
         Args:
           critical_failure (boolean, optional):  Raise exception on failures;
@@ -3742,11 +3715,7 @@ class Systemd(object):
             if reload_daemon:
                 self.daemon_reload(critical_failure)
 
-            if pki.system.SYSTEM_TYPE == "debian":
-                command = ["/etc/init.d/pki-tomcatd", "restart",
-                           self.mdict['pki_instance_name']]
-            else:
-                command = ["systemctl", "restart", self.service_name]
+            command = ["systemctl", "restart", self.service_name]
 
             # Display this "systemd" execution managment command
             logger.debug(
@@ -3757,9 +3726,6 @@ class Systemd(object):
             subprocess.check_call(command)
 
         except subprocess.CalledProcessError as exc:
-            if pki.system.SYSTEM_TYPE == "debian":
-                if exc.returncode == 6:
-                    return
             logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise

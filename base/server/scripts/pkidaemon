@@ -58,20 +58,12 @@ case $command in
         exit $?
         ;;
     stop)
-        if $debian; then
-            stop
-        else
-            echo "invalid action ($command)"
-            print_usage
-        fi
+        echo "invalid action ($command)"
+        print_usage
         ;;
     restart)
-        if $debian; then
-            restart
-        else
-            echo "invalid action ($command)"
-            print_usage
-        fi
+        echo "invalid action ($command)"
+        print_usage
         ;;
     *)
         echo "unknown action ($command)"
