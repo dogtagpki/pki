@@ -191,9 +191,6 @@ BuildRequires:    slf4j-jdk14
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel >= 3.36.1
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=1652269
-Conflicts: nuxwdog-client-java
-
 BuildRequires:    openldap-devel
 BuildRequires:    pkgconfig
 BuildRequires:    policycoreutils
@@ -598,9 +595,6 @@ BuildArch:        noarch
 
 Requires:         hostname
 Requires:         net-tools
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1652269
-Conflicts: nuxwdog-client-java
 
 Requires:         policycoreutils
 Requires:         procps-ng
@@ -1406,7 +1400,7 @@ fi
 %{_datadir}/pki/deployment/config/
 %{_datadir}/pki/scripts/operations
 %{_bindir}/pkidaemon
-%{_bindir}/nuxwdog
+%{_bindir}/pki-server-nuxwdog
 %dir %{_sysconfdir}/systemd/system/pki-tomcatd.target.wants
 %attr(644,-,-) %{_unitdir}/pki-tomcatd@.service
 %attr(644,-,-) %{_unitdir}/pki-tomcatd.target

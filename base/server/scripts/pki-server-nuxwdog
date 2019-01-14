@@ -51,7 +51,7 @@ def split_entries(entry):
 
 
 def print_help():
-    print('Usage: nuxwdog [OPTIONS]')
+    print('Usage: pki-server-nuxwdog [OPTIONS]')
     print()
     print('      --clear                Clear values stored in keyring.')
     print('      --help                 Show help message.')
