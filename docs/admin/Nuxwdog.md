@@ -69,20 +69,20 @@ To disable Nuxwdog and use the plain password.conf
 
 ## Technical Implementation
 
-### `nuxwdog` python script
+### `pki-server-nuxwdog` python script
 
-[`nuxwdog`](base/server/scripts/nuxwdog) script is configured to run before the PKI server starts using [`systemd`
-unit file](base/server/scripts/nuxwdog). It uses `systemd-ask-password` to prompt the user for relevant passwords.
-The relevant passwords include `internal` and list of passwords defined in fields `cms.passwordlist` and
-`cms.tokenList` of every subsystem's `CS.cfg`. The passwords are stored on the Kernel Keyring provided by the
-`keyutils` package.
+[`pki-server-nuxwdog`](base/server/scripts/pki-server-nuxwdog) script is configured to run before the PKI server
+starts using [`systemd` unit file](base/server/share/lib/systemd/system/pki-tomcatd-nuxwdog@.service). It uses
+`systemd-ask-password` to prompt the user for relevant passwords. The relevant passwords include `internal` and
+list of passwords defined in fields `cms.passwordlist` and `cms.tokenList` of every subsystem's `CS.cfg`. The
+passwords are stored on the Kernel Keyring provided by the `keyutils` package.
 
 ### Kernel Keyring
 
 `Kernel Keyring` offers in-kernel key management and retention facility. Nuxwdog uses this component to cache the
 password on the `<pkiuser>'s user keyring`. The keys are cleared off when the PKI server is stopped.
 
-`keyctl` is interface provided by `keyutils` package to interact with kernel keyring.
+`keyctl` CLI is provided by `keyutils` package to interact with kernel keyring.
 
 ### Wrappers available
 

@@ -304,7 +304,7 @@ install(
 install(
     FILES
         scripts/pkidaemon
-        scripts/nuxwdog
+        scripts/pki-server-nuxwdog
     DESTINATION
         ${BIN_INSTALL_DIR}
     PERMISSIONS
