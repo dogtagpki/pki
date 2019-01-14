@@ -21,6 +21,7 @@
 # System Imports
 from __future__ import absolute_import
 from __future__ import print_function
+import logging
 import sys
 import signal
 import subprocess
@@ -51,6 +52,9 @@ error was:
 """ % sys.exc_info()[1], file=sys.stderr)
     sys.exit(1)
 
+logger = logging.LoggerAdapter(
+    logging.getLogger('pkispawn'),
+    extra={'indent': ''})
 
 deployer = pki.server.deployment.PKIDeployer()
 
@@ -502,8 +506,7 @@ def main(argv):
     # Read the specified PKI configuration file.
     rv = parser.read_pki_configuration_file()
     if rv != 0:
-        config.pki_log.error(log.PKI_UNABLE_TO_PARSE_1, rv,
-                             extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.error(log.PKI_UNABLE_TO_PARSE_1, rv)
         sys.exit(1)
 
     # --skip-configuration
@@ -581,10 +584,9 @@ def main(argv):
 
     # ALWAYS archive configuration file and manifest file
 
-    config.pki_log.info(
+    logger.info(
         log.PKI_ARCHIVE_CONFIG_MESSAGE_1,
-        deployer.mdict['pki_user_deployment_cfg_spawn_archive'],
-        extra=config.PKI_INDENTATION_LEVEL_1)
+        deployer.mdict['pki_user_deployment_cfg_spawn_archive'])
 
     # For debugging/auditing purposes, save a timestamped copy of
     # this configuration file in the subsystem archive
@@ -592,10 +594,9 @@ def main(argv):
         deployer.mdict['pki_user_deployment_cfg_replica'],
         deployer.mdict['pki_user_deployment_cfg_spawn_archive'])
 
-    config.pki_log.info(
+    logger.info(
         log.PKI_ARCHIVE_MANIFEST_MESSAGE_1,
-        deployer.mdict['pki_manifest_spawn_archive'],
-        extra=config.PKI_INDENTATION_LEVEL_1)
+        deployer.mdict['pki_manifest_spawn_archive'])
 
     # for record in manifest.database:
     #     print tuple(record)
@@ -692,10 +693,8 @@ def create_master_dictionary(parser):
     parser.mdict['pki_spawn_log'] = \
         config.pki_log_dir + "/" + config.pki_log_name
 
-    config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.log_format(parser.mdict),
-                         extra=config.PKI_INDENTATION_LEVEL_0)
+    logger.debug(log.PKI_DICTIONARY_MASTER)
+    logger.debug(pkilogging.log_format(parser.mdict))
 
 
 def check_security_domain(parser):
@@ -704,11 +703,10 @@ def check_security_domain(parser):
             # Verify existence of Security Domain Password
             if 'pki_security_domain_password' not in parser.mdict or \
                     not len(parser.mdict['pki_security_domain_password']):
-                config.pki_log.error(
+                logger.error(
                     log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                     "pki_security_domain_password",
-                    parser.mdict['pki_user_deployment_cfg'],
-                    extra=config.PKI_INDENTATION_LEVEL_0)
+                    parser.mdict['pki_user_deployment_cfg'])
                 sys.exit(1)
 
             if not config.str2bool(parser.mdict['pki_skip_sd_verify']):
@@ -729,11 +727,10 @@ def check_ds(parser):
         # Verify existence of Directory Server Password
         if 'pki_ds_password' not in parser.mdict or \
                 not len(parser.mdict['pki_ds_password']):
-            config.pki_log.error(
+            logger.error(
                 log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                 "pki_ds_password",
-                parser.mdict['pki_user_deployment_cfg'],
-                extra=config.PKI_INDENTATION_LEVEL_0)
+                parser.mdict['pki_user_deployment_cfg'])
             sys.exit(1)
 
         if not config.str2bool(parser.mdict['pki_skip_ds_verify']):
@@ -926,7 +923,7 @@ def log_error_details():
     e_stacktrace = "%s: %s\n" % (e_type.__name__, e_value)
     for l in stacktrace_list:
         e_stacktrace += l
-    config.pki_log.error(e_stacktrace, extra=config.PKI_INDENTATION_LEVEL_0)
+    logger.error(e_stacktrace)
     del e_type, e_value, e_stacktrace
 
 
