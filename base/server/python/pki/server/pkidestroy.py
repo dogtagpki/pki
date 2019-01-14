@@ -21,6 +21,7 @@
 # System Imports
 from __future__ import absolute_import
 from __future__ import print_function
+import logging
 import sys
 import signal
 import subprocess
@@ -46,6 +47,9 @@ error was:
 """ % sys.exc_info()[1], file=sys.stderr)
     sys.exit(1)
 
+logger = logging.LoggerAdapter(
+    logging.getLogger('pkidestroy'),
+    extra={'indent': ''})
 
 deployer = pki.server.deployment.PKIDeployer()
 
@@ -230,8 +234,7 @@ def main(argv):
     # Read the specified PKI configuration file.
     rv = parser.read_pki_configuration_file()
     if rv != 0:
-        config.pki_log.error(log.PKI_UNABLE_TO_PARSE_1, rv,
-                             extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.error(log.PKI_UNABLE_TO_PARSE_1, rv)
         sys.exit(1)
 
     # Combine the various sectional dictionaries into a PKI master dictionary
@@ -245,10 +248,8 @@ def main(argv):
     # Add remove logs to master dictionary
     parser.mdict['pki_remove_logs'] = remove_logs
 
-    config.pki_log.debug(log.PKI_DICTIONARY_MASTER,
-                         extra=config.PKI_INDENTATION_LEVEL_0)
-    config.pki_log.debug(pkilogging.log_format(parser.mdict),
-                         extra=config.PKI_INDENTATION_LEVEL_0)
+    logger.debug(log.PKI_DICTIONARY_MASTER)
+    logger.debug(pkilogging.log_format(parser.mdict))
 
     print("Uninstalling " + deployer.subsystem_name + " from " +
           deployed_pki_instance_path + ".")
@@ -294,7 +295,7 @@ def log_error_details():
     e_stacktrace = "%s: %s\n" % (e_type.__name__, e_value)
     for l in stacktrace_list:
         e_stacktrace += l
-    config.pki_log.error(e_stacktrace, extra=config.PKI_INDENTATION_LEVEL_0)
+    logger.error(e_stacktrace)
     del e_type, e_value, e_stacktrace
 
 
