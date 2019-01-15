@@ -2300,15 +2300,11 @@ class HSM:
             command = [config.PKI_HSM_NCIPHER_EXE, "restart"]
 
             # Display this "nCipher" HSM command
-            config.pki_log.info(
-                log.PKIHELPER_NCIPHER_RESTART_1, ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info(log.PKIHELPER_NCIPHER_RESTART_1, ' '.join(command))
             # Execute this "nCipher" HSM command
             subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         return
