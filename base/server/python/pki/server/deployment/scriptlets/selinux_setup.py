@@ -39,9 +39,7 @@ if selinux.is_selinux_enabled():
         if sys.version_info.major == 2:
             raise
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('selinux'),
-    extra={'indent': ''})
+logger = logging.getLogger('selinux')
 
 
 # PKI Deployment Selinux Setup Scriptlet
@@ -89,8 +87,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                         logger.info(
                             "adding selinux fcontext \"%s\"",
-                            deployer.mdict['pki_instance_path'] + self.suffix,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                            deployer.mdict['pki_instance_path'] + self.suffix)
                         fcon.add(
                             deployer.mdict['pki_instance_path'] + self.suffix,
                             config.PKI_INSTANCE_SELINUX_CONTEXT, "", "s0", "")
@@ -98,8 +95,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         logger.info(
                             "adding selinux fcontext \"%s\"",
                             deployer.mdict['pki_instance_log_path'] +
-                            self.suffix,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                            self.suffix)
                         fcon.add(
                             deployer.mdict['pki_instance_log_path'] +
                             self.suffix,
@@ -108,8 +104,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         logger.info(
                             "adding selinux fcontext \"%s\"",
                             deployer.mdict['pki_instance_configuration_path'] +
-                            self.suffix,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                            self.suffix)
                         fcon.add(
                             deployer.mdict['pki_instance_configuration_path'] +
                             self.suffix,
@@ -117,17 +112,14 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                         logger.info(
                             "adding selinux fcontext \"%s\"",
-                            deployer.mdict['pki_server_database_path'] + self.suffix,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                            deployer.mdict['pki_server_database_path'] + self.suffix)
                         fcon.add(
                             deployer.mdict['pki_server_database_path'] + self.suffix,
                             config.PKI_CERTDB_SELINUX_CONTEXT, "", "s0", "")
 
                         port_records = seobject.portRecords(trans)
                         for port in ports:
-                            logger.info(
-                                "adding selinux port %s", port,
-                                extra=config.PKI_INDENTATION_LEVEL_2)
+                            logger.info("adding selinux port %s", port)
                             port_records.add(
                                 port, "tcp", "s0",
                                 config.PKI_PORT_SELINUX_CONTEXT)
@@ -179,8 +171,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                         logger.info(
                             "deleting selinux fcontext \"%s\"",
-                            deployer.mdict['pki_instance_path'] + self.suffix,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                            deployer.mdict['pki_instance_path'] + self.suffix)
                         fcon.delete(
                             deployer.mdict['pki_instance_path'] +
                             self.suffix, "")
@@ -188,8 +179,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         logger.info(
                             "deleting selinux fcontext \"%s\"",
                             deployer.mdict['pki_instance_log_path'] +
-                            self.suffix,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                            self.suffix)
                         fcon.delete(
                             deployer.mdict['pki_instance_log_path'] +
                             self.suffix, "")
@@ -197,25 +187,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         logger.info(
                             "deleting selinux fcontext \"%s\"",
                             deployer.mdict['pki_instance_configuration_path'] +
-                            self.suffix,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                            self.suffix)
                         fcon.delete(
                             deployer.mdict['pki_instance_configuration_path'] +
                             self.suffix, "")
 
                         logger.info(
                             "deleting selinux fcontext \"%s\"",
-                            deployer.mdict['pki_server_database_path'] + self.suffix,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                            deployer.mdict['pki_server_database_path'] + self.suffix)
                         fcon.delete(
                             deployer.mdict['pki_server_database_path'] +
                             self.suffix, "")
 
                         port_records = seobject.portRecords(trans)
                         for port in ports:
-                            logger.info(
-                                "deleting selinux port %s", port,
-                                extra=config.PKI_INDENTATION_LEVEL_2)
+                            logger.info("deleting selinux port %s", port)
                             port_records.delete(port, "tcp")
 
                     trans.finish()

@@ -52,9 +52,7 @@ error was:
 """ % sys.exc_info()[1], file=sys.stderr)
     sys.exit(1)
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('pkispawn'),
-    extra={'indent': ''})
+logger = logging.getLogger('pkispawn')
 
 deployer = pki.server.deployment.PKIDeployer()
 

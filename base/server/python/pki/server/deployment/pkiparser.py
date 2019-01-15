@@ -46,9 +46,7 @@ from . import pkiconfig as config
 from . import pkimessages as log
 from . import pkilogging
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('pkiparser'),
-    extra={'indent': ''})
+logger = logging.getLogger('pkiparser')
 
 
 class PKIConfigParser:

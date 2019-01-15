@@ -27,9 +27,7 @@ import logging
 # PKI Deployment Imports
 from . import pkimessages as log
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('pkimanifest'),
-    extra={'indent': ''})
+logger = logging.getLogger('pkimanifest')
 
 
 # PKI Deployment Manifest Constants

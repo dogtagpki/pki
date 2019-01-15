@@ -27,9 +27,7 @@ import os
 from .. import pkiconfig as config
 from .. import pkiscriptlet
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('webapp'),
-    extra={'indent': ''})
+logger = logging.getLogger('webapp')
 
 
 # PKI Web Application Deployment Scriptlet

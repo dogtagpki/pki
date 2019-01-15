@@ -32,9 +32,7 @@ import pki.util
 from .. import pkiconfig as config
 from .. import pkiscriptlet
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('keygen'),
-    extra={'indent': ''})
+logger = logging.getLogger('keygen')
 
 
 class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):

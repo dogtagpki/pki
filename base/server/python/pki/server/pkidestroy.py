@@ -47,9 +47,7 @@ error was:
 """ % sys.exc_info()[1], file=sys.stderr)
     sys.exit(1)
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('pkidestroy'),
-    extra={'indent': ''})
+logger = logging.getLogger('pkidestroy')
 
 deployer = pki.server.deployment.PKIDeployer()
 

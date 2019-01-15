@@ -26,9 +26,7 @@ import logging
 from .. import pkiconfig as config
 from .. import pkiscriptlet
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('infrastructure'),
-    extra={'indent': ''})
+logger = logging.getLogger('infrastructure')
 
 
 # PKI Deployment Top-Level Infrastructure Layout Scriptlet

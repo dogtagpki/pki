@@ -47,12 +47,6 @@ PKI_CONFIGURATION_RESERVED_NAMES = ["CA", "java", "nssdb", "rpm-gpg",
                                     "rsyslog", "tls"]
 PKI_TOMCAT_REGISTRY_RESERVED_NAMES = ["ca", "kra", "ocsp", "tks", "tps"]
 
-PKI_INDENTATION_LEVEL_0 = {'indent': ''}
-PKI_INDENTATION_LEVEL_1 = {'indent': '... '}
-PKI_INDENTATION_LEVEL_2 = {'indent': '....... '}
-PKI_INDENTATION_LEVEL_3 = {'indent': '........... '}
-PKI_INDENTATION_LEVEL_4 = {'indent': '............... '}
-
 PKI_DEPLOYMENT_INTERRUPT_BANNER = "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+"\
                                   "-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-"
 

@@ -25,9 +25,7 @@ import logging
 from .. import pkiconfig as config
 from .. import pkiscriptlet
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('subsystem'),
-    extra={'indent': ''})
+logger = logging.getLogger('subsystem')
 
 
 # PKI Deployment Subsystem Layout Scriptlet

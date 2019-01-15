@@ -26,9 +26,7 @@ from .. import pkiconfig as config
 from .. import pkimessages as log
 from .. import pkiscriptlet
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('finalization'),
-    extra={'indent': ''})
+logger = logging.getLogger('finalization')
 
 
 # PKI Deployment Finalization Scriptlet

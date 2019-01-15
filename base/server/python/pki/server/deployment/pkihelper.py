@@ -73,9 +73,7 @@ RETRYABLE_EXCEPTIONS = (
     requests.exceptions.Timeout,  # connection or read time out
 )
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('pkihelper'),
-    extra={'indent': ''})
+logger = logging.getLogger('pkihelper')
 
 
 class Identity:
@@ -3382,9 +3380,7 @@ class Systemd(object):
             command = ["systemctl", "restart", self.service_name]
 
             # Display this "systemd" execution managment command
-            logger.debug(
-                'Command: %s', ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_0)
+            logger.debug('Command: %s', ' '.join(command))
 
             # Execute this "systemd" execution management command
             subprocess.check_call(command)

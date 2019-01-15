@@ -55,9 +55,7 @@ SUBSYSTEM_CLASSES = {}
 
 SELFTEST_CRITICAL = 'critical'
 
-logger = logging.LoggerAdapter(
-    logging.getLogger(__name__),
-    extra={'indent': ''})
+logger = logging.getLogger(__name__)
 
 
 class PKIServer(object):

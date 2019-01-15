@@ -32,9 +32,7 @@ import pki.util
 from .. import pkiconfig as config
 from .. import pkiscriptlet
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('nssdb'),
-    extra={'indent': ''})
+logger = logging.getLogger('nssdb')
 
 
 # PKI Deployment Security Databases Scriptlet

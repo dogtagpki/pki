@@ -37,9 +37,7 @@ import pki.server
 import pki.system
 import pki.util
 
-logger = logging.LoggerAdapter(
-    logging.getLogger('configuration'),
-    extra={'indent': ''})
+logger = logging.getLogger('configuration')
 
 
 # PKI Deployment Configuration Scriptlet
