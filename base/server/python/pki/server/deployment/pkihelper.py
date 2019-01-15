@@ -844,10 +844,9 @@ class ConfigurationFile:
 #    def remove_filter_section_from_web_xml(self,
 #                                           web_xml_source,
 #                                           web_xml_target):
-#        config.pki_log.info(
+#        logger.info(
 #            log.PKIHELPER_REMOVE_FILTER_SECTION_1,
-#            self.mdict['pki_target_subsystem_web_xml'],
-#            extra=config.PKI_INDENTATION_LEVEL_2)
+#            self.mdict['pki_target_subsystem_web_xml'])
 #        begin_filters_section = False
 #        begin_servlet_section = False
 #        FILE = open(web_xml_target, "w")
@@ -900,14 +899,11 @@ class Instance:
                            not os.path.islink(os.path.join(instance_dir, name)):
                             if name.upper() in config.PKI_SUBSYSTEMS:
                                 rv += 1
-            config.pki_log.debug(
+            logger.debug(
                 log.PKIHELPER_PKI_INSTANCE_SUBSYSTEMS_2,
-                self.mdict['pki_instance_path'], rv,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                self.mdict['pki_instance_path'], rv)
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             raise
         return rv
 
@@ -923,9 +919,7 @@ class Instance:
                 if os.path.exists(path) and os.path.isdir(path):
                     rv.append(subsystem)
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             raise
         return rv
 
@@ -948,34 +942,28 @@ class Instance:
                            self.mdict['pki_instance_type_registry_path'],
                            instance)):
                     rv += 1
-            config.pki_log.debug(
+            logger.debug(
                 log.PKIHELPER_TOMCAT_INSTANCES_2,
                 self.mdict['pki_instance_type_registry_path'],
-                rv,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                rv)
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             raise
         return rv
 
     def verify_subsystem_exists(self):
         try:
             if not os.path.exists(self.mdict['pki_subsystem_path']):
-                config.pki_log.error(
+                logger.error(
                     log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2,
                     self.mdict['pki_subsystem'],
-                    self.mdict['pki_instance_name'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.mdict['pki_instance_name'])
                 raise Exception(
                     log.PKI_SUBSYSTEM_DOES_NOT_EXIST_2 % (
                         self.mdict['pki_subsystem'],
                         self.mdict['pki_instance_name']))
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             raise
 
     def verify_subsystem_does_not_exist(self):
@@ -986,9 +974,7 @@ class Instance:
                         self.mdict['pki_subsystem'],
                         self.mdict['pki_instance_name']))
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             raise
 
     def get_instance_status(self, connection, timeout=None):
@@ -999,9 +985,7 @@ class Instance:
         root = ET.fromstring(response)
         status = root.findtext("Status")
 
-        config.pki_log.info(
-            'Server status: %s', status,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Server status: %s', status)
 
         return status
 
@@ -1037,9 +1021,7 @@ class Instance:
             accept='application/xml',
             trust_env=False)
 
-        config.pki_log.info(
-            "Checking server at %s", connection.serverURI,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Checking server at %s', connection.serverURI)
 
         start_time = datetime.today()
         status = None
@@ -1057,9 +1039,7 @@ class Instance:
             except requests.exceptions.SSLError as exc:
                 max_retry_error = exc.args[0]
                 reason = getattr(max_retry_error, 'reason')
-                config.pki_log.error(
-                    "Server unreachable due to SSL error: %s", reason,
-                    extra=config.PKI_INDENTATION_LEVEL_0)
+                logger.error('Server unreachable due to SSL error: %s', reason)
                 break
 
             except RETRYABLE_EXCEPTIONS:
@@ -1069,17 +1049,15 @@ class Instance:
 
                 if counter >= timeout:
 
-                    config.pki_log.error(
-                        "Server did not start after %ds",
-                        timeout,
-                        extra=config.PKI_INDENTATION_LEVEL_0)
+                    logger.error(
+                        'Server did not start after %ds',
+                        timeout)
 
                     break
 
-                config.pki_log.info(
-                    "Waiting for server to start (%ds)",
-                    int(round(counter)),
-                    extra=config.PKI_INDENTATION_LEVEL_0)
+                logger.info(
+                    'Waiting for server to start (%ds)',
+                    int(round(counter)))
 
                 continue
 
