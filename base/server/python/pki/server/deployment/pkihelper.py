@@ -89,29 +89,22 @@ class Identity:
             # Does the specified 'pki_group' exist?
             pki_gid = getgrnam(pki_group)[2]
             # Yes, group 'pki_group' exists!
-            config.pki_log.info(
-                log.PKIHELPER_GROUP_ADD_2, pki_group, pki_gid,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info(log.PKIHELPER_GROUP_ADD_2, pki_group, pki_gid)
         except KeyError as exc:
             # No, group 'pki_group' does not exist!
-            config.pki_log.debug(
-                log.PKIHELPER_GROUP_ADD_KEYERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.debug(log.PKIHELPER_GROUP_ADD_KEYERROR_1, exc)
             try:
                 # Is the default well-known GID already defined?
                 group = getgrgid(config.PKI_DEPLOYMENT_DEFAULT_GID)[0]
                 # Yes, the default well-known GID exists!
-                config.pki_log.info(
+                logger.info(
                     log.PKIHELPER_GROUP_ADD_DEFAULT_2,
-                    group, config.PKI_DEPLOYMENT_DEFAULT_GID,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    group, config.PKI_DEPLOYMENT_DEFAULT_GID)
                 # Attempt to create 'pki_group' using a random GID.
                 command = ["/usr/sbin/groupadd", pki_group]
             except KeyError as exc:
                 # No, the default well-known GID does not exist!
-                config.pki_log.debug(
-                    log.PKIHELPER_GROUP_ADD_GID_KEYERROR_1,
-                    exc, extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.debug(log.PKIHELPER_GROUP_ADD_GID_KEYERROR_1, exc)
                 # Is the specified 'pki_group' the default well-known group?
                 if pki_group == config.PKI_DEPLOYMENT_DEFAULT_GROUP:
                     # Yes, attempt to create the default well-known group
@@ -128,14 +121,10 @@ class Identity:
                     subprocess.check_call(command, stdout=fnull, stderr=fnull,
                                           close_fds=True)
             except subprocess.CalledProcessError as exc:
-                config.pki_log.error(
-                    log.PKI_SUBPROCESS_ERROR_1, exc,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
                 raise
             except OSError as exc:
-                config.pki_log.error(
-                    log.PKI_OSERROR_1, exc,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_OSERROR_1, exc)
                 raise
         return
 
@@ -144,23 +133,18 @@ class Identity:
             # Does the specified 'pki_user' exist?
             pki_uid = getpwnam(pki_user)[2]
             # Yes, user 'pki_user' exists!
-            config.pki_log.info(
-                log.PKIHELPER_USER_ADD_2, pki_user, pki_uid,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info(log.PKIHELPER_USER_ADD_2, pki_user, pki_uid)
             # NOTE:  For now, never check validity of specified 'pki_group'!
         except KeyError as exc:
             # No, user 'pki_user' does not exist!
-            config.pki_log.debug(
-                log.PKIHELPER_USER_ADD_KEYERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.debug(log.PKIHELPER_USER_ADD_KEYERROR_1, exc)
             try:
                 # Is the default well-known UID already defined?
                 user = getpwuid(config.PKI_DEPLOYMENT_DEFAULT_UID)[0]
                 # Yes, the default well-known UID exists!
-                config.pki_log.info(
+                logger.info(
                     log.PKIHELPER_USER_ADD_DEFAULT_2,
-                    user, config.PKI_DEPLOYMENT_DEFAULT_UID,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    user, config.PKI_DEPLOYMENT_DEFAULT_UID)
                 # Attempt to create 'pki_user' using a random UID.
                 command = ["/usr/sbin/useradd",
                            "-g", pki_group,
@@ -170,9 +154,7 @@ class Identity:
                            pki_user]
             except KeyError as exc:
                 # No, the default well-known UID does not exist!
-                config.pki_log.debug(
-                    log.PKIHELPER_USER_ADD_UID_KEYERROR_1,
-                    exc, extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.debug(log.PKIHELPER_USER_ADD_UID_KEYERROR_1, exc)
                 # Is the specified 'pki_user' the default well-known user?
                 if pki_user == config.PKI_DEPLOYMENT_DEFAULT_USER:
                     # Yes, attempt to create the default well-known user
@@ -198,14 +180,10 @@ class Identity:
                     subprocess.check_call(command, stdout=fnull, stderr=fnull,
                                           close_fds=True)
             except subprocess.CalledProcessError as exc:
-                config.pki_log.error(
-                    log.PKI_SUBPROCESS_ERROR_1, exc,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
                 raise
             except OSError as exc:
-                config.pki_log.error(
-                    log.PKI_OSERROR_1, exc,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_OSERROR_1, exc)
                 raise
         return
 
@@ -218,9 +196,7 @@ class Identity:
         try:
             return self.mdict['pki_uid']
         except KeyError as exc:
-            config.pki_log.error(
-                log.PKI_KEYERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_KEYERROR_1, exc)
             if critical_failure:
                 raise
             return None
@@ -229,49 +205,35 @@ class Identity:
         try:
             return self.mdict['pki_gid']
         except KeyError as exc:
-            config.pki_log.error(
-                log.PKI_KEYERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_KEYERROR_1, exc)
             if critical_failure:
                 raise
             return None
 
     def set_uid(self, name, critical_failure=True):
         try:
-            config.pki_log.debug(
-                log.PKIHELPER_USER_1, name,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.debug(log.PKIHELPER_USER_1, name)
             # id -u <name>
             pki_uid = getpwnam(name)[2]
             self.mdict['pki_uid'] = pki_uid
-            config.pki_log.debug(
-                log.PKIHELPER_UID_2, name, pki_uid,
-                extra=config.PKI_INDENTATION_LEVEL_3)
+            logger.debug(log.PKIHELPER_UID_2, name, pki_uid)
             return pki_uid
         except KeyError as exc:
-            config.pki_log.error(
-                log.PKI_KEYERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_KEYERROR_1, exc)
             if critical_failure:
                 raise
             return None
 
     def set_gid(self, name, critical_failure=True):
         try:
-            config.pki_log.debug(
-                log.PKIHELPER_GROUP_1, name,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.debug(log.PKIHELPER_GROUP_1, name)
             # id -g <name>
             pki_gid = getgrnam(name)[2]
             self.mdict['pki_gid'] = pki_gid
-            config.pki_log.debug(
-                log.PKIHELPER_GID_2, name, pki_gid,
-                extra=config.PKI_INDENTATION_LEVEL_3)
+            logger.debug(log.PKIHELPER_GID_2, name, pki_gid)
             return pki_gid
         except KeyError as exc:
-            config.pki_log.error(
-                log.PKI_KEYERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_KEYERROR_1, exc)
             if critical_failure:
                 raise
             return None
@@ -309,14 +271,10 @@ class Identity:
                     subprocess.check_call(command, stdout=fnull, stderr=fnull,
                                           close_fds=True)
             except subprocess.CalledProcessError as exc:
-                config.pki_log.error(
-                    log.PKI_SUBPROCESS_ERROR_1, exc,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
                 raise
             except OSError as exc:
-                config.pki_log.error(
-                    log.PKI_OSERROR_1, exc,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_OSERROR_1, exc)
                 raise
         return
 
