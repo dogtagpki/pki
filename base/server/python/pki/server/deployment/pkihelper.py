@@ -3228,23 +3228,19 @@ class SecurityDomain:
            seceeport is None or\
            secagentport is None or\
            secadminport is None:
-            config.pki_log.warning(
+            logger.warning(
                 log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2,
                 typeval,
-                secname,
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.error(
-                log.PKIHELPER_SECURITY_DOMAIN_UNDEFINED,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                secname)
+            logger.error(log.PKIHELPER_SECURITY_DOMAIN_UNDEFINED)
             if critical_failure:
                 raise Exception(log.PKIHELPER_SECURITY_DOMAIN_UNDEFINED)
             else:
                 return
 
-        config.pki_log.info(
+        logger.info(
             log.PKIHELPER_SECURITY_DOMAIN_CONTACT_1,
-            secname,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            secname)
         listval = typeval.lower() + "List"
         update_url = "/ca/agent/ca/updateDomainXML"
 
@@ -3275,10 +3271,9 @@ class SecurityDomain:
                     stderr=subprocess.STDOUT)
                 output = output.decode('utf-8')
             except subprocess.CalledProcessError:
-                config.pki_log.warning(
+                logger.warning(
                     log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
-                    secname,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    secname)
                 output = self.update_domain_using_agent_port(
                     typeval, secname, params, update_url, sechost, secagentport,
                     critical_failure)
@@ -3293,17 +3288,15 @@ class SecurityDomain:
             else:
                 return
 
-        config.pki_log.debug(
+        logger.debug(
             log.PKIHELPER_SSLGET_OUTPUT_1,
-            output,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            output)
         # Search the output for Status
         status = re.findall('<Status>(.*?)</Status>', output)
         if not status:
-            config.pki_log.warning(
+            logger.warning(
                 log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
-                secname,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                secname)
             if critical_failure:
                 raise Exception(
                     log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1 % secname)
@@ -3311,27 +3304,24 @@ class SecurityDomain:
             error = re.findall('<Error>(.*?)</Error>', output)
             if not error:
                 error = ""
-            config.pki_log.warning(
+            logger.warning(
                 log.PKIHELPER_SECURITY_DOMAIN_UNREGISTERED_2,
                 typeval,
-                secname,
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.error(
+                secname)
+            logger.error(
                 log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3,
                 typeval,
                 secname,
-                error,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                error)
             if critical_failure:
                 raise Exception(log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3
                                 %
                                 (typeval, secname, error))
         else:
-            config.pki_log.info(
+            logger.info(
                 log.PKIHELPER_SECURITY_DOMAIN_UPDATE_SUCCESS_2,
                 typeval,
-                secname,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                secname)
 
     def update_domain_using_agent_port(
             self, typeval, secname, params,
@@ -3342,14 +3332,11 @@ class SecurityDomain:
         subsystemnick_param = typeval.lower() + ".cert.subsystem.nickname"
         subsystemnick = cs_cfg.get(subsystemnick_param)
         if subsystemnick is None:
-            config.pki_log.warning(
+            logger.warning(
                 log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2,
                 typeval,
-                secname,
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.error(
-                log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                secname)
+            logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
             if critical_failure:
                 raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
             else:
@@ -3366,11 +3353,10 @@ class SecurityDomain:
             token_name)
 
         if token_pwd is None or token_pwd == '':
-            config.pki_log.warning(
+            logger.warning(
                 log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2,
                 typeval,
-                secname,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                secname)
             if critical_failure:
                 raise Exception(
                     log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2 %
@@ -3391,18 +3377,14 @@ class SecurityDomain:
             output = output.decode('utf-8')
             return output
         except subprocess.CalledProcessError as exc:
-            config.pki_log.warning(
+            logger.warning(
                 log.PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2,
                 typeval,
-                secname,
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.warning(
+                secname)
+            logger.warning(
                 log.PKIHELPER_SECURITY_DOMAIN_UNREACHABLE_1,
-                secname,
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                secname)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
 
