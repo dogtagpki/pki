@@ -453,10 +453,9 @@ class ConfigurationFile:
         if self.external:
             # Only allowed for External CA/KRA/OCSP.
             if self.subsystem not in ['CA', 'KRA', 'OCSP']:
-                config.pki_log.error(
+                logger.error(
                     log.PKI_EXTERNAL_UNSUPPORTED_1,
-                    self.subsystem,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.subsystem)
                 raise Exception(log.PKI_EXTERNAL_UNSUPPORTED_1,
                                 self.subsystem)
 
@@ -470,10 +469,9 @@ class ConfigurationFile:
             # Java method located in the file called 'SystemConfigService.java'
             #
             if self.subsystem != "KRA" and self.subsystem != "OCSP":
-                config.pki_log.error(
+                logger.error(
                     log.PKI_STANDALONE_UNSUPPORTED_1,
-                    self.subsystem,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.subsystem)
                 raise Exception(log.PKI_STANDALONE_UNSUPPORTED_1,
                                 self.subsystem)
 
@@ -482,10 +480,9 @@ class ConfigurationFile:
         if self.subordinate:
             # Only allowed for Subordinate CA
             if self.subsystem != "CA":
-                config.pki_log.error(
+                logger.error(
                     log.PKI_SUBORDINATE_UNSUPPORTED_1,
-                    self.subsystem,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.subsystem)
                 raise Exception(log.PKI_SUBORDINATE_UNSUPPORTED_1,
                                 self.subsystem)
             if config.str2bool(
@@ -499,20 +496,18 @@ class ConfigurationFile:
             # Only allowed for External CA/KRA/OCSP, or Stand-alone PKI
             if (self.subsystem not in ['CA', 'KRA', 'OCSP'] and
                     not self.standalone):
-                config.pki_log.error(
+                logger.error(
                     log.PKI_EXTERNAL_STEP_TWO_UNSUPPORTED_1,
-                    self.subsystem,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.subsystem)
                 raise Exception(log.PKI_EXTERNAL_STEP_TWO_UNSUPPORTED_1,
                                 self.subsystem)
 
     def confirm_data_exists(self, param):
         if param not in self.mdict or not len(self.mdict[param]):
-            config.pki_log.error(
+            logger.error(
                 log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2,
                 param,
-                self.mdict['pki_user_deployment_cfg'],
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                self.mdict['pki_user_deployment_cfg'])
             raise Exception(
                 log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 %
                 (param, self.mdict['pki_user_deployment_cfg']))
@@ -520,10 +515,9 @@ class ConfigurationFile:
     def confirm_file_exists(self, param):
         if not os.path.exists(self.mdict[param]) or\
            not os.path.isfile(self.mdict[param]):
-            config.pki_log.error(
+            logger.error(
                 log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                self.mdict[param],
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                self.mdict[param])
             raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % param)
 
     def verify_sensitive_data(self):
@@ -541,9 +535,7 @@ class ConfigurationFile:
                 (config.str2bool(self.mdict['pki_backup_keys']) or
                  ('pki_backup_password' in self.mdict and
                   len(self.mdict['pki_backup_password'])))):
-            config.pki_log.error(
-                log.PKIHELPER_HSM_KEYS_CANNOT_BE_BACKED_UP_TO_PKCS12_FILES,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKIHELPER_HSM_KEYS_CANNOT_BE_BACKED_UP_TO_PKCS12_FILES)
             raise Exception(
                 log.PKIHELPER_HSM_KEYS_CANNOT_BE_BACKED_UP_TO_PKCS12_FILES)
         # If required, verify existence of Backup Password
@@ -571,9 +563,7 @@ class ConfigurationFile:
             elif (os.path.exists(self.mdict['pki_clone_pkcs12_path']) or
                     ('pki_clone_pkcs12_password' in self.mdict and
                      len(self.mdict['pki_clone_pkcs12_password']))):
-                config.pki_log.error(
-                    log.PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS)
                 raise Exception(
                     log.PKIHELPER_HSM_CLONES_MUST_SHARE_HSM_MASTER_PRIVATE_KEYS)
 
@@ -595,9 +585,7 @@ class ConfigurationFile:
             self.confirm_data_exists("pki_hsm_modulename")
             self.confirm_data_exists("pki_token_name")
             if not pki.nssdb.normalize_token(self.mdict['pki_token_name']):
-                config.pki_log.error(
-                    log.PKIHELPER_UNDEFINED_HSM_TOKEN,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_UNDEFINED_HSM_TOKEN)
                 raise Exception(log.PKIHELPER_UNDEFINED_HSM_TOKEN)
         if pki.nssdb.normalize_token(self.mdict['pki_token_name']):
             self.confirm_data_exists("pki_token_password")
@@ -606,43 +594,38 @@ class ConfigurationFile:
         # Silently verify the existence of 'mutually exclusive' data
         if self.subsystem == "CA":
             if self.clone and self.external and self.subordinate:
-                config.pki_log.error(
+                logger.error(
                     log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA,
-                    self.mdict['pki_user_deployment_cfg'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.mdict['pki_user_deployment_cfg'])
                 raise Exception(
                     log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_SUB_CA %
                     self.mdict['pki_user_deployment_cfg'])
             elif self.clone and self.external:
-                config.pki_log.error(
+                logger.error(
                     log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA,
-                    self.mdict['pki_user_deployment_cfg'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.mdict['pki_user_deployment_cfg'])
                 raise Exception(
                     log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_EXTERNAL_CA %
                     self.mdict['pki_user_deployment_cfg'])
             elif self.clone and self.subordinate:
-                config.pki_log.error(
+                logger.error(
                     log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA,
-                    self.mdict['pki_user_deployment_cfg'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.mdict['pki_user_deployment_cfg'])
                 raise Exception(
                     log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_SUB_CA %
                     self.mdict['pki_user_deployment_cfg'])
             elif self.external and self.subordinate:
-                config.pki_log.error(
+                logger.error(
                     log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA,
-                    self.mdict['pki_user_deployment_cfg'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.mdict['pki_user_deployment_cfg'])
                 raise Exception(
                     log.PKIHELPER_MUTUALLY_EXCLUSIVE_EXTERNAL_SUB_CA %
                     self.mdict['pki_user_deployment_cfg'])
         elif self.standalone:
             if self.clone:
-                config.pki_log.error(
+                logger.error(
                     log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_STANDALONE_PKI,
-                    self.mdict['pki_user_deployment_cfg'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.mdict['pki_user_deployment_cfg'])
                 raise Exception(
                     log.PKIHELPER_MUTUALLY_EXCLUSIVE_CLONE_STANDALONE_PKI %
                     self.mdict['pki_user_deployment_cfg'])
@@ -772,9 +755,7 @@ class ConfigurationFile:
             return
 
         if not selinux.is_selinux_enabled() or seobject is None:
-            config.pki_log.error(
-                log.PKIHELPER_SELINUX_DISABLED,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKIHELPER_SELINUX_DISABLED)
             return
 
         trans = seobject.semanageRecords("targeted")
@@ -800,10 +781,9 @@ class ConfigurationFile:
                 # remove from list of ports to set
                 ports.remove(port)
             else:
-                config.pki_log.error(
+                logger.error(
                     log.PKIHELPER_INVALID_SELINUX_CONTEXT_FOR_PORT,
-                    port, context,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    port, context)
                 raise Exception(
                     log.PKIHELPER_INVALID_SELINUX_CONTEXT_FOR_PORT %
                     (port, context))
@@ -828,11 +808,10 @@ class ConfigurationFile:
         if self.mdict['pki_deployment_executable'] == 'pkidestroy':
             if self.mdict['pki_deployed_instance_name'] != \
                self.mdict['pki_instance_name']:
-                config.pki_log.error(
+                logger.error(
                     log.PKIHELPER_COMMAND_LINE_PARAMETER_MISMATCH_2,
                     self.mdict['pki_deployed_instance_name'],
-                    self.mdict['pki_instance_name'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.mdict['pki_instance_name'])
                 raise Exception(
                     log.PKIHELPER_UNDEFINED_CONFIGURATION_FILE_ENTRY_2 % (
                         self.mdict['pki_deployed_instance_name'],
