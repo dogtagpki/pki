@@ -291,12 +291,13 @@ BuildRequires:    python3-devel
 BuildRequires:    python3-cryptography
 BuildRequires:    python3-lxml
 %if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
+BuildRequires:    python3-pyldap
 # no python3-libselinux
 %else
+BuildRequires:    python3-ldap
 BuildRequires:    python3-libselinux
 %endif
 BuildRequires:    python3-nss
-BuildRequires:    python3-pyldap
 BuildRequires:    python3-requests >= 2.6.0
 BuildRequires:    python3-six
 %endif  # with_python3
