@@ -292,11 +292,10 @@ class Namespace:
         if os.path.exists(self.mdict['pki_instance_path']):
             if os.path.exists(self.mdict['pki_subsystem_path']):
                 # Top-Level PKI base path collision
-                config.pki_log.error(
+                logger.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_instance_path'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.mdict['pki_instance_path'])
                 raise Exception(
                     log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                         self.mdict['pki_instance_name'],
@@ -305,33 +304,30 @@ class Namespace:
             if os.path.exists(
                     self.mdict['pki_target_tomcat_conf_instance_id']):
                 # Top-Level "/etc/sysconfig" path collision
-                config.pki_log.error(
+                logger.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_target_tomcat_conf_instance_id'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.mdict['pki_target_tomcat_conf_instance_id'])
                 raise Exception(
                     log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                         self.mdict['pki_instance_name'],
                         self.mdict['pki_target_tomcat_conf_instance_id']))
             if os.path.exists(self.mdict['pki_cgroup_systemd_service']):
                 # Systemd cgroup path collision
-                config.pki_log.error(
+                logger.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_cgroup_systemd_service_path'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.mdict['pki_cgroup_systemd_service_path'])
                 raise Exception(
                     log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                         self.mdict['pki_instance_name'],
                         self.mdict['pki_cgroup_systemd_service_path']))
             if os.path.exists(self.mdict['pki_cgroup_cpu_systemd_service']):
                 # Systemd cgroup CPU path collision
-                config.pki_log.error(
+                logger.error(
                     log.PKIHELPER_NAMESPACE_COLLISION_2,
                     self.mdict['pki_instance_name'],
-                    self.mdict['pki_cgroup_cpu_systemd_service_path'],
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    self.mdict['pki_cgroup_cpu_systemd_service_path'])
                 raise Exception(
                     log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                         self.mdict['pki_instance_name'],
@@ -340,20 +336,18 @@ class Namespace:
         if os.path.exists(self.mdict['pki_instance_log_path']) and\
            os.path.exists(self.mdict['pki_subsystem_log_path']):
             # Check if logs already exist. If so, append to it. Log it as info
-            config.pki_log.info(
+            logger.info(
                 log.PKIHELPER_LOG_REUSE,
                 self.mdict['pki_instance_name'],
-                self.mdict['pki_instance_log_path'],
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                self.mdict['pki_instance_log_path'])
 
         if os.path.exists(self.mdict['pki_instance_configuration_path']) and\
            os.path.exists(self.mdict['pki_subsystem_configuration_path']):
             # Top-Level PKI configuration path collision
-            config.pki_log.error(
+            logger.error(
                 log.PKIHELPER_NAMESPACE_COLLISION_2,
                 self.mdict['pki_instance_name'],
-                self.mdict['pki_instance_configuration_path'],
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                self.mdict['pki_instance_configuration_path'])
             raise Exception(
                 log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                     self.mdict['pki_instance_name'],
@@ -361,11 +355,10 @@ class Namespace:
         if os.path.exists(self.mdict['pki_instance_registry_path']) and\
            os.path.exists(self.mdict['pki_subsystem_registry_path']):
             # Top-Level PKI registry path collision
-            config.pki_log.error(
+            logger.error(
                 log.PKIHELPER_NAMESPACE_COLLISION_2,
                 self.mdict['pki_instance_name'],
-                self.mdict['pki_instance_registry_path'],
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                self.mdict['pki_instance_registry_path'])
             raise Exception(
                 log.PKIHELPER_NAMESPACE_COLLISION_2 % (
                     self.mdict['pki_instance_name'],
@@ -373,11 +366,10 @@ class Namespace:
         # Run simple checks for reserved name namespace collisions
         if self.mdict['pki_instance_name'] in config.PKI_BASE_RESERVED_NAMES:
             # Top-Level PKI base path reserved name collision
-            config.pki_log.error(
+            logger.error(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
                 self.mdict['pki_instance_name'],
-                self.mdict['pki_instance_path'],
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                self.mdict['pki_instance_path'])
             raise Exception(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (
                     self.mdict['pki_instance_name'],
@@ -386,11 +378,10 @@ class Namespace:
         if self.mdict['pki_instance_name'] in \
                 config.PKI_CONFIGURATION_RESERVED_NAMES:
             # Top-Level PKI configuration path reserved name collision
-            config.pki_log.error(
+            logger.error(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
                 self.mdict['pki_instance_name'],
-                self.mdict['pki_instance_configuration_path'],
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                self.mdict['pki_instance_configuration_path'])
             raise Exception(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (
                     self.mdict['pki_instance_name'],
@@ -399,11 +390,10 @@ class Namespace:
         # Top-Level Tomcat PKI registry path reserved name collision
         if self.mdict['pki_instance_name'] in\
            config.PKI_TOMCAT_REGISTRY_RESERVED_NAMES:
-            config.pki_log.error(
+            logger.error(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2,
                 self.mdict['pki_instance_name'],
-                self.mdict['pki_instance_registry_path'],
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                self.mdict['pki_instance_registry_path'])
             raise Exception(
                 log.PKIHELPER_NAMESPACE_RESERVED_NAME_2 % (
                     self.mdict['pki_instance_name'],
