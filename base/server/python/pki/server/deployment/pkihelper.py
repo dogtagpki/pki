@@ -2882,9 +2882,7 @@ class KRAConnector:
             if self.mdict['pki_subsystem_type'] != "kra":
                 return
 
-            config.pki_log.info(
-                log.PKIHELPER_KRACONNECTOR_UPDATE_CONTACT,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info(log.PKIHELPER_KRACONNECTOR_UPDATE_CONTACT)
 
             cs_cfg = PKIConfigParser.read_simple_configuration_file(
                 self.mdict['pki_target_cs_cfg'])
@@ -2897,12 +2895,8 @@ class KRAConnector:
             # retrieve subsystem nickname
             subsystemnick = cs_cfg.get('kra.cert.subsystem.nickname')
             if subsystemnick is None:
-                config.pki_log.warning(
-                    log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                config.pki_log.error(
-                    log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.warning(log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE)
+                logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
                 if critical_failure:
                     raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
                 else:
@@ -2919,13 +2913,10 @@ class KRAConnector:
                 token_name)
 
             if token_pwd is None or token_pwd == '':
-                config.pki_log.warning(
-                    log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                config.pki_log.error(
+                logger.warning(log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE)
+                logger.error(
                     log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1,
-                    token_name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    token_name)
                 if critical_failure:
                     raise Exception(
                         log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1 % token_name)
@@ -2951,10 +2942,9 @@ class KRAConnector:
                 ca_list = self.get_ca_list_from_security_domain(
                     sechost, secport)
             except Exception as e:
-                config.pki_log.error(
+                logger.error(
                     "unable to access security domain. Continuing .. %s ",
-                    e,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    e)
                 ca_list = []
 
             for ca in ca_list:
@@ -2972,20 +2962,16 @@ class KRAConnector:
                         token_pwd, krahost, kraport)
                 except Exception:
                     # ignore exceptions
-                    config.pki_log.warning(
+                    logger.warning(
                         log.PKIHELPER_KRACONNECTOR_DEREGISTER_FAILURE_4,
-                        str(krahost), str(kraport), str(ca_host), str(ca_port),
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                        str(krahost), str(kraport), str(ca_host), str(ca_port))
 
         except subprocess.CalledProcessError as exc:
-            config.pki_log.warning(
+            logger.warning(
                 log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE_2,
                 str(krahost),
-                str(kraport),
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                str(kraport))
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -3002,12 +2988,8 @@ class KRAConnector:
         try:
             info = sd.get_security_domain_info()
         except requests.exceptions.HTTPError as e:
-            config.pki_log.warning(
-                'Unable to get CA list from security domain: %s', e,
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.info(
-                'Trying older interface.',
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.warning('Unable to get CA list from security domain: %s', e)
+            logger.info('Trying older interface.')
             info = sd.get_old_security_domain_info()
         return list(info.systems['CA'].hosts.values())
 
@@ -3030,14 +3012,11 @@ class KRAConnector:
         output = output.decode('utf-8')
         error = re.findall("ClientResponseFailure:(.*?)", output)
         if error:
-            config.pki_log.warning(
+            logger.warning(
                 log.PKIHELPER_KRACONNECTOR_UPDATE_FAILURE_2,
                 str(krahost),
-                str(kraport),
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, output,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                str(kraport))
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, output)
         if critical_failure:
             raise Exception(log.PKI_SUBPROCESS_ERROR_1 % output)
 
