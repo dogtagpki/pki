@@ -2065,49 +2065,35 @@ class War:
         try:
             if os.path.exists(name) and os.path.isfile(name):
                 if not zipfile.is_zipfile(name):
-                    config.pki_log.error(
-                        log.PKI_FILE_NOT_A_WAR_FILE_1,
-                        name, extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.error(log.PKI_FILE_NOT_A_WAR_FILE_1, name)
                     if critical_failure:
                         raise Exception(log.PKI_FILE_NOT_A_WAR_FILE_1 % name)
                 if not os.path.exists(path) or not os.path.isdir(path):
-                    config.pki_log.error(
-                        log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                        path, extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path)
                     if critical_failure:
                         raise Exception(
                             log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
                             path)
                 # jar -xf <name> -C <path>
-                config.pki_log.info(
-                    log.PKIHELPER_JAR_XF_C_2, name, path,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.info(log.PKIHELPER_JAR_XF_C_2, name, path)
                 # Open war file
                 war = zipfile.ZipFile(name, 'r')
                 # Extract contents of war file to path
                 war.extractall(path)
             else:
-                config.pki_log.error(
-                    log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name)
                 if critical_failure:
                     raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name)
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         except zipfile.BadZipfile as exc:
-            config.pki_log.error(
-                log.PKI_BADZIPFILE_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_BADZIPFILE_ERROR_1, exc)
             if critical_failure:
                 raise
         except zipfile.LargeZipFile as exc:
-            config.pki_log.error(
-                log.PKI_LARGEZIPFILE_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_LARGEZIPFILE_ERROR_1, exc)
             if critical_failure:
                 raise
         return
