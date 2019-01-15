@@ -1518,26 +1518,21 @@ class File:
                acls=None, critical_failure=True):
         try:
             if not os.path.exists(name):
-                # touch <name>
-                config.pki_log.info(
-                    log.PKIHELPER_TOUCH_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+
+                logger.debug('Command: touch %s', name)
                 open(name, "w").close()
-                # chmod <perms> <name>
-                config.pki_log.debug(
-                    log.PKIHELPER_CHMOD_2, perms, name,
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                logger.debug('Command: chmod %o %s', perms, name)
                 os.chmod(name, perms)
-                # chown <uid>:<gid> <name>
+
                 if uid is None:
                     uid = self.identity.get_uid()
                 if gid is None:
                     gid = self.identity.get_gid()
-                config.pki_log.debug(
-                    log.PKIHELPER_CHOWN_3,
-                    uid, gid, name,
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                logger.debug('Command: chown %s:%s %s', uid, gid, name)
                 os.chown(name, uid, gid)
+
                 # Store record in installation manifest
                 self.deployer.record(
                     name,
@@ -1547,9 +1542,7 @@ class File:
                     perms,
                     acls)
             elif not os.path.isfile(name):
-                config.pki_log.error(
-                    log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1, name)
                 if critical_failure:
                     raise Exception(
                         log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 % name)
@@ -1557,9 +1550,7 @@ class File:
             if exc.errno == errno.EEXIST:
                 pass
             else:
-                config.pki_log.error(
-                    log.PKI_OSERROR_1, exc,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_OSERROR_1, exc)
                 if critical_failure:
                     raise
         return
@@ -1570,34 +1561,27 @@ class File:
         try:
             if os.path.exists(name):
                 if not os.path.isfile(name):
-                    config.pki_log.error(
-                        log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1,
-                        name, extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.error(log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1, name)
                     if critical_failure:
                         raise Exception(
                             log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 % name)
                 # Always re-process each file whether it needs it or not
                 if not silent:
-                    config.pki_log.info(
-                        log.PKIHELPER_MODIFY_FILE_1, name,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                # chmod <perms> <name>
+                    logger.info(log.PKIHELPER_MODIFY_FILE_1, name)
+
                 if not silent:
-                    config.pki_log.debug(
-                        log.PKIHELPER_CHMOD_2, perms, name,
-                        extra=config.PKI_INDENTATION_LEVEL_3)
+                    logger.debug('Command: chmod %o %s', perms, name)
                 os.chmod(name, perms)
-                # chown <uid>:<gid> <name>
+
                 if uid is None:
                     uid = self.identity.get_uid()
                 if gid is None:
                     gid = self.identity.get_gid()
+
                 if not silent:
-                    config.pki_log.debug(
-                        log.PKIHELPER_CHOWN_3,
-                        uid, gid, name,
-                        extra=config.PKI_INDENTATION_LEVEL_3)
+                    logger.debug('Command: chown %s:%s %s', uid, gid, name)
                 os.chown(name, uid, gid)
+
                 # Store record in installation manifest
                 if not silent:
                     self.deployer.record(
@@ -1608,38 +1592,32 @@ class File:
                         perms,
                         acls)
             else:
-                config.pki_log.error(
-                    log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name)
                 if critical_failure:
                     raise Exception(
                         log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
                         name)
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
 
     def delete(self, name, critical_failure=True):
+
+        logger.info('Removing file %s', name)
+
         try:
             if not os.path.exists(name) or not os.path.isfile(name):
                 # Simply issue a warning and continue
-                config.pki_log.warning(
-                    log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-            else:
-                # rm -f <name>
-                config.pki_log.info(
-                    log.PKIHELPER_RM_F_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                os.remove(name)
+                logger.warning(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name)
+                return
+
+            logger.debug('Command: rm -f %s', name)
+            os.remove(name)
+
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -1651,52 +1629,41 @@ class File:
             else:
                 return True
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             raise
 
     def copy(self, old_name, new_name, uid=None, gid=None,
              perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS, acls=None,
              overwrite_flag=False, critical_failure=True):
+
+        logger.info('Creating file %s', new_name)
+
         try:
             if not os.path.exists(old_name) or not os.path.isfile(old_name):
-                config.pki_log.error(
-                    log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, old_name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, old_name)
                 raise Exception(
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
                     old_name)
             else:
                 if os.path.exists(new_name):
                     if not overwrite_flag:
-                        config.pki_log.error(
-                            log.PKI_FILE_ALREADY_EXISTS_1, new_name,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        logger.error(log.PKI_FILE_ALREADY_EXISTS_1, new_name)
                         raise Exception(
                             log.PKI_FILE_ALREADY_EXISTS_1 % new_name)
-                # cp -p <old_name> <new_name>
-                config.pki_log.info(
-                    log.PKIHELPER_CP_P_2,
-                    old_name, new_name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+
+                logger.debug('Command: cp -p %s %s', old_name, new_name)
                 shutil.copy2(old_name, new_name)
                 if uid is None:
                     uid = self.identity.get_uid()
                 if gid is None:
                     gid = self.identity.get_gid()
-                # chmod <perms> <new_name>
-                config.pki_log.debug(
-                    log.PKIHELPER_CHMOD_2,
-                    perms, new_name,
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                logger.debug('Command: chmod %o %s', perms, new_name)
                 os.chmod(new_name, perms)
-                # chown <uid>:<gid> <new_name>
-                config.pki_log.debug(
-                    log.PKIHELPER_CHOWN_3,
-                    uid, gid, new_name,
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                logger.debug('Command: chown %s:%s %s', uid, gid, new_name)
                 os.chown(new_name, uid, gid)
+
                 # Store record in installation manifest
                 self.deployer.record(
                     new_name,
@@ -1710,10 +1677,7 @@ class File:
                 msg = log.PKI_SHUTIL_ERROR_1
             else:
                 msg = log.PKI_OSERROR_1
-            config.pki_log.error(
-                msg,
-                exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(msg, exc)
             if critical_failure:
                 raise
         return
@@ -1724,16 +1688,11 @@ class File:
             acls=None, critical_failure=True):
         try:
             if not os.path.exists(name) or not os.path.isfile(name):
-                config.pki_log.error(
-                    log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name)
                 raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % name)
 
             # applying in-place slot substitutions on <name>
-            config.pki_log.info(
-                log.PKIHELPER_APPLY_SLOT_SUBSTITUTION_1,
-                name,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info(log.PKIHELPER_APPLY_SLOT_SUBSTITUTION_1, name)
 
             for line in fileinput.FileInput(name, inplace=1):
                 for slot in self.slots:
@@ -1745,18 +1704,13 @@ class File:
                 uid = self.identity.get_uid()
             if gid is None:
                 gid = self.identity.get_gid()
-            # chmod <perms> <name>
-            config.pki_log.debug(
-                log.PKIHELPER_CHMOD_2,
-                perms, name,
-                extra=config.PKI_INDENTATION_LEVEL_3)
+
+            logger.debug('Command: chmod %o %s', perms, name)
             os.chmod(name, perms)
-            # chown <uid>:<gid> <name>
-            config.pki_log.debug(
-                log.PKIHELPER_CHOWN_3,
-                uid, gid, name,
-                extra=config.PKI_INDENTATION_LEVEL_3)
+
+            logger.debug('Command: chown %s:%s %s', uid, gid, name)
             os.chown(name, uid, gid)
+
             # Store record in installation manifest
             self.deployer.record(
                 name,
@@ -1770,10 +1724,7 @@ class File:
                 msg = log.PKI_SHUTIL_ERROR_1
             else:
                 msg = log.PKI_OSERROR_1
-            config.pki_log.error(
-                msg,
-                exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(msg, exc)
             if critical_failure:
                 raise
         return
@@ -1812,10 +1763,9 @@ class File:
 
             except KeyError:
                 # undefined parameter, skip
-                config.pki_log.debug(
+                logger.debug(
                     'ignoring slot [%s]',
-                    line[begin:end + 1],
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+                    line[begin:end + 1])
 
             # find the next parameter in the remainder of the line
             begin = line.find('[', end + 1)
@@ -1830,25 +1780,20 @@ class File:
             critical_failure=True):
         try:
             if not os.path.exists(old_name) or not os.path.isfile(old_name):
-                config.pki_log.error(
-                    log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, old_name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, old_name)
                 raise Exception(
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
                     old_name)
             else:
                 if os.path.exists(new_name):
                     if not overwrite_flag:
-                        config.pki_log.error(
-                            log.PKI_FILE_ALREADY_EXISTS_1, new_name,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        logger.error(log.PKI_FILE_ALREADY_EXISTS_1, new_name)
                         raise Exception(
                             log.PKI_FILE_ALREADY_EXISTS_1 % new_name)
                 # copy <old_name> to <new_name> with slot substitutions
-                config.pki_log.info(
+                logger.info(
                     log.PKIHELPER_COPY_WITH_SLOT_SUBSTITUTION_2,
-                    old_name, new_name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    old_name, new_name)
 
                 with open(new_name, "w") as FILE:
                     for line in fileinput.FileInput(old_name):
@@ -1869,18 +1814,13 @@ class File:
                     uid = self.identity.get_uid()
                 if gid is None:
                     gid = self.identity.get_gid()
-                # chmod <perms> <new_name>
-                config.pki_log.debug(
-                    log.PKIHELPER_CHMOD_2,
-                    perms, new_name,
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                logger.debug('Command: chmod %o %s', perms, new_name)
                 os.chmod(new_name, perms)
-                # chown <uid>:<gid> <new_name>
-                config.pki_log.debug(
-                    log.PKIHELPER_CHOWN_3,
-                    uid, gid, new_name,
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                logger.debug('Command: chown %s:%s %s', uid, gid, new_name)
                 os.chown(new_name, uid, gid)
+
                 # Store record in installation manifest
                 self.deployer.record(
                     new_name,
@@ -1894,10 +1834,7 @@ class File:
                 msg = log.PKI_SHUTIL_ERROR_1
             else:
                 msg = log.PKI_OSERROR_1
-            config.pki_log.error(
-                msg,
-                exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(msg, exc)
             if critical_failure:
                 raise
         return
