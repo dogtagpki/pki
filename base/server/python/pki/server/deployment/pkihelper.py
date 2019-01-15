@@ -1913,33 +1913,32 @@ class Symlink:
 
     def create(self, name, link, uid=None, gid=None,
                acls=None, allow_dangling_symlink=False, critical_failure=True):
+
+        logger.info('Creating symlink %s', name)
+
         try:
             if not os.path.exists(link):
                 if not os.path.exists(name):
-                    config.pki_log.warning(
-                        log.PKIHELPER_DANGLING_SYMLINK_2, link, name,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.warning(log.PKIHELPER_DANGLING_SYMLINK_2, link, name)
                     if not allow_dangling_symlink:
                         raise Exception(
                             "Dangling symlink " + link + " not allowed")
-                # ln -s <name> <link>
-                config.pki_log.info(
-                    log.PKIHELPER_LINK_S_2, name, link,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+
+                logger.debug('Command: ln -s %s %s', name, link)
                 os.symlink(name, link)
+
                 # REMINDER:  Due to POSIX compliance, 'lchmod' is NEVER
                 #            implemented on Linux systems since 'chmod'
                 #            CANNOT be run directly against symbolic links!
-                # chown -h <uid>:<gid> <link>
+
                 if uid is None:
                     uid = self.identity.get_uid()
                 if gid is None:
                     gid = self.identity.get_gid()
-                config.pki_log.debug(
-                    log.PKIHELPER_CHOWN_H_3,
-                    uid, gid, link,
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                logger.debug('Command: chown -h %s:%s %s', uid, gid, link)
                 os.lchown(link, uid, gid)
+
                 # Store record in installation manifest
                 self.deployer.record(
                     link,
@@ -1949,9 +1948,7 @@ class Symlink:
                     config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS,
                     acls)
             elif not os.path.islink(link):
-                config.pki_log.error(
-                    log.PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1, link,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1, link)
                 if critical_failure:
                     raise Exception(
                         log.PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1 % link)
@@ -1959,9 +1956,7 @@ class Symlink:
             if exc.errno == errno.EEXIST:
                 pass
             else:
-                config.pki_log.error(
-                    log.PKI_OSERROR_1, exc,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_OSERROR_1, exc)
                 if critical_failure:
                     raise
         return
@@ -1971,32 +1966,28 @@ class Symlink:
         try:
             if os.path.exists(link):
                 if not os.path.islink(link):
-                    config.pki_log.error(
-                        log.PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1,
-                        link, extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.error(log.PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1, link)
                     if critical_failure:
                         raise Exception(
                             log.PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1 %
                             link)
                 # Always re-process each link whether it needs it or not
                 if not silent:
-                    config.pki_log.info(
-                        log.PKIHELPER_MODIFY_SYMLINK_1, link,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.info(log.PKIHELPER_MODIFY_SYMLINK_1, link)
+
                 # REMINDER:  Due to POSIX compliance, 'lchmod' is NEVER
                 #            implemented on Linux systems since 'chmod'
                 #            CANNOT be run directly against symbolic links!
-                # chown -h <uid>:<gid> <link>
+
                 if uid is None:
                     uid = self.identity.get_uid()
                 if gid is None:
                     gid = self.identity.get_gid()
+
                 if not silent:
-                    config.pki_log.debug(
-                        log.PKIHELPER_CHOWN_H_3,
-                        uid, gid, link,
-                        extra=config.PKI_INDENTATION_LEVEL_3)
+                    logger.debug('Command: chown -h %s:%s %s', uid, gid, link)
                 os.lchown(link, uid, gid)
+
                 # Store record in installation manifest
                 if not silent:
                     self.deployer.record(
@@ -2007,37 +1998,29 @@ class Symlink:
                         config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS,
                         acls)
             else:
-                config.pki_log.error(
-                    log.PKI_SYMLINK_MISSING_OR_NOT_A_SYMLINK_1, link,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_SYMLINK_MISSING_OR_NOT_A_SYMLINK_1, link)
                 if critical_failure:
                     raise Exception(
                         log.PKI_SYMLINK_MISSING_OR_NOT_A_SYMLINK_1 % link)
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
 
     def delete(self, link, critical_failure=True):
+
+        logger.info('Removing symlink %s', link)
+
         try:
             if not os.path.exists(link) or not os.path.islink(link):
                 # Simply issue a warning and continue
-                config.pki_log.warning(
-                    log.PKI_SYMLINK_MISSING_OR_NOT_A_SYMLINK_1, link,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.warning(log.PKI_SYMLINK_MISSING_OR_NOT_A_SYMLINK_1, link)
             else:
-                # rm -f <link>
-                config.pki_log.info(
-                    log.PKIHELPER_RM_F_1, link,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.debug('Command: rm -f %s', link)
                 os.remove(link)
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -2049,9 +2032,7 @@ class Symlink:
             else:
                 return True
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             raise
 
 
