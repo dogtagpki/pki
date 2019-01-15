@@ -2708,15 +2708,11 @@ class Modutil:
     def is_security_module_registered(self, path, modulename, prefix=None):
 
         if not path:
-            config.pki_log.error(
-                log.PKIHELPER_MODUTIL_MISSING_PATH,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKIHELPER_MODUTIL_MISSING_PATH)
             raise Exception(log.PKIHELPER_MODUTIL_MISSING_PATH)
 
         if not modulename:
-            config.pki_log.error(
-                log.PKIHELPER_MODUTIL_MISSING_MODULENAME,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKIHELPER_MODUTIL_MISSING_MODULENAME)
             raise Exception(log.PKIHELPER_MODUTIL_MISSING_MODULENAME)
 
         command = [
@@ -2728,10 +2724,9 @@ class Modutil:
         if prefix:
             command.extend(['--dbprefix', prefix])
 
-        config.pki_log.info(
+        logger.info(
             log.PKIHELPER_REGISTERED_SECURITY_MODULE_CHECK_1,
-            ' '.join(command),
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            ' '.join(command))
 
         # execute command
         p = subprocess.Popen(command, stdout=subprocess.PIPE)
@@ -2749,14 +2744,10 @@ class Modutil:
         )
 
         if modulename not in modules:
-            config.pki_log.info(
-                log.PKIHELPER_UNREGISTERED_SECURITY_MODULE_1, modulename,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info(log.PKIHELPER_UNREGISTERED_SECURITY_MODULE_1, modulename)
             return False
 
-        config.pki_log.info(
-            log.PKIHELPER_REGISTERED_SECURITY_MODULE_1, modulename,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+        logger.info(log.PKIHELPER_REGISTERED_SECURITY_MODULE_1, modulename)
         return True
 
     def register_security_module(self, path, modulename, libfile,
@@ -2771,9 +2762,7 @@ class Modutil:
             if path:
                 command.extend(["-dbdir", path])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_MODUTIL_MISSING_PATH,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_MODUTIL_MISSING_PATH)
                 raise Exception(log.PKIHELPER_MODUTIL_MISSING_PATH)
             #   Add optional security database prefix
             if prefix is not None:
@@ -2784,37 +2773,28 @@ class Modutil:
             if modulename:
                 command.extend(["-add", modulename])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_MODUTIL_MISSING_MODULENAME,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_MODUTIL_MISSING_MODULENAME)
                 raise Exception(log.PKIHELPER_MODUTIL_MISSING_MODULENAME)
             #   Specify a 'libfile'
             if libfile:
                 command.extend(["-libfile", libfile])
             else:
-                config.pki_log.error(
-                    log.PKIHELPER_MODUTIL_MISSING_LIBFILE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKIHELPER_MODUTIL_MISSING_LIBFILE)
                 raise Exception(log.PKIHELPER_MODUTIL_MISSING_LIBFILE)
             #   Append '-force' switch
             command.extend(["-force"])
             # Display this "modutil" command
-            config.pki_log.info(
+            logger.info(
                 log.PKIHELPER_REGISTER_SECURITY_MODULE_1,
-                ' '.join(command),
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                ' '.join(command))
             # Execute this "modutil" command
             subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
