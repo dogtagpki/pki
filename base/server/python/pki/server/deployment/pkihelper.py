@@ -3079,9 +3079,7 @@ class TPSConnector:
             if self.mdict['pki_subsystem_type'] != "tps":
                 return
 
-            config.pki_log.info(
-                log.PKIHELPER_TPSCONNECTOR_UPDATE_CONTACT,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info(log.PKIHELPER_TPSCONNECTOR_UPDATE_CONTACT)
 
             cs_cfg = PKIConfigParser.read_simple_configuration_file(
                 self.mdict['pki_target_cs_cfg'])
@@ -3090,12 +3088,8 @@ class TPSConnector:
             tkshost = cs_cfg.get('tps.connector.tks1.host')
             tksport = cs_cfg.get('tps.connector.tks1.port')
             if tkshost is None or tksport is None:
-                config.pki_log.warning(
-                    log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                config.pki_log.error(
-                    log.PKIHELPER_UNDEFINED_TKS_HOST_PORT,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.warning(log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE)
+                logger.error(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
                 if critical_failure:
                     raise Exception(log.PKIHELPER_UNDEFINED_TKS_HOST_PORT)
                 else:
@@ -3104,12 +3098,8 @@ class TPSConnector:
             # retrieve subsystem nickname
             subsystemnick = cs_cfg.get('tps.cert.subsystem.nickname')
             if subsystemnick is None:
-                config.pki_log.warning(
-                    log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                config.pki_log.error(
-                    log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.warning(log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE)
+                logger.error(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
                 if critical_failure:
                     raise Exception(log.PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME)
                 else:
@@ -3126,13 +3116,10 @@ class TPSConnector:
                 token_name)
 
             if token_pwd is None or token_pwd == '':
-                config.pki_log.warning(
-                    log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
-                config.pki_log.error(
+                logger.warning(log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE)
+                logger.error(
                     log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1,
-                    token_name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                    token_name)
                 if critical_failure:
                     raise Exception(
                         log.PKIHELPER_UNDEFINED_TOKEN_PASSWD_1 % token_name)
@@ -3144,14 +3131,11 @@ class TPSConnector:
                 token_pwd, tpshost, tpsport)
 
         except subprocess.CalledProcessError as exc:
-            config.pki_log.warning(
+            logger.warning(
                 log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE_2,
                 str(tkshost),
-                str(tksport),
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                str(tksport))
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -3177,14 +3161,11 @@ class TPSConnector:
         output = output.decode('utf-8')
         error = re.findall("ClientResponseFailure:(.*?)", output)
         if error:
-            config.pki_log.warning(
+            logger.warning(
                 log.PKIHELPER_TPSCONNECTOR_UPDATE_FAILURE_2,
                 str(tpshost),
-                str(tpsport),
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, output,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+                str(tpsport))
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, output)
         if critical_failure:
             raise Exception(log.PKI_SUBPROCESS_ERROR_1 % output)
 
