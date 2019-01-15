@@ -46,6 +46,10 @@ from . import pkiconfig as config
 from . import pkimessages as log
 from . import pkilogging
 
+logger = logging.LoggerAdapter(
+    logging.getLogger('pkiparser'),
+    extra={'indent': ''})
+
 
 class PKIConfigParser:
 
@@ -591,12 +595,8 @@ class PKIConfigParser:
         try:
             info = sd.get_security_domain_info()
         except requests.exceptions.HTTPError as e:
-            config.pki_log.warning(
-                'Unable to get security domain info: %s', e,
-                extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.info(
-                'Trying older interface.',
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.warning('Unable to get security domain info: %s', e)
+            logger.info('Trying older interface.')
             info = sd.get_old_security_domain_info()
         return info
 
@@ -612,9 +612,7 @@ class PKIConfigParser:
         except requests.exceptions.HTTPError as e:
             code = e.response.status_code
             if code == 404 or code == 501:
-                config.pki_log.warning(
-                    'Unable to authenticate against security domain: %s', e,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.warning('Unable to authenticate against security domain: %s', e)
             else:
                 raise
 
@@ -745,10 +743,9 @@ class PKIConfigParser:
                     self.mdict['pki_one_time_pin'] = \
                         cs_cfg.get('preop.pin')
                 else:
-                    config.pki_log.error(
+                    logger.error(
                         log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                        self.mdict['pki_target_cs_cfg'],
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                        self.mdict['pki_target_cs_cfg'])
                     raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1)
             else:
                 # Generate a one-time pin to be used prior to configuration
@@ -1326,18 +1323,14 @@ class PKIConfigParser:
                 self.mdict['pki_instance_name'] + "." + "service"
 
         except OSError as exc:
-            config.pki_log.error(log.PKI_OSERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             raise
         except KeyError as err:
-            config.pki_log.error(log.PKIHELPER_DICTIONARY_MASTER_MISSING_KEY_1,
-                                 err, extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKIHELPER_DICTIONARY_MASTER_MISSING_KEY_1, err)
             raise
         except configparser.InterpolationSyntaxError as err:
-            config.pki_log.error(log.PKIHELPER_DICTIONARY_INTERPOLATION_1,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
-            config.pki_log.error(log.PKIHELPER_DICTIONARY_INTERPOLATION_2, err,
-                                 extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKIHELPER_DICTIONARY_INTERPOLATION_1)
+            logger.error(log.PKIHELPER_DICTIONARY_INTERPOLATION_2, err)
             raise
         return
 

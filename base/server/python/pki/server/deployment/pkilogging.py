@@ -78,6 +78,8 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
     # Configure loggers
     modules = [
         'pki',
+        'pkihelper',
+        'pkiparser',
         'initialization',
         'infrastructure',
         'instance',
@@ -87,8 +89,7 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
         'selinux',
         'keygen',
         'configuration',
-        'finalization',
-        'pkihelper'
+        'finalization'
     ]
 
     for module in modules:
