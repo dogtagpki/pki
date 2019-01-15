@@ -7,7 +7,7 @@ URL:              http://www.dogtagpki.org/
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 
-Version:          10.6.8
+Version:          10.6.9
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 # global           _phase -a1
 
@@ -291,13 +291,12 @@ BuildRequires:    python3-devel
 BuildRequires:    python3-cryptography
 BuildRequires:    python3-lxml
 %if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
-BuildRequires:    python3-pyldap
 # no python3-libselinux
 %else
-BuildRequires:    python3-ldap
 BuildRequires:    python3-libselinux
 %endif
 BuildRequires:    python3-nss
+BuildRequires:    python3-pyldap
 BuildRequires:    python3-requests >= 2.6.0
 BuildRequires:    python3-six
 %endif  # with_python3
