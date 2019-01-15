@@ -1139,28 +1139,26 @@ class Directory:
     def create(self, name, uid=None, gid=None,
                perms=config.PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS,
                acls=None, critical_failure=True):
+
+        logger.info('Creating directory %s', name)
+
         try:
             if not os.path.exists(name):
-                # mkdir -p <name>
-                config.pki_log.info(
-                    log.PKIHELPER_MKDIR_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+
+                logger.debug('Command: mkdir -p %s', name)
                 os.makedirs(name)
-                # chmod <perms> <name>
-                config.pki_log.debug(
-                    log.PKIHELPER_CHMOD_2, perms, name,
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                logger.debug('Command: chmod %o %s', perms, name)
                 os.chmod(name, perms)
-                # chown <uid>:<gid> <name>
+
                 if uid is None:
                     uid = self.identity.get_uid()
                 if gid is None:
                     gid = self.identity.get_gid()
-                config.pki_log.debug(
-                    log.PKIHELPER_CHOWN_3,
-                    uid, gid, name,
-                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                logger.debug('Command: chown %s:%s %s', uid, gid, name)
                 os.chown(name, uid, gid)
+
                 # Store record in installation manifest
                 self.deployer.record(
                     name,
@@ -1170,9 +1168,7 @@ class Directory:
                     perms,
                     acls)
             elif not os.path.isdir(name):
-                config.pki_log.error(
-                    log.PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1, name)
                 if critical_failure:
                     raise Exception(
                         log.PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1 %
@@ -1181,9 +1177,7 @@ class Directory:
             if exc.errno == errno.EEXIST:
                 pass
             else:
-                config.pki_log.error(
-                    log.PKI_OSERROR_1, exc,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_OSERROR_1, exc)
                 if critical_failure:
                     raise
         return
@@ -1194,35 +1188,28 @@ class Directory:
         try:
             if os.path.exists(name):
                 if not os.path.isdir(name):
-                    config.pki_log.error(
-                        log.PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1,
-                        name, extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.error(log.PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1, name)
                     if critical_failure:
                         raise Exception(
                             log.PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1 %
                             name)
                 # Always re-process each directory whether it needs it or not
                 if not silent:
-                    config.pki_log.info(
-                        log.PKIHELPER_MODIFY_DIR_1, name,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
-                # chmod <perms> <name>
+                    logger.info(log.PKIHELPER_MODIFY_DIR_1, name)
+
                 if not silent:
-                    config.pki_log.debug(
-                        log.PKIHELPER_CHMOD_2, perms, name,
-                        extra=config.PKI_INDENTATION_LEVEL_3)
+                    logger.debug('Command: chmod %o %s', perms, name)
                 os.chmod(name, perms)
-                # chown <uid>:<gid> <name>
+
                 if uid is None:
                     uid = self.identity.get_uid()
                 if gid is None:
                     gid = self.identity.get_gid()
+
                 if not silent:
-                    config.pki_log.debug(
-                        log.PKIHELPER_CHOWN_3,
-                        uid, gid, name,
-                        extra=config.PKI_INDENTATION_LEVEL_3)
+                    logger.debug('Command: chown %s:%s %s', uid, gid, name)
                 os.chown(name, uid, gid)
+
                 # Store record in installation manifest
                 if not silent:
                     self.deployer.record(
@@ -1233,44 +1220,33 @@ class Directory:
                         perms,
                         acls)
             else:
-                config.pki_log.error(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, name)
                 if critical_failure:
                     raise Exception(
                         log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % name)
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
 
     def delete(self, name, recursive_flag=True, critical_failure=True):
+
+        logger.info('Removing directory %s', name)
+
         try:
             if not os.path.exists(name) or not os.path.isdir(name):
                 # Simply issue a warning and continue
-                config.pki_log.warning(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.warning(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, name)
             else:
                 if recursive_flag:
-                    # rm -rf <name>
-                    config.pki_log.info(
-                        log.PKIHELPER_RM_RF_1, name,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.debug('Command: rm -rf %s', name)
                     shutil.rmtree(name)
                 else:
-                    # rmdir <name>
-                    config.pki_log.info(
-                        log.PKIHELPER_RMDIR_1, name,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.debug('Command: rmdir %s', name)
                     os.rmdir(name)
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -1282,27 +1258,19 @@ class Directory:
             else:
                 return True
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             raise
 
     def is_empty(self, name):
         try:
             if not os.listdir(name):
-                config.pki_log.debug(
-                    log.PKIHELPER_DIRECTORY_IS_EMPTY_1,
-                    name, extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.debug(log.PKIHELPER_DIRECTORY_IS_EMPTY_1, name)
                 return True
             else:
-                config.pki_log.debug(
-                    log.PKIHELPER_DIRECTORY_IS_NOT_EMPTY_1,
-                    name, extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.debug(log.PKIHELPER_DIRECTORY_IS_NOT_EMPTY_1, name)
                 return False
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             raise
 
     def set_mode(
@@ -1314,15 +1282,11 @@ class Directory:
             recursive_flag=True, critical_failure=True):
         try:
             if not os.path.exists(name) or not os.path.isdir(name):
-                config.pki_log.error(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, name)
                 raise Exception(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % name)
             else:
-                config.pki_log.info(
-                    log.PKIHELPER_SET_MODE_1, name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.info(log.PKIHELPER_SET_MODE_1, name)
                 if uid is None:
                     uid = self.identity.get_uid()
                 if gid is None:
@@ -1333,21 +1297,14 @@ class Directory:
                             entity = os.path.join(root, name)
                             if not os.path.islink(entity):
                                 temp_file = entity
-                                config.pki_log.debug(
-                                    log.PKIHELPER_IS_A_FILE_1, temp_file,
-                                    extra=config.PKI_INDENTATION_LEVEL_3)
-                                # chmod <file_perms> <name>
-                                config.pki_log.debug(
-                                    log.PKIHELPER_CHMOD_2,
-                                    file_perms, temp_file,
-                                    extra=config.PKI_INDENTATION_LEVEL_3)
+                                logger.debug(log.PKIHELPER_IS_A_FILE_1, temp_file)
+
+                                logger.debug('Command: chmod %o %s', file_perms, temp_file)
                                 os.chmod(temp_file, file_perms)
-                                # chown <uid>:<gid> <name>
-                                config.pki_log.debug(
-                                    log.PKIHELPER_CHOWN_3,
-                                    uid, gid, temp_file,
-                                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                                logger.debug('Command: chown %s:%s %s', uid, gid, temp_file)
                                 os.chown(temp_file, uid, gid)
+
                                 # Store record in installation manifest
                                 self.deployer.record(
                                     name,
@@ -1358,20 +1315,16 @@ class Directory:
                                     file_acls)
                             else:
                                 symlink = entity
-                                config.pki_log.debug(
-                                    log.PKIHELPER_IS_A_SYMLINK_1, symlink,
-                                    extra=config.PKI_INDENTATION_LEVEL_3)
+                                logger.debug(log.PKIHELPER_IS_A_SYMLINK_1, symlink)
                                 # REMINDER:  Due to POSIX compliance, 'lchmod'
                                 #            is NEVER implemented on Linux
                                 #            systems since 'chmod' CANNOT be
                                 #            run directly against symbolic
                                 #            links!
-                                # chown -h <uid>:<gid> <symlink>
-                                config.pki_log.debug(
-                                    log.PKIHELPER_CHOWN_H_3,
-                                    uid, gid, symlink,
-                                    extra=config.PKI_INDENTATION_LEVEL_3)
+
+                                logger.debug('Command: chown -h %s:%s %s', uid, gid, symlink)
                                 os.lchown(symlink, uid, gid)
+
                                 # Store record in installation manifest
                                 self.deployer.record(
                                     name,
@@ -1382,21 +1335,14 @@ class Directory:
                                     symlink_acls)
                         for name in dirs:
                             temp_dir = os.path.join(root, name)
-                            config.pki_log.debug(
-                                log.PKIHELPER_IS_A_DIRECTORY_1, temp_dir,
-                                extra=config.PKI_INDENTATION_LEVEL_3)
-                            # chmod <dir_perms> <name>
-                            config.pki_log.debug(
-                                log.PKIHELPER_CHMOD_2,
-                                dir_perms, temp_dir,
-                                extra=config.PKI_INDENTATION_LEVEL_3)
+                            logger.debug(log.PKIHELPER_IS_A_DIRECTORY_1, temp_dir)
+
+                            logger.debug('Command: chmod %o %s', dir_perms, temp_dir)
                             os.chmod(temp_dir, dir_perms)
-                            # chown <uid>:<gid> <name>
-                            config.pki_log.debug(
-                                log.PKIHELPER_CHOWN_3,
-                                uid, gid, temp_dir,
-                                extra=config.PKI_INDENTATION_LEVEL_3)
+
+                            logger.debug('Command: chown %s:%s %s', uid, gid, temp_dir)
                             os.chown(temp_dir, uid, gid)
+
                             # Store record in installation manifest
                             self.deployer.record(
                                 name,
@@ -1406,21 +1352,14 @@ class Directory:
                                 dir_perms,
                                 dir_acls)
                 else:
-                    config.pki_log.debug(
-                        log.PKIHELPER_IS_A_DIRECTORY_1, name,
-                        extra=config.PKI_INDENTATION_LEVEL_3)
-                    # chmod <dir_perms> <name>
-                    config.pki_log.debug(
-                        log.PKIHELPER_CHMOD_2,
-                        dir_perms, name,
-                        extra=config.PKI_INDENTATION_LEVEL_3)
+                    logger.debug(log.PKIHELPER_IS_A_DIRECTORY_1, name)
+
+                    logger.debug('Command: chmod %o %s', dir_perms, name)
                     os.chmod(name, dir_perms)
-                    # chown <uid>:<gid> <name>
-                    config.pki_log.debug(
-                        log.PKIHELPER_CHOWN_3,
-                        uid, gid, name,
-                        extra=config.PKI_INDENTATION_LEVEL_3)
+
+                    logger.debug('Command: chown %s:%s %s', uid, gid, name)
                     os.chown(name, uid, gid)
+
                     # Store record in installation manifest
                     self.deployer.record(
                         name,
@@ -1430,9 +1369,7 @@ class Directory:
                         dir_perms,
                         dir_acls)
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
 
@@ -1443,28 +1380,24 @@ class Directory:
              dir_acls=None, file_acls=None, symlink_acls=None,
              recursive_flag=True, overwrite_flag=False, critical_failure=True,
              ignore_cb=None):
+
+        logger.info('Creating directory %s', new_name)
+
         try:
 
             if not os.path.exists(old_name) or not os.path.isdir(old_name):
-                config.pki_log.error(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, old_name,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, old_name)
                 raise Exception(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % old_name)
             else:
                 if os.path.exists(new_name):
                     if not overwrite_flag:
-                        config.pki_log.error(
-                            log.PKI_DIRECTORY_ALREADY_EXISTS_1, new_name,
-                            extra=config.PKI_INDENTATION_LEVEL_2)
+                        logger.error(log.PKI_DIRECTORY_ALREADY_EXISTS_1, new_name)
                         raise Exception(
                             log.PKI_DIRECTORY_ALREADY_EXISTS_1 % new_name)
+
                 if recursive_flag:
-                    # cp -rp <old_name> <new_name>
-                    config.pki_log.info(
-                        log.PKIHELPER_CP_RP_2,
-                        old_name, new_name,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.debug('Command: cp -rp %s %s', old_name, new_name)
                     # Due to a limitation in the 'shutil.copytree()'
                     # implementation which requires that
                     # 'The destination directory must not already exist.',
@@ -1474,12 +1407,9 @@ class Directory:
                     # been included in this file with the appropriate fix.
                     pki.util.copytree(old_name, new_name, ignore=ignore_cb)
                 else:
-                    # cp -p <old_name> <new_name>
-                    config.pki_log.info(
-                        log.PKIHELPER_CP_P_2,
-                        old_name, new_name,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.debug('Command: cp -p %s %s', old_name, new_name)
                     shutil.copy2(old_name, new_name)
+
                 # set ownerships, permissions, and acls
                 # of newly created top-level directory
                 self.modify(new_name, uid, gid, dir_perms, dir_acls,
@@ -1495,10 +1425,7 @@ class Directory:
                 msg = log.PKI_SHUTIL_ERROR_1
             else:
                 msg = log.PKI_OSERROR_1
-            config.pki_log.error(
-                msg,
-                exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(msg, exc)
             if critical_failure:
                 raise
         return
