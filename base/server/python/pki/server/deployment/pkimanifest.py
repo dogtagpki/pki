@@ -22,10 +22,14 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import csv
+import logging
 
 # PKI Deployment Imports
-from . import pkiconfig as config
 from . import pkimessages as log
+
+logger = logging.LoggerAdapter(
+    logging.getLogger('pkimanifest'),
+    extra={'indent': ''})
 
 
 # PKI Deployment Manifest Constants
@@ -88,8 +92,7 @@ class File:
                 for record in self.database:
                     c.writerow(tuple(record))
         except IOError as exc:
-            config.pki_log.error(log.PKI_IOERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.error(log.PKI_IOERROR_1, exc)
             raise
 
     def read(self):
@@ -99,6 +102,5 @@ class File:
                 for row in cr:
                     print(tuple(row))
         except IOError as exc:
-            config.pki_log.error(log.PKI_IOERROR_1, exc,
-                                 extra=config.PKI_INDENTATION_LEVEL_1)
+            logger.error(log.PKI_IOERROR_1, exc)
             raise
