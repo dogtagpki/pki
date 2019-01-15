@@ -2148,6 +2148,9 @@ class Certutil:
     def create_security_databases(self, path,
                                   password_file=None, prefix=None,
                                   critical_failure=True):
+
+        logger.info('Creating NSS database in %s', path)
+
         cert_db, key_db, secmod_db = self._get_dbfiles(path)
         try:
             # Compose this "certutil" command
@@ -2185,10 +2188,10 @@ class Certutil:
                         raise Exception(
                             log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
                             password_file)
-                # Display this "certutil" command
-                logger.info('Command: %s', ' '.join(command))
-                # Execute this "certutil" command
+
+                logger.debug('Command: %s', ' '.join(command))
                 subprocess.check_call(command)
+
         except subprocess.CalledProcessError as exc:
             logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
@@ -2256,6 +2259,9 @@ class Certutil:
                                          trustargs, noise_file,
                                          password_file=None,
                                          critical_failure=True):
+
+        logger.info('Generating self-signed certificate %s', nickname)
+
         try:
             # Compose this "certutil" command
             command = ["certutil", "-S"]
@@ -2340,8 +2346,7 @@ class Certutil:
                 command.extend(["-f", password_file])
             #   ALWAYS self-sign this certificate
             command.append("-x")
-            # Display this "certutil" command
-            logger.info('Command: %s', ' '.join(command))
+
             if not os.path.exists(path):
                 logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path)
                 raise Exception(
@@ -2360,8 +2365,10 @@ class Certutil:
                         password_file)
                     raise Exception(
                         log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
-            # Execute this "certutil" command
+
+            logger.debug('Command: %s', ' '.join(command))
             subprocess.check_output(command, stderr=subprocess.STDOUT)
+
         except subprocess.CalledProcessError as exc:
             logger.error(
                 log.PKI_SUBPROCESS_ERROR_2, exc,
@@ -2376,6 +2383,9 @@ class Certutil:
 
     def import_cert(self, nickname, trust, input_file, password_file,
                     path=None, token=None, critical_failure=True):
+
+        logger.info('Importing %s cert from %s', nickname, input_file)
+
         try:
             command = ["certutil", "-A"]
             if path:
@@ -2408,8 +2418,9 @@ class Certutil:
                 logger.error(log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE)
                 raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PASSWORD_FILE)
 
-            logger.info('Command: %s', ' '.join(command))
+            logger.debug('Command: %s', ' '.join(command))
             subprocess.check_call(command)
+
         except subprocess.CalledProcessError as exc:
             logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
@@ -2425,6 +2436,9 @@ class Certutil:
                                      output_file=None, path=None,
                                      ascii_format=None, token=None,
                                      critical_failure=True):
+
+        logger.info('Generating CSR for %s', subject)
+
         try:
             command = ["certutil", "-R"]
             if path:
@@ -2485,8 +2499,6 @@ class Certutil:
             if ascii_format:
                 command.append("-a")
 
-            # Display this "certutil" command
-            logger.info('Command: %s', ' '.join(command))
             if not os.path.exists(noise_file):
                 logger.error(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
@@ -2500,9 +2512,11 @@ class Certutil:
                     password_file)
                 raise Exception(
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
-            # Execute this "certutil" command
+
+            logger.debug('Command: %s', ' '.join(command))
             with open(os.devnull, "w") as fnull:
                 subprocess.check_call(command, stdout=fnull, stderr=fnull)
+
         except subprocess.CalledProcessError as exc:
             logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
