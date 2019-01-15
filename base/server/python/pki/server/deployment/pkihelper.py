@@ -2141,9 +2141,7 @@ class Password:
                 fd.write(token + '=' + str(pin))
 
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -2151,9 +2149,7 @@ class Password:
     def create_hsm_password_conf(self, path, pin, hsm_pin,
                                  overwrite_flag=False, critical_failure=True):
 
-        config.pki_log.info(
-            log.PKIHELPER_PASSWORD_CONF_1, path,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+        logger.info(log.PKIHELPER_PASSWORD_CONF_1, path)
 
         try:
             if os.path.exists(path):
@@ -2171,9 +2167,7 @@ class Password:
                          "=" + str(hsm_pin))
 
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
@@ -2183,23 +2177,17 @@ class Password:
         try:
             if os.path.exists(path):
                 if overwrite_flag:
-                    config.pki_log.info(
-                        log.PKIHELPER_PASSWORD_CONF_1, path,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.info(log.PKIHELPER_PASSWORD_CONF_1, path)
                     # overwrite the existing 'pkcs12_password.conf' file
                     with open(path, "w") as fd:
                         fd.write(self.mdict['pki_client_pkcs12_password'])
             else:
-                config.pki_log.info(
-                    log.PKIHELPER_PASSWORD_CONF_1, path,
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.info(log.PKIHELPER_PASSWORD_CONF_1, path)
                 # create a new 'pkcs12_password.conf' file
                 with open(path, "w") as fd:
                     fd.write(self.mdict['pki_client_pkcs12_password'])
         except OSError as exc:
-            config.pki_log.error(
-                log.PKI_OSERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_OSERROR_1, exc)
             if critical_failure:
                 raise
         return
