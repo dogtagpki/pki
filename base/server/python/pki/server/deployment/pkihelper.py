@@ -3757,9 +3757,7 @@ class ConfigClient:
         self.san_inject = config.str2bool(self.mdict['pki_san_inject'])
 
     def process_admin_cert(self, admin_cert):
-        config.pki_log.debug(
-            'admin cert: %s', admin_cert,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.debug('admin cert: %s', admin_cert)
 
         # Store the Administration Certificate in a file
         admin_cert_file = self.mdict['pki_client_admin_cert']
@@ -3769,15 +3767,11 @@ class ConfigClient:
 
         # convert the cert file to binary
         command = ["AtoB", admin_cert_file, admin_cert_bin_file]
-        config.pki_log.info(
-            ' '.join(command),
-            extra=config.PKI_INDENTATION_LEVEL_2)
+        logger.debug('Command: %s', ' '.join(command))
         try:
             subprocess.check_call(command)
         except subprocess.CalledProcessError as exc:
-            config.pki_log.error(
-                log.PKI_SUBPROCESS_ERROR_1, exc,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             raise
 
         os.chmod(admin_cert_file,
@@ -3816,9 +3810,7 @@ class ConfigClient:
 
     def create_config_request(self, nssdb):
 
-        config.pki_log.info(
-            'Creating config request',
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Creating config request')
 
         data = pki.system.ConfigurationRequest()
 
@@ -3893,9 +3885,7 @@ class ConfigClient:
 
     def create_admin_setup_request(self):
 
-        config.pki_log.info(
-            'Creating admin setup request',
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Creating admin setup request')
 
         request = pki.system.AdminSetupRequest()
 
@@ -3907,9 +3897,7 @@ class ConfigClient:
 
     def create_key_backup_request(self):
 
-        config.pki_log.info(
-            'Creating key backup request',
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Creating key backup request')
 
         request = pki.system.KeyBackupRequest()
 
@@ -3920,11 +3908,10 @@ class ConfigClient:
         return request
 
     def save_admin_csr(self):
-        config.pki_log.info(
+        logger.info(
             log.PKI_CONFIG_EXTERNAL_CSR_SAVE_PKI_ADMIN_2,
             self.subsystem,
-            self.mdict['pki_admin_csr_path'],
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            self.mdict['pki_admin_csr_path'])
         self.deployer.directory.create(
             os.path.dirname(self.mdict['pki_admin_csr_path']))
         with open(self.mdict['pki_admin_csr_path'], "w") as f:
@@ -3939,45 +3926,34 @@ class ConfigClient:
         # Read in and print Admin certificate request
         with open(self.mdict['pki_admin_csr_path'], "r") as f:
             admin_certreq = f.read()
-        config.pki_log.info(
-            'Admin request: %s', admin_certreq,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Admin request: %s', admin_certreq)
 
     def save_admin_cert(self, input_data, output_file, subsystem_name):
-        config.pki_log.debug(
+        logger.debug(
             log.PKI_CONFIG_ADMIN_CERT_SAVE_2,
             subsystem_name,
-            output_file,
-            extra=config.PKI_INDENTATION_LEVEL_2)
+            output_file)
         with open(output_file, "w") as f:
             f.write(input_data)
 
     def save_system_csr(self, request, message, path, subsystem=None):
         if subsystem is not None:
-            config.pki_log.info(
-                message, subsystem, path,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info(message, subsystem, path)
         else:
-            config.pki_log.info(
-                message, path,
-                extra=config.PKI_INDENTATION_LEVEL_2)
+            logger.info(message, path)
         self.deployer.directory.create(os.path.dirname(path))
         csr = pki.nssdb.convert_csr(request, 'base64', 'pem')
         with open(path, "w") as f:
             f.write(csr)
         # Print this certificate request
-        config.pki_log.info(
-            'Request:\n%s', csr,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Request:\n%s', csr)
 
     def load_system_cert(self, nssdb, cert, nickname=None):
 
         if not nickname:
             nickname = cert.nickname
 
-        config.pki_log.info(
-            "Loading system cert: %s", nickname,
-            extra=config.PKI_INDENTATION_LEVEL_0)
+        logger.info('Loading system cert: %s', nickname)
 
         certdata = nssdb.get_cert(
             nickname=nickname,
@@ -4256,10 +4232,9 @@ class ConfigClient:
                 password=self.mdict['pki_client_database_password'])
 
             try:
-                config.pki_log.info(
+                logger.info(
                     'Loading admin cert from client database: %s',
-                    self.mdict['pki_admin_nickname'],
-                    extra=config.PKI_INDENTATION_LEVEL_0)
+                    self.mdict['pki_admin_nickname'])
 
                 data.adminCert = client_nssdb.get_cert(
                     nickname=self.mdict['pki_admin_nickname'],
@@ -4267,9 +4242,7 @@ class ConfigClient:
                     output_text=True,  # JSON encoder needs text
                 )
 
-                config.pki_log.debug(
-                    'Admin cert: %s', data.adminCert,
-                    extra=config.PKI_INDENTATION_LEVEL_0)
+                logger.debug('Admin cert: %s', data.adminCert)
 
                 if data.adminCert:
                     return
@@ -4285,10 +4258,9 @@ class ConfigClient:
                 # 'ca_admin.cert' under the specified 'pki_client_dir'
                 # stripping the certificate HEADER/FOOTER prior to saving it.
 
-                config.pki_log.info(
+                logger.info(
                     'Loading admin cert from %s',
-                    self.mdict['pki_admin_cert_path'],
-                    extra=config.PKI_INDENTATION_LEVEL_0)
+                    self.mdict['pki_admin_cert_path'])
 
                 imported_admin_cert = ""
                 with open(self.mdict['pki_admin_cert_path'], "r") as f:
@@ -4300,25 +4272,21 @@ class ConfigClient:
                         else:
                             imported_admin_cert += line
 
-                config.pki_log.info(
+                logger.info(
                     'Storing admin cert into %s',
-                    self.mdict['pki_admin_cert_file'],
-                    extra=config.PKI_INDENTATION_LEVEL_0)
+                    self.mdict['pki_admin_cert_file'])
 
                 with open(self.mdict['pki_admin_cert_file'], "w") as f:
                     f.write(imported_admin_cert)
 
-            config.pki_log.info(
+            logger.info(
                 'Loading admin cert from %s',
-                self.mdict['pki_admin_cert_file'],
-                extra=config.PKI_INDENTATION_LEVEL_0)
+                self.mdict['pki_admin_cert_file'])
 
             with open(self.mdict['pki_admin_cert_file'], "r") as f:
                 b64 = f.read().replace('\n', '')
 
-            config.pki_log.debug(
-                'Admin cert: %s', b64,
-                extra=config.PKI_INDENTATION_LEVEL_0)
+            logger.debug('Admin cert: %s', b64)
 
             data.adminCert = b64
 
@@ -4357,15 +4325,11 @@ class ConfigClient:
 
                 # convert output to ascii
                 command = ["BtoA", output_file, output_file + ".asc"]
-                config.pki_log.info(
-                    ' '.join(command),
-                    extra=config.PKI_INDENTATION_LEVEL_2)
+                logger.debug('Command: %s', ' '.join(command))
                 try:
                     subprocess.check_call(command)
                 except subprocess.CalledProcessError as exc:
-                    config.pki_log.error(
-                        log.PKI_SUBPROCESS_ERROR_1, exc,
-                        extra=config.PKI_INDENTATION_LEVEL_2)
+                    logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
                     raise
 
                 if self.standalone and not self.external_step_two:
