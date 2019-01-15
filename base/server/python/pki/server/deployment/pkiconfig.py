@@ -150,7 +150,6 @@ def wait_to_attach_an_external_java_debugger():
 
 
 # PKI Deployment Logger Variables
-pki_log = None
 pki_log_dir = None
 pki_log_name = None
 pki_log_level = None

@@ -24,8 +24,6 @@ import logging
 import os
 import pprint
 
-from pki.server.deployment import pkiconfig as config
-
 sensitive_parameters = []
 
 # Initialize 'pretty print' for objects
@@ -69,12 +67,6 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
                                     '%Y-%m-%d %H:%M:%S')
     log_file.setFormatter(file_format)
 
-    # Configure pkispawn/pkidestroy logger
-    config.pki_log = logging.getLogger(name)
-    config.pki_log.setLevel(log_level)
-    config.pki_log.addHandler(console)
-    config.pki_log.addHandler(log_file)
-
     # Configure loggers
     modules = [
         'pki',
@@ -90,7 +82,8 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
         'selinux',
         'keygen',
         'configuration',
-        'finalization'
+        'finalization',
+        name
     ]
 
     for module in modules:
