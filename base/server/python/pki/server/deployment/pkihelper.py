@@ -2637,6 +2637,9 @@ class PK12util:
 
     def create_file(self, out_file, nickname, out_pwfile,
                     db_pwfile, path=None, critical_failure=True):
+
+        logger.info('Exporting %s cert and key into %s', nickname, out_file)
+
         try:
             command = ["pk12util"]
             if path:
@@ -2662,9 +2665,10 @@ class PK12util:
                 logger.error(log.PKIHELPER_PK12UTIL_MISSING_DBPWFILE)
                 raise Exception(log.PKIHELPER_PK12UTIL_MISSING_DBPWFILE)
 
-            logger.info('Command: %s', ' '.join(command))
+            logger.debug('Command: %s', ' '.join(command))
             with open(os.devnull, "w") as fnull:
                 subprocess.check_call(command, stdout=fnull, stderr=fnull)
+
         except subprocess.CalledProcessError as exc:
             logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
