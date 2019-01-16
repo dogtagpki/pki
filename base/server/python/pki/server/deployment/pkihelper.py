@@ -1778,7 +1778,7 @@ class Symlink:
     def create(self, name, link, uid=None, gid=None,
                acls=None, allow_dangling_symlink=False, critical_failure=True):
 
-        logger.info('Creating symlink %s', name)
+        logger.info('Creating symlink %s', link)
 
         try:
             if not os.path.exists(link):
@@ -3304,12 +3304,14 @@ class Systemd(object):
         Examples:
 
         """
+
+        logger.info('Disabling service %s', self.service_name)
+
         try:
             command = ["systemctl", "disable", self.service_name]
-            # Display this "systemd" execution managment command
-            logger.info('Command: %s', ' '.join(command))
-            # Execute this "systemd" execution management command
+            logger.debug('Command: %s', ' '.join(command))
             subprocess.check_call(command)
+
         except subprocess.CalledProcessError as exc:
             logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
@@ -3344,12 +3346,14 @@ class Systemd(object):
         Examples:
 
         """
+
+        logger.info('Enabling service %s', self.service_name)
+
         try:
             command = ["systemctl", "enable", self.service_name]
-            # Display this "systemd" execution managment command
-            logger.info('Command: %s', ' '.join(command))
-            # Execute this "systemd" execution management command
+            logger.debug('Command: %s', ' '.join(command))
             subprocess.check_call(command)
+
         except subprocess.CalledProcessError as exc:
             logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
             if critical_failure:
