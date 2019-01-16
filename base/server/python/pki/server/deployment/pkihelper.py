@@ -83,11 +83,15 @@ class Identity:
         self.mdict = deployer.mdict
 
     def __add_gid(self, pki_group):
+
+        logger.info('Setting up %s group', pki_group)
+
         try:
             # Does the specified 'pki_group' exist?
             pki_gid = getgrnam(pki_group)[2]
-            # Yes, group 'pki_group' exists!
-            logger.info(log.PKIHELPER_GROUP_ADD_2, pki_group, pki_gid)
+
+            logger.info('Reusing existing %s group with GID %s', pki_group, pki_gid)
+
         except KeyError as exc:
             # No, group 'pki_group' does not exist!
             logger.debug(log.PKIHELPER_GROUP_ADD_KEYERROR_1, exc)
@@ -114,7 +118,7 @@ class Identity:
                     # No, attempt to create 'pki_group' using a random GID.
                     command = ["/usr/sbin/groupadd", pki_group]
             try:
-                # Execute this "groupadd" command.
+                logger.debug('Command: %s', ' '.join(command))
                 with open(os.devnull, "w") as fnull:
                     subprocess.check_call(command, stdout=fnull, stderr=fnull,
                                           close_fds=True)
@@ -127,12 +131,15 @@ class Identity:
         return
 
     def __add_uid(self, pki_user, pki_group):
+
+        logger.info('Setting up %s user', pki_user)
+
         try:
             # Does the specified 'pki_user' exist?
             pki_uid = getpwnam(pki_user)[2]
-            # Yes, user 'pki_user' exists!
-            logger.info(log.PKIHELPER_USER_ADD_2, pki_user, pki_uid)
-            # NOTE:  For now, never check validity of specified 'pki_group'!
+
+            logger.info('Reusing existing %s user with UID %s', pki_user, pki_uid)
+
         except KeyError as exc:
             # No, user 'pki_user' does not exist!
             logger.debug(log.PKIHELPER_USER_ADD_KEYERROR_1, exc)
@@ -173,7 +180,7 @@ class Identity:
                                "-c", config.PKI_DEPLOYMENT_DEFAULT_COMMENT,
                                pki_user]
             try:
-                # Execute this "useradd" command.
+                logger.debug('Command: %s', ' '.join(command))
                 with open(os.devnull, "w") as fnull:
                     subprocess.check_call(command, stdout=fnull, stderr=fnull,
                                           close_fds=True)
@@ -336,7 +343,6 @@ class Namespace:
             # Check if logs already exist. If so, append to it. Log it as info
             logger.info(
                 log.PKIHELPER_LOG_REUSE,
-                self.mdict['pki_instance_name'],
                 self.mdict['pki_instance_log_path'])
 
         if os.path.exists(self.mdict['pki_instance_configuration_path']) and\
@@ -1088,6 +1094,10 @@ class Directory:
     def modify(self, name, uid=None, gid=None,
                perms=config.PKI_DEPLOYMENT_DEFAULT_DIR_PERMISSIONS,
                acls=None, silent=False, critical_failure=True):
+
+        if not silent:
+            logger.info('Updating directory %s', name)
+
         try:
             if os.path.exists(name):
                 if not os.path.isdir(name):
@@ -1096,9 +1106,8 @@ class Directory:
                         raise Exception(
                             log.PKI_DIRECTORY_ALREADY_EXISTS_NOT_A_DIRECTORY_1 %
                             name)
+
                 # Always re-process each directory whether it needs it or not
-                if not silent:
-                    logger.info(log.PKIHELPER_MODIFY_DIR_1, name)
 
                 if not silent:
                     logger.debug('Command: chmod %o %s', perms, name)
@@ -1183,17 +1192,20 @@ class Directory:
             symlink_perms=config.PKI_DEPLOYMENT_DEFAULT_SYMLINK_PERMISSIONS,
             dir_acls=None, file_acls=None, symlink_acls=None,
             recursive_flag=True, critical_failure=True):
+
+        logger.info(log.PKIHELPER_SET_MODE_1, name)
+
         try:
             if not os.path.exists(name) or not os.path.isdir(name):
                 logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, name)
                 raise Exception(
                     log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % name)
             else:
-                logger.info(log.PKIHELPER_SET_MODE_1, name)
                 if uid is None:
                     uid = self.identity.get_uid()
                 if gid is None:
                     gid = self.identity.get_gid()
+
                 if recursive_flag:
                     for root, dirs, files in os.walk(name):
                         for name in files:
@@ -1236,6 +1248,7 @@ class Directory:
                                     gid,
                                     symlink_perms,
                                     symlink_acls)
+
                         for name in dirs:
                             temp_dir = os.path.join(root, name)
                             logger.debug(log.PKIHELPER_IS_A_DIRECTORY_1, temp_dir)
@@ -1254,6 +1267,7 @@ class Directory:
                                 gid,
                                 dir_perms,
                                 dir_acls)
+
                 else:
                     logger.debug(log.PKIHELPER_IS_A_DIRECTORY_1, name)
 
@@ -1388,6 +1402,10 @@ class File:
     def modify(self, name, uid=None, gid=None,
                perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
                acls=None, silent=False, critical_failure=True):
+
+        if not silent:
+            logger.info('Updating file %s', name)
+
         try:
             if os.path.exists(name):
                 if not os.path.isfile(name):
@@ -1395,9 +1413,8 @@ class File:
                     if critical_failure:
                         raise Exception(
                             log.PKI_FILE_ALREADY_EXISTS_NOT_A_FILE_1 % name)
+
                 # Always re-process each file whether it needs it or not
-                if not silent:
-                    logger.info(log.PKIHELPER_MODIFY_FILE_1, name)
 
                 if not silent:
                     logger.debug('Command: chmod %o %s', perms, name)
@@ -1608,6 +1625,9 @@ class File:
             perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
             acls=None, overwrite_flag=False,
             critical_failure=True):
+
+        logger.info('Customizing %s into %s', old_name, new_name)
+
         try:
             if not os.path.exists(old_name) or not os.path.isfile(old_name):
                 logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, old_name)
@@ -1620,10 +1640,6 @@ class File:
                         logger.error(log.PKI_FILE_ALREADY_EXISTS_1, new_name)
                         raise Exception(
                             log.PKI_FILE_ALREADY_EXISTS_1 % new_name)
-                # copy <old_name> to <new_name> with slot substitutions
-                logger.info(
-                    log.PKIHELPER_COPY_WITH_SLOT_SUBSTITUTION_2,
-                    old_name, new_name)
 
                 with open(new_name, "w") as FILE:
                     for line in fileinput.FileInput(old_name):
@@ -1730,6 +1746,10 @@ class Symlink:
 
     def modify(self, link, uid=None, gid=None,
                acls=None, silent=False, critical_failure=True):
+
+        if not silent:
+            logger.info('Updating symlink %s', link)
+
         try:
             if os.path.exists(link):
                 if not os.path.islink(link):
@@ -1738,9 +1758,8 @@ class Symlink:
                         raise Exception(
                             log.PKI_SYMLINK_ALREADY_EXISTS_NOT_A_SYMLINK_1 %
                             link)
+
                 # Always re-process each link whether it needs it or not
-                if not silent:
-                    logger.info(log.PKIHELPER_MODIFY_SYMLINK_1, link)
 
                 # REMINDER:  Due to POSIX compliance, 'lchmod' is NEVER
                 #            implemented on Linux systems since 'chmod'
@@ -1883,7 +1902,7 @@ class Password:
     def create_hsm_password_conf(self, path, pin, hsm_pin,
                                  overwrite_flag=False, critical_failure=True):
 
-        logger.info(log.PKIHELPER_PASSWORD_CONF_1, path)
+        logger.info('Storing HSM password in %s', path)
 
         try:
             if os.path.exists(path):
@@ -1908,15 +1927,16 @@ class Password:
 
     def create_client_pkcs12_password_conf(self, path, overwrite_flag=False,
                                            critical_failure=True):
+
+        logger.info('Storing PKCS #12 password in %s', path)
+
         try:
             if os.path.exists(path):
                 if overwrite_flag:
-                    logger.info(log.PKIHELPER_PASSWORD_CONF_1, path)
                     # overwrite the existing 'pkcs12_password.conf' file
                     with open(path, "w") as fd:
                         fd.write(self.mdict['pki_client_pkcs12_password'])
             else:
-                logger.info(log.PKIHELPER_PASSWORD_CONF_1, path)
                 # create a new 'pkcs12_password.conf' file
                 with open(path, "w") as fd:
                     fd.write(self.mdict['pki_client_pkcs12_password'])
@@ -2915,8 +2935,10 @@ class SecurityDomain:
                 return
 
         logger.info(
-            log.PKIHELPER_SECURITY_DOMAIN_CONTACT_1,
+            'Unregistering %s subsystem from %s security domain',
+            typeval,
             secname)
+
         listval = typeval.lower() + "List"
         update_url = "/ca/agent/ca/updateDomainXML"
 
@@ -2994,8 +3016,8 @@ class SecurityDomain:
                                 %
                                 (typeval, secname, error))
         else:
-            logger.info(
-                log.PKIHELPER_SECURITY_DOMAIN_UPDATE_SUCCESS_2,
+            logger.debug(
+                'Unregistered %s subsystem from %s security domain',
                 typeval,
                 secname)
 

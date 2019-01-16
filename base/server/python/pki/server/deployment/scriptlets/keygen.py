@@ -453,7 +453,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Skipping key generation')
             return
 
-        logger.info('Generating keys')
+        logger.info('Generating system keys')
 
         instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()

@@ -93,8 +93,8 @@ PKI_SUBORDINATE_UNSUPPORTED_1 = \
 PKI_IOERROR_1 = "IOError:  %s!"
 PKI_KEYERROR_1 = "KeyError:  %s!"
 PKI_LARGEZIPFILE_ERROR_1 = "zipfile.LargeZipFile:  %s!"
-PKI_ARCHIVE_CONFIG_MESSAGE_1 = "archiving configuration into '%s'"
-PKI_ARCHIVE_MANIFEST_MESSAGE_1 = "archiving manifest into '%s'"
+PKI_ARCHIVE_CONFIG_MESSAGE_1 = "Archiving configuration into %s"
+PKI_ARCHIVE_MANIFEST_MESSAGE_1 = "Archiving manifest into %s"
 PKI_OSERROR_1 = "OSError:  %s!"
 PKI_SHUTIL_ERROR_1 = "shutil.Error:  %s!"
 PKI_SUBPROCESS_ERROR_1 = "subprocess.CalledProcessError:  %s!"
@@ -110,8 +110,8 @@ PKI_UNABLE_TO_CREATE_LOG_DIRECTORY_1 = "Could not create log directory '%s'!"
 
 # PKI Deployment 'pkispawn' and 'pkidestroy' Messages
 PKIDESTROY_BEGIN_MESSAGE_2 = \
-    "BEGIN destroying subsystem '%s' of instance '%s' . . ."
-PKIDESTROY_END_MESSAGE_2 = "END destroying subsystem '%s' of instance '%s'"
+    "BEGIN destroying %s subsystem in %s instance"
+PKIDESTROY_END_MESSAGE_2 = "END destroying %s subsystem in %s instance"
 PKIDESTROY_EPILOG = '''
 REMINDER:
 
@@ -126,9 +126,9 @@ REMINDER:
     of the specified '-i <instance>' parameter.
 ''' + PKI_VERBOSITY
 PKISPAWN_BEGIN_MESSAGE_2 = \
-    "BEGIN spawning subsystem '%s' of instance '%s' . . ."
+    "BEGIN spawning %s subsystem in %s instance"
 PKISPAWN_END_MESSAGE_2 = \
-    "END spawning subsystem '%s' of instance '%s'"
+    "END spawning %s subsystem in %s instance"
 PKISPAWN_EPILOG = """
 REMINDER:
 
@@ -200,8 +200,6 @@ PKIHELPER_CHOWN_H_3 = "chown -h %s:%s %s"
 PKIHELPER_COMMAND_LINE_PARAMETER_MISMATCH_2 = \
     "the command-line parameter '%s' DOES NOT match the "\
     "configuration file value '%s'!"
-PKIHELPER_COPY_WITH_SLOT_SUBSTITUTION_2 = \
-    "copying '%s' --> '%s' with slot substitution"
 PKIHELPER_CP_P_2 = "cp -p %s %s"
 PKIHELPER_CP_RP_2 = "cp -rp %s %s"
 PKIHELPER_CREATE_SECURITY_DATABASES_1 = "executing '%s'"
@@ -216,9 +214,8 @@ PKIHELPER_DICTIONARY_INTERPOLATION_2 = "Interpolation error (%s)"
 PKIHELPER_DIRECTORY_IS_EMPTY_1 = "directory '%s' is empty"
 PKIHELPER_DIRECTORY_IS_NOT_EMPTY_1 = "directory '%s' is NOT empty"
 PKIHELPER_GID_2 = "GID of '%s' is %s"
-PKIHELPER_GROUP_1 = "retrieving GID for '%s' . . ."
-PKIHELPER_GROUP_ADD_2 = "adding GID '%s' for group '%s' . . ."
-PKIHELPER_GROUP_ADD_DEFAULT_2 = "adding default GID '%s' for group '%s' . . ."
+PKIHELPER_GROUP_1 = "Retrieving GID for '%s'"
+PKIHELPER_GROUP_ADD_DEFAULT_2 = "Adding default GID '%s' for group '%s'"
 PKIHELPER_GROUP_ADD_GID_KEYERROR_1 = "KeyError:  pki_gid %s"
 PKIHELPER_GROUP_ADD_KEYERROR_1 = "KeyError:  pki_group %s"
 PKIHELPER_FIPS_MODE_IS_ENABLED = "FIPS mode is enabled on this operating "\
@@ -249,9 +246,6 @@ PKIHELPER_KRACONNECTOR_DEREGISTER_FAILURE_4 = \
     "Failed to deregister KRA connector %s:%s from CA %s:%s"
 PKIHELPER_LINK_S_2 = "ln -s %s %s"
 PKIHELPER_MKDIR_1 = "mkdir -p %s"
-PKIHELPER_MODIFY_DIR_1 = "modifying '%s'"
-PKIHELPER_MODIFY_FILE_1 = "modifying '%s'"
-PKIHELPER_MODIFY_SYMLINK_1 = "modifying '%s'"
 PKIHELPER_MODUTIL_MISSING_LIBFILE = \
     "modutil:  Missing '-libfile libfile' option!"
 PKIHELPER_MODUTIL_MISSING_MODULENAME = \
@@ -272,12 +266,10 @@ PKIHELPER_NAMESPACE_COLLISION_2 = \
     "PKI instance '%s' would produce a namespace collision with '%s'!"
 PKIHELPER_NAMESPACE_RESERVED_NAME_2 = \
     "PKI instance '%s' is already a reserved name under '%s'!"
-PKIHELPER_LOG_REUSE = \
-    "previous logs of PKI instance '%s' already exist. Appending logs to '%s'"
+PKIHELPER_LOG_REUSE = "Appending logs to %s"
 PKIHELPER_NCIPHER_RESTART_1 = "executing '%s'"
 PKIHELPER_NOISE_FILE_2 = \
     "generating noise file called '%s' and filling it with '%d' random bytes"
-PKIHELPER_PASSWORD_CONF_1 = "generating '%s'"
 PKIHELPER_PASSWORD_NOT_FOUND_1 = "no password found for '%s'!"
 PKIHELPER_PK12UTIL_MISSING_DBPWFILE = \
     "pk12util missing -k db-password-file option!"
@@ -300,8 +292,6 @@ PKIHELPER_REMOVE_FILTER_SECTION_1 = "removing filter section from '%s'"
 PKIHELPER_RM_F_1 = "rm -f %s"
 PKIHELPER_RM_RF_1 = "rm -rf %s"
 PKIHELPER_RMDIR_1 = "rmdir %s"
-PKIHELPER_SECURITY_DOMAIN_CONTACT_1 = \
-    "contacting the security domain master to update security domain '%s'"
 PKIHELPER_SECURITY_DOMAIN_GET_TOKEN_FAILURE_2 = \
     "Failed to get installation token from security domain '%s:%s'"
 PKIHELPER_SECURITY_DOMAIN_UNDEFINED = \
@@ -317,11 +307,8 @@ PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_2 = \
 PKIHELPER_SECURITY_DOMAIN_UPDATE_FAILURE_3 = \
     "updateDomainXML FAILED to delete this '%s' entry from "\
     "security domain '%s': '%s'"
-PKIHELPER_SECURITY_DOMAIN_UPDATE_SUCCESS_2 = \
-    "updateDomainXML SUCCESSFULLY deleted this '%s' entry from "\
-    "security domain '%s'"
 PKIHELPER_SELINUX_DISABLED = "Selinux is disabled.  Not checking port contexts"
-PKIHELPER_SET_MODE_1 = "setting ownerships, permissions, and acls on '%s'"
+PKIHELPER_SET_MODE_1 = "Setting up ownerships, permissions, and ACLs on %s"
 PKIHELPER_SSLGET_OUTPUT_1 = '''
     Dump of 'sslget' output:
     =====================================================
@@ -351,9 +338,9 @@ PKIHELPER_UNDEFINED_HSM_TOKEN = \
 PKIHELPER_UNDEFINED_SUBSYSTEM_NICKNAME = "subsystem nickname not defined"
 PKIHELPER_UNDEFINED_TKS_HOST_PORT = "TKS Host or Port is undefined"
 PKIHELPER_UNDEFINED_TOKEN_PASSWD_1 = "Password for token '%s' not defined"
-PKIHELPER_USER_1 = "retrieving UID for '%s' . . ."
-PKIHELPER_USER_ADD_2 = "adding UID '%s' for user '%s' . . ."
-PKIHELPER_USER_ADD_DEFAULT_2 = "adding default UID '%s' for user '%s' . . ."
+PKIHELPER_USER_1 = "Retrieving UID for '%s'"
+PKIHELPER_USER_ADD_2 = "Adding UID '%s' for user '%s'"
+PKIHELPER_USER_ADD_DEFAULT_2 = "Adding default UID '%s' for user '%s'"
 PKIHELPER_USER_ADD_KEYERROR_1 = "KeyError:  pki_user %s"
 PKIHELPER_USER_ADD_UID_KEYERROR_1 = "KeyError:  pki_uid %s"
 

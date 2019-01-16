@@ -38,7 +38,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.info('Skipping webapp creation')
             return
 
-        logger.info('Creating /%s webapp', deployer.mdict['pki_subsystem'].lower())
+        logger.info('Deploying /%s web application', deployer.mdict['pki_subsystem'].lower())
 
         # Create subsystem webapps folder to store custom webapps:
         # <instance>/<subsystem>/webapps.
@@ -67,7 +67,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     def destroy(self, deployer):
 
-        logger.info('Removing /%s webapp', deployer.mdict['pki_subsystem'].lower())
+        logger.info('Undeploying /%s web application', deployer.mdict['pki_subsystem'].lower())
 
         # Delete <instance>/Catalina/localhost/<subsystem>.xml
         deployer.file.delete(
