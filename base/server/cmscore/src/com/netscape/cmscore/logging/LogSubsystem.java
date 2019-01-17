@@ -157,17 +157,11 @@ public class LogSubsystem implements ILogSubsystem {
                 Debug.trace("loaded log instance " + insName + " impl " + implName);
         }
 
-        // load audit events from LogMessages.properties
-        ResourceBundle rb = ResourceBundle.getBundle("LogMessages");
-        Pattern name_pattern = Pattern.compile("^LOGGING_SIGNED_AUDIT_.*");
+        // load audit events from audit-events.properties
+        ResourceBundle rb = ResourceBundle.getBundle("audit-events");
         Pattern value_pattern = Pattern.compile("^<type=(.*)>:.*");
 
         for (String name : rb.keySet()) {
-
-            Matcher name_matcher = name_pattern.matcher(name);
-            if (!name_matcher.matches())  {
-                continue;
-            }
 
             String value = rb.getString(name);
 

@@ -535,13 +535,13 @@ class PKISubsystem(object):
 
     def get_audit_events(self):
 
-        # get the full list of audit events from LogMessages.properties
+        # get the full list of audit events from audit-events.properties
 
         properties = {}
         tmpdir = tempfile.mkdtemp()
 
         try:
-            # export LogMessages.properties from cmsbundle.jar
+            # export audit-events.properties from cmsbundle.jar
             cmsbundle_jar = \
                 '/usr/share/pki/%s/webapps/%s/WEB-INF/lib/pki-cmsbundle.jar' \
                 % (self.name, self.name)
@@ -550,7 +550,7 @@ class PKISubsystem(object):
                 'jar',
                 'xf',
                 cmsbundle_jar,
-                'LogMessages.properties'
+                'audit-events.properties'
             ]
 
             logger.debug('Command: %s', ' '.join(cmd))
@@ -560,8 +560,8 @@ class PKISubsystem(object):
                 cwd=tmpdir,
                 stderr=subprocess.STDOUT)
 
-            # load LogMessages.properties
-            log_messages_properties = os.path.join(tmpdir, 'LogMessages.properties')
+            # load audit-events.properties
+            log_messages_properties = os.path.join(tmpdir, 'audit-events.properties')
             pki.util.load_properties(log_messages_properties, properties)
 
         finally:
@@ -569,14 +569,9 @@ class PKISubsystem(object):
 
         # get audit events
         events = set()
-        name_pattern = re.compile(r'LOGGING_SIGNED_AUDIT_')
         value_pattern = re.compile(r'<type=(.*)>:')
 
         for name in properties:
-
-            name_match = name_pattern.match(name)
-            if not name_match:
-                continue
 
             value = properties[name]
 
