@@ -308,7 +308,7 @@ BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.4.0-11
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
-BuildRequires:    jss >= 4.5.0-1
+BuildRequires:    jss >= 4.5.1
 BuildRequires:    tomcatjss >= 7.3.6
 %endif
 BuildRequires:    systemd-units
@@ -427,7 +427,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.0-1
+Requires:         jss >= 4.5.1
 %endif
 Requires:         nss >= 3.38.0
 
@@ -538,7 +538,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.0-1
+Requires:         jss >= 4.5.1
 %endif
 Requires:         ldapjdk >= 4.20
 Requires:         pki-base >= %{version}-%{release}
