@@ -1471,21 +1471,37 @@ public class CMSEngine implements ICMSEngine {
         return getUserMessage(locale, msgID, params);
     }
 
-    public String getLogMessage(String msgID, Object params[]) {
-        ResourceBundle rb = ResourceBundle.getBundle(
-                "LogMessages");
+    public String getLogMessage(String msgID, Object[] params) {
+
+        String bundleName;
+
+        // check whether requested message is an audit event
+        if (msgID.startsWith("LOGGING_SIGNED_AUDIT_")) {
+            // get audit event from audit-events.properties
+            bundleName = "audit-events";
+        } else {
+            // get log message from LogMessages.properties
+            bundleName = "LogMessages";
+        }
+
+        ResourceBundle rb = ResourceBundle.getBundle(bundleName);
         String msg = rb.getString(msgID);
 
-        if (params == null)
+        if (params == null) {
             return msg;
+        }
+
         MessageFormat mf = new MessageFormat(msg);
 
         Object escapedParams[] = new Object[params.length];
         for (int i = 0; i < params.length; i++) {
-            if (params[i] instanceof String)
-                escapedParams[i] = escapeLogMessageParam((String) params[i]);
-            else
-                escapedParams[i] = params[i];
+            Object param = params[i];
+
+            if (param instanceof String) {
+                escapedParams[i] = escapeLogMessageParam((String) param);
+            } else {
+                escapedParams[i] = param;
+            }
         }
 
         return mf.format(escapedParams);

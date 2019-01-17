@@ -14,6 +14,7 @@ jar(pki-cmsbundle-jar
     PARAMS
         ${CMAKE_CURRENT_BINARY_DIR}/pki-cmsbundle.mf
     FILES
+        audit-events.properties
         LogMessages.properties
         UserMessages.properties
     DEPENDS
