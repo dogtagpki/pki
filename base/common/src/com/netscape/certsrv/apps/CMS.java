@@ -442,9 +442,9 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the centralized log message from LogMessages.properties.
+     * Retrieves log message from LogMessages.properties or audit-events.properties.
      *
-     * @param msgID message id defined in LogMessages.properties
+     * @param msgID message ID defined in LogMessages.properties or audit-events.properties
      * @return localized log message
      */
     public static String getLogMessage(String msgID) {
@@ -452,9 +452,9 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the centralized log message from LogMessages.properties.
+     * Retrieves log message from LogMessages.properties or audit-events.properties.
      *
-     * @param msgID message id defined in LogMessages.properties
+     * @param msgID message ID defined in LogMessages.properties or audit-events.properties
      * @param params object parameters
      * @return localized log message
      */
@@ -463,9 +463,9 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the centralized log message from LogMessages.properties.
+     * Retrieves log message from LogMessages.properties or audit-events.properties.
      *
-     * @param msgID message id defined in LogMessages.properties
+     * @param msgID message ID defined in LogMessages.properties or audit-events.properties
      * @param params string parameters
      * @return localized log message
      */
