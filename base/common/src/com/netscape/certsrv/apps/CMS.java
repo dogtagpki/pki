@@ -667,177 +667,29 @@ public final class CMS {
      * @return localized log message
      */
     public static String getLogMessage(String msgID) {
-        return _engine.getLogMessage(msgID);
+        return _engine.getLogMessage(msgID, null);
     }
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
      *
      * @param msgID message id defined in LogMessages.properties
-     * @param p an array of parameters
+     * @param params object parameters
      * @return localized log message
      */
-    public static String getLogMessage(String msgID, Object p[]) {
-        return _engine.getLogMessage(msgID, p);
+    public static String getLogMessage(String msgID, Object params[]) {
+        return _engine.getLogMessage(msgID, params);
     }
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
      *
      * @param msgID message id defined in LogMessages.properties
-     * @param p1 1st parameter
+     * @param params string parameters
      * @return localized log message
      */
-    public static String getLogMessage(String msgID, String p1) {
-        return _engine.getLogMessage(msgID, p1);
-    }
-
-    /**
-     * Retrieves the centralized log message from LogMessages.properties.
-     *
-     * @param msgID message id defined in LogMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @return localized log message
-     */
-    public static String getLogMessage(String msgID, String p1, String p2) {
-        return _engine.getLogMessage(msgID, p1, p2);
-    }
-
-    /**
-     * Retrieves the centralized log message from LogMessages.properties.
-     *
-     * @param msgID message id defined in LogMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @param p3 3rd parameter
-     * @return localized log message
-     */
-    public static String getLogMessage(String msgID, String p1, String p2, String p3) {
-        return _engine.getLogMessage(msgID, p1, p2, p3);
-    }
-
-    /**
-     * Retrieves the centralized log message from LogMessages.properties.
-     *
-     * @param msgID message id defined in LogMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @param p3 3rd parameter
-     * @param p4 4th parameter
-     * @return localized log message
-     */
-    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4) {
-        return _engine.getLogMessage(msgID, p1, p2, p3, p4);
-    }
-
-    /**
-     * Retrieves the centralized log message from LogMessages.properties.
-     *
-     * @param msgID message id defined in LogMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @param p3 3rd parameter
-     * @param p4 4th parameter
-     * @param p5 5th parameter
-     * @return localized log message
-     */
-    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5) {
-        return _engine.getLogMessage(msgID, p1, p2, p3, p4, p5);
-    }
-
-    /**
-     * Retrieves the centralized log message from LogMessages.properties.
-     *
-     * @param msgID message id defined in LogMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @param p3 3rd parameter
-     * @param p4 4th parameter
-     * @param p5 5th parameter
-     * @param p6 6th parameter
-     * @return localized log message
-     */
-    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6) {
-        return _engine.getLogMessage(msgID, p1, p2, p3, p4, p5, p6);
-    }
-
-    /**
-     * Retrieves the centralized log message from LogMessages.properties.
-     *
-     * @param msgID message id defined in LogMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @param p3 3rd parameter
-     * @param p4 4th parameter
-     * @param p5 5th parameter
-     * @param p6 6th parameter
-     * @param p7 7th parameter
-     * @return localized log message
-     */
-    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
-            String p7) {
-        return _engine.getLogMessage(msgID, p1, p2, p3, p4, p5, p6, p7);
-    }
-
-    /**
-     * Retrieves the centralized log message from LogMessages.properties.
-     *
-     * @param msgID message id defined in LogMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @param p3 3rd parameter
-     * @param p4 4th parameter
-     * @param p5 5th parameter
-     * @param p6 6th parameter
-     * @param p7 7th parameter
-     * @param p8 8th parameter
-     * @return localized log message
-     */
-    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
-            String p7, String p8) {
-        return _engine.getLogMessage(msgID, p1, p2, p3, p4, p5, p6, p7, p8);
-    }
-
-    /**
-     * Retrieves the centralized log message from LogMessages.properties.
-     *
-     * @param msgID message id defined in LogMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @param p3 3rd parameter
-     * @param p4 4th parameter
-     * @param p5 5th parameter
-     * @param p6 6th parameter
-     * @param p7 7th parameter
-     * @param p8 8th parameter
-     * @param p9 9th parameter
-     * @return localized log message
-     */
-    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
-            String p7, String p8, String p9) {
-        return _engine.getLogMessage(msgID, p1, p2, p3, p4, p5, p6, p7, p8, p9);
-    }
-
-    /**
-     * Retrieves the centralized log message from LogMessages.properties.
-     *
-     * @param msgID message id defined in LogMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @param p3 3rd parameter
-     * @param p4 4th parameter
-     * @param p5 5th parameter
-     * @param p6 6th parameter
-     * @param p7 7th parameter
-     * @param p8 8th parameter
-     * @param p9 9th parameter
-     * @param p10 10th parameter
-     * @return localized log message
-     */
-    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
-            String p7, String p8, String p9, String p10) {
-        return _engine.getLogMessage(msgID, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
+    public static String getLogMessage(String msgID, String... params) {
+        return _engine.getLogMessage(msgID, params);
     }
 
     /**
