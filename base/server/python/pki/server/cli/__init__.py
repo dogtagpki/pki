@@ -21,6 +21,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import getopt
+import logging
 import sys
 
 import pki.cli
@@ -52,6 +53,7 @@ class PKIServerCLI(pki.cli.CLI):
             'pki-server',
             'PKI server command-line interface')
 
+        self.add_module(pki.server.cli.StatusCLI())
         self.add_module(pki.server.cli.StartCLI())
         self.add_module(pki.server.cli.StopCLI())
 
@@ -116,24 +118,32 @@ class PKIServerCLI(pki.cli.CLI):
 
         super(PKIServerCLI, self).execute(args)
 
+    @staticmethod
+    def print_status(server):
+        print('  Server ID: %s' % server.name)
+        print('  Active: %s' % server.is_active())
 
-class StartCLI(pki.cli.CLI):
+
+class StatusCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(StartCLI, self).__init__('start', 'Start server')
+        super(StatusCLI, self).__init__('status', 'Display server status')
 
     def print_help(self):
-        print('Usage: pki-server start [OPTIONS] [<server ID>]')
+        print('Usage: pki-server status [OPTIONS] [<server ID>]')
         print()
         print('  -v, --verbose                 Run in verbose mode.')
+        print('      --debug                   Run in debug mode.')
         print('      --help                    Show help message.')
         print()
 
     def execute(self, argv):
 
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: %s' % e)
@@ -144,7 +154,66 @@ class StartCLI(pki.cli.CLI):
 
         for o, _ in opts:
             if o in ('-v', '--verbose'):
-                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) > 0:
+            server_name = args[0]
+
+        server = pki.server.PKIServer(server_name)
+
+        if not server.is_valid():
+            print('ERROR: Invalid server: %s' % server_name)
+            sys.exit(1)
+
+        PKIServerCLI.print_status(server)
+
+
+class StartCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(StartCLI, self).__init__('start', 'Start server')
+
+    def print_help(self):
+        print('Usage: pki-server start [OPTIONS] [<server ID>]')
+        print()
+        print('  -v, --verbose                 Run in verbose mode.')
+        print('      --debug                   Run in debug mode.')
+        print('      --help                    Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'v', [
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        server_name = 'pki-tomcat'
+
+        for o, _ in opts:
+            if o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
@@ -180,14 +249,17 @@ class StopCLI(pki.cli.CLI):
         print('Usage: pki-server stop [OPTIONS] [<server ID>]')
         print()
         print('  -v, --verbose                 Run in verbose mode.')
+        print('      --debug                   Run in debug mode.')
         print('      --help                    Show help message.')
         print()
 
     def execute(self, argv):
 
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: %s' % e)
@@ -198,7 +270,10 @@ class StopCLI(pki.cli.CLI):
 
         for o, _ in opts:
             if o in ('-v', '--verbose'):
-                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()

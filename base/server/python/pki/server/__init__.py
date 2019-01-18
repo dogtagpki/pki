@@ -91,7 +91,7 @@ class PKIServer(object):
         return self.name < other.name
 
     def is_valid(self):
-        return os.path.exists(self.server_xml)
+        return os.path.exists(self.base_dir)
 
     def validate(self):
         if not self.is_valid():
