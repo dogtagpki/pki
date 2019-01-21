@@ -43,7 +43,7 @@ class PasswordGenerateCLI(pki.cli.CLI):
         super(PasswordGenerateCLI, self).__init__(
             'generate', 'Generate secure random password')
 
-    def print_help(self):  # flake8: noqa
+    def print_help(self):
         print('Usage: pki password-generate [OPTIONS]')
         print()
         print('  -v, --verbose                      Run in verbose mode.')

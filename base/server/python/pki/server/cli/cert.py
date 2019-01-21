@@ -644,19 +644,25 @@ class CertExportCLI(pki.cli.CLI):
         super(CertExportCLI, self).__init__(
             'export', 'Export system certificate.')
 
-    def print_help(self):  # flake8: noqa
+    def print_help(self):
         print('Usage: pki-server cert-export [OPTIONS] <Cert ID>')
         print()
         print('Specify at least one output file: certificate, CSR, or PKCS #12.')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --cert-file <path>             Output file to store the exported certificate in PEM format.')
-        print('      --csr-file <path>              Output file to store the exported CSR in PEM format.')
-        print('      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
+        print('      --cert-file <path>             Output file to store the exported certificate '
+              'in PEM format.')
+        print('      --csr-file <path>              Output file to store the exported CSR in PEM '
+              'format.')
+        print('      --pkcs12-file <path>           Output file to store the exported certificate '
+              'and key in PKCS #12 format.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
-        print('      --pkcs12-password-file <path>  Input file containing the password for the PKCS #12 file.')
-        print('      --friendly-name <name>         Friendly name for the certificate in PKCS #12 file.')
-        print('      --cert-encryption <algorithm>  Certificate encryption algorithm (default: none).')
+        print('      --pkcs12-password-file <path>  Input file containing the password for the '
+              'PKCS #12 file.')
+        print('      --friendly-name <name>         Friendly name for the certificate in PKCS #12 '
+              'file.')
+        print('      --cert-encryption <algorithm>  Certificate encryption algorithm (default: '
+              'none).')
         print('      --key-encryption <algorithm>   Key encryption algorithm (default: PBES2).')
         print('      --append                       Append into an existing PKCS #12 file.')
         print('      --no-trust-flags               Do not include trust flags')
@@ -967,7 +973,7 @@ class CertFixCLI(pki.cli.CLI):
         super(CertFixCLI, self).__init__(
             'fix', 'Fix expired system certificate(s).')
 
-    def print_help(self):  # flake8: noqa
+    def print_help(self):
         print('Usage: pki-server cert-fix [OPTIONS]')
         # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
         # ca_audit_signing, kra_audit_signing
@@ -977,7 +983,8 @@ class CertFixCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -d <NSS database>               NSS database location (default: ~/.dogtag/nssdb)')
         print('  -c <NSS DB password>            NSS database password')
-        print('  -C <path>                       Input file containing the password for the NSS database.')
+        print('  -C <path>                       Input file containing the password for the NSS '
+              'database.')
         print('  -n <nickname>                   Client certificate nickname')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')

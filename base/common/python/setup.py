@@ -49,8 +49,8 @@ from distutils.cmd import Command
 class VersionInfo(Command):
     user_options = []
 
-    version_re = re.compile('^Version:\s*(\d+\.\d+\.\d+)')
-    release_re = re.compile('^Release:.*?([\d\.]+)')
+    version_re = re.compile(r'^Version:\s*(\d+\.\d+\.\d+)')
+    release_re = re.compile(r'^Release:.*?([\d\.]+)')
     specfile = '../../../pki.spec'
 
     def initialize_options(self):
