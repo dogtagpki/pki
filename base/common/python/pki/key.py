@@ -1116,7 +1116,6 @@ class KeyClient(object):
 
            The function will return the tuple (KeyData, None)
         """
-        pass
 
     @pki.handle_exceptions()
     def retrieve_key_by_pkcs12(self, key_id, certificate, passphrase):
