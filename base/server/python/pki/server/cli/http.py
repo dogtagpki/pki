@@ -68,7 +68,7 @@ class HTTPConnectorCLI(pki.cli.CLI):
             connector.attrib.pop(name)
 
     @staticmethod
-    def print_connector(connector):  # flake8: noqa
+    def print_connector(connector):
 
         HTTPConnectorCLI.print_param(connector, 'name', 'Connector ID')
         HTTPConnectorCLI.print_param(connector, 'scheme', 'Scheme')
@@ -77,8 +77,10 @@ class HTTPConnectorCLI(pki.cli.CLI):
 
         HTTPConnectorCLI.print_param(connector, 'sslImplementationName', 'SSL Implementation')
 
-        HTTPConnectorCLI.print_param(connector, 'sslVersionRangeStream', 'SSL Version Range Stream')
-        HTTPConnectorCLI.print_param(connector, 'sslVersionRangeDatagram', 'SSL Version Range Datagram')
+        HTTPConnectorCLI.print_param(connector, 'sslVersionRangeStream',
+                                     'SSL Version Range Stream')
+        HTTPConnectorCLI.print_param(connector, 'sslVersionRangeDatagram',
+                                     'SSL Version Range Datagram')
         HTTPConnectorCLI.print_param(connector, 'sslRangeCiphers', 'SSL Range Ciphers')
 
         HTTPConnectorCLI.print_param(connector, 'certdbDir', 'NSS Database Directory')
@@ -330,7 +332,8 @@ class HTTPConnectorModCLI(pki.cli.CLI):
         connector = connectors[name]
 
         HTTPConnectorCLI.set_param(connector, 'certdbDir', nss_database_dir)
-        HTTPConnectorCLI.set_param(connector, 'passwordClass', 'org.apache.tomcat.util.net.jss.PlainPasswordFile')
+        HTTPConnectorCLI.set_param(connector, 'passwordClass',
+                                   'org.apache.tomcat.util.net.jss.PlainPasswordFile')
         HTTPConnectorCLI.set_param(connector, 'passwordFile', nss_password_file)
         HTTPConnectorCLI.set_param(connector, 'serverCertNickFile', server_cert_nickname_file)
 
@@ -364,7 +367,8 @@ class HTTPConnectorModCLI(pki.cli.CLI):
             HTTPConnectorCLI.set_param(connector, 'keystorePassFile', keystore_password_file)
             HTTPConnectorCLI.set_param(connector, 'keyAlias', 'sslserver')
 
-            HTTPConnectorCLI.set_param(connector, 'trustManagerClassName', 'org.dogtagpki.tomcat.PKITrustManager')
+            HTTPConnectorCLI.set_param(connector, 'trustManagerClassName',
+                                       'org.dogtagpki.tomcat.PKITrustManager')
 
         else:
             raise Exception('Invalid connector type: %s' % connector_type)

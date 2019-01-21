@@ -564,15 +564,19 @@ class SubsystemCertExportCLI(pki.cli.CLI):
         super(SubsystemCertExportCLI, self).__init__(
             'export', 'Export subsystem certificate')
 
-    def print_help(self):  # flake8: noqa
+    def print_help(self):
         print('Usage: pki-server subsystem-cert-export [OPTIONS] <subsystem ID> [cert ID]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --cert-file <path>             Output file to store the exported certificate in PEM format.')
-        print('      --csr-file <path>              Output file to store the exported CSR in PEM format.')
-        print('      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
+        print('      --cert-file <path>             Output file to store the exported certificate '
+              'in PEM format.')
+        print('      --csr-file <path>              Output file to store the exported CSR in PEM '
+              'format.')
+        print('      --pkcs12-file <path>           Output file to store the exported certificate '
+              'and key in PKCS #12 format.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
-        print('      --pkcs12-password-file <path>  Input file containing the password for the PKCS #12 file.')
+        print('      --pkcs12-password-file <path>  Input file containing the password for the '
+              'PKCS #12 file.')
         print('      --append                       Append into an existing PKCS #12 file.')
         print('      --no-trust-flags               Do not include trust flags')
         print('      --no-key                       Do not include private key')
@@ -839,7 +843,8 @@ class SubsystemCertUpdateCLI(pki.cli.CLI):
 
             if data:
                 if self.verbose:
-                    print('Removing old %s certificate from database.' % subsystem_cert['nickname'])
+                    print('Removing old %s certificate from database.'
+                          % subsystem_cert['nickname'])
                 nssdb.remove_cert(nickname=subsystem_cert['nickname'])
             if self.verbose:
                 print('Adding new %s certificate into database.' % subsystem_cert['nickname'])
