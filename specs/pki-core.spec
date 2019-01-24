@@ -1161,6 +1161,7 @@ fi
 %{_bindir}/OCSPClient
 %{_bindir}/PKCS10Client
 %{_bindir}/PKCS12Export
+%{_bindir}/PKICertImport
 %{_bindir}/PrettyPrintCert
 %{_bindir}/PrettyPrintCrl
 %{_bindir}/TokenInfo
@@ -1767,7 +1768,7 @@ fi
   "Profile caIPAserviceCert Not Found" (ftweedal)
 - dogtagpki Pagure Issue #2457 - Misleading Logging for HSM (edewata)
 - dogtagpki Pagure Issue #2460 - Typo in comment line of
-  UserPwdDirAuthentication.java (edewata) 
+  UserPwdDirAuthentication.java (edewata)
 - dogtagpki Pagure Issue #2463 - Troubleshooting improvements (edewata)
 - dogtagpki Pagure Issue #2466 - two-step externally-signed CA installation
   fails due to missing AuthorityID (ftweedal)
@@ -2263,7 +2264,7 @@ fi
 
 * Fri Aug 09 2013 Abhishek Koneru <akoneru@redhat.com> 10.1.0.0.8
 - Added pylint scan to the build process.
- 
+
 * Mon Jul 22 2013 Endi S. Dewata <edewata@redhat.com> 10.1.0-0.7
 - Added man pages for upgrade tools.
 
@@ -2617,7 +2618,7 @@ fi
 
 * Mon Nov 28 2011 Endi S. Dewata <edewata@redhat.com> 9.0.16-2
 - Added JUnit tests
- 
+
 * Fri Oct 28 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.16-1
 - 'pki-setup'
 - 'pki-symkey'
@@ -3358,7 +3359,7 @@ fi
 -     Bugzilla Bug #643206 - New CMake based build system for Dogtag
 -     Bugzilla Bug #661128 - incorrect CA ports used for revoke, unrevoke
       certs in TPS
--     Bugzilla Bug #512496 - RFE rhcs80 - crl updates and scheduling feature 
+-     Bugzilla Bug #512496 - RFE rhcs80 - crl updates and scheduling feature
 -     Bugzilla Bug #661196 - ECC(with nethsm) subca configuration fails with
       Key Type RSA Not Matched despite using ECC key pairs for rootCA & subCA.
 -     Bugzilla Bug #649343 - Publishing queue should recover from CA crash.
