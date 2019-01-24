@@ -609,6 +609,8 @@ Requires:         pki-symkey >= %{version}-%{release}
 Requires:         pki-base-java >= %{version}-%{release}
 Requires:         pki-tools >= %{version}-%{release}
 
+Requires:         keyutils
+
 %if 0%{?rhel} && 0%{?rhel} <= 7
 # no policycoreutils-python-utils
 %else
