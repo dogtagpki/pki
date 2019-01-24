@@ -1,7 +1,16 @@
+- name: Get 389-ds-base version
+  dnf:
+    list: 389-ds-base
+  register: pkg
 
 - name: Setup DS Service
   shell: dscreate fromfile /tmp/test_dir/ldap.cfg
-  when: topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology  == "topology-05" or topology == "topology-ecc"
+  when: (topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology  == "topology-05" or topology == "topology-ecc") and pkg.results[0].version <= "1.4.0.16"
+
+- name: Setup DS Service
+  shell: dscreate from-file /tmp/test_dir/ldap.cfg
+  when: (topology  == "topology-01" or topology == "topology-02" or topology == "topology-03" or topology == "topology-04" or topology  == "topology-05" or topology == "topology-ecc") and pkg.results[0].version >= "1.4.0.20"
+
 
 - name: Setup DS Service
   shell: dscreate fromfile /tmp/test_dir/ldap_kra.cfg
