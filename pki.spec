@@ -1342,6 +1342,7 @@ fi
 %{_bindir}/OCSPClient
 %{_bindir}/PKCS10Client
 %{_bindir}/PKCS12Export
+%{_bindir}/PKICertImport
 %{_bindir}/PrettyPrintCert
 %{_bindir}/PrettyPrintCrl
 %{_bindir}/TokenInfo
