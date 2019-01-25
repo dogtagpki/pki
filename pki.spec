@@ -11,8 +11,8 @@ URL:              http://www.dogtagpki.org/
 License:          GPLv2 and LGPLv2
 
 Version:          10.7.0
-Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
-# global           _phase -a1
+Release:          0.1%{?_timestamp}%{?_commit_id}%{?dist}
+%global           _phase -a1
 
 # To create a tarball from a version tag:
 # $ git archive \
