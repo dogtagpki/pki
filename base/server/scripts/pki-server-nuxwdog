@@ -122,3 +122,7 @@ for tag in sorted(iter(tags)):
     key_name = instance_name + '/' + tag
 
     keyring.put_password(key_name=key_name, password=entered_pass)
+
+# 4. Put this script to sleep in background to keep the keyring fd open until main program starts
+# due to systemd bug #1668954
+subprocess.Popen(['/usr/bin/sleep', '10'])
