@@ -27,7 +27,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBRegistry;
@@ -52,6 +51,8 @@ import netscape.security.x509.X500Name;
  * @version $Revision$, $Date$
  */
 public class KeyRepository extends Repository implements IKeyRepository {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRepository.class);
 
     public KeyStatusUpdateTask mKeyStatusUpdateTask;
     protected IDBSubsystem mDBService;
@@ -157,7 +158,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
     public void setKeyStatusUpdateInterval(IRepository requestRepo, int interval) {
 
-        CMS.debug("In setKeyStatusUpdateInterval " + interval);
+        logger.debug("In setKeyStatusUpdateInterval " + interval);
         synchronized (this) {
             this.requestRepository = requestRepo;
         }
@@ -169,11 +170,11 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
         // don't run the thread if serial management is disabled.
         if (interval == 0 || !mDBService.getEnableSerialMgmt()) {
-            CMS.debug("In setKeyStatusUpdateInterval interval = 0");
+            logger.debug("In setKeyStatusUpdateInterval interval = 0");
             return;
         }
 
-        CMS.debug("In setKeyStatusUpdateInterval scheduling key status update every " + interval + " seconds.");
+        logger.debug("In setKeyStatusUpdateInterval scheduling key status update every " + interval + " seconds.");
         mKeyStatusUpdateTask = new KeyStatusUpdateTask(this, interval);
         mKeyStatusUpdateTask.start();
     }
@@ -183,18 +184,18 @@ public class KeyRepository extends Repository implements IKeyRepository {
      */
     public synchronized void updateKeyStatus() {
         try {
-            CMS.debug("About to start checkRanges");
+            logger.debug("About to start checkRanges");
 
-            CMS.debug("Starting key checkRanges");
+            logger.debug("Starting key checkRanges");
             checkRanges();
-            CMS.debug("key checkRanges done");
+            logger.debug("key checkRanges done");
 
-            CMS.debug("Starting request checkRanges");
+            logger.debug("Starting request checkRanges");
             requestRepository.checkRanges();
-            CMS.debug("request checkRanges done");
+            logger.debug("request checkRanges done");
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.warn("Unable to update key status: " + e.getMessage(), e);
         }
     }
 
@@ -345,7 +346,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
         try {
             String filter = "(publicKey=x509cert#\"" + cert + "\")";
-            CMS.debug("filter= " + filter);
+            logger.debug("filter= " + filter);
 
             if (s != null) {
                 IDBSearchResults res = s.search(getDN(), filter);
@@ -504,7 +505,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound) throws
             EBaseException {
 
-        CMS.debug("KeyRepository:  in getLastSerialNumberInRange: low "
+        logger.debug("KeyRepository:  in getLastSerialNumberInRange: low "
                 + serial_low_bound + " high " + serial_upper_bound);
 
         if (serial_low_bound == null
@@ -524,21 +525,21 @@ public class KeyRepository extends Repository implements IKeyRepository {
             size = recList.getSize();
         }
 
-        CMS.debug("KeyRepository: getLastSerialNumberInRange: recList size " + size);
+        logger.debug("KeyRepository: getLastSerialNumberInRange: recList size " + size);
 
         if (size <= 0) {
-            CMS.debug("KeyRepository: getLastSerialNumberInRange: index may be empty");
+            logger.debug("KeyRepository: getLastSerialNumberInRange: index may be empty");
 
             BigInteger ret = new BigInteger(serial_low_bound.toString(10));
 
             ret = ret.add(new BigInteger("-1"));
 
-            CMS.debug("KeyRepository: getLastSerialNumberInRange returning: " + ret);
+            logger.debug("KeyRepository: getLastSerialNumberInRange returning: " + ret);
             return ret;
         }
         int ltSize = recList.getSizeBeforeJumpTo();
 
-        CMS.debug("KeyRepository:getLastSerialNumberInRange: ltSize " + ltSize);
+        logger.debug("KeyRepository:getLastSerialNumberInRange: ltSize " + ltSize);
 
         int i;
         KeyRecord curRec = null;
@@ -550,15 +551,15 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
                 BigInteger serial = curRec.getSerialNumber();
 
-                CMS.debug("KeyRepository:  getLastCertRecordSerialNo:  serialno  " + serial);
+                logger.debug("KeyRepository:  getLastCertRecordSerialNo:  serialno  " + serial);
 
                 if (((serial.compareTo(serial_low_bound) == 0) || (serial.compareTo(serial_low_bound) == 1)) &&
                         ((serial.compareTo(serial_upper_bound) == 0) || (serial.compareTo(serial_upper_bound) == -1))) {
-                    CMS.debug("KeyRepository: getLastSerialNumberInRange returning: " + serial);
+                    logger.debug("KeyRepository: getLastSerialNumberInRange returning: " + serial);
                     return serial;
                 }
             } else {
-                CMS.debug("KeyRepository:  getLastSerialNumberInRange:found null from getCertRecord");
+                logger.debug("KeyRepository:  getLastSerialNumberInRange:found null from getCertRecord");
             }
         }
 
@@ -566,7 +567,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
 
         ret = ret.add(new BigInteger("-1"));
 
-        CMS.debug("KeyRepository: getLastSerialNumberInRange returning: " + ret);
+        logger.debug("KeyRepository: getLastSerialNumberInRange returning: " + ret);
         return ret;
 
     }
