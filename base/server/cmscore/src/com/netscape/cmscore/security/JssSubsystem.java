@@ -112,6 +112,9 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$ $Date$
  */
 public final class JssSubsystem implements ICryptoSubsystem {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JssSubsystem.class);
+
     public static final String ID = "jss";
 
     private static final String CONFIG_DIR = "configDir";
@@ -258,7 +261,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             read += c;
         } while (read < bytes);
 
-        CMS.debug("JssSubsystem adding " + bits + " bits (" + bytes + " bytes) of entropy to default RNG token");
+        logger.debug("JssSubsystem adding " + bits + " bits (" + bytes + " bytes) of entropy to default RNG token");
         CMS.debug(b);
         PK11SecureRandom sr = new PK11SecureRandom();
         sr.setSeed(b);
@@ -271,14 +274,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 
-        CMS.debug("JssSubsystem: initializing JSS subsystem");
+        logger.debug("JssSubsystem: initializing JSS subsystem");
 
         mLogger = Logger.getLogger();
 
         if (mInited) {
             // This used to throw an exeception (e.g. - on Solaris).
             // If JSS is already initialized simply return.
-            CMS.debug("JssSubsystem: already initialized");
+            logger.debug("JssSubsystem: already initialized");
             return;
         }
 
@@ -286,7 +289,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         // If disabled, just return
         boolean enabled = config.getBoolean(PROP_ENABLE, true);
-        CMS.debug("JssSubsystem: enabled: " + enabled);
+        logger.debug("JssSubsystem: enabled: " + enabled);
 
         if (!enabled) {
             return;
@@ -299,36 +302,38 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
 
         String certDir = config.getString(CONFIG_DIR, null);
-        CMS.debug("JssSubsystem: NSS database: " + certDir);
+        logger.debug("JssSubsystem: NSS database: " + certDir);
 
         InitializationValues vals = new InitializationValues(certDir, "", "", "secmod.db");
         vals.removeSunProvider = false;
         vals.installJSSProvider = true;
 
         try {
-            CMS.debug("JssSubsystem: initializing CryptoManager");
+            logger.debug("JssSubsystem: initializing CryptoManager");
             CryptoManager.initialize(vals);
         } catch (AlreadyInitializedException e) {
             // do nothing
         } catch (Exception e) {
-            CMS.debug(e);
             String[] params = { mId, e.toString() };
             EBaseException ex = new EBaseException(CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()));
+            String message = CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.getMessage());
+            logger.error(message, e);
+            log(ILogger.LL_FAILURE, message);
             throw ex;
         }
 
         try {
-            CMS.debug("JssSubsystem: initializing SSL");
+            logger.debug("JssSubsystem: initializing SSL");
             mCryptoManager = CryptoManager.getInstance();
             initSSL();
         } catch (NotInitializedException e) {
-            CMS.debug(e);
             String[] params = { mId, e.toString() };
             EBaseException ex = new EBaseException(CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()));
+            String message = CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.getMessage());
+            logger.debug(message, e);
+            log(ILogger.LL_FAILURE, message);
             throw ex;
         }
 
@@ -337,13 +342,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
         // see http://www.dogtagpki.org/wiki/Random_Number_Generator
 
         IConfigStore randomConfig = config.getSubStore("random");
-        CMS.debug("JssSubsystem: random:");
+        logger.debug("JssSubsystem: random:");
 
         String algorithm = randomConfig.getString("algorithm", "pkcs11prng");
-        CMS.debug("JssSubsystem: - algorithm: " + algorithm);
+        logger.debug("JssSubsystem: - algorithm: " + algorithm);
 
         String provider = randomConfig.getString("provider", "Mozilla-JSS");
-        CMS.debug("JssSubsystem: - provider: " + provider);
+        logger.debug("JssSubsystem: - provider: " + provider);
 
         try {
             // wrap random number generator with PKISecureRandom for audit
@@ -359,7 +364,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         mInited = true;
 
-        CMS.debug("JssSubsystem: initialization complete");
+        logger.debug("JssSubsystem: initialization complete");
     }
 
     public SecureRandom getRandomNumberGenerator() {
@@ -375,7 +380,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         String methodName = "JssSubsystem.obscureBytes: ";
         if (memory == null || memory.length == 0) {
             //in case we want to log
-            CMS.debug(methodName + " memory null, ok, will return... ");
+            logger.debug(methodName + " memory null, ok, will return... ");
             return;
         }
 
@@ -387,10 +392,10 @@ public final class JssSubsystem implements ICryptoSubsystem {
             actualMethod = method;
 
         if ("zeroes".equals(actualMethod)) {
-            CMS.debug(methodName + " filling with zeroes, numBytes: " + memory.length);
+            logger.debug(methodName + " filling with zeroes, numBytes: " + memory.length);
             Arrays.fill(memory, (byte)0);
         } else {
-            CMS.debug(methodName + " filling with random data, numBytes: " + memory.length);
+            logger.debug(methodName + " filling with random data, numBytes: " + memory.length);
 
             if (rnd == null) {
                 //fallback, should never happen
@@ -404,7 +409,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         String methodName = "JssSubsystem.obscureBytes: ";
         if (memory == null || memory.length == 0)
             return;
-        CMS.debug(methodName + " filling with zeroes, numChars: " + memory.length);
+        logger.debug(methodName + " filling with zeroes, numChars: " + memory.length);
         Arrays.fill(memory, (char) 0);
     }
 
@@ -507,7 +512,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 if (sslcipher != null) {
                     String msg = "setting ssl cipher " + cipher;
 
-                    CMS.debug("JSSSubsystem: initSSL(): " + msg);
+                    logger.debug("JSSSubsystem: initSSL(): " + msg);
                     log(ILogger.LL_INFO, msg);
                     if (Debug.ON)
                         Debug.trace(msg);
@@ -1086,16 +1091,16 @@ public final class JssSubsystem implements ICryptoSubsystem {
             if (cert instanceof TokenCertificate) {
                 TokenCertificate tcert = (TokenCertificate) cert;
 
-                CMS.debug("*** deleting this token cert");
+                logger.debug("*** deleting this token cert");
                 tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
-                CMS.debug("*** finish deleting this token cert");
+                logger.debug("*** finish deleting this token cert");
             } else {
                 CryptoToken token = CryptoManager.getInstance().getInternalKeyStorageToken();
                 CryptoStore store = token.getCryptoStore();
 
-                CMS.debug("*** deleting this interna cert");
+                logger.debug("*** deleting this interna cert");
                 store.deleteCert(cert);
-                CMS.debug("*** removing this interna cert");
+                logger.debug("*** removing this interna cert");
             }
         } catch (NotInitializedException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
@@ -1131,23 +1136,23 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         X509CertImpl impl = new X509CertImpl(cert.getEncoded());
                         String num = impl.getSerialNumber().toString();
                         String issuer = impl.getIssuerDN().toString();
-                        CMS.debug("*** num " + num);
-                        CMS.debug("*** issuer " + issuer);
+                        logger.debug("*** num " + num);
+                        logger.debug("*** issuer " + issuer);
                         if (num.equals(serialno) && issuername.equals(issuer)) {
-                            CMS.debug("*** removing root cert");
+                            logger.debug("*** removing root cert");
                             if (cert instanceof TokenCertificate) {
                                 TokenCertificate tcert = (TokenCertificate) cert;
 
-                                CMS.debug("*** deleting this token cert");
+                                logger.debug("*** deleting this token cert");
                                 tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
-                                CMS.debug("*** finish deleting this token cert");
+                                logger.debug("*** finish deleting this token cert");
                             } else {
                                 CryptoToken token = CryptoManager.getInstance().getInternalKeyStorageToken();
                                 CryptoStore store = token.getCryptoStore();
 
-                                CMS.debug("*** deleting this interna cert");
+                                logger.debug("*** deleting this interna cert");
                                 store.deleteCert(cert);
-                                CMS.debug("*** removing this interna cert");
+                                logger.debug("*** removing this interna cert");
                             }
                             mNicknameMapCertsTable.remove(nickname);
                             break;
@@ -1179,7 +1184,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             if (mNicknameMapCertsTable != null) {
                 mNicknameMapCertsTable.clear();
             } else {
-                CMS.debug("JssSubsystem::getRootCerts() - mNicknameMapCertsTable is null");
+                logger.error("JssSubsystem::getRootCerts() - mNicknameMapCertsTable is null");
                 throw new EBaseException("JssSubsystem::getRootCerts() - mNicknameMapCertsTable is null");
             }
 
@@ -1218,7 +1223,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                             impl = new X509CertImpl(list[i].getEncoded());
                         } catch (CertificateException ex) {
                             // skip bad certificate
-                            CMS.debug("bad certificate - " + nickname);
+                            logger.warn("bad certificate - " + nickname);
                             continue;
                         }
                         String serialno = impl.getSerialNumber().toString();
@@ -1280,7 +1285,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                             impl = new X509CertImpl(list[i].getEncoded());
                         } catch (CertificateException e) {
                             // skip bad certificate
-                            CMS.debug("bad certificate - " + nickname);
+                            logger.warn("bad certificate - " + nickname);
                             continue;
                         }
                         String serialno = impl.getSerialNumber().toString();
@@ -1321,7 +1326,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         if (mNicknameMapUserCertsTable != null) {
             mNicknameMapUserCertsTable.clear();
         } else {
-            CMS.debug("JssSubsystem:: getAllCertsManage() : mNicknameMapCertsTable is null");
+            logger.error("JssSubsystem:: getAllCertsManage() : mNicknameMapCertsTable is null");
             throw new EBaseException("JssSubsystem:: getAllCertsManage() : mNicknameMapCertsTable is null");
         }
 
@@ -1348,7 +1353,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         impl = new X509CertImpl(list[i].getEncoded());
                     } catch (CertificateException e) {
                         // skip bad certificate
-                        CMS.debug("bad certificate - " + nickname);
+                        logger.warn("bad certificate - " + nickname);
                         continue;
                     }
                     Date date = impl.getNotAfter();
@@ -1396,7 +1401,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
 
         if (mNicknameMapCertsTable == null) {
-            CMS.debug("JssSubsystem::getCACerts() - " + "mNicknameMapCertsTable is null!");
+            logger.error("JssSubsystem::getCACerts() - " + "mNicknameMapCertsTable is null!");
             throw new EBaseException("JssSubsystem::getCACerts() - mNicknameMapCertsTable is null");
         } else {
             mNicknameMapCertsTable.clear();
@@ -1609,12 +1614,12 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 if (mNicknameMapUserCertsTable != null) {
                     certs = mNicknameMapUserCertsTable.get(nickname);
                     if (certs != null) {
-                        CMS.debug("in mNicknameMapUserCertsTable, isUserCert is true");
+                        logger.debug("in mNicknameMapUserCertsTable, isUserCert is true");
                         isUserCert = true;
                     }
 
                 } else
-                    CMS.debug("mNicknameMapUserCertsTable is null");
+                    logger.warn("mNicknameMapUserCertsTable is null");
             }
 
             if (certs == null) {
