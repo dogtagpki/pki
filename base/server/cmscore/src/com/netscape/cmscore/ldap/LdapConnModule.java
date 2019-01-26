@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldap;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -34,6 +33,9 @@ import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import netscape.ldap.LDAPConnection;
 
 public class LdapConnModule implements ILdapConnModule {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapConnModule.class);
+
     protected IConfigStore mConfig = null;
     protected LdapBoundConnFactory mLdapConnFactory = null;
     protected Logger mLogger = Logger.getLogger();
@@ -59,12 +61,12 @@ public class LdapConnModule implements ILdapConnModule {
             IConfigStore config)
             throws EBaseException {
 
-        CMS.debug("LdapConnModule: init called");
+        logger.debug("LdapConnModule: init called");
         if (mInited) {
-            CMS.debug("LdapConnModule: already initialized. return.");
+            logger.debug("LdapConnModule: already initialized. return.");
             return;
         }
-        CMS.debug("LdapConnModule: init begins");
+        logger.debug("LdapConnModule: init begins");
 
         mPubProcessor = p;
         mConfig = config;
@@ -89,13 +91,13 @@ public class LdapConnModule implements ILdapConnModule {
         int maxConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MAXCONNS, 15);
         // must get authInfo from the config, don't default to internaldb!!!
 
-        CMS.debug("Creating LdapBoundConnFactory for LdapConnModule.");
+        logger.debug("Creating LdapBoundConnFactory for LdapConnModule.");
         mLdapConnFactory =
                 new LdapBoundConnFactory("LDAPConnModule", minConns, maxConns, connInfo, authInfo);
 
         mInited = true;
 
-        CMS.debug("LdapConnModule: init ends");
+        logger.debug("LdapConnModule: init ends");
     }
 
     /**
