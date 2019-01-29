@@ -315,10 +315,16 @@ class AuditEventFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server %s-audit-event-find [OPTIONS]' % self.parent.parent.name)
         print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --enabled <True|False>         Show enabled/disabled events only.')
-        print('  -v, --verbose                      Run in verbose mode.')
-        print('      --help                         Show help message.')
+        print('  -i, --instance <instance ID>       '
+              '  Instance ID (default: pki-tomcat).')
+        print('      --enabled <True|False>         '
+              '  Show events currently enabled/disabled only.')
+        print('      --enabledByDefault <True|False>'
+              '  Show events enabled/disabled by default only.')
+        print('  -v, --verbose                      '
+              '  Run in verbose mode.')
+        print('      --help                         '
+              '  Show help message.')
         print()
 
     def execute(self, argv):
@@ -326,7 +332,7 @@ class AuditEventFindCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'enabled=',
+                'enabled=', 'enabledByDefault=',
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -336,6 +342,7 @@ class AuditEventFindCLI(pki.cli.CLI):
 
         instance_name = 'pki-tomcat'
         enabled = None
+        enabled_by_default = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -343,6 +350,9 @@ class AuditEventFindCLI(pki.cli.CLI):
 
             elif o == '--enabled':
                 enabled = a == 'True'
+
+            elif o == '--enabledByDefault':
+                enabled_by_default = a == 'True'
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -370,7 +380,7 @@ class AuditEventFindCLI(pki.cli.CLI):
                   % (subsystem_name.upper(), instance_name))
             sys.exit(1)
 
-        events = subsystem.find_audit_event_configs(enabled)
+        events = subsystem.find_audit_event_configs(enabled, enabled_by_default)
 
         self.print_message('%s entries matched' % len(events))
 

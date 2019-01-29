@@ -229,6 +229,10 @@ class PKIServer(object):
 
     @staticmethod
     def load_audit_events(filename):
+        '''
+        This method loads audit event info from audit-events.properties
+        and return it as a map of objects.
+        '''
 
         logger.info('Loading %s', filename)
 
@@ -239,6 +243,8 @@ class PKIServer(object):
 
         event_pattern = re.compile(r'# Event: (\S+)')
         subsystems_pattern = re.compile(r'# Applicable subsystems: (.*)')
+        enabled_pattern = re.compile(r'# Enabled by default: (.*)')
+
         event = None
 
         for line in lines:
@@ -248,10 +254,15 @@ class PKIServer(object):
             event_match = event_pattern.match(line)
             if event_match:
 
-                event = event_match.group(1)
-                logger.info('Found event %s', event)
+                name = event_match.group(1)
+                logger.info('Found event %s', name)
 
-                events[event] = []
+                event = {}
+                event['name'] = name
+                event['subsystems'] = []
+                event['enabled_by_default'] = False
+
+                events[name] = event
                 continue
 
             subsystems_match = subsystems_pattern.match(line)
@@ -261,14 +272,25 @@ class PKIServer(object):
                 logger.info('Found subsystems %s', subsystems)
 
                 subsystems = subsystems.replace(' ', '').split(',')
-                event_subsystems = events.get(event)
-                event_subsystems.extend(subsystems)
+                event['subsystems'] = subsystems
+
+            enabled_match = enabled_pattern.match(line)
+            if enabled_match:
+
+                enabled = enabled_match.group(1)
+                logger.info('Found enabled by default %s', enabled)
+
+                if enabled == 'Yes':
+                    event['enabled_by_default'] = True
+                else:
+                    event['enabled_by_default'] = False
 
         logger.info('Events:')
 
-        for event in events:
-            subsystems = events[event]
-            logger.info('- %s: %s', event, subsystems)
+        for name, event in events.items():
+            logger.info('- %s', name)
+            logger.info('  Applicable subsystems: %s', event['subsystems'])
+            logger.info('  Enabled by default: %s', event['enabled_by_default'])
 
         return events
 
@@ -672,8 +694,7 @@ class PKISubsystem(object):
         if not event_name:
             raise ValueError("Please specify the Event name")
 
-        names = self.get_audit_events()
-        if event_name not in names:
+        if event_name not in self.get_audit_events():
             raise PKIServerException('Invalid audit event: %s' % event_name)
 
         value = self.config['log.instance.SignedAudit.events']
@@ -693,8 +714,7 @@ class PKISubsystem(object):
         if not event_name:
             raise ValueError("Please specify the Event name")
 
-        names = self.get_audit_events()
-        if event_name not in names:
+        if event_name not in self.get_audit_events():
             raise PKIServerException('Invalid audit event: %s' % event_name)
 
         name = 'log.instance.SignedAudit.filters.%s' % event_name
@@ -709,8 +729,7 @@ class PKISubsystem(object):
         if not event_name:
             raise ValueError("Please specify the Event name")
 
-        names = self.get_audit_events()
-        if event_name not in names:
+        if event_name not in self.get_audit_events():
             raise PKIServerException('Invalid audit event: %s' % event_name)
 
         value = self.config['log.instance.SignedAudit.events']
@@ -725,43 +744,55 @@ class PKISubsystem(object):
 
         return True
 
-    def find_audit_event_configs(self, enabled=None):
+    def find_audit_event_configs(self, enabled=None, enabled_by_default=None):
+        '''
+        This method returns current audit configuration based on the specified
+        filters.
+        '''
 
-        events = []
+        events = self.get_audit_events()
+        enabled_events = set(self.get_enabled_audit_events())
 
-        # get enabled events
-        enabled_event_names = self.get_enabled_audit_events()
+        # apply "enabled_by_default" filter
+        if enabled_by_default is None:
+            # return all events
+            names = set(events.keys())
 
+        else:
+            # return events enabled by default
+            names = set()
+            for name, event in events.items():
+                if enabled_by_default is event['enabled_by_default']:
+                    names.add(name)
+
+        # apply "enabled" filter
         if enabled is None:
-            # get all events
-            names = self.get_audit_events()
+            # return all events
+            pass
 
         elif enabled:  # enabled == True
-            # get enabled events
-            names = enabled_event_names
+            # return currently enabled events
+            names = names.intersection(enabled_events)
 
         else:  # enabled == False
-            # get all events
-            all_event_names = self.get_audit_events()
+            # return currently disabled events
+            names = names.difference(enabled_events)
 
-            # get disabled events by subtracting enabled events from all events
-            names = sorted(set(all_event_names) - set(enabled_event_names))
+        results = []
 
         # get event properties
-        for name in names:
+        for name in sorted(names):
             event = {}
             event['name'] = name
-            event['enabled'] = name in enabled_event_names
+            event['enabled'] = name in enabled_events
             event['filter'] = self.config.get('log.instance.SignedAudit.filters.%s' % name)
-            events.append(event)
+            results.append(event)
 
-        return events
+        return results
 
     def get_audit_event_config(self, name):
 
-        names = self.get_audit_events()
-
-        if name not in names:
+        if name not in self.get_audit_events():
             raise PKIServerException('Invalid audit event: %s' % name)
 
         enabled_event_names = self.get_enabled_audit_events()
@@ -774,8 +805,12 @@ class PKISubsystem(object):
         return event
 
     def get_audit_events(self):
+        '''
+        This method returns audit events applicable to this subsystem
+        as a map of objects.
+        '''
 
-        # get the full list of audit events from audit-events.properties
+        # get the list of audit events from audit-events.properties
 
         tmpdir = tempfile.mkdtemp()
 
@@ -806,19 +841,16 @@ class PKISubsystem(object):
         finally:
             shutil.rmtree(tmpdir)
 
-        # get audit events for the subsystem
-        results = set()
+        # get audit events for this subsystem
+        results = {}
         subsystem = self.name.upper()
 
-        for event, subsystems in events.items():
+        for name, event in events.items():
+            if subsystem in event['subsystems']:
+                logger.info('Returning %s', name)
+                results[name] = event
 
-            if subsystem not in subsystems:
-                continue
-
-            logger.info('Returning %s', event)
-            results.add(event)
-
-        return sorted(results)
+        return results
 
     def get_enabled_audit_events(self):
 
