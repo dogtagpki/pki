@@ -908,11 +908,15 @@ mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6/01-UpdateKeepAliveTimeout \
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6
 
-# merge newer upgrade script into 10.5.1 for RHEL
+# merge newer upgrade scripts into 10.5.1 for RHEL 7.5
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5/01-AddTPSExternalRegISEtokenParams \
    %{buildroot}%{_datadir}/pki/server/upgrade/10.5.1/01-AddTPSExternalRegISEtokenParams
-
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5
+
+# merge newer upgrade scripts into 10.5.9 for RHEL 7.6
+mv %{buildroot}%{_datadir}/pki/server/upgrade/10.5.14/01-UpdateAuditEvents \
+   %{buildroot}%{_datadir}/pki/server/upgrade/10.5.9/01-UpdateAuditEvents
+/bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.5.14
 
 %endif
 
