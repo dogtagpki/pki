@@ -48,6 +48,8 @@ import netscape.security.x509.X500NameAttrMap;
  */
 public class X500NameSubsystem implements ISubsystem {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(X500NameSubsystem.class);
+
     private IConfigStore mConfig = null;
     public static final String ID = "X500Name";
     private String mId = ID;
@@ -190,10 +192,10 @@ public class X500NameSubsystem implements ISubsystem {
         String order = mConfig.getString(PROP_DIR_STR_ENCODING_ORDER, null);
 
         if (order == null || order.length() == 0) { // nothing.
-            CMS.debug(method + "X500Name.directoryStringEncodingOrder not specified in config; Using default order in DirStrConverter.");
+            logger.debug(method + "X500Name.directoryStringEncodingOrder not specified in config; Using default order in DirStrConverter.");
             return;
         }
-        CMS.debug(method + "X500Name.directoryStringEncodingOrder specified in config: " + order);
+        logger.debug(method + "X500Name.directoryStringEncodingOrder specified in config: " + order);
 
         StringTokenizer toker = new StringTokenizer(order, ", \t");
         int numTokens = toker.countTokens();

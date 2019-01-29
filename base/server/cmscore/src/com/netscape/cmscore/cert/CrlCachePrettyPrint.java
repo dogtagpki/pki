@@ -24,14 +24,13 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.RevokedCertificate;
-
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
+
+import netscape.security.x509.CRLExtensions;
+import netscape.security.x509.Extension;
+import netscape.security.x509.RevokedCertificate;
 
 /**
  * This class will display the certificate content in predefined
@@ -41,6 +40,8 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
  * @version $Revision$, $Date$
  */
 public class CrlCachePrettyPrint implements ICRLPrettyPrint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CrlCachePrettyPrint.class);
 
     /*==========================================================
      * constants
@@ -253,8 +254,7 @@ public class CrlCachePrettyPrint implements ICRLPrettyPrint {
         } catch (Exception e) {
             sb.append("\n\n" + pp.indent(4) + resource.getString(
                     PrettyPrintResources.TOKEN_DECODING_ERROR) + "\n\n");
-            CMS.debug("Exception=" + e.toString());
-            CMS.debugStackTrace();
+            logger.warn("Exception: " + e.getMessage(), e);
         }
 
         return sb.toString();

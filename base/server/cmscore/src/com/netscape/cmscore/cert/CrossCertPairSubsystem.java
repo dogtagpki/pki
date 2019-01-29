@@ -67,6 +67,8 @@ import netscape.ldap.LDAPv2;
  */
 public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CrossCertPairSubsystem.class);
+
     public static final String ID = "CrossCertPair";
     public static final String DN_XCERTS = "cn=crossCerts";
     public static final String LDAP_ATTR_CA_CERT = "caCertificate;binary";
@@ -100,7 +102,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 
-        CMS.debug("CrossCertPairSubsystem: initializing");
+        logger.debug("CrossCertPairSubsystem: initializing");
 
         try {
             mConfig = config;
@@ -134,11 +136,11 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             }
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("Unable to initialize CrossCertPairSubsystem: " + e.getMessage(), e);
             throw e;
         }
 
-        CMS.debug("CrossCertPairSubsystem: initialization complete");
+        logger.debug("CrossCertPairSubsystem: initialization complete");
     }
 
     /**
@@ -490,7 +492,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             try {
                 mLdapConnFactory.reset();
             } catch (ELdapException e) {
-                CMS.debug("CrossCertPairSubsystem shutdown exception: " + e.toString());
+                logger.warn("CrossCertPairSubsystem shutdown exception: " + e.getMessage(), e);
             }
         }
     }
@@ -511,6 +513,6 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     }
 
     private static void debug(String msg) {
-        CMS.debug("CrossCertPairSubsystem: " + msg);
+        logger.debug("CrossCertPairSubsystem: " + msg);
     }
 }
