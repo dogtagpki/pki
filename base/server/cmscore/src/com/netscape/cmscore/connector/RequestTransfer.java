@@ -20,11 +20,12 @@ package com.netscape.cmscore.connector;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.authentication.ChallengePhraseAuthentication;
 
 public class RequestTransfer {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestTransfer.class);
 
     private static String[] transferAttributes = {
             IRequest.HTTP_PARAMS,
@@ -66,7 +67,7 @@ public class RequestTransfer {
     public static String[] getTransferAttributes(IRequest r) {
         if (isProfileRequest(r)) {
             // copy everything in the request
-            CMS.debug("RequestTransfer: profile request id = " +
+            logger.debug("RequestTransfer: profile request id = " +
                     r.getRequestId().toString());
             Enumeration<String> e = r.getExtDataKeys();
             Vector<String> v = new Vector<String>();
@@ -82,14 +83,14 @@ public class RequestTransfer {
                     continue;
                 if (k.equals("AUTH_TOKEN"))
                     continue;
-                //CMS.debug("RequestTransfer: attribute=" + k);
+                // logger.debug("RequestTransfer: attribute=" + k);
                 if (k.equals("requestStatus")) {
-                    CMS.debug("RequestTransfer : requestStatus=" +
+                    logger.debug("RequestTransfer : requestStatus=" +
                             r.getExtDataInString("requestStatus"));
                 }
                 v.addElement(k);
             }
-            CMS.debug("RequestTransfer: attribute size=" + v.size());
+            logger.debug("RequestTransfer: attribute size=" + v.size());
             return v.toArray(new String[v.size()]);
         } else {
             return transferAttributes;
@@ -97,7 +98,7 @@ public class RequestTransfer {
     }
 
     public static void transfer(IRequest src, IRequest dest) {
-        CMS.debug("Transfer srcId=" +
+        logger.debug("Transfer srcId=" +
                 src.getRequestId().toString() +
                 " destId=" + dest.getRequestId().toString());
         String attrs[] = getTransferAttributes(src);
