@@ -19,8 +19,6 @@ package com.netscape.cmscore.ldapconn;
 
 import java.util.Properties;
 
-import com.netscape.certsrv.apps.CMS;
-
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPRebind;
@@ -37,9 +35,8 @@ import netscape.ldap.LDAPv2;
  * overridden to prevent this.
  */
 public class LdapBoundConnection extends LDAPConnection {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapBoundConnection.class);
     private static final long serialVersionUID = -2242077674357271559L;
     // LDAPConnection calls authenticate so must set this for first
     // authenticate call.
@@ -80,8 +77,7 @@ public class LdapBoundConnection extends LDAPConnection {
         if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
             // will be bound to client auth cert mapped entry.
             super.connect(connInfo.getHost(), connInfo.getPort());
-            CMS.debug(
-                    "Established LDAP connection with SSL client auth to " +
+            logger.debug("Established LDAP connection with SSL client auth to " +
                             connInfo.getHost() + ":" + connInfo.getPort());
         } else { // basic auth
             String binddn = authInfo.getParms()[0];
@@ -89,8 +85,7 @@ public class LdapBoundConnection extends LDAPConnection {
 
             super.connect(connInfo.getVersion(),
                     connInfo.getHost(), connInfo.getPort(), binddn, bindpw);
-            CMS.debug(
-                    "Established LDAP connection using basic authentication to" +
+            logger.debug("Established LDAP connection using basic authentication to" +
                             " host " + connInfo.getHost() +
                             " port " + connInfo.getPort() +
                             " as " + binddn);
@@ -108,8 +103,7 @@ public class LdapBoundConnection extends LDAPConnection {
         super(fac);
         if (bindDN != null) {
             super.connect(version, host, port, bindDN, bindPW);
-            CMS.debug(
-                    "Established LDAP connection using basic authentication " +
+            logger.debug("Established LDAP connection using basic authentication " +
                             " as " + bindDN + " to " + host + ":" + port);
         } else {
             if (fac == null && bindDN == null) {
@@ -118,8 +112,7 @@ public class LdapBoundConnection extends LDAPConnection {
             }
             // automatically authenticated if it's ssl client auth.
             super.connect(version, host, port, null, null);
-            CMS.debug(
-                    "Established LDAP connection using SSL client authentication " +
+            logger.debug("Established LDAP connection using SSL client authentication " +
                             "to " + host + ":" + port);
         }
     }
