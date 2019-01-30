@@ -53,6 +53,8 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class ReqCertSANameEmailResolver implements IEmailResolver {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ReqCertSANameEmailResolver.class);
     private Logger mLogger = Logger.getLogger();
 
     public static final String KEY_REQUEST = IEmailResolverKeys.KEY_REQUEST;
@@ -133,7 +135,7 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
             if (mEmail == null) {
                 X509CertInfo certInfo = null;
 
-                CMS.debug("about to try subjectalternatename");
+                logger.debug("about to try subjectalternatename");
                 try {
                     certInfo = (X509CertInfo)
                             ((X509CertImpl) cert).get(
@@ -193,7 +195,7 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
                                 GeneralNameInterface gni = e.nextElement();
 
                                 if (gni.getType() == GeneralNameInterface.NAME_RFC822) {
-                                    CMS.debug("got an subjectalternatename email");
+                                    logger.debug("got an subjectalternatename email");
 
                                     String nameString = gni.toString();
 
@@ -206,7 +208,7 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
 
                                     break;
                                 } else {
-                                    CMS.debug("not an subjectalternatename email");
+                                    logger.debug("not an subjectalternatename email");
                                 }
                             }
                         }
@@ -223,32 +225,20 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
         // log it
         if (mEmail == null) {
             if (cert != null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL", subjectDN.toString()));
-                CMS.debug(
-                        "no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1 for " +
-                                subjectDN.toString());
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL", subjectDN.toString()));
+                logger.error("no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1 for " + subjectDN);
                 throw new ENotificationException(
-                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
-                                "subjectDN= " + subjectDN.toString()));
+                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", "subjectDN= " + subjectDN));
             } else if (req != null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL_ID",
-                                req.getRequestId().toString()));
-                CMS.debug(
-                        "no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1 for request id =" +
-                                req.getRequestId().toString());
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL_ID", req.getRequestId().toString()));
+                logger.error("no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1 for request id =" + req.getRequestId());
                 throw new ENotificationException(
-                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
-                                "requestId= " + req.getRequestId().toString()));
+                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", "requestId= " + req.getRequestId()));
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL_REQUEST"));
-                CMS.debug(
-                        "no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1.  No request id or cert info found");
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL_REQUEST"));
+                logger.error("no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1.  No request id or cert info found");
                 throw new ENotificationException(
-                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
-                                ": No request id or cert info found"));
+                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", ": No request id or cert info found"));
             }
         } else {
             log(ILogger.LL_INFO, "email resolved: " + mEmail);
