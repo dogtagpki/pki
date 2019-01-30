@@ -20,13 +20,12 @@ package com.netscape.cmscore.dbs;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 
 /**
  * A class represents ann attribute mapper that maps
@@ -38,6 +37,7 @@ import com.netscape.certsrv.dbs.IDBObj;
  */
 public class ByteArrayMapper implements IDBAttrMapper {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ByteArrayMapper.class);
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
 
@@ -64,10 +64,10 @@ public class ByteArrayMapper implements IDBAttrMapper {
             throws EBaseException {
         byte data[] = (byte[]) obj;
         if (data == null) {
-            CMS.debug("ByteArrayMapper:mapObjectToLDAPAttributeSet " + name +
+            logger.debug("ByteArrayMapper:mapObjectToLDAPAttributeSet " + name +
                     " size=0");
         } else {
-            CMS.debug("ByteArrayMapper:mapObjectToLDAPAttributeSet " + name +
+            logger.debug("ByteArrayMapper:mapObjectToLDAPAttributeSet " + name +
                     " size=" + data.length);
         }
         attrs.add(new LDAPAttribute(mLdapName, data));

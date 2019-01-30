@@ -46,9 +46,7 @@ import netscape.security.x509.X509ExtensionException;
  */
 public class CertRecord implements IDBObj, ICertRecord {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecord.class);
     private static final long serialVersionUID = -6231895305929417777L;
     private BigInteger mId = null;
     private X509CertImpl mX509Certificate = null;
@@ -283,12 +281,12 @@ public class CertRecord implements IDBObj, ICertRecord {
             throws EBaseException, X509ExtensionException {
         String method = "CertRecord.getRevReason:";
         String msg = "";
-        //CMS.debug(method + " checking for cert serial: "
+        // logger.debug(method + " checking for cert serial: "
         //        + getSerialNumber().toString());
         IRevocationInfo revInfo = getRevocationInfo();
         if (revInfo == null) {
             msg = "revInfo null for" + getSerialNumber().toString();
-            CMS.debug(method + msg);
+            logger.debug(method + msg);
             return null;
         }
 
@@ -305,19 +303,19 @@ public class CertRecord implements IDBObj, ICertRecord {
     }
 
     public boolean isCertOnHold() {
-        String method = "CertRecord.isCertOnHold:";
-        CMS.debug(method + " checking for cert serial: "
+        String method = "CertRecord.isCertOnHold: ";
+        logger.debug(method + "checking for cert serial: "
                 + getSerialNumber().toString());
         try {
             RevocationReason revReason = getRevReason();
             if (revReason == RevocationReason.CERTIFICATE_HOLD) {
-                CMS.debug(method + "for " + getSerialNumber().toString() + " returning true");
+                logger.debug(method + "for " + getSerialNumber().toString() + " returning true");
                 return true;
             }
         } catch (Exception e) {
-            CMS.debug(method + e);
+            logger.warn(method + e.getMessage(), e);
         }
-        CMS.debug(method + "for " + getSerialNumber().toString() + " returning false");
+        logger.debug(method + "for " + getSerialNumber().toString() + " returning false");
         return false;
     }
 

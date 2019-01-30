@@ -22,8 +22,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import netscape.security.x509.RevokedCertificate;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
@@ -35,6 +33,8 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 
+import netscape.security.x509.RevokedCertificate;
+
 /**
  * A class represents a CRL repository. It stores all the
  * CRL issuing points.
@@ -45,6 +45,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLRepository;
  */
 public class CRLRepository extends Repository implements ICRLRepository {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRLRepository.class);
     private final String mLdapCRLIssuingPointName = "cn";
     private IDBSubsystem mDBService;
     private String mBaseDN;
@@ -129,7 +130,7 @@ public class CRLRepository extends Repository implements ICRLRepository {
             while (res.hasMoreElements()) {
                 ICRLIssuingPointRecord nextelement =
                         (ICRLIssuingPointRecord) res.nextElement();
-                CMS.debug("CRLRepository getIssuingPointsNames(): name = "
+                logger.debug("CRLRepository getIssuingPointsNames(): name = "
                         + nextelement.getId());
                 v.addElement(nextelement.getId());
             }

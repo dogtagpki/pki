@@ -19,7 +19,6 @@ package com.netscape.cmscore.dbs;
 
 import java.math.BigInteger;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBSubsystem;
@@ -36,6 +35,7 @@ import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 public class ReplicaIDRepository extends Repository
         implements IReplicaIDRepository {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ReplicaIDRepository.class);
     private IDBSubsystem mDBService;
     private String mBaseDN;
 
@@ -54,7 +54,7 @@ public class ReplicaIDRepository extends Repository
      */
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound)
             throws EBaseException {
-        CMS.debug("ReplicaIDReposoitory: in getLastSerialNumberInRange: low "
+        logger.debug("ReplicaIDReposoitory: in getLastSerialNumberInRange: low "
                 + serial_low_bound + " high " + serial_upper_bound);
         if (serial_low_bound == null
                 || serial_upper_bound == null || serial_low_bound.compareTo(serial_upper_bound) >= 0) {
