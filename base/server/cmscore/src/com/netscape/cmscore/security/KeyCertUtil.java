@@ -123,6 +123,7 @@ import netscape.security.x509.X509Key;
  */
 public class KeyCertUtil {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyCertUtil.class);
     public static final String CA_SIGNINGCERT_NICKNAME = "caSigningCert";
 
     public static void checkCertificateExt(String ext) throws EBaseException {
@@ -267,7 +268,7 @@ public class KeyCertUtil {
         } catch (TokenException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR_1", e.toString()));
         } catch (SignatureException e) {
-            CMS.debug("CertKeyUtil.signCert: "+ e.toString());
+            logger.error("CertKeyUtil.signCert: "+ e.getMessage(), e);
             CMS.checkForAndAutoShutdown();
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_SIGNED_FAILED", e.toString()));
         } catch (InvalidKeyException e) {
@@ -1037,7 +1038,7 @@ public class KeyCertUtil {
         byte[] hash = CryptoUtil.generateKeyIdentifier(subjectKeyInfo.getKey());
 
         if (hash == null) {
-            CMS.debug("KeyCertUtil: createKeyIdentifier " +
+            logger.warn("KeyCertUtil: createKeyIdentifier " +
                 "CryptoUtil.generateKeyIdentifier returns null");
             return null;
         }
