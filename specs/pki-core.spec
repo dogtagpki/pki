@@ -1200,6 +1200,7 @@ fi
 %{_mandir}/man1/pki-user-cert.1.gz
 %{_mandir}/man1/pki-user-membership.1.gz
 %{_mandir}/man1/PKCS10Client.1.gz
+%{_mandir}/man1/PKICertImport.1.gz
 %endif
 
 %if %{with server}
