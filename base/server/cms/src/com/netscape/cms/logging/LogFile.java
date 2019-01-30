@@ -686,7 +686,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * <P>
      *
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_SIGNING used when a signature on the audit log is generated (same as
+     * <li>signed.audit AUDIT_LOG_SIGNING used when a signature on the audit log is generated (same as
      * "flush" time)
      * </ul>
      *
