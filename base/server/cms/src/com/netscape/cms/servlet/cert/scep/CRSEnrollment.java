@@ -93,6 +93,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWCBsdr;
+import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.scep.CRSPKIMessage;
 import com.netscape.cmsutil.util.Utils;
@@ -532,7 +533,7 @@ public class CRSEnrollment extends HttpServlet {
             httpResp.getOutputStream().flush();
 
             CMS.debug("Output certificate chain:");
-            CMS.debug(bytes);
+            CMS.debug(Debug.dump(bytes));
         } catch (Exception e) {
             CMS.debug("handleGetCACert exception " + e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_SENDING_DER_ENCODE_CERT", e.getMessage()));
@@ -1145,7 +1146,7 @@ public class CRSEnrollment extends HttpServlet {
 
             decryptedP10bytes = cip.doFinal(req.getEncryptedPkcs10());
             CMS.debug("decryptedP10bytes:");
-            CMS.debug(decryptedP10bytes);
+            CMS.debug(Debug.dump(decryptedP10bytes));
 
             req.setP10(new PKCS10(decryptedP10bytes));
         } catch (Exception e) {

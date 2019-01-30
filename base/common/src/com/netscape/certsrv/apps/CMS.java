@@ -199,16 +199,6 @@ public final class CMS {
     }
 
     /**
-     * Puts data of an byte array into the debug file.
-     *
-     * @param data byte array to be recorded in the debug file
-     */
-    public static void debug(byte data[]) {
-        if (_engine != null)
-            _engine.debug(data);
-    }
-
-    /**
      * Puts a message into the debug file.
      *
      * @param msg debugging message

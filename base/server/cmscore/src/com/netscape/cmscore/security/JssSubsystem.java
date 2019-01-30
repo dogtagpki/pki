@@ -262,7 +262,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         } while (read < bytes);
 
         logger.debug("JssSubsystem adding " + bits + " bits (" + bytes + " bytes) of entropy to default RNG token");
-        CMS.debug(b);
+        logger.debug(Debug.dump(b));
         PK11SecureRandom sr = new PK11SecureRandom();
         sr.setSeed(b);
     }
