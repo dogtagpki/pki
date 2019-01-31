@@ -10,7 +10,7 @@ URL:              http://www.dogtagpki.org/
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 
-Version:          10.6.9
+Version:          10.6.10
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 # global           _phase -a1
 
