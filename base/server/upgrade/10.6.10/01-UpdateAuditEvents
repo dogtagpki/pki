@@ -94,6 +94,9 @@ class UpdateAuditEvents(
         # remove unselected audit events
         subsystem.config.pop('log.instance.SignedAudit.unselected.events', None)
 
+        # update audit event filters
+        self.update_audit_event_filters(subsystem, 'log.instance.SignedAudit.filters.')
+
         subsystem.save()
 
     def update_audit_events(self, subsystem, prop_name):
@@ -115,3 +118,29 @@ class UpdateAuditEvents(
 
         event_list = ','.join(sorted(events))
         subsystem.config[prop_name] = event_list
+
+    def update_audit_event_filters(self, subsystem, prefix):
+
+        prop_names = subsystem.config.keys()
+        for prop_name in prop_names:
+
+            # not a filter, skip
+            if not prop_name.startswith(prefix):
+                continue
+
+            event_name = prop_name[len(prefix):]
+
+            for replacement in UpdateAuditEvents.REPLACEMENTS:
+
+                old_event = replacement[0]
+                new_event = replacement[1]
+
+                if event_name != old_event:
+                    continue
+
+                # remove filter for old event
+                event_filter = subsystem.config.pop(prop_name)
+
+                # add filter for new event
+                prop_name = prefix + new_event
+                subsystem.config[prop_name] = event_filter
