@@ -1,5 +1,5 @@
 
-# Environment-Setup Instructions:
+# Environment-Setup Instructions
 
 ## Installing pip
 
