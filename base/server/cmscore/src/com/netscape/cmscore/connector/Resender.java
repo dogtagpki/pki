@@ -25,6 +25,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.dogtagpki.server.PKIClientSocketListener;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -36,16 +38,16 @@ import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
-
-import org.dogtagpki.server.PKIClientSocketListener;
 
 /**
  * Resend requests at intervals to the server to check if it's been completed.
  * Default interval is 5 minutes.
  */
 public class Resender implements IResender {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Resender.class);
+
     public static final int MINUTE = 60;
 
     protected IAuthority mAuthority = null;
@@ -96,7 +98,7 @@ public class Resender implements IResender {
 
         while (list != null && list.hasMoreElements()) {
             RequestId rid = list.nextRequestId();
-            CMS.debug("added request Id " + rid + " in init to resend queue.");
+            logger.debug("added request Id " + rid + " in init to resend queue.");
             // note these are added as strings
             mRequestIds.addElement(rid.toString());
         }
@@ -107,11 +109,11 @@ public class Resender implements IResender {
             // note the request ids are added as strings.
             mRequestIds.addElement(r.getRequestId().toString());
         }
-        CMS.debug("added " + r.getRequestId() + " to resend queue");
+        logger.debug("added " + r.getRequestId() + " to resend queue");
     }
 
     public void start(final String name) {
-        CMS.debug("Starting resender thread with interval " + mInterval);
+        logger.debug("Starting resender thread with interval " + mInterval);
 
         // schedule task to run immediately and repeat after specified interval
         executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
@@ -128,7 +130,7 @@ public class Resender implements IResender {
             return;
 
         if (! connected) {
-            CMS.debug("Connecting ...");
+            logger.debug("Connecting ...");
             PKIClientSocketListener sockListener = new PKIClientSocketListener();
             JssSSLSocketFactory factory = new JssSSLSocketFactory(mNickName, mClientCiphers);
             factory.addSocketListener(sockListener);
@@ -160,8 +162,7 @@ public class Resender implements IResender {
             RequestId rid = new RequestId(ridString);
             IRequest r = null;
 
-            CMS.debug(
-                    "resend processing request id " + rid);
+            logger.debug("resend processing request id " + rid);
 
             try {
                 r = mQueue.findRequest(rid);
@@ -175,8 +176,7 @@ public class Resender implements IResender {
                 if (r.getRequestStatus() != RequestStatus.SVC_PENDING) {
                     // request not pending anymore - aborted or cancelled.
                     completedRids.addElement(rid);
-                    CMS.debug(
-                            "request id " + rid + " no longer service pending");
+                    logger.debug("request id " + rid + " no longer service pending");
                 } else {
                     boolean completed = send(r);
 
@@ -205,11 +205,9 @@ public class Resender implements IResender {
             while (en.hasMoreElements()) {
                 RequestId id = en.nextElement();
 
-                CMS.debug(
-                        "Connector: Removed request " + id + " from re-send queue");
+                logger.debug("Connector: Removed request " + id + " from re-send queue");
                 mRequestIds.removeElement(id.toString());
-                CMS.debug(
-                        "Connector: mRequestIds now has " +
+                logger.debug("Connector: mRequestIds now has " +
                                 mRequestIds.size() + " elements.");
             }
         }
@@ -227,8 +225,7 @@ public class Resender implements IResender {
             replymsg = (HttpPKIMessage) mConn.send(tomsg);
             if (replymsg == null)
                 return false;
-            CMS.debug(
-                    r.getRequestId() + " resent to CA");
+            logger.debug(r.getRequestId() + " resent to CA");
 
             RequestStatus replyStatus =
                     RequestStatus.fromString(replymsg.reqStatus);
@@ -236,24 +233,20 @@ public class Resender implements IResender {
             RequestId replyRequestId =
                     new RequestId(replymsg.reqId.substring(index + 1));
 
-            if (Debug.ON)
-                Debug.trace("reply request id " + replyRequestId +
+            logger.debug("reply request id " + replyRequestId +
                         " for request " + r.getRequestId());
 
             if (replyStatus != RequestStatus.COMPLETE) {
-                CMS.debug("resend " +
-                        r.getRequestId() + " still not completed.");
+                logger.debug("resend " + r.getRequestId() + " still not completed.");
                 return false;
             }
 
             // request was completed. copy relevant contents.
             replymsg.toRequest(r);
-            if (Debug.ON)
-                Debug.trace("resend request id was completed " + r.getRequestId());
+            logger.debug("resend request id was completed " + r.getRequestId());
             mQueue.markAsServiced(r);
             mQueue.releaseRequest(r);
-            CMS.debug(
-                    "resend released request " + r.getRequestId());
+            logger.debug("resend released request " + r.getRequestId());
             return true;
         } catch (EBaseException e) {
             // same as not having sent it, so still want to resend.

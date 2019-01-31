@@ -49,11 +49,11 @@ import com.netscape.cmscore.dbs.BigIntegerMapper;
 import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.StringMapper;
 import com.netscape.cmscore.util.Debug;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.X509CertInfo;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
+import netscape.security.x509.CertificateSubjectName;
+import netscape.security.x509.X509CertInfo;
 
 //
 // A request record is the stored version of a request.
@@ -63,9 +63,8 @@ import netscape.ldap.LDAPAttributeSet;
 public class RequestRecord
         extends ARequestRecord
         implements IRequestRecord, IDBObj {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRecord.class);
     private static final long serialVersionUID = 8044665107558872084L;
 
     public RequestId getRequestId() {
@@ -260,11 +259,11 @@ public class RequestRecord
                     String subjectName = r.getExtDataInString("req_subject_name");
                     if (subjectName == null || subjectName.equals("")) {
                         X509CertInfo info = r.getExtDataInCertInfo(IRequest.CERT_INFO);
-                        CMS.debug("RequestRecord.loadExtDataFromRequest: missing subject name. Processing extracting subjectName from req_x509info");
+                        logger.debug("RequestRecord.loadExtDataFromRequest: missing subject name. Processing extracting subjectName from req_x509info");
                         try {
                             CertificateSubjectName subjName = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);
                             if (subjName != null) {
-                                CMS.debug("RequestRecord.loadExtDataFromRequest: got subjName");
+                                logger.debug("RequestRecord.loadExtDataFromRequest: got subjName");
                                 h.put("req_subject_name", subjName.toString());
                             }
                         } catch (Exception es) {
@@ -272,13 +271,13 @@ public class RequestRecord
                           //so be it
                         }
                     }/* else { //this is the common case
-                        CMS.debug("RequestRecord.loadExtDataFromRequest: subject name already exists, no action needed");
+                        logger.debug("RequestRecord.loadExtDataFromRequest: subject name already exists, no action needed");
                     }*/
                 }
                 if (reqType != null &&
                     (reqType.equals("crmf") || reqType.equals("cmc-crmf")) &&
                         CMS.isExcludedLdapAttr(key)) {
-                    //CMS.debug("RequestRecord.loadExtDataFromRequest: found excluded attr; key=" + key);
+                    // logger.debug("RequestRecord.loadExtDataFromRequest: found excluded attr; key=" + key);
                     continue;
                 }
                 h.put(key, r.getExtDataInString(key));

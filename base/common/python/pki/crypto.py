@@ -57,7 +57,6 @@ class CryptoProvider(six.with_metaclass(abc.ABCMeta, object)):
 
     def __init__(self):
         """ Constructor """
-        pass
 
     @abc.abstractmethod
     def initialize(self):
@@ -382,7 +381,6 @@ class CryptographyCryptoProvider(CryptoProvider):
         Any operations here that need to be performed before crypto
         operations.
         """
-        pass
 
     def get_supported_algorithm_keyset(self):
         """ returns highest supported algorithm keyset """

@@ -46,6 +46,7 @@ import netscape.ldap.LDAPAttributeSet;
  */
 public class ObjectStreamMapper implements IDBAttrMapper {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ObjectStreamMapper.class);
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
     private Logger mLogger = Logger.getLogger();
@@ -78,10 +79,10 @@ public class ObjectStreamMapper implements IDBAttrMapper {
             os.writeObject(obj);
             byte data[] = bos.toByteArray();
             if (data == null) {
-                CMS.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
+                logger.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
                         name + " size=0");
             } else {
-                CMS.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
+                logger.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
                         name + " size=" + data.length);
             }
             attrs.add(new LDAPAttribute(mLdapName, data));

@@ -30,6 +30,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 
 public class SessionTimer extends TimerTask {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SessionTimer.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private ISecurityDomainSessionTable m_sessiontable = null;
@@ -40,11 +41,11 @@ public class SessionTimer extends TimerTask {
     }
 
     public void run() {
-        CMS.debug("SessionTimer: run()");
+        logger.debug("SessionTimer: run()");
         try {
             runImpl();
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.warn("SessionTimer: " + e.getMessage(), e);
         }
     }
 
@@ -59,7 +60,7 @@ public class SessionTimer extends TimerTask {
             long timeToLive = m_sessiontable.getTimeToLive();
             if ((nowTime - beginTime) > timeToLive) {
                 m_sessiontable.removeEntry(sessionId);
-                CMS.debug("SessionTimer run: successfully remove the session id entry from the table.");
+                logger.debug("SessionTimer run: successfully remove the session id entry from the table.");
 
                 // audit message
                 String auditParams = "operation;;expire_token+token;;" + sessionId;

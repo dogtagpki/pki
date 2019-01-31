@@ -2,14 +2,17 @@
 Name:             pki
 ################################################################################
 
-Summary:          PKI Package
+%global           vendor dogtag
+%global           brand Dogtag
+
+Summary:          %{brand} PKI Package
 URL:              http://www.dogtagpki.org/
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 
 Version:          10.7.0
-Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
-# global           _phase -a1
+Release:          0.1%{?_timestamp}%{?_commit_id}%{?dist}
+%global           _phase -a1
 
 # To create a tarball from a version tag:
 # $ git archive \
@@ -142,8 +145,6 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 %define pki_groupname pkiuser
 %define pki_gid 17
 %define pki_homedir /usr/share/pki
-
-%global brand dogtag
 
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
@@ -339,10 +340,10 @@ BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
 # description for top-level package (if there is a separate meta package)
-%if "%{name}" != "%{brand}-pki"
+%if "%{name}" != "%{vendor}-pki"
 %description
 
-Dogtag PKI is an enterprise software system designed
+%{brand} PKI is an enterprise software system designed
 to manage enterprise Public Key Infrastructure deployments.
 
 PKI consists of the following components:
@@ -356,18 +357,18 @@ PKI consists of the following components:
 %endif
 
 %if %{with meta}
-%if "%{name}" != "%{brand}-pki"
+%if "%{name}" != "%{vendor}-pki"
 ################################################################################
-%package -n       %{brand}-pki
+%package -n       %{vendor}-pki
 ################################################################################
 
-Summary:          Dogtag PKI Package
+Summary:          %{brand} PKI Package
 %endif
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI theme packages
-Requires:         %{brand}-pki-server-theme >= %{version}
-Requires:         %{brand}-pki-console-theme >= %{version}
+Requires:         %{vendor}-pki-server-theme >= %{version}
+Requires:         %{vendor}-pki-console-theme >= %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI core packages
@@ -396,13 +397,13 @@ Requires:         esc >= 1.1.1
 %endif
 
 # description for top-level package (unless there is a separate meta package)
-%if "%{name}" == "%{brand}-pki"
+%if "%{name}" == "%{vendor}-pki"
 %description
 %else
-%description -n   %{brand}-pki
+%description -n   %{vendor}-pki
 %endif
 
-Dogtag PKI is an enterprise software system designed
+%{brand} PKI is an enterprise software system designed
 to manage enterprise Public Key Infrastructure deployments.
 
 PKI consists of the following components:
@@ -608,6 +609,8 @@ Requires:         openssl
 Requires:         pki-symkey >= %{version}-%{release}
 Requires:         pki-base-java >= %{version}-%{release}
 Requires:         pki-tools >= %{version}-%{release}
+
+Requires:         keyutils
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
 # no policycoreutils-python-utils
@@ -876,30 +879,30 @@ The PKI Console is a Java application used to administer PKI server.
 
 %if %{with theme}
 ################################################################################
-%package -n       %{brand}-pki-server-theme
+%package -n       %{vendor}-pki-server-theme
 ################################################################################
 
-Summary:          Dogtag PKI Server Theme Package
+Summary:          %{brand} PKI Server Theme Package
 BuildArch:        noarch
 
 Provides:         pki-server-theme = %{version}-%{release}
 
-%description -n   %{brand}-pki-server-theme
+%description -n   %{vendor}-pki-server-theme
 This PKI Server Theme Package contains
-Dogtag textual and graphical user interface for PKI Server.
+%{brand} textual and graphical user interface for PKI Server.
 
 ################################################################################
-%package -n       %{brand}-pki-console-theme
+%package -n       %{vendor}-pki-console-theme
 ################################################################################
 
-Summary:          Dogtag PKI Console Theme Package
+Summary:          %{brand} PKI Console Theme Package
 BuildArch:        noarch
 
 Provides:         pki-console-theme = %{version}-%{release}
 
-%description -n   %{brand}-pki-console-theme
+%description -n   %{vendor}-pki-console-theme
 This PKI Console Theme Package contains
-Dogtag textual and graphical user interface for PKI Console.
+%{brand} textual and graphical user interface for PKI Console.
 
 %endif # with theme
 
@@ -948,7 +951,7 @@ cd build
 %endif
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
-    -DTHEME=%{?with_theme:%{brand}} \
+    -DTHEME=%{?with_theme:%{vendor}} \
     ..
 
 ################################################################################
@@ -971,7 +974,7 @@ cd build
 
 cat > %{buildroot}%{_datadir}/doc/pki/README << EOF
 This package is a "meta-package" whose dependencies pull in all of the
-packages comprising the Dogtag Public Key Infrastructure (PKI) Suite.
+packages comprising the %{brand} Public Key Infrastructure (PKI) Suite.
 EOF
 %endif # with meta
 
@@ -1224,9 +1227,9 @@ fi
 %endif # with server
 
 %if %{with meta}
-%if "%{name}" != "%{brand}-pki"
+%if "%{name}" != "%{vendor}-pki"
 ################################################################################
-%files -n %{brand}-pki
+%files -n %{vendor}-pki
 ################################################################################
 %else
 %files
@@ -1339,6 +1342,7 @@ fi
 %{_bindir}/OCSPClient
 %{_bindir}/PKCS10Client
 %{_bindir}/PKCS12Export
+%{_bindir}/PKICertImport
 %{_bindir}/PrettyPrintCert
 %{_bindir}/PrettyPrintCrl
 %{_bindir}/TokenInfo
@@ -1541,10 +1545,10 @@ fi
 
 %if %{with theme}
 ################################################################################
-%files -n %{brand}-pki-server-theme
+%files -n %{vendor}-pki-server-theme
 ################################################################################
 
-%doc themes/%{brand}/common-ui/LICENSE
+%doc themes/%{vendor}/common-ui/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/CS_SERVER_VERSION
 %{_datadir}/pki/common-ui/
@@ -1559,10 +1563,10 @@ fi
 %{_datadir}/pki/server/webapps/pki/tks
 
 ################################################################################
-%files -n %{brand}-pki-console-theme
+%files -n %{vendor}-pki-console-theme
 ################################################################################
 
-%doc themes/%{brand}/console-ui/LICENSE
+%doc themes/%{vendor}/console-ui/LICENSE
 %{_javadir}/pki/pki-console-theme.jar
 
 %endif # with theme

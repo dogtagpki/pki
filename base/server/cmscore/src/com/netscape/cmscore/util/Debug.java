@@ -132,6 +132,14 @@ public class Debug
         if (!TRACE_ON)
             return;
 
+        String s = dump(b);
+        if (s.length() > 0) {
+            CMS.logger.debug(s);
+        }
+    }
+
+    public static String dump(byte[] b) {
+
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < b.length; i++) {
@@ -145,9 +153,7 @@ public class Debug
             }
         }
 
-        if (sb.length() > 0) {
-            CMS.logger.debug(sb.toString());
-        }
+        return sb.toString();
     }
 
     /**

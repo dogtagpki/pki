@@ -84,6 +84,8 @@ import netscape.security.x509.X509ExtensionException;
 public abstract class ARequestQueue
         implements IRequestQueue {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ARequestQueue.class);
+
     /**
      * global request version for tracking request changes.
      */
@@ -774,6 +776,8 @@ public abstract class ARequestQueue
 //
 class Request implements IRequest {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Request.class);
+
     private static final long serialVersionUID = -1510479502681392568L;
 
     // IRequest.getRequestId
@@ -1134,7 +1138,7 @@ class Request implements IRequest {
             try {
                 return new X509CertImpl(data);
             } catch (CertificateException e) {
-                CMS.debug("ARequestQueue: getExtDataInCert(): "+e.toString());
+                logger.warn("ARequestQueue: getExtDataInCert(): " + e.getMessage(), e);
                 return null;
             }
         }
@@ -1166,7 +1170,7 @@ class Request implements IRequest {
             try {
                 certArray[index] = new X509CertImpl(Utils.base64decode(stringArray[index]));
             } catch (CertificateException e) {
-                CMS.debug("ARequestQueue: getExtDataInCertArray(): "+e.toString());
+                logger.warn("ARequestQueue: getExtDataInCertArray(): " + e.getMessage(), e);
                 return null;
             }
         }
@@ -1190,7 +1194,7 @@ class Request implements IRequest {
             try {
                 return new X509CertInfo(data);
             } catch (CertificateException e) {
-                CMS.debug("ARequestQueue: getExtDataInCertInfo(): "+e.toString());
+                logger.warn("ARequestQueue: getExtDataInCertInfo(): " + e.getMessage(), e);
                 return null;
             }
         }
@@ -1222,7 +1226,7 @@ class Request implements IRequest {
             try {
                 certArray[index] = new X509CertInfo(Utils.base64decode(stringArray[index]));
             } catch (CertificateException e) {
-                CMS.debug("ARequestQueue: getExtDataInCertInfoArray(): "+e.toString());
+                logger.warn("ARequestQueue: getExtDataInCertInfoArray(): " + e.getMessage(), e);
                 return null;
             }
         }
@@ -1340,10 +1344,10 @@ class Request implements IRequest {
         try {
             data.encode(byteStream);
         } catch (CertificateException e) {
-            CMS.debug("ARequestQueue: setExtData(): "+e.toString());
+            logger.warn("ARequestQueue: setExtData(): " + e.getMessage(), e);
             return false;
         } catch (IOException e) {
-            CMS.debug("ARequestQueue: setExtData(): "+e.toString());
+            logger.warn("ARequestQueue: setExtData(): " + e.getMessage(), e);
             return false;
         }
         return setExtData(key, byteStream.toByteArray());

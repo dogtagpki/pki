@@ -34,6 +34,9 @@ import com.netscape.certsrv.registry.IPluginRegistry;
 public class ProfileSubsystem
         extends AbstractProfileSubsystem
         implements IProfileSubsystem {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileSubsystem.class);
+
     private static final String PROP_LIST = "list";
     private static final String PROP_CLASS_ID = "class_id";
     private static final String PROP_CONFIG = "config";
@@ -49,7 +52,7 @@ public class ProfileSubsystem
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        CMS.debug("ProfileSubsystem: start init");
+        logger.debug("ProfileSubsystem: start init");
         IPluginRegistry registry = (IPluginRegistry)
                 CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
@@ -76,10 +79,10 @@ public class ProfileSubsystem
                 throw new EBaseException("No plugins for type : profile, with id " + classid);
             }
 
-            CMS.debug("Start Profile Creation - " + id + " " + classid + " " + info.getClassName());
+            logger.debug("Start Profile Creation - " + id + " " + classid + " " + info.getClassName());
             createProfile(id, classid, info.getClassName(), false);
 
-            CMS.debug("Done Profile Creation - " + id);
+            logger.debug("Done Profile Creation - " + id);
         }
 
         Enumeration<String> ee = getProfileIds();
@@ -87,7 +90,7 @@ public class ProfileSubsystem
         while (ee.hasMoreElements()) {
             String id = ee.nextElement();
 
-            CMS.debug("Registered Confirmation - " + id);
+            logger.debug("Registered Confirmation - " + id);
         }
     }
 
@@ -116,7 +119,7 @@ public class ProfileSubsystem
             IConfigStore subStoreConfig = CMS.createFileConfigStore(configPath);
             profile = (IProfile) Class.forName(className).newInstance();
 
-            CMS.debug("ProfileSubsystem: initing " + className);
+            logger.debug("ProfileSubsystem: initing " + className);
             profile.setId(id);
             profile.init(this, subStoreConfig);
             mProfiles.put(id, profile);
@@ -126,8 +129,7 @@ public class ProfileSubsystem
             return profile;
         } catch (Exception e) {
             // throw exceptions
-            CMS.debug(e.toString());
-            CMS.debug(e);
+            logger.warn("Unable to create profile: " + e.getMessage(), e);
         }
         return null;
     }
@@ -169,7 +171,7 @@ public class ProfileSubsystem
         File file1 = new File(configPath);
 
         if (!file1.delete()) {
-            CMS.debug("ProfileSubsystem: deleteProfile: Cannot delete the configuration file : " + configPath);
+            logger.warn("ProfileSubsystem: deleteProfile: Cannot delete the configuration file : " + configPath);
         }
         mProfiles.remove(id);
         mProfileClassIds.remove(id);
@@ -200,7 +202,7 @@ public class ProfileSubsystem
             mConfig.putString(id + "." + PROP_CONFIG, configPath);
             CMS.getConfigStore().commit(true);
         } catch (EBaseException e) {
-            CMS.debug(e.toString());
+            logger.warn("Unable to create profile config: " + e.getMessage(), e);
         }
     }
 
@@ -208,7 +210,7 @@ public class ProfileSubsystem
      * Notifies this subsystem if owner is in running mode.
      */
     public void startup() throws EBaseException {
-        CMS.debug("ProfileSubsystem: startup");
+        logger.debug("ProfileSubsystem: startup");
     }
 
     /**

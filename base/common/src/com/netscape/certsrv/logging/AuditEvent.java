@@ -134,7 +134,7 @@ public class AuditEvent extends LogEvent {
             "LOGGING_SIGNED_AUDIT_AUTHORITY_CONFIG_3";
 
     public final static String AUDIT_LOG_SIGNING =
-            "LOGGING_SIGNED_AUDIT_SIGNING_3";
+            "LOGGING_SIGNED_AUDIT_AUDIT_LOG_SIGNING_3";
 
     private static final long serialVersionUID = -844306657733902324L;
 

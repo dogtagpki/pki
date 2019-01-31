@@ -1406,12 +1406,12 @@ public class CertificateRepository extends Repository
         IDBSSession s = mDBService.createSession();
         CertRecordList list = null;
 
-        CMS.debug("In findCertRecordsInList with Jumpto " + jumpTo);
+        logger.debug("In findCertRecordsInList with Jumpto " + jumpTo);
         try {
             String jumpToVal = null;
 
             if (hardJumpTo) {
-                CMS.debug("In findCertRecordsInList with hardJumpto ");
+                logger.debug("In findCertRecordsInList with hardJumpto ");
                 jumpToVal = "99";
             } else {
                 int len = jumpTo.length();
@@ -1440,7 +1440,7 @@ public class CertificateRepository extends Repository
         IDBSSession s = mDBService.createSession();
         CertRecordList list = null;
 
-        CMS.debug("In findCertRecordsInListRawJumpto with Jumpto " + jumpTo);
+        logger.debug("In findCertRecordsInListRawJumpto with Jumpto " + jumpTo);
 
         try {
 
@@ -1684,12 +1684,12 @@ public class CertificateRepository extends Repository
 
             for (int i = 0;; i++) {
                 CertRecord rec = (CertRecord) list.getCertRecord(i);
-                CMS.debug("processing record: " + i);
+                logger.debug("processing record: " + i);
                 if (rec == null) {
                     break; // no element returned
                 } else {
 
-                    CMS.debug("processing record: " + i + " " + rec.getSerialNumber());
+                    logger.debug("processing record: " + i + " " + rec.getSerialNumber());
                     // Check if we are past the 'to' marker
                     if (toInt != null) {
                         if (rec.getSerialNumber().compareTo(toInt) > 0) {

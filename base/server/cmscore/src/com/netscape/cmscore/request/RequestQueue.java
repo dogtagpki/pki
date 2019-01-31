@@ -49,6 +49,8 @@ public class RequestQueue
         extends ARequestQueue
         implements IRequestMod {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestQueue.class);
+
     // ARequestQueue.newRequestId
     protected RequestId newRequestId()
             throws EBaseException {
@@ -244,9 +246,9 @@ public class RequestQueue
     }
 
     public BigInteger getLastRequestIdInRange(BigInteger reqId_low_bound, BigInteger reqId_upper_bound) {
-        CMS.debug("RequestQueue: getLastRequestId: low " + reqId_low_bound + " high " + reqId_upper_bound);
+        logger.debug("RequestQueue: getLastRequestId: low " + reqId_low_bound + " high " + reqId_upper_bound);
         if (reqId_low_bound == null || reqId_upper_bound == null || reqId_low_bound.compareTo(reqId_upper_bound) >= 0) {
-            CMS.debug("RequestQueue: getLastRequestId: bad upper and lower bound range.");
+            logger.warn("RequestQueue: getLastRequestId: bad upper and lower bound range.");
             return null;
         }
 
@@ -254,25 +256,25 @@ public class RequestQueue
 
         RequestId fromId = new RequestId(reqId_upper_bound);
 
-        CMS.debug("RequestQueue: getLastRequestId: filter " + filter + " fromId " + fromId);
+        logger.debug("RequestQueue: getLastRequestId: filter " + filter + " fromId " + fromId);
         ListEnumeration recList = (ListEnumeration) getPagedRequestsByFilter(fromId, filter, 5 * -1, "requestId");
 
         int size = recList.getSize();
 
-        CMS.debug("RequestQueue: getLastRequestId: size   " + size);
+        logger.debug("RequestQueue: getLastRequestId: size   " + size);
 
         int ltSize = recList.getSizeBeforeJumpTo();
 
-        CMS.debug("RequestQueue: getSizeBeforeJumpTo: " + ltSize);
+        logger.debug("RequestQueue: getSizeBeforeJumpTo: " + ltSize);
 
         if (size <= 0) {
-            CMS.debug("RequestQueue: getLastRequestId:  request list is empty.");
+            logger.debug("RequestQueue: getLastRequestId:  request list is empty.");
 
             BigInteger ret = new BigInteger(reqId_low_bound.toString(10));
 
             ret = ret.add(new BigInteger("-1"));
 
-            CMS.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
+            logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
             return ret;
         }
 
@@ -291,13 +293,13 @@ public class RequestQueue
 
                 reqId = curId.toString();
 
-                CMS.debug("RequestQueue: curReqId: " + reqId);
+                logger.debug("RequestQueue: curReqId: " + reqId);
 
                 BigInteger curIdInt = new BigInteger(reqId);
 
                 if (((curIdInt.compareTo(reqId_low_bound) == 0) || (curIdInt.compareTo(reqId_low_bound) == 1)) &&
                         ((curIdInt.compareTo(reqId_upper_bound) == 0) || (curIdInt.compareTo(reqId_upper_bound) == -1))) {
-                    CMS.debug("RequestQueue: getLastRequestId : returning value " + curIdInt);
+                    logger.debug("RequestQueue: getLastRequestId : returning value " + curIdInt);
                     return curIdInt;
                 }
 
@@ -309,7 +311,7 @@ public class RequestQueue
 
         ret = ret.add(new BigInteger("-1"));
 
-        CMS.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
+        logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
         return ret;
 
     }

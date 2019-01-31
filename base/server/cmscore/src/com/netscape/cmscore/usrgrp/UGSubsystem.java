@@ -73,6 +73,8 @@ import netscape.security.x509.X509CertImpl;
  */
 public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UGSubsystem.class);
+
     private static final long serialVersionUID = 8080165044652629774L;
     public static final String ID = "usrgrp";
     private String mId = ID;
@@ -130,10 +132,10 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 
-        CMS.debug("UGSubsystem: initializing");
+        logger.debug("UGSubsystem: initializing");
 
         if (!isEnabled()) {
-            CMS.debug("UGSubsystem: subsystem disabled");
+            logger.warn("UGSubsystem: subsystem disabled");
             return;
         }
 
@@ -151,11 +153,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             mLdapConnFactory.init(ldapConfig);
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("UGSubsystem: initialization failed: " + e.getMessage(), e);
             throw e;
         }
 
-        CMS.debug("UGSubsystem: initialization complete");
+        logger.debug("UGSubsystem: initialization complete");
     }
 
     /**
@@ -318,12 +320,14 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             return e.nextElement();
 
         } catch (LDAPException e) {
-            CMS.debug(e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER_BY_CERT", e.toString()));
+            String message = CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER_BY_CERT", e.getMessage());
+            logger.error(message, e);
+            log(ILogger.LL_FAILURE, message);
 
         } catch (ELdapException e) {
-            CMS.debug(e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER_BY_CERT", e.toString()));
+            String message = CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER_BY_CERT", e.getMessage());
+            logger.error(message, e);
+            log(ILogger.LL_FAILURE, message);
 
         } finally {
             if (ldapconn != null)
@@ -747,10 +751,10 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         // TODO add audit logging for profile
         List<String> profiles = id.getTpsProfiles();
         if (profiles != null && profiles.size() > 0) {
-            CMS.debug("Adding " + LDAP_ATTR_PROFILE_ID + ":");
+            logger.debug("Adding " + LDAP_ATTR_PROFILE_ID + ":");
             LDAPAttribute attr = new LDAPAttribute(LDAP_ATTR_PROFILE_ID);
             for (String profile : profiles) {
-                CMS.debug(" - " + profile);
+                logger.debug(" - " + profile);
                 attr.addValue(profile);
             }
             attrs.add(attr);
@@ -774,13 +778,15 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             ldapconn.add(entry);
 
         } catch (LDAPException e) {
-            CMS.debug(e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+            String message = CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.getMessage());
+            logger.error(message, e);
+            log(ILogger.LL_FAILURE, message);
             throw LDAPExceptionConverter.toPKIException(e);
 
         } catch (ELdapException e) {
-            CMS.debug(e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+            String message = CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.getMessage());
+            logger.error(message, e);
+            log(ILogger.LL_FAILURE, message);
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_USER_FAIL"), e);
 
         } finally {
@@ -909,7 +915,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         User user = (User) identity;
 
         if (user == null) {
-            CMS.debug("removeCertSubjectDN: null user passed in");
+            logger.warn("removeCertSubjectDN: null user passed in");
             return;
         }
 
@@ -1019,7 +1025,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
                 } catch (LDAPException e) {
                     if (e.getLDAPResultCode() == 16) { // ignore missing seeAlso attribute
-                        CMS.debug("removeUserCert: No attribute "+LDAP_ATTR_CERTDN+" in entry "+dn);
+                        logger.warn("removeUserCert: No attribute "+LDAP_ATTR_CERTDN+" in entry "+dn);
                     } else {
                         throw LDAPExceptionConverter.toPKIException(e);
                     }
@@ -1216,7 +1222,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                                 "," + getUserBaseDN(), singleChange);
                     } catch (LDAPException e) {
                         if (e.getLDAPResultCode() != LDAPException.NO_SUCH_ATTRIBUTE) {
-                            CMS.debug("modifyUser: Error in deleting telephonenumber");
+                            logger.error("modifyUser: Error in deleting telephonenumber: " + e.getMessage(), e);
                             throw e;
                         }
                     }
@@ -1235,7 +1241,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                                 "," + getUserBaseDN(), singleChange);
                     } catch (LDAPException e) {
                         if (e.getLDAPResultCode() != LDAPException.NO_SUCH_ATTRIBUTE) {
-                            CMS.debug("modifyUser: Error in deleting userstate");
+                            logger.error("modifyUser: Error in deleting userstate: " + e.getMessage(), e);
                             throw e;
                         }
                     }
@@ -1707,7 +1713,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
         try {
             String dn = "cn=" + LDAPUtil.escapeRDNValue(grp.getGroupID()) + "," + getGroupBaseDN();
-            CMS.debug("dn: " + dn);
+            logger.debug("dn: " + dn);
 
             LDAPAttributeSet attrs = new LDAPAttributeSet();
             String oc[] = { "top", "groupOfUniqueNames" };
@@ -1717,7 +1723,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
             String description = group.getDescription();
             if (description != null) {
-                CMS.debug("description: " + description);
+                logger.debug("description: " + description);
                 attrs.add(new LDAPAttribute("description", description));
             }
 
@@ -1730,7 +1736,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                     String name = e.nextElement();
 
                     String memberDN = "uid=" + LDAPUtil.escapeRDNValue(name) + "," + getUserBaseDN();
-                    CMS.debug("uniqueMember: " + memberDN);
+                    logger.debug("uniqueMember: " + memberDN);
 
                     // DOES NOT SUPPORT NESTED GROUPS...
                     attrMembers.addValue(memberDN);
@@ -1804,14 +1810,14 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
         try {
             String dn = "cn=" + LDAPUtil.escapeRDNValue(grp.getGroupID()) + "," + getGroupBaseDN();
-            CMS.debug("dn: " + dn);
+            logger.debug("dn: " + dn);
 
             LDAPModificationSet mod = new LDAPModificationSet();
 
             // update description
             String description = grp.getDescription();
             mod.add(LDAPModification.REPLACE, new LDAPAttribute("description", description));
-            CMS.debug("description: " + description);
+            logger.debug("description: " + description);
 
             Enumeration<String> e = grp.getMemberNames();
 
@@ -1826,7 +1832,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                 String name = e.nextElement();
 
                 String memberDN = "uid=" + LDAPUtil.escapeRDNValue(name) + "," + getUserBaseDN();
-                CMS.debug("uniqueMember: " + memberDN);
+                logger.debug("uniqueMember: " + memberDN);
 
                 // DOES NOT SUPPORT NESTED GROUPS...
                 attrMembers.addValue(memberDN);

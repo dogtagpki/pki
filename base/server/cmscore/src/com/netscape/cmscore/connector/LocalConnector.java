@@ -19,7 +19,6 @@ package com.netscape.cmscore.connector;
 
 import java.util.Hashtable;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -37,6 +36,9 @@ import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.http.HttpResponse;
 
 public class LocalConnector implements IConnector {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LocalConnector.class);
+
     ICertAuthority mSource = null;
     IAuthority mDest = null;
     Hashtable<String, IRequest> mSourceReqs = new Hashtable<String, IRequest>();
@@ -46,11 +48,11 @@ public class LocalConnector implements IConnector {
         // mSource.log(ILogger.LL_DEBUG, "Local connector setup for source " +
         //    mSource.getId());
         mDest = dest;
-        CMS.debug("Local connector setup for dest " +
+        logger.debug("Local connector setup for dest " +
                 mDest.getId());
         // register for events.
         mDest.registerRequestListener(new LocalConnListener());
-        CMS.debug("Connector inited");
+        logger.debug("Connector inited");
     }
 
     /**
@@ -63,13 +65,13 @@ public class LocalConnector implements IConnector {
                     + r.getRequestType() + " status=" + r.getRequestStatus() + " to " + mDest.getId() + " id="
                     + r.getRequestId() + "\n");
         }
-        CMS.debug("send request type " + r.getRequestType() +
+        logger.debug("send request type " + r.getRequestType() +
                 " to " + mDest.getId());
 
         IRequestQueue destQ = mDest.getRequestQueue();
         IRequest destreq = destQ.newRequest(r.getRequestType());
 
-        CMS.debug("local connector dest req " +
+        logger.debug("local connector dest req " +
                 destreq.getRequestId() + " created for source rId " + r.getRequestId());
         //  mSource.log(ILogger.LL_DEBUG,
         //     "setting connector dest " + mDest.getId() +
@@ -83,7 +85,7 @@ public class LocalConnector implements IConnector {
         // XXX requestor type is not transferred on return.
         destreq.setExtData(IRequest.REQUESTOR_TYPE,
                 IRequest.REQUESTOR_RA);
-        CMS.debug("connector dest " + mDest.getId() +
+        logger.debug("connector dest " + mDest.getId() +
                 " processing " + destreq.getRequestId());
 
         // set context before calling process request so
@@ -110,7 +112,7 @@ public class LocalConnector implements IConnector {
             mSourceReqs.remove(r.getRequestId().toString());
         }
 
-        CMS.debug("connector dest " + mDest.getId() +
+        logger.debug("connector dest " + mDest.getId() +
                 " processed " + destreq.getRequestId() +
                 " status " + destreq.getRequestStatus());
 
@@ -124,7 +126,7 @@ public class LocalConnector implements IConnector {
     }
 
     public HttpResponse send(String op, String r) throws EBaseException {
-        CMS.debug("LocalConnector send() with String.  Should not get here.");
+        logger.debug("LocalConnector send() with String.  Should not get here.");
         return null;
     }
 
@@ -141,7 +143,7 @@ public class LocalConnector implements IConnector {
             if (Debug.ON) {
                 Debug.print("dest " + mDest.getId() + " done with " + destreq.getRequestId());
             }
-            CMS.debug(
+            logger.debug(
                     "dest " + mDest.getId() + " done with " + destreq.getRequestId());
 
             IRequestQueue sourceQ = mSource.getRequestQueue();
@@ -154,7 +156,7 @@ public class LocalConnector implements IConnector {
             if (sourceNameAndId == null ||
                     !sourceNameAndId.toString().regionMatches(0,
                             sourceName, 0, sourceName.length())) {
-                CMS.debug("request " + destreq.getRequestId() +
+                logger.debug("request " + destreq.getRequestId() +
                         " from " + sourceNameAndId + " not ours.");
                 return;
             }
@@ -202,7 +204,7 @@ public class LocalConnector implements IConnector {
                 sourceQ.markAsServiced(r);
                 sourceQ.releaseRequest(r);
 
-                CMS.debug("released request " + r.getRequestId());
+                logger.debug("released request " + r.getRequestId());
             }
         }
     }

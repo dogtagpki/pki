@@ -46,7 +46,6 @@ import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.util.AssertionException;
-import com.netscape.cmscore.util.Debug;
 
 /**
  * This is a Generic policy processor. The three main functions of
@@ -65,6 +64,9 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class GenericPolicyProcessor implements IPolicyProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenericPolicyProcessor.class);
+
     protected IConfigStore mConfig = null;
     protected IConfigStore mGlobalStore = null;
     protected IAuthority mAuthority = null;
@@ -143,8 +145,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      */
     public synchronized void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        // Debug.trace("GenericPolicyProcessor::init");
-        CMS.debug("GenericPolicyProcessor::init begins");
+        logger.debug("GenericPolicyProcessor::init begins");
         mAuthority = (IAuthority) owner;
         mConfig = config;
         mGlobalStore =
@@ -179,12 +180,12 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                     //        'CS.cfg' file, and thus we err on the
                     //        side that the user may still need to
                     //        use the policy framework.
-                    CMS.debug("GenericPolicyProcessor::init Certificate "
+                    logger.debug("GenericPolicyProcessor::init Certificate "
                              + "Policy Framework (deprecated) "
                              + "is ENABLED");
                 } else {
                     // CS 8.1 Default:  <subsystem>.Policy.enable=false
-                    CMS.debug("GenericPolicyProcessor::init Certificate "
+                    logger.debug("GenericPolicyProcessor::init Certificate "
                              + "Policy Framework (deprecated) "
                              + "is DISABLED");
                     return;
@@ -239,9 +240,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             } catch (EBaseException e) {
                 throw e;
             } catch (Exception e) {
-                Debug.printStackTrace(e);
-                throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL",
-                            id));
+                String message = CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL", id);
+                logger.error(message + ": " + e.getMessage(), e);
+                throw new EPolicyException(message, e);
             }
 
             // Register the implementation.
@@ -378,9 +379,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         IPolicySet rules = null;
         String op = req.getRequestType();
 
-        CMS.debug("GenericPolicyProcessor: apply begins");
+        logger.debug("GenericPolicyProcessor: apply begins");
         if (op == null) {
-            CMS.debug("GenericPolicyProcessor: apply op null");
+            logger.debug("GenericPolicyProcessor: apply op null");
             // throw new AssertionException("Missing operation type in request. Can't happen!");
             // Return ACCEPTED for now. Looks like even get CA chain
             // is being passed in here with request type set elsewhere
@@ -388,11 +389,11 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             return PolicyResult.ACCEPTED;
         }
         if (isProfileRequest(req)) {
-            Debug.trace("GenericPolicyProcessor: Profile-base Request " +
+            logger.debug("GenericPolicyProcessor: Profile-base Request " +
                     req.getRequestId().toString());
             return PolicyResult.ACCEPTED;
         }
-        CMS.debug("GenericPolicyProcessor: apply not ProfileRequest. op=" + op);
+        logger.debug("GenericPolicyProcessor: apply not ProfileRequest. op=" + op);
 
         if (op.equalsIgnoreCase(IRequest.ENROLLMENT_REQUEST))
             rules = mEnrollmentRules;
@@ -413,7 +414,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         // ((PolicySet)rules).printPolicies();
         // If there are no rules, then it is a serious error.
         if (rules.count() == 0) {
-            CMS.debug("GenericPolicyProcessor: apply: rule count 0");
+            logger.debug("GenericPolicyProcessor: apply: rule count 0");
             // if no policy is specified, just accept the request.
             // KRA has no policy configured by default
             return PolicyResult.ACCEPTED;
@@ -423,7 +424,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
              * return PolicyResult.REJECTED;
              **/
         }
-        CMS.debug("GenericPolicyProcessor: apply: rules.count=" + rules.count());
+        logger.debug("GenericPolicyProcessor: apply: rules.count=" + rules.count());
 
         // request must be up to date or can't process it.
         PolicyResult res = PolicyResult.ACCEPTED;
@@ -439,7 +440,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         if (res == PolicyResult.REJECTED)
             return res;
 
-        CMS.debug("GenericPolicyProcessor: apply: calling rules.apply()");
+        logger.debug("GenericPolicyProcessor: apply: calling rules.apply()");
         // Apply the policy rules.
         return rules.apply(req);
     }
@@ -473,7 +474,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             }
             ret = impls.elements();
         } catch (Exception e) {
-            Debug.printStackTrace(e);
+            logger.warn("Unable to get policy implementations: " + e.getMessage(), e);
         }
         return ret;
     }
@@ -490,7 +491,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             }
             ret = impls.elements();
         } catch (Exception e) {
-            Debug.printStackTrace(e);
+            logger.warn("Unable to get policy implementation infos: " + e.getMessage(), e);
         }
         return ret;
     }
@@ -503,10 +504,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         IPolicyRule impl = null;
 
         try {
-            impl =
-                    (IPolicyRule) Class.forName(regImpl.getClassPath()).newInstance();
+            impl = (IPolicyRule) Class.forName(regImpl.getClassPath()).newInstance();
         } catch (Exception e) {
-            Debug.printStackTrace(e);
+            logger.warn("Unable to get policy implementation: " + e.getMessage(), e);
         }
         return impl;
     }
@@ -563,11 +563,10 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         try {
             mGlobalStore.commit(true);
         } catch (Exception ex) {
-            Debug.printStackTrace(ex);
             String[] params = { "implementation", id };
-
-            throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_DELETING_POLICY_ERROR", params));
+            String message = CMS.getUserMessage("CMS_POLICY_DELETING_POLICY_ERROR", params);
+            logger.error(message + ": " + ex.getMessage(), ex);
+            throw new EPolicyException(message, ex);
         }
     }
 
@@ -635,7 +634,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             }
             ret = rules.elements();
         } catch (Exception e) {
-            Debug.printStackTrace(e);
+            logger.warn("Unable to get policy instances: " + e.getMessage(), e);
         }
         return ret;
     }
@@ -653,7 +652,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             }
             ret = rules.elements();
         } catch (Exception e) {
-            Debug.printStackTrace(e);
+            logger.warn("Unable to get policy instance infos: " + e.getMessage(), e);
         }
         return ret;
     }
@@ -719,11 +718,11 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             // Put the rule back in the rule order vector.
             mPolicyOrder.insertElementAt(id, index);
 
-            Debug.printStackTrace(e);
             String[] params = { "instance", id };
 
-            throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_DELETING_POLICY_ERROR", params));
+            String message = CMS.getUserMessage("CMS_POLICY_DELETING_POLICY_ERROR", params);
+            logger.error(message + ": " + e.getMessage(), e);
+            throw new EPolicyException(message, e);
         }
 
         IPolicyRule rule = instance.getRule();
@@ -919,11 +918,11 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             String k = newkeys.nextElement();
             String v = ht.get(k);
 
-            Debug.trace("newstore key " + k + "=" + v);
+            logger.debug("newstore key " + k + "=" + v);
             if (v != null) {
                 if (!k.equals(Constants.OP_TYPE) && !k.equals(Constants.OP_SCOPE) &&
                         !k.equals(Constants.RS_ID) && !k.equals("RULENAME")) {
-                    Debug.trace("newstore.put(" + k + "=" + v + ")");
+                    logger.debug("newstore.put(" + k + "=" + v + ")");
                     newStore.put(k, v);
                 }
             }
@@ -958,8 +957,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 String key = e.nextElement();
 
                 if (key != null) {
-                    Debug.trace(
-                            "oldstore.put(" + key + "," +
+                    logger.debug("oldstore.put(" + key + "," +
                                     newStore.getString(key) + ")");
                     oldStore.put(key, newStore.getString(key));
                 }
@@ -1054,11 +1052,12 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 // else ignore the darned rule.
             }
         } catch (Throwable e) {
-            Debug.printStackTrace(e);
             EBaseException ex = new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                        "Cannot create default policy rule. Error: " + e.getMessage()));
+                        "Cannot create default policy rule. Error: " + e.getMessage()), e);
 
-            mAuthority.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_POLICY_DEF_CREATE", e.toString()));
+            String message = CMS.getLogMessage("CMSCORE_POLICY_DEF_CREATE", e.getMessage());
+            logger.error(message, e);
+            mAuthority.log(ILogger.LL_FAILURE, message);
             throw ex;
         }
 
@@ -1104,9 +1103,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         try {
             mGlobalStore.commit(true);
         } catch (Exception ex) {
-            Debug.printStackTrace(ex);
-            throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_ORDER_ERROR", policyOrderStr));
+            String message = CMS.getUserMessage("CMS_POLICY_ORDER_ERROR", policyOrderStr);
+            logger.error(message + ": " + ex.getMessage(), ex);
+            throw new EPolicyException(message, ex);
         }
     }
 
@@ -1243,9 +1242,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             } catch (EBaseException e) {
                 throw e;
             } catch (Exception e) {
-                Debug.printStackTrace(e);
-                throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL",
-                            ruleName));
+                String message = CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL", ruleName);
+                logger.error(message + ": " + e.getMessage(), e);
+                throw new EPolicyException(message, e);
             }
         }
     }

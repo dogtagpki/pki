@@ -63,6 +63,8 @@ import netscape.security.x509.X509CRLImpl;
 public class PublisherProcessor implements
         IPublisherProcessor, IXcertPublisherProcessor {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublisherProcessor.class);
+
     public Hashtable<String, PublisherPlugin> mPublisherPlugins = new Hashtable<String, PublisherPlugin>();
     public Hashtable<String, PublisherProxy> mPublisherInsts = new Hashtable<String, PublisherProxy>();
     public Hashtable<String, MapperPlugin> mMapperPlugins = new Hashtable<String, MapperPlugin>();
@@ -384,7 +386,7 @@ public class PublisherProcessor implements
             if (c != null && c.size() > 0) {
                 mLdapConnModule = new LdapConnModule();
                 mLdapConnModule.init(this, c);
-                CMS.debug("LdapPublishing connection inited");
+                logger.debug("LdapPublishing connection inited");
             } else {
                 log(ILogger.LL_FAILURE,
                         "No Ldap Module configuration found");
@@ -400,13 +402,13 @@ public class PublisherProcessor implements
     }
 
     public void startup() throws EBaseException {
-        CMS.debug("PublisherProcessor: startup()");
+        logger.debug("PublisherProcessor: startup()");
         mLdapConfig = mConfig.getSubStore(PROP_LDAP_PUBLISH_SUBSTORE);
         if (mLdapConfig.getBoolean(PROP_ENABLE, false)) {
-            CMS.debug("PublisherProcessor: about to initLdapConn");
+            logger.debug("PublisherProcessor: about to initLdapConn");
             initLdapConn(mLdapConfig);
         } else {
-            CMS.debug("No LdapPublishing enabled");
+            logger.debug("No LdapPublishing enabled");
         }
 
         LdapRequestListener listener = null;
@@ -421,7 +423,7 @@ public class PublisherProcessor implements
                 int maxNumberOfPublishingThreads = queueConfig.getInteger("maxNumberOfThreads", 1);
                 int publishingQueuePageSize = queueConfig.getInteger("pageSize", 100);
                 int savePublishingStatus = queueConfig.getInteger("saveStatus", 0);
-                CMS.debug("PublisherProcessor: startup: Publishing Queue Enabled: " + isPublishingQueueEnabled +
+                logger.debug("PublisherProcessor: startup: Publishing Queue Enabled: " + isPublishingQueueEnabled +
                           "  Priority Level: " + publishingQueuePriorityLevel +
                           "  Maximum Number of Threads: " + maxNumberOfPublishingThreads +
                           "  Page Size: " + publishingQueuePageSize);
@@ -437,7 +439,7 @@ public class PublisherProcessor implements
     }
 
     public void shutdown() {
-        CMS.debug("Shuting down publishing.");
+        logger.debug("Shuting down publishing.");
         try {
             if (mLdapConnModule != null) {
                 mLdapConnModule.getLdapConnFactory().reset();
@@ -448,7 +450,7 @@ public class PublisherProcessor implements
             }
         } catch (ELdapException e) {
             // ignore
-            CMS.debug(e);
+            logger.warn("Unable to shutdown publishing: " + e.getMessage(), e);
         }
     }
 
@@ -837,7 +839,7 @@ public class PublisherProcessor implements
         if (!isCertPublishingEnabled())
             return;
 
-        CMS.debug("PublishProcessor::publishCACert");
+        logger.debug("PublishProcessor::publishCACert");
 
         // get mapper and publisher for cert type.
         Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CA);
@@ -857,7 +859,7 @@ public class PublisherProcessor implements
             LdapRule rule = (LdapRule) rules.nextElement();
 
             if (rule == null) {
-                CMS.debug("PublisherProcessor::publishCACert() - "
+                logger.error("PublisherProcessor::publishCACert() - "
                          + "rule is null!");
                 throw new ELdapException("rule is null");
             }
@@ -882,7 +884,7 @@ public class PublisherProcessor implements
             } catch (Exception e) {
                 // continue publishing even publisher has errors
                 //log(ILogger.LL_WARN, e.toString());
-                CMS.debug("PublisherProcessor::publishCACert returned error: " + e);
+                logger.warn("PublisherProcessor::publishCACert returned error: " + e.getMessage(), e);
                 error = true;
                 errorRule.append(" " + rule.getInstanceName() + " error:" + e);
             }
@@ -924,7 +926,7 @@ public class PublisherProcessor implements
             LdapRule rule = (LdapRule) rules.nextElement();
 
             if (rule == null) {
-                CMS.debug("PublisherProcessor::unpublishCACert() - "
+                logger.error("PublisherProcessor::unpublishCACert() - "
                          + "rule is null!");
                 throw new ELdapException("rule is null");
             }
@@ -971,7 +973,7 @@ public class PublisherProcessor implements
 
         if (!isCertPublishingEnabled())
             return;
-        CMS.debug("PublisherProcessor: in publishXCertPair()");
+        logger.debug("PublisherProcessor: in publishXCertPair()");
 
         // get mapper and publisher for cert type.
         Enumeration<ILdapRule> rules = getRules(PROP_XCERT);
@@ -989,7 +991,7 @@ public class PublisherProcessor implements
             LdapRule rule = (LdapRule) rules.nextElement();
 
             if (rule == null) {
-                CMS.debug("PublisherProcessor::publishXCertPair() - "
+                logger.error("PublisherProcessor::publishXCertPair() - "
                          + "rule is null!");
                 throw new ELdapException("rule is null");
             }
@@ -1016,7 +1018,7 @@ public class PublisherProcessor implements
                 errorRule = errorRule + " " + rule.getInstanceName() +
                         " error:" + e;
 
-                CMS.debug("PublisherProcessor::publishXCertPair: error: " + e);
+                logger.warn("PublisherProcessor::publishXCertPair: error: " + e.getMessage(), e);
             }
         }
     }
@@ -1030,7 +1032,7 @@ public class PublisherProcessor implements
         boolean error = false;
         StringBuffer errorRule = new StringBuffer();
 
-        CMS.debug("In  PublisherProcessor::publishCert");
+        logger.debug("In  PublisherProcessor::publishCert");
         if (!isCertPublishingEnabled())
             return;
 
@@ -1039,7 +1041,7 @@ public class PublisherProcessor implements
 
         // Bugscape  #52306  -  Remove superfluous log messages on failure
         if (rules == null || !rules.hasMoreElements()) {
-            CMS.debug("Publishing: can't find publishing rule,exiting routine.");
+            logger.warn("Publishing: can't find publishing rule,exiting routine.");
 
             error = true;
             errorRule.append("No rules enabled");
@@ -1074,7 +1076,7 @@ public class PublisherProcessor implements
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), true);
         } else {
-            CMS.debug("PublishProcessor::publishCert : " + CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule.toString()));
+            logger.error("PublishProcessor::publishCert : " + CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule.toString()));
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule.toString()));
         }
     }
@@ -1105,7 +1107,7 @@ public class PublisherProcessor implements
             LdapRule rule = (LdapRule) rules.nextElement();
 
             if (rule == null) {
-                CMS.debug("PublisherProcessor::unpublishCert() - "
+                logger.error("PublisherProcessor::unpublishCert() - "
                          + "rule is null!");
                 throw new ELdapException("rule is null");
             }
@@ -1219,20 +1221,16 @@ public class PublisherProcessor implements
                     }
                     // continue publishing even publisher has errors
                 } catch (Exception e) {
-                    //e.printStackTrace();
-                    CMS.debug(
-                            "Error publishing CRL to " + dn + ": " + e);
+                    logger.warn("Error publishing CRL to " + dn + ": " + e.getMessage(), e);
                     error = true;
                     errorRule = errorRule + " " + rule.getInstanceName();
-
-                    CMS.debug("PublisherProcessor::publishCRL: error: " + e);
                 }
             }
+
         } catch (ELdapException e) {
-            //e.printStackTrace();
-            CMS.debug(
-                    "Error publishing CRL to " + dn + ": " + e);
+            logger.error("Error publishing CRL to " + dn + ": " + e.getMessage(), e);
             throw e;
+
         } finally {
             if (conn != null) {
                 mLdapConnModule.returnConn(conn);
@@ -1282,17 +1280,16 @@ public class PublisherProcessor implements
                         log(ILogger.LL_INFO, "published crl using rule=" + rule.getInstanceName());
                     }
                 } catch (Exception e) {
-                    CMS.debug(
-                            "Error publishing CRL to " + dn + ": " + e);
+                    logger.warn("Error publishing CRL to " + dn + ": " + e.getMessage(), e);
                     error = true;
                     errorRule = errorRule + " " + rule.getInstanceName();
-                    CMS.debug("PublisherProcessor::publishCRL: error: " + e);
                 }
             }
+
         } catch (ELdapException e) {
-            CMS.debug(
-                    "Error publishing CRL to " + dn + ": " + e);
+            logger.error("Error publishing CRL to " + dn + ": " + e.getMessage(), e);
             throw e;
+
         } finally {
             if (conn != null) {
                 mLdapConnModule.returnConn(conn);
@@ -1306,7 +1303,7 @@ public class PublisherProcessor implements
             IRequest r, Object obj) throws ELdapException {
         if (!isCertPublishingEnabled())
             return;
-        CMS.debug("PublisherProcessor: in publishNow()");
+        logger.debug("PublisherProcessor: in publishNow()");
         LDAPConnection conn = null;
 
         try {
@@ -1328,7 +1325,7 @@ public class PublisherProcessor implements
                         dirdn = mapper.map(conn, r, obj);
                     }
                 } catch (Throwable e1) {
-                    CMS.debug("Error mapping: mapper=" + mapper + " error=" + e1.toString());
+                    logger.error("Error mapping: mapper=" + mapper + " error=" + e1.getMessage(), e1);
                     throw e1;
                 }
             }
@@ -1348,7 +1345,7 @@ public class PublisherProcessor implements
                     publisher.publish(conn, (String) dirdn, cert);
                 }
             } catch (Throwable e1) {
-                CMS.debug("PublisherProcessor::publishNow : publisher=" + publisher + " error=" + e1.toString());
+                logger.error("PublisherProcessor::publishNow : publisher=" + publisher + " error=" + e1.getMessage(), e1);
                 throw e1;
             }
             log(ILogger.LL_INFO, "published certificate serial number: 0x" +
@@ -1369,7 +1366,7 @@ public class PublisherProcessor implements
             IRequest r, byte[] bytes) throws EBaseException {
         if (!isCertPublishingEnabled())
             return;
-        CMS.debug("PublisherProcessor: in publishNow() for xcerts");
+        logger.debug("PublisherProcessor: in publishNow() for xcerts");
 
         // use ca cert publishing map and rule
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
@@ -1386,20 +1383,20 @@ public class PublisherProcessor implements
                 }
                 try {
                     dirdn = mapper.map(conn, r, caCert);
-                    CMS.debug("PublisherProcessor: dirdn=" + dirdn);
+                    logger.debug("PublisherProcessor: dirdn=" + dirdn);
 
                 } catch (Throwable e1) {
-                    CMS.debug("Error mapping: mapper=" + mapper + " error=" + e1.toString());
+                    logger.error("Error mapping: mapper=" + mapper + " error=" + e1.getMessage(), e1);
                     throw e1;
                 }
             }
 
             try {
-                CMS.debug("PublisherProcessor: publisher impl name=" + publisher.getImplName());
+                logger.debug("PublisherProcessor: publisher impl name=" + publisher.getImplName());
 
                 publisher.publish(conn, dirdn, bytes);
             } catch (Throwable e1) {
-                CMS.debug("Error publishing: publisher=" + publisher + " error=" + e1.toString());
+                logger.error("Error publishing: publisher=" + publisher + " error=" + e1.getMessage(), e1);
                 throw e1;
             }
             log(ILogger.LL_INFO, "published crossCertPair");
@@ -1462,7 +1459,7 @@ public class PublisherProcessor implements
             return mConfig.getBoolean(PROP_CERT_ENABLE, true);
         } catch (EBaseException e) {
             // this should never happen
-            CMS.debug("Error getting publishing config: " + e);
+            logger.error("Error getting publishing config: " + e.getMessage(), e);
             return false;
         }
     }
@@ -1475,7 +1472,7 @@ public class PublisherProcessor implements
             return mConfig.getBoolean(PROP_CRL_ENABLE, true);
         } catch (EBaseException e) {
             // this should never happen
-            CMS.debug("Error getting publishing config: " + e);
+            logger.error("Error getting publishing config: " + e.getMessage(), e);
             return false;
         }
     }

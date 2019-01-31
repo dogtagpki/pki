@@ -28,4 +28,4 @@ install(
         ${JAVA_JAR_INSTALL_DIR}/pki
 )
 
-set(PKI_CMSBUNDLE_JAR ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar INTERNAL "pki-cmsbundle jar file")
+set(PKI_CMSBUNDLE_JAR ${CMAKE_BINARY_DIR}/dist/pki-cmsbundle.jar CACHE INTERNAL "pki-cmsbundle jar file")
