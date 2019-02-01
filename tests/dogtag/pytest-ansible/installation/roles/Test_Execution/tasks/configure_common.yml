@@ -19,6 +19,20 @@
 - name: Add 127.0.0.1 mapping to master hostname in /etc/hosts for 389ds
   lineinfile: dest=/etc/hosts create=yes insertafter=ROF line="127.0.0.1 {{ansible_fqdn}}" state=present
 
+- name: check the hostname/ip for the remote instance
+  set_fact: inventory_ip={{ inventory_hostname }}
+
+- name: Check for private ip if exist for openstack instance
+  shell: hostname -I
+  register: private_addr
+
+- name: Set the private ip in a variable
+  set_fact: private_ip={{ private_addr.stdout }}
+
+- name: Change in /etc/hosts to set right private/public ip for instance to be reachable
+  replace: path=/etc/hosts regexp={{ inventory_ip }} replace={{ private_ip }}
+  when:  inventory_ip not in private_ip
+
 - name: pip install pexpect
   shell: pip2 install pexpect
 
