@@ -14,19 +14,9 @@ regulations defined at:
 
 http://www.dogtagpki.org/wiki/PKI_Download
 
+## Content
+
 These directories contain the following:
-
-* CMakeLists.txt
-* LICENSE
-* cmake
-
-  These files and this directory contain
-  the top-level files necessary to integrate
-  the CMake build system in pki.
-
-* README.md
-
-  This file.
 
 * base
 
@@ -37,11 +27,11 @@ These directories contain the following:
   components required to build a working
   Certificate System.
 
-* themes
+* cmake
 
-  Contains the scripts and user-interface
-  components to customize PKI web UI and
-  console.
+  These files and this directory contain
+  the top-level files necessary to integrate
+  the CMake build system in pki.
 
 * scripts
 
@@ -51,13 +41,21 @@ These directories contain the following:
   useful for building RPMS/SRPMS of the
   various certificate system components.
 
+* themes
+
+  Contains the scripts and user-interface
+  components to customize PKI web UI and
+  console.
+
 * tools
 
   Contains utilities useful to
   certificate system components.
 
-Detailed instructions for building, installing, and
-running this project are located at:
+## Development
 
-http://www.dogtagpki.org/wiki/PKI_Main_Page
+To build the project, see [Building PKI](docs/development/Building_PKI.md).
 
+## See Also
+
+* [Dogtag PKI](http://www.dogtagpki.org)
