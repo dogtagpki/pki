@@ -339,6 +339,9 @@ BuildRequires:    systemd
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
+# build dependency to build man pages
+BuildRequires:    go-md2man
+
 # description for top-level package (if there is a separate meta package)
 %if "%{name}" != "%{vendor}-pki"
 %description
