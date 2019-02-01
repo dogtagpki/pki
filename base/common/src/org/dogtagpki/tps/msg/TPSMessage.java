@@ -511,27 +511,26 @@ public class TPSMessage {
     public static TPSMessage createMessage(String message) throws IOException {
 
         // don't print the pdu_data
-        int idx1 = message.lastIndexOf("pdu_data=");
-        int idx2 = message.lastIndexOf("pdu_size=");
-        String toDebug1 = null;
-        String toDebug2 = null;
-        if (idx1 == -1)
-            CMS.debug("TPSMessage.createMessage: message: " + message);
-        else {
-            toDebug1 = message.substring(0, idx1-1);
-            if (idx2 == -1)
-                CMS.debug("TPSMessage.createMessage: message: " + toDebug1 + "pdu_data=<do not print>...");
-            else {
-                toDebug2 = message.substring(idx2-1);
-                CMS.debug("TPSMessage.createMessage: message: " + toDebug1 + "&pdu_data=<do not print>"+ toDebug2);
-            }
+        String[] components = message.split("&");
+        String logMsg = components[0];
+
+        for(int i = 1; i < components.length; i++) {
+            String component = components[i];
+
+            if(component.indexOf("pdu_data=") == -1) // If this is not 'pdu_data='
+                logMsg += "&" + component;
+
+            if(component.indexOf("pdu_size=") != -1) // If this is 'pdu_size='
+                logMsg += "&pdu_data=<do not print>";
         }
 
-        int debug = 1;
+        CMS.debug("TPSMessage.createMessage: message: " + logMsg);
 
-        if (debug == 1) {
-            CMS.debug("TPSMessage.createMessage: message: " + message);
-        }
+//        int debug = 1;
+
+//        if (debug == 1) {
+//            CMS.debug("TPSMessage.createMessage: message: " + message);
+//        }
 
         TPSMessage new_msg = new TPSMessage(message);
 

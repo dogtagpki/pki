@@ -2153,7 +2153,7 @@ public class TokenServlet extends CMSServlet {
 
                 }
 
-                SecureChannelProtocol.debugByteArray(encryptedData, "New Encrypt Data: ");
+//                SecureChannelProtocol.debugByteArray(encryptedData, "New Encrypt Data: ");
 
                 // AC: KDF SPEC CHANGE - Log both CUID and KDD
 
@@ -2731,7 +2731,7 @@ public class TokenServlet extends CMSServlet {
                     }
 
                     host_cryptogram = protocol.computeCryptogram_SCP03(macSessionKey, selectedToken, contextStream.toByteArray(),NistSP800_108KDF.HOST_CRYPTO_KDF_CONSTANT);
-                    SecureChannelProtocol.debugByteArray(host_cryptogram, method + " calculated host crypto: " + host_cryptogram.length);
+//                    SecureChannelProtocol.debugByteArray(host_cryptogram, method + " calculated host crypto: " + host_cryptogram.length);
 
 
                    if( isCryptoValidate) {
@@ -2742,8 +2742,8 @@ public class TokenServlet extends CMSServlet {
                        input_card_crypto =
                                com.netscape.cmsutil.util.Utils.SpecialDecode(rcard_cryptogram);
                        card_crypto = protocol.computeCryptogram_SCP03(macSessionKey, selectedToken, contextStream.toByteArray(),NistSP800_108KDF.CARD_CRYPTO_KDF_CONSTANT);
-                       SecureChannelProtocol.debugByteArray(card_crypto, method + " calculated card crypto: ");
-                       SecureChannelProtocol.debugByteArray(input_card_crypto, method + " original card crypto: ");
+//                       SecureChannelProtocol.debugByteArray(card_crypto, method + " calculated card crypto: ");
+//                       SecureChannelProtocol.debugByteArray(input_card_crypto, method + " original card crypto: ");
 
                        if(!cryptoGramsAreEqual(input_card_crypto, card_crypto)) {
                            throw new Exception(method + "Card cryptogram mismatch!");
@@ -3070,7 +3070,7 @@ public class TokenServlet extends CMSServlet {
         String kek_wrapped_desKeyString =
                 com.netscape.cmsutil.util.Utils.SpecialEncode(encDesKey);
 
-        CMS.debug(method + "kek_wrapped_desKeyString: " + kek_wrapped_desKeyString);
+//        CMS.debug(method + "kek_wrapped_desKeyString: " + kek_wrapped_desKeyString);
 
         values.add(kek_wrapped_desKeyString);
 
@@ -3083,7 +3083,7 @@ public class TokenServlet extends CMSServlet {
         String keycheck_s =
                 com.netscape.cmsutil.util.Utils.SpecialEncode(keycheck);
 
-        CMS.debug(method + "keycheck_s " + keycheck_s);
+//        CMS.debug(method + "keycheck_s " + keycheck_s);
 
         values.add(keycheck_s);
 
@@ -3127,7 +3127,7 @@ public class TokenServlet extends CMSServlet {
             String drmWrappedDesStr =
                     com.netscape.cmsutil.util.Utils.SpecialEncode(drm_trans_wrapped_desKey);
 
-            CMS.debug(method + " drmWrappedDesStr: " + drmWrappedDesStr);
+//            CMS.debug(method + " drmWrappedDesStr: " + drmWrappedDesStr);
             values.add(drmWrappedDesStr);
 
         } catch (Exception e) {

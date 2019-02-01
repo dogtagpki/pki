@@ -682,7 +682,7 @@ public class SecureChannelProtocol {
             return null;
         }
 
-        SecureChannelProtocol.debugByteArray(keyVersion, "keyVersion array:");
+//        SecureChannelProtocol.debugByteArray(keyVersion, "keyVersion array:");
         keyName = "#" + String.format("%02X", keyVersion[0]) + "#" + String.format("%02X", keyVersion[1]);
 
         CMS.debug(method + " returning: " + keyName);
@@ -776,7 +776,7 @@ public class SecureChannelProtocol {
                     System.arraycopy(inputKeyArray, 0, des3InputKey, 0, DES3_LENGTH);
                 }
 
-                SecureChannelProtocol.debugByteArray(des3InputKey, "Developer key to import: " + keyType + ": ");
+//                SecureChannelProtocol.debugByteArray(des3InputKey, "Developer key to import: " + keyType + ": ");
 
                 devKey = unwrapSymKeyOnToken(token, des3InputKey, true);
 
@@ -1135,7 +1135,7 @@ public class SecureChannelProtocol {
         SymmetricKey transport = getSharedSecretKey(token);
         unwrapped = this.unwrapSymKeyOnToken(token, transport, inputKeyArray, isPerm, SymmetricKey.DES3);
 
-        CMS.debug(method + "Returning symkey: " + unwrapped);
+//        CMS.debug(method + "Returning symkey: " + unwrapped);
 
         return unwrapped;
     }
@@ -1513,7 +1513,7 @@ public class SecureChannelProtocol {
             encryptor.initEncrypt(symKey, new IVParameterSpec(finalIv));
             output = encryptor.doFinal(input);
 
-            SecureChannelProtocol.debugByteArray(output, "Encrypted data:");
+//            SecureChannelProtocol.debugByteArray(output, "Encrypted data:");
         } catch (Exception e) {
 
             CMS.debug(method + e);
@@ -1767,9 +1767,9 @@ public class SecureChannelProtocol {
         CMS.debug(method + " oldMasterKeyName: " + oldMasterKeyName);
         CMS.debug(method + " newMasterKeyName: " + newMasterKeyName);
 
-        SecureChannelProtocol.debugByteArray(encKeyArray, " Developer enc key array: ");
-        SecureChannelProtocol.debugByteArray(macKeyArray, " Developer mac key array: ");
-        SecureChannelProtocol.debugByteArray(kekKeyArray, " Developer kek key array: ");
+//        SecureChannelProtocol.debugByteArray(encKeyArray, " Developer enc key array: ");
+//        SecureChannelProtocol.debugByteArray(macKeyArray, " Developer mac key array: ");
+//        SecureChannelProtocol.debugByteArray(kekKeyArray, " Developer kek key array: ");
 
         SymmetricKey masterKey = null;
         SymmetricKey oldMasterKey = null;
@@ -1836,8 +1836,8 @@ public class SecureChannelProtocol {
             }
         }
 
-        SecureChannelProtocol.debugByteArray(oldKeyInfo, " oldKeyInfo: ");
-        SecureChannelProtocol.debugByteArray(newKeyInfo, " newKeyInfo: ");
+//        SecureChannelProtocol.debugByteArray(oldKeyInfo, " oldKeyInfo: ");
+//        SecureChannelProtocol.debugByteArray(newKeyInfo, " newKeyInfo: ");
 
         byte oldKeyVersion = oldKeyInfo[0];
         byte newKeyVersion = newKeyInfo[0];
@@ -2185,7 +2185,7 @@ public class SecureChannelProtocol {
             throw new EBaseException(method + " Can't compose final output byte array!");
         }
 
-        SecureChannelProtocol.debugByteArray(output, " Final output to createKeySetData: ");
+//        SecureChannelProtocol.debugByteArray(output, " Final output to createKeySetData: ");
         CMS.debug(method + " returning output");
 
         return output;
@@ -2266,7 +2266,7 @@ public class SecureChannelProtocol {
         byte[] output = null;
         output = computeAES_CBCEncryption(kekKey, selectedToken, data, null);
 
-        debugByteArray(output, method + " encryptData: Output: ");
+//        debugByteArray(output, method + " encryptData: Output: ");
 
         return output;
     }

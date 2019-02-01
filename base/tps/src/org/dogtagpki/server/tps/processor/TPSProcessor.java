@@ -571,12 +571,12 @@ public class TPSProcessor {
 
         TPSBuffer initUpdateResp = initializeUpdate(keyVersion, keyIndex, randomData);
 
-        CMS.debug("TPSProcessor.setupSecureChanne: initUpdateResponse: " + initUpdateResp.toHexString());
+//        CMS.debug("TPSProcessor.setupSecureChanne: initUpdateResponse: " + initUpdateResp.toHexString());
 
         TPSBuffer key_diversification_data = initUpdateResp.substr(0, DIVERSIFICATION_DATA_SIZE);
         appletInfo.setKDD(key_diversification_data);
 
-        CMS.debug("TPSProcessor.setupSecureChannel: diversification data: " + key_diversification_data.toHexString());
+//        CMS.debug("TPSProcessor.setupSecureChannel: diversification data: " + key_diversification_data.toHexString());
 
         TPSBuffer key_info_data =  null;
 
@@ -628,9 +628,9 @@ public class TPSProcessor {
             card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET_GP211_SC03,CARD_CHALLENGE_SIZE);
             card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET_GP211_SC03, CARD_CRYPTOGRAM_SIZE);
 
-            CMS.debug("TPSProcessor.setupSecureChannel 03: card cryptogram: " + card_cryptogram.toHexString());
-            CMS.debug("TPSProcessor.setupSecureChannel 03: card challenge: " + card_challenge.toHexString());
-            CMS.debug("TPSProcessor.setupSecureChannel 03: host challenge: " + randomData.toHexString());
+//            CMS.debug("TPSProcessor.setupSecureChannel 03: card cryptogram: " + card_cryptogram.toHexString());
+//            CMS.debug("TPSProcessor.setupSecureChannel 03: card challenge: " + card_challenge.toHexString());
+//            CMS.debug("TPSProcessor.setupSecureChannel 03: host challenge: " + randomData.toHexString());
         } else {
 
             card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET, CARD_CHALLENGE_SIZE);
@@ -941,26 +941,26 @@ public class TPSProcessor {
             TPSBuffer drmDesKeyBuff = resp.getDRM_Trans_DesKey();
             TPSBuffer kekDesKeyBuff = resp.getKekWrappedDesKey();
 
-            if (encSessionKeyBuff != null)
-                CMS.debug(method + " encSessionKeyBuff: " + encSessionKeyBuff.toHexString());
+//            if (encSessionKeyBuff != null)
+//                CMS.debug(method + " encSessionKeyBuff: " + encSessionKeyBuff.toHexString());
 
-            if (kekSessionKeyBuff != null)
-                CMS.debug(method + " kekSessionKeyBuff: " + kekSessionKeyBuff.toHexString());
+//            if (kekSessionKeyBuff != null)
+//                CMS.debug(method + " kekSessionKeyBuff: " + kekSessionKeyBuff.toHexString());
 
-            if (macSessionKeyBuff != null)
-                CMS.debug(method + " macSessionKeyBuff: " + macSessionKeyBuff.toHexString());
+//            if (macSessionKeyBuff != null)
+//                CMS.debug(method + " macSessionKeyBuff: " + macSessionKeyBuff.toHexString());
 
-            if (hostCryptogramBuff != null)
-                CMS.debug(method + " hostCryptogramBuff: " + hostCryptogramBuff.toHexString());
+//            if (hostCryptogramBuff != null)
+//                CMS.debug(method + " hostCryptogramBuff: " + hostCryptogramBuff.toHexString());
 
-            if (keyCheckBuff != null)
-                CMS.debug(method + " keyCheckBuff: " + keyCheckBuff.toHexString());
+//            if (keyCheckBuff != null)
+//                CMS.debug(method + " keyCheckBuff: " + keyCheckBuff.toHexString());
 
-            if (drmDesKeyBuff != null)
-                CMS.debug(method + " drmDessKeyBuff: " + drmDesKeyBuff.toHexString());
+//            if (drmDesKeyBuff != null)
+//                CMS.debug(method + " drmDessKeyBuff: " + drmDesKeyBuff.toHexString());
 
-            if (kekDesKeyBuff != null)
-                CMS.debug(method + " kekDesKeyBuff: " + kekDesKeyBuff.toHexString());
+//            if (kekDesKeyBuff != null)
+//                CMS.debug(method + " kekDesKeyBuff: " + kekDesKeyBuff.toHexString());
 
 
             if (encSessionKeyBuff != null)
@@ -975,9 +975,9 @@ public class TPSProcessor {
                 kekSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
                         kekSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
 
-            CMS.debug(" encSessionKeySCP03 " + encSessionKeySCP03);
-            CMS.debug(" macSessionKeySCP03 " + macSessionKeySCP03);
-            CMS.debug(" kekSessionKeySCP03 " + kekSessionKeySCP03);
+//            CMS.debug(" encSessionKeySCP03 " + encSessionKeySCP03);
+//            CMS.debug(" macSessionKeySCP03 " + macSessionKeySCP03);
+//            CMS.debug(" kekSessionKeySCP03 " + kekSessionKeySCP03);
 
             channel = new SecureChannel(this, encSessionKeySCP03, macSessionKeySCP03, kekSessionKeySCP03,
                     drmDesKeyBuff, kekDesKeyBuff,

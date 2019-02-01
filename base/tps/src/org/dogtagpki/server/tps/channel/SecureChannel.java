@@ -148,8 +148,8 @@ public class SecureChannel {
 
         CMS.debug("SecureChannel.SecureChannel: For SCP03. :  ");
 
-        if (keyCheck != null)
-            CMS.debug("keyCheck: " + keyCheck.toHexString());
+//        if (keyCheck != null)
+//            CMS.debug("keyCheck: " + keyCheck.toHexString());
 
         this.platProtInfo = platformInfo;
         this.processor = processor;
@@ -421,11 +421,11 @@ public class SecureChannel {
                 throw new TPSException(method + "Failed to calculate card cryptogram!", TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
-            if(cardCryptogram != null)
-                CMS.debug(method + " actual card cryptogram " + cardCryptogram.toHexString());
+//            if(cardCryptogram != null)
+//                CMS.debug(method + " actual card cryptogram " + cardCryptogram.toHexString());
 
-            if(calculatedCardCryptogram != null)
-                CMS.debug(method + " calculated card cryptogram " + calculatedCardCryptogram.toHexString());
+//            if(calculatedCardCryptogram != null)
+//                CMS.debug(method + " calculated card cryptogram " + calculatedCardCryptogram.toHexString());
 
             ExternalAuthenticateAPDUGP211 externalAuth = new ExternalAuthenticateAPDUGP211(hostCryptogram,
                     /* secLevel */secLevelGP211);
@@ -1248,8 +1248,8 @@ public class SecureChannel {
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
-        CMS.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer:  id: " + id + " label: " + label + " keyid: "
-                + keyid.toHexString());
+//        CMS.debug("SecureChannel.createPKCS11PriKeyAttrsBuffer:  id: " + id + " label: " + label + " keyid: "
+//                + keyid.toHexString());
 
         byte keytype[] = { 0, 0, 0, 0 };
         byte p11class[] = { 3, 0, 0, 0 };
@@ -1365,8 +1365,8 @@ public class SecureChannel {
 
         }
 
-        CMS.debug("SecureChannel.createPKCS11CertAttrsBuffer: ... id: " + id + " label: " + label + " keyid: "
-                + keyid.toHexString());
+//        CMS.debug("SecureChannel.createPKCS11CertAttrsBuffer: ... id: " + id + " label: " + label + " keyid: "
+//                + keyid.toHexString());
 
         byte[] type = { 0x0, 0x0, 0x0, 0x0 };
         byte[] p11class = { 0x1, 0x0, 0x0, 0x0 };
@@ -1374,8 +1374,8 @@ public class SecureChannel {
 
         TPSBuffer result = new TPSBuffer();
 
-        CMS.debug("SecureChannel.createPKCS11CertAttrsBuffer: label: " + label + " label bytes: "
-                + (new TPSBuffer(label)).toHexString());
+//        CMS.debug("SecureChannel.createPKCS11CertAttrsBuffer: label: " + label + " label bytes: "
+//                + (new TPSBuffer(label)).toHexString());
 
         appendPKCS11Attribute(result, PKCS11Constants.CKA_LABEL, new TPSBuffer(label.getBytes()));
         appendPKCS11Attribute(result, PKCS11Constants.CKA_ID, keyid);

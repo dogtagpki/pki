@@ -401,7 +401,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String tksConnId = getTKSConnectorID();
         TPSBuffer plaintextChallenge = computeRandomData(16, tksConnId);
 
-        CMS.debug(method + " plaintextChallenge: " + plaintextChallenge.toHexString());
+//        CMS.debug(method + " plaintextChallenge: " + plaintextChallenge.toHexString());
 
         //These will be used shortly
         TPSBuffer wrappedChallenge = encryptData(appletInfo, channel.getKeyInfoData(), plaintextChallenge, tksConnId,
@@ -3120,7 +3120,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         TPSBuffer kekWrappedDesKey = channel.getKekDesKey();
 
         if (kekWrappedDesKey != null) {
-            CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: keyWrappedDesKey: " + kekWrappedDesKey.toHexString());
+//            CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: keyWrappedDesKey: " + kekWrappedDesKey.toHexString());
             CMS.debug("TPSEnrollProcessor.importPrivateKeyPKCS8: got keyWrappedDesKey");
         } else
             CMS.debug("TPSEnrollProcessor.iportPrivateKeyPKC8: null kekWrappedDesKey!");
@@ -3142,7 +3142,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
         data.add((byte) ivParamsBuff.size());
         data.add(ivParamsBuff);
-        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8: key data outgoing: " + data.toHexString());
+//        CMS.debug("TPSEnrollProcessor.importprivateKeyPKCS8: key data outgoing: " + data.toHexString());
 
         int pe1 = (cEnrollInfo.getKeyUser() << 4) + cEnrollInfo.getPrivateKeyNumber();
         int pe2 = (cEnrollInfo.getKeyUsage() << 4) + cEnrollInfo.getPublicKeyNumber();
@@ -3751,7 +3751,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         keyID = new TPSBuffer(mozillaDigestOut);
 
-        CMS.debug("TPSEnrollProcessor.makeKeyIDFromPublicKeyInfo: " + keyID.toHexString());
+//        CMS.debug("TPSEnrollProcessor.makeKeyIDFromPublicKeyInfo: " + keyID.toHexString());
 
         return keyID;
     }
