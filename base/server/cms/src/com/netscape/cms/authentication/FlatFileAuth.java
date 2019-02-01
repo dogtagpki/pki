@@ -58,6 +58,8 @@ import com.netscape.cms.logging.Logger;
 public class FlatFileAuth
         implements IProfileAuthenticator, IExtendedPluginInfo {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FlatFileAuth.class);
+
     /* configuration parameter keys */
     protected static final String PROP_FILENAME = "fileName";
     protected static final String PROP_KEYATTRIBUTES = "keyAttributes";
@@ -208,13 +210,13 @@ public class FlatFileAuth
 
             mFileLastRead = file.lastModified();
             entries = readFile(file, keyAttrs);
-            CMS.debug("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_READ_ENTRIES", mFilename));
+            logger.debug("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_READ_ENTRIES", mFilename));
             // printAllEntries();
         } catch (IOException e) {
             throw new EBaseException(mName
                     + " authentication: Could not open file " + mFilename + "   (" + e.getMessage() + ")");
         } catch (java.lang.StringIndexOutOfBoundsException ee) {
-            CMS.debug("FlatFileAuth: " + CMS.getLogMessage("OPERATION_ERROR", ee.toString()));
+            logger.warn("FlatFileAuth: " + CMS.getLogMessage("OPERATION_ERROR", ee.toString()));
         }
 
     }
@@ -233,7 +235,7 @@ public class FlatFileAuth
     }
 
     void print(String s) {
-        CMS.debug("FlatFileAuth: " + s);
+        logger.debug("FlatFileAuth: " + s);
     }
 
     /**
@@ -574,7 +576,7 @@ public class FlatFileAuth
             if (user != null) {
                 authToken = doAuthentication(user, authCred);
             } else {
-                CMS.debug("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_USER_NOT_FOUND"));
+                logger.warn("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_USER_NOT_FOUND"));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
         } catch (EInvalidCredentials e) {
@@ -583,7 +585,7 @@ public class FlatFileAuth
             if (!mDeferOnFailure) {
                 throw e;
             } else {
-                CMS.debug("FlatFileAuth: Since defering on failure - ignore invalid creds");
+                logger.warn("FlatFileAuth: Since defering on failure - ignore invalid creds");
             }
         }
 
