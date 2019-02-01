@@ -88,7 +88,7 @@ To start the build process:
 $ ./build.sh
 </pre>
 
-It will build PKI packages with the current files in the source directory.
+It will build all packages with the current files in the source directory.
 
 The package version number and release number will be determined by the Version and Release attributes in the [pki.spec](../../pki.spec).
 
@@ -122,7 +122,7 @@ To change the distribution name:
 $ ./build.sh --dist=&lt;distribution name&gt;
 </pre>
 
-'''Note:''' The distribution name should not be prefixed with a dot (e.g. fc28).
+**Note:** The distribution name should not be prefixed with a dot (e.g. fc28).
 
 ### Building with Checked-in Source Code
 
