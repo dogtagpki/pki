@@ -57,6 +57,8 @@ import netscape.ldap.LDAPv2;
  */
 public class PortalEnroll extends DirBasedAuthentication {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PortalEnroll.class);
+
     /* configuration parameter keys */
     protected static final String PROP_LDAPAUTH = "ldapauth";
     protected static final String PROP_AUTHTYPE = "authtype";
@@ -361,12 +363,12 @@ public class PortalEnroll extends DirBasedAuthentication {
 
         while (objClasses.hasMoreElements()) {
             attrnames = objClasses.nextElement();
-            CMS.debug("PortalEnroll: Required attrs:");
+            logger.debug("PortalEnroll: Required attrs:");
             while (attrnames.hasMoreElements()) {
                 String attrname = attrnames.nextElement();
                 String attrval = null;
 
-                CMS.debug("PortalEnroll: attrname is: " + attrname);
+                logger.debug("PortalEnroll: attrname is: " + attrname);
                 if (attrname.equalsIgnoreCase("objectclass") == true)
                     continue;
                 try {
@@ -376,7 +378,7 @@ public class PortalEnroll extends DirBasedAuthentication {
                         continue;
                 }
 
-                CMS.debug("PortalEnroll: " + attrname + " = " + attrval);
+                logger.debug("PortalEnroll: " + attrname + " = " + attrval);
                 attrs.add(new LDAPAttribute(attrname, attrval));
             }
 
@@ -387,19 +389,19 @@ public class PortalEnroll extends DirBasedAuthentication {
 
         while (objClasses.hasMoreElements()) {
             attrnames = objClasses.nextElement();
-            CMS.debug("PortalEnroll: Optional attrs:");
+            logger.debug("PortalEnroll: Optional attrs:");
             while (attrnames.hasMoreElements()) {
                 String attrname = attrnames.nextElement();
                 String attrval = null;
 
-                CMS.debug("PortalEnroll: attrname is: " + attrname);
+                logger.debug("PortalEnroll: attrname is: " + attrname);
                 try {
                     attrval = argblk.getValueAsString(attrname);
                 } catch (EBaseException e) {
                     if (e.getMessage().equalsIgnoreCase(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND")) == true)
                         continue;
                 }
-                CMS.debug("PortalEnroll: " + attrname + " = " + attrval);
+                logger.debug("PortalEnroll: " + attrname + " = " + attrval);
                 if (attrval != null) {
                     attrs.add(new LDAPAttribute(attrname, attrval));
                 }
@@ -434,7 +436,7 @@ public class PortalEnroll extends DirBasedAuthentication {
      */
     @SuppressWarnings("unchecked")
     public void initLdapAttrs(LDAPSchema dirSchema, String oclass) {
-        CMS.debug("PortalEnroll: in initLdapAttrsAttrs");
+        logger.debug("PortalEnroll: in initLdapAttrsAttrs");
         mObjClasses.addElement(oclass);
         if (oclass.equalsIgnoreCase("top"))
             return;
@@ -451,14 +453,14 @@ public class PortalEnroll extends DirBasedAuthentication {
                 return;
             }
 
-            CMS.debug("PortalEnroll: getting superiors for: " + oclass);
+            logger.debug("PortalEnroll: getting superiors for: " + oclass);
             String superiors[] = objClass.getSuperiors();
 
-            CMS.debug("PortalEnroll: got superiors, superiors.length=" + superiors.length);
+            logger.debug("PortalEnroll: got superiors, superiors.length=" + superiors.length);
             if (superiors.length == 0)
                 return;
             for (int i = 0; i < superiors.length; i++) {
-                CMS.debug("Portalenroll: superior" + i + "=" + superiors[i]);
+                logger.debug("Portalenroll: superior" + i + "=" + superiors[i]);
                 objClass = dirSchema.getObjectClass(superiors[i]);
                 initLdapAttrs(dirSchema, superiors[i]);
             }
