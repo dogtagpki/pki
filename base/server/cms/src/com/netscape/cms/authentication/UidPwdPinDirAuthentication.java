@@ -62,6 +62,8 @@ import netscape.ldap.LDAPv2;
 public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         implements IExtendedPluginInfo, IProfileAuthenticator {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UidPwdPinDirAuthentication.class);
+
     /* required credentials to authenticate. uid and pwd are strings. */
     public static final String CRED_UID = "uid";
     public static final String CRED_PWD = "pwd";
@@ -251,20 +253,20 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
 
             return userdn;
         } catch (ELdapException e) {
-            CMS.debug("Authenticating: closing bad connection");
+            logger.error("Authenticating: closing bad connection: " + e.getMessage(), e);
             try {
                 conn.disconnect();
             } catch (Exception f) {
-                CMS.debug("Authenticating: conn.disconnect() exception =" + f.toString());
+                logger.warn("Authenticating: conn.disconnect() exception: " + f.getMessage(), f);
             }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CANNOT_CONNECT_LDAP", e.toString()));
             throw e;
         } catch (LDAPException e) {
-            CMS.debug("Authenticating: closing bad connection");
+            logger.error("Authenticating: closing bad connection: " + e.getMessage(), e);
             try {
                 conn.disconnect();
             } catch (Exception f) {
-                CMS.debug("Authenticating: conn.disconnect() exception =" + f.toString());
+                logger.warn("Authenticating: conn.disconnect() exception: " + f.getMessage(), f);
             }
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
