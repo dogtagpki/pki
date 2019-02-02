@@ -76,6 +76,9 @@ import netscape.security.x509.X509CertImpl;
  * @version $Revision$, $Date$
  */
 public class CertificateIssuedListener implements IRequestListener {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateIssuedListener.class);
+
     protected final static String PROP_CERT_ISSUED_SUBSTORE = "certIssued";
     protected static final String PROP_ENABLED = "enabled";
     protected final static String PROP_NOTIFY_SUBSTORE = "notification";
@@ -128,7 +131,7 @@ public class CertificateIssuedListener implements IRequestListener {
         int ridx = mFormPath.lastIndexOf(File.separator);
 
         if (ridx == -1) {
-            CMS.debug("CertificateIssuedListener: file separator: " + File.separator
+            logger.debug("CertificateIssuedListener: file separator: " + File.separator
                     +
                     " not found. Use default /");
             ridx = mFormPath.lastIndexOf("/");
@@ -137,7 +140,7 @@ public class CertificateIssuedListener implements IRequestListener {
             mDir = mFormPath.substring(0, ridx +
                             File.separator.length());
         }
-        CMS.debug("CertificateIssuedListener: template file directory: " + mDir);
+        logger.debug("CertificateIssuedListener: template file directory: " + mDir);
         mRejectPath = mDir + REJECT_FILE_NAME;
         if (mFormPath.endsWith(".html"))
             mRejectPath += ".html";
@@ -148,7 +151,7 @@ public class CertificateIssuedListener implements IRequestListener {
         else if (mFormPath.endsWith(".HTM"))
             mRejectPath += ".HTM";
 
-        CMS.debug("CertificateIssuedListener: Reject file path: " + mRejectPath);
+        logger.debug("CertificateIssuedListener: Reject file path: " + mRejectPath);
 
         mDateFormat = DateFormat.getDateTimeInstance();
 
@@ -165,7 +168,7 @@ public class CertificateIssuedListener implements IRequestListener {
     }
 
     public void accept(IRequest r) {
-        CMS.debug("CertificateIssuedListener: accept " +
+        logger.debug("CertificateIssuedListener: accept " +
                 r.getRequestId().toString());
         if (mEnabled != true)
             return;
@@ -176,12 +179,12 @@ public class CertificateIssuedListener implements IRequestListener {
         String rs = r.getRequestStatus().toString();
 
         if (rs.equals("rejected")) {
-            CMS.debug("CertificateIssuedListener: Request status: " + rs);
+            logger.debug("CertificateIssuedListener: Request status: " + rs);
             rejected(r);
             return;
         }
 
-        CMS.debug("CertificateIssuedListener: accept check status ");
+        logger.debug("CertificateIssuedListener: accept check status ");
 
         // check if it is profile request
         String profileId = r.getExtDataInString(IRequest.PROFILE_ID);
@@ -191,7 +194,7 @@ public class CertificateIssuedListener implements IRequestListener {
             if (r.getExtDataInInteger(IRequest.RESULT) == null)
                 return;
             if ((r.getExtDataInInteger(IRequest.RESULT)).equals(IRequest.RES_ERROR)) {
-                CMS.debug("CertificateIssuedListener: Request errored. " +
+                logger.debug("CertificateIssuedListener: Request errored. " +
                         "No need to email notify for enrollment request id " +
                         mReqId);
                 return;
@@ -201,7 +204,7 @@ public class CertificateIssuedListener implements IRequestListener {
 
         if (requestType.equals(IRequest.ENROLLMENT_REQUEST) ||
                 requestType.equals(IRequest.RENEWAL_REQUEST)) {
-            CMS.debug("accept() enrollment/renewal request...");
+            logger.debug("accept() enrollment/renewal request...");
             // Get the certificate from the request
             X509CertImpl issuedCert[] = null;
 
@@ -215,7 +218,7 @@ public class CertificateIssuedListener implements IRequestListener {
             }
 
             if (issuedCert != null) {
-                CMS.debug("CertificateIssuedListener: Sending email notification..");
+                logger.debug("CertificateIssuedListener: Sending email notification..");
 
                 // do we have an email to send?
                 String mEmail = null;
@@ -226,7 +229,7 @@ public class CertificateIssuedListener implements IRequestListener {
                     keys.set(IEmailResolverKeys.KEY_CERT,
                             issuedCert[0]);
                 } catch (EBaseException e) {
-                    CMS.debug("CertificateIssuedListener: setting email resolver: "+ e.toString());
+                    logger.warn("CertificateIssuedListener: setting email resolver: "+ e.getMessage(), e);
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
                 }
@@ -236,17 +239,17 @@ public class CertificateIssuedListener implements IRequestListener {
                 try {
                     mEmail = er.getEmail(keys);
                 } catch (ENotificationException e) {
-                    CMS.debug("CertificateIssuedListener: getting email: "+ e.toString());
+                    logger.warn("CertificateIssuedListener: getting email: " + e.getMessage(), e);
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
                                     e.toString()));
                 } catch (EBaseException e) {
-                    CMS.debug("CertificateIssuedListener: getting email: "+ e.toString());
+                    logger.warn("CertificateIssuedListener: getting email: " + e.getMessage(), e);
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
                                     e.toString()));
                 } catch (Exception e) {
-                    CMS.debug("CertificateIssuedListener: getting email: "+ e.toString());
+                    logger.warn("CertificateIssuedListener: getting email: " + e.getMessage(), e);
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
                                     e.toString()));
@@ -254,15 +257,15 @@ public class CertificateIssuedListener implements IRequestListener {
 
                 // now we can mail
                 if ((mEmail != null) && (!mEmail.equals(""))) {
-                    CMS.debug("CertificateIssuedListener: found email: "+ mEmail);
+                    logger.debug("CertificateIssuedListener: found email: "+ mEmail);
                     mailIt(mEmail, issuedCert);
                 } else {
-                    CMS.debug("CertificateIssuedListener: failed finding email");
+                    logger.warn("CertificateIssuedListener: failed finding email");
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("LISTENERS_CERT_ISSUED_NOTIFY_ERROR",
                                     issuedCert[0].getSerialNumber().toString(), mReqId.toString()));
                     // send failure notification to "sender"
-                    CMS.debug("CertificateIssuedListener: notifying sender...");
+                    logger.debug("CertificateIssuedListener: notifying sender...");
                     mSubject = "Certificate Issued notification undeliverable";
                     mailIt(mSenderEmail, issuedCert);
                 }
@@ -299,7 +302,7 @@ public class CertificateIssuedListener implements IRequestListener {
             }
             mn.setContent(c);
         } else {
-            CMS.debug("CertificateIssuedListener: mailIt: template null");
+            logger.error("CertificateIssuedListener: mailIt: template null");
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("LISTENERS_CERT_ISSUED_TEMPLATE_ERROR",
                             issuedCert[0].getSerialNumber().toString(), mReqId.toString()));
@@ -312,11 +315,11 @@ public class CertificateIssuedListener implements IRequestListener {
         try {
             mn.sendNotification();
         } catch (ENotificationException e) {
-            CMS.debug("CertificateIssuedListener: mailIt: " + e.toString());
+            logger.error("CertificateIssuedListener: mailIt: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
 
         } catch (IOException e) {
-            CMS.debug("CertificateIssuedListener: mailIt: " + e.toString());
+            logger.error("CertificateIssuedListener: mailIt: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
         }
     }
