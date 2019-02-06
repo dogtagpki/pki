@@ -260,6 +260,8 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         CMS.debug(method + ": Token status: " + status);
 
+	checkInvalidTokenStatus(tokenRecord, ActivityDatabase.OP_PIN_RESET);
+
         if (!status.equals(TokenStatus.ACTIVE)) {
             logMsg = method + "Can not reset the pin of a non active token.";
             auditPinResetFailure(session.getIpAddress(), userid, appletInfo, logMsg);

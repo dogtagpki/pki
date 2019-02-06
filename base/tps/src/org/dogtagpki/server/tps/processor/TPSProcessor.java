@@ -2301,6 +2301,8 @@ public class TPSProcessor {
             TokenStatus newState = TokenStatus.FORMATTED;
             // Check for transition to FORMATTED status.
 
+            checkInvalidTokenStatus(tokenRecord, ActivityDatabase.OP_FORMAT);
+
             if (!tps.isOperationTransitionAllowed(tokenRecord, newState)) {
                 String info = " illegal transition attempted: " + tokenRecord.getTokenStatus() +
                         " to " + newState;
@@ -4150,6 +4152,17 @@ public class TPSProcessor {
 
         return result;
 
+    }
+
+    protected void checkInvalidTokenStatus(TokenRecord tokenRecord, String activityDBOperation) throws TPSException {
+        TPSSubsystem tps = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TokenStatus status = tokenRecord.getTokenStatus();
+
+        if(!status.isValid()) {
+            String logMsg = "Illegal transition attempted for token with status: " + status;
+            tps.tdb.tdbActivity(activityDBOperation, tokenRecord, session.getIpAddress(), logMsg, "failure");
+            throw new TPSException(activityDBOperation + ": " + logMsg, TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
+        }
     }
 
     /* Only for debugging, extract bytes of a PK11SymKey

@@ -312,6 +312,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             TokenStatus newState = TokenStatus.ACTIVE;
             // Check for transition to ACTIVE status.
 
+            checkInvalidTokenStatus(tokenRecord, ActivityDatabase.OP_ENROLLMENT);
+
             if (!tps.isOperationTransitionAllowed(tokenRecord, newState)) {
                 CMS.debug(method + " token transition disallowed " +
                         tokenRecord.getTokenStatus() +

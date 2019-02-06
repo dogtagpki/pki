@@ -167,6 +167,11 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
             TokenStatus currentState = TokenStatus.fromInt(Integer.valueOf(states[0]));
             TokenStatus nextState = TokenStatus.fromInt(Integer.valueOf(states[1]));
 
+            if(!currentState.isValid() || !nextState.isValid()) {
+                CMS.debug("Invalid token state transition in " + property + ": " + transition);
+                throw new EBaseException("Invalid token state transition in " + property + ": " + transition);
+            }
+
             String info = currentState + " to " + nextState +
                     " (" + currentState.getValue() + ":" + nextState.getValue() + ")";
             CMS.debug("TokenSubsystem:   - " + info);

@@ -48,6 +48,7 @@ public class TokenStatus {
     static Map<String, TokenStatus> instancesByName = new HashMap<String, TokenStatus>();
     static Map<Integer, TokenStatus> instancesByValue = new HashMap<Integer, TokenStatus>();
 
+    public final static int TOKEN_UNKNOWN             = -1;
     public final static int TOKEN_FORMATTED           = 0;
     public final static int TOKEN_DAMAGED             = 1;
     public final static int TOKEN_PERM_LOST           = 2;
@@ -77,8 +78,10 @@ public class TokenStatus {
         this.name = name;
         this.value = value;
 
-        instancesByName.put(name, this);
-        instancesByValue.put(value, this);
+        if(value > TOKEN_UNKNOWN) {
+            instancesByName.put(name, this);
+            instancesByValue.put(value, this);
+        }
     }
 
     public String getName() {
@@ -148,11 +151,13 @@ public class TokenStatus {
             return SUSPENDED;
         }
 
+        if(name == null)
+            return new TokenStatus("UNKNOWN", TOKEN_UNKNOWN);
+
         TokenStatus status = instancesByName.get(name);
 
-        if (status == null) {
-            throw new IllegalArgumentException("Invalid token status name: " + name);
-        }
+        if (status == null)
+            status = new TokenStatus(name, TOKEN_UNKNOWN);
 
         return status;
     }
@@ -161,10 +166,16 @@ public class TokenStatus {
 
         TokenStatus status = instancesByValue.get(value);
 
-        if (status == null) {
-            throw new IllegalArgumentException("Invalid token status value: " + value);
-        }
+        if (status == null)
+            status = new TokenStatus("UNKNOWN", TOKEN_UNKNOWN);
 
         return status;
+    }
+
+    public boolean isValid() {
+        if(value >= 0)
+            return true;
+        else
+            return false;
     }
 }

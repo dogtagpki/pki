@@ -245,6 +245,7 @@ public class TokenRecord extends DBRecord {
     }
 
     public void setTokenStatus(TokenStatus status) {
-        setStatus(status.toString());
+        if(status.isValid())
+            setStatus(status.toString());
     }
 }

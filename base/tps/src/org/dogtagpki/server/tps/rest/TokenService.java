@@ -194,18 +194,20 @@ public class TokenService extends SubsystemService implements TokenResource {
         tokenData.setStatus(statusData);
 
         Collection<TokenStatus> nextStates = subsystem.getUINextTokenStates(tokenRecord);
-        Collection<TokenStatusData> nextStatesData = new ArrayList<TokenStatusData>();
-        for (TokenStatus nextState : nextStates) {
-            TokenStatusData nextStateData = new TokenStatusData();
-            nextStateData.name = nextState;
-            try {
-                nextStateData.label = labels.getString(status + "." + nextState);
-            } catch (MissingResourceException e) {
-                nextStateData.label = nextState.toString();
+        if(nextStates != null) {
+            Collection<TokenStatusData> nextStatesData = new ArrayList<TokenStatusData>();
+            for (TokenStatus nextState : nextStates) {
+                TokenStatusData nextStateData = new TokenStatusData();
+                nextStateData.name = nextState;
+                try {
+                    nextStateData.label = labels.getString(status + "." + nextState);
+                } catch (MissingResourceException e) {
+                    nextStateData.label = nextState.toString();
+                }
+                nextStatesData.add(nextStateData);
             }
-            nextStatesData.add(nextStateData);
+            tokenData.setNextStates(nextStatesData);
         }
-        tokenData.setNextStates(nextStatesData);
 
         tokenData.setAppletID(tokenRecord.getAppletID());
         tokenData.setKeyInfo(tokenRecord.getKeyInfo());
@@ -702,6 +704,16 @@ public class TokenService extends SubsystemService implements TokenResource {
             }
 
             msg = msg + " from " + currentTokenStatus + " to " + tokenStatus;
+
+            // Check for invalid current status
+            if(!oldStatus.isValid()) {
+                CMS.debug("TokenService.changeTokenStatus(): current status is invalid: " + oldStatus);
+                Exception ex = new BadRequestException("Cannot change status of token with current status: " + oldStatus);
+                auditTokenStateChange(ILogger.FAILURE, oldStatus,
+                        newStatus, oldReason, newReason,
+                        auditModParams, ex.toString());
+                throw ex;
+            }
 
             // make sure transition is allowed
             if (!subsystem.isUITransitionAllowed(tokenRecord, tokenStatus)) {
