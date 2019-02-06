@@ -232,3 +232,124 @@ class DBUpgrade(pki.cli.CLI):
             print(
                 'Failed to add issuerName to certificate {}: {}'
                 .format(attrs.get('cn', ['<unknown>'])[0], e))
+
+
+class SubsystemDBCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super(SubsystemDBCLI, self).__init__(
+            'db',
+            '%s database management commands' % parent.name.upper())
+
+        self.parent = parent
+        self.add_module(SubsystemDBConfigCLI(self))
+
+    @staticmethod
+    def print_config(subsystem):
+
+        name = 'internaldb.%s'
+
+        hostname = subsystem.config.get(name % 'ldapconn.host', None)
+        print('  Hostname: %s' % hostname)
+
+        port = subsystem.config.get(name % 'ldapconn.port', None)
+        print('  Port: %s' % port)
+
+        secure = subsystem.config.get(name % 'ldapconn.secureConn', None)
+        print('  Secure: %s' % secure)
+
+        bindDN = subsystem.config.get(name % 'ldapauth.bindDN', None)
+        print('  Bind DN: %s' % bindDN)
+
+        auth = subsystem.config.get(name % 'ldapauth.authtype', None)
+        print('  Authentication: %s' % auth)
+
+        if auth == 'SslClientAuth':
+            nickname = subsystem.config.get(name % 'ldapauth.clientCertNickname', None)
+            print('  Client Certificate: %s' % nickname)
+
+        database = subsystem.config.get(name % 'database', None)
+        print('  Database: %s' % database)
+
+        baseDN = subsystem.config.get(name % 'basedn', None)
+        print('  Base DN: %s' % baseDN)
+
+        multipleSuffix = subsystem.config.get(name % 'multipleSuffix.enable', None)
+        print('  Multiple suffix: %s' % multipleSuffix)
+
+        maxConns = subsystem.config.get(name % 'maxConns', None)
+        print('  Maximum connections: %s' % maxConns)
+
+        minConns = subsystem.config.get(name % 'minConns', None)
+        print('  Minimum connections: %s' % minConns)
+
+
+class SubsystemDBConfigCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super(SubsystemDBConfigCLI, self).__init__(
+            'config',
+            '%s database configuration management commands' % parent.parent.name.upper())
+
+        self.parent = parent
+        self.add_module(SubsystemDBConfigShowCLI(self))
+
+
+class SubsystemDBConfigShowCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super(SubsystemDBConfigShowCLI, self).__init__(
+            'show',
+            'Display %s database configuration' % parent.parent.name.upper())
+
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-db-config-show [OPTIONS]' % self.parent.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: unknown option ' + o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem_name = self.parent.parent.parent.name
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            print('ERROR: No %s subsystem in instance %s.'
+                  % (subsystem_name.upper(), instance_name))
+            sys.exit(1)
+
+        SubsystemDBCLI.print_config(subsystem)

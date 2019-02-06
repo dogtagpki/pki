@@ -34,6 +34,7 @@ import time
 import pki.cli
 import pki.server.cli.audit
 import pki.server.cli.config
+import pki.server.cli.db
 
 
 TPS_VLV_PATH = '/usr/share/pki/tps/conf/vlv.ldif'
@@ -46,10 +47,10 @@ class TPSCLI(pki.cli.CLI):
         super(TPSCLI, self).__init__(
             'tps', 'TPS management commands')
 
-        self.add_module(TPSCloneCLI())
-        self.add_module(TPSDBCLI())
         self.add_module(pki.server.cli.audit.AuditCLI(self))
+        self.add_module(TPSCloneCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
+        self.add_module(TPSDBCLI(self))
 
 
 class TPSCloneCLI(pki.cli.CLI):
@@ -161,10 +162,12 @@ class TPSClonePrepareCLI(pki.cli.CLI):
 
 class TPSDBCLI(pki.cli.CLI):
 
-    def __init__(self):
+    def __init__(self, parent):
         super(TPSDBCLI, self).__init__(
             'db', 'TPS database management commands')
 
+        self.parent = parent
+        self.add_module(pki.server.cli.db.SubsystemDBConfigCLI(self))
         self.add_module(TPSDBVLVCLI())
 
 
