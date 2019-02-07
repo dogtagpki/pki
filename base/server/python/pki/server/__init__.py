@@ -58,7 +58,60 @@ SELFTEST_CRITICAL = 'critical'
 logger = logging.getLogger(__name__)
 
 
+@functools.total_ordering
 class PKIServer(object):
+
+    def __init__(self, name):
+
+        self.name = name
+
+        self.base_dir = os.path.join(INSTANCE_BASE_DIR, name)
+        self.conf_dir = os.path.join(CONFIG_BASE_DIR, name)
+        self.log_dir = os.path.join(LOG_BASE_DIR, name)
+        self.registry_dir = os.path.join(REGISTRY_DIR, 'tomcat', self.name)
+
+        self.server_xml = os.path.join(self.conf_dir, 'server.xml')
+
+        self.service_name = 'pki-tomcatd@%s.service' % self.name
+
+    def __repr__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        if not isinstance(other, PKIServer):
+            return NotImplemented
+        return self.name == other.name
+
+    def __lt__(self, other):
+        if not isinstance(other, PKIServer):
+            return NotImplemented
+        return self.name < other.name
+
+    def is_valid(self):
+        return os.path.exists(self.server_xml)
+
+    def validate(self):
+        if not self.is_valid():
+            raise pki.PKIException('Invalid server: ' + self.name, None)
+
+    def is_active(self):
+        cmd = ['systemctl', '--quiet', 'is-active', self.service_name]
+        logger.debug('Command: %s', ' '.join(cmd))
+        rc = subprocess.call(cmd)
+        return rc == 0
+
+    def start(self):
+        cmd = ['systemctl', 'start', self.service_name]
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
+    def stop(self):
+        cmd = ['systemctl', 'stop', self.service_name]
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
 
     @classmethod
     def instances(cls):
@@ -1159,11 +1212,12 @@ class ServerConfiguration(object):
 
 
 @functools.total_ordering
-class PKIInstance(object):
+class PKIInstance(PKIServer):
 
     def __init__(self, name, instanceType=10):  # noqa: N803
 
-        self.name = name
+        super(PKIInstance, self).__init__(name)
+
         self.type = instanceType
 
         if self.type >= 10:
@@ -1171,10 +1225,6 @@ class PKIInstance(object):
         else:
             self.base_dir = os.path.join(pki.BASE_DIR, name)
 
-        self.conf_dir = os.path.join(CONFIG_BASE_DIR, name)
-        self.log_dir = os.path.join(LOG_BASE_DIR, name)
-
-        self.server_xml = os.path.join(self.conf_dir, 'server.xml')
         self.server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
         self.banner_file = os.path.join(self.conf_dir, 'banner.txt')
         self.password_conf = os.path.join(self.conf_dir, 'password.conf')
@@ -1185,13 +1235,7 @@ class PKIInstance(object):
         self.nssdb_dir = os.path.join(self.base_dir, 'alias')
         self.lib_dir = os.path.join(self.base_dir, 'lib')
 
-        self.registry_dir = os.path.join(
-            pki.server.REGISTRY_DIR,
-            'tomcat',
-            self.name)
         self.registry_file = os.path.join(self.registry_dir, self.name)
-
-        self.service_name = 'pki-tomcatd@%s.service' % self.name
 
         self.user = None
         self.group = None
@@ -1222,30 +1266,6 @@ class PKIInstance(object):
 
     def __hash__(self):
         return hash((self.name, self.type))
-
-    def is_valid(self):
-        return os.path.exists(self.conf_dir)
-
-    def validate(self):
-        if not self.is_valid():
-            raise pki.PKIException(
-                'Invalid instance: ' + self.__repr__(), None)
-
-    def start(self):
-        cmd = ['systemctl', 'start', self.service_name]
-        logger.debug('Command: %s', ' '.join(cmd))
-        subprocess.check_call(cmd)
-
-    def stop(self):
-        cmd = ['systemctl', 'stop', self.service_name]
-        logger.debug('Command: %s', ' '.join(cmd))
-        subprocess.check_call(cmd)
-
-    def is_active(self):
-        cmd = ['systemctl', '--quiet', 'is-active', self.service_name]
-        logger.debug('Command: %s', ' '.join(cmd))
-        rc = subprocess.call(cmd)
-        return rc == 0
 
     def load(self):
 
