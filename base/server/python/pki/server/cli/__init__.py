@@ -52,6 +52,9 @@ class PKIServerCLI(pki.cli.CLI):
             'pki-server',
             'PKI server command-line interface')
 
+        self.add_module(pki.server.cli.StartCLI())
+        self.add_module(pki.server.cli.StopCLI())
+
         self.add_module(pki.server.cli.ca.CACLI())
         self.add_module(pki.server.cli.kra.KRACLI())
         self.add_module(pki.server.cli.ocsp.OCSPCLI())
@@ -112,3 +115,111 @@ class PKIServerCLI(pki.cli.CLI):
             print('Command: %s' % ' '.join(args))
 
         super(PKIServerCLI, self).execute(args)
+
+
+class StartCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(StartCLI, self).__init__('start', 'Start server')
+
+    def print_help(self):
+        print('Usage: pki-server start [OPTIONS] [<server ID>]')
+        print()
+        print('  -v, --verbose                 Run in verbose mode.')
+        print('      --help                    Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'v', [
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        server_name = 'pki-tomcat'
+
+        for o, _ in opts:
+            if o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) > 0:
+            server_name = args[0]
+
+        server = pki.server.PKIServer(server_name)
+
+        if not server.is_valid():
+            print('ERROR: Invalid server: %s' % server_name)
+            sys.exit(1)
+
+        if server.is_active():
+            self.print_message('Server already started')
+            return
+
+        server.start()
+
+
+class StopCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(StopCLI, self).__init__('stop', 'Stop server')
+
+    def print_help(self):
+        print('Usage: pki-server stop [OPTIONS] [<server ID>]')
+        print()
+        print('  -v, --verbose                 Run in verbose mode.')
+        print('      --help                    Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'v', [
+                'verbose', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        server_name = 'pki-tomcat'
+
+        for o, _ in opts:
+            if o in ('-v', '--verbose'):
+                self.set_verbose(True)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) > 0:
+            server_name = args[0]
+
+        server = pki.server.PKIServer(server_name)
+
+        if not server.is_valid():
+            print('ERROR: Invalid server: %s' % server_name)
+            sys.exit(1)
+
+        if not server.is_active():
+            self.print_message('Server already stopped')
+            return
+
+        server.stop()
