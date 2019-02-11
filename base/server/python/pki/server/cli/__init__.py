@@ -42,7 +42,6 @@ import pki.server.cli.selftest
 import pki.server.cli.subsystem
 import pki.server.cli.tks
 import pki.server.cli.tps
-import pki.server.cli.upgrade
 import pki.util
 
 

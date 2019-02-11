@@ -90,7 +90,7 @@ def main(argv):
 
     instanceName = None
     subsystemName = None
-    instanceType = None
+    instance_version = None
 
     scriptlet_version = None
     scriptlet_index = None
@@ -112,7 +112,7 @@ def main(argv):
             subsystemName = a
 
         elif o in ('-t', '--instance-type'):
-            instanceType = int(a)
+            instance_version = int(a)
 
         elif o == '--scriptlet-version':
             scriptlet_version = a
@@ -173,7 +173,7 @@ def main(argv):
         upgrader = pki.server.upgrade.PKIServerUpgrader(
             instanceName=instanceName,
             subsystemName=subsystemName,
-            instanceType=instanceType,
+            instance_version=instance_version,
             version=scriptlet_version,
             index=scriptlet_index,
             silent=silent)

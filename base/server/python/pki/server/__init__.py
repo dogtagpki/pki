@@ -1214,11 +1214,11 @@ class ServerConfiguration(object):
 @functools.total_ordering
 class PKIInstance(PKIServer):
 
-    def __init__(self, name, instanceType=10):  # noqa: N803
+    def __init__(self, name, version=10):  # noqa: N803
 
         super(PKIInstance, self).__init__(name)
 
-        self.type = instanceType
+        self.type = version
 
         if self.type >= 10:
             self.base_dir = os.path.join(INSTANCE_BASE_DIR, name)
