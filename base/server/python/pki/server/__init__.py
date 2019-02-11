@@ -356,7 +356,7 @@ class PKISubsystem(object):
         self.instance = instance
         self.name = subsystem_name  # e.g. ca, kra
 
-        if instance.type >= 10:
+        if instance.version >= 10:
             self.base_dir = os.path.join(self.instance.base_dir, self.name)
         else:
             self.base_dir = instance.base_dir
@@ -1218,9 +1218,9 @@ class PKIInstance(PKIServer):
 
         super(PKIInstance, self).__init__(name)
 
-        self.type = version
+        self.version = version
 
-        if self.type >= 10:
+        if self.version >= 10:
             self.base_dir = os.path.join(INSTANCE_BASE_DIR, name)
         else:
             self.base_dir = os.path.join(pki.BASE_DIR, name)
@@ -1251,7 +1251,7 @@ class PKIInstance(PKIServer):
         if not isinstance(other, PKIInstance):
             return NotImplemented
         return (self.name == other.name and
-                self.type == other.type)
+                self.version == other.version)
 
     def __ne__(self, other):
         if not isinstance(other, PKIInstance):
@@ -1262,10 +1262,10 @@ class PKIInstance(PKIServer):
         if not isinstance(other, PKIInstance):
             return NotImplemented
         return (self.name < other.name or
-                self.type < other.type)
+                self.version < other.version)
 
     def __hash__(self):
-        return hash((self.name, self.type))
+        return hash((self.name, self.version))
 
     def load(self):
 
@@ -1547,7 +1547,7 @@ class PKIInstance(PKIServer):
             return f.read().strip()
 
     def __repr__(self):
-        if self.type == 9:
+        if self.version == 9:
             return "Dogtag 9 " + self.name
         return self.name
 

@@ -226,7 +226,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
         subsystem_list = []
 
-        if instance.type >= 10:
+        if instance.version >= 10:
             registry_dir = os.path.join(
                 pki.server.REGISTRY_DIR, 'tomcat',
                 instance.name)
