@@ -562,7 +562,7 @@ class MigrateCLI(pki.cli.CLI):
 
             os.remove(path)
 
-        tomcat_dir = '/usr/share/tomcat/lib'
+        tomcat_dir = os.path.join(pki.server.Tomcat.SHARE_DIR, 'lib')
 
         # create new links
         for filename in os.listdir(tomcat_dir):

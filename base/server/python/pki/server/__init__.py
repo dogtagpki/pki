@@ -45,10 +45,8 @@ import pki.nssdb
 import pki.util
 from pki.keyring import Keyring
 
-INSTANCE_BASE_DIR = '/var/lib/pki'
-CONFIG_BASE_DIR = '/etc/pki'
-LOG_BASE_DIR = '/var/log/pki'
-REGISTRY_DIR = '/etc/sysconfig/pki'
+SYSCONFIG_DIR = '/etc/sysconfig'
+SYSTEMD_DIR = '/lib/systemd'
 
 SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 SUBSYSTEM_CLASSES = {}
@@ -57,9 +55,45 @@ SELFTEST_CRITICAL = 'critical'
 
 logger = logging.getLogger(__name__)
 
+parser = etree.XMLParser(remove_blank_text=True)
+
+
+class Tomcat(object):
+
+    BASE_DIR = '/var/lib/tomcats'
+    CONF_DIR = '/etc/tomcat'
+    LIB_DIR = '/usr/share/java/tomcat'
+    SHARE_DIR = '/usr/share/tomcat'
+    EXECUTABLE = '/usr/sbin/tomcat'
+
+    @classmethod
+    def get_version(cls):
+        # run "tomcat version"
+        output = subprocess.check_output([Tomcat.EXECUTABLE, 'version'])
+        output = output.decode('utf-8')
+
+        # find "Server version: Apache Tomcat/<version>"
+        match = re.search(
+            r'^Server version: *.*/(.+)$',
+            output,
+            re.MULTILINE  # pylint: disable=no-member
+        )
+
+        if not match:
+            raise Exception('Unable to determine Tomcat version')
+
+        # return version
+        return pki.util.Version(match.group(1))
+
 
 @functools.total_ordering
 class PKIServer(object):
+
+    BASE_DIR = '/var/lib/pki'
+    CONFIG_DIR = '/etc/pki'
+    LOG_DIR = '/var/log/pki'
+    SHARE_DIR = '/usr/share/pki'
+    REGISTRY_DIR = os.path.join(SYSCONFIG_DIR, 'pki')
 
     def __init__(self, name, instance_type='tomcat'):
 
@@ -73,9 +107,9 @@ class PKIServer(object):
             self.name = parts[1]
             self.type = parts[0]
 
-        self.base_dir = os.path.join(INSTANCE_BASE_DIR, self.name)
-        self.conf_dir = os.path.join(CONFIG_BASE_DIR, self.name)
-        self.log_dir = os.path.join(LOG_BASE_DIR, self.name)
+        self.base_dir = os.path.join(PKIServer.BASE_DIR, self.name)
+        self.conf_dir = os.path.join(PKIServer.CONFIG_DIR, self.name)
+        self.log_dir = os.path.join(PKIServer.LOG_DIR, self.name)
 
         self.server_xml = os.path.join(self.conf_dir, 'server.xml')
 
@@ -125,10 +159,10 @@ class PKIServer(object):
 
         instances = []
 
-        if not os.path.exists(os.path.join(REGISTRY_DIR, 'tomcat')):
+        if not os.path.exists(os.path.join(PKIServer.REGISTRY_DIR, 'tomcat')):
             return instances
 
-        for instance_name in os.listdir(pki.server.INSTANCE_BASE_DIR):
+        for instance_name in os.listdir(PKIServer.BASE_DIR):
             instance = pki.server.PKIInstance(instance_name)
             instance.load()
             instances.append(instance)
@@ -1185,7 +1219,6 @@ class ServerConfiguration(object):
         self.document = etree.ElementTree()
 
     def load(self):
-        parser = etree.XMLParser(remove_blank_text=True)
         self.document = etree.parse(self.filename, parser)
 
     def save(self):
@@ -1228,7 +1261,7 @@ class PKIInstance(PKIServer):
         self.version = version
 
         if self.version >= 10:
-            self.base_dir = os.path.join(INSTANCE_BASE_DIR, self.name)
+            self.base_dir = os.path.join(PKIServer.BASE_DIR, self.name)
         else:
             self.base_dir = os.path.join(pki.BASE_DIR, self.name)
 
@@ -1241,7 +1274,7 @@ class PKIInstance(PKIServer):
 
         self.nssdb_dir = os.path.join(self.base_dir, 'alias')
         self.lib_dir = os.path.join(self.base_dir, 'lib')
-        self.registry_dir = os.path.join(REGISTRY_DIR, 'tomcat', self.name)
+        self.registry_dir = os.path.join(PKIServer.REGISTRY_DIR, 'tomcat', self.name)
 
         self.registry_file = os.path.join(self.registry_dir, self.name)
 
@@ -1525,7 +1558,6 @@ class PKIInstance(PKIServer):
             self.conf_dir, 'Catalina', 'localhost', webapp_name + '.xml')
 
         # read deployment descriptor
-        parser = etree.XMLParser(remove_blank_text=True)
         document = etree.parse(descriptor, parser)
 
         if doc_base:
@@ -1872,25 +1904,3 @@ class PKIServerException(pki.PKIException):
 
         self.instance = instance
         self.subsystem = subsystem
-
-
-class Tomcat(object):
-
-    @classmethod
-    def get_version(cls):
-        # run "tomcat version"
-        output = subprocess.check_output(['/usr/sbin/tomcat', 'version'])
-        output = output.decode('utf-8')
-
-        # find "Server version: Apache Tomcat/<version>"
-        match = re.search(
-            r'^Server version: *.*/(.+)$',
-            output,
-            re.MULTILINE  # pylint: disable=no-member
-        )
-
-        if not match:
-            raise Exception('Unable to determine Tomcat version')
-
-        # return version
-        return pki.util.Version(match.group(1))

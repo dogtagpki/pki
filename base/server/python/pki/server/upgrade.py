@@ -192,8 +192,8 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         instance_list = []
 
         if not self.instance_version or self.instance_version >= 10:
-            if os.path.exists(os.path.join(pki.server.REGISTRY_DIR, 'tomcat')):
-                for instanceName in os.listdir(pki.server.INSTANCE_BASE_DIR):
+            if os.path.exists(os.path.join(pki.server.PKIServer.REGISTRY_DIR, 'tomcat')):
+                for instanceName in os.listdir(pki.server.PKIServer.BASE_DIR):
                     if not self.instanceName or \
                             self.instanceName == instanceName:
                         instance = pki.server.PKIInstance(instanceName)
@@ -203,9 +203,9 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
         if not self.instance_version or self.instance_version == 9:
             for s in pki.server.SUBSYSTEM_TYPES:
-                if os.path.exists(os.path.join(pki.server.REGISTRY_DIR, s)):
+                if os.path.exists(os.path.join(pki.server.PKIServer.REGISTRY_DIR, s)):
                     for instanceName in os.listdir(
-                            os.path.join(pki.server.REGISTRY_DIR, s)):
+                            os.path.join(pki.server.PKIServer.REGISTRY_DIR, s)):
                         if not self.instanceName or \
                                 self.instanceName == instanceName:
                             instance = pki.server.PKIInstance(instanceName, 9)
@@ -228,7 +228,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
         if instance.version >= 10:
             registry_dir = os.path.join(
-                pki.server.REGISTRY_DIR, 'tomcat',
+                pki.server.PKIServer.REGISTRY_DIR, 'tomcat',
                 instance.name)
             for subsystemName in os.listdir(registry_dir):
                 if subsystemName in pki.server.SUBSYSTEM_TYPES:
@@ -241,7 +241,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         else:
             for subsystemName in pki.server.SUBSYSTEM_TYPES:
                 registry_dir = os.path.join(
-                    pki.server.REGISTRY_DIR,
+                    pki.server.PKIServer.REGISTRY_DIR,
                     subsystemName,
                     instance.name)
                 if os.path.exists(registry_dir):

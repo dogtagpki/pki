@@ -223,8 +223,8 @@ class InstanceFindCLI(pki.cli.CLI):
                 sys.exit(1)
 
         results = []
-        if os.path.exists(pki.server.INSTANCE_BASE_DIR):
-            for f in os.listdir(pki.server.INSTANCE_BASE_DIR):
+        if os.path.exists(pki.server.PKIServer.BASE_DIR):
+            for f in os.listdir(pki.server.PKIServer.BASE_DIR):
 
                 if not os.path.isdir:
                     continue
