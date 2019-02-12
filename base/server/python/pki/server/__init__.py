@@ -94,25 +94,16 @@ class PKIServer(object):
     SHARE_DIR = '/usr/share/pki'
     REGISTRY_DIR = os.path.join(SYSCONFIG_DIR, 'pki')
 
-    def __init__(self, name, instance_type='tomcat'):
+    def __init__(self,
+                 name,
+                 instance_type='tomcat',
+                 user='tomcat',
+                 group='tomcat'):
 
-        parts = name.split('@')
-
-        if len(parts) == 1:  # parsing <name>
-            self.name = name
-            self.type = instance_type
-
-        else:  # parsing <type>@<name>
-            self.name = parts[1]
-            self.type = parts[0]
-
-        self.base_dir = os.path.join(PKIServer.BASE_DIR, self.name)
-        self.conf_dir = os.path.join(PKIServer.CONFIG_DIR, self.name)
-        self.log_dir = os.path.join(PKIServer.LOG_DIR, self.name)
-
-        self.server_xml = os.path.join(self.conf_dir, 'server.xml')
-
-        self.service_name = '%s@%s' % (self.type, self.name)
+        self.name = name
+        self.type = instance_type
+        self.user = user
+        self.group = group
 
     def __repr__(self):
         return self.name
@@ -129,6 +120,78 @@ class PKIServer(object):
         if not isinstance(other, PKIServer):
             return NotImplemented
         return self.name < other.name
+
+    @property
+    def base_dir(self):
+        return os.path.join(Tomcat.BASE_DIR, self.name)
+
+    @property
+    def bin_dir(self):
+        return os.path.join(self.base_dir, 'bin')
+
+    @property
+    def conf_dir(self):
+        return os.path.join(self.base_dir, 'conf')
+
+    @property
+    def lib_dir(self):
+        return os.path.join(self.base_dir, 'lib')
+
+    @property
+    def log_dir(self):
+        return os.path.join(self.base_dir, 'logs')
+
+    @property
+    def temp_dir(self):
+        return os.path.join(self.base_dir, 'temp')
+
+    @property
+    def webapps_dir(self):
+        return os.path.join(self.base_dir, 'webapps')
+
+    @property
+    def work_dir(self):
+        return os.path.join(self.base_dir, 'work')
+
+    @property
+    def catalina_policy(self):
+        return os.path.join(self.conf_dir, 'catalina.policy')
+
+    @property
+    def catalina_properties(self):
+        return os.path.join(self.conf_dir, 'catalina.properties')
+
+    @property
+    def context_xml(self):
+        return os.path.join(self.conf_dir, 'context.xml')
+
+    @property
+    def server_xml(self):
+        return os.path.join(self.conf_dir, 'server.xml')
+
+    @property
+    def tomcat_conf(self):
+        return os.path.join(self.conf_dir, 'tomcat.conf')
+
+    @property
+    def web_xml(self):
+        return os.path.join(self.conf_dir, 'web.xml')
+
+    @property
+    def service_name(self):
+        return '%s@%s' % (self.type, self.name)
+
+    @property
+    def service_conf(self):
+        return os.path.join(SYSCONFIG_DIR, self.service_name)
+
+    @property
+    def uid(self):
+        return pwd.getpwnam(self.user).pw_uid
+
+    @property
+    def gid(self):
+        return grp.getgrnam(self.group).gr_gid
 
     def is_valid(self):
         return os.path.exists(self.base_dir)
@@ -1249,38 +1312,20 @@ class ServerConfiguration(object):
 @functools.total_ordering
 class PKIInstance(PKIServer):
 
-    def __init__(self, name, instance_type='pki-tomcatd', version=10):  # noqa: N803
+    def __init__(self,
+                 name,
+                 instance_type='pki-tomcatd',
+                 user='pkiuser',
+                 group='pkiuser',
+                 version=10):
 
-        super(PKIInstance, self).__init__(name, instance_type)
+        super(PKIInstance, self).__init__(
+            name, instance_type, user, group)
 
         self.version = version
 
-        if self.version >= 10:
-            self.base_dir = os.path.join(PKIServer.BASE_DIR, self.name)
-        else:
-            self.base_dir = os.path.join(pki.BASE_DIR, self.name)
-
-        self.server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
-        self.banner_file = os.path.join(self.conf_dir, 'banner.txt')
-        self.password_conf = os.path.join(self.conf_dir, 'password.conf')
-        self.external_certs_conf = os.path.join(
-            self.conf_dir, 'external_certs.conf')
-        self.external_certs = []
-
-        self.nssdb_dir = os.path.join(self.base_dir, 'alias')
-        self.lib_dir = os.path.join(self.base_dir, 'lib')
-        self.registry_dir = os.path.join(PKIServer.REGISTRY_DIR, 'tomcat', self.name)
-
-        self.registry_file = os.path.join(self.registry_dir, self.name)
-
-        self.user = None
-        self.group = None
-
-        self.uid = None
-        self.gid = None
-
         self.passwords = {}
-
+        self.external_certs = []
         self.subsystems = []
 
     def __eq__(self, other):
@@ -1303,6 +1348,48 @@ class PKIInstance(PKIServer):
     def __hash__(self):
         return hash((self.name, self.version))
 
+    @property
+    def base_dir(self):
+        if self.version < 10:
+            return os.path.join(pki.BASE_DIR, self.name)
+        return os.path.join(PKIServer.BASE_DIR, self.name)
+
+    @property
+    def conf_dir(self):
+        return os.path.join(PKIServer.CONFIG_DIR, self.name)
+
+    @property
+    def log_dir(self):
+        return os.path.join(PKIServer.LOG_DIR, self.name)
+
+    @property
+    def server_cert_nick_conf(self):
+        return os.path.join(self.conf_dir, 'serverCertNick.conf')
+
+    @property
+    def banner_file(self):
+        return os.path.join(self.conf_dir, 'banner.txt')
+
+    @property
+    def password_conf(self):
+        return os.path.join(self.conf_dir, 'password.conf')
+
+    @property
+    def external_certs_conf(self):
+        return os.path.join(self.conf_dir, 'external_certs.conf')
+
+    @property
+    def nssdb_dir(self):
+        return os.path.join(self.base_dir, 'alias')
+
+    @property
+    def registry_dir(self):
+        return os.path.join(PKIServer.REGISTRY_DIR, 'tomcat', self.name)
+
+    @property
+    def registry_file(self):
+        return os.path.join(self.registry_dir, self.name)
+
     def load(self):
 
         logger.info('Loading instance: %s', self.name)
@@ -1319,12 +1406,10 @@ class PKIInstance(PKIServer):
                 m = re.search('^PKI_USER=(.*)$', line)
                 if m:
                     self.user = m.group(1)
-                    self.uid = pwd.getpwnam(self.user).pw_uid
 
                 m = re.search('^PKI_GROUP=(.*)$', line)
                 if m:
                     self.group = m.group(1)
-                    self.gid = grp.getgrnam(self.group).gr_gid
 
         # load passwords
         self.passwords.clear()
