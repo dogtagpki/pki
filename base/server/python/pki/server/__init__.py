@@ -61,18 +61,25 @@ logger = logging.getLogger(__name__)
 @functools.total_ordering
 class PKIServer(object):
 
-    def __init__(self, name):
+    def __init__(self, name, instance_type='tomcat'):
 
-        self.name = name
+        parts = name.split('@')
 
-        self.base_dir = os.path.join(INSTANCE_BASE_DIR, name)
-        self.conf_dir = os.path.join(CONFIG_BASE_DIR, name)
-        self.log_dir = os.path.join(LOG_BASE_DIR, name)
-        self.registry_dir = os.path.join(REGISTRY_DIR, 'tomcat', self.name)
+        if len(parts) == 1:  # parsing <name>
+            self.name = name
+            self.type = instance_type
+
+        else:  # parsing <type>@<name>
+            self.name = parts[1]
+            self.type = parts[0]
+
+        self.base_dir = os.path.join(INSTANCE_BASE_DIR, self.name)
+        self.conf_dir = os.path.join(CONFIG_BASE_DIR, self.name)
+        self.log_dir = os.path.join(LOG_BASE_DIR, self.name)
 
         self.server_xml = os.path.join(self.conf_dir, 'server.xml')
 
-        self.service_name = 'pki-tomcatd@%s.service' % self.name
+        self.service_name = '%s@%s' % (self.type, self.name)
 
     def __repr__(self):
         return self.name
@@ -95,21 +102,21 @@ class PKIServer(object):
 
     def validate(self):
         if not self.is_valid():
-            raise pki.PKIException('Invalid server: ' + self.name, None)
+            raise pki.PKIException('Invalid instance: ' + self.name, None)
 
     def is_active(self):
-        cmd = ['systemctl', '--quiet', 'is-active', self.service_name]
+        cmd = ['systemctl', '--quiet', 'is-active', '%s.service' % self.service_name]
         logger.debug('Command: %s', ' '.join(cmd))
         rc = subprocess.call(cmd)
         return rc == 0
 
     def start(self):
-        cmd = ['systemctl', 'start', self.service_name]
+        cmd = ['systemctl', 'start', '%s.service' % self.service_name]
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
     def stop(self):
-        cmd = ['systemctl', 'stop', self.service_name]
+        cmd = ['systemctl', 'stop', '%s.service' % self.service_name]
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
@@ -1214,16 +1221,16 @@ class ServerConfiguration(object):
 @functools.total_ordering
 class PKIInstance(PKIServer):
 
-    def __init__(self, name, version=10):  # noqa: N803
+    def __init__(self, name, instance_type='pki-tomcatd', version=10):  # noqa: N803
 
-        super(PKIInstance, self).__init__(name)
+        super(PKIInstance, self).__init__(name, instance_type)
 
         self.version = version
 
         if self.version >= 10:
-            self.base_dir = os.path.join(INSTANCE_BASE_DIR, name)
+            self.base_dir = os.path.join(INSTANCE_BASE_DIR, self.name)
         else:
-            self.base_dir = os.path.join(pki.BASE_DIR, name)
+            self.base_dir = os.path.join(pki.BASE_DIR, self.name)
 
         self.server_cert_nick_conf = os.path.join(self.conf_dir, 'serverCertNick.conf')
         self.banner_file = os.path.join(self.conf_dir, 'banner.txt')
@@ -1234,6 +1241,7 @@ class PKIInstance(PKIServer):
 
         self.nssdb_dir = os.path.join(self.base_dir, 'alias')
         self.lib_dir = os.path.join(self.base_dir, 'lib')
+        self.registry_dir = os.path.join(REGISTRY_DIR, 'tomcat', self.name)
 
         self.registry_file = os.path.join(self.registry_dir, self.name)
 

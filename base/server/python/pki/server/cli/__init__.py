@@ -118,18 +118,18 @@ class PKIServerCLI(pki.cli.CLI):
         super(PKIServerCLI, self).execute(args)
 
     @staticmethod
-    def print_status(server):
-        print('  Server ID: %s' % server.name)
-        print('  Active: %s' % server.is_active())
+    def print_status(instance):
+        print('  Instance ID: %s' % instance.name)
+        print('  Active: %s' % instance.is_active())
 
 
 class StatusCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(StatusCLI, self).__init__('status', 'Display server status')
+        super(StatusCLI, self).__init__('status', 'Display instance status')
 
     def print_help(self):
-        print('Usage: pki-server status [OPTIONS] [<server ID>]')
+        print('Usage: pki-server status [OPTIONS] [<instance ID>]')
         print()
         print('  -v, --verbose                 Run in verbose mode.')
         print('      --debug                   Run in debug mode.')
@@ -149,7 +149,7 @@ class StatusCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        server_name = 'pki-tomcat'
+        instance_name = 'pki-tomcat'
 
         for o, _ in opts:
             if o in ('-v', '--verbose'):
@@ -168,24 +168,24 @@ class StatusCLI(pki.cli.CLI):
                 sys.exit(1)
 
         if len(args) > 0:
-            server_name = args[0]
+            instance_name = args[0]
 
-        server = pki.server.PKIServer(server_name)
+        instance = pki.server.PKIInstance(instance_name)
 
-        if not server.is_valid():
-            print('ERROR: Invalid server: %s' % server_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance: %s' % instance_name)
             sys.exit(1)
 
-        PKIServerCLI.print_status(server)
+        PKIServerCLI.print_status(instance)
 
 
 class StartCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(StartCLI, self).__init__('start', 'Start server')
+        super(StartCLI, self).__init__('start', 'Start instance')
 
     def print_help(self):
-        print('Usage: pki-server start [OPTIONS] [<server ID>]')
+        print('Usage: pki-server start [OPTIONS] [<instance ID>]')
         print()
         print('  -v, --verbose                 Run in verbose mode.')
         print('      --debug                   Run in debug mode.')
@@ -205,7 +205,7 @@ class StartCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        server_name = 'pki-tomcat'
+        instance_name = 'pki-tomcat'
 
         for o, _ in opts:
             if o in ('-v', '--verbose'):
@@ -224,28 +224,28 @@ class StartCLI(pki.cli.CLI):
                 sys.exit(1)
 
         if len(args) > 0:
-            server_name = args[0]
+            instance_name = args[0]
 
-        server = pki.server.PKIServer(server_name)
+        instance = pki.server.PKIInstance(instance_name)
 
-        if not server.is_valid():
-            print('ERROR: Invalid server: %s' % server_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance: %s' % instance_name)
             sys.exit(1)
 
-        if server.is_active():
-            self.print_message('Server already started')
+        if instance.is_active():
+            self.print_message('Instance already started')
             return
 
-        server.start()
+        instance.start()
 
 
 class StopCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(StopCLI, self).__init__('stop', 'Stop server')
+        super(StopCLI, self).__init__('stop', 'Stop instance')
 
     def print_help(self):
-        print('Usage: pki-server stop [OPTIONS] [<server ID>]')
+        print('Usage: pki-server stop [OPTIONS] [<instance ID>]')
         print()
         print('  -v, --verbose                 Run in verbose mode.')
         print('      --debug                   Run in debug mode.')
@@ -265,7 +265,7 @@ class StopCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
-        server_name = 'pki-tomcat'
+        instance_name = 'pki-tomcat'
 
         for o, _ in opts:
             if o in ('-v', '--verbose'):
@@ -284,16 +284,16 @@ class StopCLI(pki.cli.CLI):
                 sys.exit(1)
 
         if len(args) > 0:
-            server_name = args[0]
+            instance_name = args[0]
 
-        server = pki.server.PKIServer(server_name)
+        instance = pki.server.PKIInstance(instance_name)
 
-        if not server.is_valid():
-            print('ERROR: Invalid server: %s' % server_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance: %s' % instance_name)
             sys.exit(1)
 
-        if not server.is_active():
-            self.print_message('Server already stopped')
+        if not instance.is_active():
+            self.print_message('Instance already stopped')
             return
 
-        server.stop()
+        instance.stop()
