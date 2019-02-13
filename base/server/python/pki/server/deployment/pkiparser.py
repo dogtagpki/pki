@@ -666,8 +666,9 @@ class PKIConfigParser:
         if not token:
             token = self.mdict.get('pki_token_name')
 
-        # normalize token name
-        token = pki.nssdb.normalize_token(token)
+        # DO NOT normalise the token name here, to avoid re-interpreting
+        # the internal token as the default token.  The token name must
+        # be conveyed to the Java SystemConfigService as-is.
 
         # update cert token
         self.mdict[name] = token
