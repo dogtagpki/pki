@@ -1907,3 +1907,37 @@ class PKISubsystemFactory(object):
             return CASubsystem(instance)
 
         return PKISubsystem(instance, name)
+
+
+class PKIServerFactory(object):
+
+    @classmethod
+    def create(cls, name):
+        '''
+        This method creates PKIServer object based on the
+        optional service type specified in the service name.
+        The default type is 'pki-tomcatd'.
+
+        :param name: Server name in this format: [<type>@]<name>[.service]
+        '''
+
+        if name.endswith('.service'):
+            name = name[0:-8]
+
+        parts = name.split('@')
+
+        if len(parts) == 1:  # no type
+            instance_type = 'pki-tomcatd'
+            instance_name = name
+
+        else:  # with type
+            instance_type = parts[0]
+            instance_name = parts[1]
+
+        if instance_type == 'tomcat':
+            return PKIServer(instance_name)
+
+        if instance_type == 'pki-tomcatd':
+            return PKIInstance(instance_name)
+
+        raise Exception('Unsupported instance type: %s' % instance_type)

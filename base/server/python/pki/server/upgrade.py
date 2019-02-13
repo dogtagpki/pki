@@ -208,7 +208,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                             os.path.join(pki.server.PKIServer.REGISTRY_DIR, s)):
                         if not self.instanceName or \
                                 self.instanceName == instanceName:
-                            instance = pki.server.PKIInstance(instanceName, 9)
+                            instance = pki.server.PKIInstance(instanceName, version=9)
                             instance.validate()
                             instance.load()
                             instance_list.append(instance)
