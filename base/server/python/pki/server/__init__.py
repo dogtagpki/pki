@@ -49,7 +49,6 @@ SYSCONFIG_DIR = '/etc/sysconfig'
 SYSTEMD_DIR = '/lib/systemd'
 
 SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
-SUBSYSTEM_CLASSES = {}
 
 SELFTEST_CRITICAL = 'critical'
 
@@ -1201,10 +1200,6 @@ class CASubsystem(PKISubsystem):
         return request
 
 
-# register CASubsystem
-SUBSYSTEM_CLASSES['ca'] = CASubsystem
-
-
 class ExternalCert(object):
 
     def __init__(self, nickname=None, token=None):
@@ -1343,10 +1338,7 @@ class PKIInstance(PKIServer):
         if os.path.exists(self.registry_dir):
             for subsystem_name in os.listdir(self.registry_dir):
                 if subsystem_name in SUBSYSTEM_TYPES:
-                    if subsystem_name in SUBSYSTEM_CLASSES:
-                        subsystem = SUBSYSTEM_CLASSES[subsystem_name](self)
-                    else:
-                        subsystem = PKISubsystem(self, subsystem_name)
+                    subsystem = PKISubsystemFactory.create(self, subsystem_name)
                     subsystem.load()
                     self.subsystems.append(subsystem)
 
@@ -1904,3 +1896,14 @@ class PKIServerException(pki.PKIException):
 
         self.instance = instance
         self.subsystem = subsystem
+
+
+class PKISubsystemFactory(object):
+
+    @classmethod
+    def create(cls, instance, name):
+
+        if name == 'ca':
+            return CASubsystem(instance)
+
+        return PKISubsystem(instance, name)
