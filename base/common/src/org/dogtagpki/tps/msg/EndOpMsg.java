@@ -58,7 +58,7 @@ public class EndOpMsg extends TPSMessage {
         STATUS_ERROR_INACTIVE_TOKEN_NOT_FOUND,
         STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN,
         STATUS_ERROR_TOKEN_TERMINATED,
-        STATUS_ERROR_RECOVERY_IS_PROCESSED,
+        STATUS_RECOVERY_IS_PROCESSED,
         STATUS_ERROR_RECOVERY_FAILED,
         STATUS_ERROR_NO_OPERATION_ON_LOST_TOKEN,
         STATUS_ERROR_KEY_ARCHIVE_OFF,
@@ -66,7 +66,7 @@ public class EndOpMsg extends TPSMessage {
         STATUS_ERROR_UPDATE_TOKENDB_FAILED,
         STATUS_ERROR_REVOKE_CERTIFICATES_FAILED,
         STATUS_ERROR_NOT_TOKEN_OWNER,
-        STATUS_ERROR_RENEWAL_IS_PROCESSED,
+        STATUS_RENEWAL_IS_PROCESSED,
         STATUS_ERROR_RENEWAL_FAILED,
         STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION
     };
@@ -196,7 +196,7 @@ public class EndOpMsg extends TPSMessage {
         case STATUS_ERROR_TOKEN_TERMINATED:
             result = 35;
             break;
-        case STATUS_ERROR_RECOVERY_IS_PROCESSED:
+        case STATUS_RECOVERY_IS_PROCESSED:
             result = 36;
             break;
         case STATUS_ERROR_RECOVERY_FAILED:
@@ -221,7 +221,7 @@ public class EndOpMsg extends TPSMessage {
         case STATUS_ERROR_NOT_TOKEN_OWNER:
             result = 43;
             break;
-        case STATUS_ERROR_RENEWAL_IS_PROCESSED:
+        case STATUS_RENEWAL_IS_PROCESSED:
             result = 44;
             break;
         case STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION:

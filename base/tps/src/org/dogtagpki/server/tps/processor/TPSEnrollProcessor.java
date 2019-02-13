@@ -443,11 +443,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String statusString = "Unknown"; // gives some meaningful debug message
         if (status == TPSStatus.STATUS_NO_ERROR)
             statusString = "Enrollment to follow";
-        else if (status == TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED) {
+        else if (status == TPSStatus.STATUS_RECOVERY_IS_PROCESSED) {
             statusString = "Recovery processed";
             recovered = true;
             tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(), logMsg, "success");
-        } else if (status == TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED) {
+        } else if (status == TPSStatus.STATUS_RENEWAL_IS_PROCESSED) {
             statusString = "Renewal processed";
             renewed = true;
             tps.tdb.tdbActivity(ActivityDatabase.OP_RENEWAL, tokenRecord, session.getIpAddress(), logMsg, "success");
@@ -491,7 +491,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         TPSStatus recoverStatus = externalRegRecover(cuid, userid, channel, certsInfo, appletInfo,
                                 tokenRecord);
                         CMS.debug(method + " after externalRegRecover status is:" + recoverStatus);
-                        if (recoverStatus == TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED) {
+                        if (recoverStatus == TPSStatus.STATUS_RECOVERY_IS_PROCESSED) {
                             recovered = true;
                             logMsg = method + " externalRegRecover returned: recoverStatus=" + recoverStatus;
                             tps.tdb.tdbActivity(ActivityDatabase.OP_RECOVERY, tokenRecord, session.getIpAddress(),
@@ -523,7 +523,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
         // at this point, enrollment, renewal, or recovery have been processed accordingly;
         if (!isExternalReg &&
-                status == TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED &&
+                status == TPSStatus.STATUS_RENEWAL_IS_PROCESSED &&
                 tokenPolicy.isAllowdTokenRenew(cuid)) {
             renewed = true;
             CMS.debug(method + " renewal happened.. ");
@@ -621,7 +621,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
         tps.tdb.tdbAddCertificatesForCUID(tokenRecord.getId(), certRecords);
         CMS.debug(method + " tokendb updated with certs to the cuid so that it reflects what's on the token");
 
-        logMsg = "appletVersion=" + lastObjVer + "; tokenType =" + selectedTokenType + "; userid =" + userid;
+        String finalAppletVersion = appletInfo.getFinalAppletVersion();
+        if(finalAppletVersion == null)
+            finalAppletVersion = "(null)";
+
+        logMsg = "appletVersion=" + finalAppletVersion + "; tokenType=" + selectedTokenType + "; userid=" + userid;
         CMS.debug(method + logMsg);
         try {
             tokenRecord.setTokenStatus(TokenStatus.ACTIVE);
@@ -1274,7 +1278,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String logMsg;
         String auditInfo;
         CMS.debug(method + "begins");
-        TPSStatus status = TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED;
+        TPSStatus status = TPSStatus.STATUS_RECOVERY_IS_PROCESSED;
         if (session == null || session.getExternalRegAttrs() == null ||
                 session.getExternalRegAttrs().getCertsToRecover() == null) {
             CMS.debug(method + "nothing to recover...");
@@ -1618,12 +1622,12 @@ public class TPSEnrollProcessor extends TPSProcessor {
                         if (numActuallyRenewed == keyTypeNum) {
                             CMS.debug(method
                                     + " We have already renewed the proper number of certs, bailing from loop.");
-                            status = TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED;
+                            status = TPSStatus.STATUS_RENEWAL_IS_PROCESSED;
                             break;
                         }
 
                         //renewCertificate(cert, certsInfo, channel, aInfo, keyType);
-                        status = TPSStatus.STATUS_ERROR_RENEWAL_IS_PROCESSED;
+                        status = TPSStatus.STATUS_RENEWAL_IS_PROCESSED;
                     } catch (TPSException e) {
                         CMS.debug(method + "renewCertificate: exception:" + e);
                         noFailedCerts = false;
@@ -1876,7 +1880,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             AppletInfo aInfo) throws TPSException, IOException {
         String method = "TPSEnrollProcessor.processRecover";
         String logMsg;
-        TPSStatus status = TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED;
+        TPSStatus status = TPSStatus.STATUS_RECOVERY_IS_PROCESSED;
 
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         IConfigStore configStore = CMS.getConfigStore();
@@ -2412,6 +2416,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         }
 
+        TPSSubsystem tps = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
         TPSBuffer public_key_blob = null;
         KRAServerSideKeyGenResponse ssKeyGenResponse = null;
         KRARecoverKeyResponse keyResp = null;
@@ -2824,7 +2829,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
             //Add origin, special handling for recovery case.
             if (isRecovery == true) {
                 CMS.debug("TPSEnrollProcessor.enrollOneCertificate: about to find origiinal cert record");
-                TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
                 TPSCertRecord origCertRec = tps.getTokendb().tdbGetOrigCertRecord(x509Cert);
                 if (origCertRec != null) {
                     CMS.debug("TPSEnrollProcessor.enrollOneCertificate: token origin found");
@@ -2979,6 +2983,11 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
 
         CMS.debug("TPSEnrollProcessor.enrollOneCertificate:: enrollment ends");
+
+        if(x509Cert != null && x509Cert.getSerialNumber() != null) {
+            tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, session.getTokenRecord(), session.getIpAddress(),
+                    "certificate " + x509Cert.getSerialNumber().toString(16) + " stored on token", "success");
+        }
 
         statusUpdate(cEnrollInfo.getEndProgressValue(), "PROGRESS_ENROLL_CERT");
         CMS.debug("TPSEnrollProcessor.enrollOneCertificate ends");
