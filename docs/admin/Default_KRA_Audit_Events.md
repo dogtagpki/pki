@@ -9,7 +9,6 @@ The following audit events are enabled by default in KRA subsystem:
 | ACCESS_SESSION_TERMINATED                   |                   |
 | ASYMKEY_GENERATION_REQUEST                  | (Outcome=Failure) |
 | ASYMKEY_GENERATION_REQUEST_PROCESSED        | (Outcome=Failure) |
-| AUDIT_LOG_SHUTDOWN                          |                   |
 | AUDIT_LOG_SIGNING                           |                   |
 | AUDIT_LOG_STARTUP                           |                   |
 | AUTH                                        |                   |
@@ -28,6 +27,7 @@ The following audit events are enabled by default in KRA subsystem:
 | LOG_PATH_CHANGE                             |                   |
 | RANDOM_GENERATION                           | (Outcome=Failure) |
 | ROLE_ASSUME                                 |                   |
+| SCHEDULE_CRL_GENERATION                     |                   |
 | SECURITY_DATA_ARCHIVAL_REQUEST              | (Outcome=Failure) |
 | SECURITY_DATA_ARCHIVAL_REQUEST_PROCESSED    | (Outcome=Failure) |
 | SECURITY_DATA_RECOVERY_REQUEST              | (Outcome=Failure) |
