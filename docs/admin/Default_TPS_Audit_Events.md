@@ -7,7 +7,6 @@ The following audit events are enabled by default in TPS subsystem:
 | ------------------------------------------- | ----------------- |
 | ACCESS_SESSION_ESTABLISH                    |                   |
 | ACCESS_SESSION_TERMINATED                   |                   |
-| AUDIT_LOG_SHUTDOWN                          |                   |
 | AUDIT_LOG_SIGNING                           |                   |
 | AUDIT_LOG_STARTUP                           |                   |
 | AUTH                                        |                   |
@@ -28,6 +27,7 @@ The following audit events are enabled by default in TPS subsystem:
 | LOG_PATH_CHANGE                             |                   |
 | RANDOM_GENERATION                           | (Outcome=Failure) |
 | ROLE_ASSUME                                 |                   |
+| SCHEDULE_CRL_GENERATION                     |                   |
 | SELFTESTS_EXECUTION                         |                   |
 | SERVER_SIDE_KEYGEN_REQUEST                  |                   |
 | SERVER_SIDE_KEYGEN_REQUEST_PROCESSED        |                   |

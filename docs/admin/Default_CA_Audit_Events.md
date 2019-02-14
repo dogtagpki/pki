@@ -7,7 +7,6 @@ The following audit events are enabled by default in CA subsystem:
 | ------------------------------------------- | ----------------- |
 | ACCESS_SESSION_ESTABLISH                    |                   |
 | ACCESS_SESSION_TERMINATED                   |                   |
-| AUDIT_LOG_SHUTDOWN                          |                   |
 | AUDIT_LOG_SIGNING                           |                   |
 | AUDIT_LOG_STARTUP                           |                   |
 | AUTH                                        |                   |
@@ -44,7 +43,7 @@ The following audit events are enabled by default in CA subsystem:
 | PROOF_OF_POSSESSION                         |                   |
 | RANDOM_GENERATION                           | (Outcome=Failure) |
 | ROLE_ASSUME                                 |                   |
-| SECURITY_DATA_ARCHIVAL_REQUEST              |                   |
+| SCHEDULE_CRL_GENERATION                     |                   |
 | SECURITY_DOMAIN_UPDATE                      |                   |
 | SELFTESTS_EXECUTION                         |                   |
 | SERVER_SIDE_KEYGEN_REQUEST                  |                   |
