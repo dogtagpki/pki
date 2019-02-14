@@ -870,7 +870,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * <P>
      *
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUDIT_LOG_SHUTDOWN used at audit function shutdown
+     * <li>signed.audit AUDIT_LOG_SHUTDOWN used at audit function shutdown
      * </ul>
      */
     public synchronized void shutdown() {
