@@ -25,6 +25,7 @@ Module containing utility functions and classes for the Dogtag python code
 
 from __future__ import absolute_import
 import functools
+import logging
 import os
 import re
 import shutil
@@ -43,7 +44,29 @@ DEFAULT_PKI_ENV_LIST = [
 ]
 
 
-def copy(source, dest):
+def makedirs(path, force=False):
+
+    logging.debug('Command: mkdir -p %s', path)
+
+    if force and os.path.exists(path):
+        logging.warning('Directory already exists: %s', path)
+        return
+
+    os.makedirs(path)
+
+
+def symlink(source, dest, force=False):
+
+    logging.debug('Command: ln -s %s %s', source, dest)
+
+    if force and os.path.exists(dest):
+        logging.warning('Link already exists: %s', dest)
+        return
+
+    os.symlink(source, dest)
+
+
+def copy(source, dest, force=False):
     """
     Copy a file or a folder and its contents.
     """
@@ -57,10 +80,11 @@ def copy(source, dest):
     sourceparent = os.path.dirname(source)
     destparent = os.path.dirname(dest)
 
-    copydirs(sourceparent, destparent)
+    if not os.path.exists(destparent):
+        copydirs(sourceparent, destparent, force)
 
     if os.path.isfile(source):
-        copyfile(source, dest)
+        copyfile(source, dest, force)
 
     else:
         for sourcepath, _, filenames in os.walk(source):
@@ -70,12 +94,12 @@ def copy(source, dest):
             if destpath == '':
                 destpath = '/'
 
-            copydirs(sourcepath, destpath)
+            copydirs(sourcepath, destpath, force)
 
             for filename in filenames:
                 sourcefile = os.path.join(sourcepath, filename)
                 targetfile = os.path.join(destpath, filename)
-                copyfile(sourcefile, targetfile)
+                copyfile(sourcefile, targetfile, force)
 
 
 def copyfile(source, dest, overwrite=True):
@@ -83,9 +107,14 @@ def copyfile(source, dest, overwrite=True):
     Copy a file or link while preserving its attributes.
     """
 
+    logging.debug('Command: cp %s %s', source, dest)
+
     # if dest already exists and not overwriting, do nothing
-    if os.path.exists(dest) and not overwrite:
-        return
+    if os.path.exists(dest):
+        logging.warning('File already exists: %s', dest)
+
+        if not overwrite:
+            return
 
     if os.path.islink(source):
         target = os.readlink(source)
@@ -103,19 +132,22 @@ def copyfile(source, dest, overwrite=True):
         os.chown(dest, stat.st_uid, stat.st_gid)
 
 
-def copydirs(source, dest):
+def copydirs(source, dest, force=False):
     """
     Copy a folder and its parents while preserving their attributes.
     """
-
-    if os.path.exists(dest):
-        return
 
     destparent = os.path.dirname(dest)
 
     if not os.path.exists(destparent):
         sourceparent = os.path.dirname(source)
-        copydirs(sourceparent, destparent)
+        copydirs(sourceparent, destparent, force)
+
+    logging.debug('Command: mkdir %s', dest)
+
+    if force and os.path.exists(dest):
+        logging.warning('Directory already exists: %s', dest)
+        return
 
     os.mkdir(dest)
 
@@ -127,26 +159,25 @@ def copydirs(source, dest):
 
 def chown(path, uid, gid):
     """
-    Change ownership of a file or folder recursively.
+    Change ownership of a file, link, or folder recursively.
     """
 
-    os.chown(path, uid, gid)
+    if os.path.islink(path):
+        os.lchown(path, uid, gid)
+    else:
+        os.chown(path, uid, gid)
 
     if not os.path.isdir(path):
         return
 
     for item in os.listdir(path):
         itempath = os.path.join(path, item)
-
-        if os.path.isfile(itempath):
-            os.chown(itempath, uid, gid)
-        elif os.path.isdir(itempath):
-            chown(itempath, uid, gid)
+        chown(itempath, uid, gid)
 
 
 def chmod(path, perms):
     """
-    Change permissions of a file or folder recursively.
+    Change permissions of a file, link, or folder recursively.
     """
 
     os.chmod(path, perms)
@@ -156,11 +187,40 @@ def chmod(path, perms):
 
     for item in os.listdir(path):
         itempath = os.path.join(path, item)
+        chmod(itempath, perms)
 
-        if os.path.isfile(itempath):
-            os.chmod(itempath, perms)
-        elif os.path.isdir(itempath):
-            chmod(itempath, perms)
+
+def remove(path, force=False):
+
+    logging.debug('Command: rm -rf %s', path)
+
+    if force and not os.path.exists(path):
+        logging.warning('File not found: %s', path)
+        return
+
+    os.remove(path)
+
+
+def rmtree(path, force=False):
+
+    logging.debug('Command: rm -rf %s', path)
+
+    if force and not os.path.exists(path):
+        logging.warning('Directory not found: %s', path)
+        return
+
+    shutil.rmtree(path)
+
+
+def unlink(link, force=False):
+
+    logging.debug('Command: rm -rf %s', link)
+
+    if force and not os.path.islink(link):
+        logging.warning('Link not found: %s', link)
+        return
+
+    os.unlink(link)
 
 
 def customize_file(input_file, output_file, params):
