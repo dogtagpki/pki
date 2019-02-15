@@ -52,6 +52,9 @@ class PKIServerCLI(pki.cli.CLI):
             'pki-server',
             'PKI server command-line interface')
 
+        self.add_module(pki.server.cli.CreateCLI())
+        self.add_module(pki.server.cli.RemoveCLI())
+
         self.add_module(pki.server.cli.StatusCLI())
         self.add_module(pki.server.cli.StartCLI())
         self.add_module(pki.server.cli.StopCLI())
@@ -121,6 +124,130 @@ class PKIServerCLI(pki.cli.CLI):
     def print_status(instance):
         print('  Instance ID: %s' % instance.name)
         print('  Active: %s' % instance.is_active())
+
+
+class CreateCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(CreateCLI, self).__init__('create', 'Create instance')
+
+    def print_help(self):
+        print('Usage: pki-server create [OPTIONS] [<instance ID>]')
+        print()
+        print('      --force                   Force creation.')
+        print('  -v, --verbose                 Run in verbose mode.')
+        print('      --debug                   Run in debug mode.')
+        print('      --help                    Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'v', [
+                'force',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        force = False
+
+        for o, _ in opts:
+            if o == '--force':
+                force = True
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) > 0:
+            instance_name = args[0]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not force and instance.is_valid():
+            print('ERROR: Instance already exists: %s' % instance_name)
+            sys.exit(1)
+
+        instance.create(force)
+
+
+class RemoveCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(RemoveCLI, self).__init__('remove', 'Remove instance')
+
+    def print_help(self):
+        print('Usage: pki-server remove [OPTIONS] [<instance ID>]')
+        print()
+        print('      --force                   Force removal.')
+        print('  -v, --verbose                 Run in verbose mode.')
+        print('      --debug                   Run in debug mode.')
+        print('      --help                    Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'v', [
+                'force',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        force = False
+
+        for o, _ in opts:
+            if o == '--force':
+                force = True
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) > 0:
+            instance_name = args[0]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not force and not instance.is_valid():
+            print('ERROR: Invalid instance: %s' % instance_name)
+            sys.exit(1)
+
+        instance.remove(force)
 
 
 class StatusCLI(pki.cli.CLI):
