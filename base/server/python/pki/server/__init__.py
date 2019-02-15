@@ -216,6 +216,98 @@ class PKIServer(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
+    def create(self, force=False):
+
+        logger.info('Creating instance: %s', self.service_name)
+
+        self.install_files(force)
+        self.update_attributes()
+
+    def install_files(self, force=False):
+
+        pki.util.makedirs(self.base_dir, force)
+
+        bin_dir = os.path.join(Tomcat.SHARE_DIR, 'bin')
+        pki.util.symlink(bin_dir, self.bin_dir, force)
+
+        pki.util.makedirs(self.conf_dir, force)
+
+        catalina_policy = os.path.join(Tomcat.CONF_DIR, 'catalina.policy')
+        pki.util.copy(catalina_policy, self.catalina_policy, force)
+
+        catalina_properties = os.path.join(Tomcat.CONF_DIR, 'catalina.properties')
+        pki.util.copy(catalina_properties, self.catalina_properties, force)
+
+        context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
+        pki.util.copy(context_xml, self.context_xml, force)
+
+        server_xml = os.path.join(Tomcat.CONF_DIR, 'server.xml')
+        pki.util.copy(server_xml, self.server_xml, force)
+
+        tomcat_conf = os.path.join(Tomcat.CONF_DIR, 'tomcat_conf')
+        pki.util.copy(tomcat_conf, self.tomcat_conf, force)
+
+        tomcat_users_xml = os.path.join(Tomcat.CONF_DIR, 'tomcat-users.xml')
+        tomcat_users_xml_link = os.path.join(self.conf_dir, 'tomcat-users.xml')
+        pki.util.copy(tomcat_users_xml, tomcat_users_xml_link, force)
+
+        tomcat_users_xsd = os.path.join(Tomcat.CONF_DIR, 'tomcat-users.xsd')
+        tomcat_users_xsd_link = os.path.join(self.conf_dir, 'tomcat-users.xsd')
+        pki.util.copy(tomcat_users_xsd, tomcat_users_xsd_link, force)
+
+        web_xml = os.path.join(Tomcat.CONF_DIR, 'web.xml')
+        pki.util.copy(web_xml, self.web_xml, force)
+
+        conf_d_dir = os.path.join(self.conf_dir, 'conf.d')
+        pki.util.makedirs(conf_d_dir, force)
+
+        pki.util.makedirs(self.lib_dir, force)
+
+        for filename in os.listdir(Tomcat.LIB_DIR):
+
+            source = os.path.join(Tomcat.LIB_DIR, filename)
+            dest = os.path.join(self.lib_dir, filename)
+            pki.util.symlink(source, dest, force)
+
+        pki.util.makedirs(self.temp_dir, force)
+        pki.util.makedirs(self.webapps_dir, force)
+        pki.util.makedirs(self.work_dir, force)
+        pki.util.makedirs(self.log_dir, force)
+
+        document = etree.parse(self.server_xml, parser)
+        server = document.getroot()
+
+        for engine in server.findall('Service/Engine'):
+            engine_name = engine.get('name')
+            engine_dir = os.path.join(self.conf_dir, engine_name)
+            pki.util.makedirs(engine_dir, force)
+
+            for host in engine.findall('Host'):
+                host_name = host.get('name')
+                host_dir = os.path.join(engine_dir, host_name)
+                pki.util.makedirs(host_dir, force)
+
+        service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
+        pki.util.copy(service_conf, self.service_conf, force)
+
+    def update_attributes(self):
+
+        pki.util.chown(self.base_dir, self.uid, self.gid)
+
+    def remove(self, force=False):
+
+        logger.info('Removing instance: %s', self.name)
+
+        pki.util.remove(self.service_conf, force)
+        pki.util.rmtree(self.log_dir, force)
+        pki.util.rmtree(self.work_dir, force)
+        pki.util.rmtree(self.webapps_dir, force)
+        pki.util.rmtree(self.temp_dir, force)
+        pki.util.rmtree(self.lib_dir, force)
+        pki.util.rmtree(self.conf_dir, force)
+        pki.util.unlink(self.bin_dir, force)
+        pki.util.rmtree(self.base_dir, force)
+
     @classmethod
     def instances(cls):
 
