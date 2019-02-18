@@ -221,6 +221,18 @@ class NSSDatabase(object):
 
         self.passwords = passwords
 
+    def create(self):
+
+        cmd = [
+            'certutil',
+            '-N',
+            '-d', self.directory,
+            '-f', self.internal_password_file
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
     def close(self):
         shutil.rmtree(self.tmpdir)
 

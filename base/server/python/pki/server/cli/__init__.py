@@ -36,6 +36,7 @@ import pki.server.cli.http
 import pki.server.cli.instance
 import pki.server.cli.kra
 import pki.server.cli.migrate
+import pki.server.cli.nss
 import pki.server.cli.nuxwdog
 import pki.server.cli.ocsp
 import pki.server.cli.selftest
@@ -58,6 +59,8 @@ class PKIServerCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.StatusCLI())
         self.add_module(pki.server.cli.StartCLI())
         self.add_module(pki.server.cli.StopCLI())
+
+        self.add_module(pki.server.cli.nss.NSSCLI())
 
         self.add_module(pki.server.cli.ca.CACLI())
         self.add_module(pki.server.cli.kra.KRACLI())

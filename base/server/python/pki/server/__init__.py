@@ -193,6 +193,10 @@ class PKIServer(object):
     def gid(self):
         return grp.getgrnam(self.group).gr_gid
 
+    @property
+    def nssdb_dir(self):
+        return os.path.join(self.base_dir, 'alias')
+
     def is_valid(self):
         return os.path.exists(self.base_dir)
 
@@ -290,6 +294,24 @@ class PKIServer(object):
         service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
         self.copy(service_conf, self.service_conf, force=force)
 
+    def create_nssdb(self,
+                     password=None,
+                     password_file=None,
+                     force=False):
+
+        logger.info('Creating NSS database: %s', self.nssdb_dir)
+
+        self.makedirs(self.nssdb_dir, force)
+
+        nssdb = pki.nssdb.NSSDatabase(
+            directory=self.nssdb_dir,
+            password=password,
+            password_file=password_file)
+
+        nssdb.create()
+
+        pki.util.chown(self.nssdb_dir, self.uid, self.gid)
+
     def remove(self, force=False):
 
         logger.info('Removing instance: %s', self.name)
@@ -303,6 +325,10 @@ class PKIServer(object):
         pki.util.rmtree(self.conf_dir, force=force)
         pki.util.unlink(self.bin_dir, force=force)
         pki.util.rmtree(self.base_dir, force=force)
+
+    def remove_nssdb(self, force=False):
+
+        pki.util.rmtree(self.nssdb_dir, force=force)
 
     def load(self):
 
@@ -1567,10 +1593,6 @@ class PKIInstance(PKIServer):
     @property
     def external_certs_conf(self):
         return os.path.join(self.conf_dir, 'external_certs.conf')
-
-    @property
-    def nssdb_dir(self):
-        return os.path.join(self.base_dir, 'alias')
 
     @property
     def registry_dir(self):
