@@ -304,6 +304,15 @@ class PKIServer(object):
         pki.util.unlink(self.bin_dir, force=force)
         pki.util.rmtree(self.base_dir, force=force)
 
+    def load(self):
+
+        logger.info('Loading instance: %s', self.name)
+
+    def get_server_config(self):
+        server_config = ServerConfiguration(self.server_xml)
+        server_config.load()
+        return server_config
+
     @classmethod
     def instances(cls):
 
@@ -1480,7 +1489,7 @@ class PKIInstance(PKIServer):
 
     def load(self):
 
-        logger.info('Loading instance: %s', self.name)
+        super(PKIInstance, self).load()
 
         # load UID and GID
         if os.path.exists(self.registry_file):
@@ -1671,11 +1680,6 @@ class PKIInstance(PKIServer):
 
             finally:
                 shutil.rmtree(tmpdir)
-
-    def get_server_config(self):
-        server_config = ServerConfiguration(self.server_xml)
-        server_config.load()
-        return server_config
 
     def get_sslserver_cert_nickname(self):
         with open(self.server_cert_nick_conf) as f:

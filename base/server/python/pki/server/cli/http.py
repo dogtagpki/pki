@@ -46,8 +46,8 @@ class HTTPConnectorCLI(pki.cli.CLI):
             'connector', 'HTTP connector management commands')
 
         self.add_module(HTTPConnectorFindCLI())
-        self.add_module(HTTPConnectorShowCLI())
         self.add_module(HTTPConnectorModCLI())
+        self.add_module(HTTPConnectorShowCLI())
 
         self.add_module(SSLHostCLI())
 
@@ -107,15 +107,18 @@ class HTTPConnectorFindCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
     def execute(self, argv):
 
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -129,7 +132,10 @@ class HTTPConnectorFindCLI(pki.cli.CLI):
                 instance_name = a
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
@@ -140,7 +146,7 @@ class HTTPConnectorFindCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
             print('ERROR: Invalid instance: %s' % instance_name)
@@ -175,15 +181,18 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
     def execute(self, argv):
 
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -197,7 +206,10 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
                 instance_name = a
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
@@ -215,7 +227,7 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
 
         name = args[0]
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
             print('ERROR: Invalid instance: %s' % instance_name)
@@ -250,10 +262,13 @@ class HTTPConnectorModCLI(pki.cli.CLI):
         print('      --keystore-password-file <file>       Key store password file.')
         print('      --server-cert-nickname-file <file>    Server certificate nickname file.')
         print('  -v, --verbose                             Run in verbose mode.')
+        print('      --debug                               Run in debug mode.')
         print('      --help                                Show help message.')
         print()
 
     def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -261,7 +276,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
                 'nss-database-dir=', 'nss-password-file=',
                 'keystore-file=', 'keystore-password-file=',
                 'server-cert-nickname-file=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -299,7 +314,10 @@ class HTTPConnectorModCLI(pki.cli.CLI):
                 server_cert_nickname_file = a
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
@@ -317,7 +335,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
         name = args[0]
 
-        instance = pki.server.PKIInstance(instance_name)
+        instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
             print('ERROR: invalid instance: %s' % instance_name)
@@ -378,7 +396,6 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
         server_config.save()
 
-        self.print_message('Updated connector')
         HTTPConnectorCLI.print_connector(connector)
 
 
