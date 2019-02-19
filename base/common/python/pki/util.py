@@ -44,7 +44,7 @@ DEFAULT_PKI_ENV_LIST = [
 ]
 
 
-def makedirs(path, force=False):
+def makedirs(path, uid=-1, gid=-1, force=False):
 
     logging.debug('Command: mkdir -p %s', path)
 
@@ -53,9 +53,10 @@ def makedirs(path, force=False):
         return
 
     os.makedirs(path)
+    os.chown(path, uid, gid)
 
 
-def symlink(source, dest, force=False):
+def symlink(source, dest, uid=-1, gid=-1, force=False):
 
     logging.debug('Command: ln -s %s %s', source, dest)
 
@@ -64,9 +65,10 @@ def symlink(source, dest, force=False):
         return
 
     os.symlink(source, dest)
+    os.lchown(dest, uid, gid)
 
 
-def copy(source, dest, force=False):
+def copy(source, dest, uid=-1, gid=-1, force=False):
     """
     Copy a file or a folder and its contents.
     """
@@ -81,10 +83,10 @@ def copy(source, dest, force=False):
     destparent = os.path.dirname(dest)
 
     if not os.path.exists(destparent):
-        copydirs(sourceparent, destparent, force=force)
+        copydirs(sourceparent, destparent, uid=uid, gid=gid, force=force)
 
     if os.path.isfile(source):
-        copyfile(source, dest, force=force)
+        copyfile(source, dest, uid=uid, gid=gid, force=force)
 
     else:
         for sourcepath, _, filenames in os.walk(source):
@@ -94,15 +96,15 @@ def copy(source, dest, force=False):
             if destpath == '':
                 destpath = '/'
 
-            copydirs(sourcepath, destpath, force=force)
+            copydirs(sourcepath, destpath, uid=uid, gid=gid, force=force)
 
             for filename in filenames:
                 sourcefile = os.path.join(sourcepath, filename)
                 targetfile = os.path.join(destpath, filename)
-                copyfile(sourcefile, targetfile, force=force)
+                copyfile(sourcefile, targetfile, uid=uid, gid=gid, force=force)
 
 
-def copyfile(source, dest, force=False):
+def copyfile(source, dest, uid=-1, gid=-1, force=False):
     """
     Copy a file or link while preserving its attributes.
     """
@@ -121,18 +123,28 @@ def copyfile(source, dest, force=False):
         os.symlink(target, dest)
 
         stat = os.lstat(source)
-        os.lchown(dest, stat.st_uid, stat.st_gid)
+        if uid == -1:
+            uid = stat.st_uid
+        if gid == -1:
+            gid = stat.st_gid
+
+        os.lchown(dest, uid, gid)
 
     else:
         shutil.copyfile(source, dest)
 
         stat = os.stat(source)
+        if uid == -1:
+            uid = stat.st_uid
+        if gid == -1:
+            gid = stat.st_gid
+
         os.utime(dest, (stat.st_atime, stat.st_mtime))
         os.chmod(dest, stat.st_mode)
-        os.chown(dest, stat.st_uid, stat.st_gid)
+        os.chown(dest, uid, gid)
 
 
-def copydirs(source, dest, force=False):
+def copydirs(source, dest, uid=-1, gid=-1, force=False):
     """
     Copy a folder and its parents while preserving their attributes.
     """
@@ -141,7 +153,7 @@ def copydirs(source, dest, force=False):
 
     if not os.path.exists(destparent):
         sourceparent = os.path.dirname(source)
-        copydirs(sourceparent, destparent, force=force)
+        copydirs(sourceparent, destparent, uid=uid, gid=gid, force=force)
 
     logging.debug('Command: mkdir %s', dest)
 
@@ -152,9 +164,14 @@ def copydirs(source, dest, force=False):
     os.mkdir(dest)
 
     stat = os.stat(source)
+    if uid == -1:
+        uid = stat.st_uid
+    if gid == -1:
+        gid = stat.st_gid
+
     os.utime(dest, (stat.st_atime, stat.st_mtime))
     os.chmod(dest, stat.st_mode)
-    os.chown(dest, stat.st_uid, stat.st_gid)
+    os.chown(dest, uid, gid)
 
 
 def chown(path, uid, gid):
