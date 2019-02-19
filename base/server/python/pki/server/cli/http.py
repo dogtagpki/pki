@@ -45,6 +45,8 @@ class HTTPConnectorCLI(pki.cli.CLI):
         super(HTTPConnectorCLI, self).__init__(
             'connector', 'HTTP connector management commands')
 
+        self.add_module(HTTPConnectorAddCLI())
+        self.add_module(HTTPConnectorDeleteCLI())
         self.add_module(HTTPConnectorFindCLI())
         self.add_module(HTTPConnectorModCLI())
         self.add_module(HTTPConnectorShowCLI())
@@ -74,9 +76,11 @@ class HTTPConnectorCLI(pki.cli.CLI):
     def print_connector(connector):
 
         HTTPConnectorCLI.print_param(connector, 'name', 'Connector ID')
-        HTTPConnectorCLI.print_param(connector, 'scheme', 'Scheme')
         HTTPConnectorCLI.print_param(connector, 'port', 'Port')
         HTTPConnectorCLI.print_param(connector, 'protocol', 'Protocol')
+        HTTPConnectorCLI.print_param(connector, 'scheme', 'Scheme')
+        HTTPConnectorCLI.print_param(connector, 'secure', 'Secure')
+        HTTPConnectorCLI.print_param(connector, 'SSLEnabled', 'SSL Enabled')
 
         HTTPConnectorCLI.print_param(connector, 'sslImplementationName', 'SSL Implementation')
 
@@ -95,6 +99,190 @@ class HTTPConnectorCLI(pki.cli.CLI):
         HTTPConnectorCLI.print_param(connector, 'keystorePassFile', 'Keystore Password File')
 
         HTTPConnectorCLI.print_param(connector, 'trustManagerClassName', 'Trust Manager')
+
+
+class HTTPConnectorAddCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(HTTPConnectorAddCLI, self).__init__('add', 'Add connector')
+
+    def print_help(self):
+        print('Usage: pki-server http-connector-add [OPTIONS] <connector ID>')
+        print()
+        print('  -i, --instance <instance ID>              Instance ID (default: pki-tomcat).')
+        print('      --port <port>                         Port number.')
+        print('      --protocol <protocol>                 Protocol.')
+        print('      --scheme <scheme>                     Scheme.')
+        print('      --secure <true|false>                 Secure.')
+        print('      --sslEnabled <true|false>             SSL enabled.')
+        print('  -v, --verbose                             Run in verbose mode.')
+        print('      --debug                               Run in debug mode.')
+        print('      --help                                Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'port=', 'protocol=', 'scheme=', 'secure=', 'sslEnabled=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        port = None
+        protocol = None
+        scheme = None
+        secure = None
+        sslEnabled = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--port':
+                port = a
+
+            elif o == '--protocol':
+                protocol = a
+
+            elif o == '--scheme':
+                scheme = a
+
+            elif o == '--secure':
+                secure = a
+
+            elif o == '--sslEnabled':
+                sslEnabled = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) != 1:
+            print('ERROR: Missing connector ID')
+            self.print_help()
+            sys.exit(1)
+
+        if port is None:
+            print('ERROR: Missing port number')
+            self.print_help()
+            sys.exit(1)
+
+        name = args[0]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: invalid instance: %s' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        server_config = instance.get_server_config()
+        connectors = server_config.get_connectors()
+
+        if name in connectors:
+            print('ERROR: Connector already exists: %s' % name)
+            sys.exit(1)
+
+        connector = server_config.create_connector(name)
+
+        HTTPConnectorCLI.set_param(connector, 'port', port)
+        HTTPConnectorCLI.set_param(connector, 'protocol', protocol)
+        HTTPConnectorCLI.set_param(connector, 'scheme', scheme)
+        HTTPConnectorCLI.set_param(connector, 'secure', secure)
+        HTTPConnectorCLI.set_param(connector, 'SSLEnabled', sslEnabled)
+
+        server_config.save()
+
+        HTTPConnectorCLI.print_connector(connector)
+
+
+class HTTPConnectorDeleteCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(HTTPConnectorDeleteCLI, self).__init__('del', 'Delete connector')
+
+    def print_help(self):
+        print('Usage: pki-server http-connector-del [OPTIONS] <connector ID>')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
+        print('      --help                      Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) != 1:
+            print('ERROR: Missing connector ID')
+            self.print_help()
+            sys.exit(1)
+
+        name = args[0]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance: %s' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        server_config = instance.get_server_config()
+        server_config.remove_connector(name)
+        server_config.save()
 
 
 class HTTPConnectorFindCLI(pki.cli.CLI):

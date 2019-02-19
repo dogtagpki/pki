@@ -1387,7 +1387,9 @@ class ServerConfiguration(object):
         connectors = {}
         counter = 0
 
-        for connector in server.findall('.//Connector'):
+        service = server.find('Service[@name="Catalina"]')
+
+        for connector in service.findall('Connector'):
 
             name = connector.get('name')
 
@@ -1404,6 +1406,32 @@ class ServerConfiguration(object):
             connectors[name] = connector
 
         return connectors
+
+    def get_connector(self, name):
+        connectors = self.get_connectors()
+        return connectors[name]
+
+    def create_connector(self, name):
+
+        connector = etree.Element('Connector')
+        connector.set('name', name)
+
+        server = self.document.getroot()
+
+        service = server.find('Service[@name="Catalina"]')
+        connectors = service.findall('Connector')
+        last_connector = connectors[-1]
+
+        index = service.index(last_connector) + 1
+        service.insert(index, connector)
+
+        return connector
+
+    def remove_connector(self, name):
+
+        connector = self.get_connector(name)
+        service = connector.getparent()
+        service.remove(connector)
 
 
 @functools.total_ordering
