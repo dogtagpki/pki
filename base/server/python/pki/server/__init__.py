@@ -269,13 +269,6 @@ class PKIServer(object):
         self.makedirs(conf_d_dir, force=force)
 
         self.makedirs(self.lib_dir, force=force)
-
-        for filename in os.listdir(Tomcat.LIB_DIR):
-
-            source = os.path.join(Tomcat.LIB_DIR, filename)
-            dest = os.path.join(self.lib_dir, filename)
-            self.symlink(source, dest, force=force)
-
         self.makedirs(self.temp_dir, force=force)
         self.makedirs(self.webapps_dir, force=force)
         self.makedirs(self.work_dir, force=force)
