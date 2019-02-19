@@ -81,10 +81,10 @@ def copy(source, dest, force=False):
     destparent = os.path.dirname(dest)
 
     if not os.path.exists(destparent):
-        copydirs(sourceparent, destparent, force)
+        copydirs(sourceparent, destparent, force=force)
 
     if os.path.isfile(source):
-        copyfile(source, dest, force)
+        copyfile(source, dest, force=force)
 
     else:
         for sourcepath, _, filenames in os.walk(source):
@@ -94,15 +94,15 @@ def copy(source, dest, force=False):
             if destpath == '':
                 destpath = '/'
 
-            copydirs(sourcepath, destpath, force)
+            copydirs(sourcepath, destpath, force=force)
 
             for filename in filenames:
                 sourcefile = os.path.join(sourcepath, filename)
                 targetfile = os.path.join(destpath, filename)
-                copyfile(sourcefile, targetfile, force)
+                copyfile(sourcefile, targetfile, force=force)
 
 
-def copyfile(source, dest, overwrite=True):
+def copyfile(source, dest, force=False):
     """
     Copy a file or link while preserving its attributes.
     """
@@ -113,7 +113,7 @@ def copyfile(source, dest, overwrite=True):
     if os.path.exists(dest):
         logging.warning('File already exists: %s', dest)
 
-        if not overwrite:
+        if not force:
             return
 
     if os.path.islink(source):
@@ -141,7 +141,7 @@ def copydirs(source, dest, force=False):
 
     if not os.path.exists(destparent):
         sourceparent = os.path.dirname(source)
-        copydirs(sourceparent, destparent, force)
+        copydirs(sourceparent, destparent, force=force)
 
     logging.debug('Command: mkdir %s', dest)
 

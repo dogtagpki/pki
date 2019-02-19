@@ -72,7 +72,7 @@ class MoveWebApplicationContextFile(
             os.makedirs(localhost_dir)
 
         # copy context file, don't overwrite existing file
-        pki.util.copyfile(old_context_file, new_context_file, overwrite=False)
+        pki.util.copyfile(old_context_file, new_context_file, force=False)
 
         # set file and folder ownership
         pki.util.chown(catalina_dir, instance.uid, instance.gid)
