@@ -21,6 +21,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import getopt
+import logging
 import sys
 
 import pki.cli
@@ -48,24 +49,26 @@ class HTTPConnectorCLI(pki.cli.CLI):
         self.add_module(HTTPConnectorShowCLI())
         self.add_module(HTTPConnectorModCLI())
 
-    @staticmethod
-    def print_param(connector, name, label):
+        self.add_module(SSLHostCLI())
 
-        value = connector.get(name)
+    @staticmethod
+    def print_param(element, name, label):
+
+        value = element.get(name)
         if value:
             print('  %s: %s' % (label, value))
 
     @staticmethod
-    def set_param(connector, name, value):
+    def set_param(element, name, value):
 
         if value is None:
             return
 
         if value:  # non-empty
-            connector.set(name, value)
+            element.set(name, value)
 
         else:
-            connector.attrib.pop(name)
+            element.attrib.pop(name)
 
     @staticmethod
     def print_connector(connector):
@@ -377,3 +380,109 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
         self.print_message('Updated connector')
         HTTPConnectorCLI.print_connector(connector)
+
+
+class SSLHostCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(SSLHostCLI, self).__init__(
+            'sslhost', 'SSL host configuration management commands')
+
+        self.add_module(SSLHostFindLI())
+
+    @staticmethod
+    def print_sslhost(sslhost):
+
+        hostName = sslhost.get('hostName', '_default_')
+        print('  Hostname: %s' % hostName)
+
+        HTTPConnectorCLI.print_param(
+            sslhost, 'sslProtocol', 'SSL Protocol')
+        HTTPConnectorCLI.print_param(
+            sslhost, 'certificateVerification', 'Certificate Verification')
+        HTTPConnectorCLI.print_param(
+            sslhost, 'trustManagerClassName', 'Trust Manager')
+
+
+class SSLHostFindLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(SSLHostFindLI, self).__init__('find', 'Find SSL host configurations')
+
+    def print_help(self):
+        print('Usage: pki-server http-connector-sslhost-find [OPTIONS] <connector ID>')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
+        print('      --help                      Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            raise Exception('Missing connector ID')
+
+        connector_name = args[0]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance: %s' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        server_config = instance.get_server_config()
+        connectors = server_config.get_connectors()
+
+        if connector_name not in connectors:
+            raise Exception('Invalid connector ID: %s' % connector_name)
+
+        connector = connectors[connector_name]
+
+        sslhosts = list(connector.iter('SSLHostConfig'))
+        self.print_message('%s entries matched' % len(sslhosts))
+
+        first = True
+        for sslhost in sslhosts:
+
+            if first:
+                first = False
+            else:
+                print()
+
+            SSLHostCLI.print_sslhost(sslhost)
