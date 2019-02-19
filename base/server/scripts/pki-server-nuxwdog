@@ -102,7 +102,10 @@ for subsystem in subsystems:
 
     if 'cms.tokenList' in subsystem.config:
         token_list = split_entries(subsystem.config['cms.tokenList'])
-        tags.update('hardware-' + token_list)
+
+        # HSM token requires a prefix 'hardware-'
+        for token in token_list:
+            tags.add('hardware-' + token)
 
 # 3a. Prompt the user using systemd-ask-password
 # 3b. Store the values in the keyring using keyctl
@@ -113,7 +116,7 @@ for tag in sorted(iter(tags)):
     else:
         prompt_tag = tag
 
-    prompt = '[' + instance_name + '] Please provide the password for ' + prompt_tag + ': '
+    prompt = '[' + instance_name + '] Please provide the password for ' + prompt_tag + ':'
 
     cmd_ask_password = ['systemd-ask-password', prompt]
 
