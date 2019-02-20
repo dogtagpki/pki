@@ -82,9 +82,9 @@ def create_delete_banner(ansible_module):
 @pytest.fixture
 def import_admin_certs(ansible_module):
     ansible_module.command("mkdir /opt/tmp_nssdb")
-    ansible_module.command("pki -d /opt/tmp_nssdb -c Secret123 client-init")
-    ansible_module.command("pki -d /opt/tmp_nssdb -c Secret123 -h pki1.example.com -p %s client-cert-import \"RootCA\" --ca-server" % constants.CA_HTTP_PORT)
-    ansible_module.command("pki -d /opt/tmp_nssdb -c Secret123 client-cert-import  --pkcs12 /opt/topology-02-CA/ca_admin_cert.p12  --pkcs12-password Secret123")
+    ansible_module.command("pki -d /opt/tmp_nssdb -c SECret.123 client-init")
+    ansible_module.command("pki -d /opt/tmp_nssdb -c SECret.123 -h pki1.example.com -p %s client-cert-import \"RootCA\" --ca-server" % constants.CA_HTTP_PORT)
+    ansible_module.command("pki -d /opt/tmp_nssdb -c SECret.123 client-cert-import  --pkcs12 /opt/topology-02-CA/ca_admin_cert.p12  --pkcs12-password SECret.123")
     yield
     ansible_module.command("rm -rf /opt/tmp_nssdb")
 

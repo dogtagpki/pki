@@ -281,7 +281,7 @@ def test_pki_bug_1542210_ca_auth_plugins_add_uidPwdDirAuth_plugin(ansible_module
         implName=UidPwdDirAuth&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
         O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
         ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
-        Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
+        SECret.123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
         3. Create post request through request module.
     :Expectedresults:
         1. Make sure that plugin should get added.
@@ -354,7 +354,7 @@ def test_bug_1542210_pki_ca_auth_plugins_modify_uidPwdDirAuth_plugin(ansible_mod
         implName=UidPwdDirAuth&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
         O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
         ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
-        Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
+        SECret.123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
         3. Create post request through request module make sure that plugin get added.
         4. Modify the plugin using REST API.
     :Expectedresults:
@@ -450,7 +450,7 @@ def test_pki_bug_1542210_ca_auth_plugins_add_UidPwdPinDirAuth_plugin(ansible_mod
         implName=UidPwdPinDirAuth&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
         O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
         ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
-        Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
+        SECret.123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
         3. Create post request through request module make sure that plugin get added.
         4. Modify the plugin using REST API.
     :Expectedresults:
@@ -520,7 +520,7 @@ def test_pki_bug_1542210_ca_auth_plugins_mod_UidPwdPinDirAuth_plugin(ansible_mod
         implName=UidPwdPinDirAuth&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
         O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
         ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
-        Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
+        SECret.123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
         3. Create post request through request module make sure that plugin get added.
         4. Modify the plugin using REST API.
     :Expectedresults:
@@ -644,7 +644,7 @@ def test_pki_bug_1542210_ca_auth_plugins_add_SharedToken_plugin(ansible_module):
         implName=SharedToken&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
         O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
         ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
-        Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
+        SECret.123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
         3. Create post request through request module.
     :Expectedresults:
         1. Make sure that plugin should get added.
@@ -718,7 +718,7 @@ def test_bug_1542210_pki_ca_auth_plugins_modify_SharedToken_plugin(ansible_modul
         implName=SharedToken&ldap.ldapconn.host=localhost&dnpattern=UID=test,OU=people,
         O=netscapecertificateserver&ldapStringAttributes=mail&ldap.ldapconn.version=3&
         ldap.ldapconn.port=3389&ldap.maxConn=10&ldap.basedn=dc=example,dc=org&ldap.password=
-        Secret123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
+        SECret.123&ldap.ldapconn.secureConn=false&ldapByteAttributes=uid&
         3. Create post request through request module make sure that plugin get added.
         4. Modify the plugin using REST API.
     :Expectedresults:
