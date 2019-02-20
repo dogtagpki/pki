@@ -71,7 +71,7 @@ class HTTPConnectorCLI(pki.cli.CLI):
             element.set(name, value)
 
         else:
-            element.attrib.pop(name)
+            element.attrib.pop(name, None)
 
     @staticmethod
     def print_connector(connector):
@@ -198,11 +198,12 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connectors = server_config.get_connectors()
 
-        if name in connectors:
-            print('ERROR: Connector already exists: %s' % name)
-            sys.exit(1)
+        try:
+            server_config.get_connector(name)
+            raise Exception('Connector already exists: %s' % name)
+        except KeyError:
+            pass
 
         connector = server_config.create_connector(name)
 
@@ -349,14 +350,13 @@ class HTTPConnectorFindCLI(pki.cli.CLI):
         self.print_message('%s entries matched' % len(connectors))
 
         first = True
-        for name in connectors:
+        for connector in connectors:
 
             if first:
                 first = False
             else:
                 print()
 
-            connector = connectors[name]
             HTTPConnectorCLI.print_connector(connector)
 
 
@@ -425,13 +425,8 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connectors = server_config.get_connectors()
+        connector = server_config.get_connector(name)
 
-        if name not in connectors:
-            print('ERROR: Connector not found: %s' % name)
-            sys.exit(1)
-
-        connector = connectors[name]
         HTTPConnectorCLI.print_connector(connector)
 
 
@@ -533,13 +528,7 @@ class HTTPConnectorModCLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connectors = server_config.get_connectors()
-
-        if name not in connectors:
-            print('ERROR: Connector not found: %s' % name)
-            sys.exit(1)
-
-        connector = connectors[name]
+        connector = server_config.get_connector(name)
 
         HTTPConnectorCLI.set_param(connector, 'certdbDir', nss_database_dir)
         HTTPConnectorCLI.set_param(connector, 'passwordClass',
@@ -594,7 +583,9 @@ class SSLHostCLI(pki.cli.CLI):
         super(SSLHostCLI, self).__init__(
             'host', 'SSL host configuration management commands')
 
-        self.add_module(SSLHostFindLI())
+        self.add_module(SSLHostAddCLI())
+        self.add_module(SSLHostDeleteCLI())
+        self.add_module(SSLHostFindCLI())
 
     @staticmethod
     def print_sslhost(sslhost):
@@ -610,13 +601,190 @@ class SSLHostCLI(pki.cli.CLI):
             sslhost, 'trustManagerClassName', 'Trust Manager')
 
 
-class SSLHostFindLI(pki.cli.CLI):
+class SSLHostAddCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(SSLHostFindLI, self).__init__('find', 'Find SSL host configurations')
+        super(SSLHostAddCLI, self).__init__('add', 'Add SSL host configuration')
 
     def print_help(self):
-        print('Usage: pki-server http-connector-host-find [OPTIONS] <connector ID>')
+        print('Usage: pki-server http-connector-host-add [OPTIONS] <connector ID> <hostname>')
+        print()
+        print('  -i, --instance <instance ID>              Instance ID (default: pki-tomcat).')
+        print('      --sslProtocol <protocol>              SSL protocol.')
+        print('      --certVerification <verification>     Certificate verification.')
+        print('      --trustManager <class>                Trust Manager.')
+        print('  -v, --verbose                             Run in verbose mode.')
+        print('      --debug                               Run in debug mode.')
+        print('      --help                                Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'sslProtocol=', 'certVerification=', 'trustManager=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        sslProtocol = None
+        certVerification = None
+        trustManager = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--sslProtocol':
+                sslProtocol = a
+
+            elif o == '--certVerification':
+                certVerification = a
+
+            elif o == '--trustManager':
+                trustManager = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            raise Exception('Missing connector ID')
+
+        connector_name = args[0]
+
+        if len(args) < 2:
+            raise Exception('Missing hostname')
+
+        hostname = args[1]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: invalid instance: %s' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        server_config = instance.get_server_config()
+        connector = server_config.get_connector(connector_name)
+
+        try:
+            server_config.get_sslhost(connector, hostname)
+            raise Exception('SSL host already exists: %s' % hostname)
+        except KeyError:
+            pass
+
+        sslhost = server_config.create_sslhost(connector, hostname)
+
+        HTTPConnectorCLI.set_param(sslhost, 'sslProtocol', sslProtocol)
+        HTTPConnectorCLI.set_param(sslhost, 'certificateVerification', certVerification)
+        HTTPConnectorCLI.set_param(sslhost, 'trustManagerClassName', trustManager)
+
+        server_config.save()
+
+        SSLHostCLI.print_sslhost(sslhost)
+
+
+class SSLHostDeleteCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(SSLHostDeleteCLI, self).__init__('del', 'Delete SSL host configuration')
+
+    def print_help(self):
+        print('Usage: pki-server http-connector-host-del [OPTIONS] <connector ID> <hostname>')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
+        print('      --help                      Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            raise Exception('Missing connector ID')
+
+        connector_name = args[0]
+
+        if len(args) < 2:
+            raise Exception('Missing hostname')
+
+        hostname = args[1]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance: %s' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        server_config = instance.get_server_config()
+        connector = server_config.get_connector(connector_name)
+        server_config.remove_sslhost(connector, hostname)
+
+        server_config.save()
+
+
+class SSLHostFindCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(SSLHostFindCLI, self).__init__('find', 'Find SSL host configurations')
+
+    def print_help(self):
+        print('Usage: pki-server http-connector-sslhost-find [OPTIONS] <connector ID>')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
@@ -673,14 +841,9 @@ class SSLHostFindLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connectors = server_config.get_connectors()
+        connector = server_config.get_connector(connector_name)
+        sslhosts = server_config.get_sslhosts(connector)
 
-        if connector_name not in connectors:
-            raise Exception('Invalid connector ID: %s' % connector_name)
-
-        connector = connectors[connector_name]
-
-        sslhosts = list(connector.iter('SSLHostConfig'))
         self.print_message('%s entries matched' % len(sslhosts))
 
         first = True
@@ -791,14 +954,9 @@ class SSLCertFindLI(pki.cli.CLI):
         instance.load()
 
         server_config = instance.get_server_config()
-        connectors = server_config.get_connectors()
+        connector = server_config.get_connector(connector_name)
 
-        if connector_name not in connectors:
-            raise Exception('Invalid connector ID: %s' % connector_name)
-
-        connector = connectors[connector_name]
-
-        sslhosts = list(connector.iter('SSLHostConfig'))
+        sslhosts = server_config.get_sslhosts(connector)
         sslhost = None
 
         logging.debug('SSL Hosts:')

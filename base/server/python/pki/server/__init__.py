@@ -1384,7 +1384,8 @@ class ServerConfiguration(object):
 
         server = self.document.getroot()
 
-        connectors = {}
+        names = set()
+        connectors = []
         counter = 0
 
         service = server.find('Service[@name="Catalina"]')
@@ -1398,18 +1399,26 @@ class ServerConfiguration(object):
                 while True:  # find unused name
                     counter += 1
                     name = 'Connector%d' % counter
-                    if name not in connectors:
+                    if name not in names:
                         break
 
                 connector.set('name', name)
 
-            connectors[name] = connector
+            names.add(name)
+            connectors.append(connector)
 
         return connectors
 
     def get_connector(self, name):
+
         connectors = self.get_connectors()
-        return connectors[name]
+
+        for connector in connectors:
+            n = connector.get('name')
+            if n == name:
+                return connector
+
+        raise KeyError('Connector not found: %s' % name)
 
     def create_connector(self, name):
 
@@ -1432,6 +1441,34 @@ class ServerConfiguration(object):
         connector = self.get_connector(name)
         service = connector.getparent()
         service.remove(connector)
+
+    def get_sslhosts(self, connector):
+        return list(connector.iter('SSLHostConfig'))
+
+    def get_sslhost(self, connector, hostname):
+        sslhosts = self.get_sslhosts(connector)
+
+        for sslhost in sslhosts:
+            h = sslhost.get('hostName', '_default_')
+            if h == hostname:
+                return sslhost
+
+        raise KeyError('SSL host not found: %s' % hostname)
+
+    def create_sslhost(self, connector, hostname):
+
+        sslhost = etree.Element('SSLHostConfig')
+        if hostname != '_default_':
+            sslhost.set('hostName', hostname)
+
+        connector.append(sslhost)
+
+        return sslhost
+
+    def remove_sslhost(self, connector, hostname):
+
+        sslhost = self.get_sslhost(connector, hostname)
+        connector.remove(sslhost)
 
 
 @functools.total_ordering
