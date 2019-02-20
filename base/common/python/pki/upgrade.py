@@ -257,7 +257,7 @@ class PKIUpgradeScriptlet(object):
             if self.upgrader.silent:
                 print(message)
             else:
-                result = pki.read_text(
+                result = pki.util.read_text(
                     message + ' Continue (Yes/No)',
                     options=['Y', 'N'], default='Y', delimiter='?',
                     case_sensitive=False).lower()
@@ -578,7 +578,7 @@ class PKIUpgrader(object):
                 print(message)
 
             else:
-                result = pki.read_text(
+                result = pki.util.read_text(
                     message + ' (Yes/No)',
                     options=['Y', 'N'],
                     default='Y',
@@ -604,7 +604,7 @@ class PKIUpgrader(object):
 
                 print()
 
-                result = pki.read_text(
+                result = pki.util.read_text(
                     'Continue (Yes/No)',
                     options=['Y', 'N'],
                     default='Y',
@@ -644,7 +644,7 @@ class PKIUpgrader(object):
                 print(message)
 
             else:
-                result = pki.read_text(
+                result = pki.util.read_text(
                     message + ' (Yes/No)',
                     options=['Y', 'N'], default='Y',
                     case_sensitive=False).lower()
@@ -668,7 +668,7 @@ class PKIUpgrader(object):
 
                 print()
 
-                result = pki.read_text(
+                result = pki.util.read_text(
                     'Continue (Yes/No)', options=['Y', 'N'],
                     default='Y', delimiter='?', case_sensitive=False).lower()
 

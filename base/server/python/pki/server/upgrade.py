@@ -26,6 +26,7 @@ import traceback
 
 import pki
 import pki.upgrade
+import pki.util
 import pki.server
 
 from pki.upgrade import verbose
@@ -102,7 +103,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                 if self.upgrader.silent:
                     print(message)
                 else:
-                    result = pki.read_text(
+                    result = pki.util.read_text(
                         message + ' Continue (Yes/No)',
                         options=['Y', 'N'], default='Y',
                         delimiter='?', case_sensitive=False).lower()
@@ -140,7 +141,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
                 if self.upgrader.silent:
                     print(message)
                 else:
-                    result = pki.read_text(
+                    result = pki.util.read_text(
                         message + ' Continue (Yes/No)',
                         options=['Y', 'N'], default='Y',
                         delimiter='?', case_sensitive=False).lower()
