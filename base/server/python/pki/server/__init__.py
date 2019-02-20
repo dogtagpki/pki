@@ -1470,6 +1470,34 @@ class ServerConfiguration(object):
         sslhost = self.get_sslhost(connector, hostname)
         connector.remove(sslhost)
 
+    def get_sslcerts(self, sslhost):
+        return list(sslhost.iter('Certificate'))
+
+    def get_sslcert(self, sslhost, certType):
+        sslcerts = self.get_sslcerts(sslhost)
+
+        for sslcert in sslcerts:
+            t = sslcert.get('type', 'UNDEFINED')
+            if t == certType:
+                return sslcert
+
+        raise KeyError('SSL certificate not found: %s' % certType)
+
+    def create_sslcert(self, sslhost, certType):
+
+        sslcert = etree.Element('Certificate')
+        if certType != 'UNDEFINED':
+            sslcert.set('type', certType)
+
+        sslhost.append(sslcert)
+
+        return sslcert
+
+    def remove_sslcert(self, sslhost, certType):
+
+        sslcert = self.get_sslcert(sslhost, certType)
+        sslhost.remove(sslcert)
+
 
 @functools.total_ordering
 class PKIInstance(PKIServer):

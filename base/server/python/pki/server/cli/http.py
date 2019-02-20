@@ -863,6 +863,8 @@ class SSLCertCLI(pki.cli.CLI):
         super(SSLCertCLI, self).__init__(
             'cert', 'SSL certificate configuration management commands')
 
+        self.add_module(SSLCertAddCLI())
+        self.add_module(SSLCertDeleteCLI())
         self.add_module(SSLCertFindLI())
 
     @staticmethod
@@ -883,6 +885,223 @@ class SSLCertCLI(pki.cli.CLI):
             sslcert, 'certificateKeystoreProvider', 'Keystore Provider')
         HTTPConnectorCLI.print_param(
             sslcert, 'certificateKeystoreFile', 'Keystore File')
+
+
+class SSLCertAddCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(SSLCertAddCLI, self).__init__('add', 'Add SSL certificate configuration')
+
+    def print_help(self):
+        print('Usage: pki-server http-connector-cert-add '
+              '[OPTIONS] <connector ID> <hostname> <type>')
+        print()
+        print('  -i, --instance <instance ID>              Instance ID (default: pki-tomcat).')
+        print('      --certFile <path>                     Certificate file.')
+        print('      --keyAlias <alias>                    Key alias.')
+        print('      --keyFile <path>                      Key file.')
+        print('      --keystoreType <type>                 Keystore type.')
+        print('      --keystoreProvider <name>             Keystore provider.')
+        print('      --keystoreFile <path>                 Keystore file.')
+        print('      --keystorePassword <password>         Keystore password.')
+        print('  -v, --verbose                             Run in verbose mode.')
+        print('      --debug                               Run in debug mode.')
+        print('      --help                                Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'certFile=', 'keyAlias=', 'keyFile=',
+                'keystoreType=', 'keystoreProvider=', 'keystoreFile=', 'keystorePassword=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        certFile = None
+        keyAlias = None
+        keyFile = None
+        keystoreType = None
+        keystoreProvider = None
+        keystoreFile = None
+        keystorePassword = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--certFile':
+                certFile = a
+
+            elif o == '--keyAlias':
+                keyAlias = a
+
+            elif o == '--keyFile':
+                keyFile = a
+
+            elif o == '--keystoreType':
+                keystoreType = a
+
+            elif o == '--keystoreProvider':
+                keystoreProvider = a
+
+            elif o == '--keystoreFile':
+                keystoreFile = a
+
+            elif o == '--keystorePassword':
+                keystorePassword = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            raise Exception('Missing connector ID')
+
+        connector_name = args[0]
+
+        if len(args) < 2:
+            raise Exception('Missing hostname')
+
+        hostname = args[1]
+
+        if len(args) < 3:
+            raise Exception('Missing certificate type')
+
+        certType = args[2]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: invalid instance: %s' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        server_config = instance.get_server_config()
+        connector = server_config.get_connector(connector_name)
+        sslhost = server_config.get_sslhost(connector, hostname)
+
+        try:
+            server_config.get_sslcert(sslhost, certType)
+            raise Exception('SSL certificate already exists: %s' % certType)
+        except KeyError:
+            pass
+
+        sslcert = server_config.create_sslcert(sslhost, certType)
+
+        HTTPConnectorCLI.set_param(sslcert, 'certificateFile', certFile)
+        HTTPConnectorCLI.set_param(sslcert, 'certificateKeyAlias', keyAlias)
+        HTTPConnectorCLI.set_param(sslcert, 'certificateKeyFile', keyFile)
+        HTTPConnectorCLI.set_param(sslcert, 'certificateKeystoreType', keystoreType)
+        HTTPConnectorCLI.set_param(sslcert, 'certificateKeystoreProvider', keystoreProvider)
+        HTTPConnectorCLI.set_param(sslcert, 'certificateKeystoreFile', keystoreFile)
+        HTTPConnectorCLI.set_param(sslcert, 'certificateKeystorePassword', keystorePassword)
+
+        server_config.save()
+
+        SSLCertCLI.print_sslcert(sslcert)
+
+
+class SSLCertDeleteCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(SSLCertDeleteCLI, self).__init__('del', 'Delete SSL certificate configuration')
+
+    def print_help(self):
+        print('Usage: pki-server http-connector-cert-del '
+              '[OPTIONS] <connector ID> <hostname> <type>')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
+        print('      --help                      Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            raise Exception('Missing connector ID')
+
+        connector_name = args[0]
+
+        if len(args) < 2:
+            raise Exception('Missing hostname')
+
+        hostname = args[1]
+
+        if len(args) < 3:
+            raise Exception('Missing certificate type')
+
+        certType = args[2]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance: %s' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        server_config = instance.get_server_config()
+        connector = server_config.get_connector(connector_name)
+        sslhost = server_config.get_sslhost(connector, hostname)
+
+        server_config.remove_sslcert(sslhost, certType)
+
+        server_config.save()
 
 
 class SSLCertFindLI(pki.cli.CLI):
@@ -955,22 +1174,10 @@ class SSLCertFindLI(pki.cli.CLI):
 
         server_config = instance.get_server_config()
         connector = server_config.get_connector(connector_name)
+        sslhost = server_config.get_sslhost(connector, hostname)
 
-        sslhosts = server_config.get_sslhosts(connector)
-        sslhost = None
+        sslcerts = server_config.get_sslcerts(sslhost)
 
-        logging.debug('SSL Hosts:')
-        for s in sslhosts:
-            h = s.get('hostName', '_default_')
-            logging.debug('- %s', h)
-            if h == hostname:
-                sslhost = s
-                break
-
-        if sslhost is None:
-            raise Exception('Invalid SSL hostname: %s' % hostname)
-
-        sslcerts = list(sslhost.iter('Certificate'))
         self.print_message('%s entries matched' % len(sslcerts))
 
         first = True
