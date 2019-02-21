@@ -145,8 +145,6 @@ class CreateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
                 'force',
@@ -207,8 +205,6 @@ class RemoveCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
                 'force',
@@ -268,8 +264,6 @@ class StatusCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
                 'verbose', 'debug', 'help'])
@@ -323,8 +317,6 @@ class StartCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
@@ -383,8 +375,6 @@ class StopCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [

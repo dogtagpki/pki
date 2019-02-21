@@ -68,8 +68,6 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, _ = getopt.gnu_getopt(argv, 'v', [
                 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',

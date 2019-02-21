@@ -57,8 +57,6 @@ class NSSCreateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:d:v', [
                 'instance=',
@@ -134,8 +132,6 @@ class NSSRemoveCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:d:v', [

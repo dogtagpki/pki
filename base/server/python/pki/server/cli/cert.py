@@ -105,8 +105,6 @@ class CertFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'show-all',
@@ -198,8 +196,6 @@ class CertShowCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -305,8 +301,6 @@ class CertUpdateCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -452,8 +446,6 @@ class CertCreateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:d:c:C:n:v', [
                 'instance=', 'temp', 'serial=',
@@ -574,8 +566,6 @@ class CertImportCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'input=',
@@ -682,8 +672,6 @@ class CertExportCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -908,8 +896,6 @@ class CertRemoveCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'remove-key',
@@ -992,7 +978,6 @@ class CertFixCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:d:c:C:n:v', [

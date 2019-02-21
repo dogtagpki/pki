@@ -71,10 +71,6 @@ def advancedOptions():
 
 def main(argv):
 
-    signal.signal(signal.SIGINT, interrupt_handler)
-
-    logging.basicConfig(format='%(levelname)s: %(message)s')
-
     try:
         opts, _ = getopt.getopt(argv[1:], 'hi:s:t:vX', [
             'instance=', 'subsystem=', 'instance-type=',
@@ -207,4 +203,6 @@ def main(argv):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(levelname)s: %(message)s')
+    signal.signal(signal.SIGINT, interrupt_handler)
     main(sys.argv)

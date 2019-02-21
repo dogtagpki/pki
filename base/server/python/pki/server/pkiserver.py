@@ -20,6 +20,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+import logging
 import subprocess
 import sys
 import traceback
@@ -27,6 +28,8 @@ import traceback
 import pki.server.cli
 
 if __name__ == '__main__':
+
+    logging.basicConfig(format='%(levelname)s: %(message)s')
 
     cli = pki.server.cli.PKIServerCLI()
 

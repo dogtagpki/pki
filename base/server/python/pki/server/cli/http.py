@@ -123,8 +123,6 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
@@ -234,8 +232,6 @@ class HTTPConnectorDeleteCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
@@ -302,8 +298,6 @@ class HTTPConnectorFindCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
@@ -375,8 +369,6 @@ class HTTPConnectorShowCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -451,8 +443,6 @@ class HTTPConnectorModCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -620,8 +610,6 @@ class SSLHostAddCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
@@ -720,8 +708,6 @@ class SSLHostDeleteCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
@@ -793,8 +779,6 @@ class SSLHostFindCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -910,8 +894,6 @@ class SSLCertAddCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -1039,8 +1021,6 @@ class SSLCertDeleteCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
@@ -1120,8 +1100,6 @@ class SSLCertFindLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [

@@ -58,8 +58,6 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
@@ -119,8 +117,6 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -193,8 +189,6 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -270,8 +264,6 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [

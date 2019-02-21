@@ -20,6 +20,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+import logging
 import os
 import shlex
 import subprocess
@@ -244,6 +245,8 @@ class PKICLI(pki.cli.CLI):
 
 
 if __name__ == '__main__':
+
+    logging.basicConfig(format='%(levelname)s: %(message)s')
 
     cli = PKICLI()
 
