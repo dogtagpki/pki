@@ -34,6 +34,8 @@ class PasswordCLI(pki.cli.CLI):
             'password', 'Password management commands')
 
         self.add_module(PasswordFindCLI())
+        self.add_module(PasswordAddCLI())
+        self.add_module(PasswordRemoveCLI())
 
     @staticmethod
     def print_password(name):
@@ -105,3 +107,138 @@ class PasswordFindCLI(pki.cli.CLI):
                 print()
 
             PasswordCLI.print_password(name)
+
+
+class PasswordAddCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(PasswordAddCLI, self).__init__('add', 'Add password')
+
+    def print_help(self):
+        print('Usage: pki-server password-add [OPTIONS] <password ID>')
+        print()
+        print('  -i, --instance <instance ID>              Instance ID (default: pki-tomcat).')
+        print('      --password <password>                 Password.')
+        print('  -v, --verbose                             Run in verbose mode.')
+        print('      --debug                               Run in debug mode.')
+        print('      --help                                Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'password=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        password = None
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--password':
+                password = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            raise Exception('Missing password ID')
+
+        name = args[0]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not instance.is_valid():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        if name in instance.passwords:
+            raise Exception('Password already exists: %s' % name)
+
+        instance.passwords[name] = password
+        instance.store_passwords()
+
+
+class PasswordRemoveCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(PasswordRemoveCLI, self).__init__('del', 'Remove password')
+
+    def print_help(self):
+        print('Usage: pki-server password-del [OPTIONS] <password ID>')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
+        print('      --help                      Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            raise Exception('Missing password ID')
+
+        name = args[0]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not instance.is_valid():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.load()
+
+        instance.passwords.pop(name)
+        instance.store_passwords()
