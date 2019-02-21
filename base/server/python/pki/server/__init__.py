@@ -203,6 +203,10 @@ class PKIServer(object):
     def nssdb_dir(self):
         return os.path.join(self.base_dir, 'alias')
 
+    @property
+    def jss_conf(self):
+        return os.path.join(self.conf_dir, 'jss.conf')
+
     def is_valid(self):
         return os.path.exists(self.base_dir)
 
@@ -354,6 +358,21 @@ class PKIServer(object):
 
         pki.util.store_properties(self.password_conf, self.passwords)
         pki.util.chown(self.password_conf, self.uid, self.gid)
+
+    def load_jss_config(self):
+
+        jss_config = {}
+
+        if os.path.exists(self.jss_conf):
+            logger.info('Loading JSS config: %s', self.jss_conf)
+            pki.util.load_properties(self.jss_conf, jss_config)
+
+        return jss_config
+
+    def store_jss_config(self, jss_config):
+
+        pki.util.store_properties(self.jss_conf, jss_config)
+        pki.util.chown(self.jss_conf, self.uid, self.gid)
 
     def get_server_config(self):
         server_config = ServerConfiguration(self.server_xml)
