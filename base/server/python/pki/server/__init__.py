@@ -105,6 +105,8 @@ class PKIServer(object):
         self.user = user
         self.group = group
 
+        self.passwords = {}
+
     def __repr__(self):
         return self.name
 
@@ -192,6 +194,10 @@ class PKIServer(object):
     @property
     def gid(self):
         return grp.getgrnam(self.group).gr_gid
+
+    @property
+    def password_conf(self):
+        return os.path.join(self.conf_dir, 'password.conf')
 
     @property
     def nssdb_dir(self):
@@ -334,10 +340,69 @@ class PKIServer(object):
 
         logger.info('Loading instance: %s', self.name)
 
+        # load passwords
+        self.passwords.clear()
+        if os.path.exists(self.password_conf):
+            logger.info('Loading password config: %s', self.password_conf)
+            pki.util.load_properties(self.password_conf, self.passwords)
+
     def get_server_config(self):
         server_config = ServerConfiguration(self.server_xml)
         server_config.load()
         return server_config
+
+    def get_password(self, name):
+
+        # find password (e.g. internaldb, replicationdb) in password.conf
+        if name in self.passwords:
+            return self.passwords[name]
+
+        # find password in keyring
+        try:
+            keyring = Keyring()
+            key_name = self.name + '/' + name
+            password = keyring.get_password(key_name=key_name)
+            self.passwords[name] = password
+            return password
+
+        except subprocess.CalledProcessError:
+            logger.info('Password unavailable in Keyring.')
+
+        # prompt for password if not found
+        password = getpass.getpass(prompt='Enter password for %s: ' % name)
+        self.passwords[name] = password
+
+        return password
+
+    def get_token_password(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
+
+        # determine the password name for the token
+        if not pki.nssdb.normalize_token(token):
+            name = pki.nssdb.INTERNAL_TOKEN_NAME
+
+        else:
+            name = 'hardware-%s' % token
+
+        # find password in password.conf
+        if name in self.passwords:
+            return self.passwords[name]
+
+        # find password in keyring
+        try:
+            keyring = Keyring()
+            key_name = self.name + '/' + name
+            password = keyring.get_password(key_name=key_name)
+            self.passwords[name] = password
+            return password
+
+        except subprocess.CalledProcessError:
+            logger.info('Password unavailable in Keyring.')
+
+        # prompt for password if not found
+        password = getpass.getpass(prompt='Enter password for %s: ' % token)
+        self.passwords[name] = password
+
+        return password
 
     @classmethod
     def instances(cls):
@@ -1540,7 +1605,6 @@ class PKIInstance(PKIServer):
 
         self.version = version
 
-        self.passwords = {}
         self.external_certs = []
         self.subsystems = []
 
@@ -1587,10 +1651,6 @@ class PKIInstance(PKIServer):
         return os.path.join(self.conf_dir, 'banner.txt')
 
     @property
-    def password_conf(self):
-        return os.path.join(self.conf_dir, 'password.conf')
-
-    @property
     def external_certs_conf(self):
         return os.path.join(self.conf_dir, 'external_certs.conf')
 
@@ -1622,12 +1682,6 @@ class PKIInstance(PKIServer):
                 m = re.search('^PKI_GROUP=(.*)$', line)
                 if m:
                     self.group = m.group(1)
-
-        # load passwords
-        self.passwords.clear()
-        if os.path.exists(self.password_conf):
-            logger.info('Loading password config: %s', self.password_conf)
-            pki.util.load_properties(self.password_conf, self.passwords)
 
         self.load_external_certs(self.external_certs_conf)
 
@@ -1663,59 +1717,6 @@ class PKIInstance(PKIServer):
                 setattr(tmp_certs[indx], attr, value)
             external_certs = tmp_certs.values()
         return external_certs
-
-    def get_password(self, name):
-
-        # find password (e.g. internaldb, replicationdb) in password.conf
-        if name in self.passwords:
-            return self.passwords[name]
-
-        # find password in keyring
-        try:
-            keyring = Keyring()
-            key_name = self.name + '/' + name
-            password = keyring.get_password(key_name=key_name)
-            self.passwords[name] = password
-            return password
-
-        except subprocess.CalledProcessError:
-            logger.info('Password unavailable in Keyring.')
-
-        # prompt for password if not found
-        password = getpass.getpass(prompt='Enter password for %s: ' % name)
-        self.passwords[name] = password
-
-        return password
-
-    def get_token_password(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
-
-        # determine the password name for the token
-        if not pki.nssdb.normalize_token(token):
-            name = pki.nssdb.INTERNAL_TOKEN_NAME
-
-        else:
-            name = 'hardware-%s' % token
-
-        # find password in password.conf
-        if name in self.passwords:
-            return self.passwords[name]
-
-        # find password in keyring
-        try:
-            keyring = Keyring()
-            key_name = self.name + '/' + name
-            password = keyring.get_password(key_name=key_name)
-            self.passwords[name] = password
-            return password
-
-        except subprocess.CalledProcessError:
-            logger.info('Password unavailable in Keyring.')
-
-        # prompt for password if not found
-        password = getpass.getpass(prompt='Enter password for %s: ' % token)
-        self.passwords[name] = password
-
-        return password
 
     def open_nssdb(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
         return pki.nssdb.NSSDatabase(
