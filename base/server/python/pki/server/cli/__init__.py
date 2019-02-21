@@ -34,6 +34,7 @@ import pki.server.cli.config
 import pki.server.cli.db
 import pki.server.cli.http
 import pki.server.cli.instance
+import pki.server.cli.jss
 import pki.server.cli.kra
 import pki.server.cli.migrate
 import pki.server.cli.nss
@@ -63,6 +64,7 @@ class PKIServerCLI(pki.cli.CLI):
 
         self.add_module(pki.server.cli.password.PasswordCLI())
         self.add_module(pki.server.cli.nss.NSSCLI())
+        self.add_module(pki.server.cli.jss.JSSCLI())
 
         self.add_module(pki.server.cli.ca.CACLI())
         self.add_module(pki.server.cli.kra.KRACLI())
