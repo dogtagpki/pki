@@ -1480,6 +1480,41 @@ class ServerConfiguration(object):
         with open(self.filename, 'wb') as f:
             self.document.write(f, pretty_print=True, encoding='utf-8')
 
+    def get_listeners(self):
+        server = self.document.getroot()
+        return server.findall('Listener')
+
+    def get_listener(self, className):
+
+        listeners = self.get_listeners()
+
+        for listener in listeners:
+            c = listener.get('className')
+            if c == className:
+                return listener
+
+        raise KeyError('Listener not found: %s' % className)
+
+    def create_listener(self, className):
+
+        listener = etree.Element('Listener')
+        listener.set('className', className)
+
+        listeners = self.get_listeners()
+        last_listener = listeners[-1]
+
+        server = self.document.getroot()
+        index = server.index(last_listener) + 1
+        server.insert(index, listener)
+
+        return listener
+
+    def remove_listener(self, className):
+
+        listener = self.get_listener(className)
+        server = listener.getparent()
+        server.remove(listener)
+
     def get_connectors(self):
 
         server = self.document.getroot()

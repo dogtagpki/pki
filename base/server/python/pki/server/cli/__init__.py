@@ -36,6 +36,7 @@ import pki.server.cli.http
 import pki.server.cli.instance
 import pki.server.cli.jss
 import pki.server.cli.kra
+import pki.server.cli.listener
 import pki.server.cli.migrate
 import pki.server.cli.nss
 import pki.server.cli.nuxwdog
@@ -62,6 +63,9 @@ class PKIServerCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.StartCLI())
         self.add_module(pki.server.cli.StopCLI())
 
+        self.add_module(pki.server.cli.http.HTTPCLI())
+        self.add_module(pki.server.cli.listener.ListenerCLI())
+
         self.add_module(pki.server.cli.password.PasswordCLI())
         self.add_module(pki.server.cli.nss.NSSCLI())
         self.add_module(pki.server.cli.jss.JSSCLI())
@@ -80,7 +84,6 @@ class PKIServerCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.nuxwdog.NuxwdogCLI())
         self.add_module(pki.server.cli.cert.CertCLI())
         self.add_module(pki.server.cli.selftest.SelfTestCLI())
-        self.add_module(pki.server.cli.http.HTTPCLI())
 
     def get_full_module_name(self, module_name):
         return module_name
