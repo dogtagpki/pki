@@ -309,13 +309,13 @@ BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.4.0-11
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
-BuildRequires:    jss >= 4.5.0-1
-BuildRequires:    tomcatjss >= 7.3.6
+BuildRequires:    jss >= 4.5.3
+BuildRequires:    tomcatjss >= 7.3.7
 %endif
 BuildRequires:    systemd-units
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    tomcat >= 7.0.69
+%if 0%{?rhel}
+BuildRequires:    pki-servlet-container >= 1:9.0.7
 %else
 %if 0%{?fedora} && 0%{?fedora} <= 27
 BuildRequires:    tomcat >= 8.0.49
@@ -428,7 +428,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.0-1
+Requires:         jss >= 4.5.3
 %endif
 Requires:         nss >= 3.38.0
 
@@ -539,7 +539,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.0-1
+Requires:         jss >= 4.5.3
 %endif
 Requires:         ldapjdk >= 4.20
 Requires:         pki-base >= %{version}-%{release}
@@ -643,8 +643,8 @@ Requires:         python2-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         tomcat >= 7.0.69
+%if 0%{?rhel}
+Requires:         pki-servlet-container >= 1:9.0.7
 %else
 %if 0%{?fedora} && 0%{?fedora} <= 27
 Requires:         tomcat >= 8.0.49
@@ -665,7 +665,7 @@ Requires(pre):    shadow-utils
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         tomcatjss >= 7.2.1-4
 %else
-Requires:         tomcatjss >= 7.3.6
+Requires:         tomcatjss >= 7.3.7
 %endif
 
 # https://pagure.io/freeipa/issue/7742
