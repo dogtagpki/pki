@@ -314,8 +314,8 @@ BuildRequires:    tomcatjss >= 7.3.6
 %endif
 BuildRequires:    systemd-units
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-BuildRequires:    tomcat >= 7.0.69
+%if 0%{?rhel}
+BuildRequires:    pki-servlet-container >= 1:9.0.7
 %else
 %if 0%{?fedora} && 0%{?fedora} <= 27
 BuildRequires:    tomcat >= 8.0.49
@@ -646,8 +646,8 @@ Requires:         python2-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
-Requires:         tomcat >= 7.0.69
+%if 0%{?rhel}
+Requires:         pki-servlet-container >= 1:9.0.7
 %else
 %if 0%{?fedora} && 0%{?fedora} <= 27
 Requires:         tomcat >= 8.0.49
