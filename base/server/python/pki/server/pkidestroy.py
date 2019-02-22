@@ -299,6 +299,5 @@ def log_error_details():
 
 # PKI Deployment Entry Point
 if __name__ == "__main__":
-    logging.basicConfig(format='%(levelname)s: %(message)s')
     signal.signal(signal.SIGINT, interrupt_handler)
     main(sys.argv)
