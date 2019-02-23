@@ -116,6 +116,9 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
         print('      --scheme <scheme>                     Scheme.')
         print('      --secure <true|false>                 Secure.')
         print('      --sslEnabled <true|false>             SSL enabled.')
+        print('      --sslProtocol <protocol>              SSL protocol.')
+        print('      --certVerification <verification>     Certificate verification.')
+        print('      --trustManager <class>                Trust Manager.')
         print('  -v, --verbose                             Run in verbose mode.')
         print('      --debug                               Run in debug mode.')
         print('      --help                                Show help message.')
@@ -127,6 +130,7 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
                 'port=', 'protocol=', 'scheme=', 'secure=', 'sslEnabled=',
+                'sslProtocol=', 'certVerification=', 'trustManager=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -140,6 +144,9 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
         scheme = None
         secure = None
         sslEnabled = None
+        sslProtocol = None
+        certVerification = None
+        trustManager = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -160,6 +167,15 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
             elif o == '--sslEnabled':
                 sslEnabled = a
 
+            elif o == '--sslProtocol':
+                sslProtocol = a
+
+            elif o == '--certVerification':
+                certVerification = a
+
+            elif o == '--trustManager':
+                trustManager = a
+
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
 
@@ -176,14 +192,10 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
                 sys.exit(1)
 
         if len(args) != 1:
-            print('ERROR: Missing connector ID')
-            self.print_help()
-            sys.exit(1)
+            raise Exception('Missing connector ID')
 
         if port is None:
-            print('ERROR: Missing port number')
-            self.print_help()
-            sys.exit(1)
+            raise Exception('Missing port number')
 
         name = args[0]
 
@@ -210,6 +222,12 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
         HTTPConnectorCLI.set_param(connector, 'scheme', scheme)
         HTTPConnectorCLI.set_param(connector, 'secure', secure)
         HTTPConnectorCLI.set_param(connector, 'SSLEnabled', sslEnabled)
+
+        sslhost = server_config.create_sslhost(connector)
+
+        HTTPConnectorCLI.set_param(sslhost, 'sslProtocol', sslProtocol)
+        HTTPConnectorCLI.set_param(sslhost, 'certificateVerification', certVerification)
+        HTTPConnectorCLI.set_param(sslhost, 'trustManagerClassName', trustManager)
 
         server_config.save()
 

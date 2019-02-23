@@ -1605,7 +1605,7 @@ class ServerConfiguration(object):
 
         raise KeyError('SSL host not found: %s' % hostname)
 
-    def create_sslhost(self, connector, hostname):
+    def create_sslhost(self, connector, hostname='_default_'):
 
         sslhost = etree.Element('SSLHostConfig')
         if hostname != '_default_':
