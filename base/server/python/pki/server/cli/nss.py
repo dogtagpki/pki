@@ -47,8 +47,6 @@ class NSSCreateCLI(pki.cli.CLI):
         print('Usage: pki-server nss-create [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --password <password>          NSS database password.')
-        print('      --password-file <path>         NSS database password file.')
         print('      --force                        Force creation.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -60,7 +58,7 @@ class NSSCreateCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:d:v', [
                 'instance=',
-                'password=', 'password-file=', 'force',
+                'force',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -69,19 +67,11 @@ class NSSCreateCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
-        password = None
-        password_file = None
         force = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
-
-            elif o == '--password':
-                password = a
-
-            elif o == '--password-file':
-                password_file = a
 
             elif o == '--force':
                 force = True
@@ -106,13 +96,9 @@ class NSSCreateCLI(pki.cli.CLI):
         if not instance.is_valid():
             raise Exception('Invalid instance: %s' % instance_name)
 
-        if password is None and password_file is None:
-            raise Exception('Missing NSS database password')
+        instance.load()
 
-        instance.create_nssdb(
-            password=password,
-            password_file=password_file,
-            force=force)
+        instance.create_nssdb(force=force)
 
 
 class NSSRemoveCLI(pki.cli.CLI):

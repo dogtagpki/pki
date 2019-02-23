@@ -304,19 +304,15 @@ class PKIServer(object):
         service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
         self.copy(service_conf, self.service_conf, force=force)
 
-    def create_nssdb(self,
-                     password=None,
-                     password_file=None,
-                     force=False):
+    def create_nssdb(self, force=False):
 
         logger.info('Creating NSS database: %s', self.nssdb_dir)
 
-        self.makedirs(self.nssdb_dir, force)
+        self.makedirs(self.nssdb_dir, force=force)
 
         nssdb = pki.nssdb.NSSDatabase(
             directory=self.nssdb_dir,
-            password=password,
-            password_file=password_file)
+            password=self.get_token_password())
 
         nssdb.create()
 
