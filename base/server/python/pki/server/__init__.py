@@ -168,6 +168,10 @@ class PKIServer(object):
         return os.path.join(self.conf_dir, 'context.xml')
 
     @property
+    def logging_properties(self):
+        return os.path.join(self.conf_dir, 'logging.properties')
+
+    @property
     def server_xml(self):
         return os.path.join(self.conf_dir, 'server.xml')
 
@@ -261,6 +265,9 @@ class PKIServer(object):
 
         context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
         self.copy(context_xml, self.context_xml, force=force)
+
+        logging_properties = os.path.join(Tomcat.CONF_DIR, 'logging.properties')
+        self.copy(logging_properties, self.logging_properties, force=force)
 
         server_xml = os.path.join(Tomcat.CONF_DIR, 'server.xml')
         self.copy(server_xml, self.server_xml, force=force)
