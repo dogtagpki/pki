@@ -311,6 +311,9 @@ class PKIServer(object):
         service_conf = os.path.join(SYSCONFIG_DIR, 'tomcat')
         self.copy(service_conf, self.service_conf, force=force)
 
+        with open(self.service_conf, 'a') as f:
+            print('CATALINA_BASE="%s"' % self.base_dir, file=f)
+
     def create_nssdb(self, force=False):
 
         logger.info('Creating NSS database: %s', self.nssdb_dir)
