@@ -896,9 +896,11 @@ class SSLCertAddCLI(pki.cli.CLI):
 
     def print_help(self):
         print('Usage: pki-server http-connector-cert-add '
-              '[OPTIONS] <connector ID> <hostname> <type>')
+              '[OPTIONS] [<type>]')
         print()
         print('  -i, --instance <instance ID>              Instance ID (default: pki-tomcat).')
+        print('      --connector <connector ID>            Connector ID (default: Secure).')
+        print('      --sslHost <hostname>                  SSL host (default: _default_).')
         print('      --certFile <path>                     Certificate file.')
         print('      --keyAlias <alias>                    Key alias.')
         print('      --keyFile <path>                      Key file.')
@@ -916,6 +918,7 @@ class SSLCertAddCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
+                'connector=', 'sslHost=',
                 'certFile=', 'keyAlias=', 'keyFile=',
                 'keystoreType=', 'keystoreProvider=', 'keystoreFile=', 'keystorePassword=',
                 'verbose', 'debug', 'help'])
@@ -926,6 +929,8 @@ class SSLCertAddCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        connector_name = 'Secure'
+        hostname = '_default_'
         certFile = None
         keyAlias = None
         keyFile = None
@@ -937,6 +942,12 @@ class SSLCertAddCLI(pki.cli.CLI):
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--connector':
+                connector_name = a
+
+            elif o == '--sslHost':
+                hostname = a
 
             elif o == '--certFile':
                 certFile = a
@@ -975,19 +986,9 @@ class SSLCertAddCLI(pki.cli.CLI):
                 sys.exit(1)
 
         if len(args) < 1:
-            raise Exception('Missing connector ID')
-
-        connector_name = args[0]
-
-        if len(args) < 2:
-            raise Exception('Missing hostname')
-
-        hostname = args[1]
-
-        if len(args) < 3:
-            raise Exception('Missing certificate type')
-
-        certType = args[2]
+            certType = 'UNDEFINED'
+        else:
+            certType = args[0]
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1029,9 +1030,11 @@ class SSLCertDeleteCLI(pki.cli.CLI):
 
     def print_help(self):
         print('Usage: pki-server http-connector-cert-del '
-              '[OPTIONS] <connector ID> <hostname> <type>')
+              '[OPTIONS] [<type>]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('      --connector <connector ID>  Connector ID (default: Secure).')
+        print('      --sslHost <hostname>        SSL host (default: _default_).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -1042,6 +1045,7 @@ class SSLCertDeleteCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
+                'connector=', 'sslHost=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -1050,10 +1054,18 @@ class SSLCertDeleteCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        connector_name = 'Secure'
+        hostname = '_default_'
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--connector':
+                connector_name = a
+
+            elif o == '--sslHost':
+                hostname = a
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -1071,19 +1083,9 @@ class SSLCertDeleteCLI(pki.cli.CLI):
                 sys.exit(1)
 
         if len(args) < 1:
-            raise Exception('Missing connector ID')
-
-        connector_name = args[0]
-
-        if len(args) < 2:
-            raise Exception('Missing hostname')
-
-        hostname = args[1]
-
-        if len(args) < 3:
-            raise Exception('Missing certificate type')
-
-        certType = args[2]
+            certType = 'UNDEFINED'
+        else:
+            certType = args[0]
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
@@ -1109,9 +1111,11 @@ class SSLCertFindLI(pki.cli.CLI):
 
     def print_help(self):
         print('Usage: pki-server http-connector-cert-find '
-              '[OPTIONS] <connector ID> <hostname>')
+              '[OPTIONS]')
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('      --connector <connector ID>  Connector ID (default: Secure).')
+        print('      --sslHost <hostname>        SSL host (default: _default_).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -1120,8 +1124,9 @@ class SSLCertFindLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
+                'connector=', 'sslHost=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -1130,10 +1135,18 @@ class SSLCertFindLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        connector_name = 'Secure'
+        hostname = '_default_'
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
+
+            elif o == '--connector':
+                connector_name = a
+
+            elif o == '--sslHost':
+                hostname = a
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -1149,16 +1162,6 @@ class SSLCertFindLI(pki.cli.CLI):
                 print('ERROR: Unknown option: %s' % o)
                 self.print_help()
                 sys.exit(1)
-
-        if len(args) < 1:
-            raise Exception('Missing connector ID')
-
-        connector_name = args[0]
-
-        if len(args) < 2:
-            raise Exception('Missing SSL hostname')
-
-        hostname = args[1]
 
         instance = pki.server.PKIServerFactory.create(instance_name)
 
