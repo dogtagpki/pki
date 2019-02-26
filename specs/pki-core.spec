@@ -899,6 +899,7 @@ mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/02-FixDeploymentDescriptor 
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5
 
 # merge newer upgrade scripts into 10.4.1 for RHEL
+mkdir -p %{buildroot}%{_datadir}/pki/server/upgrade/10.4.1
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2/01-AddSessionAuthenticationPlugin \
    %{buildroot}%{_datadir}/pki/server/upgrade/10.4.1/01-AddSessionAuthenticationPlugin
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2/02-AddKRAWrappingParams \
@@ -909,11 +910,13 @@ mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6/01-UpdateKeepAliveTimeout \
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6
 
 # merge newer upgrade scripts into 10.5.1 for RHEL 7.5
+mkdir -p %{buildroot}%{_datadir}/pki/server/upgrade/10.5.1
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5/01-AddTPSExternalRegISEtokenParams \
    %{buildroot}%{_datadir}/pki/server/upgrade/10.5.1/01-AddTPSExternalRegISEtokenParams
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5
 
 # merge newer upgrade scripts into 10.5.9 for RHEL 7.6
+mkdir -p %{buildroot}%{_datadir}/pki/server/upgrade/10.5.9
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.5.14/01-UpdateAuditEvents \
    %{buildroot}%{_datadir}/pki/server/upgrade/10.5.9/01-UpdateAuditEvents
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.5.14
