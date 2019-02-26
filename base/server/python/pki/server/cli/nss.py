@@ -21,6 +21,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import getopt
+import getpass
 import logging
 import sys
 
@@ -48,6 +49,7 @@ class NSSCreateCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --password <password>          NSS database password.')
+        print('      --password-file <path>         NSS database password file.')
         print('      --force                        Force creation.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
@@ -59,7 +61,7 @@ class NSSCreateCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:d:v', [
                 'instance=',
-                'password=', 'force',
+                'password=', 'password-file=', 'force',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -69,6 +71,7 @@ class NSSCreateCLI(pki.cli.CLI):
 
         instance_name = 'pki-tomcat'
         password = None
+        password_file = None
         force = False
 
         for o, a in opts:
@@ -77,6 +80,9 @@ class NSSCreateCLI(pki.cli.CLI):
 
             elif o == '--password':
                 password = a
+
+            elif o == '--password-file':
+                password_file = a
 
             elif o == '--force':
                 force = True
@@ -96,13 +102,17 @@ class NSSCreateCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        if password is None:
-            raise Exception('Missing NSS database password')
-
         instance = pki.server.PKIServerFactory.create(instance_name)
 
         if not instance.is_valid():
             raise Exception('Invalid instance: %s' % instance_name)
+
+        if password_file is not None:
+            with open(password_file) as f:
+                password = f.read().splitlines()[0]
+
+        elif password is None:
+            password = getpass.getpass(prompt='Enter password for NSS database: ')
 
         instance.load()
 
