@@ -219,3 +219,46 @@ If we're importing a `.p12` chain, the process is as follows:
     - Remove all keys with `_remove_all_keys`.
     - Remove all certificates with `_remove_all_certs`.
     - Remove the temporary directory with `__secure_rmtmp`.
+
+
+## Example Usage
+
+Below are several example use cases for `PKICertImport`.
+
+
+### Server Certificate
+
+Server certs are validated with `-u V`; trust is assigned automatically when
+the private key is present. We don't want to trust it as a CA cert, so trust
+flags are empty.
+
+    PKICertImport -d . -n "example.com" -i example-com.crt -t ,, -u V
+
+
+### CA (Root or Intermediate)
+
+CA certs are validated with `-u L`. Trust needs to be manually assigned; we
+give `CT,C,C` to show that it is a trusted CA (`C`), and trusted for client
+authentication (`T`).
+
+    PKICertImport -d . -n "MyCA Cert" -i ca-cert.crt -t CT,C,C -u L
+
+
+### PKCS12 Client Certificate (Leaf Only)
+
+Client certificates are validated with `-u C`. Trust is automatically assigned
+when the private keys are present. We also specify `--leaf` to import only
+the leaf.
+
+    PKICertImport -d . -n "Nick Named" -i nick-named.p12 -t ,, -u C --pkcs12 --leaf
+
+
+### PKCS12 Client Certificate (Chain)
+
+Client certificates are validated with `-u C`. Trust is automatically assigned
+when the private keys are present. We also specify `--chain` to import the
+the full chain. Intermediate certs are validated with `-u L` and are assigned
+full trust once validated (`CT,C,C`). Note that the root CA must be present
+already.
+
+    PKICertImport -d . -n "Nick Named" -i nick-named.p12 -t ,, -u C --pkcs12 --chain --chain-trust CT,C,C --chain-usage L
