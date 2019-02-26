@@ -65,7 +65,7 @@
 Name:             pki-core
 %if 0%{?rhel}
 Version:                10.5.9
-%define redhat_release  9
+%define redhat_release  13
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
@@ -165,10 +165,11 @@ BuildRequires:    policycoreutils-python-utils
 BuildRequires:    python-ldap
 BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
-BuildRequires:    jss >= 4.4.4-3
 %if 0%{?rhel} && 0%{?rhel} <= 7
+BuildRequires:    jss >= 4.4.4-5
 BuildRequires:    tomcatjss >= 7.2.1-8
 %else
+BuildRequires:    jss >= 4.4.4-3
 BuildRequires:    tomcatjss >= 7.2.4-4
 %endif
 BuildRequires:    systemd-units
@@ -305,7 +306,11 @@ Group:            System Environment/Libraries
 
 Requires:         java-1.8.0-openjdk-headless
 Requires:         jpackage-utils >= 0:1.7.5-10
+%if 0%{?rhel} && 0%{?rhel} <= 7
+Requires:         jss >= 4.4.4-5
+%else
 Requires:         jss >= 4.4.4-3
+%endif
 Requires:         nss >= 3.28.3
 
 Provides:         symkey = %{version}-%{release}
@@ -384,7 +389,11 @@ Requires:         slf4j-jdk14
 %endif
 Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
+%if 0%{?rhel} && 0%{?rhel} <= 7
+Requires:         jss >= 4.4.4-5
+%else
 Requires:         jss >= 4.4.4-3
+%endif
 Requires:         ldapjdk >= 4.19-5
 Requires:         pki-base = %{version}-%{release}
 
@@ -797,8 +806,9 @@ This package is a part of the PKI Core used by the Certificate System.
 
 
 %prep
-%setup -q -n %{name}-%{version}%{?prerel}
-#%patch0 -p1
+%autosetup -n %{name}-%{version}%{?prerel} -p 1 -S git
+# With "autosetup" it's not necessary to specify the "patchX" macros.
+# See http://rpm.org/user_doc/autosetup.html.
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -899,7 +909,7 @@ mv %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5/02-FixDeploymentDescriptor 
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.3.5
 
 # merge newer upgrade scripts into 10.4.1 for RHEL
-mkdir -p %{buildroot}%{_datadir}/pki/server/upgrade/10.4.1
+%{__mkdir_p} %{buildroot}%{_datadir}/pki/server/upgrade/10.4.1
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2/01-AddSessionAuthenticationPlugin \
    %{buildroot}%{_datadir}/pki/server/upgrade/10.4.1/01-AddSessionAuthenticationPlugin
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.2/02-AddKRAWrappingParams \
@@ -910,13 +920,13 @@ mv %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6/01-UpdateKeepAliveTimeout \
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.4.6
 
 # merge newer upgrade scripts into 10.5.1 for RHEL 7.5
-mkdir -p %{buildroot}%{_datadir}/pki/server/upgrade/10.5.1
+%{__mkdir_p} %{buildroot}%{_datadir}/pki/server/upgrade/10.5.1
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5/01-AddTPSExternalRegISEtokenParams \
    %{buildroot}%{_datadir}/pki/server/upgrade/10.5.1/01-AddTPSExternalRegISEtokenParams
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5
 
 # merge newer upgrade scripts into 10.5.9 for RHEL 7.6
-mkdir -p %{buildroot}%{_datadir}/pki/server/upgrade/10.5.9
+%{__mkdir_p} %{buildroot}%{_datadir}/pki/server/upgrade/10.5.9
 mv %{buildroot}%{_datadir}/pki/server/upgrade/10.5.14/01-UpdateAuditEvents \
    %{buildroot}%{_datadir}/pki/server/upgrade/10.5.9/01-UpdateAuditEvents
 /bin/rm -rf %{buildroot}%{_datadir}/pki/server/upgrade/10.5.14
