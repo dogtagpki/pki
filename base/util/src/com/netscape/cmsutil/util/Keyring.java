@@ -22,6 +22,7 @@
 package com.netscape.cmsutil.util;
 
 import java.io.IOException;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 public class Keyring {
 
