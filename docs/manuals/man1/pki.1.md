@@ -116,8 +116,8 @@ These services include certificates, groups, keys, security domains, and users.
 ## OPERATIONS
 
 To view available commands and options, simply type **pki**.  Some commands have sub-commands.
-To view the sub-commands, type **pki <command>**.
-To view each command's usage, type **pki <command> --help**.
+To view the sub-commands, type **pki *command***.
+To view each command's usage, type **pki *command* --help**.
 
 An NSS database is needed to execute commands that require crypto operations such as establishing SSL connection.
 See **pki-client(1)** for more information.
@@ -137,7 +137,7 @@ Alternatively, the connection parameters can be specified as a URI:
 $ pki -U <URI> <command>
 ```
 
-where the URI is of the format *&lt;protocol&gt;://&lt;hostname&gt;:&lt;port&gt;*.
+where the URI is of the format *protocol*://*hostname*:*port*.
 
 ## Authentication
 
@@ -173,7 +173,7 @@ $ pki -u <username> -W <client-side password file> <command>
 ```
 
 Finally, if a username has been specified on the command-line,
-and neither the **-W <client-side password file>** nor the **-w <password>** options have been utilized,
+and neither the **-W** *client-side-password-file* nor the **-w** *password* options have been utilized,
 the password will be prompted for.
 
 To authenticate with a username by interactively prompting for a password:
@@ -235,7 +235,7 @@ $ pki -d <NSS database location> -C <NSS password file> -n <client certificate n
 ```
 
 Finally, if a client certificate has been specified on the command-line,
-and neither the **-C <NSS database password file>** nor the **-c <NSS database password>** options have been utilized,
+and neither the **-C** *NSS-database-password-file* nor the **-c** *NSS-database-password* options have been utilized,
 the NSS database password will be prompted for.
 
 To authenticate with a client certificate by interactively prompting for an NSS database password:
