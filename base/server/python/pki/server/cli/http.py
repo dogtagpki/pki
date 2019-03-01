@@ -116,6 +116,7 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
         print('      --scheme <scheme>                     Scheme.')
         print('      --secure <true|false>                 Secure.')
         print('      --sslEnabled <true|false>             SSL enabled.')
+        print('      --sslImpl <class>                     SSL implementation.')
         print('      --sslProtocol <protocol>              SSL protocol.')
         print('      --certVerification <verification>     Certificate verification.')
         print('      --trustManager <class>                Trust Manager.')
@@ -129,7 +130,8 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'port=', 'protocol=', 'scheme=', 'secure=', 'sslEnabled=',
+                'port=', 'protocol=', 'scheme=',
+                'secure=', 'sslEnabled=', 'sslImpl=',
                 'sslProtocol=', 'certVerification=', 'trustManager=',
                 'verbose', 'debug', 'help'])
 
@@ -144,6 +146,7 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
         scheme = None
         secure = None
         sslEnabled = None
+        sslImpl = None
         sslProtocol = None
         certVerification = None
         trustManager = None
@@ -166,6 +169,9 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
 
             elif o == '--sslEnabled':
                 sslEnabled = a
+
+            elif o == '--sslImpl':
+                sslImpl = a
 
             elif o == '--sslProtocol':
                 sslProtocol = a
@@ -222,6 +228,7 @@ class HTTPConnectorAddCLI(pki.cli.CLI):
         HTTPConnectorCLI.set_param(connector, 'scheme', scheme)
         HTTPConnectorCLI.set_param(connector, 'secure', secure)
         HTTPConnectorCLI.set_param(connector, 'SSLEnabled', sslEnabled)
+        HTTPConnectorCLI.set_param(connector, 'sslImplementationName', sslImpl)
 
         sslhost = server_config.create_sslhost(connector)
 

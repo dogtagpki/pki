@@ -309,8 +309,8 @@ BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.4.0-11
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
-BuildRequires:    jss >= 4.5.2-3
-BuildRequires:    tomcatjss >= 7.3.6
+BuildRequires:    jss >= 4.5.3
+BuildRequires:    tomcatjss >= 7.4.0
 %endif
 BuildRequires:    systemd-units
 
@@ -426,7 +426,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.2-3
+Requires:         jss >= 4.5.3
 %endif
 Requires:         nss >= 3.38.0
 
@@ -549,7 +549,7 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.2-3
+Requires:         jss >= 4.5.3
 %endif
 Requires:         ldapjdk >= 4.20
 Requires:         pki-base = %{version}-%{release}
@@ -674,7 +674,7 @@ Requires(pre):    shadow-utils
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         tomcatjss >= 7.2.1-4
 %else
-Requires:         tomcatjss >= 7.3.6
+Requires:         tomcatjss >= 7.4.0
 %endif
 
 # https://pagure.io/freeipa/issue/7742
