@@ -26,6 +26,8 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -52,9 +54,9 @@ import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.tomcat.ExternalPrincipal;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-
 public class CertProcessor extends CAProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertProcessor.class);
 
     public CertProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         super(id, locale);
@@ -68,11 +70,11 @@ public class CertProcessor extends CAProcessor {
 
         Enumeration<String> names = authenticator.getValueNames();
         if (names == null) {
-            CMS.debug("CertProcessor: No authenticator credentials required");
+            logger.warn("CertProcessor: No authenticator credentials required");
             return;
         }
 
-        CMS.debug("CertProcessor: Authentication credentials:");
+        logger.debug("CertProcessor: Authentication credentials:");
         while (names.hasMoreElements()) {
             String name = names.nextElement();
 
@@ -171,7 +173,7 @@ public class CertProcessor extends CAProcessor {
      * is retrieved from request record
      */
     private void setInputsIntoRequest(IRequest request, IProfile profile, IRequest req, Locale locale) {
-        CMS.debug("CertProcessor: setInputsIntoRequest()");
+        logger.debug("CertProcessor: setInputsIntoRequest()");
         // passing inputs into request
         Enumeration<String> inputIds = profile.getProfileInputIds();
 
@@ -184,18 +186,18 @@ public class CertProcessor extends CAProcessor {
                 while (inputNames.hasMoreElements()) {
                     String inputName = inputNames.nextElement();
                     String inputValue = "";
-                    //CMS.debug("CertProcessor: setInputsIntoRequest() getting input name= " + inputName);
+                    //logger.debug("CertProcessor: setInputsIntoRequest() getting input name= " + inputName);
                     try {
                         inputValue = profileInput.getValue(inputName, locale, request);
                     } catch (Exception e) {
-                        CMS.debug("CertProcessor: setInputsIntoRequest() getvalue() failed: " + e.toString());
+                        logger.warn("CertProcessor: setInputsIntoRequest() getvalue() failed: " + e.toString());
                     }
 
                     if (inputValue != null) {
-                        //CMS.debug("CertProcessor: setInputsIntoRequest() setting value in ctx:" + inputValue);
+                        //logger.debug("CertProcessor: setInputsIntoRequest() setting value in ctx:" + inputValue);
                         req.setExtData(inputName, inputValue);
                     }/* else {
-                        CMS.debug("CertProcessor: setInputsIntoRequest() value null");
+                        logger.warn("CertProcessor: setInputsIntoRequest() value null");
                     }*/
                 }
             }
@@ -228,20 +230,20 @@ public class CertProcessor extends CAProcessor {
                 auditRequesterID = auditRequesterID(req);
 
                 /* print request debug
-                CMS.debug("CertProcessor: Request:");
+                logger.debug("CertProcessor: Request:");
                 if (req != null) {
                     Enumeration<String> reqKeys = req.getExtDataKeys();
                     while (reqKeys.hasMoreElements()) {
                         String reqKey = reqKeys.nextElement();
                         String reqVal = req.getExtDataInString(reqKey);
                         if (reqVal != null) {
-                            CMS.debug("CertProcessor: - " + reqKey + ": " + reqVal);
+                            logger.debug("CertProcessor: - " + reqKey + ": " + reqVal);
                         }
                     }
                 }
                 */
 
-                CMS.debug("CertProcessor.submitRequest: calling profile submit");
+                logger.debug("CertProcessor.submitRequest: calling profile submit");
                 profile.submit(authToken, req);
                 req.setRequestStatus(RequestStatus.COMPLETE);
 
@@ -265,7 +267,7 @@ public class CertProcessor extends CAProcessor {
                     notify.notify(req);
                 }
 
-                CMS.debug("CertProcessor: submit " + e);
+                logger.debug("CertProcessor: submit " + e);
                 errorCode = "2";
                 req.setExtData(IRequest.ERROR_CODE, errorCode);
 
@@ -275,7 +277,7 @@ public class CertProcessor extends CAProcessor {
             } catch (ERejectException e) {
                 // return error to the user
                 req.setRequestStatus(RequestStatus.REJECTED);
-                CMS.debug("CertProcessor: submit " + e);
+                logger.warn("CertProcessor: submit " + e);
                 errorCode = "3";
                 req.setExtData(IRequest.ERROR, e.toString());
                 req.setExtData(IRequest.ERROR_CODE, errorCode);
@@ -288,8 +290,7 @@ public class CertProcessor extends CAProcessor {
 
             } catch (Throwable e) {
                 // return error to the user
-                CMS.debug(e);
-                CMS.debug("CertProcessor: submit " + e);
+                logger.warn("CertProcessor: submit " + e.getMessage(), e);
                 errorCode = "1";
                 errorReason = codeToReason(locale, errorCode, null, req.getRequestId());
                 req.setExtData(IRequest.ERROR, errorReason);
@@ -309,8 +310,7 @@ public class CertProcessor extends CAProcessor {
                     profile.getRequestQueue().updateRequest(req);
                 }
             } catch (EBaseException e) {
-                CMS.debug(e);
-                CMS.debug("CertProcessor: updateRequest " + e);
+                logger.warn("CertProcessor: updateRequest " + e.getMessage(), e);
             }
         }
         return errorCode;
@@ -340,7 +340,7 @@ public class CertProcessor extends CAProcessor {
                     String uid = authToken.getInString(IAuthToken.UID);
                     if (uid == null)
                         uid = "";
-                    CMS.debug("CertProcessor: request from RA: " + uid);
+                    logger.debug("CertProcessor: request from RA: " + uid);
                     req.setExtData(ARG_REQUEST_OWNER, uid);
                 }
             }
@@ -355,18 +355,18 @@ public class CertProcessor extends CAProcessor {
 
             if (setId == null) {
                 // no profile set found
-                CMS.debug("CertProcessor: no profile policy set found");
+                logger.error("CertProcessor: no profile policy set found");
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_NO_POLICY_SET_FOUND"));
             }
 
-            CMS.debug("CertProcessor: profileSetid=" + setId);
+            logger.debug("CertProcessor: profileSetid=" + setId);
             req.setExtData(ARG_PROFILE_SET_ID, setId);
             req.setExtData(ARG_PROFILE_REMOTE_HOST, data.getRemoteHost());
             req.setExtData(ARG_PROFILE_REMOTE_ADDR, data.getRemoteAddr());
 
-            CMS.debug("CertProcessor: request " + req.getRequestId());
+            logger.debug("CertProcessor: request " + req.getRequestId());
 
-            CMS.debug("CertProcessor: populating request inputs");
+            logger.debug("CertProcessor: populating request inputs");
             // give authenticator a chance to populate the request
             if (authenticator != null) {
                 authenticator.populate(authToken, req);
