@@ -460,6 +460,7 @@ class MigrateCLI(pki.cli.CLI):
             if connector.get('secure') != 'true':
                 continue
 
+            connector.set('sslImplementationName', 'org.dogtagpki.tomcat.JSSImplementation')
             connector.attrib.pop('sslProtocol', None)
             connector.attrib.pop('clientAuth', None)
             connector.attrib.pop('keystoreType', None)
@@ -475,7 +476,7 @@ class MigrateCLI(pki.cli.CLI):
 
             sslHostConfig.set('sslProtocol', 'SSL')
             sslHostConfig.set('certificateVerification', 'optional')
-            sslHostConfig.set('trustManagerClassName', 'org.dogtagpki.tomcat.PKITrustManager')
+            sslHostConfig.attrib.pop('trustManagerClassName', None)
 
             certificates = sslHostConfig.findall('Certificate')
             if len(certificates) > 0:
