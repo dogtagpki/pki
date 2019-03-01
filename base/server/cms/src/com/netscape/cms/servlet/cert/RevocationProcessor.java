@@ -27,6 +27,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
@@ -46,13 +53,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.IUser;
-
-import org.mozilla.jss.netscape.security.x509.CRLExtensions;
-import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
-import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import com.netscape.cms.logging.Logger;
 
 /**
  * @author Endi S. Dewata
@@ -62,6 +63,8 @@ public class RevocationProcessor extends CertProcessor {
     public final static String REVOKE = "revoke";
     public final static String ON_HOLD = "on-hold";
     public final static String OFF_HOLD = "off-hold";
+
+    protected Logger logger = Logger.getLogger();
 
     long startTime;
 
