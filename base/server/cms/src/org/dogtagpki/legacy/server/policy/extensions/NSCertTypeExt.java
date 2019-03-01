@@ -26,6 +26,12 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -38,13 +44,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
-import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * NS Cert Type policy.
@@ -60,6 +59,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  */
 public class NSCertTypeExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NSCertTypeExt.class);
+
     protected static final String PROP_SET_DEFAULT_BITS = "setDefaultBits";
     protected static final boolean DEF_SET_DEFAULT_BITS = true;
     protected static final String DEF_SET_DEFAULT_BITS_VAL =
@@ -158,7 +160,7 @@ public class NSCertTypeExt extends APolicyRule
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
-        CMS.debug("NSCertTypeExt: Impl: " + NAME + ", Instance: " + getInstanceName() + "::apply()");
+        logger.debug("NSCertTypeExt: Impl: " + NAME + ", Instance: " + getInstanceName() + "::apply()");
 
         X509CertInfo[] ci =
                 req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
@@ -198,7 +200,7 @@ public class NSCertTypeExt extends APolicyRule
                 // delayed to here.
                 if (nsCertTypeExt != null &&
                         extensionIsGood(nsCertTypeExt, req)) {
-                    CMS.debug(
+                    logger.debug(
                             "NSCertTypeExt: already has correct ns cert type ext");
                     return PolicyResult.ACCEPTED;
                 } else if ((nsCertTypeExt != null) &&
@@ -215,7 +217,7 @@ public class NSCertTypeExt extends APolicyRule
                             new CertificateVersion(CertificateVersion.V3));
                     extensions = new CertificateExtensions();
                     certInfo.set(X509CertInfo.EXTENSIONS, extensions);
-                    CMS.debug(
+                    logger.debug(
                             "NSCertTypeExt: Created extensions for adding ns cert type..");
                 }
             }
@@ -248,7 +250,7 @@ public class NSCertTypeExt extends APolicyRule
                     break;
             if (bits == null || j == bits.length) {
                 if (!mSetDefaultBits) {
-                    CMS.debug(
+                    logger.debug(
                             "NSCertTypeExt: no bits requested, not setting default.");
                     return PolicyResult.ACCEPTED;
                 } else
@@ -290,7 +292,7 @@ public class NSCertTypeExt extends APolicyRule
         if (!agentApproved(req) && token == null) {
             // don't know where this came from.
             // set all bits to false to reset.
-            CMS.debug(
+            logger.debug(
                     "NSCertTypeExt: unknown origin: setting ns cert type bits to false");
             boolean[] bits = new boolean[8];
 
@@ -316,7 +318,7 @@ public class NSCertTypeExt extends APolicyRule
                         !nsCertTypeExt.isSet(
                                 NSCertTypeExtension.OBJECT_SIGNING_CA_BIT)) {
                     // min not set so set all.
-                    CMS.debug(
+                    logger.debug(
                             "NSCertTypeExt: is extension good: no ca bits set. set all");
 
                     nsCertTypeExt.set(NSCertTypeExtension.SSL_CA,
@@ -334,7 +336,7 @@ public class NSCertTypeExt extends APolicyRule
                         !nsCertTypeExt.isSet(
                                 NSCertTypeExtension.OBJECT_SIGNING_BIT)) {
                     // min not set so set all.
-                    CMS.debug(
+                    logger.debug(
                             "NSCertTypeExt: is extension good: no cl bits set. set all");
                     nsCertTypeExt.set(NSCertTypeExtension.SSL_CLIENT,
                             new Boolean(true));
@@ -362,15 +364,15 @@ public class NSCertTypeExt extends APolicyRule
     protected boolean[] getBitsFromRequest(IRequest req, boolean setDefault) {
         boolean[] bits = null;
 
-        CMS.debug("NSCertTypeExt: ns cert type getting ns cert type vars");
+        logger.debug("NSCertTypeExt: ns cert type getting ns cert type vars");
         bits = getNSCertTypeBits(req);
         if (bits == null && setDefault) {
             // no ns cert type bits set in request. go with cert type.
-            CMS.debug("NSCertTypeExt: ns cert type getting cert type vars");
+            logger.debug("NSCertTypeExt: ns cert type getting cert type vars");
             bits = getCertTypeBits(req);
 
             if (bits == null && setDefault) {
-                CMS.debug("NSCertTypeExt: ns cert type getting def bits");
+                logger.debug("NSCertTypeExt: ns cert type getting def bits");
                 bits = DEF_BITS;
             }
         }
@@ -419,13 +421,13 @@ public class NSCertTypeExt extends APolicyRule
 
         for (i = bits.length - 1; i >= 0; i--) {
             if (bits[i] == true) {
-                CMS.debug("NSCertTypeExt: bit " + i + " is set.");
+                logger.debug("NSCertTypeExt: bit " + i + " is set.");
                 break;
             }
         }
         if (i < 0) {
             // nothing was set.
-            CMS.debug("NSCertTypeExt: No bits were set.");
+            logger.debug("NSCertTypeExt: No bits were set.");
             bits = null;
         }
         return bits;
@@ -447,25 +449,25 @@ public class NSCertTypeExt extends APolicyRule
             bits[i] = false;
 
         if (certType.equals(IRequest.CLIENT_CERT)) {
-            CMS.debug("NSCertTypeExt: setting bits for client cert");
+            logger.debug("NSCertTypeExt: setting bits for client cert");
             // we can only guess here when it's client.
             // sets all client bit for default.
             bits[NSCertTypeExtension.SSL_CLIENT_BIT] = true;
             bits[NSCertTypeExtension.EMAIL_BIT] = true;
             //bits[NSCertTypeExtension.OBJECT_SIGNING_BIT] = true;
         } else if (certType.equals(IRequest.SERVER_CERT)) {
-            CMS.debug("NSCertTypeExt: setting bits for server cert");
+            logger.debug("NSCertTypeExt: setting bits for server cert");
             bits[NSCertTypeExtension.SSL_SERVER_BIT] = true;
         } else if (certType.equals(IRequest.CA_CERT)) {
-            CMS.debug("NSCertType: setting bits for ca cert");
+            logger.debug("NSCertType: setting bits for ca cert");
             bits[NSCertTypeExtension.SSL_CA_BIT] = true;
             bits[NSCertTypeExtension.EMAIL_CA_BIT] = true;
             bits[NSCertTypeExtension.OBJECT_SIGNING_CA_BIT] = true;
         } else if (certType.equals(IRequest.RA_CERT)) {
-            CMS.debug("NSCertType: setting bits for ra cert");
+            logger.debug("NSCertType: setting bits for ra cert");
             bits[NSCertTypeExtension.SSL_CLIENT_BIT] = true;
         } else {
-            CMS.debug("NSCertTypeExt: no other cert bits set");
+            logger.debug("NSCertTypeExt: no other cert bits set");
             // return null to use default.
             bits = DEF_BITS;
         }
@@ -480,7 +482,7 @@ public class NSCertTypeExt extends APolicyRule
     public void mergeBits(NSCertTypeExtension nsCertTypeExt, boolean[] bits) {
         for (int i = bits.length - 1; i >= 0; i--) {
             if (bits[i] == true) {
-                CMS.debug("NSCertTypeExt: ns cert type merging bit " + i);
+                logger.debug("NSCertTypeExt: ns cert type merging bit " + i);
                 nsCertTypeExt.set(i, true);
             }
         }
