@@ -32,6 +32,10 @@ import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.GeneralizedTime;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.cert.Extension;
 
 import com.netscape.certsrv.apps.CMS;
@@ -71,11 +75,6 @@ import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
 
-import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509Key;
-
 /**
  * This is the default OCSP store that stores revocation information
  * as certificate record (CMS internal data structure).
@@ -83,6 +82,8 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class DefStore implements IDefStore, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DefStore.class);
 
     // refreshInSec is useful in the master-clone situation.
     // clone does not know that the CRL has been updated in
@@ -325,11 +326,11 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public OCSPResponse validate(OCSPRequest request)
             throws EBaseException {
 
-        CMS.debug("DefStore: validating OCSP request");
+        logger.debug("DefStore: validating OCSP request");
 
         TBSRequest tbsReq = request.getTBSRequest();
         if (tbsReq.getRequestCount() == 0) {
-            CMS.debug("DefStore: No request found");
+            logger.error("DefStore: No request found");
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
             throw new EBaseException("OCSP request is empty");
         }
@@ -443,7 +444,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
-        CMS.debug("DefStore: processing request for cert 0x" + serialNo.toString(16));
+        logger.debug("DefStore: processing request for cert 0x" + serialNo.toString(16));
 
         // cache result to speed up the performance
         X509CertImpl theCert = null;
@@ -490,16 +491,16 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 }
 
                 if (rec.getCRLCache() == null) {
-                    CMS.debug("DefStore: start building x509 crl impl");
+                    logger.debug("DefStore: start building x509 crl impl");
                     try {
                         theCRL = new X509CRLImpl(crldata);
                     } catch (Exception e) {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CRL", e.toString()));
                         throw e;
                     }
-                    CMS.debug("DefStore: done building x509 crl impl");
+                    logger.debug("DefStore: done building x509 crl impl");
                 } else {
-                    CMS.debug("DefStore: using crl cache");
+                    logger.debug("DefStore: using crl cache");
                 }
 
                 mCacheCRLIssuingPoints.put(new String(digest), new CRLIPContainer(theRec, theCert, theCRL));
@@ -526,11 +527,11 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
         } else {
             Date d = theRec.getThisUpdate();
-            CMS.debug("DefStore: CRL record this update: " + d);
+            logger.debug("DefStore: CRL record this update: " + d);
             thisUpdate = new GeneralizedTime(d);
         }
 
-        CMS.debug("DefStore: this update: " + thisUpdate.toDate());
+        logger.debug("DefStore: this update: " + thisUpdate.toDate());
 
         // this is an optional field
         GeneralizedTime nextUpdate;
@@ -543,11 +544,11 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
         } else {
             Date d = theRec.getNextUpdate();
-            CMS.debug("DefStore: CRL record next update: " + d);
+            logger.debug("DefStore: CRL record next update: " + d);
             nextUpdate = new GeneralizedTime(d);
         }
 
-        CMS.debug("DefStore: next update: " + (nextUpdate == null ? null : nextUpdate.toDate()));
+        logger.debug("DefStore: next update: " + (nextUpdate == null ? null : nextUpdate.toDate()));
 
         CertStatus certStatus;
 
@@ -560,7 +561,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             }
 
             // if crl is not available, we can try crl cache
-            CMS.debug("DefStore: evaluating crl cache");
+            logger.debug("DefStore: evaluating crl cache");
             Hashtable<BigInteger, RevokedCertificate> cache = theRec.getCRLCacheNoClone();
             if (cache != null) {
                 RevokedCertificate rc = cache.get(new BigInteger(serialNo.toString()));
@@ -582,7 +583,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     nextUpdate);
         }
 
-        CMS.debug("DefStore: evaluating x509 crl impl");
+        logger.debug("DefStore: evaluating x509 crl impl");
         X509CRLEntry crlentry = theCRL.getRevokedCertificate(new BigInteger(serialNo.toString()));
 
         if (crlentry == null) {
@@ -650,8 +651,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
             s.modify(dn, mods);
         } catch (EBaseException e) {
-            CMS.debug("modifyCRLIssuingPointRecord: error=" + e);
-            CMS.debug(e);
+            logger.error("modifyCRLIssuingPointRecord: " + e.getMessage(), e);
             throw e;
         } finally {
             if (s != null)
@@ -696,7 +696,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         try {
             s = mDBService.createSession();
             String name = "cn=" + transformDN(id) + "," + getBaseDN();
-            CMS.debug("DefStore::deleteCRLIssuingPointRecord: Attempting to delete: " + name);
+            logger.debug("DefStore::deleteCRLIssuingPointRecord: Attempting to delete: " + name);
             if (s != null) {
                 deleteAllCRLsInCA(id);
                 s.delete(name);
@@ -867,13 +867,13 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         try {
             mStateCount++;
 
-            CMS.debug("DefStore: Ready to update Issuer");
+            logger.debug("DefStore: Ready to update Issuer");
 
             try {
                 if (!((X509CRLImpl) crl).areEntriesIncluded())
                     crl = new X509CRLImpl(((X509CRLImpl) crl).getEncoded());
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.warn("DefStore: " + e.getMessage(), e);
             }
 
             // commit update
@@ -913,11 +913,11 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             } catch (Exception e) {
                 // ignore
             }
-            CMS.debug("DefStore: ready to CRL update " +
+            logger.debug("DefStore: ready to CRL update " +
                     crl.getIssuerDN().getName());
             modifyCRLIssuingPointRecord(
                     crl.getIssuerDN().getName(), mods);
-            CMS.debug("DefStore: done CRL update " +
+            logger.debug("DefStore: done CRL update " +
                     crl.getIssuerDN().getName());
 
             // update cache
@@ -978,6 +978,9 @@ class CRLIPContainer {
 }
 
 class DefStoreCRLUpdater extends Thread {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DefStoreCRLUpdater.class);
+
     private Hashtable<String, CRLIPContainer> mCache = null;
     private int mSec = 0;
 
@@ -989,7 +992,7 @@ class DefStoreCRLUpdater extends Thread {
     public void run() {
         while (true) {
             try {
-                CMS.debug("DefStore: CRLUpdater invoked");
+                logger.debug("DefStore: CRLUpdater invoked");
                 mCache.clear();
                 sleep(mSec * 1000); // turn sec into millis-sec
             } catch (Exception e) {
