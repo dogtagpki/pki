@@ -152,6 +152,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
                port="[PKI_SECURE_PORT]"
                protocol="org.dogtagpki.tomcat.Http11NioProtocol"
                SSLEnabled="true"
+               sslImplementationName="org.dogtagpki.tomcat.JSSImplementation"
                scheme="https"
                secure="true"
                connectionTimeout="80000"
@@ -179,8 +180,7 @@ Tomcat Port         = [TOMCAT_SERVER_PORT] (for shutdown)
                certdbDir="[PKI_INSTANCE_PATH]/alias">
 
         <SSLHostConfig sslProtocol="SSL"
-                       certificateVerification="optional"
-                       trustManagerClassName="org.dogtagpki.tomcat.PKITrustManager">
+                       certificateVerification="optional">
             <Certificate certificateKeystoreType="pkcs11"
                          certificateKeystoreProvider="Mozilla-JSS"
                          certificateKeyAlias="sslserver"/>
