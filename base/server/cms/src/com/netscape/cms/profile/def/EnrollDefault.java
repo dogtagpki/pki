@@ -24,23 +24,6 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IAttrSet;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.pattern.Pattern;
-import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.ICertInfoPolicyDefault;
-import com.netscape.certsrv.profile.IEnrollProfile;
-import com.netscape.certsrv.profile.IPolicyDefault;
-import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.property.EPropertyException;
-import com.netscape.certsrv.property.IDescriptor;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cmscore.cert.PrettyPrintFormat;
-
 import org.mozilla.jss.netscape.security.extensions.KerberosName;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
@@ -61,12 +44,31 @@ import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IAttrSet;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.pattern.Pattern;
+import com.netscape.certsrv.profile.EProfileException;
+import com.netscape.certsrv.profile.ICertInfoPolicyDefault;
+import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.profile.IPolicyDefault;
+import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.property.EPropertyException;
+import com.netscape.certsrv.property.IDescriptor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmscore.cert.PrettyPrintFormat;
+
 /**
  * This class implements an enrollment default policy.
  *
  * @version $Revision$, $Date$
  */
 public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollDefault.class);
 
     public static final String PROP_NAME = "name";
 
@@ -121,13 +123,13 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     public String getConfig(String name, String defval) {
 
         if (mConfig == null) {
-            CMS.debug("Error: Missing profile configuration");
+            logger.error("Error: Missing profile configuration");
             return null;
         }
 
         IConfigStore params = mConfig.getSubStore("params");
         if (params == null) {
-            CMS.debug("Error: Missing constraint parameters");
+            logger.error("Error: Missing constraint parameters");
             return null;
         }
 
@@ -135,7 +137,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             return params.getString(name, defval);
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("EnrollDefault: " + e.getMessage(), e);
             return null;
         }
     }
@@ -219,14 +221,14 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         String name = getClass().getName();
 
         name = name.substring(name.lastIndexOf('.') + 1);
-        CMS.debug(method + name + ": start");
+        logger.debug(method + name + ": start");
         X509CertInfo info =
                 request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
 
         populate(request, info);
 
         request.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
-        CMS.debug(method + name + ": end");
+        logger.debug(method + name + ": end");
     }
 
     public void addValueName(String name) {
@@ -263,7 +265,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
 
         boolean ret = request.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
         if (ret == false) {
-            CMS.debug("EnrollDefault: setValue(): request.setExtData() returned false");
+            logger.error("EnrollDefault: setValue(): request.setExtData() returned false");
             throw new EPropertyException("EnrollDefault: setValue(): request.setExtData() failed");
         }
     }
@@ -327,7 +329,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
                 }
             }
         } catch (Exception e) {
-            CMS.debug(e.toString());
+            logger.warn("EnrollDefault: " + e.getMessage(), e);
         }
     }
 
@@ -335,7 +337,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         CertificateExtensions exts = null;
 
         if (info == null) {
-            CMS.debug("EnrollDefault: getExtension(), info == null");
+            logger.error("EnrollDefault: getExtension(), info == null");
             return null;
         }
 
@@ -343,7 +345,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             exts = (CertificateExtensions)
                     info.get(X509CertInfo.EXTENSIONS);
         } catch (Exception e) {
-            CMS.debug("EnrollDefault: getExtension " + e.toString());
+            logger.warn("EnrollDefault: getExtension " + e.getMessage(), e);
         }
         if (exts == null)
             return null;
@@ -376,7 +378,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
 
         if (alreadyPresentExtension != null) {
             String eName = ext.toString();
-            CMS.debug("EnrollDefault.addExtension: duplicate extension attempted! Name:  " + eName);
+            logger.error("EnrollDefault.addExtension: duplicate extension attempted! Name:  " + eName);
             throw new EProfileException(CMS.getUserMessage("CMS_PROFILE_DUPLICATE_EXTENSION", eName));
         }
 
@@ -384,7 +386,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             exts = (CertificateExtensions)
                     info.get(X509CertInfo.EXTENSIONS);
         } catch (Exception e) {
-            CMS.debug("EnrollDefault: " + e.toString());
+            logger.warn("EnrollDefault: " + e.getMessage(), e);
         }
         if (exts == null) {
             throw new EProfileException("extensions not found");
@@ -392,7 +394,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         try {
             exts.set(name, ext);
         } catch (IOException e) {
-            CMS.debug("EnrollDefault: " + e.toString());
+            logger.warn("EnrollDefault: " + e.getMessage(), e);
         }
     }
 
@@ -496,12 +498,12 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             return new URIName(nameValue);
         }
         if (nameType.equalsIgnoreCase("IPAddress")) {
-            CMS.debug("IP Value:" + nameValue);
+            logger.debug("IP Value:" + nameValue);
             if (nameValue.indexOf('/') != -1) {
                 StringTokenizer st = new StringTokenizer(nameValue, "/");
                 String addr = st.nextToken();
                 CIDRNetmask netmask = new CIDRNetmask(st.nextToken());
-                CMS.debug("addr:" + addr + " CIDR netmask: " + netmask);
+                logger.debug("addr:" + addr + " CIDR netmask: " + netmask);
                 return new IPAddressName(addr, netmask);
             } else if (nameValue.indexOf(',') != -1) {
                 // interpret as IPADDR "," NETMASK e.g.
@@ -510,7 +512,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
                 StringTokenizer st = new StringTokenizer(nameValue, ",");
                 String addr = st.nextToken();
                 String netmask = st.nextToken();
-                CMS.debug("addr:" + addr + " netmask: " + netmask);
+                logger.debug("addr:" + addr + " netmask: " + netmask);
                 return new IPAddressName(addr, netmask);
             } else {
                 return new IPAddressName(nameValue);
@@ -537,8 +539,8 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
                 String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
                 String on_value = nameValue.substring(pos1 + 1).trim();
                 if (isValidOID(on_oid)) {
-                    CMS.debug("OtherName about to create OtherName object:");
-                    CMS.debug("OID: " + on_oid + " Value:" + on_value);
+                    logger.debug("OtherName about to create OtherName object:");
+                    logger.debug("OID: " + on_oid + " Value:" + on_value);
                     return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_PrintableString, on_value);
                 } else {
                     return null;
@@ -611,10 +613,10 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
                 String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
                 String on_value = nameValue.substring(pos1 + 1).trim();
                 if (isValidOID(on_oid)) {
-                    CMS.debug("OID: " + on_oid + " Value:" + on_value);
+                    logger.debug("OID: " + on_oid + " Value:" + on_value);
                     return new OtherName(new ObjectIdentifier(on_oid), getBytes(on_value));
                 } else {
-                    CMS.debug("Invalid OID " + on_oid);
+                    logger.error("Invalid OID " + on_oid);
                     return null;
                 }
             } else {
@@ -706,14 +708,14 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             String token = st.nextToken();
 
             if (token.equals("Record #" + num)) {
-                CMS.debug("parseRecords: Record" + num);
+                logger.debug("parseRecords: Record" + num);
                 nvps = new NameValuePairs();
                 v.addElement(nvps);
                 try {
                     token = st.nextToken();
                 } catch (NoSuchElementException e) {
                     v.removeElementAt(num);
-                    CMS.debug(e.toString());
+                    logger.warn("EnrollDefault: " + e.getMessage());
                     return v;
                 }
                 num++;
@@ -725,7 +727,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             int pos = token.indexOf(":");
 
             if (pos <= 0) {
-                CMS.debug("parseRecords: No colon found in the input line");
+                logger.error("parseRecords: No colon found in the input line");
                 throw new EPropertyException("Bad Input Format");
             } else {
                 if (pos == (token.length() - 1)) {
