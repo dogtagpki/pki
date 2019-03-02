@@ -45,6 +45,9 @@ import com.netscape.cmscore.security.JssSubsystem;
  * @version $Revision$, $Date$
  */
 public class RandomizedValidityDefault extends EnrollDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RandomizedValidityDefault.class);
+
     public static final String CONFIG_RANGE = "range";
     public static final String CONFIG_START_TIME = "startTime";
     public static final String CONFIG_NOT_BEFORE_RANDOM_BITS = "notBeforeRandomBits";
@@ -176,7 +179,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
                 validity.set(CertificateValidity.NOT_BEFORE,
                         date);
             } catch (Exception e) {
-                CMS.debug("RandomizedValidityDefault: setValue " + e.toString());
+                logger.error("RandomizedValidityDefault: setValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -193,7 +196,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
                 validity.set(CertificateValidity.NOT_AFTER,
                         date);
             } catch (Exception e) {
-                CMS.debug("RandomizedValidityDefault: setValue " + e.toString());
+                logger.error("RandomizedValidityDefault: setValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -222,7 +225,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
                 return formatter.format((Date)
                         validity.get(CertificateValidity.NOT_BEFORE));
             } catch (Exception e) {
-                CMS.debug("RandomizedValidityDefault: getValue " + e.toString());
+                logger.warn("RandomizedValidityDefault: getValue " + e.getMessage(), e);
             }
             throw new EPropertyException("Invalid valie");
         } else if (name.equals(VAL_NOT_AFTER)) {
@@ -236,7 +239,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
                 return formatter.format((Date)
                         validity.get(CertificateValidity.NOT_AFTER));
             } catch (Exception e) {
-                CMS.debug("RandomizedValidityDefault: getValue " + e.toString());
+                logger.warn("RandomizedValidityDefault: getValue " + e.getMessage(), e);
             }
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -258,7 +261,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
 
         if (numBits > Integer.SIZE) {
             numBits = Integer.SIZE;
-            CMS.debug("RandomizedValidityDefault randomSecs "+
+            logger.debug("RandomizedValidityDefault randomSecs "+
                       "- number of bits limited to "+numBits);
         }
         if (numBits > 0) {
@@ -272,7 +275,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
             }
             secs &= maxSecs;
         }
-        CMS.debug("RandomizedValidityDefault randomSecs  numBits="+numBits+
+        logger.debug("RandomizedValidityDefault randomSecs  numBits="+numBits+
                   "  secs="+secs+"  maxSecs="+maxSecs);
         return secs;
     }
@@ -287,7 +290,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
         try {
             startTimeStr = mapPattern(request, startTimeStr);
         } catch (IOException e) {
-            CMS.debug("RandomizedValidityDefault: populate " + e.toString());
+            logger.warn("RandomizedValidityDefault: populate " + e.getMessage(), e);
         }
 
         if (startTimeStr == null || startTimeStr.equals("")) {
@@ -309,12 +312,12 @@ public class RandomizedValidityDefault extends EnrollDefault {
         int randomSeconds = randomSecs(notBeforeRandomBits);
         long currentTime = CMS.getCurrentDate().getTime();
         Date notBefore = new Date(currentTime + (1000 * startTime));
-        CMS.debug("RandomizedValidityDefault populate  notBefore           = "+notBefore);
+        logger.debug("RandomizedValidityDefault populate  notBefore           = "+notBefore);
         Date notBeforeRandomized = new Date(currentTime + (1000 * (startTime - randomSeconds)));
-        CMS.debug("RandomizedValidityDefault populate  notBeforeRandomized = "+notBeforeRandomized);
+        logger.debug("RandomizedValidityDefault populate  notBeforeRandomized = "+notBeforeRandomized);
         int maxNotBeforeSecs = (1 << notBeforeRandomBits) - 1;
         Date notBeforeMax = new Date(currentTime + (1000 * (startTime - maxNotBeforeSecs)));
-        CMS.debug("RandomizedValidityDefault populate  notBeforeMax        = "+notBeforeMax);
+        logger.debug("RandomizedValidityDefault populate  notBeforeMax        = "+notBeforeMax);
 
         long notAfterValue = 0;
         long notAfterValueRandomized = 0;
@@ -331,16 +334,16 @@ public class RandomizedValidityDefault extends EnrollDefault {
                                (1000 * maxNotAfterSecs);
         } catch (Exception e) {
             // configured value is not correct
-            CMS.debug("RandomizedValidityDefault: populate " + e.toString());
+            logger.error("RandomizedValidityDefault: populate " + e.getMessage(), e);
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_INVALID_PROPERTY", CONFIG_RANGE));
         }
         Date notAfter = new Date(notAfterValue);
-        CMS.debug("RandomizedValidityDefault populate  notAfter            = "+notAfter);
+        logger.debug("RandomizedValidityDefault populate  notAfter            = "+notAfter);
         Date notAfterRandomized = new Date(notAfterValueRandomized);
-        CMS.debug("RandomizedValidityDefault populate  notAfterRandomized  = "+notAfterRandomized);
+        logger.debug("RandomizedValidityDefault populate  notAfterRandomized  = "+notAfterRandomized);
         Date notAfterMax = new Date(notAfterValueMax);
-        CMS.debug("RandomizedValidityDefault populate  notAfterMax         = "+notAfterMax);
+        logger.debug("RandomizedValidityDefault populate  notAfterMax         = "+notAfterMax);
         CertificateValidity validity =
                 new CertificateValidity(notBeforeRandomized, notAfterRandomized);
 
@@ -348,7 +351,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
             info.set(X509CertInfo.VALIDITY, validity);
         } catch (Exception e) {
             // failed to insert subject name
-            CMS.debug("RandomizedValidityDefault: populate " + e.toString());
+            logger.error("RandomizedValidityDefault: populate " + e.getMessage(), e);
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_INVALID_PROPERTY", X509CertInfo.VALIDITY));
         }
