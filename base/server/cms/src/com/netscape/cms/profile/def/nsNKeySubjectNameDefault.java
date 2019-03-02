@@ -22,6 +22,10 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
@@ -38,9 +42,6 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements an enrollment default policy
@@ -50,6 +51,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class nsNKeySubjectNameDefault extends EnrollDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(nsNKeySubjectNameDefault.class);
 
     public static final String PROP_LDAP = "ldap";
     public static final String PROP_PARAMS = "params";
@@ -118,7 +121,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
-        CMS.debug("nsNKeySubjectNameDefault: in getConfigDescriptor, name=" + name);
+        logger.debug("nsNKeySubjectNameDefault: in getConfigDescriptor, name=" + name);
         if (name.equals(CONFIG_DNPATTERN)) {
             return new Descriptor(IDescriptor.STRING,
                     null, null, CMS.getUserMessage(locale,
@@ -168,7 +171,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
-        CMS.debug("nsNKeySubjectNameDefault: in getValueDescriptor name=" + name);
+        logger.debug("nsNKeySubjectNameDefault: in getValueDescriptor name=" + name);
 
         if (name.equals(VAL_NAME)) {
             return new Descriptor(IDescriptor.STRING,
@@ -185,7 +188,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
             X509CertInfo info, String value)
             throws EPropertyException {
 
-        CMS.debug("nsNKeySubjectNameDefault: in setValue, value=" + value);
+        logger.debug("nsNKeySubjectNameDefault: in setValue, value=" + value);
 
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
@@ -197,16 +200,16 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
             try {
                 x500name = new X500Name(value);
             } catch (IOException e) {
-                CMS.debug("nsNKeySubjectNameDefault: setValue " + e.toString());
+                logger.warn("nsNKeySubjectNameDefault: setValue " + e.getMessage(), e);
                 // failed to build x500 name
             }
-            CMS.debug("nsNKeySubjectNameDefault: setValue name=" + x500name);
+            logger.debug("nsNKeySubjectNameDefault: setValue name=" + x500name);
             try {
                 info.set(X509CertInfo.SUBJECT,
                         new CertificateSubjectName(x500name));
             } catch (Exception e) {
                 // failed to insert subject name
-                CMS.debug("nsNKeySubjectNameDefault: setValue " + e.toString());
+                logger.error("nsNKeySubjectNameDefault: setValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -219,7 +222,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
-        CMS.debug("nsNKeySubjectNameDefault: in getValue, name=" + name);
+        logger.debug("nsNKeySubjectNameDefault: in getValue, name=" + name);
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -228,14 +231,14 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
             CertificateSubjectName sn = null;
 
             try {
-                CMS.debug("nsNKeySubjectNameDefault: getValue info=" + info);
+                logger.debug("nsNKeySubjectNameDefault: getValue info=" + info);
                 sn = (CertificateSubjectName)
                         info.get(X509CertInfo.SUBJECT);
-                CMS.debug("nsNKeySubjectNameDefault: getValue name=" + sn);
+                logger.debug("nsNKeySubjectNameDefault: getValue name=" + sn);
                 return sn.toString();
             } catch (Exception e) {
                 // nothing
-                CMS.debug("nsNKeySubjectNameDefault: getValue " + e.toString());
+                logger.warn("nsNKeySubjectNameDefault: getValue " + e.getMessage(), e);
 
             }
             throw new EPropertyException(CMS.getUserMessage(
@@ -247,7 +250,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
     }
 
     public String getText(Locale locale) {
-        CMS.debug("nsNKeySubjectNameDefault: in getText");
+        logger.debug("nsNKeySubjectNameDefault: in getText");
         return CMS.getUserMessage(locale, "CMS_PROFILE_SUBJECT_NAME",
                 getConfig(CONFIG_DNPATTERN));
     }
@@ -257,7 +260,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
         if (mInitialized == true)
             return;
 
-        CMS.debug("nsNKeySubjectNameDefault: ldapInit(): begin");
+        logger.debug("nsNKeySubjectNameDefault: ldapInit(): begin");
 
         try {
             // cfu - XXX do more error handling here later
@@ -287,10 +290,10 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
                     mLdapStringAttrs[i] = ((String) pAttrs.nextElement()).trim();
                 }
             }
-            CMS.debug("nsNKeySubjectNameDefault: ldapInit(): done");
+            logger.debug("nsNKeySubjectNameDefault: ldapInit(): done");
             mInitialized = true;
         } catch (Exception e) {
-            CMS.debug("nsNKeySubjectNameDefault: ldapInit(): " + e.toString());
+            logger.error("nsNKeySubjectNameDefault: ldapInit(): " + e.getMessage(), e);
             // throw EProfileException...
             throw new EProfileException("ldap init failure: " + e.toString());
         }
@@ -302,19 +305,19 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         X500Name name = null;
-        CMS.debug("nsNKeySubjectNameDefault: in populate");
+        logger.debug("nsNKeySubjectNameDefault: in populate");
         ldapInit();
         try {
             // cfu - this goes to ldap
             String subjectName = getSubjectName(request);
-            CMS.debug("subjectName=" + subjectName);
+            logger.debug("subjectName=" + subjectName);
             if (subjectName == null || subjectName.equals(""))
                 return;
 
             name = new X500Name(subjectName);
         } catch (IOException e) {
             // failed to build x500 name
-            CMS.debug("nsNKeySubjectNameDefault: populate " + e.toString());
+            logger.warn("nsNKeySubjectNameDefault: populate " + e.getMessage(), e);
         }
         if (name == null) {
             // failed to build x500 name
@@ -324,14 +327,14 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
                     new CertificateSubjectName(name));
         } catch (Exception e) {
             // failed to insert subject name
-            CMS.debug("nsNKeySubjectNameDefault: populate " + e.toString());
+            logger.warn("nsNKeySubjectNameDefault: populate " + e.getMessage(), e);
         }
     }
 
     private String getSubjectName(IRequest request)
             throws EProfileException, IOException {
 
-        CMS.debug("nsNKeySubjectNameDefault: in getSubjectName");
+        logger.debug("nsNKeySubjectNameDefault: in getSubjectName");
 
         String pattern = getConfig(CONFIG_DNPATTERN);
         if (pattern == null || pattern.equals("")) {
@@ -345,30 +348,30 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
         try {
             if (mConnFactory == null) {
                 conn = null;
-                CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): no LDAP connection");
+                logger.error("nsNKeySubjectNameDefault: getSubjectName(): no LDAP connection");
                 throw new EProfileException("no LDAP connection");
             } else {
                 conn = mConnFactory.getConn();
                 if (conn == null) {
-                    CMS.debug("nsNKeySubjectNameDefault::getSubjectName() - " +
+                    logger.error("nsNKeySubjectNameDefault::getSubjectName() - " +
                                "no LDAP connection");
                     throw new EProfileException("no LDAP connection");
                 }
-                CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): got LDAP connection");
+                logger.debug("nsNKeySubjectNameDefault: getSubjectName(): got LDAP connection");
             }
 
             if (request != null) {
-                CMS.debug("pattern = " + pattern);
+                logger.debug("pattern = " + pattern);
                 sbjname = mapPattern(request, pattern);
-                CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): subject name mapping done");
+                logger.debug("nsNKeySubjectNameDefault: getSubjectName(): subject name mapping done");
             } else {
-                CMS.debug("nsNKeySubjectNameDefault::getSubjectName() - " +
+                logger.error("nsNKeySubjectNameDefault::getSubjectName() - " +
                            "request is null!");
                 throw new EProfileException("request is null");
             }
             // retrieve the attributes
             // get user dn.
-            CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): about to search with basedn = " + mBaseDN);
+            logger.debug("nsNKeySubjectNameDefault: getSubjectName(): about to search with basedn = " + mBaseDN);
             LDAPSearchResults res = conn.search(mBaseDN,
                     LDAPv2.SCOPE_SUB, "(aoluid=" + request.getExtDataInString("aoluid") + ")", null, false);
 
@@ -377,22 +380,21 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
 
                 userdn = entry.getDN();
             } else {// put into property file later - cfu
-                CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): screen name does not exist");
+                logger.error("nsNKeySubjectNameDefault: getSubjectName(): screen name does not exist");
                 throw new EProfileException("screenname does not exist");
             }
-            CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): retrieved entry for aoluid = "
+            logger.debug("nsNKeySubjectNameDefault: getSubjectName(): retrieved entry for aoluid = "
                     + request.getExtDataInString("aoluid"));
-            ;
 
             LDAPEntry entry = null;
-            CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): about to search with "
+            logger.debug("nsNKeySubjectNameDefault: getSubjectName(): about to search with "
                     + mLdapStringAttrs.length + " attributes");
             LDAPSearchResults results =
                     conn.search(userdn, LDAPv2.SCOPE_BASE, "objectclass=*",
                             mLdapStringAttrs, false);
 
             if (!results.hasMoreElements()) {
-                CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): no attributes");
+                logger.error("nsNKeySubjectNameDefault: getSubjectName(): no attributes");
                 throw new EProfileException("no ldap attributes found");
             }
             entry = results.next();
@@ -402,13 +404,13 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
                         entry.getAttribute(mLdapStringAttrs[i]);
                 if (la != null) {
                     String[] sla = la.getStringValueArray();
-                    CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): got attribute: " + sla[0]);
+                    logger.debug("nsNKeySubjectNameDefault: getSubjectName(): got attribute: " + sla[0]);
                     request.setExtData(mLdapStringAttrs[i], sla[0]);
                 }
             }
-            CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): attributes set in request");
+            logger.debug("nsNKeySubjectNameDefault: getSubjectName(): attributes set in request");
         } catch (Exception e) {
-            CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): " + e.toString());
+            logger.error("nsNKeySubjectNameDefault: getSubjectName(): " + e.getMessage(), e);
             throw new EProfileException("getSubjectName() failure: " + e.toString());
         } finally {
             try {
