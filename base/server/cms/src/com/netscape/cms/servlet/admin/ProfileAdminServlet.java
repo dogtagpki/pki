@@ -60,9 +60,9 @@ import com.netscape.certsrv.registry.IPluginRegistry;
  * @version $Revision$, $Date$
  */
 public class ProfileAdminServlet extends AdminServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileAdminServlet.class);
+
     private static final long serialVersionUID = 4828203666899891742L;
 
     public final static String PROP_AUTHORITY = "authority";
@@ -126,7 +126,7 @@ public class ProfileAdminServlet extends AdminServlet {
         AUTHZ_RES_NAME = "certServer.profile.configuration";
         String scope = req.getParameter(Constants.OP_SCOPE);
 
-        CMS.debug("ProfileAdminServlet: service scope: " + scope);
+        logger.debug("ProfileAdminServlet: service scope: " + scope);
         if (scope.equals(ScopeDef.SC_PROFILE_RULES)) {
             processProfileRuleMgmt(req, resp);
         } else if (scope.equals(ScopeDef.SC_PROFILE_POLICIES)) {
@@ -297,7 +297,7 @@ public class ProfileAdminServlet extends AdminServlet {
         // Get operation type
         String op = req.getParameter(Constants.OP_TYPE);
 
-        CMS.debug("ProfileAdminServlet: processPolicyConstraintConfig op " + op);
+        logger.debug("ProfileAdminServlet: processPolicyConstraintConfig op " + op);
         if (op.equals(OpDef.OP_READ)) {
             if (!readAuthorize(req, resp))
                 return;
@@ -402,7 +402,7 @@ public class ProfileAdminServlet extends AdminServlet {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
-        CMS.debug("ProfileAdminServlet: in addProfilePolicy");
+        logger.debug("ProfileAdminServlet: in addProfilePolicy");
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
@@ -468,8 +468,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             defImpl, conImpl);
             } catch (EBaseException e1) {
                 // error
-                CMS.debug("ProfileAdminServlet: addProfilePolicy " +
-                        e1.toString());
+                logger.error("ProfileAdminServlet: addProfilePolicy " + e1.getMessage(), e1);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -842,7 +841,7 @@ public class ProfileAdminServlet extends AdminServlet {
             try {
                 profile.deleteProfilePolicy(setId, pId);
             } catch (EBaseException e1) {
-                CMS.debug("ProfileAdminServlet: " + e1.toString());
+                logger.error("ProfileAdminServlet: " + e1.getMessage(), e1);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -935,8 +934,8 @@ public class ProfileAdminServlet extends AdminServlet {
                 if (name.equals("INPUTID"))
                     inputId = req.getParameter(name);
             }
-            CMS.debug("ProfileAdminServlet: deleteProfileInput profileId -> " + profileId);
-            CMS.debug("ProfileAdminServlet: deleteProfileInput inputId -> " + inputId);
+            logger.debug("ProfileAdminServlet: deleteProfileInput profileId -> " + profileId);
+            logger.debug("ProfileAdminServlet: deleteProfileInput inputId -> " + inputId);
             IProfile profile = null;
 
             try {
@@ -957,7 +956,7 @@ public class ProfileAdminServlet extends AdminServlet {
                 return;
             }
 
-            CMS.debug("deleteProfileInput profile -> " + profile);
+            logger.debug("deleteProfileInput profile -> " + profile);
             try {
                 profile.deleteProfileInput(inputId);
             } catch (EBaseException e1) {
@@ -1052,8 +1051,8 @@ public class ProfileAdminServlet extends AdminServlet {
                 if (name.equals("OUTPUTID"))
                     outputId = req.getParameter(name);
             }
-            CMS.debug("ProfileAdminServlet: deleteProfileOutput profileId -> " + profileId);
-            CMS.debug("ProfileAdminServlet: deleteProfileOutput outputId -> " + outputId);
+            logger.debug("ProfileAdminServlet: deleteProfileOutput profileId -> " + profileId);
+            logger.debug("ProfileAdminServlet: deleteProfileOutput outputId -> " + outputId);
             IProfile profile = null;
 
             try {
@@ -1074,7 +1073,7 @@ public class ProfileAdminServlet extends AdminServlet {
                 return;
             }
 
-            CMS.debug("ProfileAdminServlet: deleteProfileOutput profile -> " + profile);
+            logger.debug("ProfileAdminServlet: deleteProfileOutput profile -> " + profile);
             try {
                 profile.deleteProfileOutput(outputId);
             } catch (EBaseException e1) {
@@ -1202,7 +1201,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 } catch (EPropertyException e) {
 
-                    CMS.debug("ProfileAdminServlet: modifyPolicyDefConfig setConfig exception.");
+                    logger.error("ProfileAdminServlet: modifyPolicyDefConfig setConfig exception: " + e.getMessage(), e);
                     try {
                         profile.deleteProfilePolicy(setId, pId);
                     } catch (Exception e11) {
@@ -1339,7 +1338,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 } catch (EPropertyException e) {
 
-                    CMS.debug("ProfileAdminServlet: addPolicyConstraintsConfig setConfig exception.");
+                    logger.error("ProfileAdminServlet: addPolicyConstraintsConfig setConfig exception: " + e.getMessage(), e);
                     try {
                         profile.deleteProfilePolicy(setId, pId);
                     } catch (Exception e11) {
@@ -1475,7 +1474,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
                 } catch (EPropertyException e) {
 
-                    CMS.debug("ProfileAdminServlet: modifyPolicyDefConfig setConfig exception.");
+                    logger.error("ProfileAdminServlet: modifyPolicyDefConfig setConfig exception: " + e.getMessage(), e);
                     sendResponse(ERROR, BAD_CONFIGURATION_VAL, null, resp);
                     return;
                 }
@@ -1831,7 +1830,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             Enumeration<String> names = req.getParameterNames();
 
-            CMS.debug("ProfileAdminServlet: modifyPolicyConstraintConfig policy " + policy + " con " + con);
+            logger.debug("ProfileAdminServlet: modifyPolicyConstraintConfig policy " + policy + " con " + con);
             while (names.hasMoreElements()) {
                 String name = names.nextElement();
 
@@ -1842,13 +1841,13 @@ public class ProfileAdminServlet extends AdminServlet {
                 if (name.equals("RS_ID"))
                     continue;
 
-                //   CMS.debug("ProfileAdminServlet: modifyPolicyConstraintConfig name" + name  + " val " + req.getParameter(name));
+                //   logger.debug("ProfileAdminServlet: modifyPolicyConstraintConfig name" + name  + " val " + req.getParameter(name));
                 try {
                     con.setConfig(name, req.getParameter(name));
 
                 } catch (EPropertyException e) {
 
-                    CMS.debug("ProfileAdminServlet: modifyPolicyConstraintsConfig setConfig exception.");
+                    logger.error("ProfileAdminServlet: modifyPolicyConstraintsConfig setConfig exception: " + e.getMessage(), e);
                     sendResponse(ERROR, BAD_CONFIGURATION_VAL, null, resp);
                     return;
                 }
@@ -1923,8 +1922,8 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             profile = mProfileSub.getProfile(profileId);
         } catch (EBaseException e1) {
-            CMS.debug("ProfileAdminServlet::getPolicyDefaultConfig() - " +
-                       "profile is null!");
+            logger.error("ProfileAdminServlet::getPolicyDefaultConfig() - " +
+                       "profile is null! "  + e1.getMessage(), e1);
             throw new ServletException(e1.toString());
         }
 
@@ -1978,8 +1977,8 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             profile = mProfileSub.getProfile(profileId);
         } catch (EBaseException e1) {
-            CMS.debug("ProfileAdminServlet::getPolicyConstraintConfig() - " +
-                       "profile is null!");
+            logger.error("ProfileAdminServlet::getPolicyConstraintConfig() - " +
+                       "profile is null! " + e1.getMessage(), e1);
             throw new ServletException(e1.toString());
         }
 
@@ -2020,8 +2019,8 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             profile = mProfileSub.getProfile(id);
         } catch (EBaseException e1) {
-            CMS.debug("ProfileAdminServlet::getProfilePolicy() - " +
-                       "profile is null!");
+            logger.error("ProfileAdminServlet::getProfilePolicy() - " +
+                       "profile is null! " + e1.getMessage(), e1);
             throw new ServletException(e1.toString());
         }
 
@@ -2060,8 +2059,8 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             profile = mProfileSub.getProfile(id);
         } catch (EBaseException e1) {
-            CMS.debug("ProfileAdminServlet::getProfileOutput() - " +
-                       "profile is null!");
+            logger.error("ProfileAdminServlet::getProfileOutput() - " +
+                       "profile is null! " + e1.getMessage(), e1);
             throw new ServletException(e1.toString());
         }
 
@@ -2087,8 +2086,8 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             profile = mProfileSub.getProfile(id);
         } catch (EBaseException e1) {
-            CMS.debug("ProfileAdminServlet::getProfileInput() - " +
-                       "profile is null!");
+            logger.error("ProfileAdminServlet::getProfileInput() - " +
+                       "profile is null! " + e1.getMessage(), e1);
             throw new ServletException(e1.toString());
         }
 
@@ -2118,8 +2117,8 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             profile = mProfileSub.getProfile(profileId);
         } catch (EBaseException e1) {
-            CMS.debug("ProfileAdminServlet::getInputConfig() - " +
-                       "profile is null!");
+            logger.error("ProfileAdminServlet::getInputConfig() - " +
+                       "profile is null! " + e1.getMessage(), e1);
             throw new ServletException(e1.toString());
         }
 
@@ -2159,8 +2158,8 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             profile = mProfileSub.getProfile(profileId);
         } catch (EBaseException e1) {
-            CMS.debug("ProfileAdminServlet::getOutputConfig() - " +
-                       "profile is null!");
+            logger.error("ProfileAdminServlet::getOutputConfig() - " +
+                       "profile is null! " + e1.getMessage(), e1);
             throw new ServletException(e1.toString());
         }
 
@@ -2221,8 +2220,8 @@ public class ProfileAdminServlet extends AdminServlet {
         try {
             profile = mProfileSub.getProfile(id);
         } catch (EBaseException e1) {
-            CMS.debug("ProfileAdminServlet::getProfileInstanceConfig() - " +
-                       "profile is null!");
+            logger.error("ProfileAdminServlet::getProfileInstanceConfig() - " +
+                       "profile is null! " + e1.getMessage(), e1);
             throw new ServletException(e1.toString());
         }
 
@@ -2241,7 +2240,7 @@ public class ProfileAdminServlet extends AdminServlet {
         } else {
             nvp.put("auth", authid);
         }
-        CMS.debug("ProfileAdminServlet: authid=" + authid);
+        logger.debug("ProfileAdminServlet: authid=" + authid);
         nvp.put("plugin", mProfileSub.getProfileClassId(id));
 
         sendResponse(SUCCESS, null, nvp, resp);
@@ -2474,7 +2473,7 @@ public class ProfileAdminServlet extends AdminServlet {
                     ((IProfileEx) profile).populate();
                 }
             } catch (Exception e) {
-                CMS.debug("ProfileAdminServlet: " + e.toString());
+                logger.error("ProfileAdminServlet: " + e.getMessage(), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
