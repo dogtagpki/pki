@@ -25,6 +25,8 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -60,9 +62,9 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
 
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-
 public class RequestProcessor extends CertProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestProcessor.class);
 
     public RequestProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         super(id, locale);
@@ -88,10 +90,10 @@ public class RequestProcessor extends CertProcessor {
 
             IAuthToken authToken = null;
 
-            if (CMS.debugOn()) {
+            if (logger.isDebugEnabled()) {
                 HashMap<String, String> params = data.toParams();
                 printParameterValues(params);
-                CMS.debug("processRequest op is " + op);
+                logger.debug("processRequest op is " + op);
             }
 
             if (authMgr != null) {
@@ -108,7 +110,7 @@ public class RequestProcessor extends CertProcessor {
 
                 String requestNonce = data.getNonce();
                 if (requestNonce == null) {
-                    CMS.debug("RequestProcessor: Missing nonce");
+                    logger.error("RequestProcessor: Missing nonce");
                     throw new BadRequestException("Missing nonce.");
                 }
 
@@ -116,18 +118,18 @@ public class RequestProcessor extends CertProcessor {
                 validateNonce(request, "cert-request", id, nonce);
             }
 
-            CMS.debug("RequestProcessor: processRequest: start serving");
+            logger.debug("RequestProcessor: processRequest: start serving");
 
             RequestId requestId = data.getRequestId();
             if (requestId == null || requestId.equals("")) {
-                CMS.debug(CMS.getUserMessage(locale, "CMS_REQUEST_ID_NOT_FOUND"));
+                logger.error(CMS.getUserMessage(locale, "CMS_REQUEST_ID_NOT_FOUND"));
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_REQUEST_ID_NOT_FOUND"));
             }
-            CMS.debug("RequestProcessor: requestId=" + requestId);
+            logger.debug("RequestProcessor: requestId=" + requestId);
 
             // check if the request is in one of the terminal states
             if (!req.getRequestStatus().equals(RequestStatus.PENDING)) {
-                CMS.debug(CMS.getUserMessage(locale, "CMS_REQUEST_NOT_PENDING", requestId.toString()));
+                logger.error(CMS.getUserMessage(locale, "CMS_REQUEST_NOT_PENDING", requestId.toString()));
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_REQUEST_NOT_PENDING",
                         requestId.toString()));
             }
@@ -137,18 +139,18 @@ public class RequestProcessor extends CertProcessor {
 
             String profileId = req.getExtDataInString(IRequest.PROFILE_ID);
             if (profileId == null || profileId.equals("")) {
-                CMS.debug("RequestProcessor: Profile Id not found in request");
+                logger.error("RequestProcessor: Profile Id not found in request");
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_ID_NOT_FOUND"));
             }
-            CMS.debug("RequestProcessor: profileId=" + profileId);
+            logger.debug("RequestProcessor: profileId=" + profileId);
 
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
-                CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
+                logger.error(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
             }
             if (!ps.isProfileEnable(profileId)) {
-                CMS.debug("RequestProcessor: Profile " + profileId + " not enabled");
+                logger.error("RequestProcessor: Profile " + profileId + " not enabled");
                 throw new BadRequestDataException("Profile " + profileId + " not enabled");
             }
 
@@ -158,7 +160,7 @@ public class RequestProcessor extends CertProcessor {
                 // assigned owner
                 if (owner != null && owner.length() > 0) {
                     if (!grantPermission(req, authToken)) {
-                        CMS.debug("RequestProcessor: Permission not granted to assign request.");
+                        logger.error("RequestProcessor: Permission not granted to assign request.");
                         throw new EAuthzException(CMS.getUserMessage(locale, "CMS_PROFILE_DENY_OPERATION"));
                     }
                 }
@@ -187,7 +189,7 @@ public class RequestProcessor extends CertProcessor {
                         req.setRequestOwner("");
                     }
                 } else {
-                    CMS.debug("RequestProcessor: Permission not granted to approve/reject/cancel/update/validate/unassign request.");
+                    logger.error("RequestProcessor: Permission not granted to approve/reject/cancel/update/validate/unassign request.");
                     throw new EAuthzException(CMS.getUserMessage(locale, "CMS_PROFILE_DENY_OPERATION"));
                 }
             }
@@ -244,13 +246,13 @@ public class RequestProcessor extends CertProcessor {
 
             if (!lastModified.equals("")) {
                 Date profileModifiedAt = new Date(Long.parseLong(lastModified));
-                CMS.debug("CertRequestExecutor: Profile Last Modified=" +
+                logger.debug("CertRequestExecutor: Profile Last Modified=" +
                         profileModifiedAt);
                 Date reqCreatedAt = req.getCreationTime();
-                CMS.debug("CertRequestExecutor: Request Created At=" +
+                logger.debug("CertRequestExecutor: Request Created At=" +
                         reqCreatedAt);
                 if (profileModifiedAt.after(reqCreatedAt)) {
-                    CMS.debug("Profile Newer Than Request");
+                    logger.error("Profile Newer Than Request");
                     throw new ERejectException("Profile Newer Than Request");
                 }
             }
@@ -396,7 +398,7 @@ public class RequestProcessor extends CertProcessor {
                     ILogger.SIGNED_AUDIT_ACCEPTANCE,
                     ILogger.SIGNED_AUDIT_EMPTY_VALUE));
 
-            CMS.debug("CertRequestExecutor: about to throw EProfileException because of bad profile execute.");
+            logger.error("CertRequestExecutor: about to throw EProfileException because of bad profile execute.");
             throw eAudit1;
         }
     }
