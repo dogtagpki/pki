@@ -42,6 +42,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class nsHKeySubjectNameDefault extends EnrollDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(nsHKeySubjectNameDefault.class);
+
     public static final String PROP_PARAMS = "params";
     public static final String CONFIG_DNPATTERN = "dnpattern";
 
@@ -66,7 +68,7 @@ public class nsHKeySubjectNameDefault extends EnrollDefault {
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
-        CMS.debug("nsHKeySubjectNameDefault: in getConfigDescriptor, name=" + name);
+        logger.debug("nsHKeySubjectNameDefault: in getConfigDescriptor, name=" + name);
         if (name.equals(CONFIG_DNPATTERN)) {
             return new Descriptor(IDescriptor.STRING,
                     null, null, CMS.getUserMessage(locale,
@@ -77,7 +79,7 @@ public class nsHKeySubjectNameDefault extends EnrollDefault {
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
-        CMS.debug("nsHKeySubjectNameDefault: in getValueDescriptor name=" + name);
+        logger.debug("nsHKeySubjectNameDefault: in getValueDescriptor name=" + name);
 
         if (name.equals(VAL_NAME)) {
             return new Descriptor(IDescriptor.STRING,
@@ -94,7 +96,7 @@ public class nsHKeySubjectNameDefault extends EnrollDefault {
             X509CertInfo info, String value)
             throws EPropertyException {
 
-        CMS.debug("nsHKeySubjectNameDefault: in setValue, value=" + value);
+        logger.debug("nsHKeySubjectNameDefault: in setValue, value=" + value);
 
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
@@ -106,16 +108,16 @@ public class nsHKeySubjectNameDefault extends EnrollDefault {
             try {
                 x500name = new X500Name(value);
             } catch (IOException e) {
-                CMS.debug("nsHKeySubjectNameDefault: setValue " + e.toString());
+                logger.warn("nsHKeySubjectNameDefault: setValue " + e.getMessage(), e);
                 // failed to build x500 name
             }
-            CMS.debug("nsHKeySubjectNameDefault: setValue name=" + x500name);
+            logger.debug("nsHKeySubjectNameDefault: setValue name=" + x500name);
             try {
                 info.set(X509CertInfo.SUBJECT,
                         new CertificateSubjectName(x500name));
             } catch (Exception e) {
                 // failed to insert subject name
-                CMS.debug("nsHKeySubjectNameDefault: setValue " + e.toString());
+                logger.error("nsHKeySubjectNameDefault: setValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -128,7 +130,7 @@ public class nsHKeySubjectNameDefault extends EnrollDefault {
     public String getValue(String name, Locale locale,
             X509CertInfo info)
             throws EPropertyException {
-        CMS.debug("nsHKeySubjectNameDefault: in getValue, name=" + name);
+        logger.debug("nsHKeySubjectNameDefault: in getValue, name=" + name);
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -137,14 +139,14 @@ public class nsHKeySubjectNameDefault extends EnrollDefault {
             CertificateSubjectName sn = null;
 
             try {
-                CMS.debug("nsHKeySubjectNameDefault: getValue info=" + info);
+                logger.debug("nsHKeySubjectNameDefault: getValue info=" + info);
                 sn = (CertificateSubjectName)
                         info.get(X509CertInfo.SUBJECT);
-                CMS.debug("nsHKeySubjectNameDefault: getValue name=" + sn);
+                logger.debug("nsHKeySubjectNameDefault: getValue name=" + sn);
                 return sn.toString();
             } catch (Exception e) {
                 // nothing
-                CMS.debug("nsHKeySubjectNameDefault: getValue " + e.toString());
+                logger.warn("nsHKeySubjectNameDefault: getValue " + e.getMessage(), e);
 
             }
             throw new EPropertyException(CMS.getUserMessage(
@@ -156,7 +158,7 @@ public class nsHKeySubjectNameDefault extends EnrollDefault {
     }
 
     public String getText(Locale locale) {
-        CMS.debug("nsHKeySubjectNameDefault: in getText");
+        logger.debug("nsHKeySubjectNameDefault: in getText");
         return CMS.getUserMessage(locale, "CMS_PROFILE_SUBJECT_NAME",
                 getConfig(CONFIG_DNPATTERN));
     }
@@ -167,18 +169,18 @@ public class nsHKeySubjectNameDefault extends EnrollDefault {
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
         X500Name name = null;
-        CMS.debug("nsHKeySubjectNameDefault: in populate");
+        logger.debug("nsHKeySubjectNameDefault: in populate");
 
         try {
             String subjectName = getSubjectName(request);
-            CMS.debug("subjectName=" + subjectName);
+            logger.debug("subjectName=" + subjectName);
             if (subjectName == null || subjectName.equals(""))
                 return;
 
             name = new X500Name(subjectName);
         } catch (IOException e) {
             // failed to build x500 name
-            CMS.debug("nsHKeySubjectNameDefault: populate " + e.toString());
+            logger.warn("nsHKeySubjectNameDefault: populate " + e.getMessage(), e);
         }
         if (name == null) {
             // failed to build x500 name
@@ -188,14 +190,14 @@ public class nsHKeySubjectNameDefault extends EnrollDefault {
                     new CertificateSubjectName(name));
         } catch (Exception e) {
             // failed to insert subject name
-            CMS.debug("nsHKeySubjectNameDefault: populate " + e.toString());
+            logger.warn("nsHKeySubjectNameDefault: populate " + e.getMessage(), e);
         }
     }
 
     private String getSubjectName(IRequest request)
             throws EProfileException, IOException {
 
-        CMS.debug("nsHKeySubjectNameDefault: in getSubjectName");
+        logger.debug("nsHKeySubjectNameDefault: in getSubjectName");
 
         String pattern = getConfig(CONFIG_DNPATTERN);
         if (pattern == null || pattern.equals("")) {
@@ -205,9 +207,9 @@ public class nsHKeySubjectNameDefault extends EnrollDefault {
         String sbjname = "";
 
         if (request != null) {
-            CMS.debug("pattern = " + pattern);
+            logger.debug("pattern = " + pattern);
             sbjname = mapPattern(request, pattern);
-            CMS.debug("nsHKeySubjectNameDefault: getSubjectName(): subject name mapping done");
+            logger.debug("nsHKeySubjectNameDefault: getSubjectName(): subject name mapping done");
         }
 
         return sbjname;
