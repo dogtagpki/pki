@@ -55,9 +55,9 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
  * @version $Revision$, $Date$
  */
 public class PolicyAdminServlet extends AdminServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyAdminServlet.class);
+
     private static final long serialVersionUID = 8850646362111106656L;
 
     public final static String PROP_AUTHORITY = "authority";
@@ -99,7 +99,7 @@ public class PolicyAdminServlet extends AdminServlet {
         String authority = config.getInitParameter(PROP_AUTHORITY);
         String policyStatus = null;
 
-        CMS.debug("PolicyAdminServlet: In Policy Admin Servlet init!");
+        logger.debug("PolicyAdminServlet: In Policy Admin Servlet init!");
 
         // CMS 6.1 began utilizing the "Certificate Profiles" framework
         // instead of the legacy "Certificate Policies" framework.
@@ -142,12 +142,12 @@ public class PolicyAdminServlet extends AdminServlet {
                         //        'CS.cfg' file, and thus we err on the
                         //        side that the user may still need to
                         //        use the policy framework.
-                        CMS.debug("PolicyAdminServlet::init "
+                        logger.debug("PolicyAdminServlet::init "
                                  + "Certificate Policy Framework (deprecated) "
                                  + "is ENABLED");
                     } else {
                         // CS 8.1 Default:  ca.Policy.enable=false
-                        CMS.debug("PolicyAdminServlet::init "
+                        logger.debug("PolicyAdminServlet::init "
                                  + "Certificate Policy Framework (deprecated) "
                                  + "is DISABLED");
                         return;
@@ -174,12 +174,12 @@ public class PolicyAdminServlet extends AdminServlet {
                         //        'CS.cfg' file, and thus we err on the
                         //        side that the user may still need to
                         //        use the policy framework.
-                        CMS.debug("PolicyAdminServlet::init "
+                        logger.debug("PolicyAdminServlet::init "
                                  + "Certificate Policy Framework (deprecated) "
                                  + "is ENABLED");
                     } else {
                         // CS 8.1 Default:  kra.Policy.enable=false
-                        CMS.debug("PolicyAdminServlet::init "
+                        logger.debug("PolicyAdminServlet::init "
                                  + "Certificate Policy Framework (deprecated) "
                                  + "is DISABLED");
                         return;
