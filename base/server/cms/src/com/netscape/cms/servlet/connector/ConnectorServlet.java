@@ -35,6 +35,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -66,19 +78,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
 
-import org.mozilla.jss.netscape.security.x509.CRLExtensions;
-import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.CertificateValidity;
-import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-
 /**
  * Connector servlet
  * process requests from remote authority -
@@ -87,6 +86,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class ConnectorServlet extends CMSServlet {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConnectorServlet.class);
 
     private static Logger mLogger = Logger.getLogger();
 
@@ -251,32 +252,29 @@ public class ConnectorServlet extends CMSServlet {
 
         // now process request.
 
-        CMS.debug("ConnectorServlet: process request RA_Id=" + RA_Id);
+        logger.debug("ConnectorServlet: process request RA_Id=" + RA_Id);
         try {
             // decode request.
             msg = (IPKIMessage) mReqEncoder.decode(encodedreq);
             // process request
             replymsg = processRequest(RA_Id, raUserId, msg, token);
         } catch (IOException e) {
-            CMS.debug("ConnectorServlet: service " + e.toString());
-            CMS.debug(e);
+            logger.error("ConnectorServlet: service " + e.getMessage(), e);
             mAuthority.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         } catch (EBaseException e) {
-            CMS.debug("ConnectorServlet: service " + e.toString());
-            CMS.debug(e);
+            logger.error("ConnectorServlet: service " + e.getMessage(), e);
             mAuthority.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
         } catch (Exception e) {
-            CMS.debug("ConnectorServlet: service " + e.toString());
-            CMS.debug(e);
+            logger.warn("ConnectorServlet: service " + e.getMessage(), e);
         }
 
-        CMS.debug("ConnectorServlet: done processRequest");
+        logger.debug("ConnectorServlet: done processRequest");
 
         // encode reply
         try {
@@ -295,9 +293,9 @@ public class ConnectorServlet extends CMSServlet {
             writer.close();
             out.flush();
         } catch (Exception e) {
-            CMS.debug("ConnectorServlet: error writing e=" + e.toString());
+            logger.warn("ConnectorServlet: error writing e=" + e.getMessage(), e);
         }
-        CMS.debug("ConnectorServlet: send response RA_Id=" + RA_Id);
+        logger.debug("ConnectorServlet: send response RA_Id=" + RA_Id);
     }
 
     public static boolean isProfileRequest(IRequest request) {
@@ -359,8 +357,7 @@ public class ConnectorServlet extends CMSServlet {
                         certAlgOut.toByteArray());
             }
         } catch (Exception e) {
-            CMS.debug("ConnectorServlet: profile normalization " +
-                    e.toString());
+            logger.warn("ConnectorServlet: profile normalization " + e.getMessage(), e);
         }
 
         String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
@@ -371,17 +368,17 @@ public class ConnectorServlet extends CMSServlet {
         // profile subsystem may not be available. In case of KRA for
         // example
         if (ps == null) {
-            CMS.debug("ConnectorServlet: Profile Subsystem not found ");
+            logger.error("ConnectorServlet: Profile Subsystem not found ");
             return;
         }
         try {
             profile = (IEnrollProfile) (ps.getProfile(profileId));
             profile.setDefaultCertInfo(request);
         } catch (EProfileException e) {
-            CMS.debug("ConnectorServlet: normalizeProfileRequest Exception: " + e.toString());
+            logger.warn("ConnectorServlet: normalizeProfileRequest Exception: " + e.getMessage(), e);
         }
         if (profile == null) {
-            CMS.debug("ConnectorServlet: Profile not found " + profileId);
+            logger.error("ConnectorServlet: Profile not found " + profileId);
             return;
         }
     }
@@ -511,7 +508,7 @@ public class ConnectorServlet extends CMSServlet {
 
             // if not found process request.
             thisreq = queue.newRequest(msg.getReqType());
-            CMS.debug("ConnectorServlet: created requestId=" +
+            logger.debug("ConnectorServlet: created requestId=" +
                     thisreq.getRequestId().toString());
             thisreq.setSourceId(srcid);
 
@@ -555,8 +552,7 @@ public class ConnectorServlet extends CMSServlet {
 
                     audit(auditMessage);
                 } catch (CertificateException e) {
-                    CMS.debug("ConnectorServlet: processRequest "
-                             + e.toString());
+                    logger.warn("ConnectorServlet: processRequest " + e.getMessage(), e);
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
@@ -569,8 +565,7 @@ public class ConnectorServlet extends CMSServlet {
 
                     audit(auditMessage);
                 } catch (IOException e) {
-                    CMS.debug("ConnectorServlet: processRequest "
-                             + e.toString());
+                    logger.warn("ConnectorServlet: processRequest " + e.getMessage(), e);
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
@@ -609,13 +604,13 @@ public class ConnectorServlet extends CMSServlet {
                 s.put(SessionContext.REQUESTER_ID, msg.getReqId());
             }
 
-            //CMS.debug("ConnectorServlet: calling processRequest instance=" +
+            //logger.debug("ConnectorServlet: calling processRequest instance=" +
             //        thisreq);
             if (isProfileRequest(thisreq)) {
                 normalizeProfileRequest(thisreq);
             }
 
-            CMS.debug("ConnectorServlet: calling processRequest");
+            logger.debug("ConnectorServlet: calling processRequest");
             try {
                 queue.processRequest(thisreq);
 
@@ -647,7 +642,7 @@ public class ConnectorServlet extends CMSServlet {
             replymsg = new HttpPKIMessage();
             replymsg.fromRequest(thisreq);
 
-            CMS.debug("ConnectorServlet: replymsg.reqStatus=" +
+            logger.debug("ConnectorServlet: replymsg.reqStatus=" +
                     replymsg.getReqStatus());
 
             //for audit log
@@ -663,7 +658,7 @@ public class ConnectorServlet extends CMSServlet {
 
             if (isProfileRequest(thisreq)) {
                 // XXX audit log
-                CMS.debug("ConnectorServlet: done requestId=" +
+                logger.debug("ConnectorServlet: done requestId=" +
                         thisreq.getRequestId().toString());
 
                 // store a message in the signed audit log file
@@ -899,7 +894,7 @@ public class ConnectorServlet extends CMSServlet {
 
                 audit(auditMessage);
             } catch (IOException e) {
-                CMS.debug("ConnectorServlet: process " + e.toString());
+                logger.warn("ConnectorServlet: process " + e.getMessage(), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -912,7 +907,7 @@ public class ConnectorServlet extends CMSServlet {
 
                 audit(auditMessage);
             } catch (CertificateException e) {
-                CMS.debug("ConnectorServlet: process " + e.toString());
+                logger.warn("ConnectorServlet: process " + e.getMessage(), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -925,7 +920,7 @@ public class ConnectorServlet extends CMSServlet {
 
                 audit(auditMessage);
             } catch (Exception e) {
-                CMS.debug("ConnectorServlet: process " + e.toString());
+                logger.warn("ConnectorServlet: process " + e.getMessage(), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
