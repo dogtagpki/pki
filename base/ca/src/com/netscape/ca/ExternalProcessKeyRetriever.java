@@ -25,14 +25,15 @@ import java.util.Stack;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 
 
 public class ExternalProcessKeyRetriever implements KeyRetriever {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExternalProcessKeyRetriever.class);
+
     protected String executable;
 
     public ExternalProcessKeyRetriever(IConfigStore config) {
@@ -49,7 +50,7 @@ public class ExternalProcessKeyRetriever implements KeyRetriever {
     }
 
     public Result retrieveKey(String nickname, Collection<String> hostPorts) {
-        CMS.debug("Running ExternalProcessKeyRetriever");
+        logger.debug("Running ExternalProcessKeyRetriever");
 
         Stack<String> command = new Stack<>();
         command.push(this.executable);
@@ -58,7 +59,7 @@ public class ExternalProcessKeyRetriever implements KeyRetriever {
         for (String hostPort : hostPorts) {
             String host = hostPort.split(":")[0];
             command.push(host);
-            CMS.debug("About to execute command: " + command);
+            logger.debug("About to execute command: " + command);
             ProcessBuilder pb = new ProcessBuilder(command);
             try {
                 Process p = pb.start();
@@ -67,12 +68,12 @@ public class ExternalProcessKeyRetriever implements KeyRetriever {
                     continue;
                 return parseResult(p.getInputStream());
             } catch (Throwable e) {
-                CMS.debug("Caught exception while executing command: " + e);
+                logger.warn("Caught exception while executing command: " + e.getMessage(), e);
             } finally {
                 command.pop();
             }
         }
-        CMS.debug("Failed to retrieve key from any host.");
+        logger.error("Failed to retrieve key from any host.");
         return null;
     }
 
