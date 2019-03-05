@@ -25,6 +25,21 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLNumberExtension;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
+import org.mozilla.jss.netscape.security.x509.HoldInstructionExtension;
+import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
+import org.mozilla.jss.netscape.security.x509.IssuerAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.IssuingDistributionPointExtension;
+import org.mozilla.jss.netscape.security.x509.OIDMap;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
@@ -41,22 +56,10 @@ import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.base.SubsystemRegistry;
 
-import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
-import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
-import org.mozilla.jss.netscape.security.x509.CRLExtensions;
-import org.mozilla.jss.netscape.security.x509.CRLNumberExtension;
-import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
-import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
-import org.mozilla.jss.netscape.security.x509.HoldInstructionExtension;
-import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
-import org.mozilla.jss.netscape.security.x509.IssuerAlternativeNameExtension;
-import org.mozilla.jss.netscape.security.x509.IssuingDistributionPointExtension;
-import org.mozilla.jss.netscape.security.x509.OIDMap;
-import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
-
 public class CMSCRLExtensions implements ICMSCRLExtensions {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSCRLExtensions.class);
+
     public static final String PROP_ENABLE = "enable";
     public static final String PROP_EXTENSION = "extension";
     public static final String PROP_CLASS = "class";
@@ -630,7 +633,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                             cmsCRLExtensions.isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME);
                 }
 
-                CMS.debug("issuingDistPointExtEnabled = " + issuingDistPointExtEnabled);
+                logger.debug("issuingDistPointExtEnabled = " + issuingDistPointExtEnabled);
 
                 if (!(value.equals(Constants.TRUE) || value.equals(Constants.FALSE))) {
                     continue;
@@ -639,7 +642,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 //Get value of caCertsOnly from CRLIssuingPoint
                 if ((ip != null) && (issuingDistPointExtEnabled == true)) {
                     crlCACertsOnly = ip.isCACertsOnly();
-                    CMS.debug("CRLCACertsOnly is: " + crlCACertsOnly);
+                    logger.debug("CRLCACertsOnly is: " + crlCACertsOnly);
                     crlIssuingPointPairs = new NameValuePairs();
 
                 }
@@ -649,7 +652,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 //If the CRLCACertsOnly prop is false change it to true to sync.
                 if (value.equals(Constants.TRUE) && (issuingDistPointExtEnabled == true)) {
                     if (crlCACertsOnly == false) {
-                        CMS.debug(" value = true and CRLCACertsOnly is already false.");
+                        logger.debug(" value = true and CRLCACertsOnly is already false.");
                         crlIssuingPointPairs.put(Constants.PR_CA_CERTS_ONLY, Constants.TRUE);
                         newValue = Constants.TRUE;
                         ip.updateConfig(crlIssuingPointPairs);
