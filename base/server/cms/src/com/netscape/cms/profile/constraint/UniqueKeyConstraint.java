@@ -22,6 +22,13 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -35,13 +42,6 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
-
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * This constraint is to check for publickey uniqueness.
@@ -58,6 +58,9 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class UniqueKeyConstraint extends EnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UniqueKeyConstraint.class);
+
     /*
     public static final String CONFIG_REVOKE_DUPKEY_CERT =
     	"revokeDupKeyCert";
@@ -137,7 +140,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
         */
         mAllowSameKeyRenewal = getConfigBoolean(CONFIG_ALLOW_SAME_KEY_RENEWAL);
         msg = msg + ": allowSameKeyRenewal=" + mAllowSameKeyRenewal + ";";
-        CMS.debug(method + msg);
+        logger.debug(method + msg);
 
         try {
             CertificateX509Key infokey = (CertificateX509Key)
@@ -166,7 +169,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
          * we don't want a key that was once generated before
          */
         if (size > 0) {
-            CMS.debug(method + "found existing cert with same key");
+            logger.debug(method + "found existing cert with same key");
 
             /*
                 The following code revokes the existing certs that have
@@ -189,13 +192,13 @@ public class UniqueKeyConstraint extends EnrollConstraint {
             				BigInteger serialNum = cert.getSerialNumber();
             				ICAService service = (ICAService) mCA.getCAService();
 
-					RevokedCertImpl crlEntry =
+                                        RevokedCertImpl crlEntry =
             					formCRLEntry(serialNum, RevocationReason.KEY_COMPROMISE);
             				service.revokeCert(crlEntry);
-            				CMS.debug("UniqueKeyConstraint: certificate with duplicate publickey revoked successfully");
+                                        logger.debug("UniqueKeyConstraint: certificate with duplicate publickey revoked successfully");
             			}
             		} catch (Exception ex) {
-            			CMS.debug("UniqueKeyConstraint: error in revoke dupkey cert");
+                                logger.warn("UniqueKeyConstraint: error in revoke dupkey cert");
             		}
             	} // revoke dupkey cert turned on
             */
@@ -213,13 +216,13 @@ public class UniqueKeyConstraint extends EnrollConstraint {
 
                         sjname_in_req =
                                 (X500Name) subName.get(CertificateSubjectName.DN_NAME);
-                        CMS.debug(method +" cert request subject DN =" + sjname_in_req.toString());
+                        logger.debug(method +" cert request subject DN =" + sjname_in_req.toString());
                         Enumeration<ICertRecord> e = list.getCertRecords(0, size - 1);
                         Date latestOrigNotAfter = null;
                         Date origNotAfter = null;
                         boolean first = true;
                         while (e != null && e.hasMoreElements()) {
-                            CMS.debug(method +  msg);
+                            logger.debug(method +  msg);
                             ICertRecord rec = e.nextElement();
                             BigInteger serial = rec.getSerialNumber();
                             msg = msg + "existing cert with same key found: " + serial.toString() + ";";
@@ -227,14 +230,14 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                             if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)
                                     || rec.getStatus().equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
                                 msg = msg + "revoked cert cannot be renewed;";
-                                CMS.debug(method + msg);
+                                logger.debug(method + msg);
                                 rejected = true;
                                 // this has to break
                                 break;
                             }
                             if (!rec.getStatus().equals(ICertRecord.STATUS_VALID)
                                     && !rec.getStatus().equals(ICertRecord.STATUS_EXPIRED)) {
-                                CMS.debug(method + "invalid cert cannot be renewed; continue;" + serial.toString());
+                                logger.debug(method + "invalid cert cannot be renewed; continue;" + serial.toString());
                                 // can still find another one to renew
                                 continue;
                             }
@@ -247,18 +250,18 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                                 rejected = true;
                                 break;
                             } else {
-                                CMS.debug("subject name match in same key renewal");
+                                logger.debug("subject name match in same key renewal");
                             }
 
                             // find the latest expiration date to keep for
                             // Renewal Grace Period Constraint later
                             origNotAfter = origCert.getNotAfter();
-                            CMS.debug(method + "origNotAfter =" + origNotAfter.toString());
+                            logger.debug(method + "origNotAfter =" + origNotAfter.toString());
                             if (first) {
                                 latestOrigNotAfter = origNotAfter;
                                 first = false;
                             } else if (latestOrigNotAfter.before(origNotAfter)) {
-                                CMS.debug(method + "newer cert found");
+                                logger.debug(method + "newer cert found");
                                 latestOrigNotAfter = origNotAfter;
                             }
 
@@ -271,11 +274,11 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                             String existingOrigExpDate_s = request.getExtDataInString("origNotAfter");
                             if (existingOrigExpDate_s != null) {
                                 // make sure not to interfere with renewal by serial
-                                CMS.debug(method +
+                                logger.debug(method +
                                         " original cert expiration date already exists. Not overriding.");
                             } else {
                                 // set origNotAfter for RenewGracePeriodConstraint
-                                CMS.debug(method + "setting latest original cert expiration in request");
+                                logger.debug(method + "setting latest original cert expiration in request");
                                 request.setExtData("origNotAfter", BigInteger.valueOf(latestOrigNotAfter.getTime()));
                             }
                         }
@@ -284,7 +287,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                         rejected = true;
                     }
                 } catch (Exception ex1) {
-                    CMS.debug(method +  msg + ex1.toString());
+                    logger.warn(method +  msg + ex1.getMessage(), ex1);
                     rejected = true;
                 } // try
 
@@ -295,10 +298,10 @@ public class UniqueKeyConstraint extends EnrollConstraint {
         } // (size > 0)
 
         if (rejected == true) {
-            CMS.debug(method + " rejected: " + msg);
+            logger.debug(method + " rejected: " + msg);
             throw new ERejectException(msg);
         } else {
-            CMS.debug(method + " approved");
+            logger.debug(method + " approved");
         }
     }
 
@@ -316,7 +319,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
      *         try {
      *         crlentryexts.set(CRLReasonExtension.NAME, reasonExt);
      *         } catch (IOException e) {
-     *         CMS.debug("CMSGW_ERR_CRL_REASON "+e.toString());
+     *         logger.debug("CMSGW_ERR_CRL_REASON "+e.toString());
      *
      *         // throw new ECMSGWException(
      *         // CMS.getLogMessage("CMSGW_ERROR_SETTING_CRLREASON"));
