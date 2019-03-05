@@ -32,6 +32,10 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -47,11 +51,6 @@ import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Cert;
-
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * CA signing unit based on JSS.
@@ -60,6 +59,8 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
  */
 
 public final class SigningUnit implements ISigningUnit {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SigningUnit.class);
 
     private CryptoManager mManager = null;
     private CryptoToken mToken = null;
@@ -129,7 +130,7 @@ public final class SigningUnit implements ISigningUnit {
     public void init(ISubsystem owner, IConfigStore config, String nickname)
             throws EBaseException {
 
-        CMS.debug("CA SigningUnit.init(" + owner.getId() + ", " + config.getName() + ", " + nickname + ")");
+        logger.debug("CA SigningUnit.init(" + owner.getId() + ", " + config.getName() + ", " + nickname + ")");
 
         mOwner = owner;
         mConfig = config;
@@ -156,35 +157,35 @@ public final class SigningUnit implements ISigningUnit {
             setNewNickName(mNickname);
 
             try {
-                CMS.debug("SigningUnit: Loading certificate " + mNickname);
+                logger.debug("SigningUnit: Loading certificate " + mNickname);
                 mCert = mManager.findCertByNickname(mNickname);
-                CMS.debug("SigningUnit: certificate serial number: " + mCert.getSerialNumber());
+                logger.debug("SigningUnit: certificate serial number: " + mCert.getSerialNumber());
 
             } catch (ObjectNotFoundException e) {
-                CMS.debug("SigningUnit: Unable to find certificate " + mNickname);
+                logger.error("SigningUnit: Unable to find certificate " + mNickname + ": " + e.getMessage(), e);
                 throw new CAMissingCertException(CMS.getUserMessage("CMS_CA_CERT_OBJECT_NOT_FOUND"), e);
             }
 
             mCertImpl = new X509CertImpl(mCert.getEncoded());
 
             try {
-                CMS.debug("SigningUnit: Loading private key");
+                logger.debug("SigningUnit: Loading private key");
                 mPrivk = mManager.findPrivKeyByCert(mCert);
 
             } catch (ObjectNotFoundException e) {
-                CMS.debug("SigningUnit: Unable to find private key for " + mNickname);
+                logger.error("SigningUnit: Unable to find private key for " + mNickname + ": " + e.getMessage(), e);
                 throw new CAMissingKeyException(CMS.getUserMessage("CMS_CA_CERT_OBJECT_NOT_FOUND"), e);
             }
 
             String privateKeyID = CryptoUtil.encodeKeyID(mPrivk.getUniqueID());
-            CMS.debug("SigningUnit: private key ID: " + privateKeyID);
+            logger.debug("SigningUnit: private key ID: " + privateKeyID);
 
             mPubk = mCert.getPublicKey();
 
             // get def alg and check if def sign alg is valid for token.
             mDefSigningAlgname = config.getString(PROP_DEFAULT_SIGNALG);
             mDefSigningAlgorithm = checkSigningAlgorithmFromName(mDefSigningAlgname);
-            CMS.debug("SigningUnit: signing algorithm: " + mDefSigningAlgorithm);
+            logger.debug("SigningUnit: signing algorithm: " + mDefSigningAlgorithm);
 
             mInited = true;
 
@@ -270,8 +271,7 @@ public final class SigningUnit implements ISigningUnit {
 
             // XXX use a pool of signers based on alg ?
             // XXX Map algor. name to id. hack: use hardcoded define for now.
-            CMS.debug(
-                    "Getting algorithm context for " + algname + " " + signAlg);
+            logger.debug("Getting algorithm context for " + algname + " " + signAlg);
             Signature signer = mToken.getSignatureContext(signAlg);
 
             signer.initSign(mPrivk);
@@ -281,13 +281,13 @@ public final class SigningUnit implements ISigningUnit {
             boolean testAutoShutdown = false;
             testAutoShutdown = mConfig.getBoolean("autoShutdown.test", false);
             if (testAutoShutdown) {
-                CMS.debug("SigningUnit.sign: test auto shutdown");
+                logger.debug("SigningUnit.sign: test auto shutdown");
                 CMS.checkForAndAutoShutdown();
             }
             */
 
             // XXX add something more descriptive.
-            CMS.debug("Signing Certificate");
+            logger.debug("Signing Certificate");
 
             testSignatureFailure = mConfig.getBoolean("testSignatureFailure",false);
 
@@ -310,7 +310,7 @@ public final class SigningUnit implements ISigningUnit {
             throw new EBaseException(e);
         } catch (SignatureException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            CMS.debug("SigningUnit.sign: " + e.toString());
+            logger.error("SigningUnit.sign: " + e.getMessage(), e);
 
             //For this one case, show the eventual erorr message that will be written to the system error
             //log in case of a Signature failure.
