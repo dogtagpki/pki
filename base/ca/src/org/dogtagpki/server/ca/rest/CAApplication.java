@@ -26,6 +26,8 @@ import com.netscape.certsrv.base.IConfigStore;
 
 public class CAApplication extends Application {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAApplication.class);
+
     private Set<Object> singletons = new LinkedHashSet<Object>();
     private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
 
@@ -77,7 +79,7 @@ public class CAApplication extends Application {
         try {
             state = cs.getInteger("cs.state");
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("CAApplication: " + e.getMessage(), e);
             throw new RuntimeException(e);
         }
 
@@ -87,7 +89,7 @@ public class CAApplication extends Application {
             try {
                 select = cs.getString("securitydomain.select");
             } catch (EBaseException e) {
-                CMS.debug(e);
+                logger.error("CAApplication: " + e.getMessage(), e);
                 throw new RuntimeException(e);
             }
 
