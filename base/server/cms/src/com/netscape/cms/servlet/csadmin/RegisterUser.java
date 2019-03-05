@@ -27,6 +27,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
@@ -44,10 +46,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
-import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * This servlet creates a TPS user in the CA,
@@ -59,9 +58,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
  */
 public class RegisterUser extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RegisterUser.class);
+
     private static final long serialVersionUID = -699307373400031138L;
     private final static String SUCCESS = "0";
     private final static String AUTH_FAILURE = "2";
@@ -76,18 +74,18 @@ public class RegisterUser extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
-        CMS.debug("RegisterUser: initializing...");
+        logger.debug("RegisterUser: initializing...");
         super.init(sc);
-        CMS.debug("RegisterUser: done initializing...");
+        logger.debug("RegisterUser: done initializing...");
         mGroupName = sc.getInitParameter("GroupName");
-        CMS.debug("RegisterUser: group name " + mGroupName);
+        logger.debug("RegisterUser: group name " + mGroupName);
     }
 
     /**
      * Process the HTTP request.
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("UpdateUpdater: processing...");
+        logger.debug("UpdateUpdater: processing...");
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
@@ -95,9 +93,9 @@ public class RegisterUser extends CMSServlet {
         IAuthToken authToken = null;
         try {
             authToken = authenticate(cmsReq);
-            CMS.debug("RegisterUser authentication successful.");
+            logger.debug("RegisterUser authentication successful.");
         } catch (Exception e) {
-            CMS.debug("RegisterUser: authentication failed.");
+            logger.error("RegisterUser: authentication failed: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
                             e.toString()));
@@ -107,7 +105,7 @@ public class RegisterUser extends CMSServlet {
         }
 
         if (authToken == null) {
-            CMS.debug("RegisterUser: authentication failed.");
+            logger.error("RegisterUser: authentication failed.");
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
                         null);
             return;
@@ -117,7 +115,7 @@ public class RegisterUser extends CMSServlet {
         try {
             authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
                     "modify");
-            CMS.debug("RegisterUser authorization successful.");
+            logger.debug("RegisterUser authorization successful.");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
@@ -140,9 +138,9 @@ public class RegisterUser extends CMSServlet {
         String uid = httpReq.getParameter("uid");
         String name = httpReq.getParameter("name");
         String certsString = httpReq.getParameter("certificate");
-        CMS.debug("RegisterUser got uid=" + uid);
-        CMS.debug("RegisterUser got name=" + name);
-        CMS.debug("RegisterUser got certsString=" + certsString);
+        logger.debug("RegisterUser got uid=" + uid);
+        logger.debug("RegisterUser got name=" + name);
+        logger.debug("RegisterUser got certsString=" + certsString);
 
         String auditSubjectID = auditSubjectID();
         String auditParams = "Scope;;users+Operation;;OP_ADD+source;;RegisterUser" +
@@ -170,18 +168,18 @@ public class RegisterUser extends CMSServlet {
                     new com.netscape.certsrv.usrgrp.Certificates(certs);
             user = cul.locateUser(c);
         } catch (Exception ec) {
-            CMS.debug("RegisterUser: exception thrown: " + ec.toString());
+            logger.warn("RegisterUser: exception thrown: " + ec.getMessage(), ec);
         }
         if (user == null) {
-            CMS.debug("RegisterUser NOT found user by cert");
+            logger.debug("RegisterUser NOT found user by cert");
             try {
                 user = ugsys.getUser(uid);
-                CMS.debug("RegisterUser found user by uid " + uid);
+                logger.debug("RegisterUser found user by uid " + uid);
             } catch (Exception eee) {
             }
         } else {
             foundByCert = true;
-            CMS.debug("RegisterUser found user by cert");
+            logger.debug("RegisterUser found user by cert");
         }
 
         try {
@@ -197,7 +195,7 @@ public class RegisterUser extends CMSServlet {
                 user.setPassword("");
 
                 ugsys.addUser(user);
-                CMS.debug("RegisterUser created user " + uid);
+                logger.debug("RegisterUser created user " + uid);
 
                 audit(new ConfigRoleEvent(
                               auditSubjectID,
@@ -215,7 +213,7 @@ public class RegisterUser extends CMSServlet {
             user.setX509Certificates(certs);
             if (!foundByCert) {
                 ugsys.addUserCert(user);
-                CMS.debug("RegisterUser added user certificate");
+                logger.debug("RegisterUser added user certificate");
 
                 audit(new ConfigRoleEvent(
                               auditSubjectID,
@@ -223,9 +221,9 @@ public class RegisterUser extends CMSServlet {
                               auditParams));
 
             } else
-                CMS.debug("RegisterUser no need to add user certificate");
+                logger.debug("RegisterUser no need to add user certificate");
         } catch (Exception eee) {
-            CMS.debug("RegisterUser error " + eee.toString());
+            logger.error("RegisterUser error " + eee.getMessage(), eee);
 
             audit(new ConfigRoleEvent(
                                 auditSubjectID,
@@ -256,7 +254,7 @@ public class RegisterUser extends CMSServlet {
                 auditParams += "," + user.getUserID();
                 group.addMemberName(user.getUserID());
                 ugsys.modifyGroup(group);
-                CMS.debug("RegisterUser modified group");
+                logger.debug("RegisterUser modified group");
 
                 audit(new ConfigRoleEvent(
                                auditSubjectID,
@@ -273,7 +271,7 @@ public class RegisterUser extends CMSServlet {
 
         // send success status back to the requestor
         try {
-            CMS.debug("RegisterUser: Sending response");
+            logger.debug("RegisterUser: Sending response");
             XMLObject xmlObj = new XMLObject();
             Node root = xmlObj.createRoot("XMLResponse");
 
@@ -282,7 +280,7 @@ public class RegisterUser extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("RegisterUser: Failed to send the XML output");
+            logger.warn("RegisterUser: Failed to send the XML output: " + e.getMessage(), e);
         }
     }
 
