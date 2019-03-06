@@ -54,9 +54,8 @@ import com.netscape.cmscore.cert.PrettyPrintFormat;
 //XXX add auditing later
 public class GenerateKeyPairServlet extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenerateKeyPairServlet.class);
+
     private static final long serialVersionUID = 4308385291961910458L;
     private final static String INFO = "GenerateKeyPairServlet";
     public final static String PROP_AUTHORITY = "authority";
@@ -134,7 +133,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
         boolean missingParam = false;
         String status = "0";
 
-        CMS.debug("processServerSideKeyGen begins:");
+        logger.debug("processServerSideKeyGen begins:");
 
         String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
         String rUserid = req.getParameter(IRemoteRequest.KRA_UserId);
@@ -145,12 +144,12 @@ public class GenerateKeyPairServlet extends CMSServlet {
         String rKeycurve = req.getParameter(IRemoteRequest.KRA_KEYGEN_EC_KeyCurve);
 
         if ((rCUID == null) || (rCUID.equals(""))) {
-            CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: CUID");
+            logger.warn("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: CUID");
             missingParam = true;
         }
 
         if ((rUserid == null) || (rUserid.equals(""))) {
-            CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: userid");
+            logger.warn("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: userid");
             missingParam = true;
         }
 
@@ -171,21 +170,21 @@ public class GenerateKeyPairServlet extends CMSServlet {
             // is the specified curve supported?
             boolean isSupportedCurve = supportedECCurves_ht.containsKey(rKeycurve);
             if (isSupportedCurve == false) {
-                CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): unsupported curve:"+ rKeycurve);
+                logger.warn("GenerateKeyPairServlet: processServerSideKeygen(): unsupported curve:"+ rKeycurve);
                 missingParam = true;
             } else {
-                CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): curve to be generated:"+ rKeycurve);
+                logger.debug("GenerateKeyPairServlet: processServerSideKeygen(): curve to be generated:"+ rKeycurve);
             }
         }
 
         if ((rdesKeyString == null) ||
                 (rdesKeyString.equals(""))) {
-            CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: DRM-transportKey-wrapped DES key");
+            logger.warn("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: DRM-transportKey-wrapped DES key");
             missingParam = true;
         }
 
         if ((rArchive == null) || (rArchive.equals(""))) {
-            CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): missing key archival flag 'archive' ,default to true");
+            logger.debug("GenerateKeyPairServlet: processServerSideKeygen(): missing key archival flag 'archive' ,default to true");
             rArchive = "true";
         }
 
@@ -212,7 +211,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
             } else
                 status = "7";
 
-            CMS.debug("processServerSideKeygen finished");
+            logger.debug("processServerSideKeygen finished");
         } // ! missingParam
 
         String value = "";
@@ -223,7 +222,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
         String publicKeyString = "";
 
         if (thisreq == null) {
-            CMS.debug("GenerateKeyPairServlet::processServerSideKeyGen() - "
+            logger.error("GenerateKeyPairServlet::processServerSideKeyGen() - "
                      + "thisreq is null!");
             throw new EBaseException("thisreq is null");
         }
@@ -268,17 +267,17 @@ public class GenerateKeyPairServlet extends CMSServlet {
             value = sb.toString();
 
         }
-        //CMS.debug("processServerSideKeyGen:outputString.encode " + value);
+        //logger.debug("processServerSideKeyGen:outputString.encode " + value);
 
         try {
             resp.setContentLength(value.length());
-            CMS.debug("GenerateKeyPairServlet:outputString.length " + value.length());
+            logger.debug("GenerateKeyPairServlet:outputString.length " + value.length());
             OutputStream ooss = resp.getOutputStream();
             ooss.write(value.getBytes());
             ooss.flush();
             mRenderResult = false;
         } catch (IOException e) {
-            CMS.debug("GenerateKeyPairServlet: " + e.toString());
+            logger.warn("GenerateKeyPairServlet: " + e.getMessage(), e);
         }
     }
 
@@ -315,7 +314,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
             try {
                 resp.setContentType("application/x-www-form-urlencoded");
                 String value = "unauthorized=";
-                CMS.debug("GenerateKeyPairServlet: Unauthorized");
+                logger.warn("GenerateKeyPairServlet: Unauthorized");
 
                 resp.setContentLength(value.length());
                 OutputStream ooss = resp.getOutputStream();
@@ -323,7 +322,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
                 ooss.flush();
                 mRenderResult = false;
             } catch (Exception e) {
-                CMS.debug("GenerateKeyPairServlet: " + e.toString());
+                logger.warn("GenerateKeyPairServlet: " + e.getMessage(), e);
             }
 
             cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
@@ -331,7 +330,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
         }
 
         // begin Netkey serverSideKeyGen and archival
-        CMS.debug("GenerateKeyPairServlet: processServerSideKeyGen would be called");
+        logger.debug("GenerateKeyPairServlet: processServerSideKeyGen would be called");
         processServerSideKeyGen(req, resp);
         return;
         // end Netkey functions
