@@ -19,6 +19,9 @@ package com.netscape.cms.profile.common;
 
 import java.util.Enumeration;
 
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 
 import com.netscape.certsrv.apps.CMS;
@@ -41,10 +44,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.cert.CertUtils;
 
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-
 /**
  * This class implements a Certificate Manager enrollment
  * profile.
@@ -52,6 +51,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class CAEnrollProfile extends EnrollProfile {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAEnrollProfile.class);
 
     public CAEnrollProfile() {
     }
@@ -79,7 +80,7 @@ public class CAEnrollProfile extends EnrollProfile {
         long startTime = CMS.getCurrentDate().getTime();
 
         if (!isEnable()) {
-            CMS.debug("CAEnrollProfile: Profile Not Enabled");
+            logger.error("CAEnrollProfile: Profile Not Enabled");
             throw new EProfileException("Profile Not Enabled");
         }
 
@@ -88,7 +89,7 @@ public class CAEnrollProfile extends EnrollProfile {
         RequestId requestId = request.getRequestId();
 
 
-        CMS.debug("CAEnrollProfile: execute request ID " + requestId.toString());
+        logger.debug("CAEnrollProfile: execute request ID " + requestId.toString());
 
         ICertificateAuthority ca = (ICertificateAuthority) getAuthority();
 
@@ -106,14 +107,14 @@ public class CAEnrollProfile extends EnrollProfile {
             PKIArchiveOptions options = toPKIArchiveOptions(optionsData);
 
             if (options != null) {
-                CMS.debug("CAEnrollProfile: execute found " +
+                logger.debug("CAEnrollProfile: execute found " +
                         "PKIArchiveOptions");
                 try {
                     IConnector kraConnector = caService.getKRAConnector();
 
                     if (kraConnector == null) {
                         String message = "KRA connector not configured";
-                        CMS.debug("CAEnrollProfile: " + message);
+                        logger.error("CAEnrollProfile: " + message);
 
                         signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
@@ -125,13 +126,13 @@ public class CAEnrollProfile extends EnrollProfile {
                         throw new EProfileException(message);
 
                     } else {
-                        CMS.debug("CAEnrollProfile: execute send request");
+                        logger.debug("CAEnrollProfile: execute send request");
                         kraConnector.send(request);
 
                         // check response
                         if (!request.isSuccess()) {
                             String message = "archival request failed";
-                            CMS.debug("CAEnrollProfile: " + message);
+                            logger.error("CAEnrollProfile: " + message);
 
                             signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                                     auditSubjectID,
@@ -144,7 +145,7 @@ public class CAEnrollProfile extends EnrollProfile {
                                 request.getError(getLocale(request)) != null) {
 
                                 if ((request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
-                                    CMS.debug("CAEnrollProfile: execute set request status: REJECTED");
+                                    logger.error("CAEnrollProfile: execute set request status: REJECTED");
                                     request.setRequestStatus(RequestStatus.REJECTED);
                                     ca.getRequestQueue().updateRequest(request);
                                 }
@@ -163,7 +164,7 @@ public class CAEnrollProfile extends EnrollProfile {
                     }
                 } catch (Exception e) {
 
-                    CMS.debug("CAEnrollProfile: " + e);
+                    logger.error("CAEnrollProfile: " + e.getMessage(), e);
 
                     signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                             auditSubjectID,
