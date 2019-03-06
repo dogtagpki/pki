@@ -54,9 +54,8 @@ import com.netscape.cms.servlet.common.CMSTemplate;
  */
 public class ProfileApproveServlet extends ProfileServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileApproveServlet.class);
+
     private static final long serialVersionUID = 3956879326742839550L;
     private static final String PROP_AUTHORITY_ID = "authorityId";
     private String mAuthorityId = null;
@@ -118,11 +117,11 @@ public class ProfileApproveServlet extends ProfileServlet {
             try {
                 authToken = authenticate(cmsReq);
                 auditSubjectID = auditSubjectID();
-                CMS.debug("uid=" + authToken.getInString("userid"));
+                logger.debug("uid=" + authToken.getInString("userid"));
                 userid = authToken.getInString("userid");
             } catch (Exception e) {
                 auditSubjectID = auditSubjectID();
-                CMS.debug(e.toString());
+                logger.error("ProfileApproveServlet: " + e.getMessage(), e);
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
                                 e.toString()));
@@ -178,18 +177,18 @@ public class ProfileApproveServlet extends ProfileServlet {
                 return;
             }
 
-            CMS.debug("ProfileApproveServlet: start serving");
+            logger.debug("ProfileApproveServlet: start serving");
             // (1) Read request from the database
 
             // (2) Get profile id from the request
             if (mProfileSubId == null || mProfileSubId.equals("")) {
                 mProfileSubId = IProfileSubsystem.ID;
             }
-            CMS.debug("ProfileApproveServlet: SubId=" + mProfileSubId);
+            logger.debug("ProfileApproveServlet: SubId=" + mProfileSubId);
             ps = (IProfileSubsystem) CMS.getSubsystem(mProfileSubId);
 
             if (ps == null) {
-                CMS.debug("ProfileApproveServlet: ProfileSubsystem not found");
+                logger.error("ProfileApproveServlet: ProfileSubsystem not found");
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                         "CMS_INTERNAL_ERROR"));
@@ -212,8 +211,7 @@ public class ProfileApproveServlet extends ProfileServlet {
             IAuthority authority = (IAuthority) CMS.getSubsystem(mAuthorityId);
 
             if (authority == null) {
-                CMS.debug("ProfileApproveServlet: Authority " + mAuthorityId +
-                        " not found");
+                logger.error("ProfileApproveServlet: Authority " + mAuthorityId + " not found");
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                         "CMS_INTERNAL_ERROR"));
@@ -234,8 +232,7 @@ public class ProfileApproveServlet extends ProfileServlet {
             IRequestQueue queue = authority.getRequestQueue();
 
             if (queue == null) {
-                CMS.debug("ProfileApproveServlet: Request Queue of " +
-                        mAuthorityId + " not found");
+                logger.error("ProfileApproveServlet: Request Queue of " + mAuthorityId + " not found");
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                         "CMS_INTERNAL_ERROR"));
@@ -256,7 +253,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
             profileId = request.getParameter("profileId");
 
-            CMS.debug("ProfileApproveServlet: profileId=" + profileId);
+            logger.debug("ProfileApproveServlet: profileId=" + profileId);
 
             args.set(ARG_ERROR_CODE, "0");
             args.set(ARG_ERROR_REASON, "");
@@ -305,9 +302,7 @@ public class ProfileApproveServlet extends ProfileServlet {
 
                 audit(auditMessage);
             } catch (EProfileException e) {
-                // profile not enabled
-                CMS.debug("ProfileApproveServlet: profile not error " +
-                        e.toString());
+                logger.error("ProfileApproveServlet: profile not enabled: " + e.getMessage(), e);
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                         "CMS_INTERNAL_ERROR"));
@@ -356,9 +351,7 @@ public class ProfileApproveServlet extends ProfileServlet {
         try {
             profile = ps.getProfile(profileId);
         } catch (EProfileException e) {
-            // profile not found
-            CMS.debug("ProfileApproveServlet: profile not found " +
-                    e.toString());
+            logger.error("ProfileApproveServlet: profile not found: " + e.getMessage(), e);
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, e.toString());
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
@@ -434,7 +427,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                 String defName = defNames.nextElement();
                 IDescriptor defDesc = def.getValueDescriptor(locale, defName);
                 if (defDesc == null) {
-                    CMS.debug("defName=" + defName);
+                    logger.debug("defName=" + defName);
                 } else {
                     String defSyntax = defDesc.getSyntax();
                     String defConstraint = defDesc.getConstraint();
