@@ -31,6 +31,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -60,13 +66,6 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-import org.mozilla.jss.netscape.security.x509.CRLExtensions;
-import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
-import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-
 /**
  * Revoke a Certificate
  *
@@ -74,9 +73,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
  */
 public class DoRevokeTPS extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DoRevokeTPS.class);
+
     private static final long serialVersionUID = -2980600514636454836L;
     private final static String TPL_FILE = "revocationResult.template";
 
@@ -156,7 +154,7 @@ public class DoRevokeTPS extends CMSServlet {
         HttpServletResponse resp = cmsReq.getHttpResp();
 
         IAuthToken authToken = authenticate(cmsReq);
-        CMS.debug("DoRevokeTPS after authenticate");
+        logger.debug("DoRevokeTPS after authenticate");
 
         String revokeAll = null;
         int totalRecordCount = -1;
@@ -166,7 +164,7 @@ public class DoRevokeTPS extends CMSServlet {
         Date invalidityDate = null;
         Locale[] locale = new Locale[1];
 
-        CMS.debug("DoRevokeTPS before getTemplate");
+        logger.debug("DoRevokeTPS before getTemplate");
         try {
             @SuppressWarnings("unused")
             CMSTemplate form = getTemplate(mFormPath, req, locale); // check for errors
@@ -174,11 +172,11 @@ public class DoRevokeTPS extends CMSServlet {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         } catch (Exception e) {
-            CMS.debug("DoRevokeTPS getTemplate failed");
+            logger.error("DoRevokeTPS getTemplate failed: " + e.getMessage(), e);
             throw new EBaseException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
 
-        CMS.debug("DoRevokeTPS after getTemplate");
+        logger.debug("DoRevokeTPS after getTemplate");
         IArgBlock header = CMS.createArgBlock();
         IArgBlock ctx = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
@@ -235,7 +233,7 @@ public class DoRevokeTPS extends CMSServlet {
                             " authenticated by " + authMgr;
                 }
             } else {
-                CMS.debug("DoRevokeTPS: Missing authentication manager");
+                logger.warn("DoRevokeTPS: Missing authentication manager");
                 o_status = "status=1";
                 errorString = "errorString=Missing authentication manager.";
             }
@@ -331,9 +329,9 @@ public class DoRevokeTPS extends CMSServlet {
         String method = "DoRevokeTPS.process:";
         String msg = "";
 
-        CMS.debug(method + "begins");
+        logger.debug(method + "begins");
         if (revokeAll != null) {
-            CMS.debug("DoRevokeTPS.process revokeAll" + revokeAll);
+            logger.debug("DoRevokeTPS.process revokeAll" + revokeAll);
 
             String serial = "";
             String[] tokens;
@@ -360,7 +358,7 @@ public class DoRevokeTPS extends CMSServlet {
 
             // Construct a CRL reason code extension.
 
-            CMS.debug(method + "reason code = " + reason);
+            logger.debug(method + "reason code = " + reason);
             RevocationReason revReason = RevocationReason.fromInt(reason);
             CRLReasonExtension crlReasonExtn = new CRLReasonExtension(revReason);
 
@@ -398,7 +396,7 @@ public class DoRevokeTPS extends CMSServlet {
 
                 // we do not want to revoke the CA certificate accidentially
                 if (xcert != null && isSystemCertificate(xcert.getSerialNumber())) {
-                    CMS.debug("DoRevokeTPS: skipped revocation request for system certificate "
+                    logger.warn("DoRevokeTPS: skipped revocation request for system certificate "
                             + xcert.getSerialNumber());
                     badCertsRequested = true;
                     continue;
@@ -410,12 +408,12 @@ public class DoRevokeTPS extends CMSServlet {
                         try {
                             recRevReason = rec.getRevReason();
                         } catch (Exception ex) {
-                            CMS.debug(method + ex.toString());
+                            logger.error(method + ex.getMessage(), e);
                             throw new EBaseException(ex);
                         }
                         if (recRevReason == null) {
                             msg = "existing revoked cert missing revocation reason";
-                            CMS.debug(method + msg);
+                            logger.error(method + msg);
                             throw new EBaseException(msg);
                         }
                     }
@@ -430,11 +428,11 @@ public class DoRevokeTPS extends CMSServlet {
                         if ((recRevReason == RevocationReason.SUPERSEDED) ||
                                 (rec.isCertOnHold())) {
                             updateRevocation = true;
-                            CMS.debug(method + "Certificate 0x" + xcert.getSerialNumber().toString(16)
+                            logger.debug(method + "Certificate 0x" + xcert.getSerialNumber().toString(16)
                                     + " has been revoked, but reason is changed");
                         } else {
                             alreadyRevokedCertFound = true;
-                            CMS.debug("Certificate 0x" + xcert.getSerialNumber().toString(16) + " has been revoked.");
+                            logger.debug("Certificate 0x" + xcert.getSerialNumber().toString(16) + " has been revoked.");
                         }
                     }
                     if (updateRevocation) {
@@ -444,7 +442,7 @@ public class DoRevokeTPS extends CMSServlet {
                                 CMS.getCurrentDate(), entryExtn);
 
                         revCertImplsV.addElement(revCertImpl);
-                        CMS.debug(method + "Certificate 0x" + xcert.getSerialNumber().toString(16)
+                        logger.debug(method + "Certificate 0x" + xcert.getSerialNumber().toString(16)
                                 + " is going to be revoked.");
                         count++;
                     }
@@ -457,7 +455,7 @@ public class DoRevokeTPS extends CMSServlet {
                 // Situation where no certs were reoked here, but some certs
                 // requested happened to be already revoked. Don't return error.
                 if (alreadyRevokedCertFound == true && badCertsRequested == false) {
-                    CMS.debug(method + "Only have previously revoked certs in the list.");
+                    logger.debug(method + "Only have previously revoked certs in the list.");
 
                     audit(new CertStatusChangeRequestEvent(
                             auditSubjectID,
@@ -690,7 +688,7 @@ public class DoRevokeTPS extends CMSServlet {
                             if (!updateResult.equals(IRequest.RES_SUCCESS)) {
                                 String updateErrorStr = crl.getCrlUpdateErrorStr();
 
-                                CMS.debug("DoRevoke: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
+                                logger.debug("DoRevoke: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
                                         updateStatusStr));
                                 String error =
                                         revReq.getExtDataInString(updateErrorStr);
