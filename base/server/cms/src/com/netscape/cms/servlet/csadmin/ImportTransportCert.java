@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
@@ -39,7 +40,6 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
-import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -47,9 +47,8 @@ import com.netscape.cmsutil.xml.XMLObject;
  */
 public class ImportTransportCert extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ImportTransportCert.class);
+
     private static final long serialVersionUID = 7490067757951541235L;
     private final static String SUCCESS = "0";
     private final static String AUTH_FAILURE = "2";
@@ -64,16 +63,16 @@ public class ImportTransportCert extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
-        CMS.debug("ImportTransportCert: initializing...");
+        logger.debug("ImportTransportCert: initializing...");
         super.init(sc);
-        CMS.debug("ImportTransportCert: done initializing...");
+        logger.debug("ImportTransportCert: done initializing...");
     }
 
     /**
      * Process the HTTP request.
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("UpdateUpdater: processing...");
+        logger.debug("UpdateUpdater: processing...");
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
@@ -81,9 +80,9 @@ public class ImportTransportCert extends CMSServlet {
         IAuthToken authToken = null;
         try {
             authToken = authenticate(cmsReq);
-            CMS.debug("ImportTransportCert authentication successful.");
+            logger.debug("ImportTransportCert authentication successful.");
         } catch (Exception e) {
-            CMS.debug("ImportTransportCert: authentication failed.");
+            logger.error("ImportTransportCert: authentication failed: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
                             e.toString()));
@@ -93,7 +92,7 @@ public class ImportTransportCert extends CMSServlet {
         }
 
         if (authToken == null) {
-            CMS.debug("ImportTransportCert: authentication failed.");
+            logger.error("ImportTransportCert: authentication failed.");
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
                         null);
             return;
@@ -103,7 +102,7 @@ public class ImportTransportCert extends CMSServlet {
         try {
             authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
                     "modify");
-            CMS.debug("ImportTransportCert authorization successful.");
+            logger.debug("ImportTransportCert authorization successful.");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
@@ -128,17 +127,17 @@ public class ImportTransportCert extends CMSServlet {
 
         try {
             CryptoManager cm = CryptoManager.getInstance();
-            CMS.debug("ImportTransportCert: Importing certificate");
+            logger.debug("ImportTransportCert: Importing certificate");
             org.mozilla.jss.crypto.X509Certificate cert =
                     cm.importCACertPackage(Utils.base64decode(certsString));
             String nickName = cert.getNickname();
-            CMS.debug("ImportTransportCert: nickname " + nickName);
+            logger.debug("ImportTransportCert: nickname " + nickName);
             cs.putString("tks.drm_transport_cert_nickname", nickName);
-            CMS.debug("ImportTransportCert: Commiting configuration");
+            logger.debug("ImportTransportCert: Commiting configuration");
             cs.commit(false);
 
             // send success status back to the requestor
-            CMS.debug("ImportTransportCert: Sending response");
+            logger.debug("ImportTransportCert: Sending response");
             XMLObject xmlObj = new XMLObject();
             Node root = xmlObj.createRoot("XMLResponse");
 
@@ -147,7 +146,7 @@ public class ImportTransportCert extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("ImportTransportCert: Failed to send the XML output " + e);
+            logger.warn("ImportTransportCert: Failed to send the XML output " + e.getMessage(), e);
         }
     }
 
