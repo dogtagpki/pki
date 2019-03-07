@@ -33,7 +33,6 @@ import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -58,6 +57,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class CommonNameToSANDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CommonNameToSANDefault.class);
+
     private static final String LOG_PREFIX = "CommonNameToSANDefault: ";
 
     public void populate(IRequest _req, X509CertInfo info)
@@ -67,14 +68,14 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
         try {
             subjectName = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);
         } catch (CertificateException | IOException e) {
-            CMS.debug(LOG_PREFIX + "failed to read Subject DN: " + e);
+            logger.error(LOG_PREFIX + "failed to read Subject DN: " + e.getMessage(), e);
             return;
         }
         X500Name sdn;
         try {
             sdn = (X500Name) subjectName.get(CertificateSubjectName.DN_NAME);
         } catch (IOException e) {
-            CMS.debug(LOG_PREFIX + "failed to retrieve SDN X500Name: " + e);
+            logger.error(LOG_PREFIX + "failed to retrieve SDN X500Name: " + e.getMessage(), e);
             return;
         }
         List<String> cns;
@@ -83,20 +84,20 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
         } catch (IOException e) {
             // Couldn't read the CN for some reason.
             // Not a likely scenario so just log and return.
-            CMS.debug(LOG_PREFIX + "failed to decode CN: " + e);
+            logger.error(LOG_PREFIX + "failed to decode CN: " + e.getMessage(), e);
             return;
         }
         if (cns.size() < 1) {
-            CMS.debug(LOG_PREFIX + "No CN in Subject DN; done");
+            logger.debug(LOG_PREFIX + "No CN in Subject DN; done");
             return;  // no Common Name; can't do anything
         }
 
         String cn = cns.get(cns.size() - 1); // "most specific" CN is at end
 
-        CMS.debug(LOG_PREFIX + "Examining CN: " + cn);
+        logger.debug(LOG_PREFIX + "Examining CN: " + cn);
 
         if (!isValidDNSName(cn)) {
-            CMS.debug(LOG_PREFIX + "CN is not a DNS name; done");
+            logger.debug(LOG_PREFIX + "CN is not a DNS name; done");
             return;  // CN does not look like a DNS name
         }
 
@@ -112,7 +113,7 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
                 if (gn instanceof DNSName) {
                     String dnsName = ((DNSName) gn).getValue();
                     if (cn.equalsIgnoreCase(dnsName)) {
-                        CMS.debug(LOG_PREFIX
+                        logger.debug(LOG_PREFIX
                             + "CN already has corresponding SAN dNSName; done");
                         return;  // CN is already in SAN
                     }
@@ -122,7 +123,7 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
 
             // reset extension value (encoded value may have been cached)
             san.setGeneralNames(gns);
-            CMS.debug(LOG_PREFIX + "added CN to SAN; done");
+            logger.debug(LOG_PREFIX + "added CN to SAN; done");
         } else {
             GeneralNames gns = new GeneralNames();
             gns.add(new DNSName(cn));
@@ -131,10 +132,10 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
                 addExtension(
                     PKIXExtensions.SubjectAlternativeName_Id.toString(), san, info);
             } catch (IOException e) {
-                CMS.debug(LOG_PREFIX + "failed to construct SAN ext: " + e);
+                logger.error(LOG_PREFIX + "failed to construct SAN ext: " + e.getMessage(), e);
                 return;
             }
-            CMS.debug(LOG_PREFIX + "added SAN extension containing CN; done");
+            logger.debug(LOG_PREFIX + "added SAN extension containing CN; done");
         }
     }
 
