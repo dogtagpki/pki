@@ -26,6 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
@@ -40,7 +41,6 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
-import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -48,9 +48,8 @@ import com.netscape.cmsutil.xml.XMLObject;
  */
 public class GetTransportCert extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetTransportCert.class);
+
     private static final long serialVersionUID = 2495152202191979339L;
     private final static String SUCCESS = "0";
     private final static String AUTH_FAILURE = "2";
@@ -65,25 +64,25 @@ public class GetTransportCert extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
-        CMS.debug("GetTransportCert: initializing...");
+        logger.debug("GetTransportCert: initializing...");
         super.init(sc);
-        CMS.debug("GetTransportCert: done initializing...");
+        logger.debug("GetTransportCert: done initializing...");
     }
 
     /**
      * Process the HTTP request.
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("UpdateUpdater: processing...");
+        logger.debug("UpdateUpdater: processing...");
 
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         IAuthToken authToken = null;
         try {
             authToken = authenticate(cmsReq);
-            CMS.debug("GetTransportCert authentication successful.");
+            logger.debug("GetTransportCert authentication successful.");
         } catch (Exception e) {
-            CMS.debug("GetTransportCert: authentication failed.");
+            logger.error("GetTransportCert: authentication failed: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
                             e.toString()));
@@ -93,7 +92,7 @@ public class GetTransportCert extends CMSServlet {
         }
 
         if (authToken == null) {
-            CMS.debug("GetTransportCert: authentication failed.");
+            logger.error("GetTransportCert: authentication failed.");
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
                         null);
             return;
@@ -103,7 +102,7 @@ public class GetTransportCert extends CMSServlet {
         try {
             authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
                     "read");
-            CMS.debug("GetTransportCert authorization successful.");
+            logger.debug("GetTransportCert authorization successful.");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
@@ -133,12 +132,12 @@ public class GetTransportCert extends CMSServlet {
             mime64 = Utils.base64encode(transportCert.getEncoded(), true);
             mime64 = org.mozilla.jss.netscape.security.util.Cert.normalizeCertStrAndReq(mime64);
         } catch (CertificateEncodingException eee) {
-            CMS.debug("GetTransportCert: Failed to encode certificate");
+            logger.warn("GetTransportCert: Failed to encode certificate: " + eee.getMessage(), eee);
         }
 
         // send success status back to the requestor
         try {
-            CMS.debug("GetTransportCert: Sending response " + mime64);
+            logger.debug("GetTransportCert: Sending response " + mime64);
             XMLObject xmlObj = new XMLObject();
             Node root = xmlObj.createRoot("XMLResponse");
 
@@ -148,7 +147,7 @@ public class GetTransportCert extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("GetTransportCert: Failed to send the XML output " + e);
+            logger.warn("GetTransportCert: Failed to send the XML output " + e.getMessage(), e);
         }
     }
 
