@@ -23,6 +23,8 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.EACLsException;
@@ -38,7 +40,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * An abstract class represents an authorization manager that governs the
@@ -66,6 +67,8 @@ import org.mozilla.jss.netscape.security.util.Utils;
  * @see <A HREF="http://developer.netscape.com/library/documentation/enterprise/admnunix/aclfiles.htm">ACL Files</A>
  */
 public abstract class AAclAuthz implements IAuthzManager {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AAclAuthz.class);
 
     public enum EvaluationOrder { DenyAllow , AllowDeny };
 
@@ -111,7 +114,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         mImplName = implName;
         mConfig = config;
         mLogger = Logger.getLogger();
-        CMS.debug("AAclAuthz: init begins");
+        logger.debug("AAclAuthz: init begins");
 
         // load access evaluators specified in the config file
         IConfigStore mainConfig = CMS.getConfigStore();
@@ -399,7 +402,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         // XXX - just handle "||" (or) among multiple expressions for now
         // XXX - could use some optimization ... later
 
-        CMS.debug("evaluating expressions: " + s);
+        logger.debug("evaluating expressions: " + s);
 
         Vector<Object> v = new Vector<Object>();
 
@@ -504,7 +507,7 @@ public abstract class AAclAuthz implements IAuthzManager {
             String perm)
             throws EACLsException {
 
-        CMS.debug("AAclAuthz.checkPermission(" + name + ", " + perm + ")");
+        logger.debug("AAclAuthz.checkPermission(" + name + ", " + perm + ")");
 
         Vector<String> nodes = getNodes(name);
         EvaluationOrder order = getOrder();
@@ -540,7 +543,7 @@ public abstract class AAclAuthz implements IAuthzManager {
             Iterable<String> nodes,
             String perm) {
         for (ACLEntry entry : getEntries(ACLEntry.Type.Allow, nodes, perm)) {
-            CMS.debug("checkAllowEntries(): expressions: " + entry.getAttributeExpressions());
+            logger.debug("checkAllowEntries(): expressions: " + entry.getAttributeExpressions());
             if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
                 return true;
             }
@@ -555,7 +558,7 @@ public abstract class AAclAuthz implements IAuthzManager {
             String perm)
             throws EACLsException {
         for (ACLEntry entry : getEntries(ACLEntry.Type.Deny, nodes, perm)) {
-            CMS.debug("checkDenyEntries(): expressions: " + entry.getAttributeExpressions());
+            logger.debug("checkDenyEntries(): expressions: " + entry.getAttributeExpressions());
             if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
                 log(ILogger.LL_SECURITY, "checkPermission(): permission denied");
                 throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
@@ -597,7 +600,7 @@ public abstract class AAclAuthz implements IAuthzManager {
     private boolean evaluateExpressions(IAuthToken authToken, String s) {
         // XXX - just handle "||" (or) among multiple expressions for now
         // XXX - could use some optimization ... later
-        CMS.debug("evaluating expressions: " + s);
+        logger.debug("evaluating expressions: " + s);
 
         Vector<Object> v = new Vector<Object>();
 
@@ -609,7 +612,7 @@ public abstract class AAclAuthz implements IAuthzManager {
             if (orIndex == -1 && andIndex == -1) {
                 boolean passed = evaluateExpression(authToken, s.trim());
 
-                CMS.debug("evaluated expression: " + s.trim() + " to be " + passed);
+                logger.debug("evaluated expression: " + s.trim() + " to be " + passed);
                 v.addElement(Boolean.valueOf(passed));
                 break;
 
@@ -618,7 +621,7 @@ public abstract class AAclAuthz implements IAuthzManager {
                 String s1 = s.substring(0, orIndex);
                 boolean passed = evaluateExpression(authToken, s1.trim());
 
-                CMS.debug("evaluated expression: " + s1.trim() + " to be " + passed);
+                logger.debug("evaluated expression: " + s1.trim() + " to be " + passed);
                 v.addElement(new Boolean(passed));
                 v.addElement("||");
                 s = s.substring(orIndex + 2);
@@ -627,7 +630,7 @@ public abstract class AAclAuthz implements IAuthzManager {
                 String s1 = s.substring(0, andIndex);
                 boolean passed = evaluateExpression(authToken, s1.trim());
 
-                CMS.debug("evaluated expression: " + s1.trim() + " to be " + passed);
+                logger.debug("evaluated expression: " + s1.trim() + " to be " + passed);
                 v.addElement(new Boolean(passed));
                 v.addElement("&&");
                 s = s.substring(andIndex + 2);
@@ -853,7 +856,7 @@ public abstract class AAclAuthz implements IAuthzManager {
             authzToken.set(AuthzToken.TOKEN_AUTHZ_RESOURCE, resource);
             authzToken.set(AuthzToken.TOKEN_AUTHZ_OPERATION, operation);
             authzToken.set(AuthzToken.TOKEN_AUTHZ_STATUS, AuthzToken.AUTHZ_STATUS_SUCCESS);
-            CMS.debug(mName + ": authorization passed");
+            logger.debug(mName + ": authorization passed");
             return authzToken;
         } catch (EACLsException e) {
             // audit here later
