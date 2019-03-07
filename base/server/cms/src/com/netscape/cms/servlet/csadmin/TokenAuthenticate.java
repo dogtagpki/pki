@@ -37,9 +37,8 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 public class TokenAuthenticate extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenAuthenticate.class);
+
     private static final long serialVersionUID = -9098593390260940853L;
     private final static String SUCCESS = "0";
 
@@ -67,9 +66,9 @@ public class TokenAuthenticate extends CMSServlet {
         IConfigStore config = CMS.getConfigStore();
 
         String sessionId = httpReq.getParameter("sessionID");
-        CMS.debug("TokenAuthentication: sessionId=" + sessionId);
+        logger.debug("TokenAuthentication: sessionId=" + sessionId);
         String givenHost = httpReq.getParameter("hostname");
-        CMS.debug("TokenAuthentication: givenHost=" + givenHost);
+        logger.debug("TokenAuthentication: givenHost=" + givenHost);
 
         boolean checkIP = false;
         try {
@@ -80,19 +79,19 @@ public class TokenAuthenticate extends CMSServlet {
         ISecurityDomainSessionTable table = CMS.getSecurityDomainSessionTable();
         String uid = "";
         String gid = "";
-        CMS.debug("TokenAuthentication: checking session in the session table");
+        logger.debug("TokenAuthentication: checking session in the session table");
         if (table == null) {
-            CMS.debug("TokenAuthentication: session table is null");
+            logger.error("TokenAuthentication: session table is null");
             outputError(httpResp, "Error: session table is null");
             return;
         } else if (table.sessionExists(sessionId)) {
-            CMS.debug("TokenAuthentication: found session");
+            logger.debug("TokenAuthentication: found session");
             if (checkIP) {
                 String hostname = table.getIP(sessionId);
                 if (!hostname.equals(givenHost)) {
-                    CMS.debug("TokenAuthentication: hostname=" + hostname + " and givenHost="
+                    logger.error("TokenAuthentication: hostname=" + hostname + " and givenHost="
                             + givenHost + " are different");
-                    CMS.debug("TokenAuthenticate authenticate failed, wrong hostname.");
+                    logger.error("TokenAuthenticate authenticate failed, wrong hostname.");
                     outputError(httpResp, "Error: Failed Authentication");
                     return;
                 }
@@ -101,13 +100,13 @@ public class TokenAuthenticate extends CMSServlet {
             uid = table.getUID(sessionId);
             gid = table.getGroup(sessionId);
         } else {
-            CMS.debug("TokenAuthentication: session not found");
-            CMS.debug("TokenAuthentication authenticate failed, session id does not exist.");
+            logger.error("TokenAuthentication: session not found");
+            logger.error("TokenAuthentication authenticate failed, session id does not exist.");
             outputError(httpResp, "Error: Failed Authentication");
             return;
         }
 
-        CMS.debug("TokenAuthenticate successfully authenticate");
+        logger.debug("TokenAuthenticate successfully authenticate");
         try {
             XMLObject xmlObj = null;
 
@@ -122,7 +121,7 @@ public class TokenAuthenticate extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("Failed to send the XML output");
+            logger.warn("Failed to send the XML output");
         }
     }
 
