@@ -55,9 +55,8 @@ import com.netscape.cms.servlet.common.CMSTemplate;
  */
 public class ProfileSelectServlet extends ProfileServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileSelectServlet.class);
+
     private static final long serialVersionUID = -3765390650830903602L;
     private static final String PROP_AUTHORITY_ID = "authorityId";
     private String mAuthorityId = null;
@@ -82,7 +81,7 @@ public class ProfileSelectServlet extends ProfileServlet {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();
 
-        CMS.debug("ProfileSelectServlet: start serving");
+        logger.debug("ProfileSelectServlet: start serving");
 
         Locale locale = getLocale(request);
 
@@ -93,7 +92,7 @@ public class ProfileSelectServlet extends ProfileServlet {
             try {
                 authToken = authenticate(request);
             } catch (EBaseException e) {
-                CMS.debug("ProcessReqServlet: " + e.toString());
+                logger.error("ProcessReqServlet: " + e.getMessage(), e);
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
                 args.set(ARG_ERROR_CODE, "1");
@@ -131,12 +130,12 @@ public class ProfileSelectServlet extends ProfileServlet {
         if (mProfileSubId == null || mProfileSubId.equals("")) {
             mProfileSubId = IProfileSubsystem.ID;
         }
-        CMS.debug("ProfileSelectServlet: SubId=" + mProfileSubId);
+        logger.debug("ProfileSelectServlet: SubId=" + mProfileSubId);
         IProfileSubsystem ps = (IProfileSubsystem)
                 CMS.getSubsystem(mProfileSubId);
 
         if (ps == null) {
-            CMS.debug("ProfileSelectServlet: ProfileSubsystem not found");
+            logger.error("ProfileSelectServlet: ProfileSubsystem not found");
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                     "CMS_INTERNAL_ERROR"));
@@ -148,8 +147,7 @@ public class ProfileSelectServlet extends ProfileServlet {
         IAuthority authority = (IAuthority) CMS.getSubsystem(mAuthorityId);
 
         if (authority == null) {
-            CMS.debug("ProfileSelectServlet: Authority " + mAuthorityId +
-                    " not found");
+            logger.error("ProfileSelectServlet: Authority " + mAuthorityId + " not found");
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                     "CMS_INTERNAL_ERROR"));
@@ -159,8 +157,7 @@ public class ProfileSelectServlet extends ProfileServlet {
         IRequestQueue queue = authority.getRequestQueue();
 
         if (queue == null) {
-            CMS.debug("ProfileSelectServlet: Request Queue of " +
-                    mAuthorityId + " not found");
+            logger.error("ProfileSelectServlet: Request Queue of " + mAuthorityId + " not found");
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                     "CMS_INTERNAL_ERROR"));
@@ -172,14 +169,13 @@ public class ProfileSelectServlet extends ProfileServlet {
 
         String profileId = request.getParameter("profileId");
 
-        CMS.debug("ProfileSelectServlet: profileId=" + profileId);
+        logger.debug("ProfileSelectServlet: profileId=" + profileId);
 
         try {
             profile = ps.getProfile(profileId);
         } catch (EProfileException e) {
             // profile not found
-            CMS.debug("ProfileSelectServlet: profile not found profileId=" +
-                    profileId + " " + e.toString());
+            logger.error("ProfileSelectServlet: profile not found profileId=" + profileId + " " + e.getMessage(), e);
         }
         if (profile == null) {
             args.set(ARG_ERROR_CODE, "1");
@@ -234,17 +230,17 @@ public class ProfileSelectServlet extends ProfileServlet {
         try {
             boolean keyArchivalEnabled = CMS.getConfigStore().getBoolean("ca.connector.KRA.enable", false);
             if (keyArchivalEnabled == true) {
-                CMS.debug("ProfileSelectServlet: keyArchivalEnabled is true");
+                logger.debug("ProfileSelectServlet: keyArchivalEnabled is true");
 
                 // output transport certificate if present
                 args.set("transportCert",
                         CMS.getConfigStore().getString("ca.connector.KRA.transportCert", ""));
             } else {
-                CMS.debug("ProfileSelectServlet: keyArchivalEnabled is false");
+                logger.debug("ProfileSelectServlet: keyArchivalEnabled is false");
                 args.set("transportCert", "");
             }
         } catch (EBaseException e) {
-            CMS.debug("ProfileSelectServlet: exception caught:" + e.toString());
+            logger.warn("ProfileSelectServlet: exception caught:" + e.getMessage(), e);
         }
 
         // build authentication
