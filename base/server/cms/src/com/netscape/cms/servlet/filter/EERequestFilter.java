@@ -26,9 +26,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
-
 public class EERequestFilter implements Filter {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EERequestFilter.class);
+
     private static final String HTTP_SCHEME = "http";
     private static final String HTTP_PORT = "http_port";
     private static final String HTTP_ROLE = "EE";
@@ -67,7 +68,7 @@ public class EERequestFilter implements Filter {
         String msg = null;
         String param_active = null;
 
-        // CMS.debug("Entering the EE filter");
+        // logger.debug("Entering the EE filter");
         param_active = config.getInitParameter("active");
 
         if (request instanceof HttpServletRequest) {
@@ -80,7 +81,7 @@ public class EERequestFilter implements Filter {
                 msg = "The scheme MUST be either '" + HTTP_SCHEME
                         + "' or '" + HTTPS_SCHEME
                         + "', NOT '" + scheme + "'!";
-                CMS.debug(filterName + ":  " + msg);
+                logger.error(filterName + ":  " + msg);
                 resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, msg);
                 return;
             }
@@ -94,7 +95,7 @@ public class EERequestFilter implements Filter {
             if (param_http_port == null) {
                 msg = "The <param-name> '" + HTTP_PORT
                         + "' </param-name> " + "MUST be specified in 'web.xml'!";
-                CMS.debug(filterName + ":  " + msg);
+                logger.error(filterName + ":  " + msg);
                 resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, msg);
                 return;
             }
@@ -104,7 +105,7 @@ public class EERequestFilter implements Filter {
             if (param_https_port == null) {
                 msg = "The <param-name> '" + HTTPS_PORT
                         + "' </param-name> " + "MUST be specified in 'web.xml'!";
-                CMS.debug(filterName + ":  " + msg);
+                logger.error(filterName + ":  " + msg);
                 resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, msg);
                 return;
             }
@@ -135,10 +136,10 @@ public class EERequestFilter implements Filter {
                         bad_port = true;
                     }
                     if (bad_port) {
-                        CMS.debug(filterName + ":  " + msg);
-                        CMS.debug(filterName + ": uri is " + uri);
+                        logger.error(filterName + ":  " + msg);
+                        logger.debug(filterName + ": uri is " + uri);
                         if ((param_active != null) && (param_active.equals("false"))) {
-                            CMS.debug("Filter is disabled .. continuing");
+                            logger.debug("Filter is disabled .. continuing");
                         } else {
                             resp.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
                             return;
@@ -163,10 +164,10 @@ public class EERequestFilter implements Filter {
                         bad_port = true;
                     }
                     if (bad_port) {
-                        CMS.debug(filterName + ":  " + msg);
-                        CMS.debug(filterName + ": uri is " + uri);
+                        logger.error(filterName + ":  " + msg);
+                        logger.debug(filterName + ": uri is " + uri);
                         if ((param_active != null) && (param_active.equals("false"))) {
-                            CMS.debug("Filter is disabled .. continuing");
+                            logger.debug("Filter is disabled .. continuing");
                         } else {
                             resp.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
                             return;
@@ -176,7 +177,7 @@ public class EERequestFilter implements Filter {
             }
 
         }
-        // CMS.debug("Exiting the EE filter");
+        // logger.debug("Exiting the EE filter");
 
         chain.doFilter(request, response);
     }
