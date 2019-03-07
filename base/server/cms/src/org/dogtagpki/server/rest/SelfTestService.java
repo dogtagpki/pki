@@ -48,8 +48,10 @@ import com.netscape.cms.servlet.base.PKIService;
  */
 public class SelfTestService extends PKIService implements SelfTestResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelfTestService.class);
+
     public SelfTestService() {
-        CMS.debug("SelfTestService.<init>()");
+        logger.debug("SelfTestService.<init>()");
     }
 
     public SelfTestData createSelfTestData(ISelfTestSubsystem subsystem, String selfTestID) throws UnsupportedEncodingException, EMissingSelfTestException {
@@ -82,7 +84,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     @Override
     public Response findSelfTests(String filter, Integer start, Integer size) {
 
-        CMS.debug("SelfTestService.findSelfTests()");
+        logger.debug("SelfTestService.findSelfTests()");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -131,7 +133,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             return createOKResponse(response);
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("SelfTestService: " + e.getMessage(), e);
             throw new PKIException(e.getMessage());
         }
     }
@@ -141,14 +143,14 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         if (selfTestID == null) throw new BadRequestException("Self test ID is null.");
 
-        CMS.debug("SelfTestService.getSelfTest(\"" + selfTestID + "\")");
+        logger.debug("SelfTestService.getSelfTest(\"" + selfTestID + "\")");
 
         try {
             ISelfTestSubsystem subsystem = (ISelfTestSubsystem)CMS.getSubsystem(ISelfTestSubsystem.ID);
             return createOKResponse(createSelfTestData(subsystem, selfTestID));
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("SelfTestService: " + e.getMessage(), e);
             throw new PKIException(e.getMessage());
         }
     }
@@ -158,7 +160,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         if (action == null) throw new BadRequestException("Action is null.");
 
-        CMS.debug("SelfTestService.executeSelfTests(\"" + action + "\")");
+        logger.debug("SelfTestService.executeSelfTests(\"" + action + "\")");
 
         if (!"run".equals(action)) {
             throw new BadRequestException("Invalid action: " + action);
@@ -169,7 +171,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             subsystem.runSelfTestsOnDemand();
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("SelfTestService: " + e.getMessage(), e);
             throw new PKIException(e.getMessage());
         }
 
@@ -179,7 +181,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     @Override
     public Response runSelfTests() {
 
-        CMS.debug("SelfTestService.runSelfTests()");
+        logger.debug("SelfTestService.runSelfTests()");
 
         SelfTestResults results = new SelfTestResults();
 
@@ -192,7 +194,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             }
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("SelfTestService: " + e.getMessage(), e);
             throw new PKIException(e.getMessage());
         }
 
@@ -202,7 +204,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
     @Override
     public Response runSelfTest(String selfTestID) {
 
-        CMS.debug("SelfTestService.runSelfTest(" + selfTestID + ")");
+        logger.debug("SelfTestService.runSelfTest(" + selfTestID + ")");
 
         SelfTestResult result = new SelfTestResult();
         result.setID(selfTestID);
