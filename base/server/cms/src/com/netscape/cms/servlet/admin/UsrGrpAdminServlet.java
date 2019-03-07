@@ -33,6 +33,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
@@ -54,11 +58,6 @@ import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.cert.CertPrettyPrint;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * A class representing an administration servlet for
@@ -73,9 +72,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
  */
 public class UsrGrpAdminServlet extends AdminServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UsrGrpAdminServlet.class);
+
     private static final long serialVersionUID = -4341817607402387714L;
     private final static String INFO = "UsrGrpAdminServlet";
     private final static String RES_CA_GROUP = "certServer.ca.group";
@@ -154,7 +152,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
          AuthToken authToken = (AuthToken) sc.get(SessionContext.AUTH_TOKEN);
 
          AuthzToken authzTok = null;
-         CMS.debug("UserGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CHECK_AUTHZ_SUB"));
+         logger.debug("UserGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CHECK_AUTHZ_SUB"));
          // hardcoded for now .. just testing
          try {
          authzTok = mAuthz.authorize("DirAclAuthz", authToken, RES_GROUP, "read");
@@ -986,7 +984,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 boolean assending = true;
 
                 // could it be a pkcs7 blob?
-                CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_IS_PK_BLOB"));
+                logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_IS_PK_BLOB"));
                 byte p7Cert[] = Utils.base64decode(certsString);
 
                 try {
@@ -1017,17 +1015,17 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             p7certs[0].getIssuerDN().toString()) &&
                             (p7certs.length == 1)) {
                         certs[0] = p7certs[0];
-                        CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_SINGLE_CERT_IMPORT"));
+                        logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_SINGLE_CERT_IMPORT"));
                     } else if (p7certs[0].getIssuerDN().toString().equals(p7certs[1].getSubjectDN().toString())) {
                         certs[0] = p7certs[0];
-                        CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_ACEND_ORD"));
+                        logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_ACEND_ORD"));
                     } else if (p7certs[1].getIssuerDN().toString().equals(p7certs[0].getSubjectDN().toString())) {
                         assending = false;
-                        CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_DESC_ORD"));
+                        logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_DESC_ORD"));
                         certs[0] = p7certs[p7certs.length - 1];
                     } else {
                         // not a chain, or in random order
-                        CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_BAD_CHAIN"));
+                        logger.error("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_BAD_CHAIN"));
 
                         audit(new ConfigRoleEvent(
                                     auditSubjectID,
@@ -1039,7 +1037,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         return;
                     }
 
-                    CMS.debug("UsrGrpAdminServlet: "
+                    logger.debug("UsrGrpAdminServlet: "
                             + CMS.getLogMessage("ADMIN_SRVLT_CHAIN_STORED_DB", String.valueOf(p7certs.length)));
 
                     int j = 0;
@@ -1055,7 +1053,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     }
                     // store the chain into cert db, except for the user cert
                     for (j = jBegin; j < jEnd; j++) {
-                        CMS.debug("UsrGrpAdminServlet: "
+                        logger.debug("UsrGrpAdminServlet: "
                                 + CMS.getLogMessage("ADMIN_SRVLT_CERT_IN_CHAIN", String.valueOf(j),
                                         String.valueOf(p7certs[j].getSubjectDN())));
                         org.mozilla.jss.crypto.X509Certificate leafCert =
@@ -1067,7 +1065,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         if (leafCert == null) {
                             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NULL"));
                         } else {
-                            CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
+                            logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
                         }
 
                         if (leafCert instanceof InternalCertificate) {
@@ -1114,7 +1112,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
 
             try {
-                CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_BEFORE_VALIDITY"));
+                logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_BEFORE_VALIDITY"));
                 certs[0].checkValidity(); // throw exception if fails
 
                 user.setX509Certificates(certs);
