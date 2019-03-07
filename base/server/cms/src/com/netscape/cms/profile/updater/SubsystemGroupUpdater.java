@@ -21,6 +21,9 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
@@ -41,9 +44,6 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * This updater class will create the new user to the subsystem group and
@@ -53,6 +53,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
  */
 public class SubsystemGroupUpdater implements IProfileUpdater {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubsystemGroupUpdater.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     @SuppressWarnings("unused")
@@ -109,7 +110,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
 
         String auditSubjectID = auditSubjectID();
 
-        CMS.debug("SubsystemGroupUpdater update starts");
+        logger.debug("SubsystemGroupUpdater update starts");
         if (status != req.getRequestStatus()) {
             return;
         }
@@ -152,7 +153,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                              "+userType;;agentType+email;;<null>+password;;<null>+phone;;<null>";
 
         IUser user = null;
-        CMS.debug("SubsystemGroupUpdater adduser");
+        logger.debug("SubsystemGroupUpdater adduser");
         try {
             user = system.createUser(id);
             user.setFullName(id);
@@ -166,7 +167,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
             user.setX509Certificates(certs);
 
             system.addUser(user);
-            CMS.debug("SubsystemGroupUpdater update: successfully add the user");
+            logger.debug("SubsystemGroupUpdater update: successfully add the user");
 
             signedAuditLogger.log(new ConfigRoleEvent(
                                auditSubjectID,
@@ -182,7 +183,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                 b64 = b64.replace("\r", "").replace("\n", "");
 
             } catch (Exception ence) {
-                CMS.debug("SubsystemGroupUpdater update: user cert encoding failed: " + ence);
+                logger.warn("SubsystemGroupUpdater update: user cert encoding failed: " + ence.getMessage(), ence);
             }
 
             auditParams = "Scope;;certs+Operation;;OP_ADD+source;;SubsystemGroupUpdater" +
@@ -190,7 +191,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                              "+cert;;" + b64;
 
             system.addUserCert(user);
-            CMS.debug("SubsystemGroupUpdater update: successfully add the user certificate");
+            logger.debug("SubsystemGroupUpdater update: successfully add the user certificate");
 
             signedAuditLogger.log(new ConfigRoleEvent(
                                auditSubjectID,
@@ -198,11 +199,11 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                                auditParams));
 
         } catch (ConflictingOperationException e) {
-            CMS.debug("UpdateSubsystemGroup: update " + e.toString());
+            logger.warn("UpdateSubsystemGroup: update " + e.getMessage(), e);
             // ignore
 
         } catch (Exception e) {
-            CMS.debug("UpdateSubsystemGroup: update addUser " + e.toString());
+            logger.error("UpdateSubsystemGroup: update addUser " + e.getMessage(), e);
 
             signedAuditLogger.log(new ConfigRoleEvent(
                                auditSubjectID,
@@ -239,12 +240,12 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                                ILogger.SUCCESS,
                                auditParams));
 
-                CMS.debug("UpdateSubsystemGroup: update: successfully added the user to the group.");
+                logger.debug("UpdateSubsystemGroup: update: successfully added the user to the group.");
             } else {
-                CMS.debug("UpdateSubsystemGroup: update: user already a member of the group");
+                logger.debug("UpdateSubsystemGroup: update: user already a member of the group");
             }
         } catch (Exception e) {
-            CMS.debug("UpdateSubsystemGroup update: modifyGroup " + e.toString());
+            logger.warn("UpdateSubsystemGroup update: modifyGroup " + e.getMessage(), e);
 
             signedAuditLogger.log(new ConfigRoleEvent(
                                auditSubjectID,
