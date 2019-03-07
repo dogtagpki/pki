@@ -53,6 +53,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRLDistributionPointsExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "crlDistPointsCritical";
     public static final String CONFIG_NUM_POINTS = "crlDistPointsNum";
     public static final String CONFIG_POINT_TYPE = "crlDistPointsPointType_";
@@ -295,8 +297,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
             replaceExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(),
                     ext, info);
         } catch (EProfileException e) {
-            CMS.debug("CRLDistributionPointsExtDefault: setValue " +
-                    e.toString());
+            logger.error("CRLDistributionPointsExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -319,13 +320,11 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", type));
             }
         } catch (IOException e) {
-            CMS.debug("CRLDistributionPointsExtDefault: addCRLPoint " +
-                    e.toString());
+            logger.error("CRLDistributionPointsExtDefault: addCRLPoint " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", type));
         } catch (GeneralNamesException e) {
-            CMS.debug("CRLDistributionPointsExtDefault: addCRLPoint " +
-                    e.toString());
+            logger.error("CRLDistributionPointsExtDefault: addCRLPoint " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", type));
         }
@@ -346,11 +345,9 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", type));
             }
         } catch (IOException e) {
-            CMS.debug("CRLDistributionPointsExtDefault: addIssuer " +
-                    e.toString());
+            logger.warn("CRLDistributionPointsExtDefault: addIssuer " + e.getMessage(), e);
         } catch (GeneralNamesException e) {
-            CMS.debug("CRLDistributionPointsExtDefault: addIssuer " +
-                    e.toString());
+            logger.warn("CRLDistributionPointsExtDefault: addIssuer " + e.getMessage(), e);
         }
     }
 
@@ -368,7 +365,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                     Reason r = Reason.fromString(s);
 
                     if (r == null) {
-                        CMS.debug("CRLDistributeionPointsExtDefault: addReasons Unknown reason: " + s);
+                        logger.error("CRLDistributeionPointsExtDefault: addReasons Unknown reason: " + s);
                         throw new EPropertyException(CMS.getUserMessage(
                                     locale, "CMS_INVALID_PROPERTY", s));
                     } else {
@@ -644,9 +641,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                 }
             }
         } catch (Exception e) {
-            CMS.debug("CRLDistribtionPointsExtDefault: createExtension " +
-                    e.toString());
-            CMS.debug(e);
+            logger.warn("CRLDistribtionPointsExtDefault: createExtension " + e.getMessage(), e);
         }
 
         return ext;
@@ -686,9 +681,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                 }
             }
         } catch (Exception e) {
-            CMS.debug("CRLDistribtionPointsExtDefault: createExtension " +
-                    e.toString());
-            CMS.debug(e);
+            logger.warn("CRLDistribtionPointsExtDefault: createExtension " + e.getMessage(), e);
         }
 
         return ext;
