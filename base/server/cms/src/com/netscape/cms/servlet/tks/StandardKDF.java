@@ -6,13 +6,14 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.SymmetricKeyDeriver;
 import org.mozilla.jss.crypto.TokenException;
-
 import org.mozilla.jss.pkcs11.PKCS11Constants;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 
 public class StandardKDF extends KDF {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StandardKDF.class);
+
     SecureChannelProtocol protocol = null;
 
     StandardKDF(SecureChannelProtocol protocol) {
@@ -27,14 +28,14 @@ public class StandardKDF extends KDF {
 
         String method = "StandardKDF.computeCardKey_SCP03_WithDES3:";
 
-        CMS.debug(method + " entering ...");
+        logger.debug(method + " entering ...");
 
         if (masterKey == null || token == null
                 || derivationData == null || ((derivationData.length != SecureChannelProtocol.AES_128_BYTES) &&
                         (derivationData.length != SecureChannelProtocol.AES_192_BYTES) &&
                 (derivationData.length != SecureChannelProtocol.AES_256_BYTES))) {
 
-            CMS.debug(method + " Invalid input parameters!");
+            logger.error(method + " Invalid input parameters!");
 
             throw new EBaseException(method + " Invalid input parameters!");
         }
@@ -59,7 +60,7 @@ public class StandardKDF extends KDF {
 
         SymmetricKey result = null;
 
-        CMS.debug(method + " entering ...");
+        logger.debug(method + " entering ...");
 
         if (masterKey == null || derivationData == null
                 || derivationData.length != SecureChannelProtocol.DES2_LENGTH || token == null) {
@@ -83,13 +84,13 @@ public class StandardKDF extends KDF {
                 derivedKey = encryptDes3.derive();
             } catch (TokenException e) {
 
-                CMS.debug(method + "Unable to derive the key with the proper mechanism!");
-                CMS.debug(method + "Now try this the old fashioned way");
+                logger.error(method + "Unable to derive the key with the proper mechanism!");
+                logger.warn(method + "Now try this the old fashioned way");
 
                 byte[] encrypted = this.protocol.computeDes3EcbEncryption(masterKey, token.getName(), derivationData);
                 SecureChannelProtocol.debugByteArray(encrypted, "calculated key: ");
               //  byte[] parityEncrypted = KDF.getDesParity(encrypted);
-                CMS.debug(method + "done computeDes3EcbEncryptiong");
+                logger.debug(method + "done computeDes3EcbEncryptiong");
 
                 derivedKey = this.protocol.unwrapSymKeyOnToken(token, null,
                         encrypted, false,SymmetricKey.DES3);
@@ -100,12 +101,12 @@ public class StandardKDF extends KDF {
             }
 
 
-            CMS.debug(method + " derived card key first 16 :" + derivedKey);
+            logger.debug(method + " derived card key first 16 :" + derivedKey);
 
             //  byte[] extracted = derivedKey.getEncoded();
             // SecureChannelProtocol.debugByteArray(extracted, " Derived key 16.");
 
-            CMS.debug(method + " derivedKey 16: owning token: " + derivedKey.getOwningToken().getName());
+            logger.debug(method + " derivedKey 16: owning token: " + derivedKey.getOwningToken().getName());
 
             long bitPosition = 0;
 
@@ -128,12 +129,12 @@ public class StandardKDF extends KDF {
                               PKCS11Constants.CKM_DES3_ECB, PKCS11Constants.CKA_DERIVE,0);
 
            result =  concat.derive();
-           CMS.debug(method + " final 24 byte key: " + result);
+           logger.debug(method + " final 24 byte key: " + result);
            // byte [] extracted24Bytes = result.getEncoded();
            // SecureChannelProtocol.debugByteArray(extracted24Bytes, " Derived key 24.");
 
         } catch (TokenException | InvalidKeyException e) {
-            CMS.debug(method + "Unable to derive the key with the proper mechanism!");
+            logger.error(method + "Unable to derive the key with the proper mechanism: " + e.getMessage(), e);
             throw new EBaseException(e);
         }
 
@@ -145,7 +146,7 @@ public class StandardKDF extends KDF {
             throws EBaseException {
         String method = "StandardKDF.computeCardKeys:";
 
-        CMS.debug(method + " entering...");
+        logger.debug(method + " entering...");
 
         if (masterKey == null || data == null) {
             throw new EBaseException(method + " Invlalid input parameters!");
