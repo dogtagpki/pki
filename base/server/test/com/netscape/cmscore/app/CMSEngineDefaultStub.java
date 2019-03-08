@@ -189,10 +189,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public void putPasswordCache(String tag, String pw) {
     }
 
-    public String getServerCertNickname() {
-        return null;
-    }
-
     public void setServerCertNickname(String tokenName, String nickName) {
     }
 

@@ -314,13 +314,6 @@ public interface ICMSEngine extends ISubsystem {
     public void putPasswordCache(String tag, String pw);
 
     /**
-     * Retrieves the nickname of the server's server certificate.
-     *
-     * @return nickname of the server certificate
-     */
-    public String getServerCertNickname();
-
-    /**
      * Sets the nickname of the server's server certificate.
      *
      * @param tokenName name of token where the certificate is located

@@ -497,15 +497,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the nickname of the server's server certificate.
-     *
-     * @return nickname of the server certificate
-     */
-    public static String getServerCertNickname() {
-        return _engine.getServerCertNickname();
-    }
-
-    /**
      * Sets the nickname of the server's server certificate.
      *
      * @param tokenName name of token where the certificate is located

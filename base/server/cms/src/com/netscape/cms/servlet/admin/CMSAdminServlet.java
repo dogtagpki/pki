@@ -45,6 +45,12 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PQGParams;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.util.ConsolePasswordCallback;
 import org.mozilla.jss.util.PasswordCallback;
 
@@ -78,14 +84,7 @@ import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.symkey.SessionKey;
-
-import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * A class representings an administration servlet. This
@@ -453,7 +452,7 @@ public final class CMSAdminServlet extends AdminServlet {
             params.put(Constants.PR_CERT_TRANS, getCertNickname(kraNickname));
         }
 
-        String nickName = CMS.getServerCertNickname();
+        String nickName = engine.getServerCertNickname();
 
         params.put(Constants.PR_CERT_SERVER, getCertNickname(nickName));
 
@@ -1393,7 +1392,8 @@ public final class CMSAdminServlet extends AdminServlet {
     private String getRADMNewnickname()
             throws EBaseException {
         // assuming the nickname does not change.
-        return CMS.getServerCertNickname();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        return engine.getServerCertNickname();
 
         /*
          RemoteAdmin raAdmin = (RemoteAdmin)RemoteAdmin.getInstance();
@@ -1423,7 +1423,8 @@ public final class CMSAdminServlet extends AdminServlet {
     private String getAgentNewnickname()
             throws EBaseException {
         // assuming the nickname does not change.
-        return CMS.getServerCertNickname();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        return engine.getServerCertNickname();
 
         /*
          AgentGateway gateway = (AgentGateway)mReg.get(AgentGateway.ID);
@@ -2421,6 +2422,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
     private String getNickname(String certType) throws EBaseException {
         String nickname = "";
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
 
         if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
             ICertificateAuthority ca =
@@ -2454,9 +2456,9 @@ public final class CMSAdminServlet extends AdminServlet {
 
             nickname = kra.getNickname();
         } else if (certType.equals(Constants.PR_SERVER_CERT)) {
-            nickname = CMS.getServerCertNickname();
+            nickname = engine.getServerCertNickname();
         } else if (certType.equals(Constants.PR_SERVER_CERT_RADM)) {
-            nickname = CMS.getServerCertNickname();
+            nickname = engine.getServerCertNickname();
         }
 
         return nickname;
