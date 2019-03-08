@@ -314,21 +314,6 @@ public interface ICMSEngine extends ISubsystem {
     public void putPasswordCache(String tag, String pw);
 
     /**
-     * Sets the nickname of the server's server certificate.
-     *
-     * @param tokenName name of token where the certificate is located
-     * @param nickName name of server certificate
-     */
-    public void setServerCertNickname(String tokenName, String nickName);
-
-    /**
-     * Sets the nickname of the server's server certificate.
-     *
-     * @param newName new nickname of server certificate
-     */
-    public void setServerCertNickname(String newName);
-
-    /**
      * Retrieves the host name of the server's secure end entity service.
      *
      * @return host name of end-entity service

@@ -497,25 +497,6 @@ public final class CMS {
     }
 
     /**
-     * Sets the nickname of the server's server certificate.
-     *
-     * @param tokenName name of token where the certificate is located
-     * @param nickName name of server certificate
-     */
-    public static void setServerCertNickname(String tokenName, String nickName) {
-        _engine.setServerCertNickname(tokenName, nickName);
-    }
-
-    /**
-     * Sets the nickname of the server's server certificate.
-     *
-     * @param newName new nickname of server certificate
-     */
-    public static void setServerCertNickname(String newName) {
-        _engine.setServerCertNickname(newName);
-    }
-
-    /**
      * Retrieves the host name of the server's secure end entity service.
      *
      * @return host name of end-entity service

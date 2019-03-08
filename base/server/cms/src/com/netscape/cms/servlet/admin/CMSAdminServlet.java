@@ -694,7 +694,8 @@ public final class CMSAdminServlet extends AdminServlet {
     }
 
     private void modifyRADMCert(String nickName) {
-        CMS.setServerCertNickname(nickName);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        engine.setServerCertNickname(nickName);
 
         /*
          RemoteAdmin raAdmin = (RemoteAdmin)RemoteAdmin.getInstance();
@@ -704,7 +705,8 @@ public final class CMSAdminServlet extends AdminServlet {
     }
 
     private void modifyAgentGatewayCert(String nickName) {
-        CMS.setServerCertNickname(nickName);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        engine.setServerCertNickname(nickName);
 
         /*
          AgentGateway gateway = (AgentGateway)mReg.get(AgentGateway.ID);
@@ -714,7 +716,8 @@ public final class CMSAdminServlet extends AdminServlet {
     }
 
     private void modifyEEGatewayCert(IRegistrationAuthority ra, String nickName) {
-        CMS.setServerCertNickname(nickName);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        engine.setServerCertNickname(nickName);
 
         /*
          HTTPSubsystem eeGateway = ra.getHTTPSubsystem();
@@ -724,7 +727,8 @@ public final class CMSAdminServlet extends AdminServlet {
     }
 
     private void modifyCAGatewayCert(ICertificateAuthority ca, String nickName) {
-        CMS.setServerCertNickname(nickName);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        engine.setServerCertNickname(nickName);
 
         /*
          HTTPSubsystem caGateway = ca.getHTTPSubsystem();
@@ -1373,7 +1377,8 @@ public final class CMSAdminServlet extends AdminServlet {
 
     private void setRADMNewnickname(String tokenName, String nickName)
             throws EBaseException {
-        CMS.setServerCertNickname(tokenName, nickName);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        engine.setServerCertNickname(tokenName, nickName);
 
         /*
          RemoteAdmin raAdmin = (RemoteAdmin)RemoteAdmin.getInstance();
@@ -1404,7 +1409,8 @@ public final class CMSAdminServlet extends AdminServlet {
 
     private void setAgentNewnickname(String tokenName, String nickName)
             throws EBaseException {
-        CMS.setServerCertNickname(tokenName, nickName);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        engine.setServerCertNickname(tokenName, nickName);
 
         /*
          AgentGateway gateway = (AgentGateway)mReg.get(AgentGateway.ID);
