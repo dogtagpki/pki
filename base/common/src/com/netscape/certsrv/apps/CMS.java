@@ -693,10 +693,6 @@ public final class CMS {
         return _engine.getSecurityDomainSessionTable();
     }
 
-    public static String getServerStatus() {
-        return _engine.getServerStatus();
-    }
-
     public static boolean isExcludedLdapAttr(String key) {
         return _engine.isExcludedLdapAttr(key);
     }

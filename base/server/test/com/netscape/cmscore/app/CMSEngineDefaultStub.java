@@ -325,11 +325,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     @Override
-    public String getServerStatus() {
-        return null;
-    }
-
-    @Override
     public void sleepOneMinute() {
     }
 
