@@ -81,10 +81,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public long getStartupTime() {
-        return 0;
-    }
-
     public boolean isInRunningState() {
         return false;
     }

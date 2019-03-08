@@ -807,6 +807,7 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
         try {
             String installdate = cs.getString(Constants.PR_STAT_INSTALLDATE, "");
@@ -827,7 +828,7 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         params.put(Constants.PR_STAT_STARTUP,
-                (new Date(CMS.getStartupTime())).toString());
+                (new Date(engine.getStartupTime())).toString());
         params.put(Constants.PR_STAT_TIME,
                 (new Date(System.currentTimeMillis())).toString());
         sendResponse(SUCCESS, null, params, resp);

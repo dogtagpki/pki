@@ -473,15 +473,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves time server started up.
-     *
-     * @return last startup time
-     */
-    public static long getStartupTime() {
-        return _engine.getStartupTime();
-    }
-
-    /**
      * Retrieves the request sender for use with connector.
      *
      * @param authority local authority

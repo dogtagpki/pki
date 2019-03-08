@@ -103,13 +103,6 @@ public interface ICMSEngine extends ISubsystem {
     public Date getCurrentDate();
 
     /**
-     * Retrieves time server started up.
-     *
-     * @return last startup time
-     */
-    public long getStartupTime();
-
-    /**
      * Is the server in running state. After server startup, the
      * server will be initialization state first. After the
      * initialization state, the server will be in the running

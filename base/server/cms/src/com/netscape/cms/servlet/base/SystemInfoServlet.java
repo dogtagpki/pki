@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Displays detailed information about java VM internals, including
@@ -142,6 +143,7 @@ public class SystemInfoServlet extends HttpServlet {
     private void general(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         response.getWriter().println("<HTML>");
         response.getWriter().println("<H1>");
         response.getWriter().println("<a href=" + request.getServletPath() + ">");
@@ -157,7 +159,7 @@ public class SystemInfoServlet extends HttpServlet {
         response.getWriter().println("Server Started Time:");
         response.getWriter().println("</td>");
         response.getWriter().println("<td>");
-        response.getWriter().println(new Date(CMS.getStartupTime()));
+        response.getWriter().println(new Date(engine.getStartupTime()));
         response.getWriter().println("</td>");
         response.getWriter().println("</tr>");
         response.getWriter().println("<tr>");
