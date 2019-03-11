@@ -22,6 +22,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+from contextlib import contextmanager
 import datetime
 import getopt
 import getpass
@@ -954,65 +955,49 @@ class CertFixCLI(pki.cli.CLI):
 
                     target_subsys.add(subsystem)
 
-            # Convert set to list
-            target_subsys = list(target_subsys)
+            with suppress_selftest(target_subsys):
 
-            for subsystem in target_subsys:
-                subsystem.set_startup_test_criticality(False)
-                subsystem.save()
+                # 4. Bring up the server using a temp SSL cert if the sslcert is expired
+                if 'sslserver' in fix_certs:
+                    # 4a. Create temp SSL cert
+                    logger.info('Creating a temporary sslserver cert')
+                    instance.cert_create(cert_id='sslserver', temp_cert=True)
 
-            logger.info('Selftests disabled for subsystems: %s', ', '.join(
-                str(x.name) for x in target_subsys))
+                    # 4b. Delete the existing SSL Cert
+                    logger.debug('Removing sslserver cert from instance')
+                    instance.cert_del('sslserver')
 
-            # 4. Bring up the server using a temp SSL cert if the sslcert is expired
-            if 'sslserver' in fix_certs:
-                # 4a. Create temp SSL cert
-                logger.debug('Creating a temp sslserver cert')
-                instance.cert_create(cert_id='sslserver', temp_cert=True)
+                    # 4d. Import the temp sslcert into the instance
+                    logger.debug('Importing temp sslserver cert')
+                    instance.cert_import('sslserver')
 
-                # 4b. Delete the existing SSL Cert
-                logger.debug('Removing sslserver cert from instance')
-                instance.cert_del('sslserver')
+                # 5. Bring up the server temporarily
+                logger.debug('Starting the instance with temp sslserver cert')
+                instance.start()
 
-                # 4d. Import the temp sslcert into the instance
-                logger.debug('Importing temp sslserver cert')
-                instance.cert_import('sslserver')
+                # 6. Place renewal request for all certs in fix_certs
+                for cert_id in fix_certs:
+                    logger.debug('Creating new cert for %s', cert_id)
+                    instance.cert_create(cert_id=cert_id,
+                                         client_cert=client_cert,
+                                         client_nssdb=client_nssdb,
+                                         client_nssdb_pass=client_nssdb_pass,
+                                         client_nssdb_pass_file=client_nssdb_pass_file,
+                                         renew=True)
 
-            # 5. Bring up the server temporarily
-            logger.debug('Starting the instance with temp sslserver cert')
-            instance.start()
+                # 7. Stop the server
+                logger.debug('Stopping the instance')
+                instance.stop()
 
-            # 6. Place renewal request for all certs in fix_certs
-            for cert_id in fix_certs:
-                logger.debug('Creating new cert for %s', cert_id)
-                instance.cert_create(cert_id=cert_id,
-                                     client_cert=client_cert,
-                                     client_nssdb=client_nssdb,
-                                     client_nssdb_pass=client_nssdb_pass,
-                                     client_nssdb_pass_file=client_nssdb_pass_file,
-                                     renew=True)
+                # 8. Delete existing certs and then import the renewed system cert(s)
+                for cert_id in fix_certs:
+                    # Delete the existing cert from the instance
+                    logger.debug('Removing old %s cert from instance %s', cert_id, instance_name)
+                    instance.cert_del(cert_id)
 
-            # 7. Stop the server
-            logger.debug('Stopping the instance')
-            instance.stop()
-
-            # 8. Delete existing certs and then import the renewed system cert(s)
-            for cert_id in fix_certs:
-                # Delete the existing cert from the instance
-                logger.debug('Removing old %s cert from instance %s', cert_id, instance_name)
-                instance.cert_del(cert_id)
-
-                # Import this new cert into the instance
-                logger.debug('Importing new %s cert into instance %s', cert_id, instance_name)
-                instance.cert_import(cert_id)
-
-            # 9. Enable self tests for the subsystems disabled earlier
-            for subsystem in target_subsys:
-                subsystem.set_startup_test_criticality(True)
-                subsystem.save()
-
-            logger.info('Selftests enabled for subsystems: %s', ', '.join(
-                str(x.name) for x in target_subsys))
+                    # Import this new cert into the instance
+                    logger.debug('Importing new %s cert into instance %s', cert_id, instance_name)
+                    instance.cert_import(cert_id)
 
             # 10. Bring up the server
             logger.info('Starting the instance with renewed certs')
@@ -1021,3 +1006,23 @@ class CertFixCLI(pki.cli.CLI):
         except server.PKIServerException as e:
             logger.error(str(e))
             sys.exit(1)
+
+
+@contextmanager
+def suppress_selftest(subsystems):
+    """Suppress selftests in the given subsystems."""
+    for subsystem in subsystems:
+        subsystem.set_startup_test_criticality(False)
+        subsystem.save()
+    logger.info(
+        'Selftests disabled for subsystems: %s',
+        ', '.join(str(x.name) for x in subsystems))
+    try:
+        yield
+    finally:
+        for subsystem in subsystems:
+            subsystem.set_startup_test_criticality(True)
+            subsystem.save()
+        logger.info(
+            'Selftests enabled for subsystems: %s',
+            ', '.join(str(x.name) for x in subsystems))
