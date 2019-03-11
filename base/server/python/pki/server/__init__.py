@@ -1005,6 +1005,30 @@ class PKISubsystem(object):
             raise PKIServerException('Failed to generate CA-signed temp SSL '
                                      'certificate. RC: %d' % rc)
 
+    def get_db_config(self):
+        """Return DB configuration as dict."""
+        shortkeys = [
+            'ldapconn.host', 'ldapconn.port', 'ldapconn.secureConn',
+            'ldapauth.authtype', 'ldapauth.bindDN', 'ldapauth.bindPWPrompt',
+            'ldapauth.clientCertNickname', 'database', 'basedn',
+            'multipleSuffix.enable', 'maxConns', 'minConns',
+        ]
+        db_keys = ['internaldb.{}'.format(x) for x in shortkeys]
+        return {k: v for k, v in self.config.items() if k in db_keys}
+
+    def set_db_config(self, new_config):
+        """Write the dict of DB configuration to subsystem config.
+
+        Right now this does not perform sanity checks; it just calls
+        ``update`` on the config dict.  Fields that are ``None`` will
+        overwrite the existing key.  So if you do not want to reset a
+        field, ensure the key is absent.
+
+        Likewise, extraneous fields will be set into the main config.
+
+        """
+        self.config.update(new_config)
+
 
 class CASubsystem(PKISubsystem):
 
