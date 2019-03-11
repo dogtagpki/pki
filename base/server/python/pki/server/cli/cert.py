@@ -28,6 +28,8 @@ import getopt
 import getpass
 import logging
 import os
+import random
+import subprocess
 import sys
 
 import pki.cert
@@ -1123,7 +1125,8 @@ class CertFixCLI(pki.cli.CLI):
 
                     target_subsys.add(subsystem)
 
-            with suppress_selftest(target_subsys):
+            with ldap_password_authn(instance, target_subsys), \
+                    suppress_selftest(target_subsys):
 
                 # 4. Bring up the server using a temp SSL cert if the sslcert is expired
                 if 'sslserver' in fix_certs:
@@ -1200,3 +1203,90 @@ def start_stop(instance):
     finally:
         logger.info('Stopping the instance')
         instance.stop()
+
+
+@contextmanager
+def ldap_password_authn(instance, subsystems):
+    """LDAP password authentication context.
+
+    This context manager switches the server to password
+    authentication, runs the block, then restores the original
+    subsystem configuration.
+
+    Specifically:
+
+    - if we are already using BasicAuth, force port 389 and no TLS/STARTTLS
+      but leave everything else alone.
+
+    - if using TLS client cert auth, switch to BasicAuth, using pkidbuser
+      account, and using a randomly generated password.  The DM credential
+      is required to set that password.
+
+    """
+    logger.info('Configuring LDAP password authentication')
+    orig = {}
+    try:
+        password = instance.passwords['internaldb']
+    except KeyError:
+        # generate a new password and write it to file
+        rnd = random.SystemRandom()
+        xs = "abcdefghijklmnopqrstuvwxyz0123456789"
+        password = ''.join(rnd.choice(xs) for i in range(32))
+        instance.passwords['internaldb'] = password
+        instance.store_passwords()
+        generated_password = True
+    else:
+        generated_password = False
+
+    # we don't know the Base DN until we see the config,
+    # so defer performing ldappasswd...
+    ldappasswd_performed = False
+
+    for subsystem in subsystems:
+        cfg = subsystem.get_db_config()
+        orig[subsystem] = cfg.copy()  # copy because dict is mutable
+
+        authtype = cfg['internaldb.ldapauth.authtype']
+        if authtype == 'SslClientAuth':
+            # switch to BasicAuth
+            cfg['internaldb.ldapauth.authtype'] = 'BasicAuth'
+            cfg['internaldb.ldapconn.port'] = '389'
+            cfg['internaldb.ldapconn.secureConn'] = 'false'
+            bind_dn = \
+                'uid=pkidbuser,ou=people,{}'.format(cfg['internaldb.basedn'])
+            cfg['internaldb.ldapauth.bindDN'] = bind_dn
+
+            # _now_ we can perform ldappasswd
+            if not ldappasswd_performed:
+                logger.info('Setting pkidbuser password via ldappasswd')
+                subprocess.check_call([
+                    'echo', "Enter Directory Manager password."])
+                subprocess.check_call([
+                    'ldappasswd',
+                    '-D', 'cn=Directory Manager', '-W',
+                    '-s', password,
+                    bind_dn,
+                ])
+                ldappasswd_performed = True
+
+        elif authtype == 'BasicAuth':
+            # force port 389, no TLS / STARTTLS.  Leave other settings alone.
+            cfg['internaldb.ldapconn.port'] = '389'
+            cfg['internaldb.ldapconn.secureConn'] = 'false'
+
+        subsystem.set_db_config(cfg)
+        subsystem.save()
+
+    try:
+        yield
+
+    finally:
+        logger.info('Restoring previous LDAP configuration')
+
+        for subsystem, cfg in orig.items():
+            subsystem.set_db_config(cfg)
+            subsystem.save()
+
+        if generated_password:
+            del instance.passwords['internaldb']
+            instance.store_passwords()
