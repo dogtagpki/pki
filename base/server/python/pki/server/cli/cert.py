@@ -971,23 +971,17 @@ class CertFixCLI(pki.cli.CLI):
                     logger.debug('Importing temp sslserver cert')
                     instance.cert_import('sslserver')
 
-                # 5. Bring up the server temporarily
-                logger.debug('Starting the instance with temp sslserver cert')
-                instance.start()
-
-                # 6. Place renewal request for all certs in fix_certs
-                for cert_id in fix_certs:
-                    logger.debug('Creating new cert for %s', cert_id)
-                    instance.cert_create(cert_id=cert_id,
-                                         client_cert=client_cert,
-                                         client_nssdb=client_nssdb,
-                                         client_nssdb_pass=client_nssdb_pass,
-                                         client_nssdb_pass_file=client_nssdb_pass_file,
-                                         renew=True)
-
-                # 7. Stop the server
-                logger.debug('Stopping the instance')
-                instance.stop()
+                with start_stop(instance):
+                    # Place renewal request for all certs in fix_certs
+                    for cert_id in fix_certs:
+                        logger.info('Requesting new cert for %s', cert_id)
+                        instance.cert_create(
+                            cert_id=cert_id,
+                            client_cert=client_cert,
+                            client_nssdb=client_nssdb,
+                            client_nssdb_pass=client_nssdb_pass,
+                            client_nssdb_pass_file=client_nssdb_pass_file,
+                            renew=True)
 
                 # 8. Delete existing certs and then import the renewed system cert(s)
                 for cert_id in fix_certs:
@@ -1026,3 +1020,15 @@ def suppress_selftest(subsystems):
         logger.info(
             'Selftests enabled for subsystems: %s',
             ', '.join(str(x.name) for x in subsystems))
+
+
+@contextmanager
+def start_stop(instance):
+    """Start the server, run the block, and guarantee stop afterwards."""
+    logger.info('Starting the instance')
+    instance.start()
+    try:
+        yield
+    finally:
+        logger.info('Stopping the instance')
+        instance.stop()
