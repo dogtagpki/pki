@@ -160,6 +160,7 @@ public class OCSPInstallerService extends SystemConfigService {
 
     public void updateOCSPConfiguration() throws Exception {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = CMS.getConfigStore();
 
         String caHost = config.getString("preop.ca.hostname", "");
@@ -168,8 +169,8 @@ public class OCSPInstallerService extends SystemConfigService {
         CMS.debug("OCSPInstallerService: "
                 + "Updating OCSP configuration in CA at https://" + caHost + ":" + caPort);
 
-        String ocspHost = CMS.getAgentHost();
-        int ocspPort = Integer.parseInt(CMS.getAgentPort());
+        String ocspHost = engine.getAgentHost();
+        int ocspPort = Integer.parseInt(engine.getAgentPort());
         String sessionId = CMS.getConfigSDSessionId();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();

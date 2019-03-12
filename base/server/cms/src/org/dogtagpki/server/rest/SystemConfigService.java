@@ -367,7 +367,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 cs.putString("securitydomain.name", request.getSubordinateSecurityDomainName());
                 cs.putString("securitydomain.host", CMS.getEENonSSLHost());
                 cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
-                cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
+                cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
                 cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
                 cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
                 ConfigurationUtils.createSecurityDomain();
@@ -375,7 +375,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 logger.debug("Updating existing security domain");
                 ConfigurationUtils.updateSecurityDomain();
             }
-            cs.putString("service.securityDomainPort", CMS.getAgentPort());
+            cs.putString("service.securityDomainPort", engine.getAgentPort());
             cs.putString("securitydomain.store", "ldap");
             cs.commit(false);
 
@@ -1098,7 +1098,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("securitydomain.name", securityDomainName);
         cs.putString("securitydomain.host", CMS.getEENonSSLHost());
         cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
-        cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
+        cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
         cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
         cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
 

@@ -542,24 +542,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the host name of the server's agent service.
-     *
-     * @return host name of agent service
-     */
-    public static String getAgentHost() {
-        return _engine.getAgentHost();
-    }
-
-    /**
-     * Retrieves the port number of the server's agent service.
-     *
-     * @return port of agent service
-     */
-    public static String getAgentPort() {
-        return _engine.getAgentPort();
-    }
-
-    /**
      * Retrieves the certifcate in MIME-64 encoded format
      * with header and footer.
      *

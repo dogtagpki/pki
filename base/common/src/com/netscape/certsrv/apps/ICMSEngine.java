@@ -363,27 +363,6 @@ public interface ICMSEngine extends ISubsystem {
     public String getEEClientAuthSSLPort();
 
     /**
-     * Retrieves the host name of the server's agent service.
-     *
-     * @return host name of agent service
-     */
-    public String getAgentHost();
-
-    /**
-     * Retrieves the IP address of the server's agent service.
-     *
-     * @return ip address of agent service
-     */
-    public String getAgentIP();
-
-    /**
-     * Retrieves the port number of the server's agent service.
-     *
-     * @return port of agent service
-     */
-    public String getAgentPort();
-
-    /**
      * Retrieves the email notification handler.
      *
      * @return email notification

@@ -213,18 +213,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public String getAgentHost() {
-        return null;
-    }
-
-    public String getAgentIP() {
-        return null;
-    }
-
-    public String getAgentPort() {
-        return null;
-    }
-
     public IMailNotification getMailNotification() {
         return null;
     }

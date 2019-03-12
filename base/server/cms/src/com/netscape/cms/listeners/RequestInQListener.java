@@ -37,6 +37,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.profile.input.SubjectNameInput;
 import com.netscape.cms.profile.input.SubmitterInfoInput;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailTemplate;
 
@@ -91,6 +92,7 @@ public class RequestInQListener implements IRequestListener {
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -116,8 +118,8 @@ public class RequestInQListener implements IRequestListener {
         mFormPath = rq.getString(PROP_EMAIL_TEMPLATE);
 
         // make available http host and port for forming url in templates
-        mHttpHost = CMS.getAgentHost();
-        mAgentPort = CMS.getAgentPort();
+        mHttpHost = engine.getAgentHost();
+        mAgentPort = engine.getAgentPort();
         if (mAgentPort == null)
             log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_REQUEST_PORT_NOT_FOUND"));
         else

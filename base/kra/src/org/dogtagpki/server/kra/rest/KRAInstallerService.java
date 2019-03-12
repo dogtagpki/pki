@@ -94,6 +94,7 @@ public class KRAInstallerService extends SystemConfigService {
 
     public void configureKRAConnector() throws Exception {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
 
         String url = cs.getString("preop.ca.url", "");
@@ -108,8 +109,8 @@ public class KRAInstallerService extends SystemConfigService {
         CMS.debug("KRAInstallerService: "
                 + "Configuring KRA connector in CA at https://" + caHost + ":" + caPort);
 
-        String kraHost = CMS.getAgentHost();
-        String kraPort = CMS.getAgentPort();
+        String kraHost = engine.getAgentHost();
+        String kraPort = engine.getAgentPort();
         String transportCert = cs.getString("kra.transport.cert", "");
         String sessionId = CMS.getConfigSDSessionId();
 

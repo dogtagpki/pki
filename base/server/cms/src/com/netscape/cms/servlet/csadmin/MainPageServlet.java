@@ -37,6 +37,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class MainPageServlet extends CMSServlet {
     /**
@@ -103,6 +104,7 @@ public class MainPageServlet extends CMSServlet {
 
         int num = 0;
         IArgBlock rarg = null;
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
         int state = 0;
         String host = "";
@@ -145,7 +147,7 @@ public class MainPageServlet extends CMSServlet {
                 rarg.addStringValue("type", "agent");
                 rarg.addStringValue("prefix", "https");
                 rarg.addIntegerValue("port",
-                        Integer.valueOf(CMS.getAgentPort()).intValue());
+                        Integer.valueOf(engine.getAgentPort()).intValue());
                 rarg.addStringValue("host", host);
                 rarg.addStringValue("uri", agentInterface);
                 argSet.addRepeatRecord(rarg);

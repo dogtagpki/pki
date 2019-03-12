@@ -3119,7 +3119,7 @@ public class ConfigurationUtils {
         attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
         attrs.add(new LDAPAttribute("Host", CMS.getEESSLHost()));
         attrs.add(new LDAPAttribute("SecurePort", CMS.getEESSLPort()));
-        attrs.add(new LDAPAttribute("SecureAgentPort", CMS.getAgentPort()));
+        attrs.add(new LDAPAttribute("SecureAgentPort", engine.getAgentPort()));
         attrs.add(new LDAPAttribute("SecureAdminPort", engine.getAdminPort()));
         if (CMS.getEEClientAuthSSLPort() != null) {
             attrs.add(new LDAPAttribute("SecureEEClientAuthPort", CMS.getEEClientAuthSSLPort()));
@@ -3170,7 +3170,7 @@ public class ConfigurationUtils {
         content.putSingle("sport", CMS.getEESSLPort());
         content.putSingle("dm", cloneMaster ? "true" : "false");
         content.putSingle("clone", select.equals("clone") ? "true" : "false");
-        content.putSingle("agentsport", CMS.getAgentPort());
+        content.putSingle("agentsport", engine.getAgentPort());
         content.putSingle("adminsport", engine.getAdminPort());
 
         if (CMS.getEEClientAuthSSLPort() != null) {
