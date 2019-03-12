@@ -290,7 +290,7 @@ public class RenewalNotificationJob
     public void run() {
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         // for forming renewal URL at template
-        mHttpHost = CMS.getEEHost();
+        mHttpHost = engine.getEEHost();
         mHttpPort = engine.getEESSLPort();
 
         // read from the configuration file

@@ -2819,7 +2819,7 @@ public class CertificateAuthority
         }
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        String thisClone = CMS.getEEHost() + ":" + engine.getEESSLPort();
+        String thisClone = engine.getEEHost() + ":" + engine.getEESSLPort();
 
         LDAPAttribute[] attrs = {
             new LDAPAttribute("objectclass", "authority"),
@@ -3154,7 +3154,7 @@ public class CertificateAuthority
      */
     private void addInstanceToAuthorityKeyHosts() throws ELdapException {
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        String thisClone = CMS.getEEHost() + ":" + engine.getEESSLPort();
+        String thisClone = engine.getEEHost() + ":" + engine.getEESSLPort();
         if (authorityKeyHosts.contains(thisClone)) {
             // already there; nothing to do
             return;

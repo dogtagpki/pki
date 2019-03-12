@@ -344,7 +344,7 @@ public class ConfigurationUtils {
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
 
-        String subca_url = "https://" + CMS.getEEHost() + ":"
+        String subca_url = "https://" + engine.getEEHost() + ":"
                 + engine.getAdminPort() + "/ca/admin/console/config/wizard" +
                 "?p=5&subsystem=" + cs.getString("cs.type");
 
@@ -3121,8 +3121,8 @@ public class ConfigurationUtils {
         attrs.add(new LDAPAttribute("SecurePort", engine.getEESSLPort()));
         attrs.add(new LDAPAttribute("SecureAgentPort", engine.getAgentPort()));
         attrs.add(new LDAPAttribute("SecureAdminPort", engine.getAdminPort()));
-        if (CMS.getEEClientAuthSSLPort() != null) {
-            attrs.add(new LDAPAttribute("SecureEEClientAuthPort", CMS.getEEClientAuthSSLPort()));
+        if (engine.getEEClientAuthSSLPort() != null) {
+            attrs.add(new LDAPAttribute("SecureEEClientAuthPort", engine.getEEClientAuthSSLPort()));
         }
         attrs.add(new LDAPAttribute("UnSecurePort", engine.getEENonSSLPort()));
         attrs.add(new LDAPAttribute("Clone", "FALSE"));
@@ -3173,8 +3173,8 @@ public class ConfigurationUtils {
         content.putSingle("agentsport", engine.getAgentPort());
         content.putSingle("adminsport", engine.getAdminPort());
 
-        if (CMS.getEEClientAuthSSLPort() != null) {
-            content.putSingle("eeclientauthsport", CMS.getEEClientAuthSSLPort());
+        if (engine.getEEClientAuthSSLPort() != null) {
+            content.putSingle("eeclientauthsport", engine.getEEClientAuthSSLPort());
         }
 
         content.putSingle("httpport", engine.getEENonSSLPort());

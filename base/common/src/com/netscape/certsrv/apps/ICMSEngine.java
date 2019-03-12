@@ -307,20 +307,6 @@ public interface ICMSEngine extends ISubsystem {
     public void putPasswordCache(String tag, String pw);
 
     /**
-     * Retrieves the host name of the server's secure end entity service.
-     *
-     * @return host name of end-entity service
-     */
-    public String getEEHost();
-
-    /**
-     * Retrieves the port number of the server's client auth secure end entity service.
-     *
-     * @return port of end-entity client auth secure service
-     */
-    public String getEEClientAuthSSLPort();
-
-    /**
      * Retrieves the email notification handler.
      *
      * @return email notification

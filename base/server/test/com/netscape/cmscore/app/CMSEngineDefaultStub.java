@@ -185,10 +185,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public void putPasswordCache(String tag, String pw) {
     }
 
-    public String getEEHost() {
-        return null;
-    }
-
     public IMailNotification getMailNotification() {
         return null;
     }
@@ -243,11 +239,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public String getConfigSDSessionId() {
-        return null;
-    }
-
-    @Override
-    public String getEEClientAuthSSLPort() {
         return null;
     }
 

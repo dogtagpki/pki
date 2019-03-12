@@ -161,7 +161,7 @@ public class CertificateRevokedListener implements IRequestListener {
         mSubject = new String(mSubject_Success);
 
         // form the cert retrieval URL for the notification
-        mHttpHost = CMS.getEEHost();
+        mHttpHost = engine.getEEHost();
         mHttpPort = engine.getEESSLPort();
 
         // register for this event listener

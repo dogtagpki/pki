@@ -488,24 +488,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the host name of the server's secure end entity service.
-     *
-     * @return host name of end-entity service
-     */
-    public static String getEEHost() {
-        return _engine.getEEHost();
-    }
-
-    /**
-     * Retrieves the host name of the server's secure end entity service.
-     *
-     * @return port of end-entity secure service
-     */
-    public static String getEEClientAuthSSLPort() {
-        return _engine.getEEClientAuthSSLPort();
-    }
-
-    /**
      * Retrieves the certifcate in MIME-64 encoded format
      * with header and footer.
      *
