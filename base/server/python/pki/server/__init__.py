@@ -2175,6 +2175,14 @@ class PKIInstance(PKIServer):
                 raise PKIServerException('No subsystem can be loaded for %s in '
                                          'instance %s.' % (cert_id, self.name))
 
+    @property
+    def cert_folder(self):
+        return os.path.join(pki.CONF_DIR, self.name, 'certs')
+
+    def cert_file(self, cert_id):
+        """Compute name of certificate under instance cert folder."""
+        return os.path.join(self.cert_folder, cert_id + '.crt')
+
     def nssdb_import_cert(self, cert_id, cert_file=None):
         """
         Add cert from cert_file to NSS db with appropriate trust flags
@@ -2206,11 +2214,9 @@ class PKIInstance(PKIServer):
         nssdb = self.open_nssdb()
 
         try:
-            cert_folder = os.path.join(pki.CONF_DIR, self.name, 'certs')
-
             # If cert_file is not provided, load the cert from /etc/pki/certs/<cert_id>.crt
             if not cert_file:
-                cert_file = os.path.join(cert_folder, cert_id + '.crt')
+                cert_file = self.cert_file(cert_id)
 
             if not os.path.isfile(cert_file):
                 raise PKIServerException('%s does not exist.' % cert_file)
@@ -2297,14 +2303,13 @@ class PKIInstance(PKIServer):
         nssdb = self.open_nssdb()
         tmpdir = tempfile.mkdtemp()
         try:
-            cert_folder = os.path.join(pki.CONF_DIR, self.name, 'certs')
-            if not os.path.exists(cert_folder):
-                os.makedirs(cert_folder)
+            if not os.path.exists(self.cert_folder):
+                os.makedirs(self.cert_folder)
 
             if output:
                 new_cert_file = output
             else:
-                new_cert_file = os.path.join(cert_folder, cert_id + '.crt')
+                new_cert_file = self.cert_file(cert_id)
 
             subsystem_name, cert_tag = PKIServer.split_cert_id(cert_id)
 
