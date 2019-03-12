@@ -22,7 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.X509Certificate;
@@ -81,7 +80,6 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
@@ -695,11 +693,6 @@ public class CMSEngine implements ICMSEngine {
         } catch (Exception e) {
         }
         return mode;
-    }
-
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String
-            id, BigInteger crlNumber, Long crlSize, Date thisUpdate, Date nextUpdate) {
-        return new CRLIssuingPointRecord(id, crlNumber, crlSize, thisUpdate, nextUpdate);
     }
 
     public ISecurityDomainSessionTable getSecurityDomainSessionTable() {

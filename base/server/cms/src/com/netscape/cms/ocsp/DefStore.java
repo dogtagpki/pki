@@ -58,6 +58,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
@@ -684,7 +685,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public ICRLIssuingPointRecord createCRLIssuingPointRecord(
             String name, BigInteger crlNumber,
             Long crlSize, Date thisUpdate, Date nextUpdate) {
-        return CMS.createCRLIssuingPointRecord(
+        return new CRLIssuingPointRecord(
                 name, crlNumber, crlSize, thisUpdate, nextUpdate);
     }
 

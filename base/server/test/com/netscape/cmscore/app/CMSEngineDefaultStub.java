@@ -1,6 +1,5 @@
 package com.netscape.cmscore.app;
 
-import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
@@ -17,7 +16,6 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 
@@ -131,11 +129,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public String getLogMessage(String msgID, Object p[]) {
-        return null;
-    }
-
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize,
-            Date thisUpdate, Date nextUpdate) {
         return null;
     }
 

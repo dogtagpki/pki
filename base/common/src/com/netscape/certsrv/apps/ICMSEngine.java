@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.apps;
 
-import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
@@ -33,7 +32,6 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 
@@ -225,14 +223,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return localized log message
      */
     public String getLogMessage(String msgID, Object p[]);
-
-    /**
-     * Creates an issuing poing record.
-     *
-     * @return issuing record
-     */
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize,
-            Date thisUpdate, Date nextUpdate);
 
     /**
      * Retrieves the default CRL issuing point record name.

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.apps;
 
-import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Hashtable;
@@ -39,7 +38,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.IDBSubsystem;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogSubsystem;
@@ -121,16 +119,6 @@ public final class CMS {
      */
     public static void setCMSEngine(ICMSEngine engine) {
         _engine = engine;
-    }
-
-    /**
-     * Creates an issuing poing record.
-     *
-     * @return issuing record
-     */
-    public static ICRLIssuingPointRecord createCRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize,
-            Date thisUpdate, Date nextUpdate) {
-        return _engine.createCRLIssuingPointRecord(id, crlNumber, crlSize, thisUpdate, nextUpdate);
     }
 
     /**
