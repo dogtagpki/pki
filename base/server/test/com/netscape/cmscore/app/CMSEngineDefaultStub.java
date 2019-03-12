@@ -51,10 +51,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public int getPID() {
-        return 0;
-    }
-
     public void reinit(String id) throws EBaseException {
     }
 

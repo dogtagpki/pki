@@ -62,6 +62,7 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.util.Base64OutputStream;
 
 import com.netscape.certsrv.apps.CMS;
@@ -81,7 +82,6 @@ import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.cmscore.apps.CMSEngine;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 import netscape.ldap.client.JDAPAVA;
 import netscape.ldap.client.JDAPFilter;
@@ -1255,16 +1255,18 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         // Do we care?
         mDate.setTime(ev.getTimeStamp());
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         // XXX
         // This should follow the Common Log Format which still needs
         // some work.
         if (ev.getMultiline() == ILogger.L_MULTILINE) {
-            entry = CMS.getPID() + "." + Thread.currentThread().getName() + " - ["
+            entry = engine.getPID() + "." + Thread.currentThread().getName() + " - ["
                     + mLogDateFormat.format(mDate) + "] [" +
                     ev.getSource().value() + "] [" + Integer.toString(ev.getLevel())
                     + "] " + prepareMultiline(ev.toString());
         } else {
-            entry = CMS.getPID() + "." + Thread.currentThread().getName() + " - ["
+            entry = engine.getPID() + "." + Thread.currentThread().getName() + " - ["
                     + mLogDateFormat.format(mDate) + "] [" +
                     ev.getSource().value() + "] [" + Integer.toString(ev.getLevel())
                     + "] " + ev.toString();

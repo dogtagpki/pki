@@ -169,15 +169,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the process id of this server.
-     *
-     * @return process id of the server
-     */
-    public static int getPID() {
-        return _engine.getPID();
-    }
-
-    /**
      * Retrieves the instance roort path of this server.
      *
      * @return instance directory path name

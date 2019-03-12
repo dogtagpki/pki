@@ -70,13 +70,6 @@ public interface ICMSEngine extends ISubsystem {
      */
     public void setId(String id) throws EBaseException;
 
-    /**
-     * Retrieves the process id of this server.
-     *
-     * @return process id of the server
-     */
-    public int getPID();
-
     public void reinit(String id) throws EBaseException;
 
     public int getCSState();
