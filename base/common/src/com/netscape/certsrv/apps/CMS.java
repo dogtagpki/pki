@@ -126,18 +126,6 @@ public final class CMS {
     }
 
     /**
-     * Is the server in running state. After server startup, the
-     * server will be initialization state first. After the
-     * initialization state, the server will be in the running
-     * state.
-     *
-     * @return true if the server is in the running state
-     */
-    public static boolean isInRunningState() {
-        return _engine.isInRunningState();
-    }
-
-    /**
      * Creates an issuing poing record.
      *
      * @return issuing record

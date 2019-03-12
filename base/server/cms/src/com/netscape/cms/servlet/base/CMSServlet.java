@@ -44,6 +44,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
@@ -93,21 +104,10 @@ import com.netscape.cms.servlet.common.GenSvcPendingTemplateFiller;
 import com.netscape.cms.servlet.common.GenUnexpectedErrorTemplateFiller;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cms.servlet.common.ServletUtils;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.CommandQueue;
 import com.netscape.cmscore.security.JssSubsystem;
-import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
-
-import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CRLExtensions;
-import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * This is the base class of all CS servlet.
@@ -418,7 +418,8 @@ public abstract class CMSServlet extends HttpServlet {
             HttpServletResponse httpResp)
             throws ServletException, IOException {
 
-        boolean running_state = CMS.isInRunningState();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        boolean running_state = engine.isInRunningState();
 
         if (!running_state)
             throw new IOException(

@@ -65,10 +65,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public boolean isInRunningState() {
-        return false;
-    }
-
     public Enumeration<String> getSubsystemNames() {
         return null;
     }

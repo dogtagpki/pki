@@ -38,6 +38,7 @@ import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 
 /**
@@ -126,7 +127,8 @@ public class Resender implements IResender {
     }
 
     public void run() {
-        if (! CMS.isInRunningState())
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        if (! engine.isInRunningState())
             return;
 
         if (! connected) {

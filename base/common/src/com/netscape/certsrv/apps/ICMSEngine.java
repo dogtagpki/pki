@@ -85,16 +85,6 @@ public interface ICMSEngine extends ISubsystem {
     public Date getCurrentDate();
 
     /**
-     * Is the server in running state. After server startup, the
-     * server will be initialization state first. After the
-     * initialization state, the server will be in the running
-     * state.
-     *
-     * @return true if the server is in the running state
-     */
-    public boolean isInRunningState();
-
-    /**
      * Returns the names of all the registered subsystems.
      *
      * @return a list of string-based subsystem names

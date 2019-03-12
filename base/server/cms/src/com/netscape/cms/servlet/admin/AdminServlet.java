@@ -63,6 +63,7 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.UserInfo;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.Auditor;
 
 /**
@@ -219,7 +220,8 @@ public class AdminServlet extends HttpServlet {
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        boolean running_state = CMS.isInRunningState();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        boolean running_state = engine.isInRunningState();
 
         if (!running_state)
             throw new IOException(

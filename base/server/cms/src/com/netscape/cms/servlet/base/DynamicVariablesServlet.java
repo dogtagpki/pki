@@ -36,6 +36,7 @@ import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Return some javascript to the request which contains the list of
@@ -190,7 +191,9 @@ public class DynamicVariablesServlet extends CMSServlet {
     public void service(HttpServletRequest httpReq,
             HttpServletResponse httpResp)
             throws ServletException, IOException {
-        boolean running_state = CMS.isInRunningState();
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        boolean running_state = engine.isInRunningState();
 
         if (!running_state)
             throw new IOException(

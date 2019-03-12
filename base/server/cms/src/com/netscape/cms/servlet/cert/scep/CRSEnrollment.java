@@ -119,6 +119,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWCBsdr;
 import com.netscape.cmscore.util.Debug;
@@ -339,7 +340,10 @@ public class CRSEnrollment extends HttpServlet {
     public void service(HttpServletRequest httpReq,
                       HttpServletResponse httpResp)
             throws ServletException {
-        boolean running_state = CMS.isInRunningState();
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        boolean running_state = engine.isInRunningState();
+
         if (!running_state)
             throw new ServletException(
                     "CMS server is not ready to serve.");

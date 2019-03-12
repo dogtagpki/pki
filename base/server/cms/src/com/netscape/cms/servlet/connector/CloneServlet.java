@@ -31,6 +31,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -54,11 +57,9 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Clone servlet - part of the Clone Authority (CLA)
@@ -97,7 +98,9 @@ public class CloneServlet extends CMSServlet {
 
     public void service(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException, IOException {
-        boolean running_state = CMS.isInRunningState();
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        boolean running_state = engine.isInRunningState();
 
         if (!running_state)
             throw new IOException(
