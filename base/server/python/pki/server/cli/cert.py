@@ -31,6 +31,7 @@ import os
 import random
 import subprocess
 import sys
+import time
 
 import pki.cert
 import pki.cli
@@ -1198,6 +1199,8 @@ def start_stop(instance):
     """Start the server, run the block, and guarantee stop afterwards."""
     logger.info('Starting the instance')
     instance.start()
+    logger.info('Sleeping for 10 seconds to allow server time to start...')
+    time.sleep(10)
     try:
         yield
     finally:
