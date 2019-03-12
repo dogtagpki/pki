@@ -497,24 +497,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the host name of the server's non-secure end entity service.
-     *
-     * @return host name of end-entity non-secure service
-     */
-    public static String getEENonSSLHost() {
-        return _engine.getEENonSSLHost();
-    }
-
-    /**
-     * Retrieves the port number of the server's non-secure end entity service.
-     *
-     * @return port of end-entity non-secure service
-     */
-    public static String getEENonSSLPort() {
-        return _engine.getEENonSSLPort();
-    }
-
-    /**
      * Retrieves the host name of the server's secure end entity service.
      *
      * @return port of end-entity secure service

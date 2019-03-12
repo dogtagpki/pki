@@ -38,6 +38,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements an enrollment default policy
@@ -423,8 +424,9 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
 
                     if (location == null || location.equals("")) {
                         if (method.equals("1.3.6.1.5.5.7.48.1")) {
-                            String hostname = CMS.getEENonSSLHost();
-                            String port = CMS.getEENonSSLPort();
+                            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                            String hostname = engine.getEENonSSLHost();
+                            String port = engine.getEENonSSLPort();
                             if (hostname != null && port != null)
                                 location = "http://" + hostname + ":" + port + "/ocsp";
                         }

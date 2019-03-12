@@ -62,27 +62,6 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.pkcs11.PK11ECPublicKey;
-import org.mozilla.jss.util.Base64OutputStream;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.security.KeyCertData;
-import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmscore.dbs.BigIntegerMapper;
-import com.netscape.cmscore.dbs.DateMapper;
-import com.netscape.cmscore.dbs.X509CertImplMapper;
-import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPModification;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
@@ -95,6 +74,7 @@ import org.mozilla.jss.netscape.security.util.BigInt;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgIdDSA;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
@@ -113,6 +93,27 @@ import org.mozilla.jss.netscape.security.x509.X500Signer;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.pkcs11.PK11ECPublicKey;
+import org.mozilla.jss.util.Base64OutputStream;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.security.KeyCertData;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.dbs.BigIntegerMapper;
+import com.netscape.cmscore.dbs.DateMapper;
+import com.netscape.cmscore.dbs.X509CertImplMapper;
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPModification;
 
 /**
  * This class provides all the base methods to generate the key for different
@@ -983,8 +984,9 @@ public class KeyCertUtil {
         String aia = properties.getAIA();
 
         if ((aia != null) && (aia.equals(Constants.TRUE))) {
-            String hostname = CMS.getEENonSSLHost();
-            String port = CMS.getEENonSSLPort();
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            String hostname = engine.getEENonSSLHost();
+            String port = engine.getEENonSSLPort();
             AuthInfoAccessExtension aiaExt = new AuthInfoAccessExtension(false);
             if (hostname != null && port != null) {
                 String location = "http://" + hostname + ":" + port + "/ca/ocsp";

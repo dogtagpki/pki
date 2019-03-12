@@ -125,7 +125,7 @@ public class MainPageServlet extends CMSServlet {
             rarg.addStringValue("type", "admin");
             rarg.addStringValue("prefix", "http");
             rarg.addIntegerValue("port",
-                    Integer.valueOf(CMS.getEENonSSLPort()).intValue());
+                    Integer.valueOf(engine.getEENonSSLPort()).intValue());
             rarg.addStringValue("host", host);
             rarg.addStringValue("uri", adminInterface);
             argSet.addRepeatRecord(rarg);

@@ -189,18 +189,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public String getEENonSSLHost() {
-        return null;
-    }
-
-    public String getEENonSSLIP() {
-        return null;
-    }
-
-    public String getEENonSSLPort() {
-        return null;
-    }
-
     public IMailNotification getMailNotification() {
         return null;
     }

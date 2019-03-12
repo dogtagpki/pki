@@ -365,8 +365,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 // switch out security domain parameters from issuing CA security domain
                 // to subordinate CA hosted security domain
                 cs.putString("securitydomain.name", request.getSubordinateSecurityDomainName());
-                cs.putString("securitydomain.host", CMS.getEENonSSLHost());
-                cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
+                cs.putString("securitydomain.host", engine.getEENonSSLHost());
+                cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
                 cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
                 cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
                 cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
@@ -1096,8 +1096,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("securitydomain.select", "new");
         cs.putString("preop.securitydomain.name", securityDomainName);
         cs.putString("securitydomain.name", securityDomainName);
-        cs.putString("securitydomain.host", CMS.getEENonSSLHost());
-        cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
+        cs.putString("securitydomain.host", engine.getEENonSSLHost());
+        cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
         cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
         cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
         cs.putString("securitydomain.httpsadminport", engine.getAdminPort());

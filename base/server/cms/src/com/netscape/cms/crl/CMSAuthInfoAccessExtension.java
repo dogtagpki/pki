@@ -20,6 +20,13 @@ package com.netscape.cms.crl;
 import java.io.IOException;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.URIName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -29,13 +36,7 @@ import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
-
-import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
-import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.GeneralName;
-import org.mozilla.jss.netscape.security.x509.URIName;
-import org.mozilla.jss.netscape.security.x509.X500Name;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This represents a Authority Information Access CRL extension.
@@ -132,8 +133,9 @@ public class CMSAuthInfoAccessExtension
                     }
                 } else {
                     accessLocationType = PROP_URINAME;
-                    String hostname = CMS.getEENonSSLHost();
-                    String port = CMS.getEENonSSLPort();
+                    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                    String hostname = engine.getEENonSSLHost();
+                    String port = engine.getEENonSSLPort();
                     if (hostname != null && port != null) {
                         accessLocation = "http://" + hostname + ":" + port + "/ca/ee/ca/getCAChain?op=downloadBIN";
                     }
@@ -206,8 +208,9 @@ public class CMSAuthInfoAccessExtension
             if (accessLocation != null && accessLocation.length() > 0) {
                 nvp.put(PROP_ACCESS_LOCATION + i, accessLocation);
             } else {
-                String hostname = CMS.getEENonSSLHost();
-                String port = CMS.getEENonSSLPort();
+                CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                String hostname = engine.getEENonSSLHost();
+                String port = engine.getEENonSSLPort();
                 if (hostname != null && port != null) {
                     accessLocation = "http://" + hostname + ":" + port + "/ca/ee/ca/getCAChain?op=downloadBIN";
                 }

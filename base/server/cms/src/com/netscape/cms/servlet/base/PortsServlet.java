@@ -71,7 +71,7 @@ public class PortsServlet extends CMSServlet {
         if (secure.equals("true"))
             port = engine.getEESSLPort();
         else
-            port = CMS.getEENonSSLPort();
+            port = engine.getEENonSSLPort();
 
         try {
             XMLObject xmlObj = null;

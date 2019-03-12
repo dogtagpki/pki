@@ -3124,7 +3124,7 @@ public class ConfigurationUtils {
         if (CMS.getEEClientAuthSSLPort() != null) {
             attrs.add(new LDAPAttribute("SecureEEClientAuthPort", CMS.getEEClientAuthSSLPort()));
         }
-        attrs.add(new LDAPAttribute("UnSecurePort", CMS.getEENonSSLPort()));
+        attrs.add(new LDAPAttribute("UnSecurePort", engine.getEENonSSLPort()));
         attrs.add(new LDAPAttribute("Clone", "FALSE"));
         attrs.add(new LDAPAttribute("SubsystemName", subsystemName));
         attrs.add(new LDAPAttribute("cn", cn));
@@ -3177,7 +3177,7 @@ public class ConfigurationUtils {
             content.putSingle("eeclientauthsport", CMS.getEEClientAuthSSLPort());
         }
 
-        content.putSingle("httpport", CMS.getEENonSSLPort());
+        content.putSingle("httpport", engine.getEENonSSLPort());
 
         try {
             logger.debug("Update security domain using admin interface");
