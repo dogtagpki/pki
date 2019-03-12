@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.ISharedToken;
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -35,8 +34,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.connector.IRemoteAuthority;
-import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
@@ -394,21 +391,6 @@ public final class CMS {
      */
     public static IConfigStore getConfigStore() {
         return _engine.getConfigStore();
-    }
-
-    /**
-     * Retrieves the request sender for use with connector.
-     *
-     * @param authority local authority
-     * @param nickname nickname of the client certificate
-     * @param remote remote authority
-     * @param interval timeout interval
-     * @return resender
-     */
-    public static IResender getResender(IAuthority authority, String nickname,
-            String clientCiphers,
-            IRemoteAuthority remote, int interval) {
-        return _engine.getResender(authority, nickname, clientCiphers, remote, interval);
     }
 
     /**

@@ -80,7 +80,7 @@ public class HttpConnector implements IConnector {
         //        mConn = CMS.getHttpConnection(dest, mFactory);
         // this will start resending past requests in parallel.
         if (resendInterval >= 0) {
-            mResender = CMS.getResender(mSource, nickName, clientCiphers, dest, resendInterval);
+            mResender = new Resender(mSource, nickName, clientCiphers, dest, resendInterval);
         }
     }
 
@@ -110,7 +110,7 @@ public class HttpConnector implements IConnector {
 
         // this will start resending past requests in parallel.
         if (resendInterval >= 0) {
-            mResender = CMS.getResender(mSource, nickName, clientCiphers, dest, resendInterval);
+            mResender = new Resender(mSource, nickName, clientCiphers, dest, resendInterval);
         }
     }
 

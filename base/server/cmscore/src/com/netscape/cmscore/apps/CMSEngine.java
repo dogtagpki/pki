@@ -65,7 +65,6 @@ import org.w3c.dom.NodeList;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.authentication.ISharedToken;
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
@@ -77,8 +76,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.connector.IRemoteAuthority;
-import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ConsoleError;
@@ -105,7 +102,6 @@ import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
-import com.netscape.cmscore.connector.Resender;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.jobs.JobsScheduler;
@@ -775,12 +771,6 @@ public class CMSEngine implements ICMSEngine {
 
     public String getAdminPort() {
         return info[ADMIN][PORT];
-    }
-
-    public IResender getResender(IAuthority authority, String nickname,
-            String clientCiphers,
-            IRemoteAuthority remote, int interval) {
-        return new Resender(authority, nickname, clientCiphers, remote, interval);
     }
 
     public Enumeration<String> getSubsystemNames() {

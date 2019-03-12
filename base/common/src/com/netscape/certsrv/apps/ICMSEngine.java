@@ -24,14 +24,11 @@ import java.util.Hashtable;
 import java.util.Locale;
 
 import com.netscape.certsrv.authentication.ISharedToken;
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.connector.IRemoteAuthority;
-import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 
@@ -242,19 +239,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return email notification
      */
     public IMailNotification getMailNotification();
-
-    /**
-     * Retrieves the request sender for use with connector.
-     *
-     * @param authority local authority
-     * @param nickname nickname of the client certificate
-     * @param remote remote authority
-     * @param interval timeout interval
-     * @return resender
-     */
-    public IResender getResender(IAuthority authority, String nickname,
-            String clientCiphers,
-            IRemoteAuthority remote, int interval);
 
     /**
      * Blocks all new incoming requests.
