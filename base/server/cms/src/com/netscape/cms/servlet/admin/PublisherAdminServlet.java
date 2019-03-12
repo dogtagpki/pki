@@ -62,6 +62,7 @@ import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.certsrv.security.ICryptoSubsystem;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
@@ -499,6 +500,8 @@ public class PublisherAdminServlet extends AdminServlet {
     private void setLDAPDest(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         //Save New Settings to the config file
         IConfigStore config = mAuth.getConfigStore();
         IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
@@ -575,7 +578,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // support publishing dirsrv with different pwd than internaldb
         // update passwordFile
         String prompt = ldap.getString(Constants.PR_BINDPWD_PROMPT);
-        IPasswordStore pwdStore = CMS.getPasswordStore();
+        IPasswordStore pwdStore = engine.getPasswordStore();
         logger.debug("PublisherAdminServlet: setLDAPDest(): saving password for " + prompt + " to password file");
         pwdStore.putPassword(prompt, pwd);
         pwdStore.commit();
@@ -618,6 +621,7 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         logger.debug("PublisherAdmineServlet: in testSetLDAPDest");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         //Save New Settings to the config file
         IConfigStore config = mAuth.getConfigStore();
         IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
@@ -887,7 +891,7 @@ public class PublisherAdminServlet extends AdminServlet {
             // support publishing dirsrv with different pwd than internaldb
             // update passwordFile
             String prompt = ldap.getString(Constants.PR_BINDPWD_PROMPT);
-            IPasswordStore pwdStore = CMS.getPasswordStore();
+            IPasswordStore pwdStore = engine.getPasswordStore();
             logger.debug("PublisherAdminServlet: testSetLDAPDest(): saving password for " +
                     prompt + " to password file");
             pwdStore.putPassword(prompt, pwd);

@@ -843,6 +843,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         if (data.isClone() && data.getSetupReplication()) {
             String masterhost = "";
             String masterport = "";
@@ -901,8 +903,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 replicationPassword = Integer.toString(random.nextInt());
             }
 
-            IPasswordStore psStore = null;
-            psStore = CMS.getPasswordStore();
+            IPasswordStore psStore = engine.getPasswordStore();
             psStore.putPassword("internaldb", data.getBindpwd());
             if (StringUtils.isEmpty(psStore.getPassword("replicationdb", 0))) {
                 psStore.putPassword("replicationdb", replicationPassword);

@@ -37,7 +37,6 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -361,8 +360,6 @@ public interface ICMSEngine extends ISubsystem {
      *            may not recheck against local certificate repository
      */
     public void setListOfVerifiedCerts(int size, long interval, long unknownStateInterval);
-
-    public IPasswordStore getPasswordStore() throws EBaseException;
 
     public ISecurityDomainSessionTable getSecurityDomainSessionTable();
 

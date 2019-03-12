@@ -687,6 +687,7 @@ public class ConfigurationUtils {
             String servlet, MultivaluedMap<String, String> content, IConfigStore config)
             throws Exception {
         logger.debug("updateConfigEntries start");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String c = post(hostname, port, https, servlet, content, null, null);
 
         if (c != null) {
@@ -802,7 +803,7 @@ public class ConfigurationUtils {
                 String master_pwd = config.getString("preop.internaldb.master.ldapauth.password", "");
                 if (!master_pwd.equals("")) {
                     config.putString("preop.internaldb.master.ldapauth.bindPWPrompt", "master_internaldb");
-                    IPasswordStore psStore = CMS.getPasswordStore();
+                    IPasswordStore psStore = engine.getPasswordStore();
                     psStore.putPassword("master_internaldb", master_pwd);
                     psStore.commit();
                 }

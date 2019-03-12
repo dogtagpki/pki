@@ -41,6 +41,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -220,12 +221,14 @@ public class GetConfigEntries extends CMSServlet {
     }
 
     private String getLDAPPassword() throws EBaseException {
-        IPasswordStore pwdStore = CMS.getPasswordStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IPasswordStore pwdStore = engine.getPasswordStore();
         return pwdStore.getPassword("internaldb", 0);
     }
 
     private String getReplicationPassword() throws EBaseException {
-        IPasswordStore pwdStore = CMS.getPasswordStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IPasswordStore pwdStore = engine.getPasswordStore();
         return pwdStore.getPassword("replicationdb", 0);
     }
 

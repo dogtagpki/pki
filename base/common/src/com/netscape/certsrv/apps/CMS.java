@@ -54,7 +54,6 @@ import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
-import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -523,10 +522,6 @@ public final class CMS {
 
     public static void setListOfVerifiedCerts(int size, long interval, long unknownStateInterval) {
         _engine.setListOfVerifiedCerts(size, interval, unknownStateInterval);
-    }
-
-    public static IPasswordStore getPasswordStore() throws EBaseException {
-        return _engine.getPasswordStore();
     }
 
     public static ISecurityDomainSessionTable getSecurityDomainSessionTable() {

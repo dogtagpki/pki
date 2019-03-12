@@ -23,6 +23,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
@@ -68,6 +69,8 @@ public class LdapAuthInfo implements ILdapAuthInfo {
         String pwd = null;
         logger.debug("LdapAuthInfo: getPasswordFromStore: try to get it from password store");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         // hey - should use password store interface to allow different implementations
         // but the problem is, other parts of the system just go directly to the file
         // so calling CMS.getPasswordStore() will give you an outdated one
@@ -76,7 +79,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
                         String pwdFile = mainConfig.getString("passwordFile");
                         FileConfigStore pstore = new FileConfigStore(pwdFile);
         */
-        IPasswordStore pwdStore = CMS.getPasswordStore();
+        IPasswordStore pwdStore = engine.getPasswordStore();
         logger.debug("LdapAuthInfo: getPasswordFromStore: about to get from passwored store: " + prompt);
 
         // support publishing dirsrv with different pwd than internaldb
