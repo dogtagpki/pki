@@ -57,6 +57,7 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 
 /**
@@ -665,6 +666,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -744,7 +746,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String pword = super.getParameter(req, Constants.PR_USER_PASSWORD);
 
             if (pword != null && !pword.equals("")) {
-                IPasswordCheck passwdCheck = CMS.getPasswordChecker();
+                IPasswordCheck passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
 
@@ -1940,6 +1942,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1989,7 +1992,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String pword = super.getParameter(req, Constants.PR_USER_PASSWORD);
 
             if ((pword != null) && (!pword.equals(""))) {
-                IPasswordCheck passwdCheck = CMS.getPasswordChecker();
+                IPasswordCheck passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
 

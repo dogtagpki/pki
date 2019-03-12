@@ -35,7 +35,6 @@ import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.notification.IMailNotification;
-import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.request.IRequest;
 
 import netscape.ldap.LDAPConnection;
@@ -261,13 +260,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return named shared token class
      */
     public ISharedToken getSharedTokenClass(String configName);
-
-    /**
-     * Retrieves the password check.
-     *
-     * @return default password checker
-     */
-    public IPasswordCheck getPasswordChecker();
 
     /**
      * Retrieves the email notification handler.

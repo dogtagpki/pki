@@ -45,7 +45,6 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.registry.IPluginRegistry;
@@ -470,15 +469,6 @@ public final class CMS {
 
     public static void setConfigSDSessionId(String val) {
         _engine.setConfigSDSessionId(val);
-    }
-
-    /**
-     * Retrieves the password check.
-     *
-     * @return default password checker
-     */
-    public static IPasswordCheck getPasswordChecker() {
-        return _engine.getPasswordChecker();
     }
 
     /**

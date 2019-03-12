@@ -19,7 +19,6 @@ import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.notification.IMailNotification;
-import com.netscape.certsrv.password.IPasswordCheck;
 import com.netscape.certsrv.request.IRequest;
 
 import netscape.ldap.LDAPConnection;
@@ -150,10 +149,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
 
     public LDAPConnection getBoundConnection(String id, String host, int port, int version, LDAPSSLSocketFactoryExt fac,
             String bindDN, String bindPW) throws LDAPException {
-        return null;
-    }
-
-    public IPasswordCheck getPasswordChecker() {
         return null;
     }
 

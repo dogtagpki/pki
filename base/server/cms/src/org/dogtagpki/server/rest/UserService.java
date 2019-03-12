@@ -70,6 +70,7 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 
 /**
@@ -270,6 +271,7 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (userData == null) throw new BadRequestException("User data is null.");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
         String userID = userData.getUserID();
         logger.debug("User ID: " + userID);
@@ -319,7 +321,7 @@ public class UserService extends SubsystemService implements UserResource {
             String pword = userData.getPassword();
             logger.debug("Password: " + (pword == null ? null : "********"));
             if (pword != null && !pword.equals("")) {
-                IPasswordCheck passwdCheck = CMS.getPasswordChecker();
+                IPasswordCheck passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
                     throw new EUsrGrpException(passwdCheck.getReason(pword));
@@ -408,6 +410,7 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (userData == null) throw new BadRequestException("User data is null.");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         IConfigStore cs = CMS.getConfigStore();
@@ -426,7 +429,7 @@ public class UserService extends SubsystemService implements UserResource {
             user.setEmail(email);
 
             String pword = userData.getPassword();
-            IPasswordCheck passwdCheck = CMS.getPasswordChecker();
+            IPasswordCheck passwdCheck = engine.getPasswordChecker();
 
             if (!passwdCheck.isGoodPassword(pword)) {
                 throw new EUsrGrpException(passwdCheck.getReason(pword));
@@ -498,6 +501,7 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (userData == null) throw new BadRequestException("User data is null.");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         IConfigStore cs = CMS.getConfigStore();
@@ -523,7 +527,7 @@ public class UserService extends SubsystemService implements UserResource {
 
             String pword = userData.getPassword();
             if (pword != null && !pword.equals("")) {
-                IPasswordCheck passwdCheck = CMS.getPasswordChecker();
+                IPasswordCheck passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
                     throw new EUsrGrpException(passwdCheck.getReason(pword));
