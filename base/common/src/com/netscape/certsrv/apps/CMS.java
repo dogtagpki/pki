@@ -125,10 +125,6 @@ public final class CMS {
         _engine = engine;
     }
 
-    public static boolean isRunningMode() {
-        return _engine.isRunningMode();
-    }
-
     /**
      * Is the server in running state. After server startup, the
      * server will be initialization state first. After the

@@ -61,10 +61,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public void setCSState(int mode) {
     }
 
-    public boolean isRunningMode() {
-        return false;
-    }
-
     public Date getCurrentDate() {
         return null;
     }

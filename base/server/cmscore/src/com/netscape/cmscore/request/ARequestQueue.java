@@ -33,6 +33,15 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -52,15 +61,7 @@ import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.util.DerInputStream;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * The ARequestQueue class is an abstract class that implements
@@ -678,7 +679,8 @@ public abstract class ARequestQueue
      * New non-blocking recover method.
      */
     public void recover() {
-        if (CMS.isRunningMode()) {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        if (engine.isRunningMode()) {
             RecoverThread t = new RecoverThread(this);
 
             t.start();

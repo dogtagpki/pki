@@ -76,8 +76,6 @@ public interface ICMSEngine extends ISubsystem {
 
     public void setCSState(int mode);
 
-    public boolean isRunningMode();
-
     /**
      * Returns a server wide system time. Plugins should call
      * this method to retrieve system time.
