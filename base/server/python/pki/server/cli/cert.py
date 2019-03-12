@@ -31,6 +31,7 @@ import os
 import random
 import subprocess
 import sys
+from tempfile import NamedTemporaryFile
 import time
 
 import pki.cert
@@ -977,6 +978,13 @@ class CertFixCLI(pki.cli.CLI):
         super(CertFixCLI, self).__init__(
             'fix', 'Fix expired system certificate(s).')
 
+    PKIDBUSER_LDIF_TEMPLATE = (
+        "dn: {dn}\n"
+        "changetype: modify\n"
+        "add: userCertificate\n"
+        "userCertificate:< file://{der_file}\n"
+    )
+
     def print_help(self):
         print('Usage: pki-server cert-fix [OPTIONS]')
         # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
@@ -1126,7 +1134,7 @@ class CertFixCLI(pki.cli.CLI):
 
                     target_subsys.add(subsystem)
 
-            with ldap_password_authn(instance, target_subsys), \
+            with ldap_password_authn(instance, target_subsys) as dbuser_dn, \
                     suppress_selftest(target_subsys):
 
                 # 4. Bring up the server using a temp SSL cert if the sslcert is expired
@@ -1164,6 +1172,36 @@ class CertFixCLI(pki.cli.CLI):
                     # Import this new cert into the instance
                     logger.debug('Importing new %s cert into instance %s', cert_id, instance_name)
                     instance.cert_import(cert_id)
+
+                # If subsystem cert was renewed and server was using
+                # TLS auth, add the cert to pkidbuser entry
+                if dbuser_dn and 'subsystem' in fix_certs:
+                    logger.info('Importing new subsystem cert into %s', dbuser_dn)
+                    with NamedTemporaryFile(mode='w+b') as ldif_file, \
+                            NamedTemporaryFile(mode='w+b') as der_file:
+                        # convert subsystem cert to DER
+                        subprocess.check_call([
+                            'openssl', 'x509',
+                            '-inform', 'PEM', '-outform', 'DER',
+                            '-in', instance.cert_file('subsystem'),
+                            '-out', der_file.name,
+                        ])
+
+                        # write LDIF
+                        ldif_file.write(
+                            self.PKIDBUSER_LDIF_TEMPLATE.format(
+                                dn=dbuser_dn, der_file=der_file.name)
+                            .encode('utf-8')
+                        )
+                        ldif_file.flush()
+                        os.fsync(ldif_file.fileno())
+
+                        # ldapmodify
+                        subprocess.check_call([
+                            'ldapmodify',
+                            '-D', 'cn=Directory Manager', '-W',
+                            '-f', ldif_file.name,
+                        ])
 
             # 10. Bring up the server
             logger.info('Starting the instance with renewed certs')
@@ -1225,6 +1263,12 @@ def ldap_password_authn(instance, subsystems):
       account, and using a randomly generated password.  The DM credential
       is required to set that password.
 
+    This context manager yields the pkidbuser DN, so that the new
+    subsystem certificate (if it was one of the renewal targets) can
+    be added to the entry.  It is only yielded if the server was
+    already using TLS client cert authn, otherwise the yielded value
+    is ``None``.
+
     """
     logger.info('Configuring LDAP password authentication')
     orig = {}
@@ -1244,6 +1288,10 @@ def ldap_password_authn(instance, subsystems):
     # we don't know the Base DN until we see the config,
     # so defer performing ldappasswd...
     ldappasswd_performed = False
+
+    # Set this if Dogtag is using TLS cert auth to LDAP, and yield
+    # it so that the new subsystem cert can be added to the entry.
+    bind_dn = None
 
     for subsystem in subsystems:
         cfg = subsystem.get_db_config()
@@ -1281,7 +1329,7 @@ def ldap_password_authn(instance, subsystems):
         subsystem.save()
 
     try:
-        yield
+        yield bind_dn
 
     finally:
         logger.info('Restoring previous LDAP configuration')
