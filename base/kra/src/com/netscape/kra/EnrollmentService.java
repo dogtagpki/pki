@@ -26,6 +26,7 @@ import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Vector;
 
+import org.dogtagpki.server.kra.ProofOfArchival;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.InvalidBERException;
@@ -47,7 +48,6 @@ import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.kra.ProofOfArchival;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;

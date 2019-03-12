@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.kra;
+package org.dogtagpki.server.kra;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +34,8 @@ import java.util.Vector;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
+import com.netscape.certsrv.kra.EKRAException;
+import com.netscape.certsrv.kra.IProofOfArchival;
 
 import org.mozilla.jss.netscape.security.util.BigInt;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
