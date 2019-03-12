@@ -74,6 +74,25 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs11.PK11Store;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.CertBag;
@@ -129,11 +148,11 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
-import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 import netscape.ldap.LDAPAttribute;
@@ -145,24 +164,6 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
-import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
-import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.pkcs.PKCS12;
-import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
-import org.mozilla.jss.netscape.security.util.DerOutputStream;
-import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.Extensions;
-import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * Utility class for functions to be used by the RESTful installer.
@@ -340,10 +341,11 @@ public class ConfigurationUtils {
     }
 
     public static String getOldCookie(String sdhost, int sdport, String user, String passwd) throws Exception {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
 
         String subca_url = "https://" + CMS.getEEHost() + ":"
-                + CMS.getAdminPort() + "/ca/admin/console/config/wizard" +
+                + engine.getAdminPort() + "/ca/admin/console/config/wizard" +
                 "?p=5&subsystem=" + cs.getString("cs.type");
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
@@ -3074,6 +3076,7 @@ public class ConfigurationUtils {
 
     public static void createSecurityDomain() throws EBaseException, LDAPException, NumberFormatException, IOException,
             SAXException, ParserConfigurationException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
@@ -3108,7 +3111,7 @@ public class ConfigurationUtils {
         }
 
         // Add this host
-        String cn = CMS.getEESSLHost() + ":" + CMS.getAdminPort();
+        String cn = CMS.getEESSLHost() + ":" + engine.getAdminPort();
         dn = "cn=" + LDAPUtil.escapeRDNValue(cn) + ",cn=CAList,ou=Security Domain," + basedn;
         String subsystemName = cs.getString("preop.subsystem.name");
         attrs = new LDAPAttributeSet();
@@ -3117,7 +3120,7 @@ public class ConfigurationUtils {
         attrs.add(new LDAPAttribute("Host", CMS.getEESSLHost()));
         attrs.add(new LDAPAttribute("SecurePort", CMS.getEESSLPort()));
         attrs.add(new LDAPAttribute("SecureAgentPort", CMS.getAgentPort()));
-        attrs.add(new LDAPAttribute("SecureAdminPort", CMS.getAdminPort()));
+        attrs.add(new LDAPAttribute("SecureAdminPort", engine.getAdminPort()));
         if (CMS.getEEClientAuthSSLPort() != null) {
             attrs.add(new LDAPAttribute("SecureEEClientAuthPort", CMS.getEEClientAuthSSLPort()));
         }
@@ -3140,6 +3143,7 @@ public class ConfigurationUtils {
 
     public static void updateSecurityDomain() throws Exception {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
 
         int sd_agent_port = cs.getInteger("securitydomain.httpsagentport");
@@ -3167,7 +3171,7 @@ public class ConfigurationUtils {
         content.putSingle("dm", cloneMaster ? "true" : "false");
         content.putSingle("clone", select.equals("clone") ? "true" : "false");
         content.putSingle("agentsport", CMS.getAgentPort());
-        content.putSingle("adminsport", CMS.getAdminPort());
+        content.putSingle("adminsport", engine.getAdminPort());
 
         if (CMS.getEEClientAuthSSLPort() != null) {
             content.putSingle("eeclientauthsport", CMS.getEEClientAuthSSLPort());

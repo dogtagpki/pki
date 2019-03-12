@@ -384,27 +384,6 @@ public interface ICMSEngine extends ISubsystem {
     public String getAgentPort();
 
     /**
-     * Retrieves the host name of the server's administration service.
-     *
-     * @return host name of administration service
-     */
-    public String getAdminHost();
-
-    /**
-     * Retrieves the IP address of the server's administration service.
-     *
-     * @return ip address of administration service
-     */
-    public String getAdminIP();
-
-    /**
-     * Retrieves the port number of the server's administration service.
-     *
-     * @return port of administration service
-     */
-    public String getAdminPort();
-
-    /**
      * Retrieves the email notification handler.
      *
      * @return email notification

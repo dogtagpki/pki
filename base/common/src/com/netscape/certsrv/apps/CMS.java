@@ -560,15 +560,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the port number of the server's administration service.
-     *
-     * @return port of administration service
-     */
-    public static String getAdminPort() {
-        return _engine.getAdminPort();
-    }
-
-    /**
      * Retrieves the certifcate in MIME-64 encoded format
      * with header and footer.
      *

@@ -225,18 +225,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public String getAdminHost() {
-        return null;
-    }
-
-    public String getAdminIP() {
-        return null;
-    }
-
-    public String getAdminPort() {
-        return null;
-    }
-
     public IMailNotification getMailNotification() {
         return null;
     }

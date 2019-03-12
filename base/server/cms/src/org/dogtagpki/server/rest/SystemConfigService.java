@@ -35,6 +35,8 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,9 +70,6 @@ import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * @author alee
@@ -355,6 +354,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
             String securityDomainType = request.getSecurityDomainType();
             if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
                 logger.debug("Creating new security domain");
@@ -369,7 +369,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
                 cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
                 cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
-                cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
+                cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
                 ConfigurationUtils.createSecurityDomain();
             } else {
                 logger.debug("Updating existing security domain");
@@ -1091,6 +1091,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     private void configureNewSecurityDomain(ConfigurationRequest data, String securityDomainName) {
         logger.debug("Creating new security domain");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         cs.putString("preop.securitydomain.select", "new");
         cs.putString("securitydomain.select", "new");
         cs.putString("preop.securitydomain.name", securityDomainName);
@@ -1099,7 +1100,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
         cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
         cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
-        cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
+        cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
 
         cs.putString("preop.cert.subsystem.type", "local");
         cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
