@@ -29,6 +29,7 @@ import org.apache.velocity.context.Context;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class SecurityDomainLogin extends BaseServlet {
 
@@ -47,6 +48,7 @@ public class SecurityDomainLogin extends BaseServlet {
             HttpServletResponse response,
             Context context) {
         Template template = null;
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
 
         try {
             String url = request.getParameter("url");
@@ -68,7 +70,7 @@ public class SecurityDomainLogin extends BaseServlet {
             context.put("url", url);
             context.put("host", u.getHost());
             context.put("errorString", "");
-            context.put("sdhost", CMS.getEESSLHost());
+            context.put("sdhost", engine.getEESSLHost());
             if (subsystem.equals("KRA")) {
                 subsystem = "DRM";
             }

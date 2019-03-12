@@ -45,6 +45,7 @@ import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
@@ -287,9 +288,10 @@ public class RenewalNotificationJob
      * responsible parties
      */
     public void run() {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         // for forming renewal URL at template
         mHttpHost = CMS.getEEHost();
-        mHttpPort = CMS.getEESSLPort();
+        mHttpPort = engine.getEESSLPort();
 
         // read from the configuration file
         try {

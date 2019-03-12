@@ -3111,14 +3111,14 @@ public class ConfigurationUtils {
         }
 
         // Add this host
-        String cn = CMS.getEESSLHost() + ":" + engine.getAdminPort();
+        String cn = engine.getEESSLHost() + ":" + engine.getAdminPort();
         dn = "cn=" + LDAPUtil.escapeRDNValue(cn) + ",cn=CAList,ou=Security Domain," + basedn;
         String subsystemName = cs.getString("preop.subsystem.name");
         attrs = new LDAPAttributeSet();
         attrs.add(new LDAPAttribute("objectclass", "top"));
         attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
-        attrs.add(new LDAPAttribute("Host", CMS.getEESSLHost()));
-        attrs.add(new LDAPAttribute("SecurePort", CMS.getEESSLPort()));
+        attrs.add(new LDAPAttribute("Host", engine.getEESSLHost()));
+        attrs.add(new LDAPAttribute("SecurePort", engine.getEESSLPort()));
         attrs.add(new LDAPAttribute("SecureAgentPort", engine.getAgentPort()));
         attrs.add(new LDAPAttribute("SecureAdminPort", engine.getAdminPort()));
         if (CMS.getEEClientAuthSSLPort() != null) {
@@ -3165,9 +3165,9 @@ public class ConfigurationUtils {
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("list", type + "List");
         content.putSingle("type", type);
-        content.putSingle("host", CMS.getEESSLHost());
+        content.putSingle("host", engine.getEESSLHost());
         content.putSingle("name", subsystemName);
-        content.putSingle("sport", CMS.getEESSLPort());
+        content.putSingle("sport", engine.getEESSLPort());
         content.putSingle("dm", cloneMaster ? "true" : "false");
         content.putSingle("clone", select.equals("clone") ? "true" : "false");
         content.putSingle("agentsport", engine.getAgentPort());

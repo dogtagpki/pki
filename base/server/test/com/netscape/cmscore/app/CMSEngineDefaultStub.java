@@ -201,18 +201,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public String getEESSLHost() {
-        return null;
-    }
-
-    public String getEESSLIP() {
-        return null;
-    }
-
-    public String getEESSLPort() {
-        return null;
-    }
-
     public IMailNotification getMailNotification() {
         return null;
     }

@@ -82,7 +82,7 @@ public class CAInstallerService extends SystemConfigService {
                 cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
                 cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
                 cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
-                cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
+                cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
                 cs.putString("securitydomain.select", "new");
             }
 

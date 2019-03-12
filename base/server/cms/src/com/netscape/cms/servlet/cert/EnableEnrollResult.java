@@ -45,6 +45,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -94,6 +95,7 @@ public class EnableEnrollResult extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
@@ -146,7 +148,7 @@ public class EnableEnrollResult extends CMSServlet {
 
         IConfigStore configStore = CMS.getConfigStore();
         String machine = configStore.getString("machineName");
-        String port = CMS.getEESSLPort();
+        String port = engine.getEESSLPort();
 
         header.addStringValue("machineName", machine);
         header.addStringValue("port", port);

@@ -136,7 +136,7 @@ public class MainPageServlet extends CMSServlet {
                 rarg.addStringValue("type", "ee");
                 rarg.addStringValue("prefix", "https");
                 rarg.addIntegerValue("port",
-                        Integer.valueOf(CMS.getEESSLPort()).intValue());
+                        Integer.valueOf(engine.getEESSLPort()).intValue());
                 rarg.addStringValue("host", host);
                 rarg.addStringValue("uri", eeInterface);
                 argSet.addRepeatRecord(rarg);

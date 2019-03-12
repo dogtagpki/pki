@@ -335,27 +335,6 @@ public interface ICMSEngine extends ISubsystem {
     public String getEENonSSLPort();
 
     /**
-     * Retrieves the host name of the server's secure end entity service.
-     *
-     * @return port of end-entity secure service
-     */
-    public String getEESSLHost();
-
-    /**
-     * Retrieves the IP address of the server's secure end entity service.
-     *
-     * @return ip address of end-entity secure service
-     */
-    public String getEESSLIP();
-
-    /**
-     * Retrieves the port number of the server's secure end entity service.
-     *
-     * @return port of end-entity secure service
-     */
-    public String getEESSLPort();
-
-    /**
      * Retrieves the port number of the server's client auth secure end entity service.
      *
      * @return port of end-entity client auth secure service

@@ -30,6 +30,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -62,11 +63,13 @@ public class PortsServlet extends CMSServlet {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         String secure = req.getParameter("secure");
         String port = null;
 
         if (secure.equals("true"))
-            port = CMS.getEESSLPort();
+            port = engine.getEESSLPort();
         else
             port = CMS.getEENonSSLPort();
 

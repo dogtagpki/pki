@@ -368,7 +368,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 cs.putString("securitydomain.host", CMS.getEENonSSLHost());
                 cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
                 cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
-                cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
+                cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
                 cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
                 ConfigurationUtils.createSecurityDomain();
             } else {
@@ -1099,7 +1099,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("securitydomain.host", CMS.getEENonSSLHost());
         cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
         cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
-        cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
+        cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
         cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
 
         cs.putString("preop.cert.subsystem.type", "local");

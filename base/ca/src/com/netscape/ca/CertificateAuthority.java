@@ -74,6 +74,23 @@ import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Signer;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.cert.Extension;
 import org.mozilla.jss.pkix.primitive.Name;
 
@@ -136,6 +153,7 @@ import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -167,7 +185,6 @@ import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -183,22 +200,6 @@ import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.controls.LDAPEntryChangeControl;
 import netscape.ldap.controls.LDAPPersistSearchControl;
 import netscape.ldap.util.DN;
-import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.util.DerOutputStream;
-import org.mozilla.jss.netscape.security.util.DerValue;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X500Signer;
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 
 /**
@@ -2817,7 +2818,8 @@ public class CertificateAuthority
             throw new EBaseException("Failed to convert issuer DN to string: " + e);
         }
 
-        String thisClone = CMS.getEEHost() + ":" + CMS.getEESSLPort();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        String thisClone = CMS.getEEHost() + ":" + engine.getEESSLPort();
 
         LDAPAttribute[] attrs = {
             new LDAPAttribute("objectclass", "authority"),
@@ -3151,7 +3153,8 @@ public class CertificateAuthority
      * Add this instance to the authorityKeyHosts
      */
     private void addInstanceToAuthorityKeyHosts() throws ELdapException {
-        String thisClone = CMS.getEEHost() + ":" + CMS.getEESSLPort();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        String thisClone = CMS.getEEHost() + ":" + engine.getEESSLPort();
         if (authorityKeyHosts.contains(thisClone)) {
             // already there; nothing to do
             return;

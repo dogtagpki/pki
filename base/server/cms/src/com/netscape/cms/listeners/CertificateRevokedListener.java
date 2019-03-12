@@ -24,6 +24,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -43,12 +45,11 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
-
-import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
 /**
  * a listener for every completed enrollment request
@@ -109,6 +110,7 @@ public class CertificateRevokedListener implements IRequestListener {
 
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -160,7 +162,7 @@ public class CertificateRevokedListener implements IRequestListener {
 
         // form the cert retrieval URL for the notification
         mHttpHost = CMS.getEEHost();
-        mHttpPort = CMS.getEESSLPort();
+        mHttpPort = engine.getEESSLPort();
 
         // register for this event listener
         mSubsystem.registerRequestListener(this);

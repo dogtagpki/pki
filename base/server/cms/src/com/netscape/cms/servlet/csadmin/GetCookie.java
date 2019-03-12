@@ -42,6 +42,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class GetCookie extends CMSServlet {
 
@@ -91,6 +92,7 @@ public class GetCookie extends CMSServlet {
 
         logger.debug("GetCookie start");
         IAuthToken authToken = null;
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
 
         IArgBlock header = CMS.createArgBlock();
@@ -136,7 +138,7 @@ public class GetCookie extends CMSServlet {
             header.addStringValue("sd_uid", "");
             header.addStringValue("sd_pwd", "");
             header.addStringValue("host", u.getHost());
-            header.addStringValue("sdhost", CMS.getEESSLHost());
+            header.addStringValue("sdhost", engine.getEESSLHost());
             header.addStringValue("subsystem", subsystem);
             header.addStringValue("url", url_e);
             header.addStringValue("errorString", "Failed Authentication");

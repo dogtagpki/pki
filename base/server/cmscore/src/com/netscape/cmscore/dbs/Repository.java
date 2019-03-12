@@ -32,6 +32,7 @@ import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class represents a generic repository. It maintains unique
@@ -510,7 +511,8 @@ public abstract class Repository implements IRepository {
             logger.warn("Repository: Serial Management not enabled. Returning .. ");
             return;
         }
-        if (CMS.getEESSLPort() == null) {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        if (engine.getEESSLPort() == null) {
             logger.warn("Repository: Server not completely started.  Returning ..");
             return;
         }

@@ -20,6 +20,8 @@ package com.netscape.cmscore.dbs;
 import java.math.BigInteger;
 import java.util.Hashtable;
 
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
@@ -36,6 +38,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -52,7 +55,6 @@ import netscape.ldap.LDAPObjectClassSchema;
 import netscape.ldap.LDAPSchema;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv3;
-import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 
 /**
  * A class represents the database subsystem that manages
@@ -400,6 +402,7 @@ public class DBSubsystem implements IDBSubsystem {
      * @return start of next range
      */
     public String getNextRange(int repo) {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         LDAPConnection conn = null;
         String nextRange = null;
         try {
@@ -440,8 +443,8 @@ public class DBSubsystem implements IDBSubsystem {
             attrs.add(new LDAPAttribute("beginRange", nextRange));
             attrs.add(new LDAPAttribute("endRange", endRange));
             attrs.add(new LDAPAttribute("cn", nextRange));
-            attrs.add(new LDAPAttribute("host", CMS.getEESSLHost()));
-            attrs.add(new LDAPAttribute("securePort", CMS.getEESSLPort()));
+            attrs.add(new LDAPAttribute("host", engine.getEESSLHost()));
+            attrs.add(new LDAPAttribute("securePort", engine.getEESSLPort()));
             String dn2 = "cn=" + nextRange + "," + rangeDN;
             LDAPEntry rangeEntry = new LDAPEntry(dn2, attrs);
 
@@ -480,6 +483,7 @@ public class DBSubsystem implements IDBSubsystem {
      * @return true if range conflict, false otherwise
      */
     public boolean hasRangeConflict(int repo) {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         LDAPConnection conn = null;
         boolean conflict = false;
         try {
@@ -491,7 +495,7 @@ public class DBSubsystem implements IDBSubsystem {
             conn = mLdapConnFactory.getConn();
             String rangedn = h.get(PROP_RANGE_DN) + "," + mBaseDN;
             String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
-                    CMS.getEESSLHost() + ")(SecurePort=" + CMS.getEESSLPort() +
+                    engine.getEESSLHost() + ")(SecurePort=" + engine.getEESSLPort() +
                     ")(beginRange=" + nextRangeStart + "))";
             LDAPSearchResults results = conn.search(rangedn, LDAPv3.SCOPE_SUB,
                     filter, null, false);

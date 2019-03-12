@@ -519,26 +519,8 @@ public final class CMS {
      *
      * @return port of end-entity secure service
      */
-    public static String getEESSLHost() {
-        return _engine.getEESSLHost();
-    }
-
-    /**
-     * Retrieves the host name of the server's secure end entity service.
-     *
-     * @return port of end-entity secure service
-     */
     public static String getEEClientAuthSSLPort() {
         return _engine.getEEClientAuthSSLPort();
-    }
-
-    /**
-     * Retrieves the port number of the server's secure end entity service.
-     *
-     * @return port of end-entity secure service
-     */
-    public static String getEESSLPort() {
-        return _engine.getEESSLPort();
     }
 
     /**
