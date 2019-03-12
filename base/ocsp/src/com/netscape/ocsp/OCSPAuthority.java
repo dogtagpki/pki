@@ -34,6 +34,13 @@ import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.primitive.Name;
 
 import com.netscape.certsrv.apps.CMS;
@@ -52,6 +59,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -61,14 +69,6 @@ import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
 import com.netscape.cmsutil.ocsp.ResponderID;
 import com.netscape.cmsutil.ocsp.ResponseData;
-
-import org.mozilla.jss.netscape.security.util.DerOutputStream;
-import org.mozilla.jss.netscape.security.util.DerValue;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * A class represents a Certificate Authority that is
@@ -332,13 +332,14 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * Notifies this subsystem if owner is in running mode.
      */
     public void startup() throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             if (mDefStore != null)
                 mDefStore.startup();
 
         } catch (EBaseException e) {
             CMS.debug(e);
-            if (CMS.isPreOpMode()) {
+            if (engine.isPreOpMode()) {
                 CMS.debug("OCSPAuthority.init(): Swallow exception in pre-op mode");
                 return;
             }

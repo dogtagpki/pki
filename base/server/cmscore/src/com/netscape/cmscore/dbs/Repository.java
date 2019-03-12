@@ -441,6 +441,7 @@ public abstract class Repository implements IRepository {
      */
     protected void checkRange() throws EBaseException
     {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         // check if we have reached the end of the range
         // if so, move to next range
         BigInteger randomLimit = null;
@@ -454,7 +455,7 @@ public abstract class Repository implements IRepository {
         }
         logger.debug("Repository: checkRange  mLastSerialNo="+mLastSerialNo);
         if (mLastSerialNo.compareTo( mMaxSerialNo ) > 0 ||
-            ((!CMS.isPreOpMode()) && randomLimit != null && mCounter.compareTo(randomLimit) > 0)) {
+            ((!engine.isPreOpMode()) && randomLimit != null && mCounter.compareTo(randomLimit) > 0)) {
 
             if (mDB.getEnableSerialMgmt()) {
                 logger.debug("Reached the end of the range.  Attempting to move to next range");
@@ -545,7 +546,7 @@ public abstract class Repository implements IRepository {
         logger.debug("Repository: Serial numbers available: " + numsAvail);
         logger.debug("Repository: Low water mark: " + mLowWaterMarkNo);
 
-        if ((numsAvail.compareTo(mLowWaterMarkNo) < 0) && (!CMS.isPreOpMode())) {
+        if ((numsAvail.compareTo(mLowWaterMarkNo) < 0) && (!engine.isPreOpMode())) {
             logger.debug("Repository: Requesting next range");
             String nextRange = mDB.getNextRange(mRepo);
             logger.debug("Repository: next range: " + nextRange);

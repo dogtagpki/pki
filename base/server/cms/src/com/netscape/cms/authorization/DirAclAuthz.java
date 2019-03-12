@@ -29,6 +29,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -114,6 +115,7 @@ public class DirAclAuthz extends AAclAuthz
             throws EBaseException {
         super.init(name, implName, config);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         searchBase = config.getString(PROP_SEARCHBASE, null);
 
         // initialize LDAP connection factory
@@ -131,7 +133,7 @@ public class DirAclAuthz extends AAclAuthz
             String hostname = ldapConfig.getString("ldapconn.host"); // check for errors
         } catch (EBaseException e) {
             CMS.debug(e);
-            if (CMS.isPreOpMode()) {
+            if (engine.isPreOpMode()) {
                 CMS.debug("DirAclAuthz.init(): Swallow exception in pre-op mode");
                 return;
             }

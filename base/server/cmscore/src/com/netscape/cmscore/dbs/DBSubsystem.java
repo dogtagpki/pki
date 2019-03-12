@@ -536,6 +536,7 @@ public class DBSubsystem implements IDBSubsystem {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mLogger = Logger.getLogger();
         mDBConfig = config;
         mRepos = new Hashtable[IDBSubsystem.NUM_REPOS];
@@ -669,7 +670,7 @@ public class DBSubsystem implements IDBSubsystem {
             mLdapConnFactory.init(tmpConfig);
 
         } catch (EPropertyNotDefined e) {
-            if (CMS.isPreOpMode()) {
+            if (engine.isPreOpMode()) {
                 logger.warn("DBSubsystem: initialization failed: " + e.getMessage(), e);
                 logger.warn("DBSubsystem: Swallow exception in pre-op mode");
                 return;

@@ -40,6 +40,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Default authorization subsystem
@@ -84,6 +85,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             mLogger = Logger.getLogger();
             mConfig = config;
@@ -181,7 +183,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
         } catch (EBaseException e) {
             logger.error("Unable to initialize AuthzSubsystem: " + e.getMessage(), e);
-            if (CMS.isPreOpMode()) {
+            if (engine.isPreOpMode()) {
                 logger.warn("AuthzSubsystem.init(): Swallow exception in pre-op mode");
                 return;
             }

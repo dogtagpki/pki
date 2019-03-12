@@ -31,6 +31,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -54,16 +60,12 @@ import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchResults;
-import org.mozilla.jss.netscape.security.x509.CertificateValidity;
-import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * A class represents a certificate repository. It
@@ -370,6 +372,7 @@ public class CertificateRepository extends Repository
 
     private BigInteger getInRangeCounter(BigInteger  minSerialNo, BigInteger maxSerialNo)
     throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String c = null;
         String t = null;
         String s = (mDBConfig.getString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, "-1")).trim();
@@ -392,7 +395,7 @@ public class CertificateRepository extends Repository
 
         BigInteger counter = new BigInteger(c);
         BigInteger count = BigInteger.ZERO;
-        if (CMS.isPreOpMode()) {
+        if (engine.isPreOpMode()) {
             logger.debug("CertificateRepository: getInRangeCounter:  CMS.isPreOpMode");
             counter = new BigInteger("-2");
             mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, "-2");
@@ -429,6 +432,8 @@ public class CertificateRepository extends Repository
 
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         mEnableRandomSerialNumbers = mDBConfig.getBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, false);
         mForceModeChange = mDBConfig.getBoolean(PROP_FORCE_MODE_CHANGE, false);
         String crMode = mDBService.getEntryAttribute(mBaseDN, IRepositoryRecord.ATTR_DESCRIPTION, "", null);
@@ -437,7 +442,7 @@ public class CertificateRepository extends Repository
         mMaxCollisionRecoveryRegenerations = mDBConfig.getInteger(PROP_COLLISION_RECOVERY_REGENERATIONS, 3);
         boolean modeChange = (mEnableRandomSerialNumbers && crMode != null && crMode.equals(PROP_SEQUENTIAL_MODE)) ||
                              ((!mEnableRandomSerialNumbers) && crMode != null && crMode.equals(PROP_RANDOM_MODE));
-        boolean enableRsnAtConfig = mEnableRandomSerialNumbers && CMS.isPreOpMode() &&
+        boolean enableRsnAtConfig = mEnableRandomSerialNumbers && engine.isPreOpMode() &&
                                     (crMode == null || crMode.length() == 0);
         logger.debug("CertificateRepository: getLastSerialNumberInRange"+
                   "  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers+

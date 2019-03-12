@@ -25,6 +25,13 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.ICertAuthority;
@@ -36,14 +43,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
-import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
-import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Authority Public Key Extension Policy
@@ -162,7 +162,8 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
         //CertificateChain caChain = certAuthority.getCACertChain();
         //X509Certificate caCert = caChain.getFirstCertificate();
         X509CertImpl caCert = certAuthority.getCACert();
-        if (caCert == null || CMS.isPreOpMode()) {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        if (caCert == null || engine.isPreOpMode()) {
             CMS.debug("AuthorityKeyIdentifierExt.init(): Abort due to missing CA certificate or in pre-op-mode");
             return;
         }

@@ -38,6 +38,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Default authentication subsystem
@@ -83,6 +84,7 @@ public class AuthSubsystem implements IAuthSubsystem {
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             mLogger = Logger.getLogger();
             mConfig = config;
@@ -258,7 +260,7 @@ public class AuthSubsystem implements IAuthSubsystem {
 
         } catch (EBaseException e) {
             logger.error("Unable to initialize AuthSubsystem: " + e.getMessage(), e);
-            if (CMS.isPreOpMode()) {
+            if (engine.isPreOpMode()) {
                 logger.warn("AuthSubsystem.init(): Swallow exception in pre-op mode");
                 return;
             }

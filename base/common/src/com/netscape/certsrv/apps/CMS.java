@@ -125,10 +125,6 @@ public final class CMS {
         _engine = engine;
     }
 
-    public static boolean isPreOpMode() {
-        return _engine.isPreOpMode();
-    }
-
     public static boolean isRunningMode() {
         return _engine.isRunningMode();
     }

@@ -76,8 +76,6 @@ public interface ICMSEngine extends ISubsystem {
 
     public void setCSState(int mode);
 
-    public boolean isPreOpMode();
-
     public boolean isRunningMode();
 
     /**

@@ -1755,7 +1755,8 @@ public class SelfTestSubsystem
             instance.startupSelfTest();
         }
 
-        if (CMS.isPreOpMode()) {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        if (engine.isPreOpMode()) {
             logger.debug("SelfTestSubsystem.startup(): Do not run selftests in pre-op mode");
             return;
         }
@@ -1809,7 +1810,6 @@ public class SelfTestSubsystem
 
             logger.error("SelfTestSubsystem: Disabling subsystem due to selftest failure: " + e.getMessage(), e);
 
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
             engine.disableSubsystem();
 
             throw new ESelfTestException("Selftest failed: " + e.getMessage(), e);

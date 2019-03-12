@@ -31,6 +31,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -84,10 +85,11 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         mImplName = implName;
         mConfig = config;
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         /* internal database directory used */
         DBSubsystem dbs = (DBSubsystem) DBSubsystem.getInstance();
         LdapConnInfo ldapinfo = dbs.getLdapConnInfo();
-        if (ldapinfo == null && CMS.isPreOpMode()) {
+        if (ldapinfo == null && engine.isPreOpMode()) {
             logger.warn("PasswdUserDBAuthentication.init(): Abort due to missing LDAP connection info in pre-op mode");
             return;
         }

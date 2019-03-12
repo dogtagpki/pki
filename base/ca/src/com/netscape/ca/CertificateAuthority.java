@@ -516,6 +516,8 @@ public class CertificateAuthority
 
         logger.debug("CertificateAuthority.init(" + owner.getId() + ", " + config.getName() + ")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         try {
             mOwner = owner;
             mConfig = config;
@@ -575,7 +577,7 @@ public class CertificateAuthority
                 initDefCaAttrs();
 
             } catch (EBaseException e) {
-                if (CMS.isPreOpMode()) {
+                if (engine.isPreOpMode()) {
                     logger.warn("Exception: " + e.getMessage(), e);
                     logger.warn("CertificateAuthority.init(): Swallow exception in pre-op mode");
                 } else {
@@ -595,7 +597,7 @@ public class CertificateAuthority
             // init request queue and related modules.
             logger.debug("CertificateAuthority init: initRequestQueue");
             initRequestQueue();
-            if (CMS.isPreOpMode()) {
+            if (engine.isPreOpMode()) {
                 logger.debug("CertificateAuthority.init(): Abort in pre-op mode");
                 return;
             }
@@ -662,7 +664,7 @@ public class CertificateAuthority
             if (initSigUnitSucceeded)
                 initIssuanceProtectionCert();
         } catch (EBaseException e) {
-            if (CMS.isPreOpMode()) {
+            if (engine.isPreOpMode()) {
                 logger.warn("Exception: " + e.getMessage(), e);
                 logger.warn("CertificateAuthority: Swallow exception in pre-op mode");
             } else {
@@ -985,7 +987,8 @@ public class CertificateAuthority
      * Starts up this subsystem.
      */
     public void startup() throws EBaseException {
-        if (CMS.isPreOpMode()) {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        if (engine.isPreOpMode()) {
             logger.debug("CertificateAuthority.startup(): Do not start CA in pre-op mode");
             return;
         }
