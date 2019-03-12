@@ -490,16 +490,6 @@ public final class CMS {
         return _engine.getSharedTokenClass(configName);
     }
 
-    /**
-     * Puts a password entry into the single-sign on cache.
-     *
-     * @param tag password tag
-     * @param pw password
-     */
-    public static void putPasswordCache(String tag, String pw) {
-        _engine.putPasswordCache(tag, pw);
-    }
-
     public static IConfigStore createFileConfigStore(String path) throws EBaseException {
         return _engine.createFileConfigStore(path);
     }

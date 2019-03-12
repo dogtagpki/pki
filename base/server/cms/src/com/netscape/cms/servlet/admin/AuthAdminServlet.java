@@ -44,6 +44,7 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 
 /**
@@ -345,7 +346,8 @@ public class AuthAdminServlet extends AdminServlet {
         String user = combo.substring(0, semicolon);
         String pw = combo.substring(semicolon + 1);
 
-        CMS.putPasswordCache(user, pw);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        engine.putPasswordCache(user, pw);
     }
 
     /**

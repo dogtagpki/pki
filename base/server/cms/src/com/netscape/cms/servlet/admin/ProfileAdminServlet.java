@@ -49,6 +49,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class is an administration servlet for policy management.
@@ -2347,7 +2348,8 @@ public class ProfileAdminServlet extends AdminServlet {
         String user = combo.substring(0, semicolon);
         String pw = combo.substring(semicolon + 1);
 
-        CMS.putPasswordCache(user, pw);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        engine.putPasswordCache(user, pw);
     }
 
     public boolean isValidId(String id) {

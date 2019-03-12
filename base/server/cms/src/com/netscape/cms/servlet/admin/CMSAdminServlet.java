@@ -1022,13 +1022,14 @@ public final class CMSAdminServlet extends AdminServlet {
             }
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
                 CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
         jssSubSystem.loggedInToken(tokenName, pwd);
 
         /* Do a "PUT" of the new pw to the watchdog" */
-        CMS.putPasswordCache(tokenName, pwd);
+        engine.putPasswordCache(tokenName, pwd);
         sendResponse(SUCCESS, null, null, resp);
     }
 

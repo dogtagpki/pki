@@ -44,6 +44,7 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class is an administration servlet for policy management.
@@ -841,7 +842,8 @@ public class PolicyAdminServlet extends AdminServlet {
         String user = combo.substring(0, semicolon);
         String pw = combo.substring(semicolon + 1);
 
-        CMS.putPasswordCache(user, pw);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        engine.putPasswordCache(user, pw);
     }
 
     /**

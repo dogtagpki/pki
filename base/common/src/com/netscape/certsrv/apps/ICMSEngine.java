@@ -270,14 +270,6 @@ public interface ICMSEngine extends ISubsystem {
     public IPasswordCheck getPasswordChecker();
 
     /**
-     * Puts a password entry into the single-sign on cache.
-     *
-     * @param tag password tag
-     * @param pw password
-     */
-    public void putPasswordCache(String tag, String pw);
-
-    /**
      * Retrieves the email notification handler.
      *
      * @return email notification

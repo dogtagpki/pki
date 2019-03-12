@@ -161,9 +161,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public void putPasswordCache(String tag, String pw) {
-    }
-
     public IMailNotification getMailNotification() {
         return null;
     }
