@@ -225,13 +225,6 @@ public interface ICMSEngine extends ISubsystem {
     public String getLogMessage(String msgID, Object p[]);
 
     /**
-     * Retrieves the default CRL issuing point record name.
-     *
-     * @return CRL issuing point record name
-     */
-    public String getCRLIssuingPointRecordName();
-
-    /**
      * Retrieves the certifcate in MIME-64 encoded format
      * with header and footer.
      *

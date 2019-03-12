@@ -132,10 +132,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public String getCRLIssuingPointRecordName() {
-        return null;
-    }
-
     public String getEncodedCert(X509Certificate cert) {
         return null;
     }

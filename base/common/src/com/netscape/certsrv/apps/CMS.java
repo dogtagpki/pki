@@ -122,15 +122,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the default CRL issuing point record name.
-     *
-     * @return CRL issuing point record name
-     */
-    public static String getCRLIssuingPointRecordName() {
-        return _engine.getCRLIssuingPointRecordName();
-    }
-
-    /**
      * Returns a server wide system time. Plugins should call
      * this method to retrieve system time.
      *

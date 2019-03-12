@@ -106,7 +106,6 @@ import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.connector.Resender;
-import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.jobs.JobsScheduler;
@@ -697,10 +696,6 @@ public class CMSEngine implements ICMSEngine {
 
     public ISecurityDomainSessionTable getSecurityDomainSessionTable() {
         return mSecurityDomainSessionTable;
-    }
-
-    public String getCRLIssuingPointRecordName() {
-        return CRLIssuingPointRecord.class.getName();
     }
 
     public String getEEHost() {

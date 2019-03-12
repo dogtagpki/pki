@@ -226,8 +226,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      */
     public void deleteOldCRLs() throws EBaseException {
         Enumeration<ICRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
-                "objectclass=" +
-                        CMS.getCRLIssuingPointRecordName(),
+                "objectclass=" + CRLIssuingPointRecord.class.getName(),
                 100);
         while (recs.hasMoreElements()) {
             ICRLIssuingPointRecord rec = recs.nextElement();
@@ -456,8 +455,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
         if (matched == null) {
             Enumeration<ICRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
-                    "objectclass=" +
-                            CMS.getCRLIssuingPointRecordName(),
+                    "objectclass=" + CRLIssuingPointRecord.class.getName(),
                     100);
 
             while (recs.hasMoreElements()) {
@@ -619,8 +617,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public Enumeration<ICRLIssuingPointRecord> searchAllCRLIssuingPointRecord(int maxSize)
             throws EBaseException {
         return searchCRLIssuingPointRecord(
-                "objectclass=" +
-                        CMS.getCRLIssuingPointRecordName(),
+                "objectclass=" + CRLIssuingPointRecord.class.getName(),
                 maxSize);
     }
 
