@@ -52,10 +52,6 @@ import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
-
 /**
  * This represents the CMS server. Plugins can access other
  * public objects such as subsystems via this inteface.
@@ -314,13 +310,6 @@ public final class CMS {
         if (_engine == null)
             return msgID;
         return _engine.getUserMessage(null /* from session context */, msgID, p1, p2, p3);
-    }
-
-    public static LDAPConnection getBoundConnection(String id, String host, int port,
-               int version, LDAPSSLSocketFactoryExt fac, String bindDN,
-               String bindPW) throws LDAPException {
-        return _engine.getBoundConnection(id, host, port, version, fac,
-                         bindDN, bindPW);
     }
 
     /**

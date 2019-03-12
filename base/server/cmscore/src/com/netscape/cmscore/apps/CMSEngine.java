@@ -109,7 +109,6 @@ import com.netscape.cmscore.connector.Resender;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.jobs.JobsScheduler;
-import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.LogSubsystem;
@@ -130,7 +129,6 @@ import com.netscape.cmsutil.password.NuxwdogPasswordStore;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
 
 public class CMSEngine implements ICMSEngine {
 
@@ -928,13 +926,6 @@ public class CMSEngine implements ICMSEngine {
                 break;
             }
         }
-    }
-
-    public LDAPConnection getBoundConnection(String id, String host, int port,
-               int version, LDAPSSLSocketFactoryExt fac, String bindDN,
-               String bindPW) throws LDAPException {
-        return new LdapBoundConnection(host, port, version, fac,
-                bindDN, bindPW);
     }
 
     /**

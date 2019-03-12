@@ -19,10 +19,6 @@ import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
-
 /**
  * Default engine stub for testing.
  */
@@ -133,11 +129,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public String getEncodedCert(X509Certificate cert) {
-        return null;
-    }
-
-    public LDAPConnection getBoundConnection(String id, String host, int port, int version, LDAPSSLSocketFactoryExt fac,
-            String bindDN, String bindPW) throws LDAPException {
         return null;
     }
 

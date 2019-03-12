@@ -33,6 +33,7 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -145,7 +146,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
                 String mgr_dn = mConfig.getString("bindDN", null);
                 String mgr_pwd = mConfig.getString("bindPWD", null);
 
-                altConn = CMS.getBoundConnection("LdapUserCertPublisher", host, portVal,
+                altConn = new LdapBoundConnection(host, portVal,
                         version,
                         sslSocket, mgr_dn, mgr_pwd);
                 conn = altConn;

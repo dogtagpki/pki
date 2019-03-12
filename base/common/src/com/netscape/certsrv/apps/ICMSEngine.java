@@ -35,10 +35,6 @@ import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
-
 /**
  * This interface represents the CMS core framework. The
  * framework contains a set of services that provide
@@ -232,10 +228,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return base-64 format certificate
      */
     public String getEncodedCert(X509Certificate cert);
-
-    public LDAPConnection getBoundConnection(String id, String host, int port,
-               int version, LDAPSSLSocketFactoryExt fac, String bindDN,
-               String bindPW) throws LDAPException;
 
     /**
      * Retrieves the named SharedToken class
