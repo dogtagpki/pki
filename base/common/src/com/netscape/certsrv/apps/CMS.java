@@ -169,15 +169,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the instance roort path of this server.
-     *
-     * @return instance directory path name
-     */
-    public static String getInstanceDir() {
-        return _engine.getInstanceDir();
-    }
-
-    /**
      * Returns a server wide system time. Plugins should call
      * this method to retrieve system time.
      *

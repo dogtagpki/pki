@@ -69,10 +69,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return false;
     }
 
-    public String getInstanceDir() {
-        return null;
-    }
-
     public Date getCurrentDate() {
         return null;
     }

@@ -81,13 +81,6 @@ public interface ICMSEngine extends ISubsystem {
     public boolean isRunningMode();
 
     /**
-     * Retrieves the instance roort path of this server.
-     *
-     * @return instance directory path name
-     */
-    public String getInstanceDir();
-
-    /**
      * Returns a server wide system time. Plugins should call
      * this method to retrieve system time.
      *

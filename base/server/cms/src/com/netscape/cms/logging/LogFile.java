@@ -424,6 +424,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      */
     public void init(IConfigStore config) throws IOException,
             EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String fileName = null;
         String defaultFileName = null;
         String signedAuditDefaultFileName = "";
@@ -473,7 +475,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             }
 
             // retrieve the instance name
-            String instIDPath = CMS.getInstanceDir();
+            String instIDPath = engine.getInstanceDir();
             int index = instIDPath.lastIndexOf("/");
             String instID = instIDPath.substring(index + 1);
 
