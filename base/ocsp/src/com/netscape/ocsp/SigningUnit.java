@@ -32,6 +32,10 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -40,12 +44,8 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Cert;
-
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * OCSP signing unit based on JSS.
@@ -228,6 +228,7 @@ public final class SigningUnit implements ISigningUnit {
      */
     public byte[] sign(byte[] data, String algname)
             throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         if (!mInited) {
             throw new EBaseException("OCSPSigningUnit not initialized!");
         }
@@ -262,13 +263,14 @@ public final class SigningUnit implements ISigningUnit {
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (SignatureException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            CMS.checkForAndAutoShutdown();
+            engine.checkForAndAutoShutdown();
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         }
     }
 
     public boolean verify(byte[] data, byte[] signature, String algname)
             throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         if (!mInited) {
             throw new EBaseException("OCSPSigningUnit not initialized!");
         }
@@ -298,7 +300,7 @@ public final class SigningUnit implements ISigningUnit {
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (SignatureException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            CMS.checkForAndAutoShutdown();
+            engine.checkForAndAutoShutdown();
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         }
     }

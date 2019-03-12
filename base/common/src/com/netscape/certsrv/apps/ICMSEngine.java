@@ -376,20 +376,6 @@ public interface ICMSEngine extends ISubsystem {
      */
     public void setListOfVerifiedCerts(int size, long interval, long unknownStateInterval);
 
-    /**
-     * Performs graceful shutdown of CMS.
-     * Subsystems are shutdown in reverse order.
-     * Exceptions are ignored.
-     */
-    public void forceShutdown();
-
-    /**
-     * graceful shutdown, same as forceShutdown, but allowing
-     * option to restart
-     */
-    public void autoShutdown();
-    public void checkForAndAutoShutdown();
-
     public IPasswordStore getPasswordStore() throws EBaseException;
 
     public ISecurityDomainSessionTable getSecurityDomainSessionTable();

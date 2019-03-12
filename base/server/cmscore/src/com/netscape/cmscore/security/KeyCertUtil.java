@@ -234,6 +234,7 @@ public class KeyCertUtil {
     public static X509CertImpl signCert(PrivateKey privateKey, X509CertInfo certInfo,
             SignatureAlgorithm sigAlg)
             throws NoSuchTokenException, EBaseException, NotInitializedException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try (DerOutputStream out = new DerOutputStream()) {
             CertificateAlgorithmId sId = (CertificateAlgorithmId)
                     certInfo.get(X509CertInfo.ALGORITHM_ID);
@@ -270,7 +271,7 @@ public class KeyCertUtil {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR_1", e.toString()));
         } catch (SignatureException e) {
             logger.error("CertKeyUtil.signCert: "+ e.getMessage(), e);
-            CMS.checkForAndAutoShutdown();
+            engine.checkForAndAutoShutdown();
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_SIGNED_FAILED", e.toString()));
         } catch (InvalidKeyException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", e.toString()));

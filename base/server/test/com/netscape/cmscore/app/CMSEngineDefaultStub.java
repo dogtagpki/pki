@@ -210,15 +210,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public void setListOfVerifiedCerts(int size, long interval, long unknownStateInterval) {
     }
 
-    public void forceShutdown() {
-    }
-
-    public void autoShutdown() {
-    }
-
-    public void checkForAndAutoShutdown() {
-    }
-
     public IPasswordStore getPasswordStore() {
         return null;
     }

@@ -31,17 +31,18 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.kra.EKRAException;
-import com.netscape.certsrv.kra.IProofOfArchival;
-
 import org.mozilla.jss.netscape.security.util.BigInt;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.IDBObj;
+import com.netscape.certsrv.kra.EKRAException;
+import com.netscape.certsrv.kra.IProofOfArchival;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class represents a proof of escrow. It indicates a key
@@ -307,7 +308,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     public void encodeAndSign(PrivateKey key, String algorithm,
             String provider, DerOutputStream out)
             throws EBaseException {
-
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             Signature sigEngine = null;
 
@@ -343,7 +344,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()), e);
         } catch (SignatureException e) {
             logger.error("Unable to sign proof of escrow: " + e.getMessage(), e);
-            CMS.checkForAndAutoShutdown();
+            engine.checkForAndAutoShutdown();
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()), e);
         } catch (IOException e) {
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()), e);

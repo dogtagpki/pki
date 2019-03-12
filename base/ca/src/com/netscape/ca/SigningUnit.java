@@ -50,6 +50,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -256,6 +257,7 @@ public final class SigningUnit implements ISigningUnit {
      */
     public byte[] sign(byte[] data, String algname)
             throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         if (!mInited) {
             throw new EBaseException("CASigningUnit not initialized!");
         }
@@ -317,7 +319,7 @@ public final class SigningUnit implements ISigningUnit {
             if (testSignatureFailure == true) {
                 ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_CA_SIGNING_OPERATION_FAILED", e.toString())));
             }
-            CMS.checkForAndAutoShutdown();
+            engine.checkForAndAutoShutdown();
             // XXX fix this exception later.
             throw new EBaseException(e);
         }
@@ -325,6 +327,7 @@ public final class SigningUnit implements ISigningUnit {
 
     public boolean verify(byte[] data, byte[] signature, String algname)
             throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         if (!mInited) {
             throw new EBaseException("CASigningUnit not initialized!");
         }
@@ -357,7 +360,7 @@ public final class SigningUnit implements ISigningUnit {
             throw new EBaseException(e);
         } catch (SignatureException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            CMS.checkForAndAutoShutdown();
+            engine.checkForAndAutoShutdown();
             // XXX fix this exception later.
             throw new EBaseException(e);
         }

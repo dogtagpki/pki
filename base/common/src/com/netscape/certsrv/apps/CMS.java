@@ -125,10 +125,6 @@ public final class CMS {
         _engine = engine;
     }
 
-    public static void checkForAndAutoShutdown() {
-        _engine.checkForAndAutoShutdown();
-    }
-
     public static boolean isPreOpMode() {
         return _engine.isPreOpMode();
     }
