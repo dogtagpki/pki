@@ -50,7 +50,7 @@ import netscape.ldap.LDAPv2;
 public class DirAclAuthz extends AAclAuthz
         implements IAuthzManager, IExtendedPluginInfo {
 
-    // members
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DirAclAuthz.class);
 
     protected static final String PROP_BASEDN = "basedn";
     protected static final String PROP_SEARCHBASE = "searchBase";
@@ -132,9 +132,9 @@ public class DirAclAuthz extends AAclAuthz
             @SuppressWarnings("unused")
             String hostname = ldapConfig.getString("ldapconn.host"); // check for errors
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.warn("DirAclAuthz: " + e.getMessage(), e);
             if (engine.isPreOpMode()) {
-                CMS.debug("DirAclAuthz.init(): Swallow exception in pre-op mode");
+                logger.warn("DirAclAuthz.init(): Swallow exception in pre-op mode");
                 return;
             }
         }
@@ -153,9 +153,7 @@ public class DirAclAuthz extends AAclAuthz
             filter = "objectclass=CertACLs";
         }
 
-        CMS.debug(
-            "DirAclAuthz: about to ldap search "
-            + basedn + " (" + filter + ")");
+        logger.debug("DirAclAuthz: about to ldap search " + basedn + " (" + filter + ")");
         try {
             conn = getConn();
             LDAPSearchResults res = conn.search(
