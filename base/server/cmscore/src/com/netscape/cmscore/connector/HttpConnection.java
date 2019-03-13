@@ -36,7 +36,6 @@ import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.http.HttpClient;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.HttpResponse;
@@ -189,8 +188,7 @@ public class HttpConnection implements IHttpConnection {
         HttpResponse resp = null;
 
         logger.debug("in HttpConnection.send " + this);
-        if (Debug.ON)
-            Debug.trace("encoding request ");
+        logger.trace("encoding request ");
 
         String content = null;
 
@@ -199,24 +197,20 @@ public class HttpConnection implements IHttpConnection {
         } catch (IOException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "Could not encode request"));
         }
-        if (Debug.ON) {
-            Debug.trace("encoded request");
-            Debug.trace("------ " + content.length() + "-----");
-            Debug.trace(content);
-            Debug.trace("--------------------------");
-        }
+        logger.trace("encoded request");
+        logger.trace("------ " + content.length() + "-----");
+        logger.trace(content);
+        logger.trace("--------------------------");
         resp = doSend(content);
 
         // decode reply.
         // if reply is bad, error is thrown and request will be resent
         String pcontent = resp.getContent();
 
-        if (Debug.ON) {
-            Debug.trace("Server returned\n");
-            Debug.trace("-------");
-            Debug.trace(pcontent);
-            Debug.trace("-------");
-        }
+        logger.trace("Server returned");
+        logger.trace("-------");
+        logger.trace(pcontent);
+        logger.trace("-------");
         //logger.debug("HttpConnection.send response: " + pcontent);
         if (pcontent != null && !pcontent.equals(""))
             logger.debug("HttpConnection.send response: got content");
