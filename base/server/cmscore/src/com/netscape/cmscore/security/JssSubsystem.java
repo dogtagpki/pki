@@ -70,6 +70,15 @@ import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenCertificate;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgIdDSA;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.pkcs11.PK11SecureRandom;
 import org.mozilla.jss.pkcs7.ContentInfo;
 import org.mozilla.jss.pkcs7.SignedData;
@@ -93,17 +102,8 @@ import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 import netscape.ldap.util.DN;
-import org.mozilla.jss.netscape.security.x509.AlgIdDSA;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Subsystem for initializing JSS>
@@ -451,7 +451,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 1);
 
         if (position == -1) {
-            Debug.trace("Unable to install CMS provider");
+            logger.trace("Unable to install CMS provider");
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_SECURITY_INSTALL_PROVIDER"));
         }
@@ -484,8 +484,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
         if (mSSLConfig != null)
             sslCiphers = getCipherPreferences();
-        if (Debug.ON)
-            Debug.trace("configured ssl cipher prefs is " + sslCiphers);
+        logger.trace("configured ssl cipher prefs is " + sslCiphers);
 
         // first, disable all ciphers, since JSS defaults to all-enabled
         for (int i = ciphers.length - 1; i >= 0; i--) {
@@ -514,8 +513,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
                     logger.debug("JSSSubsystem: initSSL(): " + msg);
                     log(ILogger.LL_INFO, msg);
-                    if (Debug.ON)
-                        Debug.trace(msg);
+                    logger.trace(msg);
                     try {
                         SSLSocket.setCipherPreferenceDefault(
                                 sslcipher.intValue(), true);
@@ -1202,7 +1200,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                     try {
                         @SuppressWarnings("unused")
                         PrivateKey key = CryptoManager.getInstance().findPrivKeyByCert(list[i]); // check for errors
-                        Debug.trace("JssSubsystem getRootCerts: find private key "
+                        logger.trace("JssSubsystem getRootCerts: find private key "
                                 + list[i].getNickname());
                     } catch (ObjectNotFoundException e) {
                         String nickname = list[i].getNickname();
@@ -1229,7 +1227,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         String serialno = impl.getSerialNumber().toString();
                         String issuer = impl.getIssuerDN().toString();
                         nvps.put(nickname + "," + serialno, issuer);
-                        Debug.trace("getRootCerts: nickname=" + nickname + ", serialno=" +
+                        logger.trace("getRootCerts: nickname=" + nickname + ", serialno=" +
                                 serialno + ", issuer=" + issuer);
                         continue;
                     } catch (NotInitializedException e) {
@@ -1291,10 +1289,10 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         String serialno = impl.getSerialNumber().toString();
                         String issuer = impl.getIssuerDN().toString();
                         nvps.put(nickname + "," + serialno, issuer);
-                        Debug.trace("getUserCerts: nickname=" + nickname + ", serialno=" +
+                        logger.trace("getUserCerts: nickname=" + nickname + ", serialno=" +
                                 serialno + ", issuer=" + issuer);
                     } catch (ObjectNotFoundException e) {
-                        Debug.trace("JssSubsystem getUserCerts: cant find private key "
+                        logger.trace("JssSubsystem getUserCerts: cant find private key "
                                 + list[i].getNickname());
                         continue;
                     } catch (NotInitializedException e) {
@@ -1449,9 +1447,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 if (value[i] instanceof InternalCertificate)
                     icert = (InternalCertificate) value[i];
                 else {
-                    Debug.trace("cert is not an InternalCertificate");
-                    Debug.trace("nickname: " + nickname + "  index " + i);
-                    Debug.trace("cert: " + value[i]);
+                    logger.trace("cert is not an InternalCertificate");
+                    logger.trace("nickname: " + nickname + "  index " + i);
+                    logger.trace("cert: " + value[i]);
                     continue;
                 }
 
@@ -1716,7 +1714,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                             break;
                         }
                     } catch (Exception ee) {
-                        Debug.trace("JssSubsystem:deleteTokenCertificate: " + ee.toString());
+                        logger.error("JssSubsystem: deleteTokenCertificate: " + ee.getMessage(), ee);
                     }
                 }
             }
