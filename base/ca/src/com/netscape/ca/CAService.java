@@ -31,6 +31,34 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.extensions.CertInfo;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
+import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.LdapV3DNStrConverter;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.SerialNumber;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
@@ -69,35 +97,6 @@ import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
-import com.netscape.cmscore.util.Debug;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.extensions.CertInfo;
-import org.mozilla.jss.netscape.security.util.BigInt;
-import org.mozilla.jss.netscape.security.util.DerValue;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
-import org.mozilla.jss.netscape.security.x509.CRLExtensions;
-import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
-import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.CertificateValidity;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.LdapV3DNStrConverter;
-import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
-import org.mozilla.jss.netscape.security.x509.SerialNumber;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
 /**
  * Request Service for CertificateAuthority.
@@ -908,7 +907,7 @@ public class CAService implements ICAService, IService {
                     logger.debug("No meta info! for " + oldSerialNo);
                     oldMeta = new MetaInfo();
                 } else {
-                    if (Debug.ON) {
+                    if (logger.isDebugEnabled()) {
                         logger.debug("Old meta info");
                         Enumeration<String> n = oldMeta.getElements();
 
@@ -932,7 +931,7 @@ public class CAService implements ICAService, IService {
                 mCA.getCertificateRepository().modifyCertificateRecord(oldSerialNo, modSet);
                 mCA.log(ILogger.LL_INFO,
                         CMS.getLogMessage("CMSCORE_CA_MARK_SERIAL", oldSerialNo.toString(16), newSerialNo.toString(16)));
-                if (Debug.ON) {
+                if (logger.isDebugEnabled()) {
                     CertRecord check = (CertRecord)
                             mCA.getCertificateRepository().readCertificateRecord(oldSerialNo);
                     MetaInfo meta = check.getMetaInfo();
