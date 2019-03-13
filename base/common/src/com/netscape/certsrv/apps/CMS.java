@@ -392,10 +392,6 @@ public final class CMS {
         return _engine.getConfigStore();
     }
 
-    public static void setConfigSDSessionId(String val) {
-        _engine.setConfigSDSessionId(val);
-    }
-
     /**
      * Retrieves the SharedToken class.
      *

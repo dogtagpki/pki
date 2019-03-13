@@ -1168,6 +1168,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         String user = data.getSecurityDomainUser();
         String pass = data.getSecurityDomainPassword();
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String installToken;
 
         try {
@@ -1182,7 +1184,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             throw new PKIException("Missing installation token");
         }
 
-        CMS.setConfigSDSessionId(installToken);
+        engine.setConfigSDSessionId(installToken);
     }
 
     public void configureSubsystem(ConfigurationRequest request,

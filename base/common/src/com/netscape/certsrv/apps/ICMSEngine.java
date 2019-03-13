@@ -289,8 +289,6 @@ public interface ICMSEngine extends ISubsystem {
 
     public ISecurityDomainSessionTable getSecurityDomainSessionTable();
 
-    public void setConfigSDSessionId(String id);
-
     public void sleepOneMinute(); // for debug only
 
     public boolean isExcludedLdapAttrsEnabled();
