@@ -219,14 +219,16 @@ class PKISubsystem(object):
             self.prefix = self.type.lower()
 
     def find_system_certs(self):
-        certs = []
 
         cert_ids = self.config['%s.cert.list' % self.name].split(',')
         for cert_id in cert_ids:
-            cert = self.create_subsystem_cert_object(cert_id)
-            certs.append(cert)
 
-        return certs
+            cert = self.create_subsystem_cert_object(cert_id)
+
+            if not cert:
+                continue
+
+            yield cert
 
     def get_subsystem_cert(self, cert_id):
         return self.create_subsystem_cert_object(cert_id)
@@ -255,7 +257,8 @@ class PKISubsystem(object):
         nssdb = self.instance.open_nssdb(token)
         try:
             cert_info = nssdb.get_cert_info(nickname)
-            cert.update(cert_info)
+            if cert_info:
+                cert.update(cert_info)
         finally:
             nssdb.close()
 
@@ -292,14 +295,11 @@ class PKISubsystem(object):
             cert_id,
             pkcs12_file,
             pkcs12_password_file,
-            new_file=False):
+            append=False):
 
         cert = self.get_subsystem_cert(cert_id)
         nickname = cert['nickname']
-        token = cert['token']
-
-        if token and token.lower() in ['internal', 'internal key storage token']:
-            token = None
+        token = pki.nssdb.normalize_token(cert['token'])
 
         nssdb_password = self.instance.get_token_password(token)
 
@@ -321,13 +321,13 @@ class PKISubsystem(object):
                 cmd.extend(['--token', token])
 
             cmd.extend([
-                'pkcs12-cert-add',
+                'pkcs12-cert-import',
                 '--pkcs12-file', pkcs12_file,
                 '--pkcs12-password-file', pkcs12_password_file,
             ])
 
-            if new_file:
-                cmd.extend(['--new-file'])
+            if append:
+                cmd.extend(['--append'])
 
             cmd.extend([
                 nickname
@@ -346,10 +346,7 @@ class PKISubsystem(object):
         # use subsystem certificate to get certificate chain
         cert = self.get_subsystem_cert('subsystem')
         nickname = cert['nickname']
-        token = cert['token']
-
-        if token and token.lower() in ['internal', 'internal key storage token']:
-            token = None
+        token = pki.nssdb.normalize_token(cert['token'])
 
         nssdb_password = self.instance.get_token_password(token)
 
@@ -475,7 +472,8 @@ class PKISubsystem(object):
                 client_cert_nickname=self.config[
                     '%s.ldapauth.clientCertNickname' % name],
                 # TODO: remove hard-coded token name
-                nssdb_password=self.instance.get_token_password('internal')
+                nssdb_password=self.instance.get_token_password(
+                    pki.nssdb.INTERNAL_TOKEN_NAME)
             )
 
         else:
@@ -939,11 +937,11 @@ class PKIInstance(object):
 
         return password
 
-    def get_token_password(self, token='internal'):
+    def get_token_password(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
 
         # determine the password name for the token
-        if not token or token.lower() in ['internal', 'internal key storage token']:
-            name = 'internal'
+        if not pki.nssdb.normalize_token(token):
+            name = pki.nssdb.INTERNAL_TOKEN_NAME
 
         else:
             name = 'hardware-%s' % token
@@ -958,7 +956,7 @@ class PKIInstance(object):
 
         return password
 
-    def open_nssdb(self, token='internal'):
+    def open_nssdb(self, token=pki.nssdb.INTERNAL_TOKEN_NAME):
         return pki.nssdb.NSSDatabase(
             directory=self.nssdb_dir,
             token=token,
@@ -992,13 +990,10 @@ class PKIInstance(object):
                 indx += 1
 
     def export_external_certs(self, pkcs12_file, pkcs12_password_file,
-                              new_file=False):
+                              append=False):
         for cert in self.external_certs:
             nickname = cert.nickname
-            token = cert.token
-
-            if token and token.lower() in ['internal', 'internal key storage token']:
-                token = None
+            token = pki.nssdb.normalize_token(cert.token)
 
             nssdb_password = self.get_token_password(token)
 
@@ -1020,13 +1015,13 @@ class PKIInstance(object):
                     cmd.extend(['--token', token])
 
                 cmd.extend([
-                    'pkcs12-cert-add',
+                    'pkcs12-cert-import',
                     '--pkcs12-file', pkcs12_file,
                     '--pkcs12-password-file', pkcs12_password_file,
                 ])
 
-                if new_file:
-                    cmd.extend(['--new-file'])
+                if append:
+                    cmd.extend(['--append'])
 
                 cmd.extend([
                     nickname
