@@ -43,7 +43,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.ldap.IRequestMod;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
-import com.netscape.cmscore.util.Debug;
 
 public class RequestQueue
         extends ARequestQueue
@@ -84,8 +83,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             obj = dbs.read(name);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
@@ -129,8 +127,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             dbs.add(name, record);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.error("RequestQueue: " + e.getMessage(), e);
             throw e;
         } finally {
             // Close session - ignoring errors (UTIL)
@@ -160,8 +157,7 @@ public class RequestQueue
         try {
             RequestRecord.mod(mods, r);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         }
 
         /*
@@ -193,8 +189,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             dbs.modify(name, mods);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
@@ -212,8 +207,7 @@ public class RequestQueue
             // convert (copy) fields
             record.read(this, r);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         }
 
         return r;
@@ -349,8 +343,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             results = dbs.search(mBaseDN, filter);
         } catch (EBaseException e) {
-            Debug.trace("Error in Ldap Request searching code: " + e);
-            Debug.printStackTrace(e);
+            logger.error("Error in Ldap Request searching code: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
@@ -375,8 +368,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             results = dbs.search(mBaseDN, "(requestId=*)");
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
@@ -402,8 +394,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             results = dbs.search(mBaseDN, f);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
@@ -429,8 +420,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             results = dbs.search(mBaseDN, f, maxSize);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
@@ -456,8 +446,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             results = dbs.search(mBaseDN, f, maxSize, timeLimit);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
