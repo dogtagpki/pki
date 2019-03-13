@@ -60,8 +60,10 @@ import netscape.ldap.LDAPException;
  */
 public class TokenService extends SubsystemService implements TokenResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenService.class);
+
     public TokenService() throws Exception {
-        CMS.debug("TokenService.<init>()");
+        logger.debug("TokenService.<init>()");
     }
 
     public void setTokenStatus(TokenRecord tokenRecord, TokenStatus tokenState, String ipAddress, String remoteUser,
@@ -198,7 +200,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         try {
             tokenID = URLEncoder.encode(tokenID, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            CMS.debug(e);
+            logger.error("TokenService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
 
@@ -218,7 +220,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             Integer start,
             Integer size) {
 
-        CMS.debug("TokenService.findTokens()");
+        logger.debug("TokenService.findTokens()");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -279,7 +281,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("TokenService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -301,7 +303,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             TokenRecord record = list.getElementAt(i);
 
             if (record == null) {
-                CMS.debug("TokenService: Token record not found");
+                logger.error("TokenService: Token record not found");
                 throw new PKIException("Token record not found");
             }
 
@@ -350,7 +352,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         if (tokenID == null)
             throw new BadRequestException("Token ID is null.");
 
-        CMS.debug("TokenService.getToken(\"" + tokenID + "\")");
+        logger.debug("TokenService.getToken(\"" + tokenID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -369,7 +371,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("TokenService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -389,7 +391,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         String tokenID = tokenData.getTokenID();
         auditModParams.put("tokenID", tokenID);
 
-        CMS.debug("TokenService.addToken(\"" + tokenID + "\")");
+        logger.debug("TokenService.addToken(\"" + tokenID + "\")");
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
@@ -430,9 +432,10 @@ public class TokenService extends SubsystemService implements TokenResource {
             return createCreatedResponse(tokenData, tokenData.getLink().getHref());
 
         } catch (Exception e) {
-            CMS.debug(e);
 
             msg = msg + ": " + e.getMessage();
+            logger.error(msg, e);
+
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord,
                     ipAddress, msg, "failure", remoteUser);
 
@@ -474,7 +477,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             throw new BadRequestException("Token data is null.");
         }
 
-        CMS.debug("TokenService.replaceToken(\"" + tokenID + "\")");
+        logger.debug("TokenService.replaceToken(\"" + tokenID + "\")");
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
@@ -507,9 +510,10 @@ public class TokenService extends SubsystemService implements TokenResource {
             return createOKResponse(tokenData);
 
         } catch (Exception e) {
-            CMS.debug(e);
 
             msg = msg + ": " + e.getMessage();
+            logger.error(msg, e);
+
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
                     ipAddress, msg, "failure",
                     remoteUser);
@@ -554,7 +558,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             throw e;
         }
 
-        CMS.debug("TokenService.modifyToken(\"" + tokenID + "\")");
+        logger.debug("TokenService.modifyToken(\"" + tokenID + "\")");
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
@@ -601,9 +605,10 @@ public class TokenService extends SubsystemService implements TokenResource {
             return createOKResponse(tokenData);
 
         } catch (Exception e) {
-            CMS.debug(e);
 
             msg = msg + ": " + e.getMessage();
+            logger.error(msg, e);
+
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_TOKEN_MODIFY, tokenRecord,
                     ipAddress, msg, "failure",
                     remoteUser);
@@ -633,7 +638,7 @@ public class TokenService extends SubsystemService implements TokenResource {
     @Override
     public Response changeTokenStatus(String tokenID, TokenStatus tokenStatus) {
         String method = "TokenService.changeTokenStatus";
-        CMS.debug(method + "begins: with tokenStatus=" + tokenStatus.getName());
+        logger.debug(method + "begins: with tokenStatus=" + tokenStatus.getName());
         Map<String, String> auditModParams = new HashMap<String, String>();
 
         if (tokenID == null) {
@@ -645,7 +650,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         auditModParams.put("tokenID", tokenID);
         auditModParams.put("tokenStatus", tokenStatus.toString());
 
-        CMS.debug("TokenService.changeTokenStatus(\"" + tokenID + "\", \"" + tokenStatus + "\")");
+        logger.debug("TokenService.changeTokenStatus(\"" + tokenID + "\", \"" + tokenStatus + "\")");
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
@@ -664,14 +669,14 @@ public class TokenService extends SubsystemService implements TokenResource {
 
             tokenRecord = database.getRecord(tokenID);
             TokenStatus currentTokenStatus = tokenRecord.getTokenStatus();
-            CMS.debug("TokenService.changeTokenStatus(): current status: " + currentTokenStatus);
+            logger.debug("TokenService.changeTokenStatus(): current status: " + currentTokenStatus);
 
             oldStatus = tokenRecord.getTokenStatus();
             oldReason = tokenRecord.getReason();
             newStatus = tokenStatus;
 
             if (currentTokenStatus == tokenStatus) {
-                CMS.debug("TokenService.changeTokenStatus(): no status change, no activity log generated");
+                logger.debug("TokenService.changeTokenStatus(): no status change, no activity log generated");
 
                 TokenData tokenData = createTokenData(tokenRecord);
                 return createOKResponse(tokenData);
@@ -681,7 +686,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
             // make sure transition is allowed
             if (!subsystem.isUITransitionAllowed(tokenRecord, tokenStatus)) {
-                CMS.debug("TokenService.changeTokenStatus(): next status not allowed: " + tokenStatus);
+                logger.error("TokenService.changeTokenStatus(): next status not allowed: " + tokenStatus);
                 Exception ex = new BadRequestException("Invalid token status transition");
                 auditTokenStateChange(ILogger.FAILURE, oldStatus,
                         newStatus, oldReason, newReason,
@@ -689,7 +694,7 @@ public class TokenService extends SubsystemService implements TokenResource {
                 throw ex;
             }
 
-            CMS.debug("TokenService.changeTokenStatus(): next status allowed: " + tokenStatus);
+            logger.debug("TokenService.changeTokenStatus(): next status allowed: " + tokenStatus);
             // audit in setTokenStatus()
             setTokenStatus(tokenRecord, tokenStatus, ipAddress, remoteUser, auditModParams);
             database.updateRecord(tokenID, tokenRecord);
@@ -702,9 +707,10 @@ public class TokenService extends SubsystemService implements TokenResource {
             return createOKResponse(tokenData);
 
         } catch (Exception e) {
-            CMS.debug(e);
 
             msg = msg + ": " + e.getMessage();
+            logger.error(msg, e);
+
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_TOKEN_STATUS_CHANGE, tokenRecord,
                     ipAddress, msg, "failure",
                     remoteUser);
@@ -746,7 +752,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             throw ex;
         }
 
-        CMS.debug("TokenService.removeToken(\"" + tokenID + "\")");
+        logger.debug("TokenService.removeToken(\"" + tokenID + "\")");
 
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
@@ -759,7 +765,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             tokenRecord = database.getRecord(tokenID);
 
             //delete all certs associated with this token
-            CMS.debug("TokenService.removeToken: about to remove all certificates associated with the token first");
+            logger.debug("TokenService.removeToken: about to remove all certificates associated with the token first");
             subsystem.tdb.tdbRemoveCertificatesByCUID(tokenRecord.getId());
 
             database.removeRecord(tokenID);
@@ -771,9 +777,10 @@ public class TokenService extends SubsystemService implements TokenResource {
             return createNoContentResponse();
 
         } catch (Exception e) {
-            CMS.debug(e);
 
             msg = msg + ": " + e.getMessage();
+            logger.error(msg, e);
+
             subsystem.tdb.tdbActivity(ActivityDatabase.OP_DELETE, tokenRecord,
                     ipAddress, msg, "failure",
                     remoteUser);
