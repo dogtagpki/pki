@@ -72,6 +72,7 @@ import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.cert.CertUtils;
 
 /**
  * @author Endi S. Dewata
@@ -781,7 +782,7 @@ public class UserService extends SubsystemService implements UserResource {
                 userCertData.setPrettyPrint(print.toString(getLocale(headers)));
 
                 // add base64 encoding
-                String base64 = CMS.getEncodedCert(cert);
+                String base64 = CertUtils.getEncodedCert(cert);
                 userCertData.setEncoded(base64);
 
                 return userCertData;

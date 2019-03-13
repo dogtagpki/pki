@@ -218,15 +218,6 @@ public interface ICMSEngine extends ISubsystem {
     public String getLogMessage(String msgID, Object p[]);
 
     /**
-     * Retrieves the certifcate in MIME-64 encoded format
-     * with header and footer.
-     *
-     * @param cert certificate
-     * @return base-64 format certificate
-     */
-    public String getEncodedCert(X509Certificate cert);
-
-    /**
      * Retrieves the named SharedToken class
      *
      * @return named shared token class

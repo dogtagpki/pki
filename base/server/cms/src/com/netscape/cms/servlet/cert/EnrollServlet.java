@@ -1583,7 +1583,7 @@ public class EnrollServlet extends CMSServlet {
             X509CertImpl certs[] =
                     cmsReq.getIRequest().getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
-            out.println(CMS.getEncodedCert(certs[0]));
+            out.println(CertUtils.getEncodedCert(certs[0]));
             out.println("</PRE>");
             out.println("<P>");
             out.println("<!HTTP_OUTPUT REQUEST_CREATION_TIME=" +
@@ -1593,7 +1593,7 @@ public class EnrollServlet extends CMSServlet {
             out.println("<!HTTP_OUTPUT REQUEST_ID=" +
                     cmsReq.getIRequest().getRequestId().toString() + ">");
             out.println("<!HTTP_OUTPUT X509_CERTIFICATE=" +
-                    CMS.getEncodedCert(certs[0]) + ">");
+                    CertUtils.getEncodedCert(certs[0]) + ">");
         } else if (cmsReq.getIRequest().getRequestStatus().equals(RequestStatus.PENDING)) {
             out.println("<H1>");
             out.println("PENDING");

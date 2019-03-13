@@ -59,6 +59,7 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.cert.CertUtils;
 
 /**
  * A class representing an administration servlet for
@@ -511,7 +512,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 CertPrettyPrint print = new CertPrettyPrint(certs[i]);
 
                 // add base64 encoding
-                String base64 = CMS.getEncodedCert(certs[i]);
+                String base64 = CertUtils.getEncodedCert(certs[i]);
 
                 // pretty print certs
                 params.put(getCertificateString(certs[i]),

@@ -37,24 +37,14 @@ import java.util.StringTokenizer;
 
 import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogEvent;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cms.logging.SignedAuditLogger;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
-
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -67,6 +57,15 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.logging.AuditEvent;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.LogEvent;
+import com.netscape.cms.logging.Logger;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 /**
  * Utility class with assorted methods to check for
@@ -610,6 +609,16 @@ public class CertUtils {
             throw new IOException(e.toString());
         }
         return crl;
+    }
+
+    public static String getEncodedCert(X509Certificate cert) {
+        try {
+            return Cert.HEADER + "\n" +
+                    Utils.base64encode(cert.getEncoded(), true) +
+                    Cert.FOOTER + "\n";
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static String normalizeCertStr(String s) {

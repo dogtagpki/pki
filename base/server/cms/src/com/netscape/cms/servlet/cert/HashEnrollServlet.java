@@ -39,6 +39,20 @@ import javax.servlet.http.HttpServletResponse;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.netscape.security.extensions.CertInfo;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
@@ -71,21 +85,6 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.cert.CertUtils;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.extensions.CertInfo;
-import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.CertificateValidity;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
-import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * performs face-to-face enrollment.
@@ -1091,7 +1090,7 @@ public class HashEnrollServlet extends CMSServlet {
             X509CertImpl certs[] =
                     cmsReq.getIRequest().getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
-            out.println(CMS.getEncodedCert(certs[0]));
+            out.println(CertUtils.getEncodedCert(certs[0]));
             out.println("</PRE>");
             out.println("<P>");
             out.println("<!HTTP_OUTPUT REQUEST_CREATION_TIME=" +
@@ -1101,7 +1100,7 @@ public class HashEnrollServlet extends CMSServlet {
             out.println("<!HTTP_OUTPUT REQUEST_ID=" +
                     cmsReq.getIRequest().getRequestId().toString() + ">");
             out.println("<!HTTP_OUTPUT X509_CERTIFICATE=" +
-                    CMS.getEncodedCert(certs[0]) + ">");
+                    CertUtils.getEncodedCert(certs[0]) + ">");
         } else if (cmsReq.getIRequest().getRequestStatus().equals(RequestStatus.PENDING)) {
             out.println("<H1>");
             out.println("PENDING");

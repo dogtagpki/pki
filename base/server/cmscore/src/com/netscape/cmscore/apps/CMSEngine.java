@@ -55,7 +55,6 @@ import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
 import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -1395,16 +1394,6 @@ public class CMSEngine implements ICMSEngine {
 
     public void traceHashKey(String type, String key, String val, String def) {
         Debug.traceHashKey(type, key, val, def);
-    }
-
-    public String getEncodedCert(X509Certificate cert) {
-        try {
-            return Cert.HEADER + "\n" +
-                    Utils.base64encode(cert.getEncoded(), true) +
-                    Cert.FOOTER + "\n";
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     public IMailNotification getMailNotification() {

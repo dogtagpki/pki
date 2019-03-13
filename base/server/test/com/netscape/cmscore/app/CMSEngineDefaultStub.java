@@ -125,10 +125,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public String getEncodedCert(X509Certificate cert) {
-        return null;
-    }
-
     public ISharedToken getSharedTokenClass(String configName) {
         return null;
     }

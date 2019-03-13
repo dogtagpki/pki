@@ -38,6 +38,18 @@ import javax.ws.rs.core.Response;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.jboss.resteasy.plugins.providers.atom.Link;
+import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
+import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
@@ -69,21 +81,9 @@ import com.netscape.cms.servlet.cert.FilterBuilder;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
-import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CRLExtensions;
-import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * @author alee
@@ -503,7 +503,7 @@ public class CertService extends PKIService implements CertResource {
         Principal subjectDN = cert.getSubjectDN();
         if (subjectDN != null) certData.setSubjectDN(subjectDN.toString());
 
-        String base64 = CMS.getEncodedCert(cert);
+        String base64 = CertUtils.getEncodedCert(cert);
         certData.setEncoded(base64);
 
         CertPrettyPrint print = new CertPrettyPrint(cert);

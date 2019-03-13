@@ -394,17 +394,6 @@ public final class CMS {
     }
 
     /**
-     * Retrieves the certifcate in MIME-64 encoded format
-     * with header and footer.
-     *
-     * @param cert certificate
-     * @return base-64 format certificate
-     */
-    public static String getEncodedCert(X509Certificate cert) {
-        return _engine.getEncodedCert(cert);
-    }
-
-    /**
      * Retrieves the email notification handler.
      *
      * @return email notification
