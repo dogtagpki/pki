@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.apps;
 
-import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -257,16 +256,6 @@ public interface ICMSEngine extends ISubsystem {
      * Creates argument block.
      */
     public IArgBlock createArgBlock(Hashtable<String, String> httpReq);
-
-    /**
-     * Checks against the local certificate repository to see
-     * if the certificates are revoked.
-     *
-     * @param certificates certificates
-     * @return true if certificate is revoked in the local
-     *         certificate repository
-     */
-    public boolean isRevoked(X509Certificate[] certificates);
 
     /**
      * Sets list of verified certificates

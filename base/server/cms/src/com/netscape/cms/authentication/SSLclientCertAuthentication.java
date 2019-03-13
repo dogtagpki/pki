@@ -24,6 +24,9 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -41,9 +44,7 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.Certificates;
-
-import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Certificate server SSL client authentication.
@@ -211,7 +212,8 @@ public class SSLclientCertAuthentication implements IAuthManager,
             // do nothing; default to true
         }
         if (checkRevocation) {
-            if (CMS.isRevoked(ci)) {
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            if (engine.isRevoked(ci)) {
                 logger.error("SSLclientCertAuthentication: certificate revoked");
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }

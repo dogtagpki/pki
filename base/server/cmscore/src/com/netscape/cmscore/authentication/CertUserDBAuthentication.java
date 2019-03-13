@@ -19,6 +19,8 @@ package com.netscape.cmscore.authentication;
 
 import java.security.cert.X509Certificate;
 
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -34,10 +36,9 @@ import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.User;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * Certificate server agent authentication.
@@ -156,7 +157,8 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_NO_CERT"));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
             }
-            if (CMS.isRevoked(x509Certs)) {
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            if (engine.isRevoked(x509Certs)) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_REVOKED_CERT"));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }

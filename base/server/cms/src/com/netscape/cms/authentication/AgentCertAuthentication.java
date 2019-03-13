@@ -22,6 +22,8 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -43,8 +45,7 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Certificate server agent authentication.
@@ -178,7 +179,8 @@ public class AgentCertAuthentication implements IAuthManager,
             // do nothing; default to true
         }
         if (checkRevocation) {
-            if (CMS.isRevoked(ci)) {
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            if (engine.isRevoked(ci)) {
                 logger.error("AgentCertAuthentication: certificate revoked");
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }

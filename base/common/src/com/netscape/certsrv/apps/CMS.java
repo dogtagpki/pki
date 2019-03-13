@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.apps;
 
-import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -405,10 +404,6 @@ public final class CMS {
 
     public static IArgBlock createArgBlock(Hashtable<String, String> httpReq) {
         return _engine.createArgBlock(httpReq);
-    }
-
-    public static boolean isRevoked(X509Certificate[] certificates) {
-        return _engine.isRevoked(certificates);
     }
 
     public static void setListOfVerifiedCerts(int size, long interval, long unknownStateInterval) {

@@ -1,6 +1,5 @@
 package com.netscape.cmscore.app;
 
-import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -139,10 +138,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
 
     public IArgBlock createArgBlock() {
         return null;
-    }
-
-    public boolean isRevoked(X509Certificate[] certificates) {
-        return false;
     }
 
     public void setListOfVerifiedCerts(int size, long interval, long unknownStateInterval) {
