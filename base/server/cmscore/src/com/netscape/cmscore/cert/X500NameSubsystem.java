@@ -21,19 +21,18 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.AVAValueConverter;
+import org.mozilla.jss.netscape.security.x509.DirStrConverter;
+import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.util.Debug;
-
-import org.mozilla.jss.netscape.security.util.DerValue;
-import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
-import org.mozilla.jss.netscape.security.x509.AVAValueConverter;
-import org.mozilla.jss.netscape.security.x509.DirStrConverter;
-import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
 
 /**
  * Subsystem for configuring X500Name related things.
@@ -137,9 +136,7 @@ public class X500NameSubsystem implements ISubsystem {
     public synchronized void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
         mLogger = Logger.getLogger();
-        if (Debug.ON) {
-            Debug.trace(ID + " started");
-        }
+        logger.trace(ID + " started");
         mConfig = config;
 
         // get order for encoding directory strings if any.
@@ -176,9 +173,7 @@ public class X500NameSubsystem implements ISubsystem {
                         CMS.getUserMessage("CMS_BASE_LOAD_CLASS_FAILED", className, e.toString()));
             }
             globalMap.addNameOID(name, oid, convClass);
-            if (Debug.ON) {
-                Debug.trace(ID + ": Loaded " + name + " " + oid + " " + className);
-            }
+            logger.trace(ID + ": Loaded " + name + " " + oid + " " + className);
         }
     }
 
