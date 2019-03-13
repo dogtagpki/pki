@@ -21,9 +21,6 @@ import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
@@ -31,7 +28,9 @@ import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.cmscore.util.Debug;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 
 /**
  * A class represents a mapper to serialize
@@ -42,6 +41,8 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class CertRecordMapper implements IDBAttrMapper {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecordMapper.class);
 
     private ICertificateRepository mDB = null;
 
@@ -82,7 +83,7 @@ public class CertRecordMapper implements IDBAttrMapper {
 
             parent.set(name, rec);
         } catch (Exception e) {
-            Debug.trace(e.toString());
+            logger.error("CertRecordMapper: " + e.getMessage(), e);
             throw new EDBException(
                     CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name));
         }
