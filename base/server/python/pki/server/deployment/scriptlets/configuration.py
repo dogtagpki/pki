@@ -960,7 +960,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             with open(cert_file, 'w') as f:
                 f.write(pem_cert)
 
-            nssdb.add_cert(nickname, cert_file)
+            nssdb.add_cert(
+                nickname=nickname,
+                cert_file=cert_file)
 
         finally:
             nssdb.close()

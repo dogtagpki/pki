@@ -268,7 +268,10 @@ class PKCS12ImportCLI(pki.cli.CLI):
                     if main_cli.verbose:
                         print('Importing %s' % nickname)
 
-                    nssdb.add_cert(nickname, cert_file, trust_flags)
+                    nssdb.add_cert(
+                        nickname=nickname,
+                        cert_file=cert_file,
+                        trust_attributes=trust_flags)
 
             finally:
                 shutil.rmtree(tmpdir)
