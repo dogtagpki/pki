@@ -24,6 +24,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -54,11 +57,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.util.Debug;
 
 import netscape.ldap.LDAPConnection;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 public class PublisherProcessor implements
         IPublisherProcessor, IXcertPublisherProcessor {
@@ -121,8 +121,7 @@ public class PublisherProcessor implements
 
             mPublisherPlugins.put(id, plugin);
         }
-        if (Debug.ON)
-            Debug.trace("loaded publisher plugins");
+        logger.trace("loaded publisher plugins");
 
         // load publisher instances
         c = publisherConfig.getSubStore(PROP_INSTANCE);
@@ -188,8 +187,7 @@ public class PublisherProcessor implements
             mPublisherInsts.put(insName, new
                     PublisherProxy(isEnable, publisherInst));
             log(ILogger.LL_INFO, "publisher instance " + insName + " added");
-            if (Debug.ON)
-                Debug.trace("loaded publisher instance " + insName + " impl " + implName);
+            logger.trace("loaded publisher instance " + insName + " impl " + implName);
         }
 
         // load mapper implementation
@@ -204,8 +202,7 @@ public class PublisherProcessor implements
 
             mMapperPlugins.put(id, plugin);
         }
-        if (Debug.ON)
-            Debug.trace("loaded mapper plugins");
+        logger.trace("loaded mapper plugins");
 
         // load mapper instances
         c = mapperConfig.getSubStore(PROP_INSTANCE);
@@ -224,8 +221,7 @@ public class PublisherProcessor implements
             }
             String className = plugin.getClassPath();
 
-            if (Debug.ON)
-                Debug.trace("loaded mapper className=" + className);
+            logger.trace("loaded mapper className=" + className);
 
             // Instantiate and init the mapper
             boolean isEnable = false;
@@ -269,8 +265,7 @@ public class PublisherProcessor implements
                     isEnable, mapperInst));
 
             log(ILogger.LL_INFO, "mapper instance " + insName + " added");
-            if (Debug.ON)
-                Debug.trace("loaded mapper instance " + insName + " impl " + implName);
+            logger.trace("loaded mapper instance " + insName + " impl " + implName);
         }
 
         // load rule implementation
@@ -285,8 +280,7 @@ public class PublisherProcessor implements
 
             mRulePlugins.put(id, plugin);
         }
-        if (Debug.ON)
-            Debug.trace("loaded rule plugins");
+        logger.trace("loaded rule plugins");
 
         // load rule instances
         c = ruleConfig.getSubStore(PROP_INSTANCE);
@@ -305,8 +299,7 @@ public class PublisherProcessor implements
             }
             String className = plugin.getClassPath();
 
-            if (Debug.ON)
-                Debug.trace("loaded rule className=" + className);
+            logger.trace("loaded rule className=" + className);
 
             // Instantiate and init the rule
             IConfigStore mConfig = null;
@@ -321,8 +314,7 @@ public class PublisherProcessor implements
                 ruleInst.setInstanceName(insName);
 
                 // add manager instance to list.
-                if (Debug.ON)
-                    Debug.trace("ADDING RULE " + insName + "  " + ruleInst);
+                logger.trace("ADDING RULE " + insName + "  " + ruleInst);
                 mRuleInsts.put(insName, ruleInst);
                 log(ILogger.LL_INFO, "rule instance " +
                         insName + " added");
@@ -351,8 +343,7 @@ public class PublisherProcessor implements
                 // chance to the user to re-configure
                 // the server via console.
             }
-            if (Debug.ON)
-                Debug.trace("loaded rule instance " + insName + " impl " + implName);
+            logger.trace("loaded rule instance " + insName + " impl " + implName);
         }
 
         startup();
@@ -488,12 +479,10 @@ public class PublisherProcessor implements
             String name = e.nextElement();
 
             if (name == null) {
-                if (Debug.ON)
-                    Debug.trace("rule name is " + "null");
+                logger.trace("rule name is " + "null");
                 return null;
             } else {
-                if (Debug.ON)
-                    Debug.trace("rule name is " + name);
+                logger.trace("rule name is " + name);
             }
 
             //this is the only rule we support now
@@ -512,8 +501,7 @@ public class PublisherProcessor implements
                     // do nothing
                 }
                 rules.addElement(rule);
-                if (Debug.ON)
-                    Debug.trace("added rule " + name + " for " + publishingType);
+                logger.trace("added rule " + name + " for " + publishingType);
             }
 
         }
@@ -544,8 +532,7 @@ public class PublisherProcessor implements
                 }
 
                 rules.addElement(rule);
-                if (Debug.ON)
-                    Debug.trace("added rule " + rule.getInstanceName() + " for " + publishingType +
+                logger.trace("added rule " + rule.getInstanceName() + " for " + publishingType +
                             " request: " + req.getRequestId());
             }
 
@@ -849,7 +836,7 @@ public class PublisherProcessor implements
                 log(ILogger.LL_WARN, "No rule is found for publishing: " + PROP_LOCAL_CA + " in this clone.");
                 return;
             } else {
-                Debug.trace(CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND", PROP_LOCAL_CA));
+                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND", PROP_LOCAL_CA));
                 //log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND", PROP_LOCAL_CA));
                 //throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CA));
                 return;
