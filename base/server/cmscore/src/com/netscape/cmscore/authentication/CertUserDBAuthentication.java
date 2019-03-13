@@ -87,6 +87,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
             throws EBaseException {
         mName = name;
         mImplName = implName;
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mConfig = config;
 
         if (mConfig != null) {
@@ -100,7 +101,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
                 long unknownStateInterval = mRevocationChecking.getInteger("unknownStateInterval", 1800);
 
                 if (size > 0)
-                    CMS.setListOfVerifiedCerts(size, interval, unknownStateInterval);
+                    engine.setListOfVerifiedCerts(size, interval, unknownStateInterval);
             }
         }
 

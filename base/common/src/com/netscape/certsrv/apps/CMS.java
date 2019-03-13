@@ -406,10 +406,6 @@ public final class CMS {
         return _engine.createArgBlock(httpReq);
     }
 
-    public static void setListOfVerifiedCerts(int size, long interval, long unknownStateInterval) {
-        _engine.setListOfVerifiedCerts(size, interval, unknownStateInterval);
-    }
-
     public static ISecurityDomainSessionTable getSecurityDomainSessionTable() {
         return _engine.getSecurityDomainSessionTable();
     }

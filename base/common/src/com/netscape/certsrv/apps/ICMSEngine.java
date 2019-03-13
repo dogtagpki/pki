@@ -257,17 +257,6 @@ public interface ICMSEngine extends ISubsystem {
      */
     public IArgBlock createArgBlock(Hashtable<String, String> httpReq);
 
-    /**
-     * Sets list of verified certificates
-     *
-     * @param size size of verified certificates list
-     * @param interval interval in which certificate is not recheck
-     *            against local certificate repository
-     * @param unknownStateInterval interval in which certificate
-     *            may not recheck against local certificate repository
-     */
-    public void setListOfVerifiedCerts(int size, long interval, long unknownStateInterval);
-
     public ISecurityDomainSessionTable getSecurityDomainSessionTable();
 
     public void sleepOneMinute(); // for debug only

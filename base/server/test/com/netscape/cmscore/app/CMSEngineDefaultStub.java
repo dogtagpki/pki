@@ -140,9 +140,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public void setListOfVerifiedCerts(int size, long interval, long unknownStateInterval) {
-    }
-
     public ISecurityDomainSessionTable getSecurityDomainSessionTable() {
         return null;
     }
