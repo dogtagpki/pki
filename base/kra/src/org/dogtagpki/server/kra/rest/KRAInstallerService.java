@@ -112,7 +112,7 @@ public class KRAInstallerService extends SystemConfigService {
         String kraHost = engine.getAgentHost();
         String kraPort = engine.getAgentPort();
         String transportCert = cs.getString("kra.transport.cert", "");
-        String sessionId = CMS.getConfigSDSessionId();
+        String sessionId = engine.getConfigSDSessionId();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("ca.connector.KRA.enable", "true");

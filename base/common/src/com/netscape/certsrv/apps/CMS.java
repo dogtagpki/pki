@@ -392,10 +392,6 @@ public final class CMS {
         return _engine.getConfigStore();
     }
 
-    public static String getConfigSDSessionId() {
-        return _engine.getConfigSDSessionId();
-    }
-
     public static void setConfigSDSessionId(String val) {
         _engine.setConfigSDSessionId(val);
     }

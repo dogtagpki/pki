@@ -524,6 +524,7 @@ public class ConfigurationUtils {
     public static void getConfigEntriesFromMaster()
             throws Exception {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = CMS.getConfigStore();
         String cstype = "";
 
@@ -531,7 +532,7 @@ public class ConfigurationUtils {
 
         cstype = cstype.toLowerCase();
 
-        String session_id = CMS.getConfigSDSessionId();
+        String session_id = engine.getConfigSDSessionId();
         String master_hostname = config.getString("preop.master.hostname", "");
         int master_port = config.getInteger("preop.master.httpsadminport", -1);
         int master_ee_port = config.getInteger("preop.master.httpsport", -1);
@@ -2184,6 +2185,7 @@ public class ConfigurationUtils {
             throws Exception {
 
         String caType;
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String v = config.getString("preop.ca.type", "");
 
         logger.debug("configCert: remote CA");
@@ -2197,7 +2199,7 @@ public class ConfigurationUtils {
         config.putString(subsystem + "." + certTag + ".certreq", b64Request);
 
         String profileId = config.getString(PCERT_PREFIX + certTag + ".profile");
-        String session_id = CMS.getConfigSDSessionId();
+        String session_id = engine.getConfigSDSessionId();
         String sysType = config.getString("cs.type", "");
         String machineName = config.getString("machineName", "");
         String securePort = config.getString("service.securePort", "");
@@ -3016,13 +3018,14 @@ public class ConfigurationUtils {
 
         logger.debug("ConfigurationUtils: submitAdminCertRequest()");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = CMS.getConfigStore();
 
         if (profileId == null) {
             profileId = config.getString("preop.admincert.profile", "caAdminCert");
         }
 
-        String session_id = CMS.getConfigSDSessionId();
+        String session_id = engine.getConfigSDSessionId();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("profileId", profileId);
@@ -3182,7 +3185,7 @@ public class ConfigurationUtils {
 
         try {
             logger.debug("Update security domain using admin interface");
-            String session_id = CMS.getConfigSDSessionId();
+            String session_id = engine.getConfigSDSessionId();
             content.putSingle("sessionID", session_id);
             updateDomainXML(sd_host, sd_admin_port, true, url, content, false);
 
@@ -3363,7 +3366,8 @@ public class ConfigurationUtils {
     public static String getTransportCert(URI secdomainURI, URI kraUri)
             throws Exception {
         logger.debug("getTransportCert() start");
-        String sessionId = CMS.getConfigSDSessionId();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        String sessionId = engine.getConfigSDSessionId();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("xmlOutput", "true");
@@ -3565,11 +3569,12 @@ public class ConfigurationUtils {
     }
 
     public static void registerUser(URI secdomainURI, URI targetURI, String targetType) throws Exception {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
         String csType = cs.getString("cs.type");
         String uid = csType.toUpperCase() + "-" + cs.getString("machineName", "")
                 + "-" + cs.getString("service.securePort", "");
-        String sessionId = CMS.getConfigSDSessionId();
+        String sessionId = engine.getConfigSDSessionId();
         String subsystemName = cs.getString("preop.subsystem.name");
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
@@ -3617,10 +3622,11 @@ public class ConfigurationUtils {
     }
 
     public static void exportTransportCert(URI secdomainURI, URI targetURI, String transportCert) throws Exception {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
         String name = "transportCert-" + cs.getString("machineName", "")
                 + "-" + cs.getString("service.securePort", "");
-        String sessionId = CMS.getConfigSDSessionId();
+        String sessionId = engine.getConfigSDSessionId();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("name", name);

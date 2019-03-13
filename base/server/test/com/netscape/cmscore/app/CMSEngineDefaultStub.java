@@ -160,10 +160,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public void setConfigSDSessionId(String id) {
     }
 
-    public String getConfigSDSessionId() {
-        return null;
-    }
-
     @Override
     public IArgBlock createArgBlock(String realm,
             Hashtable<String, String> httpReq) {

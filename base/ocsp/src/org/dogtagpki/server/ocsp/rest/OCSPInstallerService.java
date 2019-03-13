@@ -171,7 +171,7 @@ public class OCSPInstallerService extends SystemConfigService {
 
         String ocspHost = engine.getAgentHost();
         int ocspPort = Integer.parseInt(engine.getAgentPort());
-        String sessionId = CMS.getConfigSDSessionId();
+        String sessionId = engine.getConfigSDSessionId();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("xmlOutput", "true");
