@@ -1110,6 +1110,22 @@ class CertFixCLI(pki.cli.CLI):
         logger.info('Stopping the instance to proceed with system cert renewal')
         instance.stop()
 
+        # Get the CA subsystem and find out Base DN.
+        ca_subsystem = instance.get_subsystem('ca')
+        basedn = ca_subsystem.get_db_config()['internaldb.basedn']
+        dbuser_dn = 'uid=pkidbuser,ou=people,{}'.format(basedn)
+
+        # Prompt for DM password
+        dm_pass = getpass.getpass(prompt='Enter Directory Manager password: ')
+        try:
+            subprocess.check_output([
+                'ldapsearch', '-D', 'cn=Directory Manager', '-w', dm_pass,
+                '-s', 'base', '-b', basedn, '1.1',
+            ])
+        except subprocess.CalledProcessError:
+            logger.error("Failed to verify Directory Manager password.")
+            sys.exit(1)
+
         # 3. Find the subsystem and disable Self-tests
         try:
             # Placeholder used to hold subsystems whose selftest have been turned off
@@ -1138,7 +1154,7 @@ class CertFixCLI(pki.cli.CLI):
 
                     target_subsys.add(subsystem)
 
-            with ldap_password_authn(instance, target_subsys) as dbuser_dn, \
+            with ldap_password_authn(instance, target_subsys, dbuser_dn, dm_pass), \
                     suppress_selftest(target_subsys):
 
                 # 4. Bring up the server using a temp SSL cert if the sslcert is expired
@@ -1203,7 +1219,7 @@ class CertFixCLI(pki.cli.CLI):
                         # ldapmodify
                         subprocess.check_call([
                             'ldapmodify',
-                            '-D', 'cn=Directory Manager', '-W',
+                            '-D', 'cn=Directory Manager', '-w', dm_pass,
                             '-f', ldif_file.name,
                         ])
 
@@ -1251,7 +1267,7 @@ def start_stop(instance):
 
 
 @contextmanager
-def ldap_password_authn(instance, subsystems):
+def ldap_password_authn(instance, subsystems, bind_dn, dm_pass):
     """LDAP password authentication context.
 
     This context manager switches the server to password
@@ -1287,13 +1303,8 @@ def ldap_password_authn(instance, subsystems):
     else:
         generated_password = False
 
-    # we don't know the Base DN until we see the config,
-    # so defer performing ldappasswd...
+    # We don't perform ldappasswd unless we need to (and only once).
     ldappasswd_performed = False
-
-    # Set this if Dogtag is using TLS cert auth to LDAP, and yield
-    # it so that the new subsystem cert can be added to the entry.
-    bind_dn = None
 
     for subsystem in subsystems:
         cfg = subsystem.get_db_config()
@@ -1305,16 +1316,12 @@ def ldap_password_authn(instance, subsystems):
             cfg['internaldb.ldapauth.authtype'] = 'BasicAuth'
             cfg['internaldb.ldapconn.port'] = '389'
             cfg['internaldb.ldapconn.secureConn'] = 'false'
-            bind_dn = \
-                'uid=pkidbuser,ou=people,{}'.format(cfg['internaldb.basedn'])
             cfg['internaldb.ldapauth.bindDN'] = bind_dn
 
             # _now_ we can perform ldappasswd
             if not ldappasswd_performed:
                 logger.info('Setting pkidbuser password via ldappasswd')
-                subprocess.check_call([
-                    'echo', "Enter Directory Manager password."])
-                ldappasswd(bind_dn, password)
+                ldappasswd(dm_pass, bind_dn, password)
                 ldappasswd_performed = True
 
         elif authtype == 'BasicAuth':
@@ -1326,7 +1333,7 @@ def ldap_password_authn(instance, subsystems):
         subsystem.save()
 
     try:
-        yield bind_dn
+        yield
 
     finally:
         logger.info('Restoring previous LDAP configuration')
@@ -1340,7 +1347,7 @@ def ldap_password_authn(instance, subsystems):
             instance.store_passwords()
 
 
-def ldappasswd(user_dn, password):
+def ldappasswd(dm_pass, user_dn, password):
     """
     Run ldappasswd as Directory Manager.
 
@@ -1349,7 +1356,7 @@ def ldappasswd(user_dn, password):
     """
     subprocess.check_call([
         'ldappasswd',
-        '-D', 'cn=Directory Manager', '-W',
+        '-D', 'cn=Directory Manager', '-w', dm_pass,
         '-s', password,
         user_dn,
     ])
