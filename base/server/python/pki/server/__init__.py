@@ -37,6 +37,8 @@ import tempfile
 import ldap
 import ldap.filter
 import pki
+import pki.account
+import pki.cert
 import pki.client as client
 import pki.nssdb
 import pki.util
@@ -94,8 +96,19 @@ class PKIServer(object):
         return subsystem_name, cert_tag
 
     @staticmethod
-    def setup_authentication(client_nssdb_pass, client_nssdb_pass_file, client_cert,
-                             client_nssdb, tmpdir, subsystem_name):
+    def setup_password_authentication(username, password, subsystem_name='ca'):
+        """Return a PKIConnection, logged in using username and password."""
+        connection = client.PKIConnection(
+            'https', os.environ['HOSTNAME'], '8443', subsystem_name)
+        connection.authenticate(username, password)
+        account_client = pki.account.AccountClient(connection)
+        account_client.login()
+        return connection
+
+    @staticmethod
+    def setup_cert_authentication(
+            client_nssdb_pass, client_nssdb_pass_file, client_cert,
+            client_nssdb, tmpdir, subsystem_name):
         """
         Utility method to set up a secure authenticated connection with a
         subsystem of PKI Server through PKI client
@@ -1592,14 +1605,21 @@ class PKIInstance(object):
         updated_cert = self.nssdb_import_cert(cert_id, cert_file)
         self.cert_update_config(cert_id, updated_cert)
 
-    def cert_create(self, cert_id, client_cert=None, client_nssdb=None, client_nssdb_pass=None,
-                    client_nssdb_pass_file=None, serial=None, temp_cert=False, renew=False,
-                    output=None):
+    def cert_create(
+            self, cert_id,
+            username=None, password=None,
+            client_cert=None, client_nssdb=None,
+            client_nssdb_pass=None, client_nssdb_pass_file=None,
+            serial=None, temp_cert=False, renew=False, output=None):
         """
         Create a new cert for the cert_id provided
 
         :param cert_id: New cert's ID
         :type cert_id: str
+        :param username: Username (must also supply password)
+        :type username: str
+        :param password: Password (must also supply username)
+        :type password: str
         :param client_cert: Client cert nickname
         :type client_cert: str
         :param client_nssdb: Path to nssdb
@@ -1619,6 +1639,11 @@ class PKIInstance(object):
         :return: None
         :rtype: None
         :raises PKIServerException
+
+        Either supply both username and password, or supply
+        client_nssdb and client_cert and
+        (client_nssdb_pass or client_nssdb_pass_file).
+
         """
         nssdb = self.open_nssdb()
         tmpdir = tempfile.mkdtemp()
@@ -1657,21 +1682,23 @@ class PKIInstance(object):
                     # TODO: Support rekey
                     raise PKIServerException('Rekey is not supported yet.')
 
-                if not client_cert:
-                    raise PKIServerException('Client cert nick name required.')
-
-                if not client_nssdb_pass and not client_nssdb_pass_file:
-                    raise PKIServerException('NSS db password required.')
-
                 logger.info('Trying to setup a secure connection to CA subsystem.')
-                connection = PKIServer.setup_authentication(
-                    client_nssdb_pass=client_nssdb_pass,
-                    client_cert=client_cert,
-                    client_nssdb_pass_file=client_nssdb_pass_file,
-                    client_nssdb=client_nssdb,
-                    tmpdir=tmpdir,
-                    subsystem_name='ca'
-                )
+                if username and password:
+                    connection = PKIServer.setup_password_authentication(
+                        username, password, subsystem_name='ca')
+                else:
+                    if not client_cert:
+                        raise PKIServerException('Client cert nick name required.')
+                    if not client_nssdb_pass and not client_nssdb_pass_file:
+                        raise PKIServerException('NSS db password required.')
+                    connection = PKIServer.setup_cert_authentication(
+                        client_nssdb_pass=client_nssdb_pass,
+                        client_cert=client_cert,
+                        client_nssdb_pass_file=client_nssdb_pass_file,
+                        client_nssdb=client_nssdb,
+                        tmpdir=tmpdir,
+                        subsystem_name='ca'
+                    )
                 logger.info('Secure connection with CA is established.')
 
                 logger.info('Placing cert creation request for serial: %s', serial)
