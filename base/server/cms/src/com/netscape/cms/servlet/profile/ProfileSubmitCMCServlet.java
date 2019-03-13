@@ -36,6 +36,8 @@ import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.asn1.UTF8String;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkix.cmc.LraPopWitness;
 import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
@@ -74,9 +76,7 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This servlet submits end-user request into the profile framework.
@@ -324,6 +324,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             mProfileSubId = IProfileSubsystem.ID;
         }
         CMS.debug("ProfileSubmitCMCServlet: SubId=" + mProfileSubId);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IProfileSubsystem ps = (IProfileSubsystem)
                 CMS.getSubsystem(mProfileSubId);
 
@@ -1058,7 +1059,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             if (cert_request_type.equals("pkcs10") || cert_request_type.equals("crmf")) {
 
                 if (outputFormat != null && outputFormat.equals("pkcs7")) {
-                    byte[] pkcs7 = CMS.getPKCS7(locale, reqs[0]);
+                    byte[] pkcs7 = engine.getPKCS7(locale, reqs[0]);
                     response.setContentType("application/pkcs7-mime");
                     response.setContentLength(pkcs7.length);
                     try {

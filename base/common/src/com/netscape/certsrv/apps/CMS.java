@@ -39,7 +39,6 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.registry.IPluginRegistry;
-import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
@@ -193,10 +192,6 @@ public final class CMS {
         if (_engine != null) {
             _engine.traceHashKey(type, key, val, def);
         }
-    }
-
-    public static byte[] getPKCS7(Locale locale, IRequest req) {
-        return _engine.getPKCS7(locale, req);
     }
 
     /**

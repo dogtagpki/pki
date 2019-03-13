@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.request.IRequest;
 
 /**
  * This interface represents the CMS core framework. The
@@ -149,8 +148,6 @@ public interface ICMSEngine extends ISubsystem {
     public void traceHashKey(String type, String key, String val);
 
     public void traceHashKey(String type, String key, String val, String def);
-
-    public byte[] getPKCS7(Locale locale, IRequest req);
 
     /**
      * Retrieves the localized user message from UserMessages.properties.

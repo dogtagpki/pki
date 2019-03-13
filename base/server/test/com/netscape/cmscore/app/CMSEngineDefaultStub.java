@@ -10,7 +10,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.request.IRequest;
 
 /**
  * Default engine stub for testing.
@@ -91,10 +90,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public void traceHashKey(String type, String key, String val, String def) {
-    }
-
-    public byte[] getPKCS7(Locale locale, IRequest req) {
-        return new byte[0];
     }
 
     public String getUserMessage(Locale locale, String msgID) {
