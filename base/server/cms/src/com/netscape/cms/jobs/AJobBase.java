@@ -20,6 +20,8 @@ package com.netscape.cms.jobs;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -32,9 +34,8 @@ import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailTemplate;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * This abstract class is a base job for real job extentions for the
@@ -185,7 +186,8 @@ public abstract class AJobBase implements IJob, Runnable {
 
     protected void mailSummary(String content) {
         // no need for email resolver here...
-        IMailNotification mn = CMS.getMailNotification();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSummarySenderEmail);
         mn.setTo(mSummaryReceiverEmail);

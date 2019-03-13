@@ -29,7 +29,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 
 /**
@@ -223,13 +222,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return named shared token class
      */
     public ISharedToken getSharedTokenClass(String configName);
-
-    /**
-     * Retrieves the email notification handler.
-     *
-     * @return email notification
-     */
-    public IMailNotification getMailNotification();
 
     /**
      * Blocks all new incoming requests.

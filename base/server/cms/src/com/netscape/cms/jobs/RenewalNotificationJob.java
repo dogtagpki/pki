@@ -534,7 +534,8 @@ public class RenewalNotificationJob
             ICertRecord cr)
             throws IOException, ENotificationException, EBaseException {
 
-        IMailNotification mn = CMS.getMailNotification();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IMailNotification mn = engine.getMailNotification();
 
         String rcp = null;
         //		boolean sendFailed = false;

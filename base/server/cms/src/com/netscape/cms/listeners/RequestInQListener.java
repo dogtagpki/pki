@@ -142,7 +142,8 @@ public class RequestInQListener implements IRequestListener {
 
         // regardless of type of request...notify for everything
         // no need for email resolver here...
-        IMailNotification mn = CMS.getMailNotification();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
         mn.setTo(mRecipientEmail);

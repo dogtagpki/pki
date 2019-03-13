@@ -276,7 +276,8 @@ public class CertificateIssuedListener implements IRequestListener {
     }
 
     private void mailIt(String mEmail, X509CertImpl issuedCert[]) {
-        IMailNotification mn = CMS.getMailNotification();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
         mn.setTo(mEmail);
@@ -352,7 +353,8 @@ public class CertificateIssuedListener implements IRequestListener {
 
         // now we can mail
         if ((mEmail != null) && !mEmail.equals("")) {
-            IMailNotification mn = CMS.getMailNotification();
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            IMailNotification mn = engine.getMailNotification();
 
             mn.setFrom(mSenderEmail);
             mn.setTo(mEmail);

@@ -255,7 +255,8 @@ public class CertificateRevokedListener implements IRequestListener {
     }
 
     private void mailIt(String mEmail, RevokedCertImpl crlentries[]) {
-        IMailNotification mn = CMS.getMailNotification();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
         mn.setTo(mEmail);

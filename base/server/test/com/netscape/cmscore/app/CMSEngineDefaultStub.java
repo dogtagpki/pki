@@ -13,7 +13,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 
 /**
@@ -126,10 +125,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public ISharedToken getSharedTokenClass(String configName) {
-        return null;
-    }
-
-    public IMailNotification getMailNotification() {
         return null;
     }
 

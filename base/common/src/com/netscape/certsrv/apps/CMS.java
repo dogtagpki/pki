@@ -38,7 +38,6 @@ import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogSubsystem;
-import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
@@ -391,15 +390,6 @@ public final class CMS {
      */
     public static IConfigStore getConfigStore() {
         return _engine.getConfigStore();
-    }
-
-    /**
-     * Retrieves the email notification handler.
-     *
-     * @return email notification
-     */
-    public static IMailNotification getMailNotification() {
-        return _engine.getMailNotification();
     }
 
     public static String getConfigSDSessionId() {
