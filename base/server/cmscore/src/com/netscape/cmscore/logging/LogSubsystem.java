@@ -37,7 +37,6 @@ import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.LogPlugin;
 import com.netscape.cms.logging.LogQueue;
-import com.netscape.cmscore.util.Debug;
 
 /**
  * A class represents a log subsystem.
@@ -48,6 +47,8 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class LogSubsystem implements ILogSubsystem {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogSubsystem.class);
 
     private static LogSubsystem mInstance = new LogSubsystem();
     private static ILogQueue mLogQueue = LogQueue.getLogQueue();
@@ -103,8 +104,7 @@ public class LogSubsystem implements ILogSubsystem {
 
             mLogPlugins.put(id, plugin);
         }
-        if (Debug.ON)
-            Debug.trace("loaded logger plugins");
+        logger.trace("loaded logger plugins");
 
         // load log instances
         c = config.getSubStore(PROP_INSTANCE);
@@ -142,8 +142,7 @@ public class LogSubsystem implements ILogSubsystem {
 
             // add log instance to list.
             mLogInsts.put(insName, logInst);
-            if (Debug.ON)
-                Debug.trace("loaded log instance " + insName + " impl " + implName);
+            logger.trace("loaded log instance " + insName + " impl " + implName);
         }
 
         // load audit events from audit-events.properties
@@ -170,13 +169,13 @@ public class LogSubsystem implements ILogSubsystem {
     }
 
     public void startup() throws EBaseException {
-        Debug.trace("entering LogSubsystem.startup()");
+        logger.trace("entering LogSubsystem.startup()");
         Enumeration<String> enum1 = mLogInsts.keys();
 
         while (enum1.hasMoreElements()) {
             String instName = enum1.nextElement();
 
-            Debug.trace("about to call inst=" + instName + " in LogSubsystem.startup()");
+            logger.trace("about to call inst=" + instName + " in LogSubsystem.startup()");
             ILogEventListener inst = mLogInsts.get(instName);
 
             inst.startup();
