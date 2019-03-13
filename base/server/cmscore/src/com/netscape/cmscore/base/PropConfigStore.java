@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,6 @@ import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISourceConfigStore;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * A class represents a in-memory configuration store.
@@ -261,7 +261,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         String str = get(name);
 
         if (str == null) {
-            CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
+            logger.trace("GET r={},k={},v={}", mDebugType, getFullName(name), "<notpresent>");
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", getFullName(name)));
         }
         // should we check for empty string ?
@@ -275,7 +275,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         } catch (java.io.UnsupportedEncodingException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_UTF8_NOT_SUPPORTED"));
         }
-        CMS.traceHashKey(mDebugType, getFullName(name), ret);
+        logger.trace("GET r={},k={},v={}", mDebugType, getFullName(name), ret);
         return ret;
     }
 
@@ -295,7 +295,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         } catch (EPropertyNotFound e) {
             val = defval;
         }
-        CMS.traceHashKey(mDebugType, getFullName(name), val, defval);
+        logger.trace("GET r={},k={},v={},d={}", mDebugType, getFullName(name), val, defval);
         return val;
     }
 
@@ -322,7 +322,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         byte[] arr = getByteArray(name, new byte[0]);
 
         if (arr.length == 0) {
-            CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
+            logger.trace("GET r={},k={},v={}", mDebugType, getFullName(name), "<notpresent>");
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", getName() + "." + name));
         }
         return arr;
@@ -343,11 +343,13 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         String str = get(name);
 
         if (str == null || str.length() == 0) {
-            CMS.traceHashKey(mDebugType, getFullName(name),
+            logger.trace("GET r={},k={},v={},d={}",
+                    mDebugType, getFullName(name),
                     "<notpresent>", "<bytearray>");
             return defval;
         } else {
-            CMS.traceHashKey(mDebugType, getFullName(name),
+            logger.trace("GET r={},k={},v={},d={}",
+                    mDebugType, getFullName(name),
                     "<bytearray>", "<bytearray>");
             return Utils.base64decode(str);
         }
@@ -386,7 +388,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         String value = get(name);
 
         if (value == null) {
-            CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
+            logger.trace("GET r={},k={},v={}", mDebugType, getFullName(name), "<notpresent>");
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", getName() + "." + name));
         }
         if (value.length() == 0) {
@@ -422,8 +424,10 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         } catch (EPropertyNotDefined e) {
             val = defval;
         }
-        CMS.traceHashKey(mDebugType, getFullName(name),
-                val ? "true" : "false", defval ? "true" : "false");
+        logger.trace("GET r={},k={},v={},d={}",
+                mDebugType, getFullName(name),
+                val ? "true" : "false",
+                defval ? "true" : "false");
         return val;
     }
 
@@ -452,14 +456,14 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         String value = get(name);
 
         if (value == null) {
-            CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
+            logger.trace("GET r={},k={},v={}", mDebugType, getFullName(name), "<notpresent>");
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", getName() + "." + name));
         }
         if (value.length() == 0) {
             throw new EPropertyNotDefined(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_NOVALUE", getName() + "." + name));
         }
         try {
-            CMS.traceHashKey(mDebugType, getFullName(name), value);
+            logger.trace("GET r={},k={},v={}", mDebugType, getFullName(name), value);
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", getName() + "." + name, "int",
@@ -485,8 +489,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         } catch (EPropertyNotDefined e) {
             val = defval;
         }
-        CMS.traceHashKey(mDebugType, getFullName(name),
-                "" + val, "" + defval);
+        logger.trace("GET r={},k={},v={},d={}", mDebugType, getFullName(name), val, defval);
         return val;
     }
 
@@ -512,7 +515,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         String value = get(name);
 
         if (value == null) {
-            CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
+            logger.trace("GET r={},k={},v={}", mDebugType, getFullName(name), "<notpresent>");
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", getName() + "." + name));
         }
         if (value.length() == 0) {
