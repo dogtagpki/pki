@@ -24,6 +24,8 @@ import java.math.BigInteger;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthUserError;
@@ -43,9 +45,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.util.Debug;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * SSL client based authentication.
@@ -138,9 +137,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
             try {
                 record = mCertDB.readCertificateRecord(serialNum);
             } catch (EBaseException ee) {
-                if (Debug.ON) {
-                    Debug.trace(ee.toString());
-                }
+                logger.warn("SSLClientCertAuthentication: " + ee.getMessage(), ee);
             }
             if (record != null) {
                 String status = record.getStatus();
