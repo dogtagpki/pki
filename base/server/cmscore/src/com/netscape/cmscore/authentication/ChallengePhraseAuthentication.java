@@ -21,6 +21,8 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -43,8 +45,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.dbs.CertRecord;
-import com.netscape.cmscore.util.Debug;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * Challenge phrase based authentication.
@@ -57,6 +57,8 @@ import org.mozilla.jss.netscape.security.util.Utils;
  * @version $Revision$, $Date$
  */
 public class ChallengePhraseAuthentication implements IAuthManager {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChallengePhraseAuthentication.class);
 
     /* result auth token attributes */
     public static final String TOKEN_CERT_SERIAL = "certSerialToRevoke";
@@ -220,9 +222,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
             try {
                 record = (CertRecord) mCertDB.readCertificateRecord(serialNum);
             } catch (EBaseException ee) {
-                if (Debug.ON) {
-                    Debug.trace(ee.toString());
-                }
+                logger.warn("ChallengePhraseAuthentication: " + ee.getMessage(), ee);
             }
             if (record != null) {
                 String status = record.getStatus();
@@ -275,15 +275,11 @@ public class ChallengePhraseAuthentication implements IAuthManager {
             }
         } // else, ra
         if (bigIntArray != null && bigIntArray.length > 0) {
-            if (Debug.ON) {
-                Debug.trace("challenge authentication serialno array not null");
-                for (int i = 0; i < bigIntArray.length; i++)
-                    Debug.trace("challenge auth serialno " + bigIntArray[i]);
-            }
+            logger.debug("ChallengePhraseAuthentication: challenge authentication serialno array not null");
+            for (int i = 0; i < bigIntArray.length; i++)
+                logger.debug("ChallengePhraseAuthentication: challenge auth serialno " + bigIntArray[i]);
         }
-        if (Debug.ON) {
-            Debug.trace("challenge authentication set " + TOKEN_CERT_SERIAL);
-        }
+        logger.debug("ChallengePhraseAuthentication: challenge authentication set " + TOKEN_CERT_SERIAL);
         authToken.set(TOKEN_CERT_SERIAL, bigIntArray);
 
         return authToken;
@@ -298,9 +294,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
         }
 
         if (pwd == null) {
-            if (Debug.ON) {
-                Debug.trace("challenge pwd is null");
-            }
+            logger.warn("ChallengePhraseAuthentication: challenge pwd is null");
             return false;
         }
         String hashpwd = hashPassword(pwd);
@@ -310,9 +304,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
                 (String) metaInfo.get(CertRecord.META_CHALLENGE_PHRASE);
 
         if (challengeString == null) {
-            if (Debug.ON) {
-                Debug.trace("challengeString null");
-            }
+            logger.warn("ChallengePhraseAuthentication: challengeString null");
             return false;
         }
 
