@@ -24,6 +24,10 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -48,12 +52,8 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.util.Debug;
 
 import netscape.ldap.LDAPConnection;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 public class LdapPublishModule implements ILdapPublishModule {
 
@@ -187,8 +187,7 @@ public class LdapPublishModule implements ILdapPublishModule {
 
         if (types == null || types.size() <= 0) {
             // nothing configured.
-            if (Debug.ON)
-                System.out.println("No ldap publishing configurations.");
+            logger.debug("No ldap publishing configurations.");
             return;
         }
         Enumeration<String> substores = types.getSubStoreNames();

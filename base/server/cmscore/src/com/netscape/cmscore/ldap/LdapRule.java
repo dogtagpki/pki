@@ -27,12 +27,14 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.publish.ILdapExpression;
 import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
-import com.netscape.cmscore.util.Debug;
 
 /**
  * The publishing rule that links mapper and publisher together.
  */
 public class LdapRule implements ILdapRule, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapRule.class);
+
     public final static String NOMAPPER = "<NONE>";
 
     private IConfigStore mConfig = null;
@@ -49,14 +51,13 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
 
     public String[] getExtendedPluginInfo(Locale locale) {
         //dont know why it's null here.
-        //if (mProcessor == null) System.out.println("p null");
+        //if (mProcessor == null) logger.warn("p null");
 
-        if (Debug.ON) {
-            Debug.trace("LdapRule: getExtendedPluginInfo() - returning epi_params:");
-            for (int i = 0; i < epi_params.length; i++) {
-                Debug.trace("[" + i + "]  " + epi_params[i]);
-            }
+        logger.trace("LdapRule: getExtendedPluginInfo() - returning epi_params:");
+        for (int i = 0; i < epi_params.length; i++) {
+            logger.trace("[" + i + "]  " + epi_params[i]);
         }
+
         return epi_params;
     }
 
