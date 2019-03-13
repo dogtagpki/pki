@@ -33,6 +33,7 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class TokenAuthenticate extends CMSServlet {
@@ -63,6 +64,8 @@ public class TokenAuthenticate extends CMSServlet {
     protected void process(CMSRequest cmsReq) throws Exception {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = CMS.getConfigStore();
 
         String sessionId = httpReq.getParameter("sessionID");
@@ -76,7 +79,7 @@ public class TokenAuthenticate extends CMSServlet {
         } catch (Exception e) {
         }
 
-        ISecurityDomainSessionTable table = CMS.getSecurityDomainSessionTable();
+        ISecurityDomainSessionTable table = engine.getSecurityDomainSessionTable();
         String uid = "";
         String gid = "";
         logger.debug("TokenAuthentication: checking session in the session table");

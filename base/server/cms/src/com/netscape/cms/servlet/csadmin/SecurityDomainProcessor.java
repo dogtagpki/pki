@@ -52,6 +52,7 @@ import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -89,6 +90,7 @@ public class SecurityDomainProcessor extends CAProcessor {
             String subsystem) throws Exception {
 
         subsystem = subsystem.toUpperCase();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IUGSubsystem ugSubsystem = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
 
         String group = getEnterpriseGroupName(subsystem);
@@ -122,7 +124,7 @@ public class SecurityDomainProcessor extends CAProcessor {
         String auditParams = "operation;;issue_token+token;;" + sessionID + "+ip;;" + ip +
                       "+uid;;" + user + "+groupname;;" + group;
 
-        ISecurityDomainSessionTable ctable = CMS.getSecurityDomainSessionTable();
+        ISecurityDomainSessionTable ctable = engine.getSecurityDomainSessionTable();
         int status = ctable.addEntry(sessionID, ip, user, group);
         String message;
 

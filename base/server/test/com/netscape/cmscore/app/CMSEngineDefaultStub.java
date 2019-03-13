@@ -9,7 +9,6 @@ import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 
@@ -137,10 +136,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public IArgBlock createArgBlock() {
-        return null;
-    }
-
-    public ISecurityDomainSessionTable getSecurityDomainSessionTable() {
         return null;
     }
 

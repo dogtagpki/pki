@@ -25,7 +25,6 @@ import java.util.Locale;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 
@@ -256,8 +255,6 @@ public interface ICMSEngine extends ISubsystem {
      * Creates argument block.
      */
     public IArgBlock createArgBlock(Hashtable<String, String> httpReq);
-
-    public ISecurityDomainSessionTable getSecurityDomainSessionTable();
 
     public void sleepOneMinute(); // for debug only
 
