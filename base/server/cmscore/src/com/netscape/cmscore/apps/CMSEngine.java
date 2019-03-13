@@ -1384,18 +1384,6 @@ public class CMSEngine implements ICMSEngine {
         Debug.printStackTrace();
     }
 
-    public void traceHashKey(String type, String key) {
-        Debug.traceHashKey(type, key);
-    }
-
-    public void traceHashKey(String type, String key, String val) {
-        Debug.traceHashKey(type, key, val);
-    }
-
-    public void traceHashKey(String type, String key, String val, String def) {
-        Debug.traceHashKey(type, key, val, def);
-    }
-
     public IMailNotification getMailNotification() {
         try {
             String className = mConfig.getString("notificationClassName",

@@ -141,15 +141,6 @@ public interface ICMSEngine extends ISubsystem {
     public void debugStackTrace();
 
     /**
-     * Dump name/value pair debug information to debug file
-     */
-    public void traceHashKey(String type, String key);
-
-    public void traceHashKey(String type, String key, String val);
-
-    public void traceHashKey(String type, String key, String val, String def);
-
-    /**
      * Retrieves the localized user message from UserMessages.properties.
      *
      * @param locale end-user locale

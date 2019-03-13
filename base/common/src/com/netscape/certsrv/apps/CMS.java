@@ -160,40 +160,6 @@ public final class CMS {
             _engine.debugStackTrace();
     }
 
-    /*
-     * If debugging for the particular realm is enabled, output name/value
-     * pair info to the debug file. This is useful to dump out what hidden
-     * config variables the server is looking at, or what HTTP variables it
-     * is expecting to find, or what database attributes it is looking for.
-     * @param type indicates what the source of key/val is. For example,
-     *     this could be 'CS.cfg', or something else. In the debug
-     *     subsystem, there is a mechanism to filter this so only the types
-     *     you care about are listed
-     * @param key  the 'key' of the hashtable which is being accessed.
-     *     This could be the name of the config parameter, or the http param
-     *     name.
-     * @param val  the value of the parameter
-     * @param default the default value if the param is not found
-     */
-
-    public static void traceHashKey(String type, String key) {
-        if (_engine != null) {
-            _engine.traceHashKey(type, key);
-        }
-    }
-
-    public static void traceHashKey(String type, String key, String val) {
-        if (_engine != null) {
-            _engine.traceHashKey(type, key, val);
-        }
-    }
-
-    public static void traceHashKey(String type, String key, String val, String def) {
-        if (_engine != null) {
-            _engine.traceHashKey(type, key, val, def);
-        }
-    }
-
     /**
      * Retrieves the registered subsytem with the given name.
      *

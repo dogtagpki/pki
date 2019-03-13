@@ -83,15 +83,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public void debugStackTrace() {
     }
 
-    public void traceHashKey(String type, String key) {
-    }
-
-    public void traceHashKey(String type, String key, String val) {
-    }
-
-    public void traceHashKey(String type, String key, String val, String def) {
-    }
-
     public String getUserMessage(Locale locale, String msgID) {
         return null;
     }

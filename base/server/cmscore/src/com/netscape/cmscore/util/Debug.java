@@ -71,39 +71,6 @@ public class Debug
         }
     }
 
-    private static boolean hkdotype(String type) {
-        if (mHK != null && mHK.get(type) != null) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public static void traceHashKey(String type, String key) {
-        if (hkdotype(type)) {
-            trace("GET r=" + type + ",k=" + key);
-        }
-    }
-
-    public static void traceHashKey(String type, String key, String val) {
-        if (hkdotype(type)) {
-            trace("GET r=" + type + ",k=" + key + ",v=" + val);
-        }
-    }
-
-    public static void traceHashKey(String type, String key, String val, String def) {
-        if (hkdotype(type)) {
-            trace("GET r=" + type + ",k=" +
-                     key + ",v=" + val + ",d=" + def);
-        }
-    }
-
-    public static void putHashKey(String type, String key, String value) {
-        if (hkdotype(type)) {
-            trace("PUT r=" + type + ",k=" + key + ",v=" + value);
-        }
-    }
-
     public static void trace(String t) {
         trace(VERBOSE, t);
     }
