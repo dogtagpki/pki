@@ -32,7 +32,6 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.http.HttpResponse;
 
 public class LocalConnector implements IConnector {
@@ -60,13 +59,8 @@ public class LocalConnector implements IConnector {
      * returns resulting request
      */
     public boolean send(IRequest r) throws EBaseException {
-        if (Debug.ON) {
-            Debug.print("send request type "
-                    + r.getRequestType() + " status=" + r.getRequestStatus() + " to " + mDest.getId() + " id="
-                    + r.getRequestId() + "\n");
-        }
-        logger.debug("send request type " + r.getRequestType() +
-                " to " + mDest.getId());
+        logger.debug("send request type " + r.getRequestType() + " status=" + r.getRequestStatus());
+        logger.debug("to " + mDest.getId() + " id=" + r.getRequestId());
 
         IRequestQueue destQ = mDest.getRequestQueue();
         IRequest destreq = destQ.newRequest(r.getRequestType());
@@ -140,11 +134,7 @@ public class LocalConnector implements IConnector {
         }
 
         public void accept(IRequest destreq) {
-            if (Debug.ON) {
-                Debug.print("dest " + mDest.getId() + " done with " + destreq.getRequestId());
-            }
-            logger.debug(
-                    "dest " + mDest.getId() + " done with " + destreq.getRequestId());
+            logger.debug("dest " + mDest.getId() + " done with " + destreq.getRequestId());
 
             IRequestQueue sourceQ = mSource.getRequestQueue();
             // accept requests that only belong to us.
