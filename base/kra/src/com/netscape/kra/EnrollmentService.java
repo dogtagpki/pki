@@ -32,6 +32,17 @@ import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
@@ -65,18 +76,6 @@ import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
-import org.mozilla.jss.netscape.security.util.BigInt;
-import org.mozilla.jss.netscape.security.util.DerInputStream;
-import org.mozilla.jss.netscape.security.util.DerOutputStream;
-import org.mozilla.jss.netscape.security.util.DerValue;
-import org.mozilla.jss.netscape.security.util.WrappingParams;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * A class represents archival request processor. It
@@ -95,6 +94,7 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
  */
 public class EnrollmentService implements IService {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollmentService.class);
     private static Logger transactionLogger = Logger.getLogger(ILogger.EV_AUDIT, ILogger.S_KRA);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
@@ -129,7 +129,7 @@ public class EnrollmentService implements IService {
             archOpts = (PKIArchiveOptions)
                     (new PKIArchiveOptions.Template()).decode(bis);
         } catch (Exception e) {
-            CMS.debug("EnrollProfile: getPKIArchiveOptions " + e.toString());
+            logger.warn("EnrollProfile: getPKIArchiveOptions " + e.getMessage(), e);
         }
         return archOpts;
     }
@@ -164,8 +164,7 @@ public class EnrollmentService implements IService {
         String auditPublicKey = ILogger.UNIDENTIFIED;
         RequestId requestId = request.getRequestId();
 
-        if (CMS.debugOn())
-            CMS.debug("EnrollmentServlet: KRA services enrollment request");
+        logger.debug("EnrollmentServlet: KRA services enrollment request");
 
         // the request record field delayLDAPCommit == "true" will cause
         // updateRequest() to delay actual write to ldap
@@ -173,14 +172,14 @@ public class EnrollmentService implements IService {
 
         String transportCert = request.getExtDataInString(IEnrollProfile.REQUEST_TRANSPORT_CERT);
         if (transportCert != null && transportCert.length() > 0) {
-            //CMS.debug("EnrollmentService: serviceRequest: transportCert=" + transportCert);
-            CMS.debug("EnrollmentService: serviceRequest: transportCert is in request");
+            //logger.debug("EnrollmentService: serviceRequest: transportCert=" + transportCert);
+            logger.debug("EnrollmentService: serviceRequest: transportCert is in request");
             request.deleteExtData(IEnrollProfile.REQUEST_TRANSPORT_CERT);
         } else {
-            CMS.debug("EnrollmentService: serviceRequest: Missing transport certificate");
+            logger.warn("EnrollmentService: serviceRequest: Missing transport certificate");
         }
         org.mozilla.jss.crypto.X509Certificate tCert =  mTransportUnit.verifyCertificate(transportCert);
-        CMS.debug("EnrollmentService: tCert=" + ((tCert != null)?tCert.getSerialNumber().toString()+":"+
+        logger.debug("EnrollmentService: tCert=" + ((tCert != null)?tCert.getSerialNumber().toString()+":"+
                    tCert.getSubjectDN().toString()+":":"Invalid transport certificate"));
 
         SessionContext sContext = SessionContext.getContext();
@@ -231,15 +230,14 @@ public class EnrollmentService implements IService {
 
             if (allowEncDecrypt_archival == true) {
                 if (tCert == null) {
-                    CMS.debug("EnrollmentService: Invalid transport certificate: " + transportCert);
+                    logger.error("EnrollmentService: Invalid transport certificate: " + transportCert);
                     throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"));
                 }
                 if (statsSub != null) {
                     statsSub.startTiming("decrypt_user_key");
                 }
                 mKRA.log(ILogger.LL_INFO, "KRA decrypts external private");
-                if (CMS.debugOn())
-                    CMS.debug("EnrollmentService::about to decryptExternalPrivate");
+                logger.debug("EnrollmentService::about to decryptExternalPrivate");
 
                 try {
                     tmp_unwrapped = mTransportUnit.decryptExternalPrivate(
@@ -266,8 +264,7 @@ public class EnrollmentService implements IService {
                 if (statsSub != null) {
                     statsSub.endTiming("decrypt_user_key");
                 }
-                if (CMS.debugOn())
-                    CMS.debug("EnrollmentService::finished decryptExternalPrivate");
+                logger.debug("EnrollmentService::finished decryptExternalPrivate");
 
                 /* making sure leading 0's are removed */
                 int first = 0;
@@ -305,19 +302,19 @@ public class EnrollmentService implements IService {
             }
 
             String keyAlg = publicKey.getAlgorithm();
-            CMS.debug("EnrollmentService: algorithm of key to archive is: "+ keyAlg);
+            logger.debug("EnrollmentService: algorithm of key to archive is: "+ keyAlg);
 
             PublicKey pubkey = null;
             org.mozilla.jss.crypto.PrivateKey entityPrivKey = null;
             if ( allowEncDecrypt_archival == false) {
                 if (tCert == null) {
-                    CMS.debug("EnrollmentService: Invalid transport certificate: "+transportCert);
+                    logger.error("EnrollmentService: Invalid transport certificate: " + transportCert);
                     throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"));
                 }
                 try {
                     pubkey = X509Key.parsePublicKey (new DerValue(publicKeyData));
                 } catch (Exception e) {
-                    CMS.debug("EnrollmentService: parsePublicKey:"+e.toString());
+                    logger.error("EnrollmentService: parsePublicKey:" + e.getMessage(), e);
                     throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"), e);
                 }
@@ -358,7 +355,7 @@ public class EnrollmentService implements IService {
                     verifyKeyPair(publicKeyData, unwrapped);
 
                 } catch (Exception e) {
-                    CMS.debug(e);
+                    logger.error("EnrollmentService: " + e.getMessage(), e);
 
                     JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(unwrapped);
@@ -497,8 +494,8 @@ public class EnrollmentService implements IService {
                         }
                     }
                 } catch (Exception e) {
-                    CMS.debug("EnrollmentService: ASN1Util.getECCurveBytesByX509PublicKeyByte() throws exception: "+ e.toString());
-                    CMS.debug("EnrollmentService: exception alowed. continue");
+                    logger.warn("EnrollmentService: ASN1Util.getECCurveBytesByX509PublicKeyByte() throws exception: "+ e.getMessage(), e);
+                    logger.warn("EnrollmentService: exception alowed. continue");
                 }
 
                 metaInfo.set(KeyRecordParser.OUT_KEY_EC_CURVE,
@@ -587,8 +584,7 @@ public class EnrollmentService implements IService {
                 statsSub.endTiming("store_key");
             }
 
-            if (CMS.debugOn())
-                CMS.debug("EnrollmentService: key record 0x" + serialNo.toString(16)
+            logger.debug("EnrollmentService: key record 0x" + serialNo.toString(16)
                         + " (" + owner + ") archived");
 
             mKRA.log(ILogger.LL_INFO, "key record 0x" +
@@ -705,13 +701,13 @@ public class EnrollmentService implements IService {
             BigInt privateKeyExponent = privateKeyDerIn.getInteger();
 
             if (!publicKeyModulus.equals(privateKeyModulus)) {
-                CMS.debug("verifyKeyPair modulus mismatch publicKeyModulus="
+                logger.error("verifyKeyPair modulus mismatch publicKeyModulus="
                         + publicKeyModulus + " privateKeyModulus=" + privateKeyModulus);
                 throw new Exception("Modulus mismatch");
             }
 
             if (!publicKeyExponent.equals(privateKeyExponent)) {
-                CMS.debug("verifyKeyPair exponent mismatch publicKeyExponent="
+                logger.error("verifyKeyPair exponent mismatch publicKeyExponent="
                         + publicKeyExponent + " privateKeyExponent=" + privateKeyExponent);
                 throw new Exception("Exponent mismatch");
             }
@@ -732,8 +728,7 @@ public class EnrollmentService implements IService {
             throws EBaseException {
         Vector<PKIArchiveOptionsContainer> options = new Vector<PKIArchiveOptionsContainer>();
 
-        if (CMS.debugOn())
-            CMS.debug("EnrollmentService::getPKIArchiveOptions> crmfBlob=" + crmfBlob);
+        logger.debug("EnrollmentService::getPKIArchiveOptions> crmfBlob=" + crmfBlob);
         byte[] crmfBerBlob = null;
 
         crmfBerBlob = Utils.base64decode(crmfBlob);
@@ -821,9 +816,9 @@ public class EnrollmentService implements IService {
                             new ByteArrayInputStream(certKeyData));
 
                     return (X509Key) x509key.get(CertificateX509Key.KEY);
+
                 } catch (Exception e1) {
-                    CMS.debug("EnrollService: (Archival) getPublicKey " +
-                            e1.toString());
+                    logger.warn("EnrollService: (Archival) getPublicKey " + e1.getMessage(), e1);
                 }
             }
             return null;
