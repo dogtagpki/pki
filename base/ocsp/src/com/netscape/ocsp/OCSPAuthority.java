@@ -60,7 +60,6 @@ import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.KeyHashID;
@@ -80,6 +79,7 @@ import com.netscape.cmsutil.ocsp.ResponseData;
  */
 public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, IAuthority {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPAuthority.class);
     private static final Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private long mServedTime = 0;
@@ -316,13 +316,11 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_SIGNING", e.toString()));
         } catch (CertificateException e) {
-            if (Debug.ON)
-                e.printStackTrace();
+            logger.warn("OCSPAuthority: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()));
         } catch (TokenException e) {
-            if (Debug.ON)
-                e.printStackTrace();
+            logger.warn("OCSPAuthority: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()));
         }
