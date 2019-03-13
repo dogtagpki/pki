@@ -35,7 +35,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.cmscore.util.Debug;
 
 /**
  *
@@ -43,6 +42,8 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision
  */
 public class OidLoaderSubsystem implements ISubsystem {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OidLoaderSubsystem.class);
 
     private IConfigStore mConfig = null;
     public static final String ID = "oidmap";
@@ -128,9 +129,7 @@ public class OidLoaderSubsystem implements ISubsystem {
      */
     public synchronized void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        if (Debug.ON) {
-            Debug.trace("OIDLoaderSubsystem started");
-        }
+        logger.trace("OIDLoaderSubsystem started");
         mConfig = config;
 
         Enumeration<String> names = mConfig.getSubStoreNames();
