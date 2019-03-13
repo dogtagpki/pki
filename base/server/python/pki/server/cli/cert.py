@@ -38,6 +38,8 @@ import pki.client as client
 import pki.cert
 import pki.nssdb
 
+logger = logging.getLogger(__name__)
+
 
 class CertCLI(pki.cli.CLI):
     def __init__(self):
@@ -325,7 +327,6 @@ class CertCreateCLI(pki.cli.CLI):
         # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('  -v, --verbose                   Run in verbose mode.')
         print('  -d <database>                   Security database location '
               '(default: ~/.dogtag/nssdb)')
         print('  -c <NSS DB password>            NSS database password')
@@ -336,14 +337,20 @@ class CertCreateCLI(pki.cli.CLI):
         print('      --serial <number>           Provide serial number for the certificate.')
         print('      --output <file>             Provide output file name.')
         print('      --renew                     Renew permanent certificate.')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Show debug messages.')
         print('      --help                      Show help message.')
         print()
 
     def execute(self, argv):
+
+        logging.basicConfig(format='%(levelname)s: %(message)s')
+
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:d:c:C:n:v', [
-                'instance=', 'verbose', 'temp', 'serial=',
-                'output=', 'renew', 'help'])
+                'instance=', 'temp', 'serial=',
+                'output=', 'renew',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -365,9 +372,6 @@ class CertCreateCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
-            elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
-
             elif o == '-d':
                 client_nssdb_location = a
 
@@ -380,10 +384,6 @@ class CertCreateCLI(pki.cli.CLI):
             elif o == '-n':
                 client_cert = a
 
-            elif o == '--help':
-                self.usage()
-                sys.exit()
-
             elif o == '--temp':
                 create_temp_cert = True
 
@@ -395,6 +395,19 @@ class CertCreateCLI(pki.cli.CLI):
 
             elif o == '--renew':
                 renew = True
+
+            elif o in ('-v', '--verbose'):
+                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                self.set_verbose(True)
+                self.set_debug(True)
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.usage()
+                sys.exit()
 
             else:
                 self.print_message('ERROR: unknown option ' + o)
@@ -467,6 +480,7 @@ class CertCreateCLI(pki.cli.CLI):
 
                     # Add 1 and then rewrap it as a string
                     serial = str(serial + 1)
+
             else:
                 # Create permanent certificate
                 if not renew:
@@ -515,24 +529,24 @@ class CertCreateCLI(pki.cli.CLI):
         csr_file = os.path.join(tmpdir, cert_id + '.csr')
         ca_cert_file = os.path.join(tmpdir, 'ca_certificate.crt')
 
-        # Export the CSR for the cert
+        logger.debug('Exporting CSR for %s cert', cert_id)
+
         cert_request = subsystem.get_subsystem_cert(cert_id).get('request', None)
         if cert_request is None:
-            print("ERROR: Unable to find certificate request for %s" % cert_id)
+            logger.error('Unable to find CSR for %s cert', cert_id)
             sys.exit(1)
 
         csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
         with open(csr_file, 'w') as f:
             f.write(csr_data)
 
-        # Extract SKI
-        # 1. Get the CA certificate
-        # 2. Then get the SKI from it
+        logger.debug('Extracting SKI from CA cert')
         # TODO: Support remote CA.
+
         ca_signing_cert = instance.get_subsystem('ca').get_subsystem_cert('signing')
         ca_cert_data = ca_signing_cert.get('data', None)
         if ca_cert_data is None:
-            print("ERROR: Unable to find certificate data for CA signing certificate.")
+            logger.error('Unable to find certificate data for CA signing certificate.')
             sys.exit(1)
 
         ca_cert = pki.nssdb.convert_cert(ca_cert_data, 'base64', 'pem')
@@ -547,11 +561,14 @@ class CertCreateCLI(pki.cli.CLI):
             '-text'
         ]
 
+        logger.debug('Command: %s', ' '.join(ca_cert_retrieve_cmd))
         ca_cert_details = subprocess.check_output(ca_cert_retrieve_cmd)
+
         aki = re.search(r'Subject Key Identifier.*\n.*?(.*?)\n', ca_cert_details).group(1)
 
         # Add 0x to represent this is a Hex
         aki = '0x' + aki.strip().replace(':', '')
+        logger.debug('AKI: %s', aki)
 
         return ca_signing_cert, aki, csr_file
 
@@ -654,12 +671,12 @@ class CertCreateCLI(pki.cli.CLI):
 
     def create_ssl_cert(self, instance, subsystem, serial, is_temp_cert, tmpdir,
                         new_cert_file, nssdb, connection):
-        if self.verbose:
-            print('Creating SSL server certificate.')
+
+        logger.info('Creating SSL server certificate.')
 
         if is_temp_cert:
 
-            # Generate temp SSL Certificate signed by CA
+            logger.info('Generate temp SSL certificate')
 
             ca_signing_cert, aki, csr_file = self.setup_temp_renewal(
                 instance=instance, subsystem=subsystem, tmpdir=tmpdir, cert_id='sslserver')
@@ -697,12 +714,13 @@ class CertCreateCLI(pki.cli.CLI):
 
         else:
 
+            logger.info('Renewing SSL certificate')
+
             if not serial:
                 # If serial number is not provided, get Serial Number from NSS db
                 serial = subsystem.get_subsystem_cert('sslserver')["serial_number"]
 
-            if self.verbose:
-                print('Renewing for certificate with serial number: %s' % serial)
+            logger.info('Serial number: %s', serial)
 
             self.renew_system_certificate(connection=connection,
                                           output=new_cert_file, serial=serial)
@@ -745,6 +763,8 @@ class CertCreateCLI(pki.cli.CLI):
                                           output=new_cert_file, serial=serial)
 
     def create_audit_cert(self, subsystem, is_temp_cert, new_cert_file, serial, connection):
+
+        logger.info('Creating audit certificate')
 
         if is_temp_cert:
             raise Exception('Temp certificate for audit signing is not supported.')
