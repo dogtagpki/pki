@@ -1280,9 +1280,7 @@ def ldap_password_authn(instance, subsystems):
         password = instance.passwords['internaldb']
     except KeyError:
         # generate a new password and write it to file
-        rnd = random.SystemRandom()
-        xs = "abcdefghijklmnopqrstuvwxyz0123456789"
-        password = ''.join(rnd.choice(xs) for i in range(32))
+        password = gen_random_password()
         instance.passwords['internaldb'] = password
         instance.store_passwords()
         generated_password = True
@@ -1316,12 +1314,7 @@ def ldap_password_authn(instance, subsystems):
                 logger.info('Setting pkidbuser password via ldappasswd')
                 subprocess.check_call([
                     'echo', "Enter Directory Manager password."])
-                subprocess.check_call([
-                    'ldappasswd',
-                    '-D', 'cn=Directory Manager', '-W',
-                    '-s', password,
-                    bind_dn,
-                ])
+                ldappasswd(bind_dn, password)
                 ldappasswd_performed = True
 
         elif authtype == 'BasicAuth':
@@ -1345,3 +1338,24 @@ def ldap_password_authn(instance, subsystems):
         if generated_password:
             del instance.passwords['internaldb']
             instance.store_passwords()
+
+
+def ldappasswd(user_dn, password):
+    """
+    Run ldappasswd as Directory Manager.
+
+    Raise CalledProcessError on error.
+
+    """
+    subprocess.check_call([
+        'ldappasswd',
+        '-D', 'cn=Directory Manager', '-W',
+        '-s', password,
+        user_dn,
+    ])
+
+
+def gen_random_password():
+    rnd = random.SystemRandom()
+    xs = "abcdefghijklmnopqrstuvwxyz0123456789"
+    return ''.join(rnd.choice(xs) for i in range(32))
