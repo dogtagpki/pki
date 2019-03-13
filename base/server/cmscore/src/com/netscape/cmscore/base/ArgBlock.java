@@ -27,13 +27,13 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.KeyGenInfo;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This class represents a set of indexed arguments.
@@ -44,9 +44,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
  */
 public class ArgBlock implements IArgBlock {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ArgBlock.class);
     private static final long serialVersionUID = -6054531129316353282L;
     /*==========================================================
      * variables
@@ -113,7 +111,7 @@ public class ArgBlock implements IArgBlock {
      * @return true if key is present
      */
     public boolean isValuePresent(String n) {
-        CMS.traceHashKey(mType, n);
+        logger.trace("GET r={},k={}", mType, n);
         if (mArgs.get(n) != null) {
             return true;
         } else {
@@ -145,7 +143,7 @@ public class ArgBlock implements IArgBlock {
      */
     public String getValueAsString(String n) throws EBaseException {
         String t = (String) mArgs.get(n);
-        CMS.traceHashKey(mType, n, t);
+        logger.trace("GET r={},k={},v={}", mType, n, t);
 
         if (t != null) {
             return t;
@@ -163,7 +161,7 @@ public class ArgBlock implements IArgBlock {
      */
     public String getValueAsString(String n, String def) {
         String val = (String) mArgs.get(n);
-        CMS.traceHashKey(mType, n, val, def);
+        logger.trace("GET r={},k={},v={},d={}", mType, n, val, def);
 
         if (val != null) {
             return val;
@@ -181,7 +179,7 @@ public class ArgBlock implements IArgBlock {
      */
     public int getValueAsInt(String n) throws EBaseException {
         if (mArgs.get(n) != null) {
-            CMS.traceHashKey(mType, n, (String) mArgs.get(n));
+            logger.trace("GET r={},k={},v={}", mType, n, mArgs.get(n));
             try {
                 return new Integer((String) mArgs.get(n)).intValue();
             } catch (NumberFormatException e) {
@@ -189,7 +187,7 @@ public class ArgBlock implements IArgBlock {
                         CMS.getUserMessage("CMS_BASE_INVALID_ATTR_TYPE", n, e.toString()));
             }
         } else {
-            CMS.traceHashKey(mType, n, "<notpresent>");
+            logger.trace("GET r={},k={},v={}", mType, n, "<notpresent>");
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", n));
         }
     }
@@ -202,7 +200,7 @@ public class ArgBlock implements IArgBlock {
      * @return argument value as int
      */
     public int getValueAsInt(String n, int def) {
-        CMS.traceHashKey(mType, n, (String) mArgs.get(n), "" + def);
+        logger.trace("GET r={},k={},v={},d={}", mType, n, mArgs.get(n), def);
         if (mArgs.get(n) != null) {
             try {
                 return new Integer((String) mArgs.get(n)).intValue();
@@ -295,7 +293,7 @@ public class ArgBlock implements IArgBlock {
      */
     public boolean getValueAsBoolean(String name) throws EBaseException {
         String val = (String) mArgs.get(name);
-        CMS.traceHashKey(mType, name, val);
+        logger.trace("GET r={},k={},v={}", mType, name, val);
 
         if (val != null) {
             if (val.equalsIgnoreCase("true") ||
@@ -335,9 +333,10 @@ public class ArgBlock implements IArgBlock {
      */
     public KeyGenInfo getValueAsKeyGenInfo(String name, KeyGenInfo def)
             throws EBaseException {
+
+        logger.trace("GET r={},k={}", mType, name);
         KeyGenInfo keyGenInfo;
 
-        CMS.traceHashKey(mType, name);
         if (mArgs.get(name) != null) {
             try {
                 keyGenInfo = new KeyGenInfo((String) mArgs.get(name));
@@ -363,7 +362,7 @@ public class ArgBlock implements IArgBlock {
         PKCS10 request;
 
         if (mArgs.get(name) != null) {
-            CMS.traceHashKey(mType, name, (String) mArgs.get(name));
+            logger.trace("GET r={},k={},v={}", mType, name, mArgs.get(name));
 
             String tempStr = unwrap((String) mArgs.get(name), false);
 
@@ -378,7 +377,7 @@ public class ArgBlock implements IArgBlock {
                         CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, e.toString()));
             }
         } else {
-            CMS.traceHashKey(mType, name, "<notpresent>");
+            logger.trace("GET r={},k={},v={}", mType, name, "<notpresent>");
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", name));
         }
 
@@ -396,9 +395,10 @@ public class ArgBlock implements IArgBlock {
      */
     public PKCS10 getValueAsRawPKCS10(String name, PKCS10 def)
             throws EBaseException {
+
+        logger.trace("GET r={},k={}", mType, name);
         PKCS10 request;
 
-        CMS.traceHashKey(mType, name);
         if (mArgs.get(name) != null) {
 
             String tempStr = unwrap((String) mArgs.get(name), false);
@@ -427,9 +427,10 @@ public class ArgBlock implements IArgBlock {
      */
     public PKCS10 getValueAsPKCS10(String name, boolean checkheader)
             throws EBaseException {
+
+        logger.trace("GET r={},k={}", mType, name);
         PKCS10 request;
 
-        CMS.traceHashKey(mType, name);
         if (mArgs.get(name) != null) {
 
             String tempStr = unwrap((String) mArgs.get(name), checkheader);
@@ -463,9 +464,9 @@ public class ArgBlock implements IArgBlock {
     public PKCS10 getValueAsPKCS10(
             String name, boolean checkheader, PKCS10 def)
             throws EBaseException {
-        PKCS10 request;
 
-        CMS.traceHashKey(mType, name);
+        logger.trace("GET r={},k={}", mType, name);
+        PKCS10 request;
 
         if (mArgs.get(name) != null) {
 
@@ -496,9 +497,10 @@ public class ArgBlock implements IArgBlock {
      */
     public PKCS10 getValuePKCS10(String name, PKCS10 def)
             throws EBaseException {
+
+        logger.trace("GET r={},k={}", mType, name);
         PKCS10 request;
         String p10b64 = (String) mArgs.get(name);
-        CMS.traceHashKey(mType, name);
 
         if (p10b64 != null) {
 
@@ -530,7 +532,7 @@ public class ArgBlock implements IArgBlock {
      * @return object value
      */
     public Object get(String name) {
-        CMS.traceHashKey(mType, name);
+        logger.trace("GET r={},k={}", mType, name);
         return mArgs.get(name);
     }
 
