@@ -441,8 +441,12 @@ class CertCreateCLI(pki.cli.CLI):
         instance.load()
 
         try:
-            instance.cert_create(cert_id, client_cert, client_nssdb, client_nssdb_password,
-                                 client_nssdb_pass_file, serial, temp_cert, renew, output)
+            instance.cert_create(
+                cert_id=cert_id,
+                client_cert=client_cert, client_nssdb=client_nssdb,
+                client_nssdb_pass=client_nssdb_password,
+                client_nssdb_pass_file=client_nssdb_pass_file,
+                serial=serial, temp_cert=temp_cert, renew=renew, output=output)
 
         except server.PKIServerException as e:
             logger.error(str(e))
