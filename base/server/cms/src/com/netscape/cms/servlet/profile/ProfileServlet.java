@@ -57,9 +57,8 @@ import com.netscape.cms.servlet.common.ServletUtils;
  */
 public class ProfileServlet extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileServlet.class);
+
     private static final long serialVersionUID = -7011378748671762375L;
     public final static String ARG_ERROR_CODE = "errorCode";
     public final static String ARG_ERROR_REASON = "errorReason";
@@ -253,7 +252,7 @@ public class ProfileServlet extends CMSServlet {
                 response.setContentLength(bos.size());
                 bos.writeTo(response.getOutputStream());
             } catch (Exception e) {
-                CMS.debug("outputTemplate error " + e);
+                logger.warn("outputTemplate error " + e.getMessage(), e);
             }
             return;
         }
@@ -287,9 +286,11 @@ public class ProfileServlet extends CMSServlet {
                 }
             } while (line != null);
             reader.close();
+
         } catch (IOException e) {
-            CMS.debug(e);
-            throw new EBaseException(e.toString());
+            logger.error("ProfileServlet: " + e.getMessage(), e);
+            throw new EBaseException(e.getMessage(), e);
+
         } finally {
             if (statsSub != null) {
                 statsSub.endTiming("output_template");
@@ -307,7 +308,7 @@ public class ProfileServlet extends CMSServlet {
                 response.setContentLength(bos.size());
                 bos.writeTo(response.getOutputStream());
             } catch (Exception e) {
-                CMS.debug("outputTemplate error " + e);
+                logger.warn("outputTemplate error " + e.getMessage(), e);
             }
             return;
         }
@@ -338,9 +339,11 @@ public class ProfileServlet extends CMSServlet {
                 }
             } while (line != null);
             reader.close();
+
         } catch (IOException e) {
-            CMS.debug(e);
-            throw new EBaseException(e.toString());
+            logger.error("ProfileServlet: " + e.getMessage(), e);
+            throw new EBaseException(e.getMessage(), e);
+
         } finally {
             endTiming("output_template");
         }
