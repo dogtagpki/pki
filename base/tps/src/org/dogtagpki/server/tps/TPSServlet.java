@@ -37,11 +37,21 @@ public class TPSServlet extends HttpServlet {
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String encoding = request.getHeader("Transfer-Encoding");
+        String method = request.getMethod();
 
         CMS.debug("Encoding: " + encoding);
+        CMS.debug("Method: " + method);
 
-        if (encoding.equals("chunked") == false) {
-            throw new IOException("TPSServlet.service: incorrect encoding! ");
+        if(!"POST".equals(method)) {
+        	response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        	CMS.debug("Returning 405 Method Not Allowed - the HTTP method must be POST");
+        	return;
+        }
+
+        if(!"chunked".equals(encoding)) {
+        	response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        	CMS.debug("Returning 400 Bad Request - Transfer-Encoding is not chunked");
+        	return;
         }
 
         response.setHeader("Transfer-Encoding", "chunked");
