@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BaseSubsystem;
@@ -46,7 +47,6 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 import netscape.ldap.LDAPAttribute;
@@ -60,7 +60,6 @@ import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * This class defines low-level LDAP usr/grp management
@@ -841,9 +840,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                         );
 
             } catch (LDAPException e) {
-                if (Debug.ON) {
-                    e.printStackTrace();
-                }
+                logger.error("UGSubsystem: " + e.getMessage(), e);
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
                 throw LDAPExceptionConverter.toPKIException(e);
 
@@ -892,9 +889,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                         );
 
             } catch (LDAPException e) {
-                if (Debug.ON) {
-                    e.printStackTrace();
-                }
+                logger.error("UGSubsystem: " + e.getMessage(), e);
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
                 throw LDAPExceptionConverter.toPKIException(e);
 
@@ -944,9 +939,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                         );
 
             } catch (LDAPException e) {
-                if (Debug.ON) {
-                    e.printStackTrace();
-                }
+                logger.error("UGSubsystem: " + e.getMessage(), e);
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
                 throw LDAPExceptionConverter.toPKIException(e);
 
@@ -1641,7 +1634,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             return false;
         }
 
-        Debug.trace("UGSubsystem.isMemberOf() using new lookup code");
+        logger.trace("UGSubsystem.isMemberOf() using new lookup code");
         return isMemberOfLdapGroup(id.getUserDN(), name);
     }
 
@@ -1664,8 +1657,8 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             ldapconn = getConn();
 
             String filter = "(uniquemember=" + LDAPUtil.escapeFilter(userid) + ")";
-            Debug.trace("authorization search base: " + basedn);
-            Debug.trace("authorization search filter: " + filter);
+            logger.trace("authorization search base: " + basedn);
+            logger.trace("authorization search filter: " + filter);
             LDAPSearchResults res =
                     ldapconn.search(basedn, LDAPv2.SCOPE_BASE,
                             filter,
@@ -1677,20 +1670,20 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                 res.nextElement(); // consume the entry
                 founduser = true;
             }
-            Debug.trace("authorization result: " + founduser);
+            logger.trace("authorization result: " + founduser);
         } catch (LDAPException e) {
             String errMsg =
                     "isMemberOfLdapGroup: could not find group " + groupname + ". Error " + e;
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 errMsg = "isMemberOfLdapGroup: " + "Internal DB is unavailable";
             }
-            Debug.trace("authorization exception: " + errMsg);
+            logger.warn("authorization exception: " + errMsg);
             // too chatty in system log
             // log(ILogger.LL_FAILURE, errMsg);
         } catch (ELdapException e) {
             String errMsg =
                     "isMemberOfLdapGroup: Could not get connection to internaldb. Error " + e;
-            Debug.trace("authorization exception: " + errMsg);
+            logger.warn("authorization exception: " + errMsg);
             log(ILogger.LL_FAILURE, errMsg);
         } finally {
             if (ldapconn != null)
