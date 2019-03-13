@@ -1743,7 +1743,7 @@ class PKIInstance(object):
         self.cert_update_config(cert_id, updated_cert)
 
     def cert_create(
-            self, cert_id,
+            self, cert_id=None,
             username=None, password=None,
             client_cert=None, client_nssdb=None,
             client_nssdb_pass=None, client_nssdb_pass_file=None,
@@ -1765,7 +1765,10 @@ class PKIInstance(object):
         :type client_nssdb_pass: str
         :param client_nssdb_pass_file: File containing nssdb's password
         :type client_nssdb_pass_file: str
-        :param serial: Serial number to be assigned to new cert
+        :param serial: Serial number of the cert to be renewed.  If creating
+                       a temporary certificate (temp_cert == True), the serial
+                       number will be reused.  If not supplied, the cert_id is
+                       used to look it up.
         :type serial: str
         :param temp_cert: Whether new cert is a temporary cert
         :type temp_cert: bool
@@ -1784,28 +1787,37 @@ class PKIInstance(object):
         """
         nssdb = self.open_nssdb()
         tmpdir = tempfile.mkdtemp()
+        subsystem = None  # used for system certs
+
         try:
+            if cert_id:
+                new_cert_file = output if output else self.cert_file(cert_id)
+
+                subsystem_name, cert_tag = PKIServer.split_cert_id(cert_id)
+                if not subsystem_name:
+                    subsystem_name = self.subsystems[0].name
+                subsystem = self.get_subsystem(subsystem_name)
+
+                if serial is None:
+                    # If admin doesn't provide a serial number, set the serial to
+                    # the same serial number available in the nssdb
+                    serial = subsystem.get_subsystem_cert(cert_tag)["serial_number"]
+
+            else:
+                if serial is None:
+                    raise PKIServerException("Must provide either 'cert_id' or 'serial'")
+                if output is None:
+                    raise PKIServerException("Must provide 'output' when renewing by serial")
+                if temp_cert:
+                    raise PKIServerException("'temp_cert' must be used with 'cert_id'")
+                new_cert_file = output
+
             if not os.path.exists(self.cert_folder):
                 os.makedirs(self.cert_folder)
 
-            if output:
-                new_cert_file = output
-            else:
-                new_cert_file = self.cert_file(cert_id)
-
-            subsystem_name, cert_tag = PKIServer.split_cert_id(cert_id)
-
-            if not subsystem_name:
-                subsystem_name = self.subsystems[0].name
-
-            subsystem = self.get_subsystem(subsystem_name)
-
-            if not serial:
-                # If admin doesn't provide a serial number, set the serial to
-                # the same serial number available in the nssdb
-                serial = subsystem.get_subsystem_cert(cert_tag)["serial_number"]
-
             if temp_cert:
+                assert subsystem is not None  # temp_cert only supported with cert_id
+
                 logger.info('Trying to create a new temp cert for %s.', cert_id)
 
                 # Create Temp Cert and write it to new_cert_file
