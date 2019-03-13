@@ -997,11 +997,6 @@ class CertFixCLI(pki.cli.CLI):
         print()
         print('      --cert <Cert ID>            Fix specified system cert (default: all certs).')
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('  -d <NSS database>               NSS database location (default: ~/.dogtag/nssdb)')
-        print('  -c <NSS DB password>            NSS database password')
-        print('  -C <path>                       Input file containing the password for the NSS '
-              'database.')
-        print('  -n <nickname>                   Client certificate nickname')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -1011,7 +1006,7 @@ class CertFixCLI(pki.cli.CLI):
         logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:d:c:C:n:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'cert=',
                 'verbose', 'debug', 'help'])
 
@@ -1022,10 +1017,6 @@ class CertFixCLI(pki.cli.CLI):
 
         instance_name = 'pki-tomcat'
         all_certs = True
-        client_nssdb = os.getenv('HOME') + '/.dogtag/nssdb'
-        client_nssdb_pass = None
-        client_nssdb_pass_file = None
-        client_cert = None
         fix_certs = []
 
         for o, a in opts:
@@ -1035,18 +1026,6 @@ class CertFixCLI(pki.cli.CLI):
             elif o == '--cert':
                 all_certs = False
                 fix_certs.append(a)
-
-            elif o == '-d':
-                client_nssdb = a
-
-            elif o == '-c':
-                client_nssdb_pass = a
-
-            elif o == '-C':
-                client_nssdb_pass_file = a
-
-            elif o == '-n':
-                client_cert = a
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -1065,16 +1044,6 @@ class CertFixCLI(pki.cli.CLI):
                 logger.error('option %s not recognized', o)
                 self.print_help()
                 sys.exit(1)
-
-        if not client_cert:
-            logger.error('Client nick name is required.')
-            self.print_help()
-            sys.exit(1)
-
-        if not client_nssdb_pass and not client_nssdb_pass_file:
-            logger.error('Client NSS db password is required.')
-            self.print_help()
-            sys.exit(1)
 
         instance = server.PKIInstance(instance_name)
 
@@ -1114,6 +1083,7 @@ class CertFixCLI(pki.cli.CLI):
         ca_subsystem = instance.get_subsystem('ca')
         basedn = ca_subsystem.get_db_config()['internaldb.basedn']
         dbuser_dn = 'uid=pkidbuser,ou=people,{}'.format(basedn)
+        admin_dn = 'uid=admin,ou=people,{}'.format(basedn)
 
         # Prompt for DM password
         dm_pass = getpass.getpass(prompt='Enter Directory Manager password: ')
@@ -1125,6 +1095,10 @@ class CertFixCLI(pki.cli.CLI):
         except subprocess.CalledProcessError:
             logger.error("Failed to verify Directory Manager password.")
             sys.exit(1)
+
+        logger.info('Resetting PKI admin account password.')
+        admin_pass = gen_random_password()
+        ldappasswd(dm_pass, admin_dn, admin_pass)
 
         # 3. Find the subsystem and disable Self-tests
         try:
@@ -1176,12 +1150,8 @@ class CertFixCLI(pki.cli.CLI):
                     for cert_id in fix_certs:
                         logger.info('Requesting new cert for %s', cert_id)
                         instance.cert_create(
-                            cert_id=cert_id,
-                            client_cert=client_cert,
-                            client_nssdb=client_nssdb,
-                            client_nssdb_pass=client_nssdb_pass,
-                            client_nssdb_pass_file=client_nssdb_pass_file,
-                            renew=True)
+                            cert_id=cert_id, renew=True,
+                            username='admin', password=admin_pass)
 
                 # 8. Delete existing certs and then import the renewed system cert(s)
                 for cert_id in fix_certs:
