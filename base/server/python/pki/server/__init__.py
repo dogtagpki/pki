@@ -233,6 +233,8 @@ class PKISubsystem(object):
 
     def create_subsystem_cert_object(self, cert_id):
 
+        logger.info('Getting %s cert info for %s', cert_id, self.name)
+
         nickname = self.config.get('%s.%s.nickname' % (self.name, cert_id))
         token = self.config.get('%s.%s.tokenname' % (self.name, cert_id))
 
