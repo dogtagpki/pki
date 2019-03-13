@@ -7,7 +7,6 @@ import java.util.Hashtable;
 import java.util.Locale;
 
 import com.netscape.certsrv.apps.ICMSEngine;
-import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
@@ -121,10 +120,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public String getLogMessage(String msgID, Object p[]) {
-        return null;
-    }
-
-    public ISharedToken getSharedTokenClass(String configName) {
         return null;
     }
 

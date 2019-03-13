@@ -23,7 +23,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
 
-import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
@@ -215,13 +214,6 @@ public interface ICMSEngine extends ISubsystem {
      * @return localized log message
      */
     public String getLogMessage(String msgID, Object p[]);
-
-    /**
-     * Retrieves the named SharedToken class
-     *
-     * @return named shared token class
-     */
-    public ISharedToken getSharedTokenClass(String configName);
 
     /**
      * Blocks all new incoming requests.

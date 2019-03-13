@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.IAuthSubsystem;
-import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -390,15 +389,6 @@ public final class CMS {
      */
     public static IConfigStore getConfigStore() {
         return _engine.getConfigStore();
-    }
-
-    /**
-     * Retrieves the SharedToken class.
-     *
-     * @return named SharedToken class
-     */
-    public static ISharedToken getSharedTokenClass(String configName) {
-        return _engine.getSharedTokenClass(configName);
     }
 
     public static IConfigStore createFileConfigStore(String path) throws EBaseException {
