@@ -79,6 +79,9 @@ import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
  * @version $Revision$, $Date$
  */
 public class CertificateRevokedListener implements IRequestListener {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateRevokedListener.class);
+
     protected final static String PROP_CERT_ISSUED_SUBSTORE = "certRevoked";
     protected static final String PROP_ENABLED = "enabled";
     protected final static String PROP_NOTIFY_SUBSTORE = "notification";
@@ -132,7 +135,7 @@ public class CertificateRevokedListener implements IRequestListener {
         int ridx = mFormPath.lastIndexOf(File.separator);
 
         if (ridx == -1) {
-            CMS.debug("CertificateRevokedListener: file separator: " + File.separator
+            logger.debug("CertificateRevokedListener: file separator: " + File.separator
                     +
                     " not found. Use default /");
             ridx = mFormPath.lastIndexOf("/");
@@ -141,7 +144,7 @@ public class CertificateRevokedListener implements IRequestListener {
             mDir = mFormPath.substring(0, ridx +
                             File.separator.length());
         }
-        CMS.debug("CertificateRevokedListener: template file directory: " + mDir);
+        logger.debug("CertificateRevokedListener: template file directory: " + mDir);
         mRejectPath = mDir + REJECT_FILE_NAME;
         if (mFormPath.endsWith(".html"))
             mRejectPath += ".html";
@@ -152,7 +155,7 @@ public class CertificateRevokedListener implements IRequestListener {
         else if (mFormPath.endsWith(".HTM"))
             mRejectPath += ".HTM";
 
-        CMS.debug("CertificateRevokedListener: Reject file path: " + mRejectPath);
+        logger.debug("CertificateRevokedListener: Reject file path: " + mRejectPath);
 
         mDateFormat = DateFormat.getDateTimeInstance();
 
@@ -181,7 +184,7 @@ public class CertificateRevokedListener implements IRequestListener {
         if (requestType.equals(IRequest.REVOCATION_REQUEST) == false)
             return;
         if (rs.equals("complete") == false) {
-            CMS.debug("CertificateRevokedListener: Request status: " + rs);
+            logger.warn("CertificateRevokedListener: Request status: " + rs);
             //revoked(r);
             return;
         }
@@ -191,14 +194,14 @@ public class CertificateRevokedListener implements IRequestListener {
             return;
 
         if ((r.getExtDataInInteger(IRequest.RESULT)).equals(IRequest.RES_ERROR)) {
-            CMS.debug("CertificateRevokedListener: Request errored. " +
+            logger.warn("CertificateRevokedListener: Request errored. " +
                     "No need to email notify for enrollment request id " +
                     mReqId);
             return;
         }
 
         if (requestType.equals(IRequest.REVOCATION_REQUEST)) {
-            CMS.debug("CertificateRevokedListener: accept() revocation request...");
+            logger.debug("CertificateRevokedListener: accept() revocation request...");
             // Get the certificate from the request
             //X509CertImpl issuedCert[] =
             //    (X509CertImpl[])
@@ -206,7 +209,7 @@ public class CertificateRevokedListener implements IRequestListener {
                     r.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
 
             if (crlentries != null) {
-                CMS.debug("CertificateRevokedListener: Sending email notification..");
+                logger.debug("CertificateRevokedListener: Sending email notification..");
 
                 // do we have an email to send?
                 String mEmail = null;
