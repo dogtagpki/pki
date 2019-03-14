@@ -2,12 +2,10 @@ package com.netscape.cmscore.app;
 
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Locale;
 
 import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 
@@ -118,21 +116,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public IConfigStore createFileConfigStore(String path) throws EBaseException {
-        return null;
-    }
-
-    public IArgBlock createArgBlock() {
-        return null;
-    }
-
-    @Override
-    public IArgBlock createArgBlock(String realm,
-            Hashtable<String, String> httpReq) {
-        return null;
-    }
-
-    @Override
-    public IArgBlock createArgBlock(Hashtable<String, String> httpReq) {
         return null;
     }
 

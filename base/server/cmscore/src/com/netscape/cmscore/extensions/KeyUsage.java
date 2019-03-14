@@ -19,6 +19,11 @@ package com.netscape.cmscore.extensions;
 
 import java.io.IOException;
 
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -26,11 +31,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.extensions.EExtensionsException;
 import com.netscape.certsrv.extensions.ICMSExtension;
-
-import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
-import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import com.netscape.cmscore.base.ArgBlock;
 
 public class KeyUsage implements ICMSExtension {
 
@@ -192,7 +193,7 @@ public class KeyUsage implements ICMSExtension {
             }
         }
 
-        IArgBlock params = CMS.createArgBlock();
+        ArgBlock params = new ArgBlock();
         boolean[] bits = ext.getBits();
 
         params.set(KeyUsageExtension.DIGITAL_SIGNATURE,

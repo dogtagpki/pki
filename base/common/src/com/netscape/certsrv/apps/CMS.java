@@ -18,7 +18,6 @@
 package com.netscape.certsrv.apps;
 
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Locale;
 
 import org.slf4j.Logger;
@@ -27,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -352,18 +350,6 @@ public final class CMS {
 
     public static IConfigStore createFileConfigStore(String path) throws EBaseException {
         return _engine.createFileConfigStore(path);
-    }
-
-    public static IArgBlock createArgBlock() {
-        return _engine.createArgBlock();
-    }
-
-    public static IArgBlock createArgBlock(String realm, Hashtable<String, String> httpReq) {
-        return _engine.createArgBlock(realm, httpReq);
-    }
-
-    public static IArgBlock createArgBlock(Hashtable<String, String> httpReq) {
-        return _engine.createArgBlock(httpReq);
     }
 
     public static boolean isExcludedLdapAttr(String key) {

@@ -38,6 +38,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 
 public class MainPageServlet extends CMSServlet {
 
@@ -59,8 +60,8 @@ public class MainPageServlet extends CMSServlet {
         HttpServletResponse response = cmsReq.getHttpResp();
 
         logger.debug("MainPageServlet process");
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         CMSTemplate form = null;
@@ -102,7 +103,7 @@ public class MainPageServlet extends CMSServlet {
             throws EBaseException {
 
         int num = 0;
-        IArgBlock rarg = null;
+        ArgBlock rarg = null;
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
         int state = 0;
@@ -120,7 +121,7 @@ public class MainPageServlet extends CMSServlet {
         }
 
         if (state == 0) {
-            rarg = CMS.createArgBlock();
+            rarg = new ArgBlock();
             rarg.addStringValue("type", "admin");
             rarg.addStringValue("prefix", "http");
             rarg.addIntegerValue("port",
@@ -131,7 +132,7 @@ public class MainPageServlet extends CMSServlet {
             num++;
         } else if (state == 1) {
             if (!eeInterface.equals("")) {
-                rarg = CMS.createArgBlock();
+                rarg = new ArgBlock();
                 rarg.addStringValue("type", "ee");
                 rarg.addStringValue("prefix", "https");
                 rarg.addIntegerValue("port",
@@ -142,7 +143,7 @@ public class MainPageServlet extends CMSServlet {
                 num++;
             }
             if (!agentInterface.equals("")) {
-                rarg = CMS.createArgBlock();
+                rarg = new ArgBlock();
                 rarg.addStringValue("type", "agent");
                 rarg.addStringValue("prefix", "https");
                 rarg.addIntegerValue("port",

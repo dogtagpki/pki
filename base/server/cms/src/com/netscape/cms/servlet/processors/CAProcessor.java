@@ -46,7 +46,6 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
@@ -70,6 +69,7 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
+import com.netscape.cmscore.base.ArgBlock;
 
 public class CAProcessor extends Processor {
 
@@ -551,7 +551,7 @@ public class CAProcessor extends Processor {
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            IArgBlock httpArgs = CMS.createArgBlock(toHashtable(httpReq));
+            ArgBlock httpArgs = new ArgBlock(toHashtable(httpReq));
             SessionContext ctx = SessionContext.getContext();
             String ip = httpReq.getRemoteAddr();
             logger.debug("IP: " + ip);

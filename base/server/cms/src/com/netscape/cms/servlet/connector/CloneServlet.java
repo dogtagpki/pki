@@ -58,6 +58,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
 
@@ -109,7 +110,7 @@ public class CloneServlet extends CMSServlet {
         CMSRequest cmsRequest = newCMSRequest();
 
         // set argblock
-        cmsRequest.setHttpParams(CMS.createArgBlock(toHashtable(req)));
+        cmsRequest.setHttpParams(new ArgBlock(toHashtable(req)));
 
         // set http request
         cmsRequest.setHttpReq(req);

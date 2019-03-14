@@ -65,7 +65,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
@@ -96,7 +95,6 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.authentication.VerifiedCerts;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
-import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
@@ -648,18 +646,6 @@ public class CMSEngine implements ICMSEngine {
             throw new EBaseException("Cannot create file: " + path + ": " + e.getMessage(), e);
         }
         return new FileConfigStore(path);
-    }
-
-    public IArgBlock createArgBlock() {
-        return new ArgBlock();
-    }
-
-    public IArgBlock createArgBlock(Hashtable<String, String> httpReq) {
-        return new ArgBlock(httpReq);
-    }
-
-    public IArgBlock createArgBlock(String realm, Hashtable<String, String> httpReq) {
-        return new ArgBlock(realm, httpReq);
     }
 
     public boolean isPreOpMode() {

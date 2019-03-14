@@ -19,11 +19,9 @@ package com.netscape.certsrv.apps;
 
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 
@@ -228,21 +226,6 @@ public interface ICMSEngine extends ISubsystem {
      * @exception EBaseException failed to create file
      */
     public IConfigStore createFileConfigStore(String path) throws EBaseException;
-
-    /**
-     * Creates argument block.
-     */
-    public IArgBlock createArgBlock();
-
-    /**
-     * Creates argument block.
-     */
-    public IArgBlock createArgBlock(String realm, Hashtable<String, String> httpReq);
-
-    /**
-     * Creates argument block.
-     */
-    public IArgBlock createArgBlock(Hashtable<String, String> httpReq);
 
     public void sleepOneMinute(); // for debug only
 
