@@ -47,6 +47,8 @@ import com.netscape.cms.profile.def.UserExtensionDefault;
  */
 public class BasicConstraintsExtConstraint extends EnrollConstraint {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BasicConstraintsExtConstraint.class);
+
     public static final String CONFIG_CRITICAL =
             "basicConstraintsCritical";
     public static final String CONFIG_IS_CA =
@@ -142,7 +144,7 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
                 Integer extPathLen = (Integer) ext.get(BasicConstraintsExtension.PATH_LEN);
 
                 if (pathLen > extPathLen.intValue()) {
-                    CMS.debug("BasicCOnstraintsExtConstraint: pathLen=" + pathLen + " > extPathLen=" + extPathLen);
+                    logger.error("BasicCOnstraintsExtConstraint: pathLen=" + pathLen + " > extPathLen=" + extPathLen);
                     throw new ERejectException(
                             CMS.getUserMessage(getLocale(request),
                                     "CMS_PROFILE_CONSTRAINT_BASIC_CONSTRAINTS_EXT_MIN_PATH"));
@@ -154,14 +156,14 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
                 Integer extPathLen = (Integer) ext.get(BasicConstraintsExtension.PATH_LEN);
 
                 if (pathLen < extPathLen.intValue()) {
-                    CMS.debug("BasicCOnstraintsExtConstraint: pathLen=" + pathLen + " < extPathLen=" + extPathLen);
+                    logger.error("BasicCOnstraintsExtConstraint: pathLen=" + pathLen + " < extPathLen=" + extPathLen);
                     throw new ERejectException(
                             CMS.getUserMessage(getLocale(request),
                                     "CMS_PROFILE_CONSTRAINT_BASIC_CONSTRAINTS_EXT_MAX_PATH"));
                 }
             }
         } catch (IOException e) {
-            CMS.debug("BasicConstraintsExt: validate " + e.toString());
+            logger.error("BasicConstraintsExt: validate " + e.getMessage(), e);
             throw new ERejectException(
                     CMS.getUserMessage(
                             getLocale(request),
@@ -197,11 +199,11 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
             throws EPropertyException {
 
         if (mConfig.getSubStore("params") == null) {
-            CMS.debug("BasicConstraintsExt: mConfig.getSubStore is null");
+            logger.warn("BasicConstraintsExt: mConfig.getSubStore is null");
             //
         } else {
 
-            CMS.debug("BasicConstraintsExt: setConfig name " + name + " value " + value);
+            logger.debug("BasicConstraintsExt: setConfig name " + name + " value " + value);
 
             if (name.equals(CONFIG_MAX_PATH_LEN)) {
 
@@ -212,7 +214,7 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
                 int maxLen = getInt(value);
 
                 if (maxLen >= 0 && minLen >= maxLen) {
-                    CMS.debug("BasicConstraintExt:  minPathLen >= maxPathLen!");
+                    logger.error("BasicConstraintExt:  minPathLen >= maxPathLen!");
 
                     throw new EPropertyException("bad value");
                 }
