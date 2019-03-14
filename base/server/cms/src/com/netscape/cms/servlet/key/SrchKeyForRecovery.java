@@ -46,6 +46,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -201,8 +202,8 @@ public class SrchKeyForRecovery extends CMSServlet {
         }
 
         // process query if authentication is successful
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
         EBaseException error = null;
 
@@ -326,7 +327,7 @@ public class SrchKeyForRecovery extends CMSServlet {
                     // a LDAPException.SIZE_LIMIT_ExCEEDED
                     // in DSSearchResults.java
                     if (rec != null) {
-                        IArgBlock rarg = CMS.createArgBlock();
+                        ArgBlock rarg = new ArgBlock();
 
                         KeyRecordParser.fillRecordIntoArg(rec, rarg);
                         argSet.addRepeatRecord(rarg);
