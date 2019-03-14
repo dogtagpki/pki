@@ -45,6 +45,8 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 public class UpdateConnector extends CMSServlet {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateConnector.class);
+
     private static final long serialVersionUID = 972871860008509849L;
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
@@ -60,9 +62,9 @@ public class UpdateConnector extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
-        CMS.debug("UpdateConnector: initializing...");
+        logger.debug("UpdateConnector: initializing...");
         super.init(sc);
-        CMS.debug("UpdateConnector: done initializing...");
+        logger.debug("UpdateConnector: done initializing...");
     }
 
     public KRAConnectorInfo createConnectorInfo(HttpServletRequest httpReq) {
@@ -81,7 +83,7 @@ public class UpdateConnector extends CMSServlet {
      * Process the HTTP request.
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("UpdateConnector: processing...");
+        logger.debug("UpdateConnector: processing...");
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
@@ -89,9 +91,9 @@ public class UpdateConnector extends CMSServlet {
         IAuthToken authToken = null;
         try {
             authToken = authenticate(cmsReq);
-            CMS.debug("UpdateConnector authentication successful.");
+            logger.debug("UpdateConnector authentication successful.");
         } catch (Exception e) {
-            CMS.debug("UpdateConnector: authentication failed.");
+            logger.error("UpdateConnector: authentication failed: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
                             e.toString()));
@@ -101,7 +103,7 @@ public class UpdateConnector extends CMSServlet {
         }
 
         if (authToken == null) {
-            CMS.debug("UpdateConnector: authentication failed.");
+            logger.error("UpdateConnector: authentication failed.");
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
                         null);
             return;
@@ -111,7 +113,7 @@ public class UpdateConnector extends CMSServlet {
         try {
             authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
                     "modify");
-            CMS.debug("UpdateConnector authorization successful.");
+            logger.debug("UpdateConnector authorization successful.");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
@@ -143,7 +145,7 @@ public class UpdateConnector extends CMSServlet {
 
         // send success status back to the requestor
         try {
-            CMS.debug("UpdateConnector: Sending response");
+            logger.debug("UpdateConnector: Sending response");
             XMLObject xmlObj = new XMLObject();
             Node root = xmlObj.createRoot("XMLResponse");
             if (status.equals(SUCCESS)) {
@@ -157,7 +159,7 @@ public class UpdateConnector extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("UpdateConnector: Failed to send the XML output");
+            logger.warn("UpdateConnector: Failed to send the XML output: " + e.getMessage(), e);
         }
     }
 
