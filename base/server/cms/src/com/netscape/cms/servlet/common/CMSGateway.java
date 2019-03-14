@@ -40,6 +40,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * This class is to hold some general method for servlets.
@@ -170,7 +171,7 @@ public class CMSGateway {
         IArgBlock httpArgs = httpParams;
 
         if (httpArgs == null)
-            httpArgs = CMS.createArgBlock(toHashtable(httpReq));
+            httpArgs = new ArgBlock(toHashtable(httpReq));
 
         IAuthSubsystem authSub = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
 
@@ -193,7 +194,7 @@ public class CMSGateway {
         if (authMgr == null)
             return null;
         IAuthCredentials creds =
-                getAuthCreds(authMgr, CMS.createArgBlock(toHashtable(httpReq)), cert);
+                getAuthCreds(authMgr, new ArgBlock(toHashtable(httpReq)), cert);
         AuthToken authToken = null;
 
         try {

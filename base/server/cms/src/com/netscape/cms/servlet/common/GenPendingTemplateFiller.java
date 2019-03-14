@@ -56,6 +56,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * default Pending template filler
@@ -80,7 +81,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
      */
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 
         if (cmsReq == null) {

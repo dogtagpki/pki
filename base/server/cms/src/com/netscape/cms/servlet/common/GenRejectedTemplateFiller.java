@@ -21,10 +21,9 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * default Service Pending template filler
@@ -48,7 +47,7 @@ public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
      */
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 
         // request status if any.
@@ -76,7 +75,7 @@ public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
 
                 while (msgs.hasMoreElements()) {
                     String ex = msgs.nextElement();
-                    IArgBlock messageArgBlock = CMS.createArgBlock();
+                    ArgBlock messageArgBlock = new ArgBlock();
 
                     messageArgBlock.set(POLICY_MESSAGE, ex);
                     params.addRepeatRecord(messageArgBlock);
