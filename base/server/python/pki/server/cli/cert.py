@@ -996,6 +996,7 @@ class CertFixCLI(pki.cli.CLI):
         # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
         print()
         print('      --cert <Cert ID>            Fix specified system cert (default: all certs).')
+        print('      --extra-cert <Serial>       Also renew cert with given serial number.')
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
@@ -1007,7 +1008,7 @@ class CertFixCLI(pki.cli.CLI):
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'cert=',
+                'instance=', 'cert=', 'extra-cert=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -1018,6 +1019,7 @@ class CertFixCLI(pki.cli.CLI):
         instance_name = 'pki-tomcat'
         all_certs = True
         fix_certs = []
+        extra_certs = []
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -1026,6 +1028,15 @@ class CertFixCLI(pki.cli.CLI):
             elif o == '--cert':
                 all_certs = False
                 fix_certs.append(a)
+
+            elif o == '--extra-cert':
+                try:
+                    int(a)
+                except ValueError:
+                    logger.error('--extra-cert requires serial number as integer')
+                    sys.exit(1)
+                all_certs = False
+                extra_certs.append(a)
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -1073,7 +1084,8 @@ class CertFixCLI(pki.cli.CLI):
 
                     fix_certs.append(cert['id'])
 
-        logger.info('Fixing the following certs: %s', fix_certs)
+        logger.info('Fixing the following system certs: %s', fix_certs)
+        logger.info('Renewing the following additional certs: %s', extra_certs)
 
         # 2. Stop the server, if it's up
         logger.info('Stopping the instance to proceed with system cert renewal')
@@ -1152,6 +1164,17 @@ class CertFixCLI(pki.cli.CLI):
                         instance.cert_create(
                             cert_id=cert_id, renew=True,
                             username='admin', password=admin_pass)
+                    for serial in extra_certs:
+                        output = instance.cert_file('{}-renewed'.format(serial))
+                        logger.info(
+                            'Requesting new cert for %s; writing to %s',
+                            serial, output)
+                        try:
+                            instance.cert_create(
+                                serial=serial, renew=True, output=output,
+                                username='admin', password=admin_pass)
+                        except pki.PKIException as e:
+                            logger.error("Failed to renew certificate %s: %s", serial, e)
 
                 # 8. Delete existing certs and then import the renewed system cert(s)
                 for cert_id in fix_certs:
