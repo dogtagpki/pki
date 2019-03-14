@@ -68,9 +68,8 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  */
 public class SrchCerts extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SrchCerts.class);
+
     private static final long serialVersionUID = -5876805830088921643L;
     private final static String TPL_FILE = "srchCert.template";
     private final static String PROP_MAX_SEARCH_RETURNS = "maxSearchReturns";
@@ -302,8 +301,8 @@ public class SrchCerts extends CMSServlet {
         }
         Calendar from = Calendar.getInstance();
         from.setTimeInMillis(epoch);
-        CMS.debug("buildDateFilter epoch=" + req.getParameter(prefix));
-        CMS.debug("buildDateFilter from=" + from);
+        logger.debug("buildDateFilter epoch=" + req.getParameter(prefix));
+        logger.debug("buildDateFilter from=" + from);
         filter.append("(");
         filter.append(outStr);
         filter.append(Long.toString(from.getTimeInMillis() + adjustment));
@@ -470,13 +469,13 @@ public class SrchCerts extends CMSServlet {
         buildBasicConstraintsFilter(req, filter);
 
         if (mUseClientFilter) {
-            CMS.debug("useClientFilter=true");
+            logger.debug("useClientFilter=true");
         } else {
-            CMS.debug("useClientFilter=false");
-            CMS.debug("client queryCertFilter = " + queryCertFilter);
+            logger.debug("useClientFilter=false");
+            logger.debug("client queryCertFilter = " + queryCertFilter);
             queryCertFilter = "(&" + filter.toString() + ")";
         }
-        CMS.debug("queryCertFilter = " + queryCertFilter);
+        logger.debug("queryCertFilter = " + queryCertFilter);
         return queryCertFilter;
     }
 
@@ -599,14 +598,14 @@ public class SrchCerts extends CMSServlet {
 
             // xxx the filter includes serial number range???
             if (maxResults == -1 || maxResults > mMaxReturns) {
-                CMS.debug("Resetting maximum of returned results from " + maxResults + " to " + mMaxReturns);
+                logger.debug("Resetting maximum of returned results from " + maxResults + " to " + mMaxReturns);
                 maxResults = mMaxReturns;
             }
             if (timeLimit == -1 || timeLimit > mTimeLimits) {
-                CMS.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
+                logger.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
-            CMS.debug("Start searching ... "
+            logger.debug("Start searching ... "
                     + "filter=" + filter + " maxreturns=" + maxResults + " timelimit=" + timeLimit);
 
             // Do the search with the optional sortAtribute field, giving an assured list of certs sorted by serialno
