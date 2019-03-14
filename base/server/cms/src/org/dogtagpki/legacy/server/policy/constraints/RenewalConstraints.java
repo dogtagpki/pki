@@ -24,6 +24,9 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IRenewalPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -32,10 +35,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import org.mozilla.jss.netscape.security.x509.CertificateValidity;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Whether to allow renewal of an expired cert.
@@ -52,6 +51,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  */
 public class RenewalConstraints extends APolicyRule
         implements IRenewalPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RenewalConstraints.class);
 
     private static final String PROP_ALLOW_EXPIRED_CERTS = "allowExpiredCerts";
     private static final String PROP_RENEWAL_NOT_AFTER = "renewalNotAfter";
@@ -119,7 +120,7 @@ public class RenewalConstraints extends APolicyRule
             // never happen.
         }
 
-        CMS.debug("RenewalConstraints: allow expired certs " + mAllowExpiredCerts);
+        logger.debug("RenewalConstraints: allow expired certs " + mAllowExpiredCerts);
     }
 
     /**
@@ -144,7 +145,7 @@ public class RenewalConstraints extends APolicyRule
             }
 
             if (mAllowExpiredCerts) {
-                CMS.debug("checking validity of each cert");
+                logger.debug("checking validity of each cert");
                 // check if each cert to be renewed is expired for more than 		    // allowed days.
                 for (int i = 0; i < oldCerts.length; i++) {
                     X509CertInfo oldCertInfo = (X509CertInfo)
@@ -162,11 +163,10 @@ public class RenewalConstraints extends APolicyRule
                     Date renewedNotAfter = new Date(notAfter.getTime() +
                             mRenewalNotAfter);
 
-                    CMS.debug("RenewalConstraints: cert " + i + " renewedNotAfter " + renewedNotAfter + " now=" + now);
+                    logger.debug("RenewalConstraints: cert " + i + " renewedNotAfter " + renewedNotAfter + " now=" + now);
 
                     if (renewedNotAfter.before(now)) {
-                        CMS.debug(
-                                "One or more certificates is expired for more than "
+                        logger.debug("One or more certificates is expired for more than "
                                         + (mRenewalNotAfter / DAYS_TO_MS_FACTOR) + " days");
                         String params[] = { getInstanceName(), Long.toString(mRenewalNotAfter / DAYS_TO_MS_FACTOR) };
 
@@ -179,7 +179,7 @@ public class RenewalConstraints extends APolicyRule
                 return PolicyResult.ACCEPTED;
             }
 
-            CMS.debug("RenewalConstraints: checking validity of each cert");
+            logger.debug("RenewalConstraints: checking validity of each cert");
             // check if each cert to be renewed is expired.
             for (int i = 0; i < oldCerts.length; i++) {
                 X509CertInfo oldCertInfo = (X509CertInfo)
@@ -193,10 +193,9 @@ public class RenewalConstraints extends APolicyRule
                 // Is the Certificate still valid?
                 Date now = CMS.getCurrentDate();
 
-                CMS.debug("RenewalConstraints: cert " + i + " notAfter " + notAfter + " now=" + now);
+                logger.debug("RenewalConstraints: cert " + i + " notAfter " + notAfter + " now=" + now);
                 if (notAfter.before(now)) {
-                    CMS.debug(
-                            "RenewalConstraints: One or more certificates is expired.");
+                    logger.debug("RenewalConstraints: One or more certificates is expired.");
                     String params[] = { getInstanceName() };
 
                     setError(req,
