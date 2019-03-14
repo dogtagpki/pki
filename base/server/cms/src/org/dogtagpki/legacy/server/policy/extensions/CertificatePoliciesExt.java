@@ -26,17 +26,6 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
-
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cmscore.cert.CertUtils;
-
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.x509.CPSuri;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
@@ -50,6 +39,16 @@ import org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo;
 import org.mozilla.jss.netscape.security.x509.PolicyQualifiers;
 import org.mozilla.jss.netscape.security.x509.UserNotice;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.cert.CertUtils;
 
 /**
  * Certificate Policies.
@@ -65,6 +64,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  */
 public class CertificatePoliciesExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificatePoliciesExt.class);
+
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_NUM_CERTPOLICIES = "numCertPolicies";
 
@@ -316,6 +318,8 @@ public class CertificatePoliciesExt extends APolicyRule
 
 class CertPolicy {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertPolicy.class);
+
     protected static final String PROP_POLICY_IDENTIFIER = "policyId";
     protected static final String PROP_NOTICE_REF_ORG = "noticeRefOrganization";
     protected static final String PROP_NOTICE_REF_NUMS = "noticeRefNumbers";
@@ -348,8 +352,7 @@ class CertPolicy {
         mNameDot = mName + ".";
 
         if (mConfig == null) {
-            CMS.debug("CertificatePoliciesExt::CertPolicy - mConfig is " +
-                       "null!");
+            logger.error("CertificatePoliciesExt::CertPolicy - mConfig is null!");
             throw new EBaseException("mConfig is null");
         }
 
@@ -362,8 +365,7 @@ class CertPolicy {
             config.putString(mNameDot + PROP_CPS_URI, "");
             mConfig = config.getSubStore(mName);
             if (mConfig == null || mConfig.size() == 0) {
-                CMS.debug("CertificatePoliciesExt::CertPolicy - mConfig " +
-                           "is null or empty!");
+                logger.error("CertificatePoliciesExt::CertPolicy - mConfig is null or empty!");
                 throw new EBaseException("mConfig is null or empty");
             }
         }
@@ -421,7 +423,7 @@ class CertPolicy {
         // if enabled, form CertificatePolicyInfo to be encoded in
         // extension. Policy ids should be all set.
         if (enabled) {
-            CMS.debug("CertPolicy: in CertPolicy");
+            logger.debug("CertPolicy: in CertPolicy");
             DisplayText displayText = null;
 
             if (mNoticeRefExplicitText != null &&
@@ -501,15 +503,15 @@ class CertPolicy {
             if ((mNoticeRefOrg == null || mNoticeRefOrg.equals("")) &&
                     (mNoticeRefExplicitText == null || mNoticeRefExplicitText.equals("")) &&
                     (mCpsUri == null || mCpsUri.equals(""))) {
-                CMS.debug("CertPolicy mNoticeRefOrg = " + mNoticeRefOrg);
-                CMS.debug("CertPolicy mNoticeRefExplicitText = " + mNoticeRefExplicitText);
-                CMS.debug("CertPolicy mCpsUri = " + mCpsUri);
+                logger.debug("CertPolicy mNoticeRefOrg = " + mNoticeRefOrg);
+                logger.debug("CertPolicy mNoticeRefExplicitText = " + mNoticeRefExplicitText);
+                logger.debug("CertPolicy mCpsUri = " + mCpsUri);
 
                 mCertificatePolicyInfo = new CertificatePolicyInfo(cpolicyId);
             } else {
-                CMS.debug("CertPolicy mNoticeRefOrg = " + mNoticeRefOrg);
-                CMS.debug("CertPolicy mNoticeRefExplicitText = " + mNoticeRefExplicitText);
-                CMS.debug("CertPolicy mCpsUri = " + mCpsUri);
+                logger.debug("CertPolicy mNoticeRefOrg = " + mNoticeRefOrg);
+                logger.debug("CertPolicy mNoticeRefExplicitText = " + mNoticeRefExplicitText);
+                logger.debug("CertPolicy mCpsUri = " + mCpsUri);
                 mCertificatePolicyInfo = new CertificatePolicyInfo(cpolicyId, policyQualifiers);
             }
         }
