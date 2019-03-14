@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.dogtagpki.server.PKIClientSocketListener;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -43,7 +44,6 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 import netscape.ldap.LDAPConnection;
 
@@ -54,6 +54,9 @@ import netscape.ldap.LDAPConnection;
  * @version $Revision$, $Date$
  */
 public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPPublisher.class);
+
     private static final String PROP_HOST = "host";
     private static final String PROP_PORT = "port";
     private static final String PROP_PATH = "path";
@@ -237,7 +240,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
                     ILogger.LL_INFO, "OCSPPublisher: " +
                             "Host='" + host + "' Port='" + port +
                             "' URL='" + path + "'");
-            CMS.debug("OCSPPublisher: " +
+            logger.debug("OCSPPublisher: " +
                     "Host='" + host + "' Port='" + port +
                     "' URL='" + path + "'");
 
@@ -275,7 +278,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             }
 
             if (socket == null) {
-                CMS.debug("OCSPPublisher::publish() - socket is null!");
+                logger.error("OCSPPublisher::publish() - socket is null!");
                 throw new ELdapException("socket is null");
             }
 
@@ -299,10 +302,10 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                     ILogger.LL_INFO, "OCSPPublisher: start sending CRL");
             long startTime = CMS.getCurrentDate().getTime();
-            CMS.debug("OCSPPublisher: start CRL sending startTime=" + startTime);
+            logger.debug("OCSPPublisher: start CRL sending startTime=" + startTime);
             httpReq.write(outputStreamWriter);
             long endTime = CMS.getCurrentDate().getTime();
-            CMS.debug("OCSPPublisher: done CRL sending endTime=" + endTime + " diff=" + (endTime - startTime));
+            logger.debug("OCSPPublisher: done CRL sending endTime=" + endTime + " diff=" + (endTime - startTime));
 
             // Read the response
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
@@ -332,15 +335,15 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             }
 
         } catch (IOException e) {
-            CMS.debug("OCSPPublisher: publish failed " + e.toString());
+            logger.warn("OCSPPublisher: publish failed " + e.getMessage(), e);
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                     ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
         } catch (CRLException e) {
-            CMS.debug("OCSPPublisher: publish failed " + e.toString());
+            logger.warn("OCSPPublisher: publish failed " + e.getMessage(), e);
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                     ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
         } catch (Exception e) {
-            CMS.debug("OCSPPublisher: publish failed " + e.toString());
+            logger.warn("OCSPPublisher: publish failed " + e.getMessage(), e);
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                     ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
         }
