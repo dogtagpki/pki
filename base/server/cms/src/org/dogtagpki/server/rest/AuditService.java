@@ -62,8 +62,10 @@ import com.netscape.cmscore.logging.LogSubsystem;
  */
 public class AuditService extends SubsystemService implements AuditResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuditService.class);
+
     public AuditService() {
-        CMS.debug("AuditService.<init>()");
+        logger.debug("AuditService.<init>()");
     }
 
     public AuditConfig createAuditConfig() throws UnsupportedEncodingException, EBaseException {
@@ -136,7 +138,7 @@ public class AuditService extends SubsystemService implements AuditResource {
     @Override
     public Response getAuditConfig() {
 
-        CMS.debug("AuditService.getAuditConfig()");
+        logger.debug("AuditService.getAuditConfig()");
 
         try {
             return createOKResponse(createAuditConfig());
@@ -161,7 +163,7 @@ public class AuditService extends SubsystemService implements AuditResource {
             throw e;
         }
 
-        CMS.debug("AuditService.updateAuditConfig()");
+        logger.debug("AuditService.updateAuditConfig()");
 
         try {
             AuditConfig currentAuditConfig = createAuditConfig();
@@ -268,7 +270,7 @@ public class AuditService extends SubsystemService implements AuditResource {
     public Response changeAuditStatus(String action) {
         Map<String, String> auditModParams = new HashMap<String, String>();
 
-        CMS.debug("AuditService.changeAuditStatus()");
+        logger.debug("AuditService.changeAuditStatus()");
 
         try {
             auditModParams.put("Action", action);
@@ -355,10 +357,10 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         List<File> files = getLogFiles();
 
-        CMS.debug("Audit files:");
+        logger.debug("Audit files:");
         for (File file : files) {
             String name = file.getName();
-            CMS.debug(" - " + name);
+            logger.debug(" - " + name);
 
             AuditFile auditFile = new AuditFile();
             auditFile.setName(name);
@@ -377,7 +379,7 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         // make sure filename does not contain path
         if (!new File(filename).getName().equals(filename)) {
-            CMS.debug("Invalid file name: " + filename);
+            logger.error("Invalid file name: " + filename);
             throw new BadRequestException("Invalid file name: " + filename);
         }
 
