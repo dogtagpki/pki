@@ -17,12 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.evaluators;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.usrgrp.IUser;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * A class represents a user-origreq user mapping acls evaluator.
@@ -35,6 +35,9 @@ import org.mozilla.jss.netscape.security.util.Utils;
  * @version $Revision$, $Date$
  */
 public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserOrigReqAccessEvaluator.class);
+
     private String mType = "user_origreq";
     private String mDescription = "user origreq matching evaluator";
 
@@ -51,7 +54,7 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
      * initialization. nothing for now.
      */
     public void init() {
-        CMS.debug("UserOrigReqAccessEvaluator: init");
+        logger.debug("UserOrigReqAccessEvaluator: init");
     }
 
     /**
@@ -90,7 +93,7 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
      * @return true if AuthToken userid is same as value, false otherwise
      */
     public boolean evaluate(IAuthToken authToken, String type, String op, String value) {
-        CMS.debug("UserOrigReqAccessEvaluator: evaluate() begins");
+        logger.debug("UserOrigReqAccessEvaluator: evaluate() begins");
         if (type.equals(mType)) {
             String s = Utils.stripQuotes(value);
 
@@ -103,22 +106,22 @@ public class UserOrigReqAccessEvaluator implements IAccessEvaluator {
             userid = authToken.getInString("userid");
 
             if (userid == null) {
-                CMS.debug("UserOrigReqAccessEvaluator: evaluate() userid in authtoken null");
+                logger.warn("UserOrigReqAccessEvaluator: evaluate() userid in authtoken null");
                 return false;
             } else
-                CMS.debug("UserOrigReqAccessEvaluator: evaluate() userid in authtoken =" + userid);
+                logger.debug("UserOrigReqAccessEvaluator: evaluate() userid in authtoken =" + userid);
 
             // find value of param in request
             SessionContext mSC = SessionContext.getContext();
-            CMS.debug("UserOrigReqAccessEvaluator: evaluate() getting " + "orig_req." + s + " in SessionContext");
+            logger.debug("UserOrigReqAccessEvaluator: evaluate() getting " + "orig_req." + s + " in SessionContext");
             // "orig_req.auth_token.uid"
             String orig_id = (String) mSC.get("orig_req." + s);
 
             if (orig_id == null) {
-                CMS.debug("UserOrigReqAccessEvaluator: evaluate() orig_id null");
+                logger.warn("UserOrigReqAccessEvaluator: evaluate() orig_id null");
                 return false;
             }
-            CMS.debug("UserOrigReqAccessEvaluator: evaluate() orig_id =" + orig_id);
+            logger.debug("UserOrigReqAccessEvaluator: evaluate() orig_id =" + orig_id);
             if (op.equals("="))
                 return userid.equalsIgnoreCase(orig_id);
             else if (op.equals("!="))
