@@ -32,6 +32,10 @@ import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.GeneralizedTime;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OCTET_STRING;
+import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.cert.Extension;
 
 import com.netscape.certsrv.apps.CMS;
@@ -69,10 +73,6 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
-import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * This is the LDAP OCSP store. It reads CA certificate and
@@ -81,6 +81,9 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class LDAPStore implements IDefStore, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPStore.class);
+
     private static final String PROP_NUM_CONNS = "numConns";
     private static final String PROP_REFRESH_IN_SEC = "refreshInSec";
     private static final int DEF_REFRESH_IN_SEC = 60 * 60 * 24;
@@ -170,7 +173,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
             return caCert;
         } catch (Exception e) {
-            CMS.debug("LDAPStore: locateCACert " + e.toString());
+            logger.warn("LDAPStore: locateCACert " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("OCSP_LOCATE_CA", e.toString()));
         }
@@ -203,7 +206,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
             return crl;
         } catch (Exception e) {
-            CMS.debug("LDAPStore: locateCRL " + e.toString());
+            logger.warn("LDAPStore: locateCRL " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("OCSP_LOCATE_CRL", e.toString()));
         }
@@ -221,7 +224,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
                 return; // no update
             }
         }
-        CMS.debug("Added '" + caCert.getSubjectDN().toString() + "' into CRL hash");
+        logger.debug("Added '" + caCert.getSubjectDN() + "' into CRL hash");
         mCRLs.put(caCert, crl);
     }
 
@@ -273,11 +276,11 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     public OCSPResponse validate(OCSPRequest request)
             throws EBaseException {
 
-        CMS.debug("LDAPStore: validating OCSP request");
+        logger.debug("LDAPStore: validating OCSP request");
 
         TBSRequest tbsReq = request.getTBSRequest();
         if (tbsReq.getRequestCount() == 0) {
-            CMS.debug("LDAPStore: No request found");
+            logger.error("LDAPStore: No request found");
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
             throw new EBaseException("OCSP request is empty");
         }
@@ -480,7 +483,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
         CertID cid = req.getCertID();
         INTEGER serialNo = cid.getSerialNumber();
-        CMS.debug("LDAPStore: processing request for cert 0x" + serialNo.toString(16));
+        logger.debug("LDAPStore: processing request for cert 0x" + serialNo.toString(16));
 
         // locate the right CRL
         X509CertImpl theCert = null;
@@ -597,6 +600,9 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 }
 
 class CRLUpdater extends Thread {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRLUpdater.class);
+
     private LDAPConnection mC = null;
     private String mBaseDN = null;
     private int mSec = 0;
@@ -614,12 +620,12 @@ class CRLUpdater extends Thread {
         while (true) {
             try {
                 LDAPConnection conn = mC;
-                CMS.debug("Started CRL Update '" + mBaseDN);
+                logger.debug("Started CRL Update '" + mBaseDN);
                 X509CertImpl caCert = mStore.locateCACert(conn, mBaseDN);
                 X509CRLImpl crl = mStore.locateCRL(conn, mBaseDN);
 
                 mStore.updateCRLHash(caCert, crl);
-                CMS.debug("Finished CRL Update - '" + mBaseDN);
+                logger.debug("Finished CRL Update - '" + mBaseDN);
                 sleep(mSec * 1000); // turn sec into millis-sec
             } catch (Exception e) {
                 // ignore
