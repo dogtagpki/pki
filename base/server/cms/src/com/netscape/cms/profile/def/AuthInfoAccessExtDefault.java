@@ -48,6 +48,8 @@ import com.netscape.cmscore.apps.CMSEngine;
  */
 public class AuthInfoAccessExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthInfoAccessExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "authInfoAccessCritical";
     public static final String CONFIG_NUM_ADS = "authInfoAccessNumADs";
     public static final String CONFIG_AD_ENABLE = "authInfoAccessADEnable_";
@@ -266,7 +268,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                             try {
                                 ext.addAccessDescription(new ObjectIdentifier(method), gn);
                             } catch (NumberFormatException ee) {
-                                CMS.debug("AuthInfoAccessExtDefault: " + ee.toString());
+                                logger.error("AuthInfoAccessExtDefault: " + ee.getMessage(), ee);
                                 throw new EPropertyException(CMS.getUserMessage(
                                         locale, "CMS_PROFILE_DEF_AIA_OID", method));
                             }
@@ -280,11 +282,11 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
 
             replaceExtension(ext.getExtensionId().toString(), ext, info);
         } catch (IOException e) {
-            CMS.debug("AuthInfoAccessExtDefault: " + e.toString());
+            logger.error("AuthInfoAccessExtDefault: " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
-            CMS.debug("AuthInfoAccessExtDefault: " + e.toString());
+            logger.error("AuthInfoAccessExtDefault: " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -311,7 +313,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                 populate(null, info);
 
             } catch (EProfileException e) {
-                CMS.debug("AuthInfoAccessExtDefault: getValue " + e.toString());
+                logger.error("AuthInfoAccessExtDefault: getValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -340,7 +342,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
 
             int num = getNumAds();
 
-            CMS.debug("AuthInfoAccess num=" + num);
+            logger.debug("AuthInfoAccess num=" + num);
             Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
 
             for (int i = 0; i < num; i++) {
@@ -420,7 +422,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
             for (int i = 0; i < num; i++) {
                 String enable = getConfig(CONFIG_AD_ENABLE + i);
                 if (enable != null && enable.equals("true")) {
-                    CMS.debug("AuthInfoAccess: createExtension i=" + i);
+                    logger.debug("AuthInfoAccess: createExtension i=" + i);
                     String method = getConfig(CONFIG_AD_METHOD + i);
                     String locationType = getConfig(CONFIG_AD_LOCATIONTYPE + i);
                     if (locationType == null || locationType.length() == 0)
@@ -448,8 +450,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                 }
             }
         } catch (Exception e) {
-            CMS.debug("AuthInfoAccessExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("AuthInfoAccessExtDefault: createExtension " + e.getMessage(), e);
         }
 
         return ext;
