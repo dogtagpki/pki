@@ -46,6 +46,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Search for certificates matching complex query filter
@@ -176,8 +177,8 @@ public class SearchReqs extends CMSServlet {
         int maxResults = -1;
         int timeLimit = -1;
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         CMSTemplate form = null;
@@ -287,7 +288,7 @@ public class SearchReqs extends CMSServlet {
 
                 if (request != null) {
                     count++;
-                    IArgBlock rarg = CMS.createArgBlock();
+                    ArgBlock rarg = new ArgBlock();
                     mParser.fillRequestIntoArg(locale, request, argSet, rarg);
                     argSet.addRepeatRecord(rarg);
                     long endTime = CMS.getCurrentDate().getTime();

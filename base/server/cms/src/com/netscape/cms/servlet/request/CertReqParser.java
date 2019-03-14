@@ -50,7 +50,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -61,6 +60,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.RawJS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.ExtPrettyPrint;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
@@ -419,7 +419,7 @@ public class CertReqParser extends ReqParser {
                                 } // pretty print all others.
                                 else {
                                     if (argSet != null) {
-                                        IArgBlock rr = CMS.createArgBlock();
+                                        ArgBlock rr = new ArgBlock();
 
                                         rr.addStringValue(
                                                 EXT_PRETTYPRINT,
@@ -484,7 +484,7 @@ public class CertReqParser extends ReqParser {
                 if (oldSerialNo != null) {
                     if (argSet != null) {
                         for (int i = 0; i < oldSerialNo.length; i++) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     oldSerialNo[i], 16);
@@ -514,7 +514,7 @@ public class CertReqParser extends ReqParser {
                     arg.addStringValue("subject", oldCert[0].getSubjectDN().toString());
                     if (req.getRequestType().equals(IRequest.GETCERTS_REQUEST)) {
                         for (int i = 0; i < oldCert.length; i++) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     oldCert[i].getSerialNumber(), 16);
@@ -535,7 +535,7 @@ public class CertReqParser extends ReqParser {
                         X509Certificate cert[] = certChain.getChain();
 
                         for (int i = 0; i < cert.length; i++) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     cert[i].getSerialNumber(), 16);
@@ -882,7 +882,7 @@ public class CertReqParser extends ReqParser {
                 if (mDetails && revokedCert != null) {
                     if (argSet != null) {
                         for (int i = 0; i < revokedCert.length; i++) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     revokedCert[i].getSerialNumber(), 16);
@@ -918,7 +918,7 @@ public class CertReqParser extends ReqParser {
                 if (oldSerialNo != null) {
                     if (argSet != null) {
                         for (int i = 0; i < oldSerialNo.length; i++) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     oldSerialNo[i], 16);
@@ -942,7 +942,7 @@ public class CertReqParser extends ReqParser {
                         arg.addStringValue("subject", xcert.getSubjectDN().toString());
                         if (req.getRequestType().equals(IRequest.GETCERTS_REQUEST)) {
                             for (int i = 0; i < oldCert.length; i++) {
-                                IArgBlock rarg = CMS.createArgBlock();
+                                ArgBlock rarg = new ArgBlock();
 
                                 xcert = (X509CertImpl) oldCert[i];
                                 rarg.addBigIntegerValue("serialNumber",

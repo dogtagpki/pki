@@ -34,7 +34,6 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
@@ -46,6 +45,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -405,8 +405,8 @@ public class QueryReq extends CMSServlet {
             int count,
             BigInteger marker) {
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock context = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock context = new ArgBlock();
         CMSTemplateParams argset = new CMSTemplateParams(header, context);
 
         try {
@@ -472,7 +472,7 @@ public class QueryReq extends CMSServlet {
                     firstNum = curNum;
                 }
 
-                IArgBlock rec = CMS.createArgBlock();
+                ArgBlock rec = new ArgBlock();
                 mParser.fillRequestIntoArg(locale, request, argset, rec);
                 mQueue.releaseRequest(request);
                 argset.addRepeatRecord(rec);
