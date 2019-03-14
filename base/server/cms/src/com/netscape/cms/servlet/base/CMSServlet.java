@@ -106,6 +106,7 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.CommandQueue;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -456,7 +457,7 @@ public abstract class CMSServlet extends HttpServlet {
         CMSRequest cmsRequest = newCMSRequest();
 
         // set argblock
-        cmsRequest.setHttpParams(CMS.createArgBlock("http-request-params", toHashtable(httpReq)));
+        cmsRequest.setHttpParams(new ArgBlock("http-request-params", toHashtable(httpReq)));
 
         // set http request
         cmsRequest.setHttpReq(httpReq);
@@ -717,7 +718,7 @@ public abstract class CMSServlet extends HttpServlet {
                             cmsReq, mAuthority, locale[0], e);
             }
             if (templateParams == null) {
-                templateParams = new CMSTemplateParams(null, CMS.createArgBlock());
+                templateParams = new CMSTemplateParams(null, new ArgBlock());
             }
             if (e != null) {
                 templateParams.getFixed().set(
@@ -1706,7 +1707,7 @@ public abstract class CMSServlet extends HttpServlet {
         try {
             String getClientCert = mGetClientCert;
 
-            IArgBlock httpArgs = CMS.createArgBlock(toHashtable(httpReq));
+            ArgBlock httpArgs = new ArgBlock(toHashtable(httpReq));
             SessionContext ctx = SessionContext.getContext();
             String ip = httpReq.getRemoteAddr();
             logger.debug("IP: " + ip);
