@@ -49,6 +49,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class NameConstraintsExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NameConstraintsExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "nameConstraintsCritical";
     public static final String CONFIG_NUM_PERMITTED_SUBTREES =
             "nameConstraintsNumPermittedSubtrees";
@@ -310,7 +312,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                     return;
                 }
                 if ((value == null) || (value.equals("null")) || (value.equals(""))) {
-                    CMS.debug("NameConstraintsExtDefault:setValue : " +
+                    logger.debug("NameConstraintsExtDefault:setValue : " +
                               "blank value for permitted subtrees ... returning");
                     return;
                 }
@@ -329,7 +331,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                     return;
                 }
                 if ((value == null) || (value.equals("null")) || (value.equals(""))) {
-                    CMS.debug("NameConstraintsExtDefault:setValue : " +
+                    logger.debug("NameConstraintsExtDefault:setValue : " +
                               "blank value for excluded subtrees ... returning");
                     return;
                 }
@@ -346,11 +348,11 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
 
             replaceExtension(PKIXExtensions.NameConstraints_Id.toString(), ext, info);
         } catch (IOException e) {
-            CMS.debug("NameConstraintsExtDefault: setValue " + e.toString());
+            logger.error("NameConstraintsExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
-            CMS.debug("NameConstraintsExtDefault: setValue " + e.toString());
+            logger.error("NameConstraintsExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -403,8 +405,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
             try {
                 gnI = parseGeneralName(choice + ":" + val);
             } catch (IOException e) {
-                CMS.debug("NameConstraintsExtDefault: createSubtress " +
-                        e.toString());
+                logger.warn("NameConstraintsExtDefault: createSubtress " + e.getMessage(), e);
             }
 
             if (gnI != null) {
@@ -475,7 +476,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                 subtrees = (GeneralSubtrees)
                         ext.get(NameConstraintsExtension.PERMITTED_SUBTREES);
             } catch (IOException e) {
-                CMS.debug("NameConstraintExtDefault: getValue " + e.toString());
+                logger.warn("NameConstraintExtDefault: getValue " + e.getMessage(), e);
             }
 
             return getSubtreesInfo(subtrees);
@@ -492,7 +493,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                 subtrees = (GeneralSubtrees)
                         ext.get(NameConstraintsExtension.EXCLUDED_SUBTREES);
             } catch (IOException e) {
-                CMS.debug("NameConstraintExtDefault: getValue " + e.toString());
+                logger.warn("NameConstraintExtDefault: getValue " + e.getMessage(), e);
             }
 
             return getSubtreesInfo(subtrees);
@@ -629,8 +630,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
         } catch (EProfileException e) {
             throw e;  // re-throw
         } catch (Exception e) {
-            CMS.debug("NameConstraintsExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("NameConstraintsExtDefault: createExtension " + e.getMessage(), e);
         }
 
         return ext;
@@ -645,7 +645,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
         try {
             gnI = parseGeneralName(choice + ":" + value);
         } catch (IOException e) {
-            CMS.debug(e.toString());
+            logger.warn("NameConstraintsExtDefault: " + e.getMessage(), e);
         }
         if (gnI != null) {
             if (!gnI.validSubtree()) {
