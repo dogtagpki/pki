@@ -60,6 +60,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Force the CRL to be updated now.
@@ -144,8 +145,8 @@ public class UpdateCRL extends CMSServlet {
 
         EBaseException error = null;
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         CMSTemplate form = null;
@@ -258,7 +259,7 @@ public class UpdateCRL extends CMSServlet {
     }
 
     private void addInfo(CMSTemplateParams argSet, ICRLIssuingPoint crlIssuingPoint, long cacheUpdate) {
-        IArgBlock rarg = CMS.createArgBlock();
+        ArgBlock rarg = new ArgBlock();
 
         rarg.addLongValue("cacheUpdate", cacheUpdate);
 

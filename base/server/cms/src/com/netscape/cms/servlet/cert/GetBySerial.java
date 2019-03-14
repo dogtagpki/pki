@@ -57,6 +57,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -214,8 +215,8 @@ public class GetBySerial extends CMSServlet {
         if (cert != null) {
             // if there's a crmf request id, set that too.
             if (browser != null && browser.equals("ie")) {
-                IArgBlock header = CMS.createArgBlock();
-                IArgBlock ctx = CMS.createArgBlock();
+                ArgBlock header = new ArgBlock();
+                ArgBlock ctx = new ArgBlock();
                 Locale[] locale = new Locale[1];
                 CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
                 ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");

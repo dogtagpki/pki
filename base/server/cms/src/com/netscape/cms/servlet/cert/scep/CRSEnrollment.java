@@ -96,7 +96,6 @@ import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
@@ -120,6 +119,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWCBsdr;
 import com.netscape.cmscore.util.Debug;
@@ -354,7 +354,7 @@ public class CRSEnrollment extends HttpServlet {
 
         // Parse the URL from the HTTP Request. Split it up into
         // a structure which enables us to read the form elements
-        IArgBlock input = CMS.createArgBlock(toHashtable(httpReq));
+        ArgBlock input = new ArgBlock(toHashtable(httpReq));
 
         try {
             // Read in two form parameters - the router sets these

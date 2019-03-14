@@ -29,6 +29,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -54,10 +57,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertUtils;
-
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * Update the configured LDAP server with specified objects
@@ -158,8 +159,8 @@ public class UpdateDir extends CMSServlet {
 
         EBaseException error = null;
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         CMSTemplate form = null;

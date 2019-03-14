@@ -70,6 +70,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Revoke a Certificate
@@ -168,8 +169,8 @@ public class DoRevoke extends CMSServlet {
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         try {
@@ -436,7 +437,7 @@ public class DoRevoke extends CMSServlet {
                         throw new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
                     }
 
-                    IArgBlock rarg = CMS.createArgBlock();
+                    ArgBlock rarg = new ArgBlock();
                     rarg.addStringValue("serialNumber", targetCert.getSerialNumber().toString(16));
 
                     try {
@@ -506,7 +507,7 @@ public class DoRevoke extends CMSServlet {
                         }
 
                         if (addToList) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addStringValue("serialNumber", certs[i].getSerialNumber().toString(16));
 
@@ -531,7 +532,7 @@ public class DoRevoke extends CMSServlet {
                         //  byte[] certBytes = decoder.decodeBuffer(b64eCert);
                         byte[] certBytes = Utils.base64decode(b64eCert);
                         X509CertImpl cert = new X509CertImpl(certBytes);
-                        IArgBlock rarg = CMS.createArgBlock();
+                        ArgBlock rarg = new ArgBlock();
 
                         rarg.addStringValue("serialNumber", cert.getSerialNumber().toString(16));
 

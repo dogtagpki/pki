@@ -65,6 +65,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Revoke a Certificate
@@ -177,8 +178,8 @@ public class DoRevokeTPS extends CMSServlet {
         }
 
         logger.debug("DoRevokeTPS after getTemplate");
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         try {
@@ -392,7 +393,7 @@ public class DoRevokeTPS extends CMSServlet {
                     continue;
                 }
                 X509CertImpl xcert = rec.getCertificate();
-                IArgBlock rarg = CMS.createArgBlock();
+                ArgBlock rarg = new ArgBlock();
 
                 // we do not want to revoke the CA certificate accidentially
                 if (xcert != null && isSystemCertificate(xcert.getSerialNumber())) {

@@ -33,7 +33,6 @@ import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
@@ -44,6 +43,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Servlet to get the enrollment status, enable or disable.
@@ -132,8 +132,8 @@ public class GetEnableStatus extends CMSServlet {
             return;
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
 
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
@@ -148,7 +148,7 @@ public class GetEnableStatus extends CMSServlet {
         header.addStringValue("reqHost", reqHost);
 
         for (Enumeration<String> hosts = mgr.getHosts(); hosts.hasMoreElements();) {
-            IArgBlock rarg = CMS.createArgBlock();
+            ArgBlock rarg = new ArgBlock();
 
             rarg.addStringValue("hosts", hosts.nextElement());
             argSet.addRepeatRecord(rarg);

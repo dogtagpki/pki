@@ -50,6 +50,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Provide statistical queries of request and certificate records.
@@ -146,8 +147,8 @@ public class Monitor extends CMSServlet {
 
         EBaseException error = null;
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         CMSTemplate form = null;
@@ -249,7 +250,7 @@ public class Monitor extends CMSServlet {
 
         for (int i = 0; i < iNumberOfIntervals; i++) {
             Date d2 = nextDate(d1, iInterval - 1);
-            IArgBlock rarg = CMS.createArgBlock();
+            ArgBlock rarg = new ArgBlock();
             String e = getIntervalInfo(rarg, d1, d2);
 
             if (e != null) {

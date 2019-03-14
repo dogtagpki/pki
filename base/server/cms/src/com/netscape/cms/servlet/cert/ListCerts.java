@@ -57,6 +57,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Retrieve a paged list of certs matching the specified query
@@ -221,8 +222,8 @@ public class ListCerts extends CMSServlet {
         int maxCount = -1;
         BigInteger sentinel = new BigInteger("0");
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         CMSTemplate form = null;
@@ -497,7 +498,7 @@ public class ListCerts extends CMSServlet {
 
                 } else {
                     //logger.debug("ListCerts: returning with arg block");
-                    IArgBlock rarg = CMS.createArgBlock();
+                    ArgBlock rarg = new ArgBlock();
                     fillRecordIntoArg(rec, rarg);
                     argSet.addRepeatRecord(rarg);
                 }
@@ -514,7 +515,7 @@ public class ListCerts extends CMSServlet {
             for (int ii = rcount - 1; ii >= 0; ii--) {
                 if (recs[ii] != null) {
                     //logger.debug("ListCerts: processing recs[" + ii + "]");
-                    IArgBlock rarg = CMS.createArgBlock();
+                    ArgBlock rarg = new ArgBlock();
                     // logger.debug("item " + ii + " is serial #" + recs[ii].getSerialNumber());
                     fillRecordIntoArg(recs[ii], rarg);
                     argSet.addRepeatRecord(rarg);

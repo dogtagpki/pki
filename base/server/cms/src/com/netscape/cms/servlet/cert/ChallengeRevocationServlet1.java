@@ -66,6 +66,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Takes the certificate info (serial number) and optional challenge phrase, creates a
@@ -150,8 +151,8 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         // for audit log
@@ -239,7 +240,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             header.addIntegerValue("verifiedRecordCount", serialNoArray.length);
 
             for (int i = 0; i < serialNoArray.length; i++) {
-                IArgBlock rarg = CMS.createArgBlock();
+                ArgBlock rarg = new ArgBlock();
 
                 rarg.addBigIntegerValue("serialNumber",
                         serialNoArray[i], 16);
@@ -339,7 +340,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 while (e != null && e.hasMoreElements()) {
                     ICertRecord rec = e.nextElement();
                     X509CertImpl cert = rec.getCertificate();
-                    IArgBlock rarg = CMS.createArgBlock();
+                    ArgBlock rarg = new ArgBlock();
 
                     rarg.addBigIntegerValue("serialNumber",
                             cert.getSerialNumber(), 16);
@@ -405,7 +406,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                             }
                         }
                         if (addToList) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     certs[i].getSerialNumber(), 16);
@@ -427,7 +428,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                     if (b64eCert != null) {
                         byte[] certBytes = Utils.base64decode(b64eCert);
                         X509CertImpl cert = new X509CertImpl(certBytes);
-                        IArgBlock rarg = CMS.createArgBlock();
+                        ArgBlock rarg = new ArgBlock();
 
                         rarg.addBigIntegerValue("serialNumber",
                                 cert.getSerialNumber(), 16);
