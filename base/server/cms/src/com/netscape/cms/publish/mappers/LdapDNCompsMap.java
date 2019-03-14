@@ -23,6 +23,13 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.AVA;
+import org.mozilla.jss.netscape.security.x509.RDN;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -39,12 +46,6 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPv3;
-import org.mozilla.jss.netscape.security.util.DerValue;
-import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
-import org.mozilla.jss.netscape.security.x509.AVA;
-import org.mozilla.jss.netscape.security.x509.RDN;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
 
 /**
  * Maps a Subject name to an entry in the LDAP server.
@@ -61,6 +62,9 @@ import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
  */
 public class LdapDNCompsMap
         implements ILdapPlugin, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapDNCompsMap.class);
+
     //protected String mLdapAttr = null;
     protected String mBaseDN = null;
     protected ObjectIdentifier[] mDnComps = null;
@@ -192,11 +196,10 @@ public class LdapDNCompsMap
 
         // log debug info.
         for (int i = 0; i < mDnComps.length; i++) {
-            CMS.debug(
-                    "LdapDNCompsMap: dnComp " + X500NameAttrMap.getDefault().getName(mDnComps[i]));
+            logger.debug("LdapDNCompsMap: dnComp " + X500NameAttrMap.getDefault().getName(mDnComps[i]));
         }
         for (int i = 0; i < mFilterComps.length; i++) {
-            CMS.debug("LdapDNCompsMap: filterComp " +
+            logger.debug("LdapDNCompsMap: filterComp " +
                     X500NameAttrMap.getDefault().getName(mFilterComps[i]));
         }
         mInited = true;
@@ -224,7 +227,7 @@ public class LdapDNCompsMap
             if (conn == null)
                 return null;
 
-            CMS.debug("LdapDNCompsMap: " + x500name.toString());
+            logger.debug("LdapDNCompsMap: " + x500name.toString());
 
             String[] dnAndFilter = formDNandFilter(x500name);
             String dn = dnAndFilter[0];
@@ -331,14 +334,12 @@ public class LdapDNCompsMap
                             RDN newRDN = new RDN(new AVA[] { newAVA }
                                     );
 
-                            CMS.debug(
-                                    "LdapDNCompsMap: Converted " + rdn.toLdapDNString() + " to " +
+                            logger.debug("LdapDNCompsMap: Converted " + rdn.toLdapDNString() + " to " +
                                             newRDN.toLdapDNString() + " in DN");
                             rdn = newRDN;
                         }
                         dnRdns.addElement(rdn);
-                        CMS.debug(
-                                "LdapDNCompsMap: adding dn comp " + rdn.toLdapDNString());
+                        logger.debug("LdapDNCompsMap: adding dn comp " + rdn.toLdapDNString());
                         break;
                     }
                 }
@@ -348,14 +349,12 @@ public class LdapDNCompsMap
                             DerValue val = ava.getValue();
                             AVA newAVA = new AVA(mailOid, val);
 
-                            CMS.debug(
-                                    "LdapDNCompsMap: Converted " + ava.toLdapDNString() + " to " +
+                            logger.debug("LdapDNCompsMap: Converted " + ava.toLdapDNString() + " to " +
                                             newAVA.toLdapDNString() + " in filter");
                             ava = newAVA;
                         }
                         filter.addElement(ava.toLdapDNString());
-                        CMS.debug(
-                                "LdapDNCompsMap: adding filter comp " + ava.toLdapDNString());
+                        logger.debug("LdapDNCompsMap: adding filter comp " + ava.toLdapDNString());
                         break;
                     }
                 }
