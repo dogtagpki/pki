@@ -1272,11 +1272,7 @@ class PKIInstance(object):
                     self.group = m.group(1)
                     self.gid = grp.getgrnam(self.group).gr_gid
 
-        # load passwords
-        self.passwords.clear()
-        if os.path.exists(self.password_conf):
-            logger.info('Loading password config: %s', self.password_conf)
-            pki.util.load_properties(self.password_conf, self.passwords)
+        self.load_passwords()
 
         self.load_external_certs(self.external_certs_conf)
 
@@ -1447,6 +1443,19 @@ class PKIInstance(object):
 
             finally:
                 shutil.rmtree(tmpdir)
+
+    def load_passwords(self):
+
+        self.passwords.clear()
+
+        if os.path.exists(self.password_conf):
+            logger.info('Loading password config: %s', self.password_conf)
+            pki.util.load_properties(self.password_conf, self.passwords)
+
+    def store_passwords(self):
+
+        pki.util.store_properties(self.password_conf, self.passwords)
+        pki.util.chown(self.password_conf, self.uid, self.gid)
 
     def get_server_config(self):
         server_config = ServerConfiguration(self.server_xml)
