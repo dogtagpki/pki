@@ -43,6 +43,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class AuthTokenSubjectNameDefault extends EnrollDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthTokenSubjectNameDefault.class);
+
     public static final String VAL_NAME = "name";
 
     public AuthTokenSubjectNameDefault() {
@@ -67,7 +69,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
     public void setValue(String name, Locale locale,
             X509CertInfo info, String value)
             throws EPropertyException {
-        CMS.debug("AuthTokenSubjectNameDefault: begins");
+        logger.debug("AuthTokenSubjectNameDefault: begins");
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(locale,
                         "CMS_INVALID_PROPERTY", name));
@@ -77,20 +79,18 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
 
             try {
                 x500name = new X500Name(value);
-                CMS.debug("AuthTokenSubjectNameDefault: setValue x500name=" + x500name.toString());
+                logger.debug("AuthTokenSubjectNameDefault: setValue x500name=" + x500name);
             } catch (IOException e) {
-                CMS.debug("AuthTokenSubjectNameDefault: setValue " +
-                        e.toString());
+                logger.warn("AuthTokenSubjectNameDefault: setValue " + e.getMessage(), e);
                 // failed to build x500 name
             }
-            CMS.debug("AuthTokenSubjectNameDefault: setValue name=" + x500name.toString());
+            logger.debug("AuthTokenSubjectNameDefault: setValue name=" + x500name);
             try {
                 info.set(X509CertInfo.SUBJECT,
                         new CertificateSubjectName(x500name));
             } catch (Exception e) {
                 // failed to insert subject name
-                CMS.debug("AuthTokenSubjectNameDefault: setValue " +
-                        e.toString());
+                logger.warn("AuthTokenSubjectNameDefault: setValue " + e.getMessage(), e);
             }
         } else {
             throw new EPropertyException(CMS.getUserMessage(locale,
@@ -112,8 +112,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
                 return sn.toString();
             } catch (Exception e) {
                 // nothing
-                CMS.debug("AuthTokenSubjectNameDefault: getValue " +
-                        e.toString());
+                logger.warn("AuthTokenSubjectNameDefault: getValue " + e.getMessage(), e);
             }
             throw new EPropertyException(CMS.getUserMessage(locale,
                         "CMS_INVALID_PROPERTY", name));
@@ -140,11 +139,11 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
             X500Name name = new X500Name(
                     request.getExtDataInString(IProfileAuthenticator.AUTHENTICATED_NAME));
 
-            CMS.debug("AuthTokenSubjectNameDefault: X500Name=" + name.getName());
+            logger.debug("AuthTokenSubjectNameDefault: X500Name=" + name.getName());
             info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(name));
         } catch (Exception e) {
             // failed to insert subject name
-            CMS.debug("AuthTokenSubjectNameDefault: " + e.toString());
+            logger.error("AuthTokenSubjectNameDefault: " + e.getMessage(), e);
             throw new EProfileException(CMS.getUserMessage(getLocale(request),
                         "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
         }
