@@ -837,7 +837,7 @@ class CertFixCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-        logging.basicConfig(format='%(levelname)s: %(message)s')
+        logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
@@ -873,7 +873,6 @@ class CertFixCLI(pki.cli.CLI):
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
-                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--debug':
                 self.set_verbose(True)
