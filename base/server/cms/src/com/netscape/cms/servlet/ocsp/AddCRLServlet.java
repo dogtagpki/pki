@@ -41,7 +41,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
@@ -56,6 +55,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -221,8 +221,8 @@ public class AddCRLServlet extends CMSServlet {
                         CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
             }
 
-            IArgBlock header = CMS.createArgBlock();
-            IArgBlock fixed = CMS.createArgBlock();
+            ArgBlock header = new ArgBlock();
+            ArgBlock fixed = new ArgBlock();
             CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
             if (b64.indexOf(BEGIN_HEADER) == -1) {
