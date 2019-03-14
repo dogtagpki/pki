@@ -25,8 +25,8 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -38,10 +38,10 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.input.CertReqInput;
 
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-
 
 public class ExternalProcessConstraint extends EnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExternalProcessConstraint.class);
 
     public static final String CONFIG_EXECUTABLE = "executable";
     public static final String CONFIG_TIMEOUT = "timeout";
@@ -105,9 +105,9 @@ public class ExternalProcessConstraint extends EnrollConstraint {
                 extraEnvVars.put(name, envConfig.getString(name));
             } catch (EBaseException e) {
                 // shouldn't happen; log and move on
-                CMS.debug(
+                logger.warn(
                     "ExternalProcessConstraint: caught exception processing "
-                    + "'params.env' config: " + e
+                    + "'params.env' config: " + e.getMessage(), e
                 );
 
             }
@@ -128,7 +128,7 @@ public class ExternalProcessConstraint extends EnrollConstraint {
 
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
-        CMS.debug("About to execute command: " + this.executable);
+        logger.debug("About to execute command: " + this.executable);
         ProcessBuilder pb = new ProcessBuilder(this.executable);
 
         // set up process environment
@@ -159,16 +159,15 @@ public class ExternalProcessConstraint extends EnrollConstraint {
         } catch (Throwable e) {
             String msg =
                 "Caught exception while executing command: " + this.executable;
-            CMS.debug(msg);
-            CMS.debug(e);
+            logger.error(msg + ": " + e.getMessage(), e);
             throw new ERejectException(msg, e);
         }
         if (timedOut)
             throw new ERejectException("Request validation timed out");
         int exitValue = p.exitValue();
-        CMS.debug("ExternalProcessConstraint: exit value: " + exitValue);
-        CMS.debug("ExternalProcessConstraint: stdout: " + stdout);
-        CMS.debug("ExternalProcessConstraint: stderr: " + stderr);
+        logger.debug("ExternalProcessConstraint: exit value: " + exitValue);
+        logger.debug("ExternalProcessConstraint: stdout: " + stdout);
+        logger.debug("ExternalProcessConstraint: stderr: " + stderr);
         if (exitValue != 0)
             throw new ERejectException(stdout);
     }
