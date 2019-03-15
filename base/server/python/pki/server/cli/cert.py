@@ -983,6 +983,7 @@ class CertFixCLI(pki.cli.CLI):
         print()
         print('      --cert <Cert ID>            Fix specified system cert (default: all certs).')
         print('      --extra-cert <Serial>       Also renew cert with given serial number.')
+        print('      --agent-uid <String>        UID of Dogtag agent user')
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
@@ -994,7 +995,7 @@ class CertFixCLI(pki.cli.CLI):
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'cert=', 'extra-cert=',
+                'instance=', 'cert=', 'extra-cert=', 'agent-uid=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -1006,6 +1007,7 @@ class CertFixCLI(pki.cli.CLI):
         all_certs = True
         fix_certs = []
         extra_certs = []
+        agent_uid = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -1023,6 +1025,9 @@ class CertFixCLI(pki.cli.CLI):
                     sys.exit(1)
                 all_certs = False
                 extra_certs.append(a)
+
+            elif o == '--agent-uid':
+                agent_uid = a
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -1045,6 +1050,10 @@ class CertFixCLI(pki.cli.CLI):
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
+            sys.exit(1)
+
+        if not agent_uid:
+            logger.error('Must specify --agent-uid')
             sys.exit(1)
 
         instance.load()
@@ -1080,7 +1089,7 @@ class CertFixCLI(pki.cli.CLI):
         ca_subsystem = instance.get_subsystem('ca')
         basedn = ca_subsystem.get_db_config()['internaldb.basedn']
         dbuser_dn = 'uid=pkidbuser,ou=people,{}'.format(basedn)
-        admin_dn = 'uid=admin,ou=people,{}'.format(basedn)
+        agent_dn = 'uid={},ou=people,{}'.format(agent_uid, basedn)
 
         # Prompt for DM password
         dm_pass = getpass.getpass(prompt='Enter Directory Manager password: ')
@@ -1093,9 +1102,9 @@ class CertFixCLI(pki.cli.CLI):
             logger.error("Failed to verify Directory Manager password.")
             sys.exit(1)
 
-        logger.info('Resetting PKI admin account password.')
-        admin_pass = gen_random_password()
-        ldappasswd(dm_pass, admin_dn, admin_pass)
+        logger.info('Resetting password for %s', agent_dn)
+        agent_pass = gen_random_password()
+        ldappasswd(dm_pass, agent_dn, agent_pass)
 
         # 3. Find the subsystem and disable Self-tests
         try:
@@ -1148,7 +1157,7 @@ class CertFixCLI(pki.cli.CLI):
                         logger.info('Requesting new cert for %s', cert_id)
                         instance.cert_create(
                             cert_id=cert_id, renew=True,
-                            username='admin', password=admin_pass)
+                            username=agent_uid, password=agent_pass)
                     for serial in extra_certs:
                         output = instance.cert_file('{}-renewed'.format(serial))
                         logger.info(
@@ -1157,7 +1166,7 @@ class CertFixCLI(pki.cli.CLI):
                         try:
                             instance.cert_create(
                                 serial=serial, renew=True, output=output,
-                                username='admin', password=admin_pass)
+                                username=agent_uid, password=agent_pass)
                         except pki.PKIException as e:
                             logger.error("Failed to renew certificate %s: %s", serial, e)
 
