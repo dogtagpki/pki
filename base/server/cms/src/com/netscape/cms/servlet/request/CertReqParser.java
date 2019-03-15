@@ -30,23 +30,8 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IPrettyPrintFormat;
-import com.netscape.certsrv.profile.IEnrollProfile;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.servlet.common.CMSTemplate;
-import com.netscape.cms.servlet.common.CMSTemplateParams;
-import com.netscape.cms.servlet.common.RawJS;
-import com.netscape.cmscore.cert.CertPrettyPrint;
-import com.netscape.cmscore.cert.ExtPrettyPrint;
-import com.netscape.cmscore.cert.PrettyPrintFormat;
-import org.mozilla.jss.netscape.security.util.Utils;
-
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
@@ -65,12 +50,29 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.certsrv.base.IPrettyPrintFormat;
+import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.servlet.common.CMSTemplate;
+import com.netscape.cms.servlet.common.CMSTemplateParams;
+import com.netscape.cms.servlet.common.RawJS;
+import com.netscape.cmscore.cert.CertPrettyPrint;
+import com.netscape.cmscore.cert.ExtPrettyPrint;
+import com.netscape.cmscore.cert.PrettyPrintFormat;
+
 /**
  * Output a 'pretty print' of a certificate request
  *
  * @version $Revision$, $Date$
  */
 public class CertReqParser extends ReqParser {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertReqParser.class);
 
     public static final CertReqParser DETAIL_PARSER = new CertReqParser(true);
     public static final CertReqParser NODETAIL_PARSER = new CertReqParser(false);
@@ -111,7 +113,7 @@ public class CertReqParser extends ReqParser {
         if (req.getExtDataInCertInfo("req_x509info"/*IRequest.CERT_INFO*/) == null
                 && req.getExtDataInCertInfo(IRequest.CERT_INFO) == null
                 && arg.getValueAsString("subject", "").equals("")) {
-            //CMS.debug("CertReqParser.fillRequestIntoArg: filling subject due to missing x509CertInfo in request");
+            //logger.debug("CertReqParser.fillRequestIntoArg: filling subject due to missing x509CertInfo in request");
             try {
                 String subjectnamevalue = req.getExtDataInString("req_subject_name");
                 if (subjectnamevalue != null && !subjectnamevalue.equals("")) {
@@ -122,7 +124,7 @@ public class CertReqParser extends ReqParser {
                     }
                 }
             } catch (Exception ee) {
-                CMS.debug("CertReqParser.fillRequestIntoArg: Exception:" + ee.toString());
+                logger.warn("CertReqParser.fillRequestIntoArg: Exception:" + ee.getMessage(), ee);
             }
         }
 
@@ -654,7 +656,7 @@ public class CertReqParser extends ReqParser {
                 }
             }
         } catch (Exception e) {
-            CMS.debug("CertReqParser: getCertSubjectDN " + e.toString());
+            logger.warn("CertReqParser: getCertSubjectDN " + e.getMessage(), e);
         }
         return null;
     }
@@ -669,7 +671,7 @@ public class CertReqParser extends ReqParser {
 
             return sn.toString();
         } catch (Exception e) {
-            CMS.debug("CertReqParser: getRequestorDN " + e.toString());
+            logger.warn("CertReqParser: getRequestorDN " + e.getMessage(), e);
         }
         return null;
     }
@@ -693,7 +695,7 @@ public class CertReqParser extends ReqParser {
 
             return kid;
         } catch (Exception e) {
-            CMS.debug("CertReqParser: getKeyID " + e.toString());
+            logger.warn("CertReqParser: getKeyID " + e.getMessage(), e);
         }
         return null;
     }
@@ -707,7 +709,7 @@ public class CertReqParser extends ReqParser {
         String profile = req.getExtDataInString("profile");
         String reqType = req.getExtDataInString(IRequest.ATTR_REQUEST_TYPE);
 
-        //CMS.debug("CertReqParser: profile=" + profile);
+        //logger.debug("CertReqParser: profile=" + profile);
         //profile null can mean either recovery case or TMS reqs
         if (profile != null) {
             arg.addStringValue("profile", profile);
