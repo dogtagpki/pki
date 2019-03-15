@@ -36,9 +36,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class DownloadPKCS12 extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DownloadPKCS12.class);
+
     private static final long serialVersionUID = -7770226137155537526L;
     private final static String AUTH_FAILURE = "2";
 
@@ -52,16 +51,16 @@ public class DownloadPKCS12 extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
-        CMS.debug("DownloadPKCS12: initializing...");
+        logger.debug("DownloadPKCS12: initializing...");
         super.init(sc);
-        CMS.debug("DownloadPKCS12: done initializing...");
+        logger.debug("DownloadPKCS12: done initializing...");
     }
 
     /**
      * Process the HTTP request.
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("DownloadPKCS12: processing...");
+        logger.debug("DownloadPKCS12: processing...");
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
@@ -71,7 +70,7 @@ public class DownloadPKCS12 extends CMSServlet {
         // check the pin from the session
         String pin = (String) httpReq.getSession().getAttribute("pin");
         if (pin == null) {
-            CMS.debug("DownloadPKCS12 process: Failed to get the pin from the cookie.");
+            logger.warn("DownloadPKCS12 process: Failed to get the pin from the cookie.");
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
                         null);
             return;
@@ -84,7 +83,7 @@ public class DownloadPKCS12 extends CMSServlet {
         }
 
         if (!pin.equals(cspin)) {
-            CMS.debug("DownloadPKCS12 process: Wrong pin");
+            logger.warn("DownloadPKCS12 process: Wrong pin");
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
                         null);
             return;
@@ -102,7 +101,7 @@ public class DownloadPKCS12 extends CMSServlet {
             httpResp.getOutputStream().write(pkcs12);
             return;
         } catch (Exception e) {
-            CMS.debug("DownloadPKCS12 process: Exception=" + e.toString());
+            logger.warn("DownloadPKCS12 process: " + e.getMessage(), e);
         }
     }
 
