@@ -44,9 +44,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
  */
 public class ProfileListServlet extends ProfileServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileListServlet.class);
+
     private static final long serialVersionUID = -5118812083812548395L;
 
     public ProfileListServlet() {
@@ -72,7 +71,7 @@ public class ProfileListServlet extends ProfileServlet {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();
 
-        CMS.debug("ProfileListServlet: start serving");
+        logger.debug("ProfileListServlet: start serving");
 
         Locale locale = getLocale(request);
 
@@ -106,12 +105,12 @@ public class ProfileListServlet extends ProfileServlet {
         if (mProfileSubId == null || mProfileSubId.equals("")) {
             mProfileSubId = IProfileSubsystem.ID;
         }
-        CMS.debug("ProfileListServlet: SubId=" + mProfileSubId);
+        logger.debug("ProfileListServlet: SubId=" + mProfileSubId);
         IProfileSubsystem ps = (IProfileSubsystem)
                 CMS.getSubsystem(mProfileSubId);
 
         if (ps == null) {
-            CMS.debug("ProfileListServlet: ProfileSubsystem " +
+            logger.warn("ProfileListServlet: ProfileSubsystem " +
                     mProfileSubId + " not found");
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
@@ -132,12 +131,13 @@ public class ProfileListServlet extends ProfileServlet {
                     profile = ps.getProfile(id);
                 } catch (EBaseException e1) {
                     // skip bad profile
-                    CMS.debug("ProfileListServlet: profile " + id +
-                            " not found (skipped) " + e1.toString());
+                    logger.warn("ProfileListServlet: profile " + id +
+                            " not found (skipped) " + e1.getMessage(), e);
                     continue;
                 }
+
                 if (profile == null) {
-                    CMS.debug("ProfileListServlet: profile " + id +
+                    logger.warn("ProfileListServlet: profile " + id +
                             " not found (skipped)");
                     continue;
                 }
