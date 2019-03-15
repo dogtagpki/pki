@@ -51,6 +51,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectDirAttributesExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "subjDirAttrsCritical";
     public static final String CONFIG_NUM_ATTRS = "subjDirAttrsNum";
     public static final String CONFIG_ATTR_NAME = "subjDirAttrName_";
@@ -258,13 +260,11 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
             replaceExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
                     ext, info);
         } catch (EProfileException e) {
-            CMS.debug("SubjectDirAttributesExtDefault: setValue " +
-                    e.toString());
+            logger.error("SubjectDirAttributesExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (IOException e) {
-            CMS.debug("SubjectDirAttributesExtDefault: setValue " +
-                    e.toString());
+            logger.error("SubjectDirAttributesExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -310,16 +310,16 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
             Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
             int num = getNumAttrs();
             Enumeration<Attribute> e = ext.getAttributesList();
-            CMS.debug("SubjectDirAttributesExtDefault: getValue: attributesList=" + e);
+            logger.debug("SubjectDirAttributesExtDefault: getValue: attributesList=" + e);
             int i = 0;
 
             while (e.hasMoreElements()) {
                 NameValuePairs pairs = new NameValuePairs();
                 pairs.put(ENABLE, "true");
                 Attribute attr = e.nextElement();
-                CMS.debug("SubjectDirAttributesExtDefault: getValue: attribute=" + attr);
+                logger.debug("SubjectDirAttributesExtDefault: getValue: attribute=" + attr);
                 ObjectIdentifier oid = attr.getOid();
-                CMS.debug("SubjectDirAttributesExtDefault: getValue: oid=" + oid);
+                logger.debug("SubjectDirAttributesExtDefault: getValue: oid=" + oid);
 
                 String vv = map.getName(oid);
 
@@ -461,6 +461,8 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
 
 class AttributeConfig {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AttributeConfig.class);
+
     protected ObjectIdentifier mAttributeOID = null;
     protected Attribute mAttribute = null;
 
@@ -481,7 +483,7 @@ class AttributeConfig {
         try {
             mAttributeOID = new ObjectIdentifier(attrName);
         } catch (Exception e) {
-            CMS.debug("SubjectDirAttributesExtDefault: invalid OID syntax: " + attrName);
+            logger.warn("SubjectDirAttributesExtDefault: invalid OID syntax: " + attrName + ": " + e.getMessage(), e);
         }
 
         if (mAttributeOID == null) {
