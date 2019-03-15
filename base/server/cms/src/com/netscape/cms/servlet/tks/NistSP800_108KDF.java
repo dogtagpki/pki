@@ -21,10 +21,11 @@ import org.mozilla.jss.crypto.JSSMessageDigest;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 
 public class NistSP800_108KDF extends KDF {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NistSP800_108KDF.class);
 
     static final int KDF_OUTPUT_SIZE_BITS = 384;
     static final int KDF_OUTPUT_SIZE_BYTES = KDF_OUTPUT_SIZE_BITS / 8;
@@ -223,7 +224,7 @@ public class NistSP800_108KDF extends KDF {
 
         String method = "NistSP800_108KDF.kdf_CM_SHA256_HMAC_L384:";
 
-        CMS.debug(method + " entering..");
+        logger.debug(method + " entering..");
         final byte n = 2; // ceil(384 / (SHA256LENGTH * 8)) == 2
         int L_BYTE_array_length = 2; // 384 = 0x0180 hex; 2 byte long representation
 
@@ -261,12 +262,12 @@ public class NistSP800_108KDF extends KDF {
         for (byte i = 1; i <= n; i++) {
             hmac_data_input[0] = i;
             outputHMAC256 = sha256HMAC(masterKey, hmac_data_input, HMAC_DATA_INPUT_SIZE, token);
-            CMS.debug(method + "outputHMAC256 len: " + outputHMAC256.length);
+            logger.debug(method + "outputHMAC256 len: " + outputHMAC256.length);
             System.arraycopy(outputHMAC256, 0, K, (i - 1) * SHA256_LENGTH, SHA256_LENGTH);
             Arrays.fill(outputHMAC256, (byte)0);
         }
 
-        CMS.debug(method + " Full array: " + K.length + " bytes...");
+        logger.debug(method + " Full array: " + K.length + " bytes...");
 
         byte[] finalOutput = new byte[KDF_OUTPUT_SIZE_BYTES];
 
@@ -274,7 +275,7 @@ public class NistSP800_108KDF extends KDF {
 
         Arrays.fill(K, (byte) 0);
 
-        CMS.debug(method + " finalOutput: " + finalOutput.length + " bytes...");
+        logger.debug(method + " finalOutput: " + finalOutput.length + " bytes...");
 
         return finalOutput;
     }
@@ -286,7 +287,7 @@ public class NistSP800_108KDF extends KDF {
 
         String method = "NistSP800_108KDF.sha256HMAC:";
 
-        CMS.debug(method + " Entering...");
+        logger.debug(method + " Entering...");
 
         byte[] digestBytes = null;
 
@@ -299,9 +300,9 @@ public class NistSP800_108KDF extends KDF {
             digest.initHMAC(masterKey);
 
             digestBytes = digest.digest(hmac_data_input);
-        } catch (Exception e) {
 
-            CMS.debug(method + " Failure to HMAC the input data: " + e);
+        } catch (Exception e) {
+            logger.error(method + " Failure to HMAC the input data: " + e.getMessage(), e);
             throw new EBaseException(method + e);
         }
 
