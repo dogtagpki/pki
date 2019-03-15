@@ -459,7 +459,7 @@ class PKISubsystem(object):
             cert_id,
             pkcs12_file,
             pkcs12_password_file,
-            append=False):
+            new_file=False):
 
         cert = self.get_subsystem_cert(cert_id)
         nickname = cert['nickname']
@@ -485,13 +485,13 @@ class PKISubsystem(object):
                 cmd.extend(['--token', token])
 
             cmd.extend([
-                'pkcs12-cert-import',
+                'pkcs12-cert-add',
                 '--pkcs12-file', pkcs12_file,
                 '--pkcs12-password-file', pkcs12_password_file,
             ])
 
-            if append:
-                cmd.extend(['--append'])
+            if new_file:
+                cmd.extend(['--new-file'])
 
             cmd.extend([
                 nickname
@@ -1320,7 +1320,7 @@ class PKIInstance(object):
                 indx += 1
 
     def export_external_certs(self, pkcs12_file, pkcs12_password_file,
-                              append=False):
+                              new_file=False):
         for cert in self.external_certs:
             nickname = cert.nickname
             token = pki.nssdb.normalize_token(cert.token)
@@ -1345,13 +1345,13 @@ class PKIInstance(object):
                     cmd.extend(['--token', token])
 
                 cmd.extend([
-                    'pkcs12-cert-import',
+                    'pkcs12-cert-add',
                     '--pkcs12-file', pkcs12_file,
                     '--pkcs12-password-file', pkcs12_password_file,
                 ])
 
-                if append:
-                    cmd.extend(['--append'])
+                if new_file:
+                    cmd.extend(['--new-file'])
 
                 cmd.extend([
                     nickname
