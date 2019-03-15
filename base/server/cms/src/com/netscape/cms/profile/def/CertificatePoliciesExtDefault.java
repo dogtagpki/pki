@@ -55,6 +55,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificatePoliciesExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "Critical";
     public static final String CONFIG_PREFIX = "PoliciesExt.certPolicy";
     public static final String CONFIG_PREFIX1 = "PolicyQualifiers";
@@ -361,12 +363,14 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
             replaceExtension(PKIXExtensions.CertificatePolicies_Id.toString(),
                     ext, info);
+
         } catch (EProfileException e) {
-            CMS.debug("CertificatePoliciesExtDefault: setValue " + e.toString());
+            logger.error("CertificatePoliciesExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
+
         } catch (IOException e) {
-            CMS.debug("CertificatePoliciesExtDefault: setValue " + e.toString());
+            logger.error("CertificatePoliciesExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -640,7 +644,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
             Vector<CertificatePolicyInfo> certificatePolicies = new Vector<CertificatePolicyInfo>();
             int num = getNumPolicies();
-            CMS.debug("CertificatePoliciesExtension: createExtension: number of policies=" + num);
+            logger.debug("CertificatePoliciesExtension: createExtension: number of policies=" + num);
             IConfigStore config = getConfigStore();
 
             for (int i = 0; i < num; i++) {
@@ -648,11 +652,11 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                 IConfigStore substore = basesubstore.getSubStore(CONFIG_PREFIX + i);
                 String enable = substore.getString(CONFIG_POLICY_ENABLE);
 
-                CMS.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy " + i + " enable=" + enable);
+                logger.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy " + i + " enable=" + enable);
                 if (enable != null && enable.equals("true")) {
                     String policyId = substore.getString(CONFIG_POLICY_ID);
                     CertificatePolicyId cpolicyId = getPolicyId(policyId);
-                    CMS.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy "
+                    logger.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy "
                             + i + " policyId=" + policyId);
                     int qualifierNum = getNumQualifiers();
                     PolicyQualifiers policyQualifiers = new PolicyQualifiers();
@@ -699,8 +703,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         } catch (EProfileException e) {
             throw e;
         } catch (Exception e) {
-            CMS.debug("CertificatePoliciesExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("CertificatePoliciesExtDefault: createExtension " + e.getMessage(), e);
         }
 
         return ext;
