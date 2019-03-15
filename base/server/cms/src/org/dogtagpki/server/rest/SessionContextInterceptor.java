@@ -32,7 +32,6 @@ import javax.ws.rs.ext.Provider;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.jboss.resteasy.core.ResourceMethodInvoker;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.ForbiddenException;
@@ -45,6 +44,8 @@ import com.netscape.cms.servlet.base.UserInfo;
  */
 @Provider
 public class SessionContextInterceptor implements ContainerRequestFilter {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SessionContextInterceptor.class);
 
     @Context
     HttpServletRequest servletRequest;
@@ -69,18 +70,18 @@ public class SessionContextInterceptor implements ContainerRequestFilter {
         Method method = methodInvoker.getMethod();
         Class<?> clazz = methodInvoker.getResourceClass();
 
-        CMS.debug("SessionContextInterceptor: " + clazz.getSimpleName() + "." + method.getName() + "()");
+        logger.debug("SessionContextInterceptor: " + clazz.getSimpleName() + "." + method.getName() + "()");
 
         Principal principal = securityContext.getUserPrincipal();
 
         // If unauthenticated, ignore.
         if (principal == null) {
-            CMS.debug("SessionContextInterceptor: Not authenticated.");
+            logger.debug("SessionContextInterceptor: Not authenticated.");
             SessionContext.releaseContext();
             return;
         }
 
-        CMS.debug("SessionContextInterceptor: principal: " + principal.getName());
+        logger.debug("SessionContextInterceptor: principal: " + principal.getName());
 
         IAuthToken authToken = null;
 
@@ -91,7 +92,7 @@ public class SessionContextInterceptor implements ContainerRequestFilter {
 
         // If missing auth token, reject request.
         if (authToken == null) {
-            CMS.debug("SessionContextInterceptor: No authorization token present.");
+            logger.warn("SessionContextInterceptor: No authorization token present.");
             throw new ForbiddenException("No authorization token present.");
         }
 
