@@ -30,7 +30,6 @@ import javax.ws.rs.ext.Provider;
 
 import org.jboss.resteasy.core.ResourceMethodInvoker;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.cms.servlet.base.PKIService;
 
 /**
@@ -39,6 +38,8 @@ import com.netscape.cms.servlet.base.PKIService;
 @Provider
 public class MessageFormatInterceptor implements ContainerRequestFilter {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MessageFormatInterceptor.class);
+
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
         ResourceMethodInvoker methodInvoker = (ResourceMethodInvoker) requestContext
@@ -46,18 +47,18 @@ public class MessageFormatInterceptor implements ContainerRequestFilter {
         Method method = methodInvoker.getMethod();
         Class<?> clazz = methodInvoker.getResourceClass();
 
-        CMS.debug("MessageFormatInterceptor: " + clazz.getSimpleName() + "." + method.getName() + "()");
+        logger.debug("MessageFormatInterceptor: " + clazz.getSimpleName() + "." + method.getName() + "()");
 
         MediaType contentType = requestContext.getMediaType();
-        CMS.debug("MessageFormatInterceptor: content-type: " + contentType);
+        logger.debug("MessageFormatInterceptor: content-type: " + contentType);
 
         List<MediaType> acceptableFormats = requestContext.getAcceptableMediaTypes();
-        CMS.debug("MessageFormatInterceptor: accept: " + acceptableFormats);
+        logger.debug("MessageFormatInterceptor: accept: " + acceptableFormats);
 
         MediaType requestFormat = null;
         if (contentType != null) {
             requestFormat = PKIService.resolveFormat(contentType);
-            CMS.debug("MessageFormatInterceptor: request format: " + requestFormat);
+            logger.debug("MessageFormatInterceptor: request format: " + requestFormat);
 
             if (requestFormat == null) {
                 throw new WebApplicationException(Response.Status.UNSUPPORTED_MEDIA_TYPE);
@@ -77,7 +78,8 @@ public class MessageFormatInterceptor implements ContainerRequestFilter {
         } else {
             responseFormat = PKIService.resolveFormat(acceptableFormats);
         }
-        CMS.debug("MessageFormatInterceptor: response format: " + responseFormat);
+
+        logger.debug("MessageFormatInterceptor: response format: " + responseFormat);
 
         if (responseFormat == null) {
             throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
