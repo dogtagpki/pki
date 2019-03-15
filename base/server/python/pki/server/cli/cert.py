@@ -1091,21 +1091,6 @@ class CertFixCLI(pki.cli.CLI):
         dbuser_dn = 'uid=pkidbuser,ou=people,{}'.format(basedn)
         agent_dn = 'uid={},ou=people,{}'.format(agent_uid, basedn)
 
-        # Prompt for DM password
-        dm_pass = getpass.getpass(prompt='Enter Directory Manager password: ')
-        try:
-            subprocess.check_output([
-                'ldapsearch', '-D', 'cn=Directory Manager', '-w', dm_pass,
-                '-s', 'base', '-b', basedn, '1.1',
-            ])
-        except subprocess.CalledProcessError:
-            logger.error("Failed to verify Directory Manager password.")
-            sys.exit(1)
-
-        logger.info('Resetting password for %s', agent_dn)
-        agent_pass = gen_random_password()
-        ldappasswd(dm_pass, agent_dn, agent_pass)
-
         # 3. Find the subsystem and disable Self-tests
         try:
             # Placeholder used to hold subsystems whose selftest have been turned off
@@ -1134,8 +1119,30 @@ class CertFixCLI(pki.cli.CLI):
 
                     target_subsys.add(subsystem)
 
-            with ldap_password_authn(instance, target_subsys, dbuser_dn, dm_pass), \
+            # Prompt for DM password
+            dm_pass = getpass.getpass(prompt='Enter Directory Manager password: ')
+
+            # Generate new password for agent account
+            agent_pass = gen_random_password()
+
+            with write_temp_file(dm_pass.encode('utf8')) as dm_pass_file, \
+                    write_temp_file(agent_pass.encode('utf8')) as agent_pass_file, \
+                    ldap_password_authn(instance, target_subsys, dbuser_dn, dm_pass_file), \
                     suppress_selftest(target_subsys):
+
+                # Verify DM password
+                try:
+                    subprocess.check_output([
+                        'ldapsearch', '-D', 'cn=Directory Manager', '-y', dm_pass_file,
+                        '-s', 'base', '-b', basedn, '1.1',
+                    ])
+                except subprocess.CalledProcessError:
+                    logger.error("Failed to verify Directory Manager password.")
+                    sys.exit(1)
+
+                # Reset agent password
+                logger.info('Resetting password for %s', agent_dn)
+                ldappasswd(dm_pass_file, agent_dn, agent_pass_file)
 
                 # 4. Bring up the server using a temp SSL cert if the sslcert is expired
                 if 'sslserver' in fix_certs:
@@ -1184,8 +1191,7 @@ class CertFixCLI(pki.cli.CLI):
                 # TLS auth, add the cert to pkidbuser entry
                 if dbuser_dn and 'subsystem' in fix_certs:
                     logger.info('Importing new subsystem cert into %s', dbuser_dn)
-                    with NamedTemporaryFile(mode='w+b') as ldif_file, \
-                            NamedTemporaryFile(mode='w+b') as der_file:
+                    with NamedTemporaryFile(mode='w+b') as der_file:
                         # convert subsystem cert to DER
                         subprocess.check_call([
                             'openssl', 'x509',
@@ -1194,21 +1200,17 @@ class CertFixCLI(pki.cli.CLI):
                             '-out', der_file.name,
                         ])
 
-                        # write LDIF
-                        ldif_file.write(
-                            self.PKIDBUSER_LDIF_TEMPLATE.format(
-                                dn=dbuser_dn, der_file=der_file.name)
-                            .encode('utf-8')
-                        )
-                        ldif_file.flush()
-                        os.fsync(ldif_file.fileno())
-
-                        # ldapmodify
-                        subprocess.check_call([
-                            'ldapmodify',
-                            '-D', 'cn=Directory Manager', '-w', dm_pass,
-                            '-f', ldif_file.name,
-                        ])
+                        with write_temp_file(
+                            self.PKIDBUSER_LDIF_TEMPLATE
+                                .format(dn=dbuser_dn, der_file=der_file.name)
+                                .encode('utf-8')
+                        ) as ldif_file:
+                            # ldapmodify
+                            subprocess.check_call([
+                                'ldapmodify',
+                                '-D', 'cn=Directory Manager', '-y', dm_pass_file,
+                                '-f', ldif_file,
+                            ])
 
             # 10. Bring up the server
             logger.info('Starting the instance with renewed certs')
@@ -1254,7 +1256,7 @@ def start_stop(instance):
 
 
 @contextmanager
-def ldap_password_authn(instance, subsystems, bind_dn, dm_pass):
+def ldap_password_authn(instance, subsystems, bind_dn, dm_pass_file):
     """LDAP password authentication context.
 
     This context manager switches the server to password
@@ -1308,7 +1310,8 @@ def ldap_password_authn(instance, subsystems, bind_dn, dm_pass):
             # _now_ we can perform ldappasswd
             if not ldappasswd_performed:
                 logger.info('Setting pkidbuser password via ldappasswd')
-                ldappasswd(dm_pass, bind_dn, password)
+                with write_temp_file(password.encode('utf8')) as pwdfile:
+                    ldappasswd(dm_pass_file, bind_dn, pwdfile)
                 ldappasswd_performed = True
 
         elif authtype == 'BasicAuth':
@@ -1334,7 +1337,7 @@ def ldap_password_authn(instance, subsystems, bind_dn, dm_pass):
             instance.store_passwords()
 
 
-def ldappasswd(dm_pass, user_dn, password):
+def ldappasswd(dm_pass_file, user_dn, pass_file):
     """
     Run ldappasswd as Directory Manager.
 
@@ -1343,8 +1346,8 @@ def ldappasswd(dm_pass, user_dn, password):
     """
     subprocess.check_call([
         'ldappasswd',
-        '-D', 'cn=Directory Manager', '-w', dm_pass,
-        '-s', password,
+        '-D', 'cn=Directory Manager', '-y', dm_pass_file,
+        '-T', pass_file,
         user_dn,
     ])
 
@@ -1353,3 +1356,13 @@ def gen_random_password():
     rnd = random.SystemRandom()
     xs = "abcdefghijklmnopqrstuvwxyz0123456789"
     return ''.join(rnd.choice(xs) for i in range(32))
+
+
+@contextmanager
+def write_temp_file(data):
+    """Create a temporary file, write data to it, yield the filename."""
+    with NamedTemporaryFile() as f:
+        f.write(data)
+        f.flush()
+        os.fsync(f.fileno())
+        yield f.name
