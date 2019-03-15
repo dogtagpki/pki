@@ -42,6 +42,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class GenericExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenericExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "genericExtCritical";
     public static final String CONFIG_OID = "genericExtOID";
     public static final String CONFIG_DATA = "genericExtData";
@@ -100,7 +102,7 @@ public class GenericExtDefault extends EnrollExtDefault {
             X509CertInfo info, String value)
             throws EPropertyException {
         if (info == null) {
-            CMS.debug("GenericExtDefault: setValue() info == null");
+            logger.error("GenericExtDefault: setValue() info == null");
             throw new EPropertyException("GenericExtDefault: setValue() info == null");
         }
 
@@ -141,11 +143,11 @@ public class GenericExtDefault extends EnrollExtDefault {
 
             replaceExtension(ext.getExtensionId().toString(), ext, info);
         } catch (EProfileException e) {
-            CMS.debug("GenericExtDefault: setValue() " + e.toString());
-            throw new EPropertyException("GenericExtDefault:"+ e.toString());
+            logger.error("GenericExtDefault: setValue() " + e.getMessage(), e);
+            throw new EPropertyException("GenericExtDefault: " + e.getMessage(), e);
         } catch (Exception e) {
             // catch all other exceptions
-            CMS.debug("GenericExtDefault: setValue() " + e.toString());
+            logger.warn("GenericExtDefault: setValue() " + e.getMessage(), e);
         }
     }
 
@@ -160,7 +162,7 @@ public class GenericExtDefault extends EnrollExtDefault {
         }
 
         if (info == null) {
-            CMS.debug("GenericExtDefault : getValue(): info == null");
+            logger.error("GenericExtDefault : getValue(): info == null");
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "GenericExtDefault : getValue(): info == null"));
         }
@@ -260,8 +262,7 @@ public class GenericExtDefault extends EnrollExtDefault {
 
             ext = new Extension(oid, critical, out.toByteArray());
         } catch (Exception e) {
-            CMS.debug("GenericExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("GenericExtDefault: createExtension " + e.getMessage(), e);
         }
         return ext;
     }
