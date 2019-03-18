@@ -26,6 +26,18 @@ import java.security.cert.CertificateException;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.netscape.security.extensions.CertInfo;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
@@ -44,19 +56,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.extensions.CertInfo;
-import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.CertificateValidity;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
-import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * Process CRMF requests, according to RFC 2511
@@ -65,6 +64,8 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class CRMFProcessor extends PKIProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRMFProcessor.class);
 
     @SuppressWarnings("unused")
     private ICMSRequest mRequest;
@@ -105,7 +106,7 @@ public class CRMFProcessor extends PKIProcessor {
         String auditSubjectID = auditSubjectID();
 
         try {
-            CMS.debug("CRMFProcessor: verifyPOP");
+            logger.debug("CRMFProcessor: verifyPOP");
 
             if (certReqMsg.hasPop()) {
                 ProofOfPossession pop = certReqMsg.getPop();
@@ -113,7 +114,7 @@ public class CRMFProcessor extends PKIProcessor {
                 ProofOfPossession.Type popType = pop.getType();
 
                 if (popType == ProofOfPossession.SIGNATURE) {
-                    CMS.debug("CRMFProcessor: Request has pop.");
+                    logger.debug("CRMFProcessor: Request has pop.");
                     try {
                         certReqMsg.verify();
 
@@ -126,7 +127,7 @@ public class CRMFProcessor extends PKIProcessor {
 
                         audit(auditMessage);
                     } catch (Exception e) {
-                        CMS.debug("CRMFProcessor: Failed POP verify!");
+                        logger.error("CRMFProcessor: Failed POP verify: " + e.getMessage(), e);
 
                         log(ILogger.LL_FAILURE,
                                 CMS.getLogMessage("CMSGW_ERROR_POP_VERIFY"));
@@ -176,7 +177,7 @@ public class CRMFProcessor extends PKIProcessor {
 
     public X509CertInfo processIndividualRequest(CertReqMsg certReqMsg, IAuthToken authToken, IArgBlock httpParams)
             throws EBaseException {
-        CMS.debug("CRMFProcessor::processIndividualRequest!");
+        logger.debug("CRMFProcessor::processIndividualRequest!");
 
         try {
 
@@ -331,7 +332,7 @@ public class CRMFProcessor extends PKIProcessor {
             String protocolString, IAuthToken authToken, IArgBlock httpParams, IRequest req)
             throws EBaseException {
 
-        CMS.debug("CRMFProcessor.fillCertInfoArray!");
+        logger.debug("CRMFProcessor.fillCertInfoArray!");
 
         String crmf = protocolString;
 
