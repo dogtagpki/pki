@@ -92,9 +92,9 @@ import com.netscape.cmscore.cert.CertUtils;
  * @version $Revision$, $Date$
  */
 public class HashEnrollServlet extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HashEnrollServlet.class);
+
     private static final long serialVersionUID = 5532936020515258333L;
 
     public final static String ADMIN_ENROLL_SERVLET_ID = "adminEnroll";
@@ -296,7 +296,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         if ((certAuthEnrollOn != null) && (certAuthEnrollOn.equals("on"))) {
             certAuthEnroll = true;
-            CMS.debug("HashEnrollServlet: certAuthEnroll is on");
+            logger.debug("HashEnrollServlet: certAuthEnroll is on");
         }
 
         String certauthEnrollType = null;
@@ -306,11 +306,11 @@ public class HashEnrollServlet extends CMSServlet {
                     httpParams.getValueAsString("certauthEnrollType", null);
             if (certauthEnrollType != null) {
                 if (certauthEnrollType.equals("dual")) {
-                    CMS.debug("HashEnrollServlet: certauthEnrollType is dual");
+                    logger.debug("HashEnrollServlet: certauthEnrollType is dual");
                 } else if (certauthEnrollType.equals("encryption")) {
-                    CMS.debug("HashEnrollServlet: certauthEnrollType is encryption");
+                    logger.debug("HashEnrollServlet: certauthEnrollType is encryption");
                 } else if (certauthEnrollType.equals("single")) {
-                    CMS.debug("HashEnrollServlet: certauthEnrollType is single");
+                    logger.debug("HashEnrollServlet: certauthEnrollType is single");
                 } else {
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSGW_INVALID_CERTAUTH_ENROLL_TYPE_1", certauthEnrollType));
@@ -563,8 +563,7 @@ public class HashEnrollServlet extends CMSServlet {
                     certInfoArray = fillCRMF(crmf, authToken, httpParams, req);
                     req.setExtData(CLIENT_ISSUER,
                             sslClientCert.getIssuerDN().toString());
-                    CMS.debug(
-                            "HashEnrollServlet: sslClientCert issuerDN = " + sslClientCert.getIssuerDN().toString());
+                    logger.debug("HashEnrollServlet: sslClientCert issuerDN = " + sslClientCert.getIssuerDN());
                 } else {
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
