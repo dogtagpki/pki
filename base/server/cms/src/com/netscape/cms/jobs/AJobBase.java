@@ -45,6 +45,9 @@ import com.netscape.cmscore.notification.EmailTemplate;
  * @see com.netscape.certsrv.jobs.IJob
  */
 public abstract class AJobBase implements IJob, Runnable {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AJobBase.class);
+
     // config parameters...
     protected static final String PROP_SUMMARY = "summary";
     protected static final String PROP_ENABLED = "enabled";
@@ -252,7 +255,7 @@ public abstract class AJobBase implements IJob, Runnable {
         if (val != null)
             mItemParams.put(name, val);
         else {
-            CMS.debug("AJobBase: buildItemParams: null value for name= " + name);
+            logger.debug("AJobBase: buildItemParams: null value for name= " + name);
             mItemParams.put(name, "");
         }
     }
@@ -261,7 +264,7 @@ public abstract class AJobBase implements IJob, Runnable {
         if (val != null)
             mContentParams.put(name, val);
         else {
-            CMS.debug("AJobBase: buildContentParams: null value for name= " + name);
+            logger.debug("AJobBase: buildContentParams: null value for name= " + name);
             mContentParams.put(name, "");
         }
     }

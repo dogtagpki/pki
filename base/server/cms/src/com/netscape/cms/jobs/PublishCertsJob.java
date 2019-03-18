@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -42,8 +44,6 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-
 /**
  * a job for the Jobs Scheduler. This job checks in the internal ldap
  * db for valid certs that have not been published to the
@@ -62,6 +62,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
  */
 public class PublishCertsJob extends AJobBase
         implements IJob, Runnable, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublishCertsJob.class);
 
     ICertificateAuthority mCa = null;
     IRequestQueue mReqQ = null;
@@ -165,7 +167,7 @@ public class PublishCertsJob extends AJobBase
      * picked up and attempted again at the next scheduled run
      */
     public void run() {
-        CMS.debug("in PublishCertsJob " +
+        logger.debug("in PublishCertsJob " +
                        getId() + " : run()");
         // get time now..."now" is before the loop
         Date date = CMS.getCurrentDate();

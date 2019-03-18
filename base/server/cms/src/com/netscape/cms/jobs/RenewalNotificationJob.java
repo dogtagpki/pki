@@ -599,6 +599,9 @@ public class RenewalNotificationJob
 }
 
 class CertRecProcessor implements IElementProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecProcessor.class);
+
     protected RenewalNotificationJob mJob;
     protected String mEmailTemplate;
     protected String mSummaryItemTemplate;
@@ -654,7 +657,7 @@ class CertRecProcessor implements IElementProcessor {
                 // it is ok not to be able to get the request. The main reason
                 // to get the request is to retrieve the requestor's email.
                 // We can retrieve the email from the CertRecord.
-                CMS.debug("huh RenewalNotificationJob Exception: " + e.toString());
+                logger.warn("huh RenewalNotificationJob Exception: " + e.getMessage(), e);
             }
 
             if (req != null)
@@ -680,7 +683,7 @@ class CertRecProcessor implements IElementProcessor {
             mIC.mNumSuccessful++;
 
         } catch (Exception e) {
-            CMS.debug("RenewalNotificationJob Exception: " + e.toString());
+            logger.warn("RenewalNotificationJob Exception: " + e.getMessage(), e);
             mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS, AJobBase.STATUS_FAILURE);
             mJob.log(ILogger.LL_FAILURE, e.toString(), ILogger.L_MULTILINE);
             if (numFailCounted == false) {
