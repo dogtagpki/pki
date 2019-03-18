@@ -19,7 +19,6 @@ package org.dogtagpki.server.rest;
 
 import javax.ws.rs.core.Response;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
@@ -32,9 +31,11 @@ import com.netscape.cms.servlet.csadmin.SecurityDomainProcessor;
  */
 public class SecurityDomainService extends PKIService implements SecurityDomainResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDomainService.class);
+
     @Override
     public Response getInstallToken(String hostname, String subsystem) {
-        CMS.debug("SecurityDomainService.getInstallToken(" + hostname + ", " + subsystem + ")");
+        logger.debug("SecurityDomainService.getInstallToken(" + hostname + ", " + subsystem + ")");
         try {
             // Get uid from realm authentication.
             String user = servletRequest.getUserPrincipal().getName();
@@ -44,11 +45,11 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
             return createOKResponse(installToken);
 
         } catch (PKIException e) {
-            CMS.debug("SecurityDomainService: " + e);
+            logger.error("SecurityDomainService: " + e.getMessage(), e);
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("SecurityDomainService: " + e.getMessage(), e);
             throw new PKIException(e.getMessage(), e);
         }
     }
@@ -61,11 +62,11 @@ public class SecurityDomainService extends PKIService implements SecurityDomainR
             return createOKResponse(domainInfo);
 
         } catch (PKIException e) {
-            CMS.debug("SecurityDomainService: " + e);
+            logger.error("SecurityDomainService: " + e.getMessage(), e);
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("SecurityDomainService: " + e.getMessage(), e);
             throw new PKIException(e.getMessage(), e);
         }
     }
