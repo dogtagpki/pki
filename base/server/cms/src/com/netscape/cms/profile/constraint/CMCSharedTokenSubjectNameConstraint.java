@@ -19,6 +19,10 @@ package com.netscape.cms.profile.constraint;
 
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.IConfigStore;
@@ -30,10 +34,6 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.AuthTokenSubjectNameDefault;
 
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-
 /**
  * This class implements the user subject name constraint for cmc requests
  * authenticated by the SharedSecret
@@ -43,6 +43,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class CMCSharedTokenSubjectNameConstraint extends EnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCSharedTokenSubjectNameConstraint.class);
 
     public CMCSharedTokenSubjectNameConstraint() {
     }
@@ -77,30 +79,29 @@ public class CMCSharedTokenSubjectNameConstraint extends EnrollConstraint {
             infoCertSN = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);
             if (infoCertSN == null) {
                 msg = method + "infoCertSN null";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new Exception(msg);
             }
-            CMS.debug(method + "validate user subject ="+
-                      infoCertSN.toString());
+            logger.debug(method + "validate user subject=" + infoCertSN);
             X500Name infoCertName = (X500Name) infoCertSN.get(CertificateSubjectName.DN_NAME);
             if (infoCertName == null) {
                 msg = method + "infoCertName null";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new Exception(msg);
             }
 
             authTokenSharedTokenSN = request.getExtDataInString(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
             if (authTokenSharedTokenSN == null) {
                 msg = method + "authTokenSharedTokenSN null";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new Exception(msg);
             }
             if (infoCertName.getName().equalsIgnoreCase(authTokenSharedTokenSN)) {
-                CMS.debug(method + "names matched");
+                logger.debug(method + "names matched");
             } else {
                 msg = method + "names do not match; authTokenSharedTokenSN =" +
                         authTokenSharedTokenSN;
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new Exception(msg);
             }
 
@@ -119,10 +120,10 @@ public class CMCSharedTokenSubjectNameConstraint extends EnrollConstraint {
     public boolean isApplicable(IPolicyDefault def) {
         String method = "CMCSharedTokenSubjectNameConstraint: isApplicable: ";
         if (def instanceof AuthTokenSubjectNameDefault) {
-            CMS.debug(method + "true");
+            logger.debug(method + "true");
             return true;
         }
-        CMS.debug(method + "false");
+        logger.debug(method + "false");
         return false;
     }
 }
