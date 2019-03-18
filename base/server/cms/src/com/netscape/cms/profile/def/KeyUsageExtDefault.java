@@ -42,6 +42,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class KeyUsageExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyUsageExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "keyUsageCritical";
     public static final String CONFIG_DIGITAL_SIGNATURE =
             "keyUsageDigitalSignature";
@@ -310,11 +312,11 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
 
             replaceExtension(PKIXExtensions.KeyUsage_Id.toString(), ext, info);
         } catch (IOException e) {
-            CMS.debug("KeyUsageExtDefault: setValue " + e.toString());
+            logger.error("KeyUsageExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
-            CMS.debug("KeyUsageExtDefault: setValue " + e.toString());
+            logger.error("KeyUsageExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -451,7 +453,7 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
-            CMS.debug("KeyUsageExtDefault: getValue " + e.toString());
+            logger.error("KeyUsageExtDefault: getValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -503,8 +505,7 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
         try {
             ext = new KeyUsageExtension(critical, bits);
         } catch (Exception e) {
-            CMS.debug("KeyUsageExtDefault: createKeyUsageExtension " +
-                    e.toString());
+            logger.warn("KeyUsageExtDefault: createKeyUsageExtension " + e.getMessage(), e);
         }
         return ext;
     }
