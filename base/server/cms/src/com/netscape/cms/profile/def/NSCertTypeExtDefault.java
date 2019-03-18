@@ -41,6 +41,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class NSCertTypeExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NSCertTypeExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "nsCertCritical";
     public static final String CONFIG_SSL_CLIENT = "nsCertSSLClient";
     public static final String CONFIG_SSL_SERVER = "nsCertSSLServer";
@@ -256,9 +258,9 @@ public class NSCertTypeExtDefault extends EnrollExtDefault {
             }
             replaceExtension(NSCertTypeExtension.CertType_Id.toString(), ext, info);
         } catch (CertificateException e) {
-            CMS.debug("NSCertTypeExtDefault: setValue " + e.toString());
+            logger.warn("NSCertTypeExtDefault: setValue " + e.getMessage(), e);
         } catch (EProfileException e) {
-            CMS.debug("NSCertTypeExtDefault: setValue " + e.toString());
+            logger.warn("NSCertTypeExtDefault: setValue " + e.getMessage(), e);
         }
     }
 
@@ -364,7 +366,7 @@ public class NSCertTypeExtDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } catch (CertificateException e) {
-            CMS.debug("NSCertTypeExtDefault: setValue " + e.toString());
+            logger.warn("NSCertTypeExtDefault: setValue " + e.getMessage(), e);
         }
         return null;
     }
@@ -412,8 +414,7 @@ public class NSCertTypeExtDefault extends EnrollExtDefault {
         try {
             ext = new NSCertTypeExtension(critical, bits);
         } catch (Exception e) {
-            CMS.debug("NSCertTypeExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("NSCertTypeExtDefault: createExtension " + e.getMessage(), e);
         }
         return ext;
     }
