@@ -27,6 +27,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
@@ -36,16 +38,12 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
-import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
-
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
 
 public class GetCertChain extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetCertChain.class);
+
     private static final long serialVersionUID = -356806997334418285L;
     private final static String SUCCESS = "0";
 
@@ -78,7 +76,7 @@ public class GetCertChain extends CMSServlet {
         CertificateChain certChain = ((ICertAuthority) mAuthority).getCACertChain();
 
         if (certChain == null) {
-            CMS.debug("GetCertChain: cannot get the certificate chain.");
+            logger.warn("GetCertChain: cannot get the certificate chain.");
             outputError(httpResp, "Error: Failed to get certificate chain.");
             return;
         }
@@ -86,12 +84,12 @@ public class GetCertChain extends CMSServlet {
         X509Certificate[] certs = certChain.getChain();
 
         if (certs == null) {
-            CMS.debug("GetCertChain: no certificate chain");
+            logger.warn("GetCertChain: no certificate chain");
 
         } else {
-            CMS.debug("GetCertChain: certificate chain:");
+            logger.debug("GetCertChain: certificate chain:");
             for (X509Certificate cert : certs) {
-                CMS.debug("GetCertChain: - " + cert.getSubjectDN());
+                logger.debug("GetCertChain: - " + cert.getSubjectDN());
             }
         }
 
@@ -127,7 +125,7 @@ public class GetCertChain extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("Failed to send the XML output");
+            logger.warn("Failed to send the XML output: " + e.getMessage(), e);
         }
     }
 
