@@ -31,6 +31,14 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -61,14 +69,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.x509.CRLExtensions;
-import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
-import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * Revoke a certificate with a CMC-formatted revocation request
@@ -76,9 +76,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
  * @version $Revision$, $Date$
  */
 public class CMCRevReqServlet extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCRevReqServlet.class);
+
     private static final long serialVersionUID = 4731070386698127770L;
     public final static String GETCERTS_FOR_CHALLENGE_REQUEST = "getCertsForChallenge";
     public static final String TOKEN_CERT_SERIAL = "certSerialToRevoke";
@@ -143,7 +143,7 @@ public class CMCRevReqServlet extends CMSServlet {
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
         String method = "CMCRevReqServlet: process: ";
-        CMS.debug(method + "begins");
+        logger.debug(method + "begins");
 
         String cmcAgentSerialNumber = null;
         IArgBlock httpParams = cmsReq.getHttpParams();
@@ -153,7 +153,7 @@ public class CMCRevReqServlet extends CMSServlet {
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
-        CMS.debug(method + "**** mFormPath = " + mFormPath);
+        logger.debug(method + "**** mFormPath = " + mFormPath);
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
@@ -681,13 +681,13 @@ public class CMCRevReqServlet extends CMSServlet {
 
                         if (updateResult != null) {
                             if (updateResult.equals(IRequest.RES_SUCCESS)) {
-                                CMS.debug("CMCRevReqServlet: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER",
+                                logger.debug("CMCRevReqServlet: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER",
                                         updateStatusStr));
                                 header.addStringValue(updateStatusStr, "yes");
                             } else {
                                 String updateErrorStr = crl.getCrlUpdateErrorStr();
 
-                                CMS.debug("CMCRevReqServlet: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
+                                logger.debug("CMCRevReqServlet: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
                                         updateStatusStr));
                                 header.addStringValue(updateStatusStr, "no");
                                 String error =
