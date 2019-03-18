@@ -26,10 +26,10 @@ import java.util.Set;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
-import com.netscape.certsrv.apps.CMS;
-
 public class ConfigCertApprovalCallback
         implements SSLCertificateApprovalCallback {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigCertApprovalCallback.class);
 
     public Set<Integer> ignoredErrors = new HashSet<Integer>();
 
@@ -69,9 +69,9 @@ public class ConfigCertApprovalCallback
     public boolean approve(X509Certificate cert,
             SSLCertificateApprovalCallback.ValidityStatus status) {
 
-        CMS.debug("Server certificate:");
-        CMS.debug(" - subject: " + cert.getSubjectDN());
-        CMS.debug(" - issuer: " + cert.getIssuerDN());
+        logger.debug("Server certificate:");
+        logger.debug(" - subject: " + cert.getSubjectDN());
+        logger.debug(" - issuer: " + cert.getIssuerDN());
 
         Enumeration<?> errors = status.getReasons();
         boolean result = true;
@@ -82,9 +82,9 @@ public class ConfigCertApprovalCallback
             String description = getErrorDescription(reason);
 
             if (ignoredErrors.contains(reason)) {
-                CMS.debug("WARNING: " + description);
+                logger.warn("WARNING: " + description);
             } else {
-                CMS.debug("ERROR: " + description);
+                logger.error("ERROR: " + description);
                 result = false;
             }
         }
