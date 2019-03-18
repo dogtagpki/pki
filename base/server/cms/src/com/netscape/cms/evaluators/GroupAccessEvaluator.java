@@ -19,6 +19,8 @@ package com.netscape.cms.evaluators;
 
 import java.util.Arrays;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -28,7 +30,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * A class represents a group acls evaluator.
@@ -37,6 +38,9 @@ import org.mozilla.jss.netscape.security.util.Utils;
  * @version $Revision$, $Date$
  */
 public class GroupAccessEvaluator implements IAccessEvaluator {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupAccessEvaluator.class);
+
     private String mType = "group";
     private IUGSubsystem mUG = null;
     private String mDescription = "group membership evaluator";
@@ -58,7 +62,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
      * initialization. nothing for now.
      */
     public void init() {
-        CMS.debug("GroupAccessEvaluator: init");
+        logger.debug("GroupAccessEvaluator: init");
     }
 
     /**
@@ -108,12 +112,12 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
             if (uid == null) {
                 uid = authToken.getInString(IAuthToken.UID);
                 if (uid == null) {
-                    CMS.debug("GroupAccessEvaluator: evaluate: uid null");
+                    logger.warn("GroupAccessEvaluator: evaluate: uid null");
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UID_NULL"));
                     return false;
                 }
             }
-            CMS.debug("GroupAccessEvaluator: evaluate: uid=" + uid + " value=" + value);
+            logger.debug("GroupAccessEvaluator: evaluate: uid=" + uid + " value=" + value);
 
             String[] groups = authToken.getInStringArray(IAuthToken.GROUPS);
             if (groups != null) {
@@ -123,12 +127,12 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
                 else if (op.equals("!="))
                     return !matched;
             } else {
-                CMS.debug("GroupAccessEvaluator: evaluate: no groups in authToken");
+                logger.debug("GroupAccessEvaluator: evaluate: no groups in authToken");
                 IUser id = null;
                 try {
                     id = mUG.getUser(uid);
                 } catch (EBaseException e) {
-                    CMS.debug("GroupAccessEvaluator: " + e.toString());
+                    logger.warn("GroupAccessEvaluator: " + e.getMessage(), e);
                     return false;
                 }
 
