@@ -43,6 +43,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class UserSigningAlgDefault extends EnrollDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserSigningAlgDefault.class);
+
     public static final String VAL_ALG_ID = "userSigningAlgID";
 
     public UserSigningAlgDefault() {
@@ -90,7 +92,7 @@ public class UserSigningAlgDefault extends EnrollDefault {
 
                 return id.toString();
             } catch (Exception e) {
-                CMS.debug("UserSigningAlgDefault: setValue " + e.toString());
+                logger.warn("UserSigningAlgDefault: setValue " + e.getMessage(), e);
                 return ""; //XXX
             }
         } else {
@@ -120,7 +122,7 @@ public class UserSigningAlgDefault extends EnrollDefault {
             }
             info.set(X509CertInfo.ALGORITHM_ID, certAlg);
         } catch (Exception e) {
-            CMS.debug("UserSigningAlgDefault: populate " + e.toString());
+            logger.warn("UserSigningAlgDefault: populate " + e.getMessage(), e);
         }
     }
 }

@@ -45,6 +45,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PrivateKeyUsagePeriodExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "puCritical";
     public static final String CONFIG_START_TIME = "puStartTime";
     public static final String CONFIG_DURATION = "puDurationInDays"; // in days
@@ -191,9 +193,9 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
 
             replaceExtension(ext.getExtensionId().toString(), ext, info);
         } catch (EProfileException e) {
-            CMS.debug("PrivateKeyUsageExtension: setValue " + e.toString());
+            logger.warn("PrivateKeyUsageExtension: setValue " + e.getMessage(), e);
         } catch (Exception e) {
-            CMS.debug("PrivateKeyUsageExtension: setValue " + e.toString());
+            logger.warn("PrivateKeyUsageExtension: setValue " + e.getMessage(), e);
         }
     }
 
@@ -308,8 +310,7 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
             ext = new PrivateKeyUsageExtension(notBefore, notAfter);
             ext.setCritical(critical);
         } catch (Exception e) {
-            CMS.debug("PrivateKeyUsagePeriodExt: createExtension " +
-                    e.toString());
+            logger.warn("PrivateKeyUsagePeriodExt: createExtension " + e.getMessage(), e);
         }
         return ext;
     }

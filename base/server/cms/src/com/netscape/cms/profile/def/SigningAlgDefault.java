@@ -42,6 +42,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class SigningAlgDefault extends EnrollDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SigningAlgDefault.class);
+
     public static final String CONFIG_ALGORITHM = "signingAlg";
 
     public static final String VAL_ALGORITHM = "signingAlg";
@@ -123,7 +125,7 @@ public class SigningAlgDefault extends EnrollDefault {
                         new CertificateAlgorithmId(
                                 AlgorithmId.get(value)));
             } catch (Exception e) {
-                CMS.debug("SigningAlgDefault: setValue " + e.toString());
+                logger.error("SigningAlgDefault: setValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -151,7 +153,7 @@ public class SigningAlgDefault extends EnrollDefault {
 
                 return id.toString();
             } catch (Exception e) {
-                CMS.debug("SigningAlgDefault: getValue " + e.toString());
+                logger.warn("SigningAlgDefault: getValue " + e.getMessage(), e);
             }
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -176,7 +178,7 @@ public class SigningAlgDefault extends EnrollDefault {
             info.set(X509CertInfo.ALGORITHM_ID,
                     new CertificateAlgorithmId(AlgorithmId.get(getSigningAlg())));
         } catch (Exception e) {
-            CMS.debug("SigningAlgDefault: populate " + e.toString());
+            logger.warn("SigningAlgDefault: populate " + e.getMessage(), e);
         }
     }
 }

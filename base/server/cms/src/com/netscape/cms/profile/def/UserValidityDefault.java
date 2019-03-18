@@ -43,6 +43,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class UserValidityDefault extends EnrollDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserValidityDefault.class);
+
     public static final String VAL_NOT_BEFORE = "userValdityNotBefore";
     public static final String VAL_NOT_AFTER = "userValdityNotAfter";
 
@@ -97,7 +99,7 @@ public class UserValidityDefault extends EnrollDefault {
 
                 return notBefore.toString();
             } catch (Exception e) {
-                CMS.debug("UserValidityDefault: getValue " + e.toString());
+                logger.error("UserValidityDefault: getValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -111,7 +113,7 @@ public class UserValidityDefault extends EnrollDefault {
 
                 return notAfter.toString();
             } catch (Exception e) {
-                CMS.debug("UserValidityDefault: getValue " + e.toString());
+                logger.error("UserValidityDefault: getValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -143,7 +145,7 @@ public class UserValidityDefault extends EnrollDefault {
             }
             info.set(X509CertInfo.VALIDITY, certValidity);
         } catch (Exception e) {
-            CMS.debug("UserValidityDefault: populate " + e.toString());
+            logger.warn("UserValidityDefault: populate " + e.getMessage(), e);
         }
     }
 }

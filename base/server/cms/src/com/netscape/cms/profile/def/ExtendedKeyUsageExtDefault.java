@@ -43,6 +43,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExtendedKeyUsageExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "exKeyUsageCritical";
     public static final String CONFIG_OIDS = "exKeyUsageOIDs";
 
@@ -140,7 +142,7 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
         try {
             replaceExtension(ExtendedKeyUsageExtension.OID, ext, info);
         } catch (EProfileException e) {
-            CMS.debug("ExtendedKeyUsageExtDefault: setValue " + e.toString());
+            logger.error("ExtendedKeyUsageExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -230,8 +232,7 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
         try {
             ext = new ExtendedKeyUsageExtension();
         } catch (Exception e) {
-            CMS.debug("ExtendedKeyUsageExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("ExtendedKeyUsageExtDefault: createExtension " + e.getMessage(), e);
         }
         if (ext == null)
             return null;

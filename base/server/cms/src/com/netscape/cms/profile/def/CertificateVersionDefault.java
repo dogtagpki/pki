@@ -42,6 +42,7 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class CertificateVersionDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateVersionDefault.class);
     public static final String CONFIG_VERSION = "certVersionNum";
 
     public static final String VAL_VERSION = "certVersionNum";
@@ -121,9 +122,9 @@ public class CertificateVersionDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
-            CMS.debug("CertificateVersionDefault: setValue " + e.toString());
+            logger.warn("CertificateVersionDefault: setValue " + e.getMessage(), e);
         } catch (CertificateException e) {
-            CMS.debug("CertificateVersionDefault: setValue " + e.toString());
+            logger.warn("CertificateVersionDefault: setValue " + e.getMessage(), e);
         }
     }
 

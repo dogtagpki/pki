@@ -21,6 +21,10 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.extensions.InhibitAnyPolicyExtension;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
@@ -30,16 +34,14 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-import org.mozilla.jss.netscape.security.extensions.InhibitAnyPolicyExtension;
-import org.mozilla.jss.netscape.security.util.BigInt;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-
 /**
  * This class implements an inhibit Any-Policy extension
  *
  * @version $Revision$, $Date$
  */
 public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(InhibitAnyPolicyExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "critical";
     public static final String CONFIG_SKIP_CERTS = "skipCerts";
@@ -159,7 +161,7 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
             }
             replaceExtension(InhibitAnyPolicyExtension.OID, ext, info);
         } catch (Exception e) {
-            CMS.debug("InhibitAnyPolicyExtDefault: setValue " + e.toString());
+            logger.warn("InhibitAnyPolicyExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name), e);
         }
@@ -266,7 +268,7 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
             try {
                 ext = new InhibitAnyPolicyExtension(critical, val);
             } catch (Exception e) {
-                CMS.debug(e.toString());
+                logger.warn("InhibitAnyPolicyExtDefault: " + e.getMessage(), e);
             }
         }
 

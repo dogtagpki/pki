@@ -40,6 +40,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class OCSPNoCheckExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPNoCheckExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "ocspNoCheckCritical";
 
     public static final String VAL_CRITICAL = "ocspNoCheckCritical";
@@ -173,8 +175,7 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
         try {
             ext = new OCSPNoCheckExtension();
         } catch (Exception e) {
-            CMS.debug("OCSPNoCheckExtDefault:  createExtension " +
-                    e.toString());
+            logger.warn("OCSPNoCheckExtDefault:  createExtension " + e.getMessage(), e);
             return null;
         }
         boolean critical = getConfigBoolean(CONFIG_CRITICAL);

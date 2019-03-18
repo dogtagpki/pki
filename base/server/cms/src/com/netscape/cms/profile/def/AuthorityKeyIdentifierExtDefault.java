@@ -20,6 +20,11 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -32,11 +37,6 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
-import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
-import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-
 /**
  * This class implements an enrollment default policy
  * that populates Authority Key Identifier extension
@@ -45,6 +45,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthorityKeyIdentifierExtDefault.class);
 
     public static final String VAL_CRITICAL = "critical";
     public static final String VAL_KEY_ID = "keyid";
@@ -113,7 +115,7 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
                 populate(null, info);
 
             } catch (EProfileException e) {
-                CMS.debug("AuthorityKeyIdentifierExtDefault: getValue " + e.toString());
+                logger.error("AuthorityKeyIdentifierExtDefault: getValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -147,8 +149,7 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
                 kid = (KeyIdentifier)
                         ext.get(AuthorityKeyIdentifierExtension.KEY_ID);
             } catch (IOException e) {
-                //
-                CMS.debug(e.toString());
+                logger.warn("AuthorityKeyIdentifierExtDefault: " + e.getMessage(), e);
             }
             if (kid == null)
                 return "";
@@ -207,8 +208,7 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
         try {
             ext = new AuthorityKeyIdentifierExtension(false, kid, null, null);
         } catch (IOException e) {
-            CMS.debug("AuthorityKeyIdentifierExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("AuthorityKeyIdentifierExtDefault: createExtension " + e.getMessage(), e);
         }
         return ext;
     }

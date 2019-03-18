@@ -50,6 +50,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 public class UserKeyDefault extends EnrollDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserKeyDefault.class);
+
     public static final String VAL_KEY = "KEY";
     public static final String VAL_LEN = "LEN";
     public static final String VAL_TYPE = "TYPE";
@@ -156,7 +158,7 @@ public class UserKeyDefault extends EnrollDefault {
                     return Integer.toString(getDSAKeyLen(k));
                 }
             } catch (Exception e) {
-                CMS.debug("UserKeyDefault: getValue " + e.toString());
+                logger.error("UserKeyDefault: getValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -200,7 +202,7 @@ public class UserKeyDefault extends EnrollDefault {
             newkey = new X509Key(AlgorithmId.get("RSA"),
                         key.getKey());
         } catch (Exception e) {
-            CMS.debug("UserKeyDefault: getRSAKey " + e.toString());
+            logger.error("UserKeyDefault: getRSAKey " + e.getMessage(), e);
             throw e;
         }
         RSAPublicKey rsaKey = new RSAPublicKey(newkey.getEncoded());
@@ -235,7 +237,7 @@ public class UserKeyDefault extends EnrollDefault {
             }
             info.set(X509CertInfo.KEY, certKey);
         } catch (Exception e) {
-            CMS.debug("UserKeyDefault: populate " + e.toString());
+            logger.warn("UserKeyDefault: populate " + e.getMessage(), e);
         }
     }
 }

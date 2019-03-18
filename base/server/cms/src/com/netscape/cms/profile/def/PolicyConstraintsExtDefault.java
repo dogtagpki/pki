@@ -42,6 +42,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class PolicyConstraintsExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyConstraintsExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "policyConstraintsCritical";
     public static final String CONFIG_REQ_EXPLICIT_POLICY = "policyConstraintsReqExplicitPolicy";
     public static final String CONFIG_INHIBIT_POLICY_MAPPING = "policyConstraintsInhibitPolicyMapping";
@@ -159,11 +161,11 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
             replaceExtension(PKIXExtensions.PolicyConstraints_Id.toString(),
                     ext, info);
         } catch (EProfileException e) {
-            CMS.debug("PolicyConstraintsExtDefault: setValue " + e.toString());
+            logger.error("PolicyConstraintsExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (IOException e) {
-            CMS.debug("PolicyConstraintsExtDefault: setValue " + e.toString());
+            logger.error("PolicyConstraintsExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -278,8 +280,7 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
             }
             ext = new PolicyConstraintsExtension(critical, reqNum, inhibitNum);
         } catch (Exception e) {
-            CMS.debug("PolicyConstraintsExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("PolicyConstraintsExtDefault: createExtension " + e.getMessage(), e);
         }
 
         return ext;

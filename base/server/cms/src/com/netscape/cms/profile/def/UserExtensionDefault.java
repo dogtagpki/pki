@@ -42,6 +42,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class UserExtensionDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserExtensionDefault.class);
+
     public static final String CONFIG_CRITICAL = "userExtCritical";
     public static final String CONFIG_OID = "userExtOID";
 
@@ -124,13 +126,13 @@ public class UserExtensionDefault extends EnrollExtDefault {
             return;
         Extension ext = getExtension(getConfig(CONFIG_OID), inExts);
         if (ext == null) {
-            CMS.debug("UserExtensionDefault: no user ext supplied for " + oid);
+            logger.warn("UserExtensionDefault: no user ext supplied for " + oid);
             return;
         }
 
         // user supplied the ext that's allowed, replace the def set by system
         deleteExtension(oid, info);
-        CMS.debug("UserExtensionDefault: using user supplied ext for " + oid);
+        logger.debug("UserExtensionDefault: using user supplied ext for " + oid);
         addExtension(oid, ext, info);
     }
 }

@@ -42,6 +42,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class NSCCommentExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NSCCommentExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "nscCommentCritical";
     public static final String CONFIG_COMMENT = "nscCommentContent";
 
@@ -142,9 +144,9 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
 
             replaceExtension(ext.getExtensionId().toString(), ext, info);
         } catch (IOException e) {
-            CMS.debug("NSCCommentExtDefault: setValue " + e.toString());
+            logger.warn("NSCCommentExtDefault: setValue " + e.getMessage(), e);
         } catch (EProfileException e) {
-            CMS.debug("NSCCommentExtDefault: setValue " + e.toString());
+            logger.warn("NSCCommentExtDefault: setValue " + e.getMessage(), e);
         }
     }
 
@@ -238,8 +240,7 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
             else
                 ext = new NSCCommentExtension(critical, comment);
         } catch (Exception e) {
-            CMS.debug("NSCCommentExtension: createExtension " +
-                    e.toString());
+            logger.warn("NSCCommentExtension: createExtension " + e.getMessage(), e);
         }
         return ext;
     }

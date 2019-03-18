@@ -38,6 +38,7 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class AutoAssignDefault extends EnrollDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AutoAssignDefault.class);
     public static final String CONFIG_ASSIGN_TO = "assignTo";
 
     public AutoAssignDefault() {
@@ -90,7 +91,7 @@ public class AutoAssignDefault extends EnrollDefault {
                     mapPattern(request, getConfig(CONFIG_ASSIGN_TO)));
         } catch (Exception e) {
             // failed to insert subject name
-            CMS.debug("AutoAssignDefault: populate " + e.toString());
+            logger.warn("AutoAssignDefault: populate " + e.getMessage(), e);
         }
     }
 }

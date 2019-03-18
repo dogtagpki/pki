@@ -20,6 +20,8 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
@@ -29,9 +31,9 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-
 public class AuthzRealmDefault extends EnrollDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthzRealmDefault.class);
 
     public static final String CONFIG_REALM = "realm";
     public static final String VAL_REALM = "realm";
@@ -75,7 +77,7 @@ public class AuthzRealmDefault extends EnrollDefault {
         try {
             request.setRealm(mapPattern(request, getConfig(CONFIG_REALM)));
         } catch (IOException e) {
-            CMS.debug("authzRealmDefault: failed to populate request" + e);
+            logger.error("authzRealmDefault: failed to populate request" + e.getMessage(), e);
             throw new EProfileException(e);
         }
     }
