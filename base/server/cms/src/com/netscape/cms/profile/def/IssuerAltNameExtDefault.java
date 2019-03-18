@@ -47,6 +47,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class IssuerAltNameExtDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IssuerAltNameExtDefault.class);
+
     public static final String CONFIG_CRITICAL = "issuerAltNameExtCritical";
     public static final String CONFIG_TYPE = "issuerAltExtType";
     public static final String CONFIG_PATTERN = "issuerAltExtPattern";
@@ -180,11 +182,11 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
                     PKIXExtensions.IssuerAlternativeName_Id.toString(),
                     ext, info);
         } catch (IOException e) {
-            CMS.debug("IssuerAltNameExtDefault: setValue " + e.toString());
+            logger.error("IssuerAltNameExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
-            CMS.debug("IssuerAltNameExtDefault: setValue " + e.toString());
+            logger.error("IssuerAltNameExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -255,8 +257,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
-            CMS.debug("IssuerAltNameExtDefault: getValue " +
-                    e.toString());
+            logger.warn("IssuerAltNameExtDefault: getValue " + e.getMessage(), e);
         }
         return null;
     }
@@ -282,7 +283,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
             ext = createExtension(request);
 
         } catch (IOException e) {
-            CMS.debug("IssuerAltNameExtDefault: populate " + e.toString());
+            logger.warn("IssuerAltNameExtDefault: populate " + e.getMessage(), e);
         }
         addExtension(PKIXExtensions.IssuerAlternativeName_Id.toString(),
                 ext, info);
@@ -295,7 +296,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
         try {
             ext = new IssuerAlternativeNameExtension();
         } catch (Exception e) {
-            CMS.debug(e.toString());
+            logger.warn("IssuerAltNameExtDefault: " + e.getMessage(), e);
             throw new IOException(e.toString());
         }
         boolean critical = Boolean.valueOf(
