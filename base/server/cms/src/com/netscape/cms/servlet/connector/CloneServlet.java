@@ -69,9 +69,9 @@ import com.netscape.cmscore.connector.HttpRequestEncoder;
  * @version $Revision$, $Date$
  */
 public class CloneServlet extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CloneServlet.class);
+
     private static final long serialVersionUID = -3474557834182380981L;
     public static final String INFO = "Clone Servlet";
     public final static String PROP_AUTHORITY = "authority";
@@ -187,7 +187,7 @@ public class CloneServlet extends CMSServlet {
 
         try {
             // cfu +++ authenticate checks both SUBJECT and Signer SUBJECT
-            CMS.debug("CloneServlet: about to authenticate");
+            logger.debug("CloneServlet: about to authenticate");
             token = authenticate(peerCert);
             // cfu maybe don't need CCA_Id, because the above check
             //			was good enough
@@ -236,10 +236,10 @@ public class CloneServlet extends CMSServlet {
 
         try {
             // decode request.
-            CMS.debug("Cloneservlet: before decoding request, encodedreq= " + encodedreq);
+            logger.debug("Cloneservlet: before decoding request, encodedreq= " + encodedreq);
             msg = (IPKIMessage) mReqEncoder.decode(encodedreq);
             // process request
-            CMS.debug("Cloneservlet: decoded request");
+            logger.debug("Cloneservlet: decoded request");
             replymsg = processRequest(CCA_Id, CCAUserId, msg, token);
         } catch (IOException e) {
             e.printStackTrace();
@@ -411,10 +411,10 @@ public class CloneServlet extends CMSServlet {
                     Integer result = thisreq.getExtDataInInteger(IRequest.RESULT);
 
                     if (result.equals(IRequest.RES_ERROR)) {
-                        CMS.debug("CloneServlet: error in CLA_CERT4CRL_REQUEST");
+                        logger.debug("CloneServlet: error in CLA_CERT4CRL_REQUEST");
                     } else {
                         // the success.
-                        CMS.debug("CloneServlet: success in CLA_CERT4CRL_REQUEST");
+                        logger.debug("CloneServlet: success in CLA_CERT4CRL_REQUEST");
                     }
                 }
 
