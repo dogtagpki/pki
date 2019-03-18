@@ -19,6 +19,10 @@ package com.netscape.cms.profile.constraint;
 
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.base.IConfigStore;
@@ -31,10 +35,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cms.profile.def.CMCUserSignedSubjectNameDefault;
 
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-
 /**
  * This class implements the user subject name constraint for user-signed cmc requests.
  * It makes sure the signing cert's subjectDN and the rsulting cert match
@@ -43,6 +43,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class CMCUserSignedSubjectNameConstraint extends EnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCUserSignedSubjectNameConstraint.class);
 
     public CMCUserSignedSubjectNameConstraint() {
     }
@@ -70,7 +72,7 @@ public class CMCUserSignedSubjectNameConstraint extends EnrollConstraint {
         String method = "CMCUserSignedSubjectNameConstraint: ";
         String msg = "";
 
-        CMS.debug(method + "validate start");
+        logger.debug(method + "validate start");
         CertificateSubjectName infoCertSN = null;
             CertificateSubjectName authTokenCertSN = null;
 
@@ -79,41 +81,40 @@ public class CMCUserSignedSubjectNameConstraint extends EnrollConstraint {
             infoCertSN = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);
             if (infoCertSN == null) {
                 msg = method + "infoCertSN null";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new Exception(msg);
             }
-            CMS.debug(method + "validate user subject ="+
-                      infoCertSN.toString());
+            logger.debug(method + "validate user subject=" + infoCertSN);
             String certSerial = request.getExtDataInString(IAuthManager.CRED_CMC_SIGNING_CERT);
             if (certSerial == null) {
                 msg = method + "certSerial null";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new Exception(msg);
             }
             authTokenCertSN =
                           EnrollProfile.getCMCSigningCertSNfromCertSerial(certSerial);
             if (authTokenCertSN == null) {
                 msg = method + "authTokenCertSN null";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new Exception(msg);
             }
             X500Name infoCertName = (X500Name) infoCertSN.get(CertificateSubjectName.DN_NAME);
             if (infoCertName == null) {
                 msg = method + "infoCertName null";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new Exception(msg);
             }
             X500Name authTokenCertName = (X500Name) authTokenCertSN.get(CertificateSubjectName.DN_NAME);
             if (authTokenCertName == null) {
                 msg = method + "authTokenCertName null";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new Exception(msg);
             }
             if (infoCertName.equals(authTokenCertName)) {
-                CMS.debug(method + "names match");
+                logger.debug(method + "names match");
             } else {
                 msg = method + "names do not match";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new Exception(msg);
             }
 
@@ -132,10 +133,10 @@ public class CMCUserSignedSubjectNameConstraint extends EnrollConstraint {
     public boolean isApplicable(IPolicyDefault def) {
         String method = "CMCUserSignedSubjectNameConstraint: isApplicable: ";
         if (def instanceof CMCUserSignedSubjectNameDefault) {
-            CMS.debug(method + "true");
+            logger.debug(method + "true");
             return true;
         }
-        CMS.debug(method + "false");
+        logger.debug(method + "false");
         return false;
     }
 }
