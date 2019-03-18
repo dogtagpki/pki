@@ -978,6 +978,9 @@ class CertFixCLI(pki.cli.CLI):
 
                     target_subsys.add(subsystem)
 
+            if len(extra_certs) > 0:
+                target_subsys.add(ca_subsystem)
+
             # Generate new password for agent account
             agent_pass = gen_random_password()
 
