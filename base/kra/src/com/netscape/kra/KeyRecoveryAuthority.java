@@ -42,6 +42,11 @@ import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.PQGParamGenException;
 import org.mozilla.jss.crypto.PQGParams;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
@@ -86,12 +91,6 @@ import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.request.RequestSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.util.DerOutputStream;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * A class represents an key recovery authority (KRA). A KRA
@@ -105,6 +104,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
  */
 public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecoveryAuthority {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRecoveryAuthority.class);
     private static Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_KRA);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
@@ -201,24 +201,24 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 // ok - we deal with missing parameters above
             }
         }
-        CMS.debug("KeyRecoveryAuthority Entropy bits = " + mEntropyBitsPerKeyPair);
+        logger.debug("KeyRecoveryAuthority Entropy bits = " + mEntropyBitsPerKeyPair);
         if (mEntropyBitsPerKeyPair == 0) {
             //log(ILogger.LL_INFO,
             //CMS.getLogMessage("CMSCORE_KRA_ENTROPY_COLLECTION_DISABLED"));
         } else {
             //log(ILogger.LL_INFO,
             //CMS.getLogMessage("CMSCORE_KRA_ENTROPY_COLLECTION_ENABLED"));
-            CMS.debug("KeyRecoveryAuthority about to add Entropy");
+            logger.debug("KeyRecoveryAuthority about to add Entropy");
             addEntropy(false);
-            CMS.debug("KeyRecoveryAuthority back from add Entropy");
+            logger.debug("KeyRecoveryAuthority back from add Entropy");
         }
 
     }
 
     public void addEntropy(boolean logflag) {
-        CMS.debug("KeyRecoveryAuthority addEntropy()");
+        logger.debug("KeyRecoveryAuthority addEntropy()");
         if (mEntropyBitsPerKeyPair == 0) {
-            CMS.debug("KeyRecoveryAuthority returning - disabled()");
+            logger.debug("KeyRecoveryAuthority returning - disabled()");
             return;
         }
         long start = System.currentTimeMillis();
@@ -226,9 +226,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             com.netscape.cmscore.security.JssSubsystem.getInstance().
                     addEntropy(mEntropyBitsPerKeyPair);
         } catch (Exception e) {
-            CMS.debug("KeyRecoveryAuthority returning - error - see log file");
-            CMS.debug("exception: " + e.getMessage());
-            CMS.debug(e);
+            logger.warn("KeyRecoveryAuthority: " + e.getMessage(), e);
             if (logflag) {
                 log(ILogger.LL_INFO,
                         CMS.getLogMessage("CMSCORE_KRA_ENTROPY_ERROR",
@@ -241,7 +239,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         if (mEntropyBlockWarnMilliseconds > 0 &&
                 duration > mEntropyBlockWarnMilliseconds) {
 
-            CMS.debug("KeyRecoveryAuthority returning - warning - entropy took too long (ms=" +
+            logger.debug("KeyRecoveryAuthority returning - warning - entropy took too long (ms=" +
                     duration + ")");
             if (logflag) {
                 log(ILogger.LL_INFO,
@@ -249,7 +247,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                                 "" + (int) duration));
             }
         }
-        CMS.debug("KeyRecoveryAuthority returning ");
+        logger.debug("KeyRecoveryAuthority returning ");
     }
 
     /**
@@ -264,7 +262,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        CMS.debug("KeyRecoveryAuthority init() begins");
+        logger.debug("KeyRecoveryAuthority init() begins");
         if (mInitialized)
             return;
 
@@ -290,7 +288,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             mTransportKeyUnit.init(this, mConfig.getSubStore(
                     PROP_TRANSPORT_KEY));
         } catch (EBaseException e) {
-            CMS.debug("KeyRecoveryAuthority: transport unit exception " + e.toString());
+            logger.warn("KeyRecoveryAuthority: transport unit exception " + e.getMessage(), e);
             //XXX            throw e;
             return;
         }
@@ -303,11 +301,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
             mName = (X500Name) certImpl.getSubjectDN();
         } catch (CertificateEncodingException e) {
-            CMS.debug("KeyRecoveryAuthority: " + e.toString());
+            logger.error("KeyRecoveryAuthority: " + e.getMessage(), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_LOAD_FAILED",
                         "transport cert " + e.toString()));
         } catch (CertificateException e) {
-            CMS.debug("KeyRecoveryAuthority: " + e.toString());
+            logger.error("KeyRecoveryAuthority: " + e.getMessage(), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_LOAD_FAILED",
                         "transport cert " + e.toString()));
         }
@@ -318,19 +316,19 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             mStorageKeyUnit.init(this,
                     mConfig.getSubStore(PROP_STORAGE_KEY));
         } catch (EBaseException e) {
-            CMS.debug("KeyRecoveryAuthority: storage unit exception " + e.toString());
+            logger.error("KeyRecoveryAuthority: storage unit exception " + e.getMessage(), e);
             throw e;
         }
 
         // setup token for server-side key generation for user enrollments
         String serverKeygenTokenName = mConfig.getString("serverKeygenTokenName", null);
         if (serverKeygenTokenName == null) {
-            CMS.debug("serverKeygenTokenName set to nothing");
+            logger.debug("serverKeygenTokenName set to nothing");
             if (mStorageKeyUnit.getToken() != null) {
                 try {
                     String storageToken = mStorageKeyUnit.getToken().getName();
                     if (!CryptoUtil.isInternalToken(storageToken)) {
-                        CMS.debug("Auto set serverKeygenTokenName to " + storageToken);
+                        logger.debug("Auto set serverKeygenTokenName to " + storageToken);
                         serverKeygenTokenName = storageToken;
                     }
                 } catch (Exception e) {
@@ -345,17 +343,17 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         try {
             mKeygenToken = CryptoUtil.getKeyStorageToken(serverKeygenTokenName);
-            CMS.debug("KeyRecoveryAuthority: token: " + mKeygenToken.getName());
-            CMS.debug("KeyRecoveryAuthority: set up keygenToken");
+            logger.debug("KeyRecoveryAuthority: token: " + mKeygenToken.getName());
+            logger.debug("KeyRecoveryAuthority: set up keygenToken");
         } catch (NoSuchTokenException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", serverKeygenTokenName));
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         }
 
-        CMS.debug("KeyRecoveryAuthority: about to init entropy");
+        logger.debug("KeyRecoveryAuthority: about to init entropy");
         initEntropy(mConfig);
-        CMS.debug("KeyRecoveryAuthority: completed init of entropy");
+        logger.debug("KeyRecoveryAuthority: completed init of entropy");
 
         systemLogger.log(ILogger.LL_INFO, mName.toString() + " is started");
 
@@ -398,7 +396,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         mReplicaRepot = new ReplicaIDRepository(
                 DBSubsystem.getInstance(), 1, replicaReposDN);
-        CMS.debug("Replica Repot inited");
+        logger.debug("Replica Repot inited");
 
     }
 
@@ -428,12 +426,12 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @exception EBaseException failed to startup this subsystem
      */
     public void startup() throws EBaseException {
-        CMS.debug("KeyRecoveryAuthority startup() begins");
+        logger.debug("KeyRecoveryAuthority startup() begins");
 
         if (mRequestQueue != null) {
             // setup administration operations if everything else is fine
             mRequestQueue.recover();
-            CMS.debug("KeyRecoveryAuthority startup() call request Q recover");
+            logger.debug("KeyRecoveryAuthority startup() call request Q recover");
 
             // Note that we use our instance id for registration.
             // This helps us to support multiple instances
@@ -442,7 +440,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             // register remote admin interface
             mInitialized = true;
         } else {
-            CMS.debug("KeyRecoveryAuthority: mRequestQueue is null, could be in preop mode");
+            logger.warn("KeyRecoveryAuthority: mRequestQueue is null, could be in preop mode");
         }
     }
 
@@ -664,7 +662,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         synchronized (lock) {
             while (dc.size() < getNoOfRequiredAgents()) {
-                CMS.debug("KeyRecoveryAuthority: cfu in synchronized lock for getDistributedCredentials");
+                logger.debug("KeyRecoveryAuthority: cfu in synchronized lock for getDistributedCredentials");
                 try {
                     lock.wait();
                 } catch (InterruptedException e) {
@@ -893,7 +891,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             }
             return agents.substring(0, i);
         } else { // no approvingAgents existing, can't be async recovery
-            CMS.debug("getInitAgentAsyncKeyRecovery: no approvingAgents in request");
+            logger.debug("getInitAgentAsyncKeyRecovery: no approvingAgents in request");
         }
 
         return null;
@@ -951,7 +949,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 queue.updateRequest(r);
             }
         } else { // no approvingAgents existing, can't be async recovery
-            CMS.debug("addAgentAsyncKeyRecovery: no approvingAgents in request. Async recovery request not initiated?");
+            logger.debug("addAgentAsyncKeyRecovery: no approvingAgents in request. Async recovery request not initiated?");
         }
     }
 
@@ -992,7 +990,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         IRequest r = null;
         Hashtable<String, Object> params = null;
 
-        CMS.debug("KeyRecoveryAuthority: in synchronous doKeyRecovery()");
+        logger.debug("KeyRecoveryAuthority: in synchronous doKeyRecovery()");
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
@@ -1113,7 +1111,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         IRequest r = null;
         Hashtable<String, Object> params = null;
 
-        CMS.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery()");
+        logger.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery()");
         queue = getRequestQueue();
         r = queue.findRequest(new RequestId(reqID));
 
@@ -1128,7 +1126,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            CMS.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery(), request state ="
+            logger.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery(), request state ="
                     + r.getRequestStatus().toString());
             // can only process requests in begin state
             r.setRequestStatus(RequestStatus.BEGIN);
@@ -1752,7 +1750,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         CryptoToken token = getKeygenToken();
 
-        CMS.debug("NetkeyKeygenService: key pair is to be generated on slot: " + token.getName());
+        logger.debug("NetkeyKeygenService: key pair is to be generated on slot: " + token.getName());
 
         /*
            make it temporary so can work with HSM
@@ -1776,7 +1774,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 tp = kgConfig.getBoolean("temporaryPairs", false);
                 sp = kgConfig.getBoolean("sensitivePairs", false);
                 ep = kgConfig.getBoolean("extractablePairs", false);
-                CMS.debug("NetkeyKeygenService: found config store: kra.keygen");
+                logger.debug("NetkeyKeygenService: found config store: kra.keygen");
                 // by default, let nethsm work
                 if ((tp == false) && (sp == false) && (ep == false)) {
                     if (kpAlg == KeyPairAlgorithm.EC) {
@@ -1788,13 +1786,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                         tp = true;
                     }
             } catch (Exception e) {
-                CMS.debug("NetkeyKeygenService: kgConfig.getBoolean failed");
+                logger.warn("NetkeyKeygenService: kgConfig.getBoolean failed: " + e.getMessage(), e);
                 // by default, let nethsm work
                 tp = true;
             }
         } else {
             // by default, let nethsm work
-            CMS.debug("NetkeyKeygenService: cannot find config store: kra.keygen, assume temporaryPairs==true");
+            logger.debug("NetkeyKeygenService: cannot find config store: kra.keygen, assume temporaryPairs==true");
             if (kpAlg == KeyPairAlgorithm.EC) {
                 // set to what works for nethsm
                 tp = true;
@@ -1827,26 +1825,26 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                     null,
                     (isECDHE==true) ? usages_mask_ECDSA: usages_mask_ECDH,
                     tp /*temporary*/, sp? 1:0 /*sensitive*/, ep? 1:0 /*extractable*/);
-                CMS.debug("NetkeyKeygenService: after key pair generation" );
+                logger.debug("NetkeyKeygenService: after key pair generation" );
             } catch (Exception e) {
-                CMS.debug("NetkeyKeygenService: key pair generation with exception:"+e.toString());
+                logger.warn("NetkeyKeygenService: key pair generation with exception: " + e.getMessage(), e);
             }
             return pair;
 
         } else { // !EC
             //only specified to "true" will it be set
             if (tp == true) {
-                CMS.debug("NetkeyKeygenService: setting temporaryPairs to true");
+                logger.debug("NetkeyKeygenService: setting temporaryPairs to true");
                 kpGen.temporaryPairs(true);
             }
 
             if (sp == true) {
-                CMS.debug("NetkeyKeygenService: setting sensitivePairs to true");
+                logger.debug("NetkeyKeygenService: setting sensitivePairs to true");
                 kpGen.sensitivePairs(true);
             }
 
             if (ep == true) {
-                CMS.debug("NetkeyKeygenService: setting extractablePairs to true");
+                logger.debug("NetkeyKeygenService: setting extractablePairs to true");
                 kpGen.extractablePairs(true);
             }
 
@@ -1866,9 +1864,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             if (pqg == null) {
                 KeyPair kp = null;
                 synchronized (new Object()) {
-                    CMS.debug("NetkeyKeygenService: key pair generation begins");
+                    logger.debug("NetkeyKeygenService: key pair generation begins");
                     kp = kpGen.genKeyPair();
-                    CMS.debug("NetkeyKeygenService: key pair generation done");
+                    logger.debug("NetkeyKeygenService: key pair generation done");
                     addEntropy(true);
                 }
                 return kp;
