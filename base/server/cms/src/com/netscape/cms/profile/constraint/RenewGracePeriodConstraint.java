@@ -44,6 +44,8 @@ import com.netscape.cms.profile.def.NoDefault;
  */
 public class RenewGracePeriodConstraint extends EnrollConstraint {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RenewGracePeriodConstraint.class);
+
     // for renewal: # of days before the orig cert expiration date
     public static final String CONFIG_RENEW_GRACE_BEFORE = "renewal.graceBefore";
     // for renewal: # of days after the orig cert expiration date
@@ -92,10 +94,10 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
 
         String origExpDate_s = req.getExtDataInString("origNotAfter");
         if (origExpDate_s == null) { // probably not for renewal
-            CMS.debug(method + " original cert expiration date not found...return without validation");
+            logger.debug(method + " original cert expiration date not found...return without validation");
             return;
         } else { //should occur when it's renewal
-            CMS.debug(method + " original cert expiration date found... validating");
+            logger.debug(method + " original cert expiration date found... validating");
         }
         BigInteger origExpDate_BI = new BigInteger(origExpDate_s);
         Date origExpDate = new Date(origExpDate_BI.longValue());
@@ -124,7 +126,7 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
 
         Date current = CMS.getCurrentDate();
         long millisDiff = origExpDate.getTime() - current.getTime();
-        CMS.debug(method + " millisDiff="
+        logger.debug(method + " millisDiff="
                 + millisDiff + " origExpDate=" + origExpDate.getTime() + " current=" + current.getTime());
 
         /*

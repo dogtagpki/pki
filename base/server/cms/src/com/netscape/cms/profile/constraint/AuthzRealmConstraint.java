@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
@@ -34,8 +36,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.AuthzRealmDefault;
 import com.netscape.cms.profile.def.NoDefault;
 
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-
 /**
  * This class implements the authz realm constraint.
  * It checks if the authz realm in the certificate
@@ -44,6 +44,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class AuthzRealmConstraint extends EnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthzRealmConstraint.class);
 
     public static final String CONFIG_REALMS_ALLOWED = "realmsAllowed";
 
@@ -61,11 +63,11 @@ public class AuthzRealmConstraint extends EnrollConstraint {
             throws EPropertyException {
 
         if (mConfig.getSubStore("params") == null) {
-            CMS.debug("AuthzRealmConstraint: mConfig.getSubStore is null");
+            logger.warn("AuthzRealmConstraint: mConfig.getSubStore is null");
             return;
         }
 
-        CMS.debug("AuthzRealmConstraint: setConfig name=" + name +
+        logger.debug("AuthzRealmConstraint: setConfig name=" + name +
                 " value=" + value);
 
         mConfig.getSubStore("params").putString(name, value);

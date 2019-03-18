@@ -48,6 +48,8 @@ import com.netscape.cms.profile.def.UserSigningAlgDefault;
  */
 public class SigningAlgConstraint extends EnrollConstraint {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SigningAlgConstraint.class);
+
     public static final String CONFIG_ALGORITHMS_ALLOWED = "signingAlgsAllowed";
 
     private static StringBuffer sb = new StringBuffer("");
@@ -75,9 +77,9 @@ public class SigningAlgConstraint extends EnrollConstraint {
             throws EPropertyException {
 
         if (mConfig.getSubStore("params") == null) {
-            CMS.debug("SigningAlgConstraint: mConfig.getSubStore is null");
+            logger.debug("SigningAlgConstraint: mConfig.getSubStore is null");
         } else {
-            CMS.debug("SigningAlgConstraint: setConfig name=" + name +
+            logger.debug("SigningAlgConstraint: setConfig name=" + name +
                     " value=" + value);
 
             if (name.equals(CONFIG_ALGORITHMS_ALLOWED)) {
@@ -136,7 +138,7 @@ public class SigningAlgConstraint extends EnrollConstraint {
             if (e instanceof ERejectException) {
                 throw (ERejectException) e;
             }
-            CMS.debug("SigningAlgConstraint: " + e.toString());
+            logger.error("SigningAlgConstraint: " + e.getMessage(), e);
             throw new ERejectException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_SIGNING_ALGORITHM_NOT_FOUND"));
         }

@@ -60,6 +60,8 @@ import com.netscape.cms.profile.def.UserSubjectNameDefault;
  */
 public class UniqueSubjectNameConstraint extends EnrollConstraint {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UniqueSubjectNameConstraint.class);
+
     public static final String CONFIG_KEY_USAGE_EXTENSION_CHECKING =
             "enableKeyUsageExtensionChecking";
     private boolean mKeyUsageExtensionChecking = true;
@@ -152,7 +154,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
      */
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
-        CMS.debug("UniqueSubjectNameConstraint: validate start");
+        logger.debug("UniqueSubjectNameConstraint: validate start");
         CertificateSubjectName sn = null;
         IAuthority authority = (IAuthority) CMS.getSubsystem("ca");
 
@@ -183,7 +185,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
             try {
                 sameSubjRecords = certdb.findCertRecords(filter);
             } catch (EBaseException e) {
-                CMS.debug("UniqueSubjectNameConstraint exception: " + e.toString());
+                logger.warn("UniqueSubjectNameConstraint exception: " + e.getMessage(), e);
             }
             while (sameSubjRecords != null && sameSubjRecords.hasMoreElements()) {
                 ICertRecord rec = sameSubjRecords.nextElement();
@@ -227,7 +229,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
                                 certsubjectname));
             }
         }
-        CMS.debug("UniqueSubjectNameConstraint: validate end");
+        logger.debug("UniqueSubjectNameConstraint: validate end");
     }
 
     public String getText(Locale locale) {
