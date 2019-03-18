@@ -1093,15 +1093,25 @@ class CertFixCLI(pki.cli.CLI):
         logger.info('Fixing the following system certs: %s', fix_certs)
         logger.info('Renewing the following additional certs: %s', extra_certs)
 
-        # 2. Stop the server, if it's up
-        logger.info('Stopping the instance to proceed with system cert renewal')
-        instance.stop()
-
         # Get the CA subsystem and find out Base DN.
         ca_subsystem = instance.get_subsystem('ca')
         basedn = ca_subsystem.get_db_config()['internaldb.basedn']
         dbuser_dn = 'uid=pkidbuser,ou=people,{}'.format(basedn)
         agent_dn = 'uid={},ou=people,{}'.format(agent_uid, basedn)
+
+        # Verify LDAP connection
+        try:
+            subprocess.check_output([
+                'ldapsearch', '-H', ldap_url, '-Y', 'EXTERNAL',
+                '-s', 'base', '-b', basedn, '1.1',
+            ])
+        except subprocess.CalledProcessError:
+            logger.error("Failed to connect to LDAP at %s", ldap_url)
+            sys.exit(1)
+
+        # 2. Stop the server, if it's up
+        logger.info('Stopping the instance to proceed with system cert renewal')
+        instance.stop()
 
         # 3. Find the subsystem and disable Self-tests
         try:
@@ -1140,17 +1150,6 @@ class CertFixCLI(pki.cli.CLI):
             with write_temp_file(agent_pass.encode('utf8')) as agent_pass_file, \
                     ldap_password_authn(instance, target_subsys, dbuser_dn, ldap_url), \
                     suppress_selftest(target_subsys):
-
-                # Verify LDAP connection
-                try:
-                    subprocess.check_output([
-                        'ldapsearch', '-H', ldap_url, '-Y', 'EXTERNAL',
-                        '-s', 'base', '-b', basedn, '1.1',
-                    ])
-                except subprocess.CalledProcessError:
-                    logger.error("Failed to connect to LDAP at %s", ldap_url)
-                    sys.exit(1)
-
                 # Reset agent password
                 logger.info('Resetting password for %s', agent_dn)
                 ldappasswd(ldap_url, agent_dn, agent_pass_file)
