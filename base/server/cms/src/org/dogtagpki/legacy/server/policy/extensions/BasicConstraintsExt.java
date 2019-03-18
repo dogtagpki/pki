@@ -61,6 +61,9 @@ import com.netscape.cmscore.apps.CMSEngine;
  */
 public class BasicConstraintsExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BasicConstraintsExt.class);
+
     protected static final String PROP_MAXPATHLEN = "maxPathLen";
     protected static final String PROP_IS_CA = "isCA";
     protected static final String PROP_IS_CRITICAL = "critical";
@@ -122,7 +125,7 @@ public class BasicConstraintsExt extends APolicyRule
             CertificateChain caChain = certAuthority.getCACertChain();
             CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
             if (caChain == null || engine.isPreOpMode()) {
-                CMS.debug("BasicConstraintsExt.init(): Abort due to missing CA certificate chain or in pre-op-mode");
+                logger.warn("BasicConstraintsExt.init(): Abort due to missing CA certificate chain or in pre-op-mode");
                 return;
             }
             X509Certificate caCert = caChain.getFirstCertificate();
@@ -304,8 +307,7 @@ public class BasicConstraintsExt extends APolicyRule
                 extensions.set(BasicConstraintsExtension.NAME, critExt);
             } catch (IOException e) {
             }
-            CMS.debug(
-                    "BasicConstraintsExt: PolicyRule BasicConstraintsExt: added the extension to request " +
+            logger.debug("BasicConstraintsExt: PolicyRule BasicConstraintsExt: added the extension to request " +
                             req.getRequestId());
             return PolicyResult.ACCEPTED;
         }
@@ -384,8 +386,7 @@ public class BasicConstraintsExt extends APolicyRule
             } catch (IOException e) {
                 // not possible in these cases.
             }
-            CMS.debug(
-                    "BasicConstraintsExt: PolicyRule BasicConstraintsExt: added the extension to request " +
+            logger.debug("BasicConstraintsExt: PolicyRule BasicConstraintsExt: added the extension to request " +
                             req.getRequestId());
             return PolicyResult.ACCEPTED;
         }
@@ -454,8 +455,7 @@ public class BasicConstraintsExt extends APolicyRule
         } catch (IOException e) {
             // doesn't happen.
         }
-        CMS.debug(
-                "BasicConstraintsExt: added the extension to request " +
+        logger.debug("BasicConstraintsExt: added the extension to request " +
                         req.getRequestId());
         return PolicyResult.ACCEPTED;
     }
