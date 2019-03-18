@@ -51,6 +51,9 @@ import netscape.ldap.LDAPv2;
  * @version $Revision$, $Date$
  */
 public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapUserCertPublisher.class);
+
     public static final String LDAP_USERCERT_ATTR = "userCertificate;binary";
 
     protected String mCertAttr = LDAP_USERCERT_ATTR;
@@ -152,9 +155,9 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
                 conn = altConn;
             }
         } catch (LDAPException e) {
-            CMS.debug("Failed to create alt connection " + e);
+            logger.warn("Failed to create alt connection " + e.getMessage(), e);
         } catch (EBaseException e) {
-            CMS.debug("Failed to create alt connection " + e);
+            logger.warn("Failed to create alt connection " + e.getMessage(), e);
         }
 
         if (!(certObj instanceof X509Certificate))
@@ -202,7 +205,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
                                         cert.getSerialNumber().toString(16),
                                         cert.getSubjectDN() });
         } catch (CertificateEncodingException e) {
-            CMS.debug("LdapUserCertPublisher: error in publish: " + e.toString());
+            logger.error("LdapUserCertPublisher: error in publish: " + e.getMessage(), e);
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
@@ -243,7 +246,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         }
 
         if (disableUnpublish) {
-            CMS.debug("UserCertPublisher: disable unpublish");
+            logger.debug("UserCertPublisher: disable unpublish");
             return;
         }
 
