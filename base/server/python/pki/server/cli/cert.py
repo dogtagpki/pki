@@ -34,6 +34,8 @@ import sys
 from tempfile import NamedTemporaryFile
 import time
 
+from six.moves.urllib.parse import quote  # pylint: disable=F0401,E0611
+
 import pki.cert
 import pki.cli
 import pki.nssdb
@@ -998,6 +1000,7 @@ class CertFixCLI(pki.cli.CLI):
         print('      --cert <Cert ID>            Fix specified system cert (default: all certs).')
         print('      --extra-cert <Serial>       Also renew cert with given serial number.')
         print('      --agent-uid <String>        UID of Dogtag agent user')
+        print('      --ldapi-socket <Path>       Path to DS LDAPI socket')
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
@@ -1010,7 +1013,8 @@ class CertFixCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'cert=', 'extra-cert=', 'agent-uid=',
-                'verbose', 'debug', 'help'])
+                'ldapi-socket=', 'verbose', 'debug', 'help',
+            ])
 
         except getopt.GetoptError as e:
             logger.error(e)
@@ -1022,6 +1026,7 @@ class CertFixCLI(pki.cli.CLI):
         fix_certs = []
         extra_certs = []
         agent_uid = None
+        ldap_url = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -1042,6 +1047,9 @@ class CertFixCLI(pki.cli.CLI):
 
             elif o == '--agent-uid':
                 agent_uid = a
+
+            elif o == '--ldapi-socket':
+                ldap_url = 'ldapi://{}'.format(quote(a, safe=''))
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -1068,6 +1076,10 @@ class CertFixCLI(pki.cli.CLI):
 
         if not agent_uid:
             logger.error('Must specify --agent-uid')
+            sys.exit(1)
+
+        if not ldap_url:
+            logger.error('Must specify --ldapi-socket')
             sys.exit(1)
 
         instance.load()
@@ -1133,30 +1145,26 @@ class CertFixCLI(pki.cli.CLI):
 
                     target_subsys.add(subsystem)
 
-            # Prompt for DM password
-            dm_pass = getpass.getpass(prompt='Enter Directory Manager password: ')
-
             # Generate new password for agent account
             agent_pass = gen_random_password()
 
-            with write_temp_file(dm_pass.encode('utf8')) as dm_pass_file, \
-                    write_temp_file(agent_pass.encode('utf8')) as agent_pass_file, \
-                    ldap_password_authn(instance, target_subsys, dbuser_dn, dm_pass_file), \
+            with write_temp_file(agent_pass.encode('utf8')) as agent_pass_file, \
+                    ldap_password_authn(instance, target_subsys, dbuser_dn, ldap_url), \
                     suppress_selftest(target_subsys):
 
-                # Verify DM password
+                # Verify LDAP connection
                 try:
                     subprocess.check_output([
-                        'ldapsearch', '-D', 'cn=Directory Manager', '-y', dm_pass_file,
+                        'ldapsearch', '-H', ldap_url, '-Y', 'EXTERNAL',
                         '-s', 'base', '-b', basedn, '1.1',
                     ])
                 except subprocess.CalledProcessError:
-                    logger.error("Failed to verify Directory Manager password.")
+                    logger.error("Failed to connect to LDAP at %s", ldap_url)
                     sys.exit(1)
 
                 # Reset agent password
                 logger.info('Resetting password for %s', agent_dn)
-                ldappasswd(dm_pass_file, agent_dn, agent_pass_file)
+                ldappasswd(ldap_url, agent_dn, agent_pass_file)
 
                 # 4. Bring up the server using a temp SSL cert if the sslcert is expired
                 if 'sslserver' in fix_certs:
@@ -1221,8 +1229,7 @@ class CertFixCLI(pki.cli.CLI):
                         ) as ldif_file:
                             # ldapmodify
                             subprocess.check_call([
-                                'ldapmodify',
-                                '-D', 'cn=Directory Manager', '-y', dm_pass_file,
+                                'ldapmodify', '-H', ldap_url, '-Y', 'EXTERNAL',
                                 '-f', ldif_file,
                             ])
 
@@ -1270,7 +1277,7 @@ def start_stop(instance):
 
 
 @contextmanager
-def ldap_password_authn(instance, subsystems, bind_dn, dm_pass_file):
+def ldap_password_authn(instance, subsystems, bind_dn, ldap_url):
     """LDAP password authentication context.
 
     This context manager switches the server to password
@@ -1325,7 +1332,7 @@ def ldap_password_authn(instance, subsystems, bind_dn, dm_pass_file):
             if not ldappasswd_performed:
                 logger.info('Setting pkidbuser password via ldappasswd')
                 with write_temp_file(password.encode('utf8')) as pwdfile:
-                    ldappasswd(dm_pass_file, bind_dn, pwdfile)
+                    ldappasswd(ldap_url, bind_dn, pwdfile)
                 ldappasswd_performed = True
 
         elif authtype == 'BasicAuth':
@@ -1351,7 +1358,7 @@ def ldap_password_authn(instance, subsystems, bind_dn, dm_pass_file):
             instance.store_passwords()
 
 
-def ldappasswd(dm_pass_file, user_dn, pass_file):
+def ldappasswd(ldap_url, user_dn, pass_file):
     """
     Run ldappasswd as Directory Manager.
 
@@ -1359,10 +1366,8 @@ def ldappasswd(dm_pass_file, user_dn, pass_file):
 
     """
     subprocess.check_call([
-        'ldappasswd',
-        '-D', 'cn=Directory Manager', '-y', dm_pass_file,
-        '-T', pass_file,
-        user_dn,
+        'ldappasswd', '-H', ldap_url, '-Y', 'EXTERNAL',
+        '-T', pass_file, user_dn,
     ])
 
 
