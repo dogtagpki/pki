@@ -160,12 +160,10 @@ public class CAInfoService extends PKIService implements CAInfoResource {
                 // mark info as authoritative
                 kraInfoAuthoritative = true;
             } else {
-                CMS.debug("Failed to retrieve archive wrapping information from the CA: " + e);
-                CMS.debug(e);
+                logger.warn("Failed to retrieve archive wrapping information from the CA: " + e.getMessage(), e);
             }
         } catch (Throwable e) {
-            CMS.debug("Failed to retrieve archive wrapping information from the CA: " + e);
-            CMS.debug(e);
+            logger.warn("Failed to retrieve archive wrapping information from the CA: " + e.getMessage(), e);
         }
     }
 
