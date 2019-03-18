@@ -24,6 +24,10 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IRevocationPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -32,11 +36,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import org.mozilla.jss.netscape.security.x509.CertificateValidity;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Whether to allow revocation of an expired cert.
@@ -51,6 +50,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  */
 public class RevocationConstraints extends APolicyRule
         implements IRevocationPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RevocationConstraints.class);
+
     private static final String PROP_ALLOW_EXPIRED_CERTS = "allowExpiredCerts";
     private static final String PROP_ALLOW_ON_HOLD = "allowOnHold";
 
@@ -108,8 +110,8 @@ public class RevocationConstraints extends APolicyRule
             // never happen.
         }
 
-        CMS.debug("RevocationConstraints: allow expired certs " + mAllowExpiredCerts);
-        CMS.debug("RevocationConstraints: allow on hold " + mAllowOnHold);
+        logger.debug("RevocationConstraints: allow expired certs " + mAllowExpiredCerts);
+        logger.debug("RevocationConstraints: allow on hold " + mAllowOnHold);
     }
 
     /**
@@ -120,9 +122,9 @@ public class RevocationConstraints extends APolicyRule
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
-        CMS.debug("RevocationConstraints: apply begins");
+        logger.debug("RevocationConstraints: apply begins");
         if (req.getExtDataInInteger(IRequest.REVOKED_REASON) == null) {
-            CMS.debug("RevocationConstraints: apply: no revocationReason found in request");
+            logger.debug("RevocationConstraints: apply: no revocationReason found in request");
             return PolicyResult.REJECTED;
         }
         RevocationReason rr = RevocationReason.fromInt(
