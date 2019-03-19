@@ -34,6 +34,14 @@ find_file(SLF4J_JDK14_JAR
         /usr/share/java
 )
 
+find_file(SLF4J_SIMPLE_JAR
+    NAMES
+        slf4j-simple.jar
+    PATHS
+        /usr/share/java/slf4j
+        /usr/share/java
+)
+
 find_file(COMMONS_CLI_JAR
     NAMES
         commons-cli.jar
