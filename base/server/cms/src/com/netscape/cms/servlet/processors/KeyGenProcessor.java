@@ -44,6 +44,8 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class KeyGenProcessor extends PKIProcessor {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyGenProcessor.class);
+
     public KeyGenProcessor() {
         super();
     }
@@ -62,7 +64,7 @@ public class KeyGenProcessor extends PKIProcessor {
             IAuthToken authToken, IArgBlock httpParams)
             throws EBaseException {
 
-        CMS.debug("KeyGenProcessor: fillCertInfo");
+        logger.debug("KeyGenProcessor: fillCertInfo");
 
         if (mServlet == null) {
             return;

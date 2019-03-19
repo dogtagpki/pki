@@ -36,6 +36,13 @@ import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.DigestAlgorithm;
+import org.mozilla.jss.netscape.security.extensions.CertInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs10.CertificationRequest;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkix.cert.Certificate;
@@ -62,14 +69,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.extensions.CertInfo;
-import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * Process CMC messages according to RFC 2797
@@ -78,6 +77,8 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class CMCProcessor extends PKIProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCProcessor.class);
 
     private boolean enforcePop = false;
 
@@ -106,7 +107,7 @@ public class CMCProcessor extends PKIProcessor {
             String protocolString, IAuthToken authToken, IArgBlock httpParams, IRequest req)
             throws EBaseException {
 
-        CMS.debug("CMCProcessor: In CMCProcessor.fillCertInfoArray!");
+        logger.debug("CMCProcessor: In CMCProcessor.fillCertInfoArray!");
         String cmc = protocolString;
 
         try {

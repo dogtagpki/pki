@@ -20,7 +20,7 @@ public class Processor {
 
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    protected Logger logger = Logger.getLogger();
+    protected Logger systemLogger = Logger.getLogger();
     protected Auditor auditor = Auditor.getAuditor();
 
     protected String id;
@@ -67,9 +67,9 @@ public class Processor {
 
     public void log(LogSource source, int level, String message) {
 
-        if (logger == null) return;
+        if (systemLogger == null) return;
 
-        logger.log(ILogger.EV_SYSTEM,
+        systemLogger.log(ILogger.EV_SYSTEM,
                 source,
                 level,
                 getClass().getSimpleName() + ": " + message);
