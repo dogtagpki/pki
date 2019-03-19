@@ -26,6 +26,12 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -46,11 +52,6 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
-import org.mozilla.jss.netscape.security.x509.CRLExtensions;
-import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * Interface for mapping a X509 certificate to a LDAP entry
@@ -58,6 +59,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
  * @version $Revision$, $Date$
  */
 public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapEncryptCertPublisher.class);
+
     public static final String LDAP_USERCERT_ATTR = "userCertificate;binary";
     public static final String PROP_REVOKE_CERT = "revokeCert";
 
@@ -160,7 +164,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
 
             conn.modify(dn, mod);
         } catch (CertificateEncodingException e) {
-            CMS.debug("LdapEncryptCertPublisher: error in publish: " + e.toString());
+            logger.error("LdapEncryptCertPublisher: error in publish: " + e.getMessage(), e);
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {

@@ -51,6 +51,9 @@ import netscape.ldap.LDAPv2;
  */
 public class LdapCaCertPublisher
         implements ILdapPublisher, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCaCertPublisher.class);
+
     public static final String LDAP_CACERT_ATTR = "caCertificate;binary";
     public static final String LDAP_CA_OBJECTCLASS = "pkiCA";
     public static final String LDAP_ARL_ATTR = "authorityRevocationList;binary";
@@ -197,9 +200,9 @@ public class LdapCaCertPublisher
                 conn = altConn;
             }
         } catch (LDAPException e) {
-            CMS.debug("Failed to create alt connection " + e);
+            logger.warn("Failed to create alt connection " + e.getMessage(), e);
         } catch (EBaseException e) {
-            CMS.debug("Failed to create alt connection " + e);
+            logger.warn("Failed to create alt connection " + e.getMessage(), e);
         }
 
         if (!(certObj instanceof X509Certificate))
@@ -396,7 +399,7 @@ public class LdapCaCertPublisher
             }
             conn.modify(dn, modSet);
         } catch (CertificateEncodingException e) {
-            CMS.debug("LdapCaCertPublisher: unpublish: Cannot decode cert for " + dn);
+            logger.error("LdapCaCertPublisher: unpublish: Cannot decode cert for " + dn + ": " + e.getMessage(), e);
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {

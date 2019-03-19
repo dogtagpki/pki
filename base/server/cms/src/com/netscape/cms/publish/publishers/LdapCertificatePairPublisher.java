@@ -47,6 +47,9 @@ import netscape.ldap.LDAPv2;
  */
 public class LdapCertificatePairPublisher
         implements ILdapPublisher, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCertificatePairPublisher.class);
+
     public static final String LDAP_CROSS_CERT_PAIR_ATTR = "crossCertificatePair;binary";
     public static final String LDAP_CA_OBJECTCLASS = "pkiCA";
     public static final String LDAP_ARL_ATTR = "authorityRevocationList;binary";
@@ -209,7 +212,7 @@ public class LdapCertificatePairPublisher
 
             boolean hasCert = LdapUserCertPublisher.ByteValueExists(certPairs, pair);
             if (LdapUserCertPublisher.ByteValueExists(certPairs, pair)) {
-                CMS.debug("LdapCertificatePairPublisher: cross cert pair bytes exist in publishing directory, do not publish again.");
+                logger.debug("LdapCertificatePairPublisher: cross cert pair bytes exist in publishing directory, do not publish again.");
                 return;
             }
             if (hasCert) {
@@ -283,7 +286,7 @@ public class LdapCertificatePairPublisher
 
             if (modSet.size() > 0)
                 conn.modify(dn, modSet);
-            CMS.debug("LdapCertificatePairPublisher: in publish() just published");
+            logger.debug("LdapCertificatePairPublisher: in publish() just published");
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
@@ -305,7 +308,7 @@ public class LdapCertificatePairPublisher
      */
     public void unpublish(LDAPConnection conn, String dn, Object certObj)
             throws ELdapException {
-        CMS.debug("LdapCertificatePairPublisher: unpublish() is unsupported in this revision");
+        logger.debug("LdapCertificatePairPublisher: unpublish() is unsupported in this revision");
     }
 
     /**

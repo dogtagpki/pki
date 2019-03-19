@@ -52,6 +52,8 @@ import netscape.ldap.LDAPv2;
  * @version $Revision$, $Date$
  */
 public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCrlPublisher.class);
     private Logger mLogger = Logger.getLogger();
     protected IConfigStore mConfig = null;
     boolean mInited = false;
@@ -188,9 +190,9 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 conn = altConn;
             }
         } catch (LDAPException e) {
-            CMS.debug("Failed to create alt connection " + e);
+            logger.warn("Failed to create alt connection " + e.getMessage(), e);
         } catch (EBaseException e) {
-            CMS.debug("Failed to create alt connection " + e);
+            logger.warn("Failed to create alt connection " + e.getMessage(), e);
         }
 
         int orig_timelimit = 0;
