@@ -30,6 +30,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -53,8 +55,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
-
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
@@ -144,7 +144,7 @@ public class DoUnrevoke extends CMSServlet {
                 authMgr =
                         authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
             } else {
-                CMS.debug("DoUnrevoke::process() -  authToken is null!");
+                logger.warn("DoUnrevoke::process() -  authToken is null!");
                 return;
             }
             String agentID = authToken.getInString("userid");
@@ -353,13 +353,13 @@ public class DoUnrevoke extends CMSServlet {
 
                     if (updateResult != null) {
                         if (updateResult.equals(IRequest.RES_SUCCESS)) {
-                            CMS.debug("DoUnrevoke: adding header " + updateStatusStr + " yes");
+                            logger.debug("DoUnrevoke: adding header " + updateStatusStr + " yes");
                             header.addStringValue(updateStatusStr, "yes");
 
                         } else {
                             String updateErrorStr = crl.getCrlUpdateErrorStr();
 
-                            CMS.debug("DoUnrevoke: adding header " + updateStatusStr + " no");
+                            logger.debug("DoUnrevoke: adding header " + updateStatusStr + " no");
                             header.addStringValue(updateStatusStr, "no");
                             String error = unrevReq.getExtDataInString(updateErrorStr);
 

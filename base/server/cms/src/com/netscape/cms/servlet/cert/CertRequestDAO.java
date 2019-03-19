@@ -54,6 +54,9 @@ import com.netscape.cmscore.security.JssSubsystem;
  *
  */
 public class CertRequestDAO extends CMSRequestDAO {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRequestDAO.class);
+
     private IRequestQueue queue;
     private ICertificateAuthority ca;
     IProfileSubsystem ps;
@@ -203,8 +206,7 @@ public class CertRequestDAO extends CMSRequestDAO {
                 CertRequestInfo info = CertRequestInfoFactory.create(req, uriInfo);
                 ret.addEntry(info);
             } catch (NoSuchMethodException e) {
-                CMS.debug("Error in creating certrequestinfo - no such method");
-                e.printStackTrace();
+                logger.warn("Error in creating certrequestinfo - no such method: " + e.getMessage(), e);
             }
         }
 
@@ -231,8 +233,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         try {
             return CertRequestInfoFactory.create(request, uriInfo);
         } catch (NoSuchMethodException e) {
-            CMS.debug("Error in creating certrequestinfo - no such method");
-            e.printStackTrace();
+            logger.warn("Error in creating certrequestinfo - no such method: " + e.getMessage(), e);
         }
         return null;
     }

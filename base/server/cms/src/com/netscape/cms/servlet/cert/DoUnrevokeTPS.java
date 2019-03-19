@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -55,8 +56,6 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
  * take them off-hold)
@@ -65,9 +64,7 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
  */
 public class DoUnrevokeTPS extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DoUnrevokeTPS.class);
     private static final long serialVersionUID = -6245049221697655642L;
 
     @SuppressWarnings("unused")
@@ -145,7 +142,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                 authMgr =
                         authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
             } else {
-                CMS.debug("DoUnrevokeTPS::process() -  authToken is null!");
+                logger.warn("DoUnrevokeTPS::process() -  authToken is null!");
                 return;
             }
             String agentID = authToken.getInString("userid");

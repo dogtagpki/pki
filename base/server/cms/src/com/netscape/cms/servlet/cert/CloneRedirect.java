@@ -48,9 +48,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class CloneRedirect extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CloneRedirect.class);
     private static final long serialVersionUID = 3217967115281965166L;
     private final static String PROP_REDIRECT_URL = "masterURL";
     private final static String TPL_FILE = "cloneRedirect.template";
@@ -121,7 +119,7 @@ public class CloneRedirect extends CMSServlet {
                     CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
 
-        CMS.debug("CloneRedirect: " + CMS.getLogMessage("ADMIN_SRVLT_ADD_MASTER_URL", mNewUrl));
+        logger.debug("CloneRedirect: " + CMS.getLogMessage("ADMIN_SRVLT_ADD_MASTER_URL", mNewUrl));
         header.addStringValue("masterURL", mNewUrl);
         try {
             ServletOutputStream out = resp.getOutputStream();

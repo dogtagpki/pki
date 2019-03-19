@@ -63,9 +63,8 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
  * @version $Revision$, $Date$
  */
 public class RenewalServlet extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RenewalServlet.class);
     private static final long serialVersionUID = -3094124661102395244L;
 
     // renewal templates.
@@ -341,11 +340,9 @@ public class RenewalServlet extends CMSServlet {
         // service error
         Integer result = req.getExtDataInInteger(IRequest.RESULT);
 
-        CMS.debug(
-                "RenewalServlet: Result for request " + req.getRequestId() + " is " + result);
+        logger.debug("RenewalServlet: Result for request " + req.getRequestId() + " is " + result);
         if (result.equals(IRequest.RES_ERROR)) {
-            CMS.debug(
-                    "RenewalServlet: Result for request " + req.getRequestId() + " is error.");
+            logger.debug("RenewalServlet: Result for request " + req.getRequestId() + " is error.");
 
             cmsReq.setStatus(ICMSRequest.ERROR);
             cmsReq.setError(req.getExtDataInString(IRequest.ERROR));

@@ -31,6 +31,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
 import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
@@ -65,7 +66,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * Takes the certificate info (serial number) and optional challenge phrase, creates a
@@ -74,9 +74,9 @@ import org.mozilla.jss.netscape.security.util.Utils;
  * @version $Revision$, $Date$
  */
 public class ChallengeRevocationServlet1 extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChallengeRevocationServlet1.class);
+
     private static final long serialVersionUID = 1253319999546210407L;
     public final static String GETCERTS_FOR_CHALLENGE_REQUEST = "getCertsForChallenge";
     public static final String TOKEN_CERT_SERIAL = "certSerialToRevoke";
@@ -265,8 +265,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             ServletOutputStream out = resp.getOutputStream();
 
             if (serialNoArray == null) {
-                CMS.debug("ChallengeRevcationServlet1::process() - " +
-                           " serialNoArray is null!");
+                logger.warn("ChallengeRevcationServlet1::process() - serialNoArray is null!");
                 EBaseException ee = new EBaseException("No matched certificate is found");
 
                 cmsReq.setError(ee);
@@ -577,14 +576,14 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                         if (updateResult != null) {
                             if (updateResult.equals(IRequest.RES_SUCCESS)) {
-                                CMS.debug("ChallengeRevcationServlet1: "
+                                logger.debug("ChallengeRevcationServlet1: "
                                         + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER",
                                                 updateStatusStr));
                                 header.addStringValue(updateStatusStr, "yes");
                             } else {
                                 String updateErrorStr = crl.getCrlUpdateErrorStr();
 
-                                CMS.debug("ChallengeRevcationServlet1: "
+                                logger.debug("ChallengeRevcationServlet1: "
                                         + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
                                                 updateStatusStr));
                                 header.addStringValue(updateStatusStr, "no");

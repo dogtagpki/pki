@@ -28,6 +28,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -47,9 +50,6 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.CrlPrettyPrint;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 /**
  * Retrieve CRL for a Certificate Authority
@@ -57,9 +57,8 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
  * @version $Revision$, $Date$
  */
 public class GetCRL extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetCRL.class);
     private static final long serialVersionUID = 7132206924070383013L;
     private final static String TPL_FILE = "displayCRL.template";
     private String mFormPath = null;
@@ -127,7 +126,7 @@ public class GetCRL extends CMSServlet {
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
-        CMS.debug("**** mFormPath before getTemplate = " + mFormPath);
+        logger.debug("**** mFormPath before getTemplate = " + mFormPath);
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {

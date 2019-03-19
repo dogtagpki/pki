@@ -56,9 +56,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GetInfo extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetInfo.class);
     private static final long serialVersionUID = 1909881831730252799L;
 
     private ICertificateAuthority mCA = null;
@@ -146,7 +144,7 @@ public class GetInfo extends CMSServlet {
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
-        CMS.debug("*** formFile = " + formFile);
+        logger.debug("*** formFile = " + formFile);
         try {
             form = getTemplate(formFile, req, locale);
         } catch (IOException e) {
@@ -354,7 +352,7 @@ public class GetInfo extends CMSServlet {
             String[] allAlgorithms = mCA.getCASigningAlgorithms();
 
             if (allAlgorithms == null) {
-                CMS.debug("GetInfo: signing algorithms set to All algorithms");
+                logger.debug("GetInfo: signing algorithms set to All algorithms");
                 allAlgorithms = AlgorithmId.ALL_SIGNING_ALGORITHMS;
             }
 

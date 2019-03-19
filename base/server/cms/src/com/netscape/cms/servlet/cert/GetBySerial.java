@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -57,7 +58,6 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * Retrieve certificate by serial number.
@@ -66,9 +66,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
  */
 public class GetBySerial extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetBySerial.class);
     private static final long serialVersionUID = -2276677839178370838L;
 
     private final static String IMPORT_CERT_TEMPLATE = "ImportCert.template";
@@ -181,7 +179,7 @@ public class GetBySerial extends CMSServlet {
             String group = authToken.getInString("group");
 
             if ((group != null) && (group != "")) {
-                CMS.debug("GetBySerial process: auth group=" + group);
+                logger.debug("GetBySerial process: auth group=" + group);
                 if (group.equals("Registration Manager Agents")) {
                     boolean groupMatched = false;
                     // find the cert record's orig. requestor's group
@@ -193,7 +191,7 @@ public class GetBySerial extends CMSServlet {
                         if (creq != null) {
                             String reqOwner = creq.getRequestOwner();
                             if (reqOwner != null) {
-                                CMS.debug("GetBySerial process: req owner=" + reqOwner);
+                                logger.debug("GetBySerial process: req owner=" + reqOwner);
                                 if (reqOwner.equals(group))
                                     groupMatched = true;
                             }
@@ -252,7 +250,7 @@ public class GetBySerial extends CMSServlet {
                     form.renderOutput(out, argSet);
                     return;
                 } catch (Exception ee) {
-                    CMS.debug("GetBySerial process: Exception=" + ee.toString());
+                    logger.warn("GetBySerial process: Exception=" + ee.getMessage(), ee);
                 }
             } //browser is IE
 

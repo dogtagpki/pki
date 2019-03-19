@@ -60,9 +60,8 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
  * @version $Revision$, $Date$
  */
 public class GetCertFromRequest extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetCertFromRequest.class);
     private static final long serialVersionUID = 5310646832256611066L;
     private final static String PROP_IMPORT = "importCert";
     protected static final String GET_CERT_FROM_REQUEST_TEMPLATE = "ImportCert.template";
@@ -195,12 +194,12 @@ public class GetCertFromRequest extends CMSServlet {
                 boolean groupMatched = false;
                 String reqOwner = r.getRequestOwner();
                 if (reqOwner != null) {
-                    CMS.debug("GetCertFromRequest process: req owner=" + reqOwner);
+                    logger.debug("GetCertFromRequest process: req owner=" + reqOwner);
                     if (reqOwner.equals(group))
                         groupMatched = true;
                 }
                 if (groupMatched == false) {
-                    CMS.debug("RA group unmatched");
+                    logger.error("RA group unmatched");
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND", requestId));
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_REQUEST_ID_NOT_FOUND", requestId));
