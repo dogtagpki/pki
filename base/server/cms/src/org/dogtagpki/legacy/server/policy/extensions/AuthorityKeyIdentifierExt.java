@@ -263,7 +263,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
             extensions.set(
                     AuthorityKeyIdentifierExtension.NAME, mTheExtension);
 
-            CMS.debug("AuthorityKeyIdentifierKeyExt: added authority key id ext to request " + req.getRequestId());
+            logger.debug("AuthorityKeyIdentifierKeyExt: added authority key id ext to request " + req.getRequestId());
             return PolicyResult.ACCEPTED;
 
         } catch (IOException e) {
