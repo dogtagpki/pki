@@ -18,8 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
-
 /**
  * This is a servlet that proxies request to another servlet.
  *
@@ -51,9 +49,8 @@ import com.netscape.certsrv.apps.CMS;
  */
 public class ProxyServlet extends HttpServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProxyServlet.class);
+
     private static final long serialVersionUID = -2535349161521094539L;
     private String mDest = null;
     private String mDestContext = null;
@@ -171,6 +168,9 @@ public class ProxyServlet extends HttpServlet {
 }
 
 class ProxyWrapper extends HttpServletRequestWrapper {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProxyWrapper.class);
+
     private Map<String, String> mMap = null;
     private Map<String, String[]> mValueMap = null;
 
@@ -240,7 +240,7 @@ class ProxyWrapper extends HttpServletRequestWrapper {
                 return n;
             }
         } catch (NullPointerException npe) {
-            CMS.debug(npe);
+            logger.warn("ProxyWrapper: " + npe.getMessage(), npe);
             return null;
         }
     }

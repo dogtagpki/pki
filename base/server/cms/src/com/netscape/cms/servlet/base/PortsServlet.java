@@ -40,9 +40,8 @@ import com.netscape.cmsutil.xml.XMLObject;
  */
 public class PortsServlet extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PortsServlet.class);
+
     private static final long serialVersionUID = -3750153734073658934L;
 
     public PortsServlet() {
@@ -83,7 +82,7 @@ public class PortsServlet extends CMSServlet {
             byte[] cb = xmlObj.toByteArray();
             outputResult(resp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("Failed to send the XML output");
+            logger.warn("Failed to send the XML output: " + e.getMessage(), e);
         }
     }
 
