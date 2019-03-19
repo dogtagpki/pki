@@ -40,9 +40,8 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMSEngine;
 
 public class MainPageServlet extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MainPageServlet.class);
     private static final long serialVersionUID = 2425301522251239666L;
     private String mFormPath = null;
 
@@ -59,7 +58,7 @@ public class MainPageServlet extends CMSServlet {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();
 
-        CMS.debug("MainPageServlet process");
+        logger.debug("MainPageServlet process");
         IArgBlock header = CMS.createArgBlock();
         IArgBlock ctx = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
@@ -73,7 +72,7 @@ public class MainPageServlet extends CMSServlet {
         try {
             form = getTemplate(mFormPath, request, locale);
         } catch (IOException e) {
-            CMS.debug("MainPageServlet process: cant locate the form");
+            logger.warn("MainPageServlet process: cant locate the form: " + e.getMessage(), e);
             /*
                         log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));

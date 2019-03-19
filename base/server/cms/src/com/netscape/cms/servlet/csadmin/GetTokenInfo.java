@@ -38,9 +38,7 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 public class GetTokenInfo extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetTokenInfo.class);
     private static final long serialVersionUID = -8416582986909026263L;
     private final static String SUCCESS = "0";
 
@@ -55,7 +53,7 @@ public class GetTokenInfo extends CMSServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        CMS.debug("GetTokenInfo init");
+        logger.debug("GetTokenInfo init");
     }
 
     /**
@@ -74,7 +72,7 @@ public class GetTokenInfo extends CMSServlet {
         try {
             xmlObj = new XMLObject();
         } catch (Exception e) {
-            CMS.debug("GetTokenInfo process: Exception: " + e.toString());
+            logger.error("GetTokenInfo process: Exception: " + e.getMessage(), e);
             throw new EBaseException(e.toString());
         }
 
@@ -124,7 +122,7 @@ public class GetTokenInfo extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("Failed to send the XML output");
+            logger.warn("Failed to send the XML output: " + e.getMessage(), e);
         }
     }
 

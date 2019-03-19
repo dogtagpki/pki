@@ -138,7 +138,7 @@ public class GetStatus extends CMSServlet {
         FileInputStream inputStream = null;
 
         if(StringUtils.isEmpty(versionFilePathName)) {
-            CMS.debug("Missing product version file path!");
+            logger.warn("Missing product version file path!");
             return null;
         }
 
@@ -147,11 +147,11 @@ public class GetStatus extends CMSServlet {
             String contents = IOUtils.toString(inputStream);
 
             if(contents != null) {
-                CMS.debug("Returning product version: " + version);
+                logger.debug("Returning product version: " + version);
                 version = contents.trim();
             }
         } catch (Exception e) {
-            CMS.debug("Failed to read product version String. " + e);
+            logger.warn("Failed to read product version String. " + e.getMessage(), e);
         }
         finally {
             if(inputStream != null) {
