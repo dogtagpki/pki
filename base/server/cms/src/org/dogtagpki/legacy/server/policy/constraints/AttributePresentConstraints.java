@@ -57,6 +57,9 @@ import netscape.ldap.LDAPv2;
  */
 public class AttributePresentConstraints extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AttributePresentConstraints.class);
+
     protected static final String PROP_ENABLED = "enabled";
     protected static final String PROP_LDAP = "ldap";
 
@@ -326,7 +329,7 @@ public class AttributePresentConstraints extends APolicyRule
                     }
                 }
 
-                CMS.debug("AttributePresentConstraints: Attribute is present for user: \"" + userdn + "\"");
+                logger.debug("AttributePresentConstraints: Attribute is present for user: \"" + userdn + "\"");
 
             } catch (LDAPException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_PIN_UNAUTHORIZED"));

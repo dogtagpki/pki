@@ -54,6 +54,9 @@ import com.netscape.cmscore.apps.CMSEngine;
  * @version $Revision$, $Date$
  */
 public class SubCANameConstraints extends APolicyRule implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubCANameConstraints.class);
+
     public ICertificateAuthority mCA = null;
     public String mIssuerNameStr = null;
 
@@ -105,7 +108,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
         ISigningUnit su = mCA.getSigningUnit();
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         if (su == null || engine.isPreOpMode()) {
-            CMS.debug("SubCANameConstraints.init(): Abort due to missing signing unit or in pre-op mode");
+            logger.warn("SubCANameConstraints.init(): Abort due to missing signing unit or in pre-op mode");
             return;
         }
 

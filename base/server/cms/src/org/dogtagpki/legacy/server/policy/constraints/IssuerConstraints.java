@@ -23,6 +23,8 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
@@ -31,9 +33,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * IssuerConstraints is a rule for restricting the issuers of the
@@ -49,6 +48,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  */
 public class IssuerConstraints extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IssuerConstraints.class);
+
     private final static String PROP_ISSUER_DN = "issuerDN";
     private static final String CLIENT_ISSUER = "clientIssuer";
     private X500Name mIssuerDN = null;
@@ -101,8 +103,7 @@ public class IssuerConstraints extends APolicyRule
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_CONFIG", params));
         }
-        CMS.debug(
-                NAME + ": init() done");
+        logger.debug(NAME + ": init() done");
     }
 
     /**
@@ -131,8 +132,7 @@ public class IssuerConstraints extends APolicyRule
                     result = PolicyResult.REJECTED;
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CA_GET_ISSUER_NAME_FAILED"));
-                    CMS.debug(
-                            NAME + ": apply() - issuerDN mismatch: client issuerDN = " + clientIssuerDN
+                    logger.debug(NAME + ": apply() - issuerDN mismatch: client issuerDN = " + clientIssuerDN
                                     + "; expected issuerDN = " + mIssuerDNString);
                 }
             } else {
