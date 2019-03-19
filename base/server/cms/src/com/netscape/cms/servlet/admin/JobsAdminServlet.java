@@ -48,9 +48,9 @@ import com.netscape.certsrv.logging.ILogger;
  * @version $Revision$, $Date$
  */
 public class JobsAdminServlet extends AdminServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JobsAdminServlet.class);
+
     private static final long serialVersionUID = 561767449283982015L;
     // ... remove later
     private final static String VISIBLE = ";visible";
@@ -905,7 +905,7 @@ public class JobsAdminServlet extends AdminServlet {
             sendResponse(ERROR, e.toString(getLocale(req)), null, resp);
             return;
         } catch (Exception e) {
-            CMS.debug("JobsAdminServlet: modJobsInst: " + e);
+            logger.warn("JobsAdminServlet: modJobsInst: " + e.getMessage(), e);
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR, "unidentified error" + e, null, resp);
             return;

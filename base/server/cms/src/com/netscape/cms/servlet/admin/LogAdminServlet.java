@@ -56,9 +56,8 @@ import com.netscape.certsrv.logging.event.ConfigSignedAuditEvent;
  */
 public class LogAdminServlet extends AdminServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogAdminServlet.class);
+
     private static final long serialVersionUID = -99699953656847603L;
 
     private final static String INFO = "LogAdminServlet";
@@ -2229,7 +2228,7 @@ public class LogAdminServlet extends AdminServlet {
                 if (value.equals("true") || value.equals("false")) {
                     mConfig.putString(Constants.PR_DEBUG_LOG_ENABLE, value);
                 } else {
-                    CMS.debug("setGeneralConfig: Invalid value for " + Constants.PR_DEBUG_LOG_ENABLE + ": " + value);
+                    logger.error("setGeneralConfig: Invalid value for " + Constants.PR_DEBUG_LOG_ENABLE + ": " + value);
                     throw new EBaseException("Invalid value for " + Constants.PR_DEBUG_LOG_ENABLE);
                 }
             } else if (key.equals(Constants.PR_DEBUG_LOG_LEVEL)) {
@@ -2237,7 +2236,7 @@ public class LogAdminServlet extends AdminServlet {
                     Integer.parseInt(value); // check for errors
                     mConfig.putString(Constants.PR_DEBUG_LOG_LEVEL, value);
                 } catch (NumberFormatException e) {
-                    CMS.debug("setGeneralConfig: Invalid value for " + Constants.PR_DEBUG_LOG_LEVEL + ": " + value);
+                    logger.error("setGeneralConfig: Invalid value for " + Constants.PR_DEBUG_LOG_LEVEL + ": " + value + ": " + e.getMessage(), e);
                     throw new EBaseException("Invalid value for " + Constants.PR_DEBUG_LOG_LEVEL);
                 }
             }

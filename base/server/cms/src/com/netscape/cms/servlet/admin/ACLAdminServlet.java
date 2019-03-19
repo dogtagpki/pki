@@ -48,9 +48,8 @@ import com.netscape.certsrv.logging.ILogger;
  */
 public class ACLAdminServlet extends AdminServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACLAdminServlet.class);
+
     private static final long serialVersionUID = -322237202045924779L;
     private static final String PROP_EVAL = "accessEvaluator";
     private final static String INFO = "ACLAdminServlet";
@@ -785,7 +784,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 mStore.removeSubStore(id);
             } catch (Exception eeee) {
-                //CMS.debugStackTrace(eeee);
+                //logger.warn("ACLAdminServlet: " + eeee.getMessage(), e);
             }
             // commiting
             try {

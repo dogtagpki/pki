@@ -55,6 +55,8 @@ import com.netscape.cms.servlet.processors.Processor;
  */
 public class GroupMemberProcessor extends Processor {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupMemberProcessor.class);
+
     public final static int DEFAULT_SIZE = 20;
 
     public final static String MULTI_ROLE_ENABLE = "multiroles.enable";
@@ -149,7 +151,7 @@ public class GroupMemberProcessor extends Processor {
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("GroupMemberProcessor: " + e.getMessage(), e);
             throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR"));
         }
     }
@@ -235,7 +237,7 @@ public class GroupMemberProcessor extends Processor {
             SessionContext sContext = SessionContext.getContext();
             String adminId = (String) sContext.get(SessionContext.USER_ID);
 
-            logger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
+            systemLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
                     AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
                     new Object[] { adminId, memberID, groupID });
 
@@ -358,7 +360,7 @@ public class GroupMemberProcessor extends Processor {
             SessionContext sContext = SessionContext.getContext();
             String adminId = (String) sContext.get(SessionContext.USER_ID);
 
-            logger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
+            systemLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
                     AuditFormat.LEVEL, AuditFormat.REMOVEUSERGROUPFORMAT,
                     new Object[] { adminId, memberID, groupID });
 
