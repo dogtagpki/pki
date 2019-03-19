@@ -28,6 +28,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.util.Cert;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -46,7 +48,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import org.mozilla.jss.netscape.security.util.Cert;
 
 /**
  * Configure the CA to respond to OCSP requests for a CA
@@ -55,9 +56,7 @@ import org.mozilla.jss.netscape.security.util.Cert;
  */
 public class AddCAServlet extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AddCAServlet.class);
     private static final long serialVersionUID = 1065151608542115340L;
 
     public static final BigInteger BIG_ZERO = new BigInteger("0");
@@ -146,7 +145,7 @@ public class AddCAServlet extends CMSServlet {
                 auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
             String uid = authToken.getInString(IAuthToken.USER_ID);
             if (uid != null) {
-                CMS.debug("AddCAServlet: auditSubjectID set to " + uid);
+                logger.debug("AddCAServlet: auditSubjectID set to " + uid);
                 auditSubjectID = uid;
             }
         }
@@ -192,7 +191,7 @@ public class AddCAServlet extends CMSServlet {
             X509Certificate cert = Cert.mapCert(b64);
 
             if (cert == null) {
-                CMS.debug("AddCAServlet::process() - cert is null!");
+                logger.warn("AddCAServlet::process() - cert is null!");
 
                 audit(OCSPAddCARequestProcessedEvent.createFailureEvent(
                         auditSubjectID,

@@ -21,16 +21,6 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ca.ICMSCRLExtension;
-import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
-
 import org.mozilla.jss.netscape.security.util.BitArray;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
@@ -42,6 +32,16 @@ import org.mozilla.jss.netscape.security.x509.RDN;
 import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
+import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ca.ICMSCRLExtension;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.logging.Logger;
+
 /**
  * This represents a issuing distribution point extension.
  *
@@ -49,6 +49,8 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
  */
 public class CMSIssuingDistributionPointExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSIssuingDistributionPointExtension.class);
     public static final String PROP_POINTTYPE = "pointType";
     public static final String PROP_POINTNAME = "pointName";
     public static final String PROP_DIRNAME = "DirectoryName";
@@ -87,7 +89,7 @@ public class CMSIssuingDistributionPointExtension
             Object ip,
             boolean critical) {
 
-        CMS.debug("in CMSIssuingDistributionPointExtension::getCRLExtension.");
+        logger.debug("in CMSIssuingDistributionPointExtension::getCRLExtension.");
         IssuingDistributionPointExtension issuingDPointExt = null;
         IssuingDistributionPoint issuingDPoint = new IssuingDistributionPoint();
 

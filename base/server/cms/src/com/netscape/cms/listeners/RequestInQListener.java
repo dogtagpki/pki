@@ -58,6 +58,9 @@ import com.netscape.cmscore.notification.EmailTemplate;
  *
  */
 public class RequestInQListener implements IRequestListener {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestInQListener.class);
+
     protected static final String PROP_ENABLED = "enabled";
     protected final static String PROP_SENDER_EMAIL = "senderEmail";
     protected final static String PROP_RECVR_EMAIL = "recipientEmail";
@@ -123,7 +126,7 @@ public class RequestInQListener implements IRequestListener {
         if (mAgentPort == null)
             log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_REQUEST_PORT_NOT_FOUND"));
         else
-            CMS.debug("RequestInQuListener: agentport = " + mAgentPort);
+            logger.debug("RequestInQuListener: agentport = " + mAgentPort);
 
         // register for this event listener
         mSubsystem.registerPendingListener(this);

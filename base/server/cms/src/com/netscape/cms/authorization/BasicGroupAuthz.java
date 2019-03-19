@@ -22,6 +22,8 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
@@ -37,9 +39,10 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BasicGroupAuthz.class);
 
     private static final String GROUP = "group";
 
@@ -103,11 +106,11 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
         IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
         IGroup group = ug.getGroupFromName(groupName);
         if (!group.isMember(user)) {
-            CMS.debug("BasicGroupAuthz: access denied. User: " + user + " is not a member of group: " + groupName);
+            logger.error("BasicGroupAuthz: access denied. User: " + user + " is not a member of group: " + groupName);
             throw new EAuthzAccessDenied("Access denied");
         }
 
-        CMS.debug("BasicGroupAuthz: authorization passed");
+        logger.debug("BasicGroupAuthz: authorization passed");
 
         // compose AuthzToken
         AuthzToken authzToken = new AuthzToken(this);

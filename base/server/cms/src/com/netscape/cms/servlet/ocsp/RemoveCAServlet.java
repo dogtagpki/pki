@@ -50,9 +50,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class RemoveCAServlet extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RemoveCAServlet.class);
     private static final long serialVersionUID = -4519898238552366358L;
     private final static String TPL_FILE = "removeCA.template";
     private String mFormPath = null;
@@ -134,7 +132,7 @@ public class RemoveCAServlet extends CMSServlet {
                 auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
             String uid = authToken.getInString(IAuthToken.USER_ID);
             if (uid != null) {
-                CMS.debug("RemoveCAServlet: auditSubjectID set to " + uid);
+                logger.debug("RemoveCAServlet: auditSubjectID set to " + uid);
                 auditSubjectID = uid;
             }
         }
@@ -164,11 +162,11 @@ public class RemoveCAServlet extends CMSServlet {
                     auditSubjectID,
                     caID));
 
-            CMS.debug("RemoveCAServlet::process: Error deleting CRL IssuingPoint: " + caID);
+            logger.error("RemoveCAServlet:Error deleting CRL IssuingPoint: " + caID + ": " + e.getMessage(), e);
             throw new EBaseException(e.toString());
         }
 
-        CMS.debug("RemoveCAServlet::process: CRL IssuingPoint for CA successfully removed: " + caID);
+        logger.debug("RemoveCAServlet::process: CRL IssuingPoint for CA successfully removed: " + caID);
 
         audit(OCSPRemoveCARequestProcessedEvent.createSuccessEvent(
                 auditSubjectID,

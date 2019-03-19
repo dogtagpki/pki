@@ -28,6 +28,8 @@ import java.util.Vector;
 
 import javax.servlet.ServletException;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -40,7 +42,6 @@ import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SystemEvent;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * A rotating log file for Certificate log events. This class loosely follows
@@ -51,6 +52,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
  */
 public class RollingLogFile extends LogFile {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RollingLogFile.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     /**
@@ -137,7 +139,7 @@ public class RollingLogFile extends LogFile {
      * Shutdown this log file.
      */
     public synchronized void shutdown() {
-        CMS.debug("Destroying RollingLogFile(" + mFileName + ")");
+        logger.debug("Destroying RollingLogFile(" + mFileName + ")");
         setRolloverTime("0");
         setExpirationTime("0");
         super.shutdown();
@@ -258,18 +260,13 @@ public class RollingLogFile extends LogFile {
                         Utils.exec("chmod 00640 " + mFile.getCanonicalPath());
                     }
                 } catch (FileNotFoundException e) {
-                    CMS.debug("Unable to zeroize "
-                             + mFile.toString());
+                    logger.warn("Unable to zeroize " + mFile + ": " + e.getMessage(), e);
                 }
             } else {
-                CMS.debug("Unable to backup "
-                         + mFile.toString() + " to "
-                         + backupFile.toString());
+                logger.warn("Unable to backup " + mFile + " to " + backupFile);
             }
         } catch (Exception e) {
-            CMS.debug("Unable to backup "
-                     + mFile.toString() + " to "
-                     + backupFile.toString());
+            logger.warn("Unable to backup " + mFile + " to " + backupFile + ": " + e.getMessage(), e);
         }
         super.open(); // will reset mBytesWritten
     }

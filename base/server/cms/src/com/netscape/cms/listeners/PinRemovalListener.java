@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.listeners;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -42,6 +41,9 @@ import netscape.ldap.LDAPv2;
  * @version $Revision$, $Date$
  */
 public class PinRemovalListener implements IRequestListener {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PinRemovalListener.class);
+
     protected static final String PROP_ENABLED = "enabled";
     protected static final String PROP_LDAP = "ldap";
     protected static final String PROP_BASEDN = "ldap.basedn";
@@ -113,9 +115,9 @@ public class PinRemovalListener implements IRequestListener {
 
         String rs = r.getRequestStatus().toString();
 
-        CMS.debug("PinRemovalListener: Request status: " + rs);
+        logger.debug("PinRemovalListener: Request status: " + rs);
         if (!rs.equals("complete")) {
-            CMS.debug("PinRemovalListener: - request not complete - not removing pin");
+            logger.warn("PinRemovalListener: - request not complete - not removing pin");
             return;
         }
         String requestType = r.getRequestType();

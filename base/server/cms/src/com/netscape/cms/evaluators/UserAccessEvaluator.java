@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.evaluators;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.SessionContext;
@@ -24,7 +26,6 @@ import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * A class represents a user acls evaluator.
@@ -33,6 +34,9 @@ import org.mozilla.jss.netscape.security.util.Utils;
  * @version $Revision$, $Date$
  */
 public class UserAccessEvaluator implements IAccessEvaluator {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserAccessEvaluator.class);
+
     private String mType = "user";
     private String mDescription = "user equivalence evaluator";
     private Logger mLogger = Logger.getLogger();
@@ -50,7 +54,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
      * initialization. nothing for now.
      */
     public void init() {
-        CMS.debug("UserAccessEvaluator: init");
+        logger.debug("UserAccessEvaluator: init");
     }
 
     /**
