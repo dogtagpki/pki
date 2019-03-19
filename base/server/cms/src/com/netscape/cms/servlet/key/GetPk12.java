@@ -52,9 +52,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GetPk12 extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetPk12.class);
     private static final long serialVersionUID = 8974964964333880697L;
 
     private final static String INFO = "getPk12";
@@ -172,7 +170,7 @@ public class GetPk12 extends CMSServlet {
             }
 
             if (agent == null) {
-                CMS.debug("GetPk12::process() - agent is null!");
+                logger.error("GetPk12::process() - agent is null!");
                 throw new EBaseException("agent is null");
             }
 

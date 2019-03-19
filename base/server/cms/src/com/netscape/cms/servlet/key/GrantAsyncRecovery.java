@@ -49,9 +49,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GrantAsyncRecovery extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GrantAsyncRecovery.class);
     private static final long serialVersionUID = -4200111795169532676L;
     private final static String INFO = "grantAsyncRecovery";
     private final static String TPL_FILE = "grantAsyncRecovery.template";
@@ -109,7 +107,7 @@ public class GrantAsyncRecovery extends CMSServlet {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
-        CMS.debug("GrantAsyncRecovery: process() begins");
+        logger.debug("GrantAsyncRecovery: process() begins");
 
         IAuthToken authToken = authenticate(cmsReq);
 
@@ -148,8 +146,8 @@ public class GrantAsyncRecovery extends CMSServlet {
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         String agentID = authToken.getInString("uid");
-        CMS.debug("GrantAsyncRecovery: process() agent uid=" + agentID);
-        CMS.debug("GrantAsyncRecovery: process() request id=" + req.getParameter("reqID"));
+        logger.debug("GrantAsyncRecovery: process() agent uid=" + agentID);
+        logger.debug("GrantAsyncRecovery: process() request id=" + req.getParameter("reqID"));
         try {
             process(argSet, header,
                     req.getParameter("reqID"),

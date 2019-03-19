@@ -51,9 +51,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GetAsyncPk12 extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetAsyncPk12.class);
     private static final long serialVersionUID = 6933634840339605800L;
 
     private final static String INFO = "getAsyncPk12";
@@ -164,7 +162,7 @@ public class GetAsyncPk12 extends CMSServlet {
             }
 
             if (agent == null) {
-                CMS.debug("GetAsyncPk12::process() - agent is null!");
+                logger.error("GetAsyncPk12::process() - agent is null!");
                 throw new EBaseException("agent is null");
             }
 
@@ -183,7 +181,7 @@ public class GetAsyncPk12 extends CMSServlet {
             // The async recovery request must be in "approved" state
             //  i.e. all required # of recovery agents approved
             if (mService.isApprovedAsyncKeyRecovery(reqID) != true) {
-                CMS.debug("GetAsyncPk12::process() - # required recovery agents not met");
+                logger.error("GetAsyncPk12::process() - # required recovery agents not met");
                 throw new EBaseException("# required recovery agents not met");
             }
 

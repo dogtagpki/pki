@@ -27,6 +27,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.x509.X500Name;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -46,8 +48,6 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
-import org.mozilla.jss.netscape.security.x509.X500Name;
-
 /**
  * Retrieve archived keys matching given public key material
  *
@@ -56,9 +56,7 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
  */
 public class SrchKeyForRecovery extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SrchKeyForRecovery.class);
     private static final long serialVersionUID = 5426987963811540460L;
     private final static String TPL_FILE = "srchKeyForRecovery.template";
     private final static String INFO = "srchKey";
@@ -310,10 +308,10 @@ public class SrchKeyForRecovery extends CMSServlet {
             }
 
             if (timeLimit == -1 || timeLimit > mTimeLimits) {
-                CMS.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
+                logger.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
-            CMS.debug("Start searching ... timelimit=" + timeLimit);
+            logger.debug("Start searching ... timelimit=" + timeLimit);
             Enumeration<IKeyRecord> e = mKeyDB.searchKeys(filter, maxResults, timeLimit);
             int count = 0;
 
