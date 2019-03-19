@@ -54,9 +54,8 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  * @version $Revision$, $Date$
  */
 public class QueryReq extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(QueryReq.class);
     private static final long serialVersionUID = -8729364426329835378L;
     // constants
     private final static String IN_SHOW_ALL = "showAll";
@@ -214,7 +213,7 @@ public class QueryReq extends CMSServlet {
      */
 
     public void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("in QueryReq servlet");
+        logger.debug("in QueryReq servlet");
 
         // Authentication / Authorization
 
@@ -336,7 +335,7 @@ public class QueryReq extends CMSServlet {
         } catch (Exception e) {
         }
         if (maxCount > mMaxReturns) {
-            CMS.debug("Resetting page size from " + maxCount + " to " + mMaxReturns);
+            logger.debug("Resetting page size from " + maxCount + " to " + mMaxReturns);
             maxCount = mMaxReturns;
         }
 
@@ -459,7 +458,7 @@ public class QueryReq extends CMSServlet {
                 try {
                     request = requests.nextElement();
                 } catch (Exception e) {
-                    CMS.debug("Error displaying request:" + e.getMessage());
+                    logger.warn("Error displaying request:" + e.getMessage(), e);
                     // handled below
                 }
                 if (request == null) {

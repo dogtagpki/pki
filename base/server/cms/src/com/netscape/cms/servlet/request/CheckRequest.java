@@ -34,11 +34,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
@@ -48,6 +43,11 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkix.cmc.CMCStatusInfoV2;
 import org.mozilla.jss.pkix.cmc.PKIData;
 import org.mozilla.jss.pkix.cmc.ResponseBody;
@@ -80,7 +80,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * Check the status of a certificate request
@@ -88,9 +87,9 @@ import org.mozilla.jss.netscape.security.util.Utils;
  * @version $Revision$, $Date$
  */
 public class CheckRequest extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CheckRequest.class);
+
     private static final long serialVersionUID = 2791195859767119636L;
     // constants
     public static String FULL_RESPONSE = "cmcFullEnrollmentResponse";
@@ -145,7 +144,7 @@ public class CheckRequest extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("checkRequest: in process!");
+        logger.debug("checkRequest: in process!");
         SET transIds = null, sNonces = null;
         boolean isCMCReq = false;
         INTEGER bodyPartId = null;
@@ -198,7 +197,7 @@ public class CheckRequest extends CMSServlet {
         String requestId = req.getParameter("requestId");
         String format = req.getParameter("format");
 
-        CMS.debug("checkRequest: requestId " + requestId);
+        logger.debug("checkRequest: requestId " + requestId);
 
         // They may check the status using CMC queryPending
         String queryPending = req.getParameter("queryPending");

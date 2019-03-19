@@ -58,9 +58,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class ProcessReq extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProcessReq.class);
     private static final long serialVersionUID = -6941843162486565610L;
     private final static String SEQNUM = "seqNum";
     private final static String DO_ASSIGN = "doAssign";
@@ -277,12 +275,10 @@ public class ProcessReq extends CMSServlet {
                     allAlgorithms = mSigningAlgorithms =
                                     ((ICertAuthority) mAuthority).getCASigningAlgorithms();
                     if (allAlgorithms == null) {
-                        CMS.debug(
-                                "ProcessReq: signing algorithms set to All algorithms");
+                        logger.debug("ProcessReq: signing algorithms set to All algorithms");
                         allAlgorithms = AlgorithmId.ALL_SIGNING_ALGORITHMS;
                     } else
-                        CMS.debug(
-                                "ProcessReq: First signing algorithms is " + allAlgorithms[0]);
+                        logger.debug("ProcessReq: First signing algorithms is " + allAlgorithms[0]);
                 }
                 String validAlgorithms = null;
                 StringBuffer sb = new StringBuffer();

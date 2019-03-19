@@ -54,9 +54,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class SearchReqs extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SearchReqs.class);
     private static final long serialVersionUID = 2449481964851735051L;
     private final static String TPL_FILE = "queryReq.template";
     private final static String PROP_MAX_SEARCH_RETURNS = "maxSearchReqReturns";
@@ -271,11 +269,11 @@ public class SearchReqs extends CMSServlet {
             }
             // xxx the filter includes serial number range???
             if (maxResults == -1 || maxResults > mMaxReturns) {
-                CMS.debug("Resetting maximum of returned results from " + maxResults + " to " + mMaxReturns);
+                logger.debug("Resetting maximum of returned results from " + maxResults + " to " + mMaxReturns);
                 maxResults = mMaxReturns;
             }
             if (timeLimit == -1 || timeLimit > mTimeLimits) {
-                CMS.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
+                logger.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
             IRequestList list = (timeLimit > 0) ?
