@@ -42,7 +42,7 @@ add_junit_test(test-pki-server
         com.netscape.cmscore.request.ExtDataHashtableTest
         com.netscape.cmscore.request.RequestQueueTest
         com.netscape.cmscore.request.RequestRecordTest
-        # com.netscape.cmscore.request.RequestTest
+        com.netscape.cmscore.request.RequestTest
         com.netscape.cmscore.password.PlainPasswordFileTest
     REPORTS_DIR
         reports

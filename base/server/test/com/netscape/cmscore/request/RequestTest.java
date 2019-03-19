@@ -7,8 +7,7 @@ import java.security.cert.CertificateException;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.Assert;
 import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -18,29 +17,25 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cmscore.app.CMSEngineDefaultStub;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 import com.netscape.cmscore.test.TestHelper;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class RequestTest extends CMSBaseTestCase {
 
     Request request;
-    CMSMemoryStub cmsStub;
 
     public RequestTest(String name) {
         super(name);
     }
 
     public void cmsTestSetUp() {
-        // this is needed because of CMS.AtoB/BtoA calls
-        cmsStub = new CMSMemoryStub();
-        CMS.setCMSEngine(cmsStub);
-
         request = new Request(new RequestId("0xabcdef"));
     }
 
@@ -312,30 +307,19 @@ public class RequestTest extends CMSBaseTestCase {
 
     public void testGetSetByteArray() {
         byte[] data = new byte[] { 112, 96, 0, -12 };
-
-        assertFalse(cmsStub.bToACalled);
         request.setExtData("key", data);
-        assertTrue(cmsStub.bToACalled);
-        assertEquals(data, cmsStub.bToACalledWith);
 
-        assertFalse(cmsStub.aToBCalled);
         byte[] out = request.getExtDataInByteArray("key");
-        assertTrue(cmsStub.aToBCalled);
-        assertEquals(data, out);
+        Assert.assertArrayEquals(data, out);
 
         assertFalse(request.setExtData("key", (byte[]) null));
     }
 
     public void testGetSetCert() throws CertificateException {
         X509CertImpl cert = getFakeCert();
-
-        assertFalse(cmsStub.bToACalled);
         assertTrue(request.setExtData("key", cert));
-        assertTrue(cmsStub.bToACalled);
 
-        assertFalse(cmsStub.aToBCalled);
         X509CertImpl retval = request.getExtDataInCert("key");
-        assertTrue(cmsStub.aToBCalled);
         assertEquals(cert, retval);
 
         assertFalse(request.setExtData("key", (X509CertImpl) null));
@@ -353,14 +337,10 @@ public class RequestTest extends CMSBaseTestCase {
         Hashtable<?, ?> hashVals = (Hashtable<?, ?>) request.mExtData.get("key");
         assertEquals(2, hashVals.keySet().size());
 
-        assertFalse(cmsStub.aToBCalled);
         X509CertImpl[] retval = request.getExtDataInCertArray("key");
         assertNotNull(retval);
-        assertTrue(cmsStub.aToBCalled);
 
-        assertEquals(2, retval.length);
-        assertEquals(vals[0], retval[0]);
-        assertEquals(vals[1], retval[1]);
+        Assert.assertArrayEquals(vals, retval);
 
         assertFalse(request.setExtData("key", (X509CertImpl[]) null));
     }
@@ -459,16 +439,11 @@ public class RequestTest extends CMSBaseTestCase {
     public void testGetSetCertInfo() {
         X509CertInfoStub cert = new X509CertInfoStub();
 
-        assertFalse(cmsStub.bToACalled);
         assertFalse(cert.getEncodedCalled);
         assertTrue(request.setExtData("key", cert));
-        assertTrue(cmsStub.bToACalled);
         assertTrue(cert.getEncodedCalled);
 
-        // this is a pretty weak test, but it's hard to assert much here
-        assertFalse(cmsStub.aToBCalled);
         request.getExtDataInCertInfo("key");
-        assertTrue(cmsStub.aToBCalled);
 
         assertFalse(request.setExtData("key", (X509CertInfo) null));
     }
@@ -483,9 +458,7 @@ public class RequestTest extends CMSBaseTestCase {
         Hashtable<?, ?> hashVals = (Hashtable<?, ?>) request.mExtData.get("key");
         assertEquals(2, hashVals.keySet().size());
 
-        assertFalse(cmsStub.aToBCalled);
         request.getExtDataInCertInfoArray("key");
-        assertTrue(cmsStub.aToBCalled);
 
         assertFalse(request.setExtData("key", (X509CertInfo[]) null));
     }
@@ -533,9 +506,7 @@ public class RequestTest extends CMSBaseTestCase {
         Hashtable<?, ?> hashVals = (Hashtable<?, ?>) request.mExtData.get("key");
         assertEquals(2, hashVals.keySet().size());
 
-        assertFalse(cmsStub.aToBCalled);
         request.getExtDataInCertInfoArray("key");
-        assertTrue(cmsStub.aToBCalled);
 
         assertFalse(request.setExtData("key", (RevokedCertImpl[]) null));
     }
@@ -592,33 +563,6 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals(token.getInInteger("key3"), retval.getInInteger("key3"));
 
         assertFalse(request.setExtData("key", (AuthToken) null));
-    }
-
-    /**
-     * CMSMemoryStub
-     *
-     * This class is used to help test methods that rely on setting and then
-     * getting a value out. It assumes BtoA is always called first, stores
-     * the value passed in, and then returns that value for BtoA.
-     */
-    static class CMSMemoryStub extends CMSEngineDefaultStub {
-        boolean bToACalled = false;
-        byte[] bToACalledWith = null;
-
-        boolean aToBCalled = false;
-        String aToBCalledWith = null;
-
-        public String BtoA(byte data[]) {
-            bToACalled = true;
-            bToACalledWith = data;
-            return "garbagetostoreinthehash";
-        }
-
-        public byte[] AtoB(String data) {
-            aToBCalled = true;
-            aToBCalledWith = data;
-            return bToACalledWith;
-        }
     }
 
     class X509CertInfoStub extends X509CertInfo {
