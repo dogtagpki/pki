@@ -41,6 +41,8 @@ import com.netscape.cms.profile.common.EnrollProfile;
  */
 public class SubjectDNInput extends EnrollInput implements IProfileInput {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectDNInput.class);
+
     public static final String VAL_SUBJECT = "subject";
 
     public SubjectDNInput() {
@@ -135,8 +137,7 @@ public class SubjectDNInput extends EnrollInput implements IProfileInput {
             req.setExtData(EnrollProfile.REQUEST_SUBJECT_NAME,
                     new CertificateSubjectName(subj));
         } catch (Exception e) {
-            CMS.debug("SubjectNameInput: parseSubject Name " +
-                    e.toString());
+            logger.warn("SubjectNameInput: parseSubject Name " + e.getMessage(), e);
         }
     }
 }

@@ -45,6 +45,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class SubjectAltNameExtInput extends EnrollInput implements IProfileInput {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectAltNameExtInput.class);
+
     public static final int DEF_REQ_ENTRIES = 4;
 
     public static final String CONFIG_SAN_REQ_PATTERN = "req_san_pattern_";
@@ -74,7 +76,7 @@ public class SubjectAltNameExtInput extends EnrollInput implements IProfileInput
                 CMS.getConfigStore().getInteger("ca.SAN.entryNum", DEF_REQ_ENTRIES);
         } catch (EBaseException e) {
             /* mSANentryNum has default; ok */
-            CMS.debug("SubjectAltNameExtInput: init(): getting config failed on ca.SAN.entryNum");
+            logger.warn("SubjectAltNameExtInput: init(): getting config failed on ca.SAN.entryNum: " + e.getMessage(), e);
         }
     }
 

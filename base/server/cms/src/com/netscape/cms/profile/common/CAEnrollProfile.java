@@ -202,7 +202,7 @@ public class CAEnrollProfile extends EnrollProfile {
             theCert = caService.issueX509Cert(
                 aid, info, getId() /* profileId */, requestId.toString());
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("CAEnrollProfile: " + e.getMessage(), e);
             throw new EProfileException(e);
         }
 

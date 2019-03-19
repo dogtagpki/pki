@@ -43,6 +43,9 @@ import com.netscape.cms.profile.common.EnrollProfile;
  * @version $Revision$, $Date$
  */
 public class nsNKeyCertReqInput extends EnrollInput implements IProfileInput {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(nsNKeyCertReqInput.class);
+
     public static final String VAL_SN = "screenname";
     public static final String VAL_PUBLIC_KEY = "publickey";
 
@@ -88,16 +91,14 @@ public class nsNKeyCertReqInput extends EnrollInput implements IProfileInput {
                 request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         if (sn == null) {
-            CMS.debug("nsNKeyCertReqInput: populate - id not found " +
-                    "");
+            logger.error("nsNKeyCertReqInput: populate - id not found");
             throw new EProfileException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_TOKENKEY_NO_ID",
                             ""));
         }
         if (pk == null) {
-            CMS.debug("nsNKeyCertReqInput: populate - public key not found " +
-                    "");
+            logger.error("nsNKeyCertReqInput: populate - public key not found");
             throw new EProfileException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_TOKENKEY_NO_PUBLIC_KEY",

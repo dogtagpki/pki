@@ -42,6 +42,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class FileSigningInput extends EnrollInput implements IProfileInput {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FileSigningInput.class);
+
     public static final String URL = "file_signing_url";
     public static final String TEXT = "file_signing_text";
     public static final String SIZE = "file_signing_size";
@@ -117,7 +119,7 @@ public class FileSigningInput extends EnrollInput implements IProfileInput {
             byte digest[] = digester.digest(data);
             request.setExtData(DIGEST, toHexString(digest));
         } catch (Exception e) {
-            CMS.debug("FileSigningInput populate failure " + e);
+            logger.error("FileSigningInput populate failure " + e.getMessage(), e);
             throw new EProfileException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_FILE_NOT_FOUND"));
