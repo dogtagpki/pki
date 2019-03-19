@@ -32,6 +32,9 @@ import com.netscape.certsrv.base.IArgBlock;
  * @version $Revision$, $Date$
  */
 public class GenErrorTemplateFiller implements ICMSTemplateFiller {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenErrorTemplateFiller.class);
+
     public GenErrorTemplateFiller() {
     }
 
@@ -55,8 +58,7 @@ public class GenErrorTemplateFiller implements ICMSTemplateFiller {
             if (sts != null)
                 fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
         } else {
-            CMS.debug("GenErrorTemplateFiller::getTemplateParams() - " +
-                       "cmsReq is null!");
+            logger.warn("GenErrorTemplateFiller::getTemplateParams() - cmsReq is null!");
             return null;
         }
 

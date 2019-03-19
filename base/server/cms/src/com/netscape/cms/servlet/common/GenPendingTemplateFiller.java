@@ -24,9 +24,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Locale;
 
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -35,6 +32,9 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkix.cmc.CMCStatusInfoV2;
 import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.PendInfo;
@@ -56,7 +56,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * default Pending template filler
@@ -64,6 +63,8 @@ import org.mozilla.jss.netscape.security.util.Utils;
  * @version $Revision$, $Date$
  */
 public class GenPendingTemplateFiller implements ICMSTemplateFiller {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenPendingTemplateFiller.class);
     public static String FULL_RESPONSE = "cmcFullEnrollmentResponse";
 
     public GenPendingTemplateFiller() {
@@ -210,9 +211,8 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                     } else if (keyType.equals(org.mozilla.jss.crypto.PrivateKey.EC)) {
                         signAlg = SignatureAlgorithm.ECSignatureWithSHA256Digest;
                     } else {
-                        CMS.debug("GenPendingTemplateFiller::getTemplateParams() - "
-                                 + "keyType " + keyType.toString()
-                                 + " is unsupported!");
+                        logger.warn("GenPendingTemplateFiller::getTemplateParams() - keyType " +
+                                keyType + " is unsupported!");
                         return null;
                     }
 

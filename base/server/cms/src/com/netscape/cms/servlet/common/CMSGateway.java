@@ -47,6 +47,9 @@ import com.netscape.cms.logging.Logger;
  * @version $Revision$, $Date$
  */
 public class CMSGateway {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSGateway.class);
+
     public final static String PROP_CMSGATEWAY = "cmsgateway";
     private final static String PROP_ENABLE_ADMIN_ENROLL = "enableAdminEnroll";
 
@@ -133,7 +136,7 @@ public class CMSGateway {
             try {
                 clientCert = new org.mozilla.jss.netscape.security.x509.X509CertImpl(clientCert.getEncoded());
             } catch (Exception e) {
-                CMS.debug("CMSGateway: getAuthCreds " + e.toString());
+                logger.warn("CMSGateway: getAuthCreds " + e.getMessage(), e);
             }
         }
 
@@ -198,7 +201,7 @@ public class CMSGateway {
         } catch (EBaseException e) {
             throw e;
         } catch (Exception e) {
-            CMS.debug("CMSGateway: " + e);
+            logger.error("CMSGateway: " + e.getMessage(), e);
             // catch all errors from authentication manager.
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_AUTH_ERROR_2",
                         e.toString(), e.getMessage()));
@@ -320,7 +323,7 @@ public class CMSGateway {
             throws EBaseException, IOException {
         // this converts to system dependent file seperator char.
         if (servletConfig == null) {
-            CMS.debug("CMSGateway:getTemplate() - servletConfig is null!");
+            logger.warn("CMSGateway:getTemplate() - servletConfig is null!");
             return null;
         }
         if (servletConfig.getServletContext() == null) {

@@ -32,6 +32,9 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenRejectedTemplateFiller.class);
+
     public final static String POLICY_MESSAGE = "policyMessage";
 
     public GenRejectedTemplateFiller() {
@@ -55,8 +58,7 @@ public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
             if (sts != null)
                 fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
         } else {
-            CMS.debug("GenRejectedTemplateFiller::getTemplateParams() - " +
-                       "cmsReq is null!");
+            logger.warn("GenRejectedTemplateFiller::getTemplateParams() - cmsReq is null!");
             return null;
         }
 
