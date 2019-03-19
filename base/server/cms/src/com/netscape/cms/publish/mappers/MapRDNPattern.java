@@ -80,6 +80,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 class MapRDNPattern {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MapRDNPattern.class);
+
     /* the list of request attributes needed by this RDN  */
     protected String[] mReqAttrs = null;
 
@@ -103,8 +105,7 @@ class MapRDNPattern {
     public MapRDNPattern(String pattern)
             throws ELdapException {
         if (pattern == null || pattern.equals("")) {
-            CMS.debug(
-                    "MapDNPattern: null pattern");
+            logger.debug("MapDNPattern: null pattern");
         } else {
             mPatternString = pattern;
             PushbackReader in = new PushbackReader(new StringReader(pattern));

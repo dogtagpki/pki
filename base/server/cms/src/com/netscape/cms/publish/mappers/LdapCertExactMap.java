@@ -21,6 +21,9 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -38,8 +41,6 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPv3;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 /**
  * Maps a X509 certificate to a LDAP entry by using the subject name
@@ -48,6 +49,8 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
  * @version $Revision$, $Date$
  */
 public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCertExactMap.class);
     private Logger mLogger = Logger.getLogger();
     protected IConfigStore mConfig = null;
     boolean mInited = false;
@@ -120,14 +123,13 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
             X509Certificate cert = (X509Certificate) obj;
             subjectDN = (X500Name) cert.getSubjectDN();
 
-            CMS.debug("LdapCertExactMap: cert subject dn:" + subjectDN.toString());
+            logger.debug("LdapCertExactMap: cert subject dn:" + subjectDN.toString());
         } catch (ClassCastException e) {
             try {
                 X509CRLImpl crl = (X509CRLImpl) obj;
                 subjectDN = (X500Name) crl.getIssuerDN();
 
-                CMS.debug("LdapCertExactMap: crl issuer dn: " +
-                        subjectDN.toString());
+                logger.warn("LdapCertExactMap: crl issuer dn: " + subjectDN + ": " + e.getMessage(), e);
             } catch (ClassCastException ex) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_NOT_SUPPORTED_OBJECT"));
                 return null;

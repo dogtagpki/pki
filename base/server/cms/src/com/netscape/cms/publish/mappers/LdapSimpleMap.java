@@ -22,6 +22,12 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -39,11 +45,6 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPv3;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Maps a request to an entry in the LDAP server.
@@ -56,6 +57,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapSimpleMap.class);
+
     protected static final String PROP_DNPATTERN = "dnPattern";
     protected String mDnPattern = null;
 
@@ -251,7 +255,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
             X509Certificate cert = (X509Certificate) obj;
             subjectDN = (X500Name) cert.getSubjectDN();
 
-            CMS.debug("LdapSimpleMap: cert subject dn:" + subjectDN.toString());
+            logger.debug("LdapSimpleMap: cert subject dn:" + subjectDN);
             //certExt = (CertificateExtensions)
             //        ((X509CertImpl)cert).get(X509CertInfo.EXTENSIONS);
             X509CertInfo info = (X509CertInfo)
@@ -271,8 +275,7 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
                 X509CRLImpl crl = (X509CRLImpl) obj;
                 subjectDN = (X500Name) crl.getIssuerDN();
 
-                CMS.debug("LdapSimpleMap: crl issuer dn: " +
-                        subjectDN.toString());
+                logger.warn("LdapSimpleMap: crl issuer dn: " + subjectDN + ": " + e.getMessage(), e);
             } catch (ClassCastException ex) {
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("PUBLISH_PUBLISH_OBJ_NOT_SUPPORTED",
