@@ -23,10 +23,11 @@ import java.security.Principal;
 
 import javax.ws.rs.core.Response;
 
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
@@ -40,8 +41,6 @@ import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.certsrv.system.SystemCertResource;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This is the class used to list, retrieve and modify system certificates for all Java subsystems.
@@ -50,6 +49,8 @@ import org.mozilla.jss.netscape.security.util.Utils;
  *
  */
 public class SystemCertService extends PKIService implements SystemCertResource {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SystemCertService.class);
 
     /**
      * Used to retrieve the transport certificate
@@ -80,7 +81,7 @@ public class SystemCertService extends PKIService implements SystemCertResource 
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("SystemCertService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -106,13 +107,13 @@ public class SystemCertService extends PKIService implements SystemCertResource 
 
         ITransportKeyUnit tu = kra.getTransportKeyUnit();
         if (tu == null) {
-            CMS.debug("getTransportCert: transport key unit is null");
+            logger.error("getTransportCert: transport key unit is null");
             throw new PKIException("No transport key unit.");
         }
 
         X509Certificate transportCert = tu.getCertificate();
         if (transportCert == null) {
-            CMS.debug("getTransportCert: transport cert is null");
+            logger.error("getTransportCert: transport cert is null");
             throw new PKIException("Transport cert not found.");
         }
 

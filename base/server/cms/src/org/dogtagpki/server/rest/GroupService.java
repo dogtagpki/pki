@@ -53,6 +53,8 @@ import com.netscape.cms.servlet.base.SubsystemService;
  */
 public class GroupService extends SubsystemService implements GroupResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupService.class);
+
     public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
     public GroupData createGroupData(IGroup group) throws Exception {
@@ -124,7 +126,7 @@ public class GroupService extends SubsystemService implements GroupResource {
             return createOKResponse(response);
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("GroupService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -329,7 +331,7 @@ public class GroupService extends SubsystemService implements GroupResource {
     @Override
     public Response findGroupMembers(String groupID, String filter, Integer start, Integer size) {
 
-        CMS.debug("GroupService.findGroupMembers(" + groupID + ", " + filter + ")");
+        logger.debug("GroupService.findGroupMembers(" + groupID + ", " + filter + ")");
 
         if (groupID == null) throw new BadRequestException("Group ID is null.");
 
