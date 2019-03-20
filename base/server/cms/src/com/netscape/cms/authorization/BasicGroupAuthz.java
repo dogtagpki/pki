@@ -24,7 +24,6 @@ import java.util.Vector;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.apps.CMS;
@@ -152,7 +151,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
     }
 
     @Override
-    public Enumeration<ACL> getACLs() {
+    public Enumeration<IACL> getACLs() {
         // TODO Auto-generated method stub
         return null;
     }

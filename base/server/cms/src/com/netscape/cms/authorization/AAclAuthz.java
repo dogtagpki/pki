@@ -86,7 +86,7 @@ public abstract class AAclAuthz implements IAuthzManager {
 
     private IConfigStore mConfig = null;
 
-    private Hashtable<String, ACL> mACLs = new Hashtable<String, ACL>();
+    private Hashtable<String, IACL> mACLs = new Hashtable<>();
     private Hashtable<String, IAccessEvaluator> mEvaluators = new Hashtable<String, IAccessEvaluator>();
     private Logger mLogger = null;
 
@@ -189,7 +189,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         ACL acl = ACL.parseACL(resACLs);
 
         if (acl != null) {
-            ACL curACL = mACLs.get(acl.getName());
+            ACL curACL = (ACL) mACLs.get(acl.getName());
             if (curACL == null) {
                 mACLs.put(acl.getName(), acl);
             } else {
@@ -212,7 +212,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         return mACLs.keys();
     }
 
-    public Enumeration<ACL> getACLs() {
+    public Enumeration<IACL> getACLs() {
         return mACLs.elements();
     }
 
@@ -344,7 +344,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      */
     private boolean checkACLs(String name, String perm)
             throws EACLsException {
-        ACL acl = mACLs.get(name);
+        ACL acl = (ACL) mACLs.get(name);
 
         // no such resource, pass it down
         if (acl == null) {
@@ -574,7 +574,7 @@ public abstract class AAclAuthz implements IAuthzManager {
         Vector<ACLEntry> v = new Vector<ACLEntry>();
 
         for (String name : nodes) {
-            ACL acl = mACLs.get(name);
+            ACL acl = (ACL) mACLs.get(name);
             if (acl == null)
                 continue;
             Enumeration<ACLEntry> e = acl.entries();
@@ -778,8 +778,8 @@ public abstract class AAclAuthz implements IAuthzManager {
      *
      * @return an enumeration of resources contained in the ACL table
      */
-    public Enumeration<ACL> aclResElements() {
-        return (mACLs.elements());
+    public Enumeration<IACL> aclResElements() {
+        return mACLs.elements();
     }
 
     /**

@@ -21,6 +21,7 @@ import java.util.Enumeration;
 
 import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.EACLsException;
+import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzManager;
 import com.netscape.certsrv.base.EBaseException;
@@ -225,11 +226,11 @@ public class DirAclAuthz extends AAclAuthz
             LDAPAttribute attrs = new LDAPAttribute("resourceACLS");
             LDAPModificationSet mod = new LDAPModificationSet();
 
-            Enumeration<ACL> en = aclResElements();
+            Enumeration<IACL> en = aclResElements();
 
             if (en.hasMoreElements() == true) {
                 while (en.hasMoreElements()) {
-                    ACL a = en.nextElement();
+                    ACL a = (ACL) en.nextElement();
                     for (String s : a.getResourceACLs()) {
                         attrs.addValue(s);
                     }

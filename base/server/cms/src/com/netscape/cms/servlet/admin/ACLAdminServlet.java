@@ -219,10 +219,10 @@ public class ACLAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        Enumeration<ACL> res = mAuthzMgr.getACLs();
+        Enumeration<IACL> res = mAuthzMgr.getACLs();
 
         while (res.hasMoreElements()) {
-            ACL acl = res.nextElement();
+            ACL acl = (ACL) res.nextElement();
             String desc = acl.getDescription();
 
             if (desc == null)
