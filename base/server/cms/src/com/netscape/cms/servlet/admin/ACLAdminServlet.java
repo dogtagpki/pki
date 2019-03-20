@@ -26,7 +26,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.apps.CMS;
@@ -40,6 +39,7 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.authorization.ACL;
 
 /**
  * Manage Access Control List configuration

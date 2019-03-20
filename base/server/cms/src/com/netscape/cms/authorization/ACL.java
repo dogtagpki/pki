@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.acls;
+package com.netscape.cms.authorization;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -24,6 +24,9 @@ import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import com.netscape.certsrv.acls.ACLEntry;
+import com.netscape.certsrv.acls.EACLsException;
+import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.apps.CMS;
 
 /**

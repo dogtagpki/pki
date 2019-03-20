@@ -25,7 +25,6 @@ import java.util.Vector;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;

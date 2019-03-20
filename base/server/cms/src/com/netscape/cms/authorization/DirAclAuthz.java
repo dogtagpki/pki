@@ -19,7 +19,6 @@ package com.netscape.cms.authorization;
 
 import java.util.Enumeration;
 
-import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
 import com.netscape.certsrv.apps.CMS;
