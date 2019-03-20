@@ -37,7 +37,7 @@ add_junit_test(test-pki-server
         com.netscape.cmscore.authentication.AuthTokenTest
         com.netscape.cmscore.dbs.CertRecordListTest
         com.netscape.cmscore.dbs.DBRegistryTest
-        # com.netscape.cmscore.request.AgentApprovalsTest
+        com.netscape.cmscore.request.AgentApprovalsTest
         com.netscape.cmscore.request.ExtAttrDynMapperTest
         com.netscape.cmscore.request.ExtDataHashtableTest
         com.netscape.cmscore.request.RequestQueueTest
