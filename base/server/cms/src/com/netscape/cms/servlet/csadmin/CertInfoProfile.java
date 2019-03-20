@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.profile;
+package com.netscape.cms.servlet.csadmin;
 
 import java.util.Enumeration;
 import java.util.StringTokenizer;
@@ -23,6 +23,7 @@ import java.util.Vector;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.profile.ICertInfoPolicyDefault;
 import com.netscape.certsrv.request.IRequest;
 
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;

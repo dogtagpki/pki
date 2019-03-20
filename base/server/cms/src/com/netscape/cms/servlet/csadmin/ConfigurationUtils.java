@@ -132,7 +132,6 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.profile.CertInfoProfile;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
