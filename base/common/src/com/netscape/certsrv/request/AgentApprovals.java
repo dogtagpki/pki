@@ -31,9 +31,8 @@ import java.util.Vector;
 public class AgentApprovals
         implements Serializable {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AgentApprovals.class);
+
     private static final long serialVersionUID = -3827259076159153561L;
 
     /**
@@ -47,12 +46,13 @@ public class AgentApprovals
     public AgentApproval addApproval(String userName) {
         AgentApproval a = findApproval(userName);
 
-        // update existing approval
         if (a != null) {
+            logger.debug("Updating existing approval: " + userName);
             a.mDate = new Date(); /* CMS.getCurrentDate(); */
             return a;
         }
 
+        logger.debug("Adding new approval: " + userName);
         a = new AgentApproval(userName);
         mVector.addElement(a);
         return a;
@@ -79,17 +79,19 @@ public class AgentApprovals
      * @return an AgentApproval object
      */
     public AgentApproval findApproval(String userName) {
-        AgentApproval a = null;
 
         // search
         for (int i = 0; i < mVector.size(); i++) {
-            a = mVector.elementAt(i);
+            AgentApproval a = mVector.elementAt(i);
 
-            if (a.mUserName.equals(userName))
-                break;
+            if (a.mUserName.equals(userName)) {
+                logger.debug("Found existing approval: " + userName);
+                return a;
+            }
         }
 
-        return a;
+        logger.debug("Existing approval not found: " + userName);
+        return null;
     }
 
     /**
