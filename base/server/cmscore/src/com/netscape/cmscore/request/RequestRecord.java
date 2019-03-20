@@ -48,6 +48,7 @@ import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.ldap.IRequestMod;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.BigIntegerMapper;
 import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.StringMapper;
@@ -249,6 +250,7 @@ public class RequestRecord
             // where CMC puts it
             reqType = r.getExtDataInString("auth_token.cert_request_type");
         }
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         Enumeration<String> e = r.getExtDataKeys();
         while (e.hasMoreElements()) {
             String key = e.nextElement();
@@ -276,7 +278,7 @@ public class RequestRecord
                 }
                 if (reqType != null &&
                     (reqType.equals("crmf") || reqType.equals("cmc-crmf")) &&
-                        CMS.isExcludedLdapAttr(key)) {
+                        engine.isExcludedLdapAttr(key)) {
                     // logger.debug("RequestRecord.loadExtDataFromRequest: found excluded attr; key=" + key);
                     continue;
                 }

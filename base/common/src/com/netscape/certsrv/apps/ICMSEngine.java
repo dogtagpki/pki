@@ -130,10 +130,4 @@ public interface ICMSEngine extends ISubsystem {
      * @exception EBaseException failed to create file
      */
     public IConfigStore createFileConfigStore(String path) throws EBaseException;
-
-    public void sleepOneMinute(); // for debug only
-
-    public boolean isExcludedLdapAttrsEnabled();
-
-    public boolean isExcludedLdapAttr(String key);
 }

@@ -253,10 +253,6 @@ public final class CMS {
         return _engine.createFileConfigStore(path);
     }
 
-    public static boolean isExcludedLdapAttr(String key) {
-        return _engine.isExcludedLdapAttr(key);
-    }
-
     /**
      * Check whether the string is contains password
      *
