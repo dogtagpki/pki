@@ -2,19 +2,17 @@ package com.netscape.cmscore.test;
 
 import java.security.cert.CertificateException;
 
-import junit.framework.TestCase;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cmscore.app.CMSEngineDefaultStub;
 import com.netscape.cmscore.dbs.DBRegistryDefaultStub;
 import com.netscape.cmscore.dbs.DBSSessionDefaultStub;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.DBSubsystemDefaultStub;
 import com.netscape.cmscore.logging.LoggerDefaultStub;
+
+import junit.framework.TestCase;
 
 /**
  * The base class for all CMS unit tests. This sets up some basic stubs
@@ -22,7 +20,6 @@ import com.netscape.cmscore.logging.LoggerDefaultStub;
  * (like the CMS logging system).
  */
 public abstract class CMSBaseTestCase extends TestCase {
-    CMSEngineStub engine;
     LoggerDefaultStub logger;
     DBSubsystemStub db;
     DBRegistryDefaultStub registry;
@@ -33,13 +30,11 @@ public abstract class CMSBaseTestCase extends TestCase {
     }
 
     public final void setUp() {
-        engine = new CMSEngineStub();
         logger = new LoggerDefaultStub();
         db = new DBSubsystemStub();
         registry = new DBRegistryDefaultStub();
         session = new DBSSessionDefaultStub();
 
-        CMS.setCMSEngine(engine);
         DBSubsystem.setInstance(db);
 
         cmsTestSetUp();
@@ -78,12 +73,6 @@ public abstract class CMSBaseTestCase extends TestCase {
             };
 
         return new X509CertImpl(certData);
-    }
-
-    class CMSEngineStub extends CMSEngineDefaultStub {
-        public ILogger getLogger() {
-            return logger;
-        }
     }
 
     class DBSubsystemStub extends DBSubsystemDefaultStub {
