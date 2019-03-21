@@ -30,6 +30,7 @@ import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.jobs.IJobsScheduler;
@@ -174,12 +175,11 @@ public final class CMS {
      * Retrieves the localized user message from UserMessages.properties.
      *
      * @param msgID message id defined in UserMessages.properties
+     * @param params an array of parameters
      * @return localized user message
      */
-    public static String getUserMessage(String msgID) {
-        if (_engine == null)
-            return msgID;
-        return _engine.getUserMessage(null /* from session context */, msgID);
+    public static String getUserMessage(String msgID, String... params) {
+        return getUserMessage(null, msgID, params);
     }
 
     /**
@@ -187,126 +187,33 @@ public final class CMS {
      *
      * @param locale end-user locale
      * @param msgID message id defined in UserMessages.properties
+     * @param params an array of parameters
      * @return localized user message
      */
-    public static String getUserMessage(Locale locale, String msgID) {
-        if (_engine == null)
-            return msgID;
-        return _engine.getUserMessage(locale, msgID);
-    }
+    public static String getUserMessage(Locale locale, String msgID, String... params) {
+        // if locale is null, try to get it out from session context
+        if (locale == null) {
+            SessionContext sc = SessionContext.getExistingContext();
 
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param msgID message id defined in UserMessages.properties
-     * @param p1 1st parameter
-     * @return localized user message
-     */
-    public static String getUserMessage(String msgID, String p1) {
-        if (_engine == null)
-            return msgID;
-        return _engine.getUserMessage(null /* from session context */, msgID, p1);
-    }
+            if (sc != null)
+                locale = (Locale) sc.get(SessionContext.LOCALE);
+        }
+        ResourceBundle rb = null;
 
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param locale end-user locale
-     * @param msgID message id defined in UserMessages.properties
-     * @param p1 1st parameter
-     * @return localized user message
-     */
-    public static String getUserMessage(Locale locale, String msgID, String p1) {
-        if (_engine == null)
-            return msgID;
-        return _engine.getUserMessage(locale, msgID, p1);
-    }
+        if (locale == null) {
+            rb = ResourceBundle.getBundle(
+                        "UserMessages", Locale.ENGLISH);
+        } else {
+            rb = ResourceBundle.getBundle(
+                        "UserMessages", locale);
+        }
+        String msg = rb.getString(msgID);
 
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param msgID message id defined in UserMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @return localized user message
-     */
-    public static String getUserMessage(String msgID, String p1, String p2) {
-        if (_engine == null)
-            return msgID;
-        return _engine.getUserMessage(null /* from session context */, msgID, p1, p2);
-    }
+        if (params == null)
+            return msg;
+        MessageFormat mf = new MessageFormat(msg);
 
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param locale end-user locale
-     * @param msgID message id defined in UserMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @return localized user message
-     */
-    public static String getUserMessage(Locale locale, String msgID, String p1, String p2) {
-        if (_engine == null)
-            return msgID;
-        return _engine.getUserMessage(locale, msgID, p1, p2);
-    }
-
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param msgID message id defined in UserMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @param p3 3rd parameter
-     * @return localized user message
-     */
-    public static String getUserMessage(String msgID, String p1, String p2, String p3) {
-        if (_engine == null)
-            return msgID;
-        return _engine.getUserMessage(null /* from session context */, msgID, p1, p2, p3);
-    }
-
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param locale end-user locale
-     * @param msgID message id defined in UserMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @param p3 3rd parameter
-     * @return localized user message
-     */
-    public static String getUserMessage(Locale locale, String msgID, String p1, String p2, String p3) {
-        if (_engine == null)
-            return msgID;
-        return _engine.getUserMessage(locale, msgID, p1, p2, p3);
-    }
-
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param msgID message id defined in UserMessages.properties
-     * @param p an array of parameters
-     * @return localized user message
-     */
-    public static String getUserMessage(String msgID, String p[]) {
-        if (_engine == null)
-            return msgID;
-        return _engine.getUserMessage(null /* from session context */, msgID, p);
-    }
-
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param locale end-user locale
-     * @param msgID message id defined in UserMessages.properties
-     * @param p an array of parameters
-     * @return localized user message
-     */
-    public static String getUserMessage(Locale locale, String msgID, String p[]) {
-        if (_engine == null)
-            return msgID;
-        return _engine.getUserMessage(locale, msgID, p);
+        return mf.format(params);
     }
 
     /**

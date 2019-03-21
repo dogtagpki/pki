@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.X509Certificate;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,7 +35,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.Vector;
 
@@ -69,7 +67,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.ITimeSource;
-import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.ICMSRequest;
@@ -1229,55 +1226,6 @@ public class CMSEngine implements ICMSEngine {
 
     public void setServerCertNickname(String newName) {
         mServerCertNickname = newName;
-    }
-
-    public String getUserMessage(Locale locale, String msgID, String params[]) {
-        // if locale is null, try to get it out from session context
-        if (locale == null) {
-            SessionContext sc = SessionContext.getExistingContext();
-
-            if (sc != null)
-                locale = (Locale) sc.get(SessionContext.LOCALE);
-        }
-        ResourceBundle rb = null;
-
-        if (locale == null) {
-            rb = ResourceBundle.getBundle(
-                        "UserMessages", Locale.ENGLISH);
-        } else {
-            rb = ResourceBundle.getBundle(
-                        "UserMessages", locale);
-        }
-        String msg = rb.getString(msgID);
-
-        if (params == null)
-            return msg;
-        MessageFormat mf = new MessageFormat(msg);
-
-        return mf.format(params);
-    }
-
-    public String getUserMessage(Locale locale, String msgID) {
-        return getUserMessage(locale, msgID, (String[]) null);
-    }
-
-    public String getUserMessage(Locale locale, String msgID, String p1) {
-        String params[] = { p1 };
-
-        return getUserMessage(locale, msgID, params);
-    }
-
-    public String getUserMessage(Locale locale, String msgID, String p1, String p2) {
-        String params[] = { p1, p2 };
-
-        return getUserMessage(locale, msgID, params);
-    }
-
-    public String getUserMessage(Locale locale, String msgID,
-            String p1, String p2, String p3) {
-        String params[] = { p1, p2, p3 };
-
-        return getUserMessage(locale, msgID, params);
     }
 
     public void debug(byte data[]) {

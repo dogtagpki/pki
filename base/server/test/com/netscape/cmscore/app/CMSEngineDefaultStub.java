@@ -2,7 +2,6 @@ package com.netscape.cmscore.app;
 
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Locale;
 
 import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.base.EBaseException;
@@ -79,26 +78,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public void debugStackTrace() {
-    }
-
-    public String getUserMessage(Locale locale, String msgID) {
-        return null;
-    }
-
-    public String getUserMessage(Locale locale, String msgID, String p[]) {
-        return null;
-    }
-
-    public String getUserMessage(Locale locale, String msgID, String p1) {
-        return null;
-    }
-
-    public String getUserMessage(Locale locale, String msgID, String p1, String p2) {
-        return null;
-    }
-
-    public String getUserMessage(Locale locale, String msgID, String p1, String p2, String p3) {
-        return null;
     }
 
     public void disableRequests() {

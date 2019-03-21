@@ -19,7 +19,6 @@ package com.netscape.certsrv.apps;
 
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -137,58 +136,6 @@ public interface ICMSEngine extends ISubsystem {
      * Puts the current stack trace in the debug file.
      */
     public void debugStackTrace();
-
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param locale end-user locale
-     * @param msgID message id defined in UserMessages.properties
-     * @return localized user message
-     */
-    public String getUserMessage(Locale locale, String msgID);
-
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param locale end-user locale
-     * @param msgID message id defined in UserMessages.properties
-     * @param p an array of parameters
-     * @return localized user message
-     */
-    public String getUserMessage(Locale locale, String msgID, String p[]);
-
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param locale end-user locale
-     * @param msgID message id defined in UserMessages.properties
-     * @param p1 1st parameter
-     * @return localized user message
-     */
-    public String getUserMessage(Locale locale, String msgID, String p1);
-
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param locale end-user locale
-     * @param msgID message id defined in UserMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @return localized user message
-     */
-    public String getUserMessage(Locale locale, String msgID, String p1, String p2);
-
-    /**
-     * Retrieves the localized user message from UserMessages.properties.
-     *
-     * @param locale end-user locale
-     * @param msgID message id defined in UserMessages.properties
-     * @param p1 1st parameter
-     * @param p2 2nd parameter
-     * @param p3 3rd parameter
-     * @return localized user message
-     */
-    public String getUserMessage(Locale locale, String msgID, String p1, String p2, String p3);
 
     /**
      * Blocks all new incoming requests.
