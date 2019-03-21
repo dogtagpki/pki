@@ -167,7 +167,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             }
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("OCSPAuthority: " + e.getMessage(), e);
             throw e;
         }
 
@@ -263,10 +263,9 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         }
         mOCSPSigningAlgorithms = AlgorithmId.getSigningAlgorithms(alg);
         if (mOCSPSigningAlgorithms == null) {
-            CMS.debug(
-                    "OCSP - no signing algorithms for " + alg.getName());
+            logger.debug("OCSP - no signing algorithms for " + alg.getName());
         } else {
-            CMS.debug("OCSP First signing algorithm ");
+            logger.debug("OCSP First signing algorithm ");
         }
         return mOCSPSigningAlgorithms;
     }
@@ -287,7 +286,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             // init signing unit
             mSigningUnit = new SigningUnit();
             mSigningUnit.init(this, mConfig.getSubStore(PROP_SIGNING_SUBSTORE));
-            CMS.debug("OCSP signing unit inited");
+            logger.debug("OCSP signing unit inited");
 
             // init cert chain
             CryptoManager manager = CryptoManager.getInstance();
@@ -302,7 +301,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
                 implchain[i] = new X509CertImpl(chain[i].getEncoded());
             }
             mCertChain = new CertificateChain(implchain);
-            CMS.debug("in init - got CA chain from JSS.");
+            logger.debug("in init - got CA chain from JSS.");
 
             // init issuer name - take name from the cert.
 
@@ -310,7 +309,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             getOCSPSigningAlgorithms();
             mName = (X500Name) mCert.getSubjectDN();
             mNickname = mSigningUnit.getNickname();
-            CMS.debug("in init - got CA name " + mName);
+            logger.debug("in init - got CA name " + mName);
 
         } catch (NotInitializedException e) {
             log(ILogger.LL_FAILURE,
@@ -336,15 +335,15 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
                 mDefStore.startup();
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.warn("OCSPAuthority: " + e.getMessage(), e);
             if (engine.isPreOpMode()) {
-                CMS.debug("OCSPAuthority.init(): Swallow exception in pre-op mode");
+                logger.warn("OCSPAuthority.init(): Swallow exception in pre-op mode");
                 return;
             }
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.warn("OCSPAuthority: " + e.getMessage(), e);
         }
     }
 
@@ -421,7 +420,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             rd.encode(tmp);
             AlgorithmId.get(algname).encode(tmp);
 
-            CMS.debug("OCSPAuthority: adding signature");
+            logger.debug("OCSPAuthority: adding signature");
             byte[] signature = mSigningUnit.sign(rd_data, algname);
 
             tmp.putBitString(signature);
