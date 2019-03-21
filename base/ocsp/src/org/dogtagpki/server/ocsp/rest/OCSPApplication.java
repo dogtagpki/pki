@@ -24,6 +24,8 @@ import com.netscape.certsrv.base.IConfigStore;
 
 public class OCSPApplication extends Application {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPApplication.class);
+
     private Set<Object> singletons = new LinkedHashSet<Object>();
     private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
 
@@ -46,7 +48,7 @@ public class OCSPApplication extends Application {
                 classes.add(SecurityDomainService.class);
             }
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("OCSPApplication: " + e.getMessage(), e);
             throw new RuntimeException(e);
         }
 

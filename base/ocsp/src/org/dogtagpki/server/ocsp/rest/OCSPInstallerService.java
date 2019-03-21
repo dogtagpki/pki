@@ -48,6 +48,8 @@ import com.netscape.ocsp.OCSPAuthority;
  */
 public class OCSPInstallerService extends SystemConfigService {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPInstallerService.class);
+
     private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
 
     public OCSPInstallerService() throws EBaseException {
@@ -82,7 +84,7 @@ public class OCSPInstallerService extends SystemConfigService {
                 if (!request.isClone())
                     importCACert();
                 else
-                    CMS.debug("OCSPInstallerService: Skipping importCACertToOCSP for clone.");
+                    logger.debug("OCSPInstallerService: Skipping importCACertToOCSP for clone.");
 
                 if (!request.getStandAlone()) {
 
@@ -102,7 +104,7 @@ public class OCSPInstallerService extends SystemConfigService {
             }
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("OCSPInstallerService: " + e.getMessage(), e);
             throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
         }
 
@@ -155,7 +157,7 @@ public class OCSPInstallerService extends SystemConfigService {
         rec.set(ICRLIssuingPointRecord.ATTR_CA_CERT, leafCert.getEncoded());
         defStore.addCRLIssuingPoint(leafCert.getSubjectDN().getName(), rec);
 
-        CMS.debug("OCSPInstallerService: Added CA certificate.");
+        logger.debug("OCSPInstallerService: Added CA certificate.");
     }
 
     public void updateOCSPConfiguration() throws Exception {
@@ -166,7 +168,7 @@ public class OCSPInstallerService extends SystemConfigService {
         String caHost = config.getString("preop.ca.hostname", "");
         int caPort = config.getInteger("preop.ca.httpsport", -1);
 
-        CMS.debug("OCSPInstallerService: "
+        logger.debug("OCSPInstallerService: "
                 + "Updating OCSP configuration in CA at https://" + caHost + ":" + caPort);
 
         String ocspHost = engine.getAgentHost();
@@ -181,7 +183,7 @@ public class OCSPInstallerService extends SystemConfigService {
 
         String c = ConfigurationUtils.post(caHost, caPort, true, "/ca/ee/ca/updateOCSPConfig", content, null, null);
         if (c == null || c.equals("")) {
-            CMS.debug("OCSPInstallerService: Unable to update OCSP configuration: No response from CA");
+            logger.error("OCSPInstallerService: Unable to update OCSP configuration: No response from CA");
             throw new IOException("Unable to update OCSP configuration: No response from CA");
         }
 
@@ -189,18 +191,18 @@ public class OCSPInstallerService extends SystemConfigService {
         XMLObject parser = new XMLObject(bis);
 
         String status = parser.getValue("Status");
-        CMS.debug("OCSPInstallerService: status: " + status);
+        logger.debug("OCSPInstallerService: status: " + status);
 
         if (status.equals(ConfigurationUtils.SUCCESS)) {
-            CMS.debug("OCSPInstallerService: Successfully updated OCSP configuration in CA");
+            logger.debug("OCSPInstallerService: Successfully updated OCSP configuration in CA");
 
         } else if (status.equals(ConfigurationUtils.AUTH_FAILURE)) {
-            CMS.debug("OCSPInstallerService: Unable to update OCSP configuration: Authentication failure");
+            logger.error("OCSPInstallerService: Unable to update OCSP configuration: Authentication failure");
             throw new EAuthException(ConfigurationUtils.AUTH_FAILURE);
 
         } else {
             String error = parser.getValue("Error");
-            CMS.debug("OCSPInstallerService: Unable to update OCSP configuration: " + error);
+            logger.error("OCSPInstallerService: Unable to update OCSP configuration: " + error);
             throw new IOException(error);
         }
     }
