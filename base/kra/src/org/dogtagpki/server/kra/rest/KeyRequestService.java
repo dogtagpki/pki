@@ -30,7 +30,6 @@ import javax.ws.rs.core.Response;
 
 import org.mozilla.jss.crypto.SymmetricKey;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
@@ -67,6 +66,8 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  */
 public class KeyRequestService extends SubsystemService implements KeyRequestResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRequestService.class);
+
     public static final int DEFAULT_START = 0;
     public static final int DEFAULT_PAGESIZE = 20;
     public static final int DEFAULT_MAXRESULTS = 100;
@@ -89,7 +90,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     @Override
     public Response getRequestInfo(RequestId id) {
         if (id == null) {
-            CMS.debug("getRequestInfo: is is null");
+            logger.error("getRequestInfo: is is null");
             throw new BadRequestException("Unable to get Request: invalid ID");
         }
         // auth and authz
@@ -299,13 +300,13 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             } catch (EAuthzUnknownRealm e) {
                 throw new BadRequestException("Invalid realm", e);
             } catch (EBaseException e) {
-                CMS.debug("listRequests: unable to authorize realm" + e);
+                logger.error("listRequests: unable to authorize realm: " + e.getMessage(), e);
                 throw new PKIException(e.toString(), e);
             }
         }
         // get ldap filter
         String filter = createSearchFilter(requestState, requestType, clientKeyID, realm);
-        CMS.debug("listRequests: filter is " + filter);
+        logger.debug("listRequests: filter is " + filter);
 
         start = start == null ? new RequestId(KeyRequestService.DEFAULT_START) : start;
         pageSize = pageSize == null ? DEFAULT_PAGESIZE : pageSize;
@@ -317,8 +318,7 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
         try {
             requests = reqDAO.listRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
         } catch (EBaseException e) {
-            CMS.debug("listRequests: error in obtaining request results" + e);
-            e.printStackTrace();
+            logger.error("listRequests: error in obtaining request results: " + e.getMessage(), e);
             throw new PKIException(e.toString(), e);
         }
         return createOKResponse(requests);

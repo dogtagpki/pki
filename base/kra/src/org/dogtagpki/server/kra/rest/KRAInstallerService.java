@@ -44,6 +44,8 @@ import com.netscape.kra.KeyRecoveryAuthority;
  */
 public class KRAInstallerService extends SystemConfigService {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAInstallerService.class);
+
     public KRAInstallerService() throws EBaseException {
     }
 
@@ -75,7 +77,7 @@ public class KRAInstallerService extends SystemConfigService {
             }
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("KRAInstallerService: " + e.getMessage(), e);
             throw new PKIException("Errors in pushing KRA connector information to the CA: " + e);
         }
 
@@ -85,7 +87,7 @@ public class KRAInstallerService extends SystemConfigService {
              }
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("KRAInstallerService: " + e.getMessage(), e);
             throw new PKIException("Errors in updating next serial number ranges in DB: " + e);
         }
 
@@ -99,14 +101,14 @@ public class KRAInstallerService extends SystemConfigService {
 
         String url = cs.getString("preop.ca.url", "");
         if (url.equals("")) {
-            CMS.debug("KRAInstallerService: preop.ca.url is not defined. External CA selected. No transport certificate setup is required");
+            logger.debug("KRAInstallerService: preop.ca.url is not defined. External CA selected. No transport certificate setup is required");
             return;
         }
 
         String caHost = cs.getString("preop.ca.hostname", "");
         int caPort = cs.getInteger("preop.ca.httpsadminport", -1);
 
-        CMS.debug("KRAInstallerService: "
+        logger.debug("KRAInstallerService: "
                 + "Configuring KRA connector in CA at https://" + caHost + ":" + caPort);
 
         String kraHost = engine.getAgentHost();
@@ -126,7 +128,7 @@ public class KRAInstallerService extends SystemConfigService {
 
         String c = ConfigurationUtils.post(caHost, caPort, true, "/ca/admin/ca/updateConnector", content, null, null);
         if (c == null || c.equals("")) {
-            CMS.debug("KRAInstallerService: Unable to configure KRA connector: No response from CA");
+            logger.error("KRAInstallerService: Unable to configure KRA connector: No response from CA");
             throw new IOException("Unable to configure KRA connector: No response from CA");
         }
 
@@ -134,18 +136,18 @@ public class KRAInstallerService extends SystemConfigService {
         XMLObject parser = new XMLObject(bis);
 
         String status = parser.getValue("Status");
-        CMS.debug("KRAInstallerService: status: " + status);
+        logger.debug("KRAInstallerService: status: " + status);
 
         if (status.equals(ConfigurationUtils.SUCCESS)) {
-            CMS.debug("KRAInstallerService: Successfully configured KRA connector in CA");
+            logger.debug("KRAInstallerService: Successfully configured KRA connector in CA");
 
         } else if (status.equals(ConfigurationUtils.AUTH_FAILURE)) {
-            CMS.debug("KRAInstallerService: Unable to configure KRA connector: Authentication failure");
+            logger.error("KRAInstallerService: Unable to configure KRA connector: Authentication failure");
             throw new EAuthException(ConfigurationUtils.AUTH_FAILURE);
 
         } else {
             String error = parser.getValue("Error");
-            CMS.debug("KRAInstallerService: Unable to configure KRA connector: " + error);
+            logger.error("KRAInstallerService: Unable to configure KRA connector: " + error);
             throw new IOException(error);
         }
     }

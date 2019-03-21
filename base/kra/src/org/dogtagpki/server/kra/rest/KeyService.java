@@ -35,6 +35,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -74,13 +75,14 @@ import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * @author alee
  *
  */
 public class KeyService extends SubsystemService implements KeyResource {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyService.class);
 
     public static final int DEFAULT_MAXRESULTS = 100;
     public static final int DEFAULT_MAXTIME = 10;
@@ -131,7 +133,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         String realm = null;
 
         auditInfo = "KeyService.retrieveKey";
-        CMS.debug(auditInfo);
+        logger.debug(auditInfo);
 
         if (data == null) {
             auditRetrieveKeyError("Bad Request: Missing key Recovery Request");
@@ -144,7 +146,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         if (requestId != null) {
             // this is an asynchronous request
             // We assume that the request is valid and has been approved
-            CMS.debug("KeyService: request ID: " + requestId);
+            logger.debug("KeyService: request ID: " + requestId);
             auditInfo += ";requestID=" + requestId.toString();
 
             try {
@@ -199,12 +201,12 @@ public class KeyService extends SubsystemService implements KeyResource {
                 try {
                     queue.updateRequest(request);
                 } catch (EBaseException e) {
+                    logger.error("KeyService: " + e.getMessage(), e);
                     auditRecoveryRequest(ILogger.FAILURE);
-                    e.printStackTrace();
                     throw new PKIException(e.getMessage(), e);
                 }
 
-                CMS.debug("Returning created recovery request");
+                logger.debug("Returning created recovery request");
                 auditRecoveryRequest(ILogger.SUCCESS);
 
                 KeyData keyData = new KeyData();
@@ -218,7 +220,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         data.setRequestId(requestId);
 
         String type = request.getRequestType();
-        CMS.debug("KeyService: request type: " + type);
+        logger.debug("KeyService: request type: " + type);
         auditInfo += ";request type:" + type;
 
         // process request
@@ -249,7 +251,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         approvers = request.getExtDataInString(IRequest.ATTR_APPROVE_AGENTS);
         auditRecoveryRequestProcessed(ILogger.SUCCESS, null);
 
-        CMS.debug("KeyService: key retrieved");
+        logger.debug("KeyService: key retrieved");
         auditRetrieveKey(ILogger.SUCCESS);
         return createOKResponse(keyData);
     }
@@ -257,7 +259,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     // retrieval - used to test integration with a browser
     @Override
     public Response retrieveKey(MultivaluedMap<String, String> form) {
-        CMS.debug("KeyService.retrieveKey with form: begins.");
+        logger.debug("KeyService.retrieveKey with form: begins.");
         KeyRecoveryRequest data = new KeyRecoveryRequest(form);
         return retrieveKey(data);
     }
@@ -268,22 +270,22 @@ public class KeyService extends SubsystemService implements KeyResource {
         auditInfo = method;
         KeyData keyData;
         KeyRequestDAO dao = new KeyRequestDAO();
-        CMS.debug(method + "begins.");
+        logger.debug(method + "begins.");
 
         if (data == null) {
-            CMS.debug(method + "KeyRecoveryRequest is null");
+            logger.warn(method + "KeyRecoveryRequest is null");
             return null;
         }
 
         if (request == null) {
-            CMS.debug(method + "request null");
+            logger.warn(method + "request null");
             return null;
         }
 
         // get wrapped key
         IKeyRecord rec = repo.readKeyRecord(keyId.toBigInteger());
         if (rec == null) {
-            CMS.debug(method + "key record null");
+            logger.warn(method + "key record null");
             return null;
         }
 
@@ -386,7 +388,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
     private void validateRequest(KeyRecoveryRequest data, IRequest request) {
         String method = "KeyService.validateRequest: ";
-        CMS.debug(method + "begins.");
+        logger.debug(method + "begins.");
 
         // confirm that at least one wrapping method exists
         // There must be at least the wrapped session key method.
@@ -420,7 +422,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     @Override
     public Response listKeys(String clientKeyID, String status, Integer maxResults, Integer maxTime,
             Integer start, Integer size, String realm) {
-        CMS.debug("KeyService.listKeys: begins.");
+        logger.debug("KeyService.listKeys: begins.");
         try {
             return createOKResponse(listKeyInfos(clientKeyID, status, maxResults, maxTime, start, size, realm));
         } catch (RuntimeException e) {
@@ -434,7 +436,7 @@ public class KeyService extends SubsystemService implements KeyResource {
             Integer start, Integer size, String realm) {
         String method = "KeyService.listKeyInfos: ";
         auditInfo = "KeyService.listKeyInfos; status =" + status;
-        CMS.debug(method + "begins.");
+        logger.debug(method + "begins.");
 
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
@@ -447,14 +449,14 @@ public class KeyService extends SubsystemService implements KeyResource {
             } catch (EAuthzUnknownRealm e) {
                 throw new BadRequestException("Invalid realm", e);
             } catch (EBaseException e) {
-                CMS.debug("listRequests: unable to authorize realm" + e);
+                logger.error("listRequests: unable to authorize realm: " + e.getMessage(), e);
                 throw new PKIException(e.toString(), e);
             }
         }
 
         // get ldap filter
         String filter = createSearchFilter(status, clientKeyID, realm);
-        CMS.debug("listKeys: filter is " + filter);
+        logger.debug("listKeys: filter is " + filter);
 
         maxResults = maxResults == null ? DEFAULT_MAXRESULTS : maxResults;
         maxTime = maxTime == null ? DEFAULT_MAXTIME : maxTime;
@@ -519,7 +521,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     public Response getActiveKeyInfoImpl(String clientKeyID) {
         String method = "KeyService.getActiveKeyInfo: ";
         auditInfo = "KeyService.getActiveKeyInfo";
-        CMS.debug(method + "begins.");
+        logger.debug(method + "begins.");
 
         KeyInfoCollection infos = listKeyInfos(
                 clientKeyID,
@@ -543,7 +545,7 @@ public class KeyService extends SubsystemService implements KeyResource {
                 } catch (EAuthzAccessDenied e) {
                     throw new UnauthorizedException("Not authorized to read this key", e);
                 } catch (EBaseException e) {
-                    CMS.debug("listRequests: unable to authorize realm" + e);
+                    logger.error("listRequests: unable to authorize realm: " + e.getMessage(), e);
                     throw new PKIException(e.toString(), e);
                 }
 
@@ -557,7 +559,7 @@ public class KeyService extends SubsystemService implements KeyResource {
 
     public KeyInfo createKeyDataInfo(IKeyRecord rec, boolean getPublicKey) throws EBaseException {
         String method = "KeyService.createKeyDataInfo: ";
-        CMS.debug(method + "begins.");
+        logger.debug(method + "begins.");
 
         KeyInfo ret = new KeyInfo();
         ret.setClientKeyID(rec.getClientId());
@@ -633,7 +635,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     }
 
     public void auditRetrieveKeyError(String message) {
-        CMS.debug(message);
+        logger.warn(message);
         auditRetrieveKey(ILogger.FAILURE, message);
     }
 
@@ -653,7 +655,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     }
 
     public void auditKeyInfoError(KeyId keyId, String clientKeyId, String message) {
-        CMS.debug(message);
+        logger.warn(message);
         auditKeyInfo(keyId, clientKeyId, ILogger.FAILURE, message);
     }
 
@@ -697,7 +699,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     private KeyData recoverKey(KeyRecoveryRequest data) throws UnauthorizedException, HTTPGoneException {
         String method = "KeyService.recoverKey: ";
         auditInfo = "KeyService.recoverKey";
-        CMS.debug(method + "begins.");
+        logger.debug(method + "begins.");
 
         // confirm request exists
         RequestId reqId = data.getRequestId();
@@ -763,7 +765,7 @@ public class KeyService extends SubsystemService implements KeyResource {
     public Response getKeyInfoImpl(KeyId keyId) {
         String method = "KeyService.getKeyInfo: ";
         auditInfo = "KeyService.getKeyInfo";
-        CMS.debug(method + "begins.");
+        logger.debug(method + "begins.");
 
         IKeyRecord rec = null;
         try {
@@ -795,7 +797,7 @@ public class KeyService extends SubsystemService implements KeyResource {
         //TODO: what was the original status?  find it and record that in Info as well
         auditInfo = "KeyService.modifyKeyStatus";
 
-        CMS.debug(method + "begins.");
+        logger.debug(method + "begins.");
         IKeyRecord rec = null;
         KeyInfo info = null;
         try {
@@ -813,16 +815,15 @@ public class KeyService extends SubsystemService implements KeyResource {
             return createNoContentResponse();
         } catch (EDBRecordNotFoundException e) {
             auditInfo = auditInfo + ":" + e.getMessage();
-            CMS.debug(auditInfo);
+            logger.error(auditInfo, e);
             auditKeyStatusChange(ILogger.FAILURE, keyId,
                     (info!=null)?info.getStatus():null, status, auditInfo);
             throw new KeyNotFoundException(keyId, "key not found to modify", e);
         } catch (Exception e) {
             auditInfo = auditInfo + ":" + e.getMessage();
-            CMS.debug(auditInfo);
+            logger.error(auditInfo, e);
             auditKeyStatusChange(ILogger.FAILURE, keyId,
                     (info!=null)?info.getStatus():null, status, auditInfo);
-            e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
     }
