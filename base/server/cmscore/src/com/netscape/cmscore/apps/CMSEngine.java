@@ -1280,52 +1280,6 @@ public class CMSEngine implements ICMSEngine {
         return getUserMessage(locale, msgID, params);
     }
 
-    public String getLogMessage(String msgID, Object[] params) {
-
-        String bundleName;
-
-        // check whether requested message is an audit event
-        if (msgID.startsWith("LOGGING_SIGNED_AUDIT_")) {
-            // get audit event from audit-events.properties
-            bundleName = "audit-events";
-        } else {
-            // get log message from LogMessages.properties
-            bundleName = "LogMessages";
-        }
-
-        ResourceBundle rb = ResourceBundle.getBundle(bundleName);
-        String msg = rb.getString(msgID);
-
-        if (params == null) {
-            return msg;
-        }
-
-        MessageFormat mf = new MessageFormat(msg);
-
-        Object escapedParams[] = new Object[params.length];
-        for (int i = 0; i < params.length; i++) {
-            Object param = params[i];
-
-            if (param instanceof String) {
-                escapedParams[i] = escapeLogMessageParam((String) param);
-            } else {
-                escapedParams[i] = param;
-            }
-        }
-
-        return mf.format(escapedParams);
-    }
-
-    /** Quote a string for inclusion in a java.text.MessageFormat
-     */
-    private String escapeLogMessageParam(String s) {
-        if (s == null)
-            return null;
-        if (s.contains("{") || s.contains("}"))
-            return "'" + s.replaceAll("'", "''") + "'";
-        return s;
-    }
-
     public void debug(byte data[]) {
         if (!debugOn()) {
             // this helps to not saving stuff to file when debug

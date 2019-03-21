@@ -101,10 +101,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public String getLogMessage(String msgID, Object p[]) {
-        return null;
-    }
-
     public void disableRequests() {
     }
 

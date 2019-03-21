@@ -191,15 +191,6 @@ public interface ICMSEngine extends ISubsystem {
     public String getUserMessage(Locale locale, String msgID, String p1, String p2, String p3);
 
     /**
-     * Retrieves log message from LogMessages.properties or audit-evenst.properties.
-     *
-     * @param msgID message ID defined in LogMessages.properties or audit-evenst.properties
-     * @param p an array of parameters
-     * @return localized log message
-     */
-    public String getLogMessage(String msgID, Object p[]);
-
-    /**
      * Blocks all new incoming requests.
      */
     public void disableRequests();

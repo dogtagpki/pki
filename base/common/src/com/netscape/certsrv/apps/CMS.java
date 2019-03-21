@@ -17,8 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.apps;
 
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -311,32 +313,53 @@ public final class CMS {
      * Retrieves log message from LogMessages.properties or audit-events.properties.
      *
      * @param msgID message ID defined in LogMessages.properties or audit-events.properties
-     * @return localized log message
-     */
-    public static String getLogMessage(String msgID) {
-        return _engine.getLogMessage(msgID, null);
-    }
-
-    /**
-     * Retrieves log message from LogMessages.properties or audit-events.properties.
-     *
-     * @param msgID message ID defined in LogMessages.properties or audit-events.properties
-     * @param params object parameters
-     * @return localized log message
-     */
-    public static String getLogMessage(String msgID, Object params[]) {
-        return _engine.getLogMessage(msgID, params);
-    }
-
-    /**
-     * Retrieves log message from LogMessages.properties or audit-events.properties.
-     *
-     * @param msgID message ID defined in LogMessages.properties or audit-events.properties
      * @param params string parameters
      * @return localized log message
      */
-    public static String getLogMessage(String msgID, String... params) {
-        return _engine.getLogMessage(msgID, params);
+    public static String getLogMessage(String msgID, Object... params) {
+
+        String bundleName;
+
+        // check whether requested message is an audit event
+        if (msgID.startsWith("LOGGING_SIGNED_AUDIT_")) {
+            // get audit event from audit-events.properties
+            bundleName = "audit-events";
+        } else {
+            // get log message from LogMessages.properties
+            bundleName = "LogMessages";
+        }
+
+        ResourceBundle rb = ResourceBundle.getBundle(bundleName);
+        String msg = rb.getString(msgID);
+
+        if (params == null) {
+            return msg;
+        }
+
+        MessageFormat mf = new MessageFormat(msg);
+
+        Object escapedParams[] = new Object[params.length];
+        for (int i = 0; i < params.length; i++) {
+            Object param = params[i];
+
+            if (param instanceof String) {
+                escapedParams[i] = escapeLogMessageParam((String) param);
+            } else {
+                escapedParams[i] = param;
+            }
+        }
+
+        return mf.format(escapedParams);
+    }
+
+    /** Quote a string for inclusion in a java.text.MessageFormat
+     */
+    private static String escapeLogMessageParam(String s) {
+        if (s == null)
+            return null;
+        if (s.contains("{") || s.contains("}"))
+            return "'" + s.replaceAll("'", "''") + "'";
+        return s;
     }
 
     /**
