@@ -23,6 +23,10 @@ import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PBEKeyGenParams;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs7.ContentInfo;
 import org.mozilla.jss.pkcs7.EncryptedContentInfo;
@@ -48,14 +52,10 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.util.DerValue;
-import org.mozilla.jss.netscape.security.util.WrappingParams;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 public class SecurityDataProcessor {
 
@@ -105,10 +105,11 @@ public class SecurityDataProcessor {
         CMS.debug("SecurityDataProcessor.archive. Request id: " + requestId.toString());
         CMS.debug("SecurityDataProcessor.archive wrappedSecurityData: " + wrappedSecurityData);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = null;
 
         try {
-            config = CMS.getConfigStore();
+            config = engine.getConfigStore();
             allowEncDecrypt_archival = config.getBoolean("kra.allowEncDecrypt.archival", false);
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
@@ -374,10 +375,11 @@ public class SecurityDataProcessor {
             throws EBaseException {
 
         CMS.debug("SecurityDataService.recover(): start");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = null;
 
         try {
-            config = CMS.getConfigStore();
+            config = engine.getConfigStore();
             allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));

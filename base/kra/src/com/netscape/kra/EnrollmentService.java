@@ -72,6 +72,7 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.KeyRecord;
@@ -144,11 +145,12 @@ public class EnrollmentService implements IService {
      */
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = null;
         Boolean allowEncDecrypt_archival = false;
 
         try {
-            config = CMS.getConfigStore();
+            config = engine.getConfigStore();
             allowEncDecrypt_archival = config.getBoolean("kra.allowEncDecrypt.archival", false);
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));

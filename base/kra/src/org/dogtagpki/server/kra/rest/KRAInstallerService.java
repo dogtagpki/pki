@@ -97,7 +97,7 @@ public class KRAInstallerService extends SystemConfigService {
     public void configureKRAConnector() throws Exception {
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
 
         String url = cs.getString("preop.ca.url", "");
         if (url.equals("")) {

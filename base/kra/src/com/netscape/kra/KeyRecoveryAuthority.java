@@ -85,6 +85,7 @@ import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
@@ -1748,6 +1749,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             throws NoSuchAlgorithmException, TokenException, InvalidAlgorithmParameterException,
             InvalidParameterException, PQGParamGenException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         CryptoToken token = getKeygenToken();
 
         logger.debug("NetkeyKeygenService: key pair is to be generated on slot: " + token.getName());
@@ -1764,7 +1766,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
               extractable == true
         */
         KeyPairGenerator kpGen = token.getKeyPairGenerator(kpAlg);
-        IConfigStore config = CMS.getConfigStore();
+        IConfigStore config = engine.getConfigStore();
         IConfigStore kgConfig = config.getSubStore("kra.keygen");
         boolean tp = false;
         boolean sp = false;

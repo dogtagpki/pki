@@ -66,6 +66,7 @@ import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.key.KeyRecordParser;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -152,6 +153,7 @@ public class NetkeyKeygenService implements IService {
      */
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditSubjectID = null;
         byte[] wrapped_des_key;
 
@@ -168,7 +170,7 @@ public class NetkeyKeygenService implements IService {
 
         IVParameterSpec algParam = new IVParameterSpec(iv);
 
-        IConfigStore configStore = CMS.getConfigStore();
+        IConfigStore configStore = engine.getConfigStore();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 
         wrapped_des_key = null;

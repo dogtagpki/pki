@@ -63,6 +63,7 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -192,11 +193,12 @@ public class TokenKeyRecoveryService implements IService {
         String iv_s = "";
 
         logger.debug("KRA services token key recovery request");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = null;
         Boolean allowEncDecrypt_recovery = false;
 
         try {
-            config = CMS.getConfigStore();
+            config = engine.getConfigStore();
             allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));

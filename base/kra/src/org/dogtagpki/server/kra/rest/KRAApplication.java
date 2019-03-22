@@ -22,6 +22,7 @@ import org.dogtagpki.server.rest.UserService;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class KRAApplication extends Application {
 
@@ -42,7 +43,8 @@ public class KRAApplication extends Application {
         classes.add(KRAInstallerService.class);
 
         // security domain
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         try {
             boolean standalone = cs.getBoolean("kra.standalone", false);
             if (standalone) {
