@@ -41,6 +41,7 @@ import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.servlet.csadmin.GetStatus;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -99,7 +100,8 @@ public class LDAPProfileSubsystem
         nsUniqueIds = new TreeMap<>();
         deletedNsUniqueIds = new TreeSet<>();
 
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         dbFactory = new LdapBoundConnFactory("LDAPProfileSubsystem");
         dbFactory.init(dbCfg);

@@ -42,6 +42,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.request.ARequestQueue;
@@ -146,13 +147,15 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     public synchronized void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
         logger.debug("GenericPolicyProcessor::init begins");
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mAuthority = (IAuthority) owner;
         mConfig = config;
         mGlobalStore =
                 SubsystemRegistry.getInstance().get("MAIN").getConfigStore();
 
         try {
-            IConfigStore configStore = CMS.getConfigStore();
+            IConfigStore configStore = engine.getConfigStore();
             String PKI_Subsystem = configStore.getString("subsystem.0.id",
                                                           null);
 

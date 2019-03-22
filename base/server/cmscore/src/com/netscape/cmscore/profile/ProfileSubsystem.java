@@ -111,7 +111,7 @@ public class ProfileSubsystem
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String configPath;
         try {
-            configPath = CMS.getConfigStore().getString("instanceRoot")
+            configPath = engine.getConfigStore().getString("instanceRoot")
                 + "/ca/profiles/ca/" + id + ".cfg";
         } catch (EBaseException e) {
             throw new EProfileException("CMS_PROFILE_DELETE_ERROR");
@@ -137,9 +137,11 @@ public class ProfileSubsystem
     }
 
     public void deleteProfile(String id) throws EProfileException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String configPath;
         try {
-            configPath = CMS.getConfigStore().getString("instanceRoot")
+            configPath = engine.getConfigStore().getString("instanceRoot")
                 + "/ca/profiles/ca/" + id + ".cfg";
         } catch (EBaseException e) {
             throw new EProfileException("CMS_PROFILE_DELETE_ERROR");
@@ -178,16 +180,18 @@ public class ProfileSubsystem
         mProfiles.remove(id);
         mProfileClassIds.remove(id);
         try {
-            CMS.getConfigStore().commit(false);
+            engine.getConfigStore().commit(false);
         } catch (Exception e) {
         }
     }
 
     private void createProfileConfig(String id, String classId)
             throws EProfileException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String configPath;
         try {
-            configPath = CMS.getConfigStore().getString("instanceRoot")
+            configPath = engine.getConfigStore().getString("instanceRoot")
                 + "/ca/profiles/ca/" + id + ".cfg";
         } catch (EBaseException e) {
             throw new EProfileException("CMS_PROFILE_DELETE_ERROR");
@@ -202,7 +206,7 @@ public class ProfileSubsystem
             }
             mConfig.putString(id + "." + PROP_CLASS_ID, classId);
             mConfig.putString(id + "." + PROP_CONFIG, configPath);
-            CMS.getConfigStore().commit(true);
+            engine.getConfigStore().commit(true);
         } catch (EBaseException e) {
             logger.warn("Unable to create profile config: " + e.getMessage(), e);
         }

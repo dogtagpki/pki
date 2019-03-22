@@ -24,6 +24,7 @@ import org.mozilla.jss.util.PasswordCallbackInfo;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.JDialogPasswordCallback;
 
 /*
@@ -48,6 +49,9 @@ public class PWCBsdr implements PasswordCallback {
     }
 
     public PWCBsdr(String prompt) {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         mprompt = prompt;
 
         /* to get the test program work
@@ -64,9 +68,8 @@ public class PWCBsdr implements PasswordCallback {
          */
         // get path to password cache
         try {
-            mPWcachedb = CMS.getConfigStore().getString("pwCache");
-            logger.debug("got pwCache from configstore: " +
-                    mPWcachedb);
+            mPWcachedb = engine.getConfigStore().getString("pwCache");
+            logger.debug("got pwCache from configstore: " + mPWcachedb);
         } catch (NullPointerException e) {
             System.out.println("after CMS.getConfigStore got NullPointerException ... testing ok");
         } catch (Exception e) {

@@ -66,6 +66,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Utility class with assorted methods to check for
@@ -940,8 +941,9 @@ public class CertUtils {
 
         logger.debug("CertUtils: verifySystemCertByTag(" + tag + ")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditMessage = null;
-        IConfigStore config = CMS.getConfigStore();
+        IConfigStore config = engine.getConfigStore();
 
         try {
             String subsysType = config.getString("cs.type", "");
@@ -1048,8 +1050,9 @@ public class CertUtils {
      */
     public static void verifySystemCerts(boolean checkValidityOnly) throws Exception {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditMessage = null;
-        IConfigStore config = CMS.getConfigStore();
+        IConfigStore config = engine.getConfigStore();
 
         try {
             String subsysType = config.getString("cs.type", "");

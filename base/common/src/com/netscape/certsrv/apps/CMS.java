@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -237,15 +236,6 @@ public final class CMS {
         if (s.contains("{") || s.contains("}"))
             return "'" + s.replaceAll("'", "''") + "'";
         return s;
-    }
-
-    /**
-     * Returns the main config store. It is a handle to CMS.cfg.
-     *
-     * @return configuration store
-     */
-    public static IConfigStore getConfigStore() {
-        return _engine.getConfigStore();
     }
 
     /**

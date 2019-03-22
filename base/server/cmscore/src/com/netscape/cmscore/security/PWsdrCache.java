@@ -34,6 +34,7 @@ import org.mozilla.jss.SecretDecoderRing.Encryptor;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
@@ -41,8 +42,8 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /*
  * A class for managing passwords in the SDR password cache
@@ -68,9 +69,10 @@ public class PWsdrCache {
 
     // for CMSEngine
     public PWsdrCache() throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mLogger = Logger.getLogger();
         try {
-            mPWcachedb = CMS.getConfigStore().getString("pwCache");
+            mPWcachedb = engine.getConfigStore().getString("pwCache");
             logger.debug("got pwCache file path from configstore");
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_CONFIG"));
@@ -81,9 +83,10 @@ public class PWsdrCache {
     }
 
     private void initToken() throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         if (mToken == null) {
             try {
-                mTokenName = CMS.getConfigStore().getString(PROP_PWC_TOKEN_NAME);
+                mTokenName = engine.getConfigStore().getString(PROP_PWC_TOKEN_NAME);
                 log(ILogger.LL_DEBUG, "pwcTokenname specified.  Use token for SDR key. tokenname= " + mTokenName);
                 mToken = CryptoUtil.getKeyStorageToken(mTokenName);
             } catch (Exception e) {
@@ -95,9 +98,10 @@ public class PWsdrCache {
 
     // called from PWCBsdr or CMSEngine only
     private void initKey() throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         if (mKeyID == null) {
             try {
-                String keyID = CMS.getConfigStore().getString(PROP_PWC_KEY_ID);
+                String keyID = engine.getConfigStore().getString(PROP_PWC_KEY_ID);
                 log(ILogger.LL_DEBUG, "retrieved PWC SDR key");
                 mKeyID = base64Decode(keyID);
 
