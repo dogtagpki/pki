@@ -97,45 +97,11 @@ public interface ICMSEngine extends ISubsystem {
     public ISubsystem getSubsystem(String name);
 
     /**
-     * Puts data of an byte array into the debug file.
-     *
-     * @param data byte array to be recorded in the debug file
-     */
-    public void debug(byte data[]);
-
-    /**
      * Puts a message into the debug file.
      *
      * @param msg debugging message
      */
     public void debug(String msg);
-
-    /**
-     * Puts a message into the debug file.
-     *
-     * @param level 0-10
-     * @param msg debugging message
-     */
-    public void debug(int level, String msg);
-
-    /**
-     * Puts an exception into the debug file.
-     *
-     * @param e exception
-     */
-    public void debug(Throwable e);
-
-    /**
-     * Checks if the debug mode is on or not.
-     *
-     * @return true if debug mode is on
-     */
-    public boolean debugOn();
-
-    /**
-     * Puts the current stack trace in the debug file.
-     */
-    public void debugStackTrace();
 
     /**
      * Blocks all new incoming requests.

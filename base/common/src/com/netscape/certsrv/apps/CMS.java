@@ -133,35 +133,6 @@ public final class CMS {
     }
 
     /**
-     * Puts an exception into the debug file.
-     *
-     * @param e exception
-     */
-    public static void debug(Throwable e) {
-        if (_engine != null)
-            _engine.debug(e);
-    }
-
-    /**
-     * Checks if the debug mode is on or not.
-     *
-     * @return true if debug mode is on
-     */
-    public static boolean debugOn() {
-        if (_engine != null)
-            return _engine.debugOn();
-        return false;
-    }
-
-    /**
-     * Puts the current stack trace in the debug file.
-     */
-    public static void debugStackTrace() {
-        if (_engine != null)
-            _engine.debugStackTrace();
-    }
-
-    /**
      * Retrieves the registered subsytem with the given name.
      *
      * @param name subsystem name

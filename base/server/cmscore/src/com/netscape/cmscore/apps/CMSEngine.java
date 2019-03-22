@@ -1228,48 +1228,13 @@ public class CMSEngine implements ICMSEngine {
         mServerCertNickname = newName;
     }
 
-    public void debug(byte data[]) {
-        if (!debugOn()) {
-            // this helps to not saving stuff to file when debug
-            // is disable
-            return;
-        }
-        Debug.print(data);
-    }
-
-    public void debug(int level, String msg) {
-        if (!debugOn()) {
-            // this helps to not saving stuff to file when debug
-            // is disable
-            return;
-        }
-        Debug.trace(level, msg);
-    }
-
     public void debug(String msg) {
-        if (!debugOn()) {
+        if (!Debug.on()) {
             // this helps to not saving stuff to file when debug
             // is disable
             return;
         }
         Debug.trace(msg);
-    }
-
-    public void debug(Throwable e) {
-        if (!debugOn()) {
-            // this helps to not saving stuff to file when debug
-            // is disable
-            return;
-        }
-        Debug.printStackTrace(e);
-    }
-
-    public boolean debugOn() {
-        return Debug.on();
-    }
-
-    public void debugStackTrace() {
-        Debug.printStackTrace();
     }
 
     public IMailNotification getMailNotification() {
