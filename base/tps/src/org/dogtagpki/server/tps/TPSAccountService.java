@@ -30,6 +30,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
@@ -38,7 +39,8 @@ public class TPSAccountService extends AccountService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSAccountService.class);
 
-    IConfigStore configStore = CMS.getConfigStore();
+    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    IConfigStore configStore = engine.getConfigStore();
 
     @Override
     public AccountInfo createAccountInfo() {

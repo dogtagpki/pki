@@ -25,6 +25,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * mappingResolverManager is a class for mapping resolver plugin
@@ -76,7 +77,8 @@ public class MappingResolverManager
             throws EBaseException {
         String method = "mappingResolverManager.initMappingResolverInstance:";
         CMS.debug(method + " begins");
-        IConfigStore conf = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore conf = engine.getConfigStore();
         registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
         if (registry == null) {
             CMS.debug(method + " registry null");

@@ -49,6 +49,11 @@ import org.dogtagpki.tps.msg.EndOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.crypto.InvalidKeyFormatException;
+import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkcs11.PK11RSAPublicKey;
 import org.mozilla.jss.pkcs11.PKCS11Constants;
@@ -60,13 +65,8 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
-
-import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
-import org.mozilla.jss.netscape.security.util.BigInt;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 public class TPSEnrollProcessor extends TPSProcessor {
 
@@ -94,9 +94,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMS.debug(method + " entering...");
         String logMsg = null;
         String auditInfo = null;
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
-        IConfigStore configStore = CMS.getConfigStore();
+        IConfigStore configStore = engine.getConfigStore();
         String configName;
 
         AppletInfo appletInfo = null;
@@ -629,7 +630,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         TPSStatus status = TPSStatus.STATUS_NO_ERROR;
         final String method = "TPSEnrollProcessor.cleanObjectListBeforeExternalRecovery :";
         final int MAX_CERTS = 30;
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         /*
          * Arrays that hold simple indexes of certsToDelete and certsToSave.
@@ -888,7 +890,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         CMS.debug("TPSEnrollProcessor.writeFinalPKCS11ObjectToToken:  entering...");
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String compressConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + "pkcs11obj.compress.enable";
@@ -1068,7 +1071,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String logMsg;
         final String method = "TPSEnrollProcessor.generateCertsAfterRenewalRecoveryPolicy";
         CMS.debug(method + ": begins");
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String configName;
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
@@ -1194,7 +1198,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                     // ToDo: This section has not been tested to work.. Make sure this works.
 
-                    configStore = CMS.getConfigStore();
+                    configStore = engine.getConfigStore();
                     configName = TPSEngine.OP_ENROLL_PREFIX + "." + getSelectedTokenType()
                             + ".temporaryToken.tokenType";
                     try {
@@ -1464,6 +1468,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         int keyTypeNum = getNumberCertsToRenew();
         /*
@@ -1498,7 +1503,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             certsInfo.setCurrentCertIndex(i);
 
             CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
-            IConfigStore configStore = CMS.getConfigStore();
+            IConfigStore configStore = engine.getConfigStore();
 
             // find all config
             String configName = null;
@@ -1752,7 +1757,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     private boolean getRenewEnabled(String keyType) {
         String method = "TPSEnrollProcessor.getRenewEnabled";
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         boolean enabled = false;
 
         try {
@@ -1775,7 +1781,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
      */
     private boolean getExternalRegRecoverByKeyID() {
         String method = "TPSEnrollProcessor.getExternalRegRecoverByKeyID";
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         boolean recoverByKeyID = false;
 
         try {
@@ -1792,7 +1799,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     private String getRenewConfigKeyType(int keyTypeIndex) throws TPSException {
         String method = "TPSEnrollProcessor.getRenewConfigKeyType";
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String keyType = null;
 
         try {
@@ -1823,7 +1831,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
     private int getNumberCertsToRenew() throws TPSException {
         String method = "TPSEnrollProcessor.getNumberCertsToRenew";
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         int keyTypeNum = 0;
         try {
             String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
@@ -1853,8 +1862,9 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String logMsg;
         TPSStatus status = TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED;
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
-        IConfigStore configStore = CMS.getConfigStore();
+        IConfigStore configStore = engine.getConfigStore();
 
         CMS.debug("TPSEnrollProcessor.processRecovery: entering:");
 
@@ -2104,7 +2114,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         CMS.debug("TPSEnrollProcessor.buildTokenLabel: entering...");
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String configName = TPSEngine.OP_ENROLL_PREFIX + "." + getSelectedTokenType() + ".keyGen.tokenName";
         String pattern = null;
@@ -2155,7 +2166,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         //get the params needed all at once
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         boolean isRenewal = false;
 
@@ -2580,7 +2592,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                      *     becomes:
                      *       CN=Jane.Doe.0123456789,E=jdoe@redhat.com,O=TMS Org
                      */
-                    IConfigStore configStore = CMS.getConfigStore();
+                    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                    IConfigStore configStore = engine.getConfigStore();
                     String configName;
                     configName = TPSEngine.OP_ENROLL_PREFIX + "." +
                             getSelectedTokenType() + ".keyGen." +
@@ -3133,7 +3146,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         String defaultLabel = cEnrollInfo.getKeyType() + " key for $userid$";
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String configValue = "op." + currentTokenOperation + "." + selectedTokenType + ".keyGen."
                 + cEnrollInfo.getKeyType() + ".label";
@@ -3387,7 +3401,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             throw new TPSException("TPSEnrollProcessor.checkForServerSideKeyGen: invalid cert info.",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         boolean serverSideKeygen = false;
 
         try {
@@ -3414,7 +3429,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             throw new TPSException("TPSEnrollProcessor.checkForServerKeyArchival: invalid cert info.",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         boolean serverKeyArchival = false;
 
         try {
@@ -3441,7 +3457,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
             throw new TPSException("TPSEnrollProcessor.checkForObjectOverwrite: invalid cert info.",
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         boolean objectOverwrite = false;
 
         try {
@@ -3466,7 +3483,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     private String getConfiguredKeyType(int keyTypeIndex) throws TPSException {
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String keyType = null;
 
         try {
@@ -3496,7 +3514,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
     }
 
     private String getDRMConnectorID() throws TPSException {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String id = null;
 
         String config = "op." + currentTokenOperation + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN_ENCRYPTION
@@ -3518,7 +3537,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
     protected int getNumberCertsToEnroll() throws TPSException {
         String method = "TPSEnrollProcessor.getNumberCertsToEnroll:";
         String logMsg;
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         int keyTypeNum = 0;
         try {
             String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
@@ -3547,7 +3567,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
     }
 
     protected int getEnrollmentAlg() throws TPSException {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         int enrollmentAlg;
         try {
             String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "."
@@ -3577,7 +3598,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String keyTypeValue;
         try {
             String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN
@@ -3614,7 +3636,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String scheme = null;
         try {
             String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN
@@ -3650,7 +3673,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         int keyTypeNum = 0;
         try {
             String configValue = TPSEngine.OP_ENROLL_PREFIX + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN
@@ -3839,7 +3863,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         boolean allow = true;
 
         String method = "TPSEnrollProcessor.checkAllowMultiActiveTokensUser: ";
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String scheme = null;
 

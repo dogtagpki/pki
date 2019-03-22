@@ -45,9 +45,10 @@ public class TPSInstaller {
 
     public void configureCAConnector(URI uri, String nickname) {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
 
         // TODO: see if this is only needed by wizard-based installation
         cs.putString("preop.cainfo.select", uri.toString());
@@ -63,9 +64,10 @@ public class TPSInstaller {
 
     public void configureTKSConnector(URI uri, String nickname) {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
 
         // TODO: see if this is only needed by wizard-based installation
         cs.putString("preop.tksinfo.select", uri.toString());
@@ -81,9 +83,10 @@ public class TPSInstaller {
 
     public void configureKRAConnector(Boolean keygen, URI uri, String nickname) {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
 
         if (keygen) {
             // TODO: see if this is only needed by wizard-based installation

@@ -32,18 +32,18 @@ import org.dogtagpki.tps.main.Util;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
-import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
-
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * CARemoteRequestHandler is a class representing remote requests
@@ -98,7 +98,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("CARemoteRequestHandler: enrollCertificate(): input parameter null.");
         }
 
-        IConfigStore conf = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore conf = engine.getConfigStore();
         String profileId =
                 conf.getString(TPSEngine.OP_ENROLL_PREFIX + "." +
                         tokenType + ".keyGen." +
@@ -398,7 +399,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("CARemoteRequestHandler: renewCertificate(): input parameter null.");
         }
 
-        IConfigStore conf = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore conf = engine.getConfigStore();
 
         String profileId =
                 conf.getString(TPSEngine.OP_ENROLL_PREFIX + "." +
@@ -764,7 +766,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("CARemoteRequestHandler: getCaSki(): input parameter conn null.");
         }
 
-        IConfigStore conf = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore conf = engine.getConfigStore();
 
         /*
          * first, see if ca Subject Key Identifier (SKI) is in

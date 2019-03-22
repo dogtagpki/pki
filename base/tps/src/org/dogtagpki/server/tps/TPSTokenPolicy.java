@@ -24,6 +24,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /*
  * TPSTokenPolicy - handles token enrollment related policies
@@ -55,7 +56,8 @@ public class TPSTokenPolicy {
     }
 
     public String getDefaultPolicySetString() {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String configName = "tokendb.defaultPolicy";
         String policySetString;
         try {

@@ -104,6 +104,7 @@ import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
 
@@ -986,7 +987,8 @@ public class TPSProcessor {
 
         logger.debug("TPSProcessor.checkUpdateAppletEncryption entering...");
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String appletEncryptionConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_UPDATE_APPLET_ENCRYPTION;
@@ -1181,7 +1183,8 @@ public class TPSProcessor {
             logger.error(logMsg);
             throw new EBaseException(logMsg);
         }
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String configName = prefix + "." + tokenType + ".auth.id";
         String authId;
 
@@ -1205,7 +1208,8 @@ public class TPSProcessor {
             logger.error(logMsg);
             throw new EBaseException(logMsg);
         }
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         TPSSubsystem subsystem =
                 (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -1538,7 +1542,8 @@ public class TPSProcessor {
      */
     protected String getCAConnectorID(String enrollType, String keyType)
             throws TPSException {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String id = null;
         String config = null;
         String method = "TPSProcessor.getCAConnectorID:";
@@ -1577,7 +1582,8 @@ public class TPSProcessor {
         String logMsg;
         logger.debug(method + ": begins");
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert";
         boolean revokeCert = false;
         try {
@@ -1599,7 +1605,8 @@ public class TPSProcessor {
         String method = "getRevocationReasonAtFormat";
         String logMsg;
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert.reason";
         logger.debug(method + " finding config: " + configName);
 
@@ -1782,7 +1789,8 @@ public class TPSProcessor {
     public boolean allowRecoverInvalidCert() throws TPSException {
         String method = "TPSProcessor.allowRecoverInvalidCert:";
         boolean ret = true;
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String configName = "externalReg.allowRecoverInvalidCert.enable";
         try {
             ret = configStore.getBoolean(configName, true);
@@ -1804,7 +1812,8 @@ public class TPSProcessor {
         String tVal;
         String[] vals;
         ExternalRegAttrs erAttrs = new ExternalRegAttrs(authId);
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         logger.debug(method + ": getting from authToken: " + erAttrs.ldapAttrNameTokenType);
         vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenType);
@@ -1921,7 +1930,8 @@ public class TPSProcessor {
     protected void setExternalRegSelectedTokenType(ExternalRegAttrs erAttrs)
             throws TPSException {
         String method = "TPSProcessor.setExternalRegSelectedTokenType: ";
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
 
         logger.debug(method + " begins");
@@ -1951,7 +1961,8 @@ public class TPSProcessor {
 
     protected void format(boolean skipAuth) throws TPSException, IOException {
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String configName = null;
         String logMsg = null;
         String appletVersion = null;
@@ -2401,7 +2412,8 @@ public class TPSProcessor {
     protected String getResolverInstanceName() throws TPSException {
 
         logger.debug("TPSProcessor.getResolverInstanceName: entering for operaiton : " + currentTokenOperation);
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String resolverInstName = null;
 
         String opPrefix = null;
@@ -2443,7 +2455,8 @@ public class TPSProcessor {
     protected String getKeySetResolverInstanceName() throws TPSException {
         String method = "TPSProcessor.getKeySetResolverInstanceName: ";
         logger.debug(method + " begins");
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String resolverInstName = null;
 
         if (!isExternalReg) {
@@ -2516,7 +2529,8 @@ public class TPSProcessor {
     }
 
     protected String getIssuerInfoValue() throws TPSException {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String info = null;
 
         String config = "op." + currentTokenOperation + "." + selectedTokenType + "." + TPSEngine.CFG_ISSUER_INFO_VALUE;
@@ -2563,7 +2577,8 @@ public class TPSProcessor {
 
         logger.debug("TPSProcessor.checkIssuerEnabled entering...");
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String issuerEnabledConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_ISSUER_INFO_ENABLE;
@@ -2588,7 +2603,8 @@ public class TPSProcessor {
     //Obtain value and set class property.
     protected void checkIsExternalReg() throws TPSException {
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String External_Reg_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." + "enable";
         logger.debug("TPS_Processor.checkIsExternalReg: getting config:" + External_Reg_Cfg);
 
@@ -2610,7 +2626,8 @@ public class TPSProcessor {
     boolean checkServerSideKeyGen(String connId) throws TPSException {
 
         boolean result;
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String profileConfig = "conn." + connId + "." + ".serverKeygen";
         logger.debug("TPSProcessor.checkServerSideKeyGen: getting config: " + profileConfig);
@@ -2626,7 +2643,8 @@ public class TPSProcessor {
 
     void checkAllowNoAppletToken(String operation) throws TPSException {
         boolean allow = true;
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String noAppletConfig = operation + "." + selectedTokenType + "." + TPSEngine.CFG_ALLOW_NO_APPLET;
         logger.debug("TPSProcessor.checkAllowNoAppletToken: getting config: " + noAppletConfig);
@@ -2647,7 +2665,8 @@ public class TPSProcessor {
     boolean checkForAppletUpdateEnabled() throws TPSException {
         boolean enabled = false;
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String appletUpdate = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_UPDATE_APPLET_ENABLE;
@@ -2666,7 +2685,8 @@ public class TPSProcessor {
 
     protected String checkForAppletUpgrade(String operation) throws TPSException, IOException {
         String requiredVersion = null;
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         acquireChannelPlatformAndProtocolInfo();
 
@@ -2705,7 +2725,8 @@ public class TPSProcessor {
     protected void checkAllowUnknownToken(String operation) throws TPSException {
         boolean allow = true;
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String unknownConfig = "op." + operation + "." + TPSEngine.CFG_ALLOW_UNKNOWN_TOKEN;
         logger.debug("TPSProcessor.checkAllowUnknownToken: getting config: " + unknownConfig);
@@ -2725,7 +2746,8 @@ public class TPSProcessor {
     }
 
     protected String getTKSConnectorID() throws TPSException {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String id = null;
 
         String config = "op." + currentTokenOperation + "." + selectedTokenType + ".tks.conn";
@@ -2746,7 +2768,8 @@ public class TPSProcessor {
     protected TPSBuffer getNetkeyAID() throws TPSException {
 
         String NetKeyAID = null;
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         logger.debug("TPSProcessor.getNetkeyAID: getting config: " + TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
         try {
 
@@ -2766,7 +2789,8 @@ public class TPSProcessor {
     protected TPSBuffer getNetkeyPAID() throws TPSException {
 
         String NetKeyPAID = null;
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         logger.debug("TPSProcessor.getNetkeyPAID: getting config: " + TPSEngine.CFG_DEF_NETKEY_FILE_AID);
         try {
 
@@ -2786,7 +2810,8 @@ public class TPSProcessor {
     protected TPSBuffer getCardManagerAID() throws TPSException {
 
         String cardMgrAID = null;
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         logger.debug("TPSProcessor.getCardManagerAID: getting config: " + TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID);
         try {
 
@@ -2804,7 +2829,8 @@ public class TPSProcessor {
     }
 
     protected String getAppletExtension() throws TPSException {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String extension = null;
         String extensionConfig = TPSEngine.CFG_APPLET_EXTENSION;
 
@@ -2822,7 +2848,8 @@ public class TPSProcessor {
 
     protected String getAppletDirectory(String operation) throws TPSException {
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String directory = null;
 
         String directoryConfig = operation + "." + selectedTokenType + "." + TPSEngine.CFG_APPLET_DIRECTORY;
@@ -2844,7 +2871,8 @@ public class TPSProcessor {
     }
 
     protected int getChannelBlockSize() throws TPSException {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         int blockSize = 0;
         try {
             blockSize = configStore.getInteger(TPSEngine.CFG_CHANNEL_BLOCK_SIZE, TPSEngine.CFG_CHANNEL_DEF_BLOCK_SIZE);
@@ -2861,7 +2889,8 @@ public class TPSProcessor {
     }
 
     protected int getChannelInstanceSize() throws TPSException {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         int instanceSize = 0;
         try {
             instanceSize = configStore.getInteger(TPSEngine.CFG_CHANNEL_INSTANCE_SIZE,
@@ -2880,7 +2909,8 @@ public class TPSProcessor {
     }
 
     protected int getAppletMemorySize() throws TPSException {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         int memSize = 0;
         try {
             memSize = configStore.getInteger(TPSEngine.CFG_CHANNEL_APPLET_MEMORY_SIZE,
@@ -2897,7 +2927,8 @@ public class TPSProcessor {
     }
 
     protected int getChannelDefKeyVersion() throws TPSException {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         int ver = 0;
         try {
             ver = configStore.getInteger(TPSEngine.CFG_CHANNEL_DEFKEY_VERSION, 0x0);
@@ -2915,7 +2946,8 @@ public class TPSProcessor {
     }
 
     protected int getChannelDefKeyIndex() throws TPSException {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         int index = 0;
         try {
             index = configStore.getInteger(TPSEngine.CFG_CHANNEL_DEFKEY_INDEX, 0x0);
@@ -2934,7 +2966,8 @@ public class TPSProcessor {
 
     protected String getSharedSecretTransportKeyName(String connId) throws TPSException {
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String sharedSecretName = null;
         try {
             String configName = "conn." + connId + ".tksSharedSymKeyName";
@@ -3136,7 +3169,8 @@ public class TPSProcessor {
     protected boolean checkSymmetricKeysEnabled() throws TPSException {
         boolean result = true;
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String symmConfig = "op" + "." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_SYMM_KEY_UPGRADE_ENABLED;
@@ -3153,9 +3187,9 @@ public class TPSProcessor {
 
     protected int getSymmetricKeysRequiredVersion() throws TPSException {
         int version = 0;
-        ;
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String requiredVersionConfig = "op" + "." + currentTokenOperation + "." + selectedTokenType + "."
                 + "update.symmetricKeys.requiredVersion";
@@ -3549,7 +3583,8 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
         }
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String pinResetEnableConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_PIN_RESET_ENABLE;
@@ -3627,10 +3662,11 @@ public class TPSProcessor {
             opPrefix = TPSEngine.OP_PIN_RESET_PREFIX;
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         if (!isExternalReg) {
             // authenticate per profile/tokenType configuration
             String configName = opPrefix + "." + tokenType + ".auth.enable";
-            IConfigStore configStore = CMS.getConfigStore();
+            IConfigStore configStore = engine.getConfigStore();
 
             TPSSubsystem tps =
                     (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -3853,7 +3889,8 @@ public class TPSProcessor {
             throw new TPSException(method + " Invalid input data!");
         }
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String checkBoundedGPKeyVersionConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_ENABLE_BOUNDED_GP_KEY_VERSION;
@@ -3947,7 +3984,8 @@ public class TPSProcessor {
             throw new TPSException(method + " invalid input data!");
         }
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String checkCUIDMatchesKDDConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_CUID_MUST_MATCH_KDD;
@@ -4011,7 +4049,8 @@ public class TPSProcessor {
 
         boolean result = true;
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         String checkValidateVersion = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_VALIDATE_CARD_KEY_INFO_AGAINST_DB;

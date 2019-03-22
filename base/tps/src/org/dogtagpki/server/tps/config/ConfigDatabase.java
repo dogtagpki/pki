@@ -32,6 +32,7 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ResourceNotFoundException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.Database;
 
 /**
@@ -42,7 +43,8 @@ import com.netscape.cmscore.dbs.Database;
  */
 public class ConfigDatabase extends Database<ConfigRecord> {
 
-    IConfigStore configStore = CMS.getConfigStore();
+    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    IConfigStore configStore = engine.getConfigStore();
 
     public ConfigDatabase() throws EBaseException {
         super("Configuration");

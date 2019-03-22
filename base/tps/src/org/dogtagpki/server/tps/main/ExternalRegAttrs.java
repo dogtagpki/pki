@@ -7,6 +7,7 @@ import org.dogtagpki.server.tps.engine.TPSEngine;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class ExternalRegAttrs {
     public String ldapAttrNameTokenType;
@@ -24,7 +25,8 @@ public class ExternalRegAttrs {
 
     public ExternalRegAttrs(String authId) {
         String method = "ExternalRegAttrs";
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String configName = null;
 
         try {

@@ -34,15 +34,15 @@ import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.main.ExternalRegCertToRecover;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.tps.token.TokenStatus;
-
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /*
  * TPSTokendb class offers a collection of tokendb management convenience routines
@@ -558,9 +558,10 @@ public class TPSTokendb {
 
         CMS.debug(method + "begins: tokenReason=" + tokenReason);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
 
-            IConfigStore configStore = CMS.getConfigStore();
+            IConfigStore configStore = engine.getConfigStore();
 
             // get conn ID
             String config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() + ".ca.conn";
@@ -623,8 +624,9 @@ public class TPSTokendb {
         String method = "TPSTokendb.unrevokeCert";
         String logMsg;
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            IConfigStore configStore = CMS.getConfigStore();
+            IConfigStore configStore = engine.getConfigStore();
 
             // get conn ID
             String config = "op.enroll." + cert.getType() + ".keyGen." + cert.getKeyType() + ".ca.conn";
@@ -677,7 +679,8 @@ public class TPSTokendb {
 
         String method = "TPSTokendb.checkShouldRevoke:";
         String msg = "";
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
 
         if (cert == null) {
             throw new TPSException("Missing token certificate");

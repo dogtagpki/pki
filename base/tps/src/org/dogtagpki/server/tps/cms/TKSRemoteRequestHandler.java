@@ -29,6 +29,7 @@ import org.dogtagpki.tps.main.Util;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
 
@@ -110,7 +111,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKey(): input parameter null.");
         }
 
-        IConfigStore conf = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore conf = engine.getConfigStore();
 
         boolean serverKeygen = false;
 
@@ -262,7 +264,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException(method +  " invalid input!");
         }
 
-        IConfigStore conf = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore conf = engine.getConfigStore();
 
         boolean serverKeygen =
                 conf.getBoolean("op.enroll." +
@@ -434,7 +437,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKeySCP02(): input parameter null.");
         }
 
-        IConfigStore conf = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore conf = engine.getConfigStore();
 
         boolean serverKeygen =
                 conf.getBoolean("op.enroll." +
@@ -563,7 +567,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: createKeySetData(): input parameter null.");
         }
 
-        IConfigStore conf = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore conf = engine.getConfigStore();
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
@@ -733,7 +738,8 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: encryptData(): input parameter null.");
         }
 
-        IConfigStore conf = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore conf = engine.getConfigStore();
 
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
