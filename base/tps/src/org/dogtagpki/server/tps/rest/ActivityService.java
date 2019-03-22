@@ -44,8 +44,10 @@ import com.netscape.cms.servlet.base.PKIService;
  */
 public class ActivityService extends PKIService implements ActivityResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ActivityService.class);
+
     public ActivityService() {
-        CMS.debug("ActivityService.<init>()");
+        logger.debug("ActivityService.<init>()");
     }
 
     public ActivityData createActivityData(ActivityRecord activityRecord) {
@@ -92,7 +94,7 @@ public class ActivityService extends PKIService implements ActivityResource {
     @Override
     public Response findActivities(String filter, Integer start, Integer size) {
 
-        CMS.debug("ActivityService.findActivities()");
+        logger.debug("ActivityService.findActivities()");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -125,7 +127,7 @@ public class ActivityService extends PKIService implements ActivityResource {
             return createOKResponse(response);
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("ActivityService: " + e.getMessage(), e);
             throw new PKIException(e.getMessage());
         }
     }
@@ -147,7 +149,7 @@ public class ActivityService extends PKIService implements ActivityResource {
             ActivityRecord record = list.getElementAt(i);
 
             if (record == null) {
-                CMS.debug("ActivityService: Activity record not found");
+                logger.error("ActivityService: Activity record not found");
                 throw new PKIException("Activity record not found");
             }
 
@@ -191,7 +193,7 @@ public class ActivityService extends PKIService implements ActivityResource {
 
         if (activityID == null) throw new BadRequestException("Activity ID is null.");
 
-        CMS.debug("ActivityService.getActivity(\"" + activityID + "\")");
+        logger.debug("ActivityService.getActivity(\"" + activityID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
@@ -200,7 +202,7 @@ public class ActivityService extends PKIService implements ActivityResource {
             return createOKResponse(createActivityData(database.getRecord(activityID)));
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("ActivityService: " + e.getMessage(), e);
             throw new PKIException(e.getMessage());
         }
     }

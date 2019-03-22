@@ -45,8 +45,10 @@ import com.netscape.cms.servlet.base.PKIService;
  */
 public class TPSCertService extends PKIService implements TPSCertResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSCertService.class);
+
     public TPSCertService() {
-        CMS.debug("TPSCertService.<init>()");
+        logger.debug("TPSCertService.<init>()");
     }
 
     public TPSCertData createCertData(TPSCertRecord certRecord) {
@@ -99,7 +101,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
     @Override
     public Response findCerts(String filter, String tokenID, Integer start, Integer size) {
 
-        CMS.debug("TPSCertService.findCerts(" + filter + ", " + tokenID + ", " + start + ", " + size + ")");
+        logger.debug("TPSCertService.findCerts(" + filter + ", " + tokenID + ", " + start + ", " + size + ")");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -157,7 +159,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
         if (certID == null) throw new BadRequestException("Certificate ID is null.");
 
-        CMS.debug("TPSCertService.getCert(\"" + certID + "\")");
+        logger.debug("TPSCertService.getCert(\"" + certID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);

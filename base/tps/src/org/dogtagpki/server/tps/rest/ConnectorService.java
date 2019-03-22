@@ -51,8 +51,10 @@ import com.netscape.cms.servlet.base.SubsystemService;
  */
 public class ConnectorService extends SubsystemService implements ConnectorResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConnectorService.class);
+
     public ConnectorService() {
-        CMS.debug("ConnectorService.<init>()");
+        logger.debug("ConnectorService.<init>()");
     }
 
     public ConnectorData createConnectorData(ConnectorRecord connectionRecord) throws UnsupportedEncodingException {
@@ -84,7 +86,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
     @Override
     public Response findConnectors(String filter, Integer start, Integer size) {
 
-        CMS.debug("ConnectorService.findConnectors()");
+        logger.debug("ConnectorService.findConnectors()");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -129,11 +131,11 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             return createOKResponse(response);
 
         } catch (PKIException e) {
-            CMS.debug("ConnectorService: " + e);
+            logger.error("ConnectorService: " + e.getMessage(), e);
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("ConnectorService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -144,7 +146,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
         if (connectorID == null)
             throw new BadRequestException("Connector ID is null.");
 
-        CMS.debug("ConnectorService.getConnector(\"" + connectorID + "\")");
+        logger.debug("ConnectorService.getConnector(\"" + connectorID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -153,11 +155,11 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             return createOKResponse(createConnectorData(database.getRecord(connectorID)));
 
         } catch (PKIException e) {
-            CMS.debug("ConnectorService: " + e);
+            logger.error("ConnectorService: " + e.getMessage(), e);
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("ConnectorService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -172,7 +174,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             throw new BadRequestException("Connector data is null.");
         }
 
-        CMS.debug("ConnectorService.addConnector(\"" + connectorData.getID() + "\")");
+        logger.debug("ConnectorService.addConnector(\"" + connectorData.getID() + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -200,13 +202,13 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             return createCreatedResponse(connectorData, connectorData.getLink().getHref());
 
         } catch (PKIException e) {
-            CMS.debug("ConnectorService: " + e);
+            logger.error("ConnectorService: " + e.getMessage(), e);
             auditTPSConnectorChange(ILogger.FAILURE, method,
                     connectorData.getID(), connectorData.getProperties(), e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug("ConnectorService: " + e);
+            logger.error("ConnectorService: " + e.getMessage(), e);
             auditTPSConnectorChange(ILogger.FAILURE, method,
                     connectorData.getID(), connectorData.getProperties(), e.toString());
             throw new PKIException(e);
@@ -228,7 +230,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             throw new BadRequestException("Connector data is null.");
         }
 
-        CMS.debug("ConnectorService.updateConnector(\"" + connectorID + "\")");
+        logger.debug("ConnectorService.updateConnector(\"" + connectorID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -283,13 +285,13 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             return createOKResponse(connectorData);
 
         } catch (PKIException e) {
-            CMS.debug("ConnectorService: " + e);
+            logger.error("ConnectorService: " + e.getMessage(), e);
             auditTPSConnectorChange(ILogger.FAILURE, method,
                     connectorData.getID(), connectorData.getProperties(), e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug("ConnectorService: " + e);
+            logger.error("ConnectorService: " + e.getMessage(), e);
             auditTPSConnectorChange(ILogger.FAILURE, method,
                     connectorData.getID(), connectorData.getProperties(), e.toString());
             throw new PKIException(e);
@@ -313,7 +315,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
         }
         auditModParams.put("Action", action);
 
-        CMS.debug("ConnectorService.changeStatus(\"" + connectorID + "\", \"" + action + "\")");
+        logger.debug("ConnectorService.changeStatus(\"" + connectorID + "\", \"" + action + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -403,13 +405,13 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             return createOKResponse(connectorData);
 
         } catch (PKIException e) {
-            CMS.debug("ConnectorService: " + e);
+            logger.error("ConnectorService: " + e.getMessage(), e);
             auditTPSConnectorChange(ILogger.FAILURE, method,
                     connectorID, auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug("ConnectorService: " + e);
+            logger.error("ConnectorService: " + e.getMessage(), e);
             auditTPSConnectorChange(ILogger.FAILURE, method,
                     connectorID, auditModParams, e.toString());
             throw new PKIException(e);
@@ -428,7 +430,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
         }
         auditModParams.put("connectorID", connectorID);
 
-        CMS.debug("ConnectorService.removeConnector(\"" + connectorID + "\")");
+        logger.debug("ConnectorService.removeConnector(\"" + connectorID + "\")");
 
         try {
             TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
@@ -452,13 +454,13 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
             return createNoContentResponse();
 
         } catch (PKIException e) {
-            CMS.debug("ConnectorService: " + e);
+            logger.error("ConnectorService: " + e.getMessage(), e);
             auditTPSConnectorChange(ILogger.FAILURE, method,
                     connectorID, auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug("ConnectorService: " + e);
+            logger.error("ConnectorService: " + e.getMessage(), e);
             auditTPSConnectorChange(ILogger.FAILURE, method,
                     connectorID, auditModParams, e.toString());
             throw new PKIException(e);
