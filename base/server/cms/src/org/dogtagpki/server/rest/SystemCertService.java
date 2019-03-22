@@ -41,6 +41,7 @@ import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.certsrv.system.SystemCertResource;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This is the class used to list, retrieve and modify system certificates for all Java subsystems.
@@ -57,8 +58,9 @@ public class SystemCertService extends PKIService implements SystemCertResource 
      */
     public Response getTransportCert() {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            IConfigStore cs = CMS.getConfigStore();
+            IConfigStore cs = engine.getConfigStore();
             String type = cs.getString("cs.type");
 
             CertData certData;

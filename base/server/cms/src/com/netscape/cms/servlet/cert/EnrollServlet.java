@@ -77,6 +77,7 @@ import com.netscape.cms.servlet.processors.CRMFProcessor;
 import com.netscape.cms.servlet.processors.KeyGenProcessor;
 import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertUtils;
 
 /**
@@ -176,8 +177,9 @@ public class EnrollServlet extends CMSServlet {
 
             logger.debug("EnrollServlet: In Enroll Servlet init!");
 
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
             try {
-                IConfigStore configStore = CMS.getConfigStore();
+                IConfigStore configStore = engine.getConfigStore();
                 String PKI_Subsystem = configStore.getString("subsystem.0.id",
                                                               null);
 
@@ -708,6 +710,7 @@ public class EnrollServlet extends CMSServlet {
      */
     protected void processX509(CMSRequest cmsReq)
             throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
@@ -723,7 +726,7 @@ public class EnrollServlet extends CMSServlet {
         IRequest req = null;
         X509CertInfo certInfo = null;
 
-        IConfigStore configStore = CMS.getConfigStore();
+        IConfigStore configStore = engine.getConfigStore();
 
         /* XXX shouldn't we read this from ServletConfig at init time? */
         enforcePop = configStore.getBoolean("enrollment.enforcePop", false);
@@ -783,7 +786,7 @@ public class EnrollServlet extends CMSServlet {
             }
 
             try {
-                if (CMS.getConfigStore().getBoolean("useThreadNaming", false)) {
+                if (engine.getConfigStore().getBoolean("useThreadNaming", false)) {
                     String currentName = Thread.currentThread().getName();
 
                     Thread.currentThread().setName(currentName

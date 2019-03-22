@@ -263,6 +263,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         String msg = "";
         logger.debug(method + "begins");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditSubjectID = getAuditSubjectID();
         String auditReqType = ILogger.UNIDENTIFIED;
         String requestCertSubject = ILogger.UNIDENTIFIED;
@@ -356,7 +357,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                     logger.debug(method + "cmc request content is signed data");
                     cmcFullReq = (SignedData) cmcReq.getInterpretedContent();
 
-                    IConfigStore cmc_config = CMS.getConfigStore();
+                    IConfigStore cmc_config = engine.getConfigStore();
                     boolean checkSignerInfo = cmc_config.getBoolean("cmc.signerInfo.verify", true);
                     if (checkSignerInfo) {
                         // selfSigned will be set in verifySignerInfo if applicable
@@ -571,11 +572,11 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                             CryptoToken savedToken = null;
 
                             // for PKCS10, "sigver" would offer the POP
-                            sigver = CMS.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
+                            sigver = engine.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
                             try {
                                 cm = CryptoManager.getInstance();
                                 if (sigver == true) {
-                                    String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token",
+                                    String tokenName = engine.getConfigStore().getString("ca.requestVerify.token",
                                             CryptoUtil.INTERNAL_TOKEN_NAME);
                                     savedToken = cm.getThreadToken();
                                     signToken = CryptoUtil.getCryptoToken(tokenName);
@@ -975,6 +976,8 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         String method = "CMCUserSignedAuth: verifySignerInfo: ";
         String msg = "";
         logger.debug(method + "begins");
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
         OBJECT_IDENTIFIER id = ci.getContentType();
         OCTET_STRING content = ci.getContent();
@@ -1130,7 +1133,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                         CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
                             }
 
-                            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token",
+                            String tokenName = engine.getConfigStore().getString("ca.requestVerify.token",
                                     CryptoUtil.INTERNAL_TOKEN_NAME);
                             // by default JSS will use internal crypto token
                             if (!CryptoUtil.isInternalToken(tokenName)) {
@@ -1153,7 +1156,6 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
 
                         // At this point, the signature has been verified;
                         // now check revocation status of the cert
-                        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
                         if (engine.isRevoked(x509Certs)) {
                             msg = "CMC signing cert is a revoked certificate";
                             logger.error(method + msg);

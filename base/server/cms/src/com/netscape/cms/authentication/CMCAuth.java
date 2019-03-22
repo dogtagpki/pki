@@ -97,6 +97,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 //import com.netscape.cmscore.util.*;
@@ -214,8 +215,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         mName = name;
         mImplName = implName;
         mConfig = config;
-        mBypassClientAuth =
-                CMS.getConfigStore().getBoolean("cmc.bypassClientAuth", false);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mBypassClientAuth = engine.getConfigStore().getBoolean("cmc.bypassClientAuth", false);
 
         log(ILogger.LL_INFO, "Initialization complete!");
     }
@@ -250,6 +251,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         String auditCertSubject = ILogger.UNIDENTIFIED;
         String auditSignerInfo = ILogger.UNIDENTIFIED;
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         SessionContext auditContext = SessionContext.getExistingContext();
         X509Certificate clientCert =
                (X509Certificate) auditContext.get(SessionContext.SSL_CLIENT_CERT);
@@ -336,7 +338,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                 SignedData cmcFullReq = (SignedData)
                                         cmcReq.getInterpretedContent();
 
-                IConfigStore cmc_config = CMS.getConfigStore();
+                IConfigStore cmc_config = engine.getConfigStore();
                 boolean checkSignerInfo =
                         cmc_config.getBoolean("cmc.signerInfo.verify", true);
                 String userid = "defUser";
@@ -505,12 +507,12 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             CryptoManager cm = null;
                             CryptoToken signToken = null;
                             CryptoToken savedToken = null;
-                            sigver = CMS.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
+                            sigver = engine.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
                             try {
                                 cm = CryptoManager.getInstance();
                                 if (sigver == true) {
                                     String tokenName =
-                                        CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                                        engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                                     savedToken = cm.getThreadToken();
                                     signToken = CryptoUtil.getCryptoToken(tokenName);
                                     if (!savedToken.getName().equals(signToken.getName())) {
@@ -777,6 +779,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
             SessionContext auditContext,
             AuthToken authToken,
             SignedData cmcFullReq) throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String method = "CMCAuth: verifySignerInfo: ";
         String msg = "";
         EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
@@ -933,7 +936,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             }
 
                             String tokenName =
-                                CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                                engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                             // by default JSS will use internal crypto token
                             if (!CryptoUtil.isInternalToken(tokenName)) {
                                 savedToken = cm.getThreadToken();

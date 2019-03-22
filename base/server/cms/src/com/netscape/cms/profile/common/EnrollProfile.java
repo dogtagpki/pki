@@ -396,6 +396,8 @@ public abstract class EnrollProfile extends BasicProfile
             logger.error(method + "method parameters cannot be null");
             throw new EBaseException(method + msg);
         }
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         byte[] req_key_data = req.getExtDataInByteArray(IEnrollProfile.REQUEST_KEY);
         if (req_key_data != null) {
             logger.debug(method + "found user public key in request");
@@ -420,7 +422,7 @@ public abstract class EnrollProfile extends BasicProfile
 
             try {
                 CryptoToken token = null;
-                String tokenName = CMS.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                String tokenName = engine.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                 token = CryptoUtil.getCryptoToken(tokenName);
 
                 byte[] iv = CryptoUtil.getNonceData(EncryptionAlgorithm.AES_128_CBC.getIVLength());
@@ -716,6 +718,8 @@ public abstract class EnrollProfile extends BasicProfile
         String msg = ""; // for capturing debug and throw info
         //logger.debug(method + " Start parseCMC(): " + certreq);
         logger.debug(method + "starts");
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditMessage = "";
         String auditSubjectID = auditSubjectID();
 
@@ -1028,7 +1032,7 @@ public abstract class EnrollProfile extends BasicProfile
             try {
                 String configName = "cmc.popLinkWitnessRequired";
                 logger.debug(method + "getting :" + configName);
-                popLinkWitnessRequired = CMS.getConfigStore().getBoolean(configName, false);
+                popLinkWitnessRequired = engine.getConfigStore().getBoolean(configName, false);
                 if (popLinkWitnessRequired) {
                     logger.debug(method + "popLinkWitness(V2) required");
                 } else {
@@ -1198,6 +1202,7 @@ public abstract class EnrollProfile extends BasicProfile
             return null;
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         ICertificateAuthority authority = (ICertificateAuthority) getAuthority();
         PrivateKey issuanceProtPrivKey = authority.getIssuanceProtPrivKey();
         if (issuanceProtPrivKey != null)
@@ -1210,7 +1215,7 @@ public abstract class EnrollProfile extends BasicProfile
 
         try {
             CryptoToken token = null;
-            String tokenName = CMS.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+            String tokenName = engine.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
             token = CryptoUtil.getKeyStorageToken(tokenName);
 
             SymmetricKey symKey = CryptoUtil.unwrap(
@@ -1875,6 +1880,8 @@ public abstract class EnrollProfile extends BasicProfile
     public void fillTaggedRequest(Locale locale, TaggedRequest tagreq, X509CertInfo info,
             IRequest req)
             throws EProfileException, ECMCPopFailedException, ECMCBadRequestException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1898,12 +1905,12 @@ public abstract class EnrollProfile extends BasicProfile
             CryptoToken savedToken = null;
             try {
                 // for PKCS10, "sigver" would provide the POP
-                sigver = CMS.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
+                sigver = engine.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
                 cm = CryptoManager.getInstance();
                 if (sigver == true) {
                     logger.debug(methodPos + "sigver true, POP is to be verified");
                     String tokenName =
-                        CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                        engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                     savedToken = cm.getThreadToken();
                     signToken = CryptoUtil.getCryptoToken(tokenName);
                     if (!savedToken.getName().equals(signToken.getName())) {
@@ -1957,7 +1964,7 @@ public abstract class EnrollProfile extends BasicProfile
             try {
                 String configName = "cmc.lraPopWitness.verify.allow";
                 logger.debug(methodPos + "getting :" + configName);
-                verifyAllow = CMS.getConfigStore().getBoolean(configName, false);
+                verifyAllow = engine.getConfigStore().getBoolean(configName, false);
                 logger.debug(methodPos + "cmc.lraPopWitness.verify.allow is " + verifyAllow);
             } catch (Exception e) {
                 // unlikely to get here
@@ -2128,8 +2135,10 @@ public abstract class EnrollProfile extends BasicProfile
             IRequest req)
             throws EProfileException, ECMCUnsupportedExtException {
         String method = "EnrollProfile: fillCertReqMsg: ";
+        logger.debug(method + "Start parseCertReqMsg ");
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            logger.debug(method + "Start parseCertReqMsg ");
             CertRequest certReq = certReqMsg.getCertReq();
             req.setExtData("bodyPartId", certReq.getCertReqId());
             // handle PKIArchiveOption (key archival)
@@ -2143,7 +2152,7 @@ public abstract class EnrollProfile extends BasicProfile
                     req.setExtData(REQUEST_ARCHIVE_OPTIONS,
                             toByteArray(opt));
                     try {
-                        String transportCert = CMS.getConfigStore().getString("ca.connector.KRA.transportCert", "");
+                        String transportCert = engine.getConfigStore().getString("ca.connector.KRA.transportCert", "");
                         req.setExtData(IEnrollProfile.REQUEST_TRANSPORT_CERT, transportCert);
                     } catch (EBaseException ee) {
                         logger.warn("EnrollProfile: fillCertReqMsg - Exception reading transportCert: " + ee.getMessage(), ee);
@@ -2314,16 +2323,18 @@ public abstract class EnrollProfile extends BasicProfile
         // parse certificate into object
         byte data[] = Utils.base64decode(creq);
         PKCS10 pkcs10 = null;
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         CryptoManager cm = null;
         CryptoToken savedToken = null;
         boolean sigver = true;
 
         try {
             cm = CryptoManager.getInstance();
-            sigver = CMS.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
+            sigver = engine.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
             if (sigver) {
                 logger.debug("EnrollProfile: parsePKCS10: signature verification enabled");
-                String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                String tokenName = engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                 savedToken = cm.getThreadToken();
                 CryptoToken signToken = CryptoUtil.getCryptoToken(tokenName);
                 logger.debug("EnrollProfile: parsePKCS10 setting thread token");
@@ -2766,9 +2777,10 @@ public abstract class EnrollProfile extends BasicProfile
             popFailed(locale, auditSubjectID, auditMessage);
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             CryptoToken verifyToken = null;
-            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+            String tokenName = engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
             if (CryptoUtil.isInternalToken(tokenName)) {
                 logger.debug(method + "POP verification using internal token");
                 certReqMsg.verify();

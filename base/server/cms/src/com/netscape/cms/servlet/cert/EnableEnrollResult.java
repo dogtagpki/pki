@@ -147,7 +147,7 @@ public class EnableEnrollResult extends CMSServlet {
         ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        IConfigStore configStore = CMS.getConfigStore();
+        IConfigStore configStore = engine.getConfigStore();
         String machine = configStore.getString("machineName");
         String port = engine.getEESSLPort();
 

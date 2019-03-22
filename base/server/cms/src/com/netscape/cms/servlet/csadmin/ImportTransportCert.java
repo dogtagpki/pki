@@ -40,6 +40,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -77,6 +78,7 @@ public class ImportTransportCert extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IAuthToken authToken = null;
         try {
             authToken = authenticate(cmsReq);
@@ -121,7 +123,7 @@ public class ImportTransportCert extends CMSServlet {
             return;
         }
 
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
 
         String certsString = httpReq.getParameter("certificate");
 

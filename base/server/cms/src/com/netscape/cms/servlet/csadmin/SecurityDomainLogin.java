@@ -77,7 +77,7 @@ public class SecurityDomainLogin extends BaseServlet {
             context.put("subsystem", subsystem);
             // The "securitydomain.name" property ONLY resides in the "CS.cfg"
             // associated with the CS subsystem hosting the security domain.
-            IConfigStore cs = CMS.getConfigStore();
+            IConfigStore cs = engine.getConfigStore();
             String sdname = cs.getString("securitydomain.name", "");
             context.put("name", sdname);
             template = Velocity.getTemplate("admin/console/config/securitydomainloginpanel.vm");

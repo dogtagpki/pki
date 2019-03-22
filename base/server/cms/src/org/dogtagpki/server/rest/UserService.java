@@ -194,7 +194,8 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            IConfigStore cs = CMS.getConfigStore();
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            IConfigStore cs = engine.getConfigStore();
             IUser user;
 
             try {
@@ -273,7 +274,7 @@ public class UserService extends SubsystemService implements UserResource {
         if (userData == null) throw new BadRequestException("User data is null.");
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
         String userID = userData.getUserID();
         logger.debug("User ID: " + userID);
 
@@ -414,7 +415,7 @@ public class UserService extends SubsystemService implements UserResource {
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -505,7 +506,7 @@ public class UserService extends SubsystemService implements UserResource {
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));

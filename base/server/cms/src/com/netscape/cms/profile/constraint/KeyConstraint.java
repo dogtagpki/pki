@@ -41,6 +41,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserKeyDefault;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -71,9 +72,10 @@ public class KeyConstraint extends EnrollConstraint {
             throws EProfileException {
         super.init(profile, config);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String ecNames = "";
         try {
-            ecNames = CMS.getConfigStore().getString("keys.ecc.curve.list");
+            ecNames = engine.getConfigStore().getString("keys.ecc.curve.list");
         } catch (Exception e) {
         }
 

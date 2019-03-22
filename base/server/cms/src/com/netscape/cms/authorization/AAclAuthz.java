@@ -39,6 +39,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * An abstract class represents an authorization manager that governs the
@@ -116,7 +117,8 @@ public abstract class AAclAuthz implements IAuthzManager {
         logger.debug("AAclAuthz: init begins");
 
         // load access evaluators specified in the config file
-        IConfigStore mainConfig = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore mainConfig = engine.getConfigStore();
         IConfigStore evalConfig = mainConfig.getSubStore(PROP_EVAL);
         IConfigStore i = evalConfig.getSubStore(PROP_IMPL);
 
@@ -879,7 +881,8 @@ public abstract class AAclAuthz implements IAuthzManager {
 
     public static EvaluationOrder getOrder() {
         try {
-            String order = CMS.getConfigStore().getString("authz.evaluateOrder", "");
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            String order = engine.getConfigStore().getString("authz.evaluateOrder", "");
             if (order.startsWith("allow"))
                 return EvaluationOrder.AllowDeny;
             else

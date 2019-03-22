@@ -69,6 +69,7 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 
 public class CAProcessor extends Processor {
@@ -141,7 +142,8 @@ public class CAProcessor extends Processor {
     public CAProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         super(id, locale);
 
-        IConfigStore cs = CMS.getConfigStore().getSubStore("processor." + id);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore().getSubStore("processor." + id);
         this.profileID = cs.getString(PROFILE_ID, "").isEmpty() ? null : cs.getString(PROFILE_ID);
         this.authzResourceName = cs.getString(AUTHZ_RESOURCE_NAME, "").isEmpty() ? null :
             cs.getString(AUTHZ_RESOURCE_NAME);

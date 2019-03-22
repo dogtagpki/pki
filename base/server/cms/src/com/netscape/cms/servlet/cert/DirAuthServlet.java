@@ -44,6 +44,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -106,6 +107,7 @@ public class DirAuthServlet extends CMSServlet {
             return;
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
@@ -140,7 +142,7 @@ public class DirAuthServlet extends CMSServlet {
             return;
         }
 
-        IConfigStore configStore = CMS.getConfigStore();
+        IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
         IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
         IAuthManager authMgr = authSS.get(val);

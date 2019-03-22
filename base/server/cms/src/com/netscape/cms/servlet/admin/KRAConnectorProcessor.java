@@ -34,6 +34,7 @@ import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -65,7 +66,9 @@ public class KRAConnectorProcessor extends CAProcessor {
             logger.error("removeConnector: malformed request.  newHost or newPort is null");
             throw new BadRequestException("Bad Request: KRA Host or Port not defined");
         }
-        IConfigStore cs = CMS.getConfigStore();
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         String host = cs.getString(PREFIX + ".host");
         String port = cs.getString(PREFIX + ".port");
 
@@ -138,9 +141,10 @@ public class KRAConnectorProcessor extends CAProcessor {
         // stop the old connector
         stopConnector();
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
         ICAService caService = (ICAService)ca.getCAService();
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
 
         IConnector kraConnector = caService.getConnector(cs.getSubStore(PREFIX));
         caService.setKRAConnector(kraConnector);
@@ -157,7 +161,8 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void addConnector(KRAConnectorInfo info) throws EPropertyNotFound, EBaseException {
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         String newHost = info.getHost();
         String newPort = info.getPort();
         String newTransportCert = info.getTransportCert();
@@ -212,7 +217,8 @@ public class KRAConnectorProcessor extends CAProcessor {
             throw new ConnectorNotFoundException("No KRAConnector has been configured.");
         }
 
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         KRAConnectorInfo info = new KRAConnectorInfo();
         info.setHost(cs.getString(PREFIX + ".host"));
@@ -227,7 +233,8 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void addHost(String newHost, String newPort) throws EPropertyNotFound, EBaseException {
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         if ((newHost == null) || (newPort == null)) {
             logger.error("addHost: malformed request.  newHost, newPort or transport cert is null");

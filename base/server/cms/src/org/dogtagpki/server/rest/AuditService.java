@@ -55,6 +55,7 @@ import com.netscape.certsrv.logging.AuditResource;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigSignedAuditEvent;
 import com.netscape.cms.servlet.base.SubsystemService;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.LogSubsystem;
 
 /**
@@ -75,7 +76,8 @@ public class AuditService extends SubsystemService implements AuditResource {
     public AuditConfig createAuditConfig(Map<String, String> auditParams)
             throws UnsupportedEncodingException, EBaseException {
 
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         AuditConfig auditConfig = new AuditConfig();
         String val = null;
@@ -165,11 +167,12 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         logger.debug("AuditService.updateAuditConfig()");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             AuditConfig currentAuditConfig = createAuditConfig();
             Map<String, String> currentEventConfigs = currentAuditConfig.getEventConfigs();
 
-            IConfigStore cs = CMS.getConfigStore();
+            IConfigStore cs = engine.getConfigStore();
 
             if (auditConfig.getSigned() != null) {
                 cs.putBoolean("log.instance.SignedAudit.logSigning", auditConfig.getSigned());
@@ -272,9 +275,10 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         logger.debug("AuditService.changeAuditStatus()");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             auditModParams.put("Action", action);
-            IConfigStore cs = CMS.getConfigStore();
+            IConfigStore cs = engine.getConfigStore();
 
             if ("enable".equals(action)) {
                 cs.putBoolean("log.instance.SignedAudit.enable", true);
@@ -312,7 +316,8 @@ public class AuditService extends SubsystemService implements AuditResource {
     }
 
     public File getCurrentLogFile() {
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         String filename = cs.get("log.instance.SignedAudit.fileName");
         return new File(filename);
     }

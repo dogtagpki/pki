@@ -274,6 +274,7 @@ public abstract class CMSServlet extends HttpServlet {
 
         this.servletConfig = sc;
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
         mId = sc.getInitParameter(PROP_ID);
 
@@ -284,7 +285,7 @@ public abstract class CMSServlet extends HttpServlet {
             throw e;
         }
 
-        mConfig = CMS.getConfigStore().getSubStore(CMSGateway.PROP_CMSGATEWAY);
+        mConfig = engine.getConfigStore().getSubStore(CMSGateway.PROP_CMSGATEWAY);
         mServletConfig = sc;
         mServletContext = sc.getServletContext();
         mFileLoader = new CMSFileLoader();
@@ -427,7 +428,7 @@ public abstract class CMSServlet extends HttpServlet {
                     "CS server is not ready to serve.");
 
         try {
-            if (CMS.getConfigStore().getBoolean("useThreadNaming", false)) {
+            if (engine.getConfigStore().getBoolean("useThreadNaming", false)) {
                 String currentName = Thread.currentThread().getName();
 
                 Thread.currentThread().setName(currentName + "-" + httpReq.getServletPath());

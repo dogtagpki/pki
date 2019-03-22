@@ -357,12 +357,12 @@ public class CMCOutputTemplate {
                 controlSeq.addElement(tagattr);
             }
 
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
             if (success_bpids.size() > 0) {
                 boolean confirmRequired = false;
                 try {
-                    confirmRequired =
-                            CMS.getConfigStore().getBoolean("cmc.cert.confirmRequired",
-                                    false);
+                    confirmRequired = engine.getConfigStore().getBoolean("cmc.cert.confirmRequired", false);
                 } catch (Exception e) {
                 }
                 if (confirmRequired) {
@@ -960,6 +960,8 @@ public class CMCOutputTemplate {
         String method = "CMCOutputTemplate: processRevokeRequestControl: ";
         String msg = "";
         logger.debug(method + "begins");
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         boolean revoke = false;
         SessionContext context = SessionContext.getContext();
         String authManagerId = (String) context.get(SessionContext.AUTH_MANAGER_ID);
@@ -1016,7 +1018,7 @@ public class CMCOutputTemplate {
                     logger.debug(method + "no shared secret in request; Checking signature;");
                     boolean needVerify = true;
                     try {
-                        needVerify = CMS.getConfigStore().getBoolean("cmc.revokeCert.verify", true);
+                        needVerify = engine.getConfigStore().getBoolean("cmc.revokeCert.verify", true);
                     } catch (Exception e) {
                     }
 
@@ -1439,7 +1441,7 @@ public class CMCOutputTemplate {
 
         String auditMessage = CMS.getLogMessage(
             AuditEvent.CMC_RESPONSE_SENT,
-            (String) context.get(SessionContext.USER_ID),
+            context.get(SessionContext.USER_ID),
             ILogger.SUCCESS,
             Utils.normalizeString(response));
         audit(auditMessage);

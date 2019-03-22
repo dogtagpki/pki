@@ -34,6 +34,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class GetTokenInfo extends CMSServlet {
@@ -78,7 +79,8 @@ public class GetTokenInfo extends CMSServlet {
 
         Node root = xmlObj.createRoot("XMLResponse");
 
-        IConfigStore config = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore config = engine.getConfigStore();
 
         String certlist = "";
         try {

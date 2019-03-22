@@ -136,6 +136,8 @@ public class AgentCertAuthentication implements IAuthManager,
         logger.debug("AgentCertAuthentication: start");
         logger.debug("authenticator instance name is " + getName());
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         // force SSL handshake
         SessionContext context = SessionContext.getExistingContext();
         ISSLClientCertProvider provider = (ISSLClientCertProvider)
@@ -179,7 +181,6 @@ public class AgentCertAuthentication implements IAuthManager,
             // do nothing; default to true
         }
         if (checkRevocation) {
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
             if (engine.isRevoked(ci)) {
                 logger.error("AgentCertAuthentication: certificate revoked");
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
@@ -206,7 +207,7 @@ public class AgentCertAuthentication implements IAuthManager,
         }
 
         // get group name from configuration file
-        IConfigStore sconfig = CMS.getConfigStore();
+        IConfigStore sconfig = engine.getConfigStore();
         String groupname = "";
         try {
             groupname = sconfig.getString("auths.instance." + getName() + ".agentGroup",

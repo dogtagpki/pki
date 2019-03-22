@@ -79,6 +79,7 @@ public class GetConfigEntries extends CMSServlet {
     protected void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IAuthToken authToken = null;
 
         try {
@@ -135,7 +136,7 @@ public class GetConfigEntries extends CMSServlet {
         }
 
         if (op != null) {
-            IConfigStore config = CMS.getConfigStore();
+            IConfigStore config = engine.getConfigStore();
             String substores = args.getValueAsString("substores", "");
             StringTokenizer t = new StringTokenizer(substores, ",");
             while (t.hasMoreTokens()) {

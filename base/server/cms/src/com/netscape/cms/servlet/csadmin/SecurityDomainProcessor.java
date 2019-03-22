@@ -155,6 +155,7 @@ public class SecurityDomainProcessor extends CAProcessor {
 
     public DomainInfo getDomainInfo() throws EBaseException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         ILdapConnFactory connFactory = null;
         LDAPConnection conn = null;
 
@@ -162,7 +163,7 @@ public class SecurityDomainProcessor extends CAProcessor {
             LDAPSearchConstraints cons = null;
             String[] attrs = null;
 
-            IConfigStore cs = CMS.getConfigStore();
+            IConfigStore cs = engine.getConfigStore();
             String basedn = cs.getString("internaldb.basedn");
             String dn = "ou=Security Domain," + basedn;
             String filter = "objectclass=pkiSecurityGroup";

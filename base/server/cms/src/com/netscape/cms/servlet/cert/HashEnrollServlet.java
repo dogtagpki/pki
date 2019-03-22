@@ -84,6 +84,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertUtils;
 
@@ -187,7 +188,8 @@ public class HashEnrollServlet extends CMSServlet {
             return;
         }
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
         IAuthSubsystem authSS = (IAuthSubsystem)
                 CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
@@ -331,6 +333,8 @@ public class HashEnrollServlet extends CMSServlet {
         cmsReq.setIRequest(req);
         saveHttpHeaders(httpReq, req);
         saveHttpParams(httpParams, req);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IAuthToken token = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
@@ -383,7 +387,7 @@ public class HashEnrollServlet extends CMSServlet {
         X509CertInfo[] certInfoArray = new X509CertInfo[] { certInfo };
 
         //AuthToken authToken = access.getAuthToken();
-        IConfigStore configStore = CMS.getConfigStore();
+        IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
         IAuthSubsystem authSS = (IAuthSubsystem)
                 CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);

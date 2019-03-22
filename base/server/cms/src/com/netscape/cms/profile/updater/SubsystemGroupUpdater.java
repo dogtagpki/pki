@@ -44,6 +44,7 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This updater class will create the new user to the subsystem group and
@@ -108,6 +109,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     public void update(IRequest req, RequestStatus status)
             throws EProfileException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditSubjectID = auditSubjectID();
 
         logger.debug("SubsystemGroupUpdater update starts");
@@ -119,7 +121,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         if (cert == null)
             return;
 
-        IConfigStore mainConfig = CMS.getConfigStore();
+        IConfigStore mainConfig = engine.getConfigStore();
 
         int num = 0;
         try {

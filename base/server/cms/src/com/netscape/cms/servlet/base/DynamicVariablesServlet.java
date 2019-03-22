@@ -93,11 +93,11 @@ public class DynamicVariablesServlet extends CMSServlet {
     private ServletContext mServletCtx = null;
     private static String mCrlurl = "";
     static {
-        IConfigStore config = CMS.getConfigStore().getSubStore(PROP_CLONING);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore config = engine.getConfigStore().getSubStore(PROP_CLONING);
 
         try {
-            mCrlurl =
-                    config.getString(PROP_CRLURL, "");
+            mCrlurl = config.getString(PROP_CRLURL, "");
         } catch (EBaseException e) {
         }
     }

@@ -93,7 +93,7 @@ public class GetCookie extends CMSServlet {
         logger.debug("GetCookie start");
         IAuthToken authToken = null;
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
 
         ArgBlock header = new ArgBlock();
         ArgBlock ctx = new ArgBlock();

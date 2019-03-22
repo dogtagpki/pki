@@ -45,6 +45,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -196,13 +197,15 @@ public class DisplayBySerialForRecovery extends CMSServlet {
             IArgBlock header, String publicKeyData, BigInteger seq,
             HttpServletRequest req, HttpServletResponse resp,
             Locale locale, IAuthToken authToken) throws EAuthzException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             header.addIntegerValue("noOfRequiredAgents",
                     mService.getNoOfRequiredAgents());
             header.addStringValue(OUT_OP,
                     req.getParameter(OUT_OP));
             header.addStringValue("keySplitting",
-                    CMS.getConfigStore().getString("kra.keySplitting"));
+                    engine.getConfigStore().getString("kra.keySplitting"));
             header.addStringValue(OUT_SERVICE_URL,
                     req.getRequestURI());
             if (publicKeyData != null) {

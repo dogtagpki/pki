@@ -45,6 +45,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -201,13 +202,15 @@ public class ExamineRecovery extends CMSServlet {
             HttpServletRequest req, HttpServletResponse resp,
             Locale locale)
             throws EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             header.addStringValue(OUT_OP,
                     req.getParameter(OUT_OP));
             header.addStringValue(OUT_SERVICE_URL,
                     req.getRequestURI());
             header.addStringValue("keySplitting",
-                    CMS.getConfigStore().getString("kra.keySplitting"));
+                    engine.getConfigStore().getString("kra.keySplitting"));
             Hashtable<String, Object> params = mService.getRecoveryParams(
                     recoveryID);
 

@@ -47,6 +47,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -84,7 +85,8 @@ public class UpdateDomainXML extends CMSServlet {
         String status = SUCCESS;
         ILdapConnFactory connFactory = null;
         LDAPConnection conn = null;
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
@@ -118,7 +120,8 @@ public class UpdateDomainXML extends CMSServlet {
         String status = SUCCESS;
         ILdapConnFactory connFactory = null;
         LDAPConnection conn = null;
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
@@ -153,7 +156,8 @@ public class UpdateDomainXML extends CMSServlet {
         String status = SUCCESS;
         ILdapConnFactory connFactory = null;
         LDAPConnection conn = null;
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
@@ -208,6 +212,8 @@ public class UpdateDomainXML extends CMSServlet {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         logger.debug("UpdateDomainXML process: authentication starts");
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IAuthToken authToken = null;
         try {
             authToken = authenticate(cmsReq);
@@ -303,7 +309,7 @@ public class UpdateDomainXML extends CMSServlet {
         String basedn = null;
         String secstore = null;
 
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
 
         try {
             basedn = cs.getString("internaldb.basedn");
@@ -411,7 +417,7 @@ public class UpdateDomainXML extends CMSServlet {
             }
         } else {
             // update the domain.xml file
-            String path = CMS.getConfigStore().getString("instanceRoot", "")
+            String path = engine.getConfigStore().getString("instanceRoot", "")
                     + "/conf/domain.xml";
 
             logger.debug("UpdateDomainXML: got path=" + path);

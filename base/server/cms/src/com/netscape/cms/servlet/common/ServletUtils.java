@@ -26,6 +26,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Utility class
@@ -47,11 +48,11 @@ public class ServletUtils {
 
     public static String initializeAuthz(ServletConfig sc,
             IAuthzSubsystem authz, String id) throws ServletException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String srcType = AUTHZ_SRC_LDAP;
 
         try {
-            IConfigStore authzConfig =
-                    CMS.getConfigStore().getSubStore(AUTHZ_CONFIG_STORE);
+            IConfigStore authzConfig = engine.getConfigStore().getSubStore(AUTHZ_CONFIG_STORE);
 
             srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
         } catch (EBaseException e) {
@@ -107,11 +108,12 @@ public class ServletUtils {
     }
 
     public static String getACLMethod(String aclInfo, String authzMgr, String id) throws EBaseException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String srcType = AUTHZ_SRC_LDAP;
         IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
 
         try {
-            IConfigStore authzConfig = CMS.getConfigStore().getSubStore(AUTHZ_CONFIG_STORE);
+            IConfigStore authzConfig = engine.getConfigStore().getSubStore(AUTHZ_CONFIG_STORE);
             srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
         } catch (EBaseException e) {
             logger.warn(CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));

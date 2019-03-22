@@ -90,7 +90,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public String instanceRoot;
 
     public SystemConfigService() throws EBaseException {
-        cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        cs = engine.getConfigStore();
         csType = cs.getString("cs.type");
         csSubsystem = csType.toLowerCase();
         csState = cs.getString("cs.state");

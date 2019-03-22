@@ -808,7 +808,7 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
         try {
             String installdate = cs.getString(Constants.PR_STAT_INSTALLDATE, "");
             params.put(Constants.PR_STAT_INSTALLDATE, installdate);
@@ -882,10 +882,12 @@ public final class CMSAdminServlet extends AdminServlet {
             }
 
         }
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         if (selectedToken != null && newKeyName != null) {
             SessionKey.GenMasterKey(selectedToken, newKeyName); // check for errors
-            CMS.getConfigStore().putString("tks.defaultSlot", selectedToken);
-            String masterKeyPrefix = CMS.getConfigStore().getString("tks.master_key_prefix", null);
+            engine.getConfigStore().putString("tks.defaultSlot", selectedToken);
+            String masterKeyPrefix = engine.getConfigStore().getString("tks.master_key_prefix", null);
 
             SessionKey.SetDefaultPrefix(masterKeyPrefix);
             params.put(Constants.PR_KEY_LIST, newKeyName);

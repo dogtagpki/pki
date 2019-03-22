@@ -2378,6 +2378,8 @@ public class ProfileAdminServlet extends AdminServlet {
     public void addProfileInstance(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -2428,7 +2430,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String subpath = "/profiles/";
 
             try {
-                String version = CMS.getConfigStore().getString("cms.version");
+                String version = engine.getConfigStore().getString("cms.version");
                 if (version.indexOf('.') > -1) {
                     version = version.substring(0, version.indexOf('.'));
                 }
@@ -2436,7 +2438,7 @@ public class ProfileAdminServlet extends AdminServlet {
                 if (v >= 10) {
                     subpath = "/ca/profiles/";
                 }
-                config = CMS.getConfigStore().getString("instanceRoot") + subpath + subname + "/" + id + ".cfg";
+                config = engine.getConfigStore().getString("instanceRoot") + subpath + subname + "/" + id + ".cfg";
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(

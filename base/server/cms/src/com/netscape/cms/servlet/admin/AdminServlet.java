@@ -144,8 +144,10 @@ public class AdminServlet extends HttpServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mUG = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
-        mConfig = CMS.getConfigStore();
+        mConfig = engine.getConfigStore();
 
         String srcType = AUTHZ_SRC_LDAP;
 
@@ -267,6 +269,7 @@ public class AdminServlet extends HttpServlet {
     protected void authenticate(HttpServletRequest req) throws
             IOException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditUID = ILogger.UNIDENTIFIED;
         String authType = "";
 
@@ -274,7 +277,7 @@ public class AdminServlet extends HttpServlet {
         // to the signed audit log and stored as failures
         try {
             try {
-                IConfigStore configStore = CMS.getConfigStore();
+                IConfigStore configStore = engine.getConfigStore();
 
                 authType = configStore.getString("authType");
             } catch (EBaseException e) {

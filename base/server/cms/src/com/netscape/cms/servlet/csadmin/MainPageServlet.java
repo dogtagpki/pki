@@ -105,7 +105,7 @@ public class MainPageServlet extends CMSServlet {
         int num = 0;
         ArgBlock rarg = null;
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
         int state = 0;
         String host = "";
         String adminInterface = "";

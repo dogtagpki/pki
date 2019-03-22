@@ -38,6 +38,7 @@ import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.symkey.SessionKey;
 
 //////////////////////
@@ -97,6 +98,7 @@ public class TKSKnownSessionKey
 
         super.initSelfTest(subsystem, instanceName, parameters);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mTksSubId = getConfigString(PROP_TKS_SUB_ID);
         mToken = getConfigString("token");
         mKeyName = getConfigString("keyName");
@@ -193,7 +195,7 @@ public class TKSKnownSessionKey
                 String sessionKey = SpecialEncode(mSessionKey);
                 mConfig.putString("sessionKey", sessionKey);
                 try {
-                    CMS.getConfigStore().commit(true);
+                    engine.getConfigStore().commit(true);
                 } catch (EBaseException be) {
                     mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(),
                                             CMS.getLogMessage("SELFTESTS_MISSING_VALUES",
@@ -327,8 +329,9 @@ public class TKSKnownSessionKey
      */
     public void runSelfTest(ILogEventListener listener) throws Exception {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            IConfigStore cs = CMS.getConfigStore();
+            IConfigStore cs = engine.getConfigStore();
             boolean useNewNames = cs.getBoolean("tks.useNewSharedSecretNames", false);
             if (useNewNames) {
                 String tpsList = cs.getString("tps.list", "");

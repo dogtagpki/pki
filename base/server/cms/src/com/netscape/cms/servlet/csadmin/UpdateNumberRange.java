@@ -44,6 +44,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class UpdateNumberRange extends CMSServlet {
@@ -85,6 +86,7 @@ public class UpdateNumberRange extends CMSServlet {
 
         logger.debug("UpdateNumberRange process: authentication starts");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
 
         if (authToken == null) {
@@ -120,7 +122,7 @@ public class UpdateNumberRange extends CMSServlet {
             String type = httpReq.getParameter("type");
             logger.debug("UpdateNumberRange: type: " + type);
 
-            IConfigStore cs = CMS.getConfigStore();
+            IConfigStore cs = engine.getConfigStore();
             String cstype = cs.getString("cs.type", "");
 
             auditParams += "+type;;" + type;

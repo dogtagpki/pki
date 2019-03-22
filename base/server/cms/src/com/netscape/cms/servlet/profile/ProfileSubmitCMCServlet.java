@@ -321,7 +321,9 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         if (mProfileSubId == null || mProfileSubId.equals("")) {
             mProfileSubId = IProfileSubsystem.ID;
         }
+
         logger.debug("ProfileSubmitCMCServlet: SubId=" + mProfileSubId);
+
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IProfileSubsystem ps = (IProfileSubsystem)
                 CMS.getSubsystem(mProfileSubId);
@@ -629,8 +631,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         if (attr != null) {
             boolean verifyAllow = false; //disable RA by default
             try {
-                verifyAllow = CMS.getConfigStore().getBoolean(
-                        "cmc.lraPopWitness.verify.allow", false);
+                verifyAllow = engine.getConfigStore().getBoolean("cmc.lraPopWitness.verify.allow", false);
             } catch (EBaseException ee) {
             }
             logger.debug("ProfileSubmitCMCServlet: cmc.lraPopWitness.verify.allow is " + verifyAllow);

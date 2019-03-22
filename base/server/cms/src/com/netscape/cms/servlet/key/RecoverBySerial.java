@@ -54,6 +54,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -380,6 +381,7 @@ public class RecoverBySerial extends CMSServlet {
             header.addStringValue(OUT_ERROR, "invalid X.509 certificate");
             return null;
         }
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             Credential creds[] = null;
 
@@ -389,7 +391,7 @@ public class RecoverBySerial extends CMSServlet {
             if (sContext != null) {
                 agent = (String) sContext.get(SessionContext.USER_ID);
             }
-            if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
+            if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
                 if (localAgents == null) {
                     String recoveryID = req.getParameter("recoveryID");
 

@@ -40,6 +40,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -67,8 +68,9 @@ public class CMSGateway {
     protected static Logger mLogger = Logger.getLogger();
 
     static {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mEnableFileServing = true;
-        mConfig = CMS.getConfigStore().getSubStore(PROP_CMSGATEWAY);
+        mConfig = engine.getConfigStore().getSubStore(PROP_CMSGATEWAY);
         try {
             mEnableAdminEnroll =
                     mConfig.getBoolean(PROP_ENABLE_ADMIN_ENROLL, false);
@@ -103,7 +105,8 @@ public class CMSGateway {
 
     public static void setEnableAdminEnroll(boolean enableAdminEnroll)
             throws EBaseException {
-        IConfigStore mainConfig = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore mainConfig = engine.getConfigStore();
 
         //!!! Is it thread safe? xxxx
         mEnableAdminEnroll = enableAdminEnroll;

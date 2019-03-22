@@ -57,6 +57,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertUtils;
 
@@ -137,6 +138,7 @@ public class UpdateDir extends CMSServlet {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
@@ -188,8 +190,8 @@ public class UpdateDir extends CMSServlet {
                 updateValue[i] = req.getParameter(updateName[i]);
             }
 
-            String masterHost = CMS.getConfigStore().getString("master.ca.agent.host", "");
-            String masterPort = CMS.getConfigStore().getString("master.ca.agent.port", "");
+            String masterHost = engine.getConfigStore().getString("master.ca.agent.host", "");
+            String masterPort = engine.getConfigStore().getString("master.ca.agent.port", "");
             if (masterHost != null && masterHost.length() > 0 &&
                     masterPort != null && masterPort.length() > 0) {
                 mClonedCA = true;

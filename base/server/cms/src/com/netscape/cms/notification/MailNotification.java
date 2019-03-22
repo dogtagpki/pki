@@ -27,6 +27,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.net.smtp.SmtpClient;
 
@@ -56,11 +57,9 @@ public class MailNotification implements IMailNotification {
     public MailNotification() {
         if (mHost == null) {
             try {
-                IConfigStore mConfig =
-                        CMS.getConfigStore();
-
-                IConfigStore c =
-                        mConfig.getSubStore(PROP_SMTP_SUBSTORE);
+                CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                IConfigStore config = engine.getConfigStore();
+                IConfigStore c = config.getSubStore(PROP_SMTP_SUBSTORE);
 
                 if (c == null) {
                     return;

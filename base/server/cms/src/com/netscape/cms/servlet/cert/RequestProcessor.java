@@ -61,6 +61,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.profile.ProfileOutputFactory;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class RequestProcessor extends CertProcessor {
 
@@ -210,9 +211,10 @@ public class RequestProcessor extends CertProcessor {
     }
 
     private boolean grantPermission(IRequest req, IAuthToken token) {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         boolean enable = false;
         try {
-            enable = CMS.getConfigStore().getBoolean("request.assignee.enable", false);
+            enable = engine.getConfigStore().getBoolean("request.assignee.enable", false);
         } catch (EBaseException e) {
         }
 

@@ -55,6 +55,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -117,6 +118,8 @@ public class AddCRLServlet extends CMSServlet {
      */
     protected synchronized void process(CMSRequest cmsReq)
             throws EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         boolean CRLFetched = false;
         boolean CRLValidated = false;
         String auditMessage = null;
@@ -348,7 +351,7 @@ public class AddCRLServlet extends CMSServlet {
                     logger.debug("AddCRLServlet: start verify");
 
                     String tokenName =
-                        CMS.getConfigStore().getString("ocsp.crlVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                        engine.getConfigStore().getString("ocsp.crlVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                     savedToken = cmanager.getThreadToken();
                     verToken = CryptoUtil.getCryptoToken(tokenName);
                     if (!savedToken.getName().equals(verToken.getName())) {

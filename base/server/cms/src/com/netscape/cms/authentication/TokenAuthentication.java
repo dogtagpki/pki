@@ -41,6 +41,7 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -123,6 +124,8 @@ public class TokenAuthentication implements IAuthManager,
 
         logger.debug("TokenAuthentication: start");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         // force SSL handshake
         SessionContext context = SessionContext.getExistingContext();
 
@@ -130,7 +133,7 @@ public class TokenAuthentication implements IAuthManager,
         AuthToken authToken = new AuthToken(this);
 
         // get group name from configuration file
-        IConfigStore sconfig = CMS.getConfigStore();
+        IConfigStore sconfig = engine.getConfigStore();
 
         String sessionId = (String) authCred.get(CRED_SESSION_ID);
         String givenHost = (String) authCred.get("clientHost");

@@ -49,6 +49,7 @@ import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
@@ -191,6 +192,7 @@ public class GroupMemberProcessor extends Processor {
 
     public GroupMemberData addGroupMember(GroupMemberData groupMemberData) {
         String groupID = groupMemberData.getGroupID();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -207,7 +209,7 @@ public class GroupMemberProcessor extends Processor {
             boolean multiRole = true;
 
             try {
-                IConfigStore config = CMS.getConfigStore();
+                IConfigStore config = engine.getConfigStore();
                 multiRole = config.getBoolean(MULTI_ROLE_ENABLE);
             } catch (Exception e) {
                 // ignore
@@ -265,10 +267,11 @@ public class GroupMemberProcessor extends Processor {
             return true;
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String groupList = null;
         if (multiRoleGroupEnforceList == null) {
             try {
-                IConfigStore config = CMS.getConfigStore();
+                IConfigStore config = engine.getConfigStore();
                 groupList = config.getString(MULTI_ROLE_ENFORCE_GROUP_LIST);
             } catch (Exception e) {
                 // ignore

@@ -179,10 +179,11 @@ public class AuthAdminServlet extends AdminServlet {
             }
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             if (op.equals(OpDef.OP_AUTH)) {
                 if (scope.equals(ScopeDef.SC_AUTHTYPE)) {
-                    IConfigStore configStore = CMS.getConfigStore();
+                    IConfigStore configStore = engine.getConfigStore();
                     String val = configStore.getString("authType", "pwd");
                     NameValuePairs params = new NameValuePairs();
 

@@ -66,7 +66,7 @@ public class TokenAuthenticate extends CMSServlet {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IConfigStore config = CMS.getConfigStore();
+        IConfigStore config = engine.getConfigStore();
 
         String sessionId = httpReq.getParameter("sessionID");
         logger.debug("TokenAuthentication: sessionId=" + sessionId);

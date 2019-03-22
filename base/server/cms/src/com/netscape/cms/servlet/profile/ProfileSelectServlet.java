@@ -47,6 +47,7 @@ import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Retrieve detailed information of a particular profile.
@@ -85,6 +86,7 @@ public class ProfileSelectServlet extends ProfileServlet {
 
         Locale locale = getLocale(request);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IAuthToken authToken = null;
         ArgSet args = new ArgSet();
 
@@ -228,13 +230,13 @@ public class ProfileSelectServlet extends ProfileServlet {
         args.set(ARG_ERROR_REASON, "");
 
         try {
-            boolean keyArchivalEnabled = CMS.getConfigStore().getBoolean("ca.connector.KRA.enable", false);
+            boolean keyArchivalEnabled = engine.getConfigStore().getBoolean("ca.connector.KRA.enable", false);
             if (keyArchivalEnabled == true) {
                 logger.debug("ProfileSelectServlet: keyArchivalEnabled is true");
 
                 // output transport certificate if present
                 args.set("transportCert",
-                        CMS.getConfigStore().getString("ca.connector.KRA.transportCert", ""));
+                        engine.getConfigStore().getString("ca.connector.KRA.transportCert", ""));
             } else {
                 logger.debug("ProfileSelectServlet: keyArchivalEnabled is false");
                 args.set("transportCert", "");

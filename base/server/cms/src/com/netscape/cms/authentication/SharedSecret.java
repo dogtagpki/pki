@@ -27,6 +27,9 @@ import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.pkix.cmc.PKIData;
 
 import com.netscape.certsrv.apps.CMS;
@@ -44,17 +47,15 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
-import org.mozilla.jss.netscape.security.util.DerInputStream;
-import org.mozilla.jss.netscape.security.util.DerValue;
 
 /**
  * SharedSecret provides methods to retrieve shared secrets between users and
@@ -162,6 +163,8 @@ public class SharedSecret extends DirBasedAuthentication
         String msg = "";
         logger.debug(method + " begins.");
         super.init(name, implName, config);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         //TODO later:
         //mRemoveShrTok =
         //        config.getBoolean(PROP_REMOVE_SharedToken, DEF_REMOVE_SharedToken);
@@ -197,7 +200,7 @@ public class SharedSecret extends DirBasedAuthentication
 
         try {
             String tokenName =
-                    CMS.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                    engine.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
             logger.debug(method + "getting token :" + tokenName);
             token = CryptoUtil.getKeyStorageToken(tokenName);
         } catch (Exception e) {

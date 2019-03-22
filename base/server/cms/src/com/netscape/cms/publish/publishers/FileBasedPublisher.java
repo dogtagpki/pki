@@ -51,6 +51,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.ldap.LDAPConnection;
 
@@ -209,6 +210,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
      * Initializes this plugin.
      */
     public void init(IConfigStore config) {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mConfig = config;
         String dir = null;
 
@@ -242,7 +244,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             String mInstanceRoot = null;
 
             try {
-                mInstanceRoot = CMS.getConfigStore().getString("instanceRoot");
+                mInstanceRoot = engine.getConfigStore().getString("instanceRoot");
             } catch (Exception e) {
                 throw new RuntimeException("Invalid Instance Dir " + e);
             }

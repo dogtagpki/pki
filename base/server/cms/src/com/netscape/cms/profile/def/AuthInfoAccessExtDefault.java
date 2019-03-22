@@ -412,6 +412,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
     }
 
     public AuthInfoAccessExtension createExtension() {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         AuthInfoAccessExtension ext = null;
         int num = getNumAds();
 
@@ -431,13 +432,12 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
 
                     if (location == null || location.equals("")) {
                         if (method.equals("1.3.6.1.5.5.7.48.1")) {
-                            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
                             String hostname = engine.getEENonSSLHost();
                             String port = engine.getEENonSSLPort();
                             String uri = "";
                             if (hostname != null && port != null)
                                 uri = "http://" + hostname + ":" + port + "/ca/ocsp";
-                            location = CMS.getConfigStore().getString("ca.defaultOcspUri", uri);
+                            location = engine.getConfigStore().getString("ca.defaultOcspUri", uri);
                         }
                     }
 

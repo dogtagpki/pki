@@ -41,6 +41,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 
 /**
@@ -78,7 +79,8 @@ public class GenerateKeyPairServlet extends CMSServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         mConfig = config;
-        IConfigStore sconfig = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore sconfig = engine.getConfigStore();
         String authority = config.getInitParameter(PROP_AUTHORITY);
 
         if (authority != null)
