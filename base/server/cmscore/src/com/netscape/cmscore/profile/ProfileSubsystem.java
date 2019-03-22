@@ -30,6 +30,7 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class ProfileSubsystem
         extends AbstractProfileSubsystem
@@ -107,6 +108,7 @@ public class ProfileSubsystem
             boolean isNew) throws EProfileException {
         IProfile profile = null;
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String configPath;
         try {
             configPath = CMS.getConfigStore().getString("instanceRoot")
@@ -116,7 +118,7 @@ public class ProfileSubsystem
         }
 
         try {
-            IConfigStore subStoreConfig = CMS.createFileConfigStore(configPath);
+            IConfigStore subStoreConfig = engine.createFileConfigStore(configPath);
             profile = (IProfile) Class.forName(className).newInstance();
 
             logger.debug("ProfileSubsystem: initing " + className);

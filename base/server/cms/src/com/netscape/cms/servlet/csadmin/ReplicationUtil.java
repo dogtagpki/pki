@@ -27,6 +27,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -47,6 +48,7 @@ public class ReplicationUtil {
 
         logger.info("ReplicationUtil: setting up replication");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
         IConfigStore masterCfg = cs.getSubStore("preop.internaldb.master");
         IConfigStore replicaCfg = cs.getSubStore("internaldb");
@@ -151,7 +153,7 @@ public class ReplicationUtil {
 
             // remove master ldap password from password.conf (if present)
             String passwordFile = cs.getString("passwordFile");
-            IConfigStore psStore = CMS.createFileConfigStore(passwordFile);
+            IConfigStore psStore = engine.createFileConfigStore(passwordFile);
             psStore.remove("master_internaldb");
             psStore.commit(false);
 

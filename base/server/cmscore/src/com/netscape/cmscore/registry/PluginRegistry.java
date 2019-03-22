@@ -29,6 +29,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.registry.ERegistryException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class PluginRegistry implements IPluginRegistry {
 
@@ -79,7 +80,8 @@ public class PluginRegistry implements IPluginRegistry {
         mConfig = config;
         mOwner = owner;
 
-        mFileConfig = CMS.createFileConfigStore(
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mFileConfig = engine.createFileConfigStore(
                     mConfig.getString(PROP_FILE));
 
         String types_str = null;

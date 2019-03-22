@@ -21,12 +21,13 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.ICertInfoPolicyDefault;
 import com.netscape.certsrv.request.IRequest;
-
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class CertInfoProfile {
 
@@ -40,7 +41,8 @@ public class CertInfoProfile {
     private String mProfileSetIDMapping = null;
 
     public CertInfoProfile(String cfg) throws Exception {
-        IConfigStore config = CMS.createFileConfigStore(cfg);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore config = engine.createFileConfigStore(cfg);
         mID = config.getString("id");
         mName = config.getString("name");
         mDescription = config.getString("description");

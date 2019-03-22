@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
@@ -247,10 +246,6 @@ public final class CMS {
      */
     public static IConfigStore getConfigStore() {
         return _engine.getConfigStore();
-    }
-
-    public static IConfigStore createFileConfigStore(String path) throws EBaseException {
-        return _engine.createFileConfigStore(path);
     }
 
     /**

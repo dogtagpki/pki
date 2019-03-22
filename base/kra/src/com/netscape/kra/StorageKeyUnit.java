@@ -52,6 +52,11 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenCertificate;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.apps.CMS;
@@ -66,14 +71,9 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.key.KeyRecordParser;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.util.DerInputStream;
-import org.mozilla.jss.netscape.security.util.DerOutputStream;
-import org.mozilla.jss.netscape.security.util.DerValue;
-import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 /**
  * A class represents a storage key unit. Currently, this
@@ -232,6 +232,8 @@ public class StorageKeyUnit extends EncryptionUnit implements
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mKRA = (IKeyRecoveryAuthority) owner;
         mConfig = config;
 
@@ -391,7 +393,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             mTokenFile = mConfig.getString(PROP_MN);
             try {
                 // read m, n and no of identifier
-                mStorageConfig = CMS.createFileConfigStore(mTokenFile);
+                mStorageConfig = engine.createFileConfigStore(mTokenFile);
             } catch (EBaseException e) {
                 mKRA.log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_MN",

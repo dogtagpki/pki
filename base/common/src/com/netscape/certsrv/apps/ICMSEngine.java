@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 
 /**
@@ -121,13 +120,4 @@ public interface ICMSEngine extends ISubsystem {
      * @return true or false
      */
     public boolean areRequestsDisabled();
-
-    /**
-     * Create configuration file.
-     *
-     * @param path configuration path
-     * @return configuration store
-     * @exception EBaseException failed to create file
-     */
-    public IConfigStore createFileConfigStore(String path) throws EBaseException;
 }

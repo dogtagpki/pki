@@ -3400,6 +3400,7 @@ public class ConfigurationUtils {
             EBaseException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NotInitializedException, TokenException, ObjectNotFoundException,
             IOException {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = CMS.getConfigStore();
         String host = cs.getString("service.machineName");
         String port = cs.getString("service.securePort");
@@ -3407,7 +3408,7 @@ public class ConfigurationUtils {
         String dbNick = cs.getString("tps.cert.subsystem.nickname");
 
         String passwordFile = cs.getString("passwordFile");
-        IConfigStore psStore = CMS.createFileConfigStore(passwordFile);
+        IConfigStore psStore = engine.createFileConfigStore(passwordFile);
         String dbPass = psStore.getString("internal");
 
         ClientConfig config = new ClientConfig();
