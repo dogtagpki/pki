@@ -523,7 +523,7 @@ public class CertificateAuthority
             mConfig = config;
 
             if (isHostAuthority()) {
-                dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
+                dbFactory.init(engine.getConfigStore().getSubStore("internaldb"));
             }
 
             // init cert & crl database
@@ -3629,15 +3629,16 @@ public class CertificateAuthority
             String KR_CLASS_KEY = "features.authority.keyRetrieverClass";
             String KR_CONFIG_KEY = "features.authority.keyRetrieverConfig";
 
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
             String className = null;
             try {
-                className = CMS.getConfigStore().getString(KR_CLASS_KEY);
+                className = engine.getConfigStore().getString(KR_CLASS_KEY);
             } catch (EBaseException e) {
                 logger.warn("Unable to read key retriever class from CS.cfg: " + e.getMessage(), e);
                 return false;
             }
 
-            IConfigStore krConfig = CMS.getConfigStore().getSubStore(KR_CONFIG_KEY);
+            IConfigStore krConfig = engine.getConfigStore().getSubStore(KR_CONFIG_KEY);
 
             KeyRetriever kr = null;
             try {

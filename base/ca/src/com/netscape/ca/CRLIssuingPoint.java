@@ -29,6 +29,22 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.util.BitArray;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLNumberExtension;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
+import org.mozilla.jss.netscape.security.x509.IssuingDistributionPoint;
+import org.mozilla.jss.netscape.security.x509.IssuingDistributionPointExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -65,25 +81,10 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-
-import org.mozilla.jss.netscape.security.util.BitArray;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CRLExtensions;
-import org.mozilla.jss.netscape.security.x509.CRLNumberExtension;
-import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
-import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
-import org.mozilla.jss.netscape.security.x509.IssuingDistributionPoint;
-import org.mozilla.jss.netscape.security.x509.IssuingDistributionPointExtension;
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
-import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -648,7 +649,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     private Vector<String> getProfileList(String list) {
         Enumeration<String> e = null;
-        IConfigStore pc = CMS.getConfigStore().getSubStore("profile");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore pc = engine.getConfigStore().getSubStore("profile");
         if (pc != null)
             e = pc.getSubStoreNames();
         if (list == null)

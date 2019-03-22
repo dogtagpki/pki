@@ -23,6 +23,7 @@ import org.dogtagpki.server.rest.UserService;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class CAApplication extends Application {
 
@@ -72,7 +73,8 @@ public class CAApplication extends Application {
         classes.add(CAInfoService.class);
 
         // security domain
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         // check server state
         int state;
