@@ -262,3 +262,233 @@ full trust once validated (`CT,C,C`). Note that the root CA must be present
 already.
 
     PKICertImport -d . -n "Nick Named" -i nick-named.p12 -t ,, -u C --pkcs12 --chain --chain-trust CT,C,C --chain-usage L
+
+
+## Test Scenarios
+
+In the following test scenarios, several certificates are used:
+
+  - `Root A`, a trusted root (root of trust).
+  - `Sub A.A`, an intermediate signed by `Root A` (trusted).
+  - `Server A.B`, signed directly by `Root A` (trusted).
+  - `Server A.A.A`, signed by `Sub A.A` (trusted).
+  - `Server A.A.B`, signed by `Sub A.A` (trusted).
+  - `Root B`, an untrusted root (root of untrust).
+  - `Sub B.A`, an intermediate signed by `Root B` (untrusted).
+  - `Server B.B`, signed directly by `Root B` (untrusted).
+  - `Server B.A.A`, signed by `Sub B.A` (untrusted).
+  - `Server B.A.B`, signed by `Sub B.A` (untrusted).
+
+We assume that all signatures are valid unless otherwise noted in the
+situations that follow.
+
+### Importing a single certificate
+
+The following scenarios deal with importing certificates from a single `.crt`
+file.
+
+#### Successful Import of a Root
+
+Assumptions about NSS DB:
+
+  - It is empty.
+
+Test:
+
+    PKICertImport -d . -n "Root A" -i root-a.crt -t CT,C,C -u L
+    PKICertImport -d . -n "Root B" -i root-b.crt -t CT,C,C -u L
+
+Result:
+
+  - Both `Root A` and `Root B` certificates are imported and trusted by the
+    NSS DB. Trust is assigned prior to import, so this validates that the
+    self-signature on the root is valid.
+  - There is no validation we can otherwise perform that would detect the
+    difference between `Root A` and `Root B` certificates; we trust that the
+    user knows what they're importing.
+
+#### Successful Import of an Intermediate
+
+Assumptions about NSS DB:
+
+  - Contains `Root A`.
+
+Test:
+
+    PKICertImport -d . -n "Sub A.A" -i sub-a.crt -t CT,C,C -u L
+
+Result:
+
+  - The signature on `Sub A.A` is validated to chain to already-trusted `Root A`
+    certificate, so `Sub A.A` is successfully imported.
+
+#### Failed Import of an Intermediate
+
+Assumptions about NSS DB:
+
+  - Does not contain `Root A`.
+  - Does not contain `Root B`.
+
+Test:
+
+    PKICertImport -d . -n "Sub B.A" -i sub-b.crt -t CT,C,C -u L
+
+Result:
+
+  - Both of these will fail as their signature comes from a certificate
+    which is not present in the NSS DB (either `Root A` or `Root B`), and
+    so cannot be validated.
+
+#### Successful Import of Server
+
+Assumptions about NSS DB:
+
+  - Contains `Root A`.
+  - Contains `Sub A.A`.
+
+Test:
+
+    PKICertImport -d . -n "Server A.B" -i server-a-a.crt -t ,, -u V
+    PKICertImport -d . -n "Server A.A.A" -i server-a-b.crt -t ,, -u V
+    PKICertImport -d . -n "Server A.A.B" -i server-a-c.crt -t ,, -u V
+
+Result:
+
+  - Server A.B is imported successfully as it has a valid signature by `Root A`.
+
+#### Failed Import of Server (missing intermediate)
+
+Assumptions about NSS DB:
+
+  - Contains `Root A`.
+
+Test:
+
+    PKICertImport -d . -n "Server A.A.A" -i server-a-b.crt -t ,, -u V
+    PKICertImport -d . -n "Server A.A.B" -i server-a-c.crt -t ,, -u V
+    PKICertImport -d . -n "Server B.B" -i server-b-a.crt -t ,, -u V
+    PKICertImport -d . -n "Server B.A.A" -i server-b-b.crt -t ,, -u V
+    PKICertImport -d . -n "Server B.A.B" -i server-b-c.crt -t ,, -u V
+
+Result:
+
+  - All of these will fail because the parents of the certificates (either
+    `Sub A.A`, `Root B`, or `Sub B.A`) are missing from the NSS DB, and so their
+    signatures on these certificates cannot be verified.
+
+### Importing a `.p12` Certificate Chain
+
+In the below, "certificate" is used to mean both "the signed certificate from
+a Certificate Authority" and "the private key for said certificate", when the
+private key is present in the `.p12` chain.
+
+That is, if a `.p12` chain includes a private key and the corresponding public
+key and certificate are successfully verified, the private key will also be
+imported into the NSS DB. And, if the corresponding public key and certificate
+fail to be verified (invalid signature, trust, etc.), then the private key will
+not be present in the NSS DB, unless `--unsafe-keep-keys` is specified.
+
+#### Successful Import of an Entire Chain
+
+Assumptions about NSS DB:
+
+  - Is empty.
+
+Test:
+
+    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L --unsafe-trust-then-verify
+
+Result:
+
+  - The entire chain of `Root A`, `Sub A.A`, and `Server A.A.A` will be imported
+    and trusted by the NSS DB. This includes `Root A`, which introduces a new
+    root of trust.
+  - This requires that the `.p12` file comes from a trusted source.
+  - The server certificate will be named "Server A.A.A" and will be validated as
+    a server certificate (`V`), but the intermediate certificates will be
+    fully trusted (`CT,C,C`) for both Client and Server certificates, and
+    validated as SSL CAs (`L`).
+
+#### Failed Import of Any Part of the Chain
+
+Assumptions about NSS DB:
+
+  - Is empty.
+
+Test:
+
+    PKICertImport -d . -n "Server A.B" -i server-a-a.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
+    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
+    PKICertImport -d . -n "Server A.A.B" -i server-a-c.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
+    PKICertImport -d . -n "Server B.B" -i server-b-a.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
+    PKICertImport -d . -n "Server B.A.A" -i server-b-b.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
+    PKICertImport -d . -n "Server B.A.B" -i server-b-c.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
+
+Result:
+
+  - No part of the chain will be trusted or present in the NSS DB. This is
+    because root of trust is not present and trusted (`Root A` or `Root B`),
+    so during import, neither root of trust can be successfully verified
+    (with `certutil -V`). Thus, the entire chain will fail to validate, and
+    an error will occur.
+
+#### Successful Import of a Partial Chain
+
+Assumptions about NSS DB:
+
+  - Contains `Root A`.
+
+Test:
+
+    PKICertImport -d . -n "Server A.B" -i server-a-a.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
+    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
+    PKICertImport -d . -n "Server A.A.B" -i server-a-c.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
+
+Result:
+
+  - The entire chain of `Root A`, `Sub A.A`, and all leaf certificates will be
+    imported and trusted by the NSS DB, as `Root A` is already present in the
+    NSS DB.
+  - In the first step, only the leaf certificate will be imported (as the
+    parent certificate, `Root A` is already in the NSS DB).
+  - In the second step, both `Sub A.A` and `Server A.A.A` will be imported.
+  - In the last step, only` Server A.A.B` will be imported, as `Sub A.A` is
+    already present and trusted (from the second step).
+
+#### Successful Import of a Leaf
+
+Assumptions about NSS DB:
+
+  - Contains `Root A`.
+  - Contains `Sub A.A`.
+
+Test:
+
+    PKICertImport -d . -n "Server A.B" -i server-a-a.p12 -t ,, -u V --pkcs12 --leaf
+    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --leaf
+    PKICertImport -d . -n "Server A.A.B" -i server-a-c.p12 -t ,, -u V --pkcs12 --leaf
+
+Result:
+
+  - In the first step, only the leaf certificate will be imported (as the
+    parent certificate, `Root A` is already in the NSS DB).
+  - In the second step, only` Server A.A.A` will be imported, as `Sub A.A` is
+    already present and trusted (from the second step).
+  - In the last step, only` Server A.A.B` will be imported, as `Sub A.A` is
+    already present and trusted (from the second step).
+
+#### Failed Import of a Leaf
+
+Assumptions about NSS DB:
+
+  - Contains `Root A`.
+
+Test:
+
+    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --leaf
+    PKICertImport -d . -n "Server A.A.B" -i server-a-c.p12 -t ,, -u V --pkcs12 --leaf
+
+Result:
+
+  - Neither certificate will import as their parent (`Sub A.A`) is not trusted in
+    the specified NSS DB.
