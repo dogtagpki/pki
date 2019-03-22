@@ -122,7 +122,8 @@ public class OCSPInstallerService extends SystemConfigService {
 
     public void importCACert() throws IOException, EBaseException, CertificateEncodingException {
 
-        IConfigStore config = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore config = engine.getConfigStore();
 
         // get certificate chain from CA
         String b64 = config.getString("preop.ca.pkcs7", "");
@@ -163,7 +164,7 @@ public class OCSPInstallerService extends SystemConfigService {
     public void updateOCSPConfiguration() throws Exception {
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IConfigStore config = CMS.getConfigStore();
+        IConfigStore config = engine.getConfigStore();
 
         String caHost = config.getString("preop.ca.hostname", "");
         int caPort = config.getInteger("preop.ca.httpsport", -1);

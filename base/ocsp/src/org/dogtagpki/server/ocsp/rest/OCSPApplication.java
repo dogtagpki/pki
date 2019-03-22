@@ -21,6 +21,7 @@ import org.dogtagpki.server.rest.UserService;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class OCSPApplication extends Application {
 
@@ -41,7 +42,8 @@ public class OCSPApplication extends Application {
         classes.add(OCSPInstallerService.class);
 
         // security domain
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         try {
             boolean standalone = cs.getBoolean("ocsp.standalone", false);
             if (standalone) {
