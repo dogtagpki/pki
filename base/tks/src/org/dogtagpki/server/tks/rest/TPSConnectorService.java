@@ -24,6 +24,7 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
@@ -40,14 +41,15 @@ import com.netscape.certsrv.tps.cert.TPSCertResource;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 public class TPSConnectorService extends PKIService implements TPSConnectorResource {
 
     private static final String TPS_LIST = "tps.list";
 
-    IConfigStore cs = CMS.getConfigStore();
+    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    IConfigStore cs = engine.getConfigStore();
 
     public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 

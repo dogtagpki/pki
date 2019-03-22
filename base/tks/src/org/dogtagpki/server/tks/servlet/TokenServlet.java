@@ -58,6 +58,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.tks.GPParams;
 import com.netscape.cms.servlet.tks.NistSP800_108KDF;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -158,10 +159,11 @@ public class TokenServlet extends CMSServlet {
             }
             logger.debug("keySet selected: " + keySet);
 
-            String masterKeyPrefix = CMS.getConfigStore().getString("tks.master_key_prefix", null);
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            String masterKeyPrefix = engine.getConfigStore().getString("tks.master_key_prefix", null);
             String temp = req.getParameter(IRemoteRequest.TOKEN_KEYINFO); //#xx#xx
             String keyInfoMap = "tks." + keySet + ".mk_mappings." + temp;
-            String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
+            String mappingValue = engine.getConfigStore().getString(keyInfoMap, null);
             if (mappingValue != null) {
                 StringTokenizer st = new StringTokenizer(mappingValue, ":");
                 int tokenNumber = 0;
@@ -178,7 +180,7 @@ public class TokenServlet extends CMSServlet {
             {
                 temp = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO); //#xx#xx
                 String newKeyInfoMap = "tks." + keySet + ".mk_mappings." + temp;
-                String newMappingValue = CMS.getConfigStore().getString(newKeyInfoMap, null);
+                String newMappingValue = engine.getConfigStore().getString(newKeyInfoMap, null);
                 if (newMappingValue != null) {
                     StringTokenizer st = new StringTokenizer(newMappingValue, ":");
                     int tokenNumber = 0;
@@ -208,10 +210,11 @@ public class TokenServlet extends CMSServlet {
     // CAREFUL:  Result returned may be negative due to java's lack of unsigned types.
     //           Negative values need to be treated as higher key numbers than positive key numbers.
     private static byte read_setting_nistSP800_108KdfOnKeyVersion(String keySet) throws Exception {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String nistSP800_108KdfOnKeyVersion_map = "tks." + keySet + ".nistSP800-108KdfOnKeyVersion";
         // KDF phase1: default to 00
         String nistSP800_108KdfOnKeyVersion_value =
-                CMS.getConfigStore().getString(nistSP800_108KdfOnKeyVersion_map, "00" /*null*/);
+                engine.getConfigStore().getString(nistSP800_108KdfOnKeyVersion_map, "00" /*null*/);
         short nistSP800_108KdfOnKeyVersion_short = 0;
         // if value does not exist in file
         if (nistSP800_108KdfOnKeyVersion_value == null) {
@@ -242,10 +245,11 @@ public class TokenServlet extends CMSServlet {
     //   If "true" we use the CUID parameter within the NIST SP800-108 KDF.
     //   If "false" we use the KDD parameter within the NIST SP800-108 KDF.
     private static boolean read_setting_nistSP800_108KdfUseCuidAsKdd(String keySet) throws Exception {
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String setting_map = "tks." + keySet + ".nistSP800-108KdfUseCuidAsKdd";
         // KDF phase1: default to "false"
         String setting_str =
-                CMS.getConfigStore().getString(setting_map, "false" /*null*/);
+                engine.getConfigStore().getString(setting_map, "false" /*null*/);
         boolean setting_boolean = false;
         // if value does not exist in file
         if (setting_str == null) {
@@ -324,7 +328,8 @@ public class TokenServlet extends CMSServlet {
         byte nistSP800_108KdfOnKeyVersion = (byte) 0xff;
         boolean nistSP800_108KdfUseCuidAsKdd = false;
 
-        IConfigStore sconfig = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore sconfig = engine.getConfigStore();
 
         boolean isCryptoValidate = false;
         byte[] keyInfo, xCUID = null, session_key = null;
@@ -442,10 +447,10 @@ public class TokenServlet extends CMSServlet {
         }
 
         String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo; //#xx#xx
-        String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
+        String mappingValue = engine.getConfigStore().getString(keyInfoMap, null);
         if (mappingValue == null) {
             selectedToken =
-                    CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
+                    engine.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
             keyNickName = rKeyInfo;
         } else {
             StringTokenizer st = new StringTokenizer(mappingValue, ":");
@@ -457,14 +462,14 @@ public class TokenServlet extends CMSServlet {
 
         keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo; //#xx#xx
         try {
-            mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
+            mappingValue = engine.getConfigStore().getString(keyInfoMap, null);
         } catch (EBaseException e1) {
             logger.warn("TokenServlet: " + e1.getMessage(), e1);
         }
         if (mappingValue == null) {
             try {
                 selectedToken =
-                        CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
+                        engine.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
             } catch (EBaseException e) {
                 logger.warn("TokenServlet: " + e.getMessage(), e);
             }
@@ -480,7 +485,7 @@ public class TokenServlet extends CMSServlet {
         logger.debug("TokenServlet: processComputeSessionKeySCP02(): final keyNickname: " + keyNickName);
         String useSoftToken_s = null;
         try {
-            useSoftToken_s = CMS.getConfigStore().getString("tks.useSoftToken", "true");
+            useSoftToken_s = engine.getConfigStore().getString("tks.useSoftToken", "true");
         } catch (EBaseException e1) {
             logger.warn("TokenServlet: " + e1.getMessage(), e1);
         }
@@ -634,7 +639,7 @@ public class TokenServlet extends CMSServlet {
                             org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(keycheck);
 
                     //use DRM transport cert to wrap desKey
-                    String drmTransNickname = CMS.getConfigStore().getString("tks.drm_transport_cert_nickname", "");
+                    String drmTransNickname = engine.getConfigStore().getString("tks.drm_transport_cert_nickname", "");
 
                     if ((drmTransNickname == null) || (drmTransNickname == "")) {
                         logger.error("TokenServlet.computeSessionKeySCP02:did not find DRM transport certificate nickname");
@@ -863,7 +868,8 @@ public class TokenServlet extends CMSServlet {
         //        PK11SymKey kek_session_key;
         SymmetricKey kek_key;
 
-        IConfigStore sconfig = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore sconfig = engine.getConfigStore();
         boolean isCryptoValidate = true;
         boolean missingParam = false;
 
@@ -898,7 +904,7 @@ public class TokenServlet extends CMSServlet {
         String keycheck_s = null;
 
         logger.debug("processComputeSessionKey:");
-        String useSoftToken_s = CMS.getConfigStore().getString("tks.useSoftToken", "true");
+        String useSoftToken_s = engine.getConfigStore().getString("tks.useSoftToken", "true");
         if (!useSoftToken_s.equalsIgnoreCase("true"))
             useSoftToken_s = "false";
 
@@ -1035,10 +1041,10 @@ public class TokenServlet extends CMSServlet {
             }
 
             String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo; //#xx#xx
-            String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
+            String mappingValue = engine.getConfigStore().getString(keyInfoMap, null);
             if (mappingValue == null) {
                 selectedToken =
-                        CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
+                        engine.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
                 keyNickName = rKeyInfo;
             } else {
                 StringTokenizer st = new StringTokenizer(mappingValue, ":");
@@ -1191,7 +1197,7 @@ public class TokenServlet extends CMSServlet {
                                 org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(keycheck);
 
                         //use DRM transport cert to wrap desKey
-                        String drmTransNickname = CMS.getConfigStore().getString("tks.drm_transport_cert_nickname", "");
+                        String drmTransNickname = engine.getConfigStore().getString("tks.drm_transport_cert_nickname", "");
 
                         if ((drmTransNickname == null) || (drmTransNickname == "")) {
                             logger.error("TokenServlet:did not find DRM transport certificate nickname");
@@ -1555,7 +1561,8 @@ public class TokenServlet extends CMSServlet {
         String badParams = "";
         byte[] xWrappedDekKey = null;
 
-        IConfigStore sconfig = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore sconfig = engine.getConfigStore();
         String rnewKeyInfo = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO);
         String newMasterKeyName = req.getParameter(IRemoteRequest.TOKEN_NEW_KEYINFO);
         String oldMasterKeyName = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
@@ -1669,7 +1676,7 @@ public class TokenServlet extends CMSServlet {
 
             }
         }
-        String useSoftToken_s = CMS.getConfigStore().getString("tks.useSoftToken", "true");
+        String useSoftToken_s = engine.getConfigStore().getString("tks.useSoftToken", "true");
         if (!useSoftToken_s.equalsIgnoreCase("true"))
             useSoftToken_s = "false";
 
@@ -1735,10 +1742,10 @@ public class TokenServlet extends CMSServlet {
             tokKeyInfo = tokKeyInfo.substring(0,6);
             String oldKeyInfoMap = "tks." + keySet + ".mk_mappings." + tokKeyInfo; //#xx#xx
             logger.debug(method + " oldKeyInfoMap: " + oldKeyInfoMap);
-            String oldMappingValue = CMS.getConfigStore().getString(oldKeyInfoMap, null);
+            String oldMappingValue = engine.getConfigStore().getString(oldKeyInfoMap, null);
             String oldSelectedToken = null;
             if (oldMappingValue == null) {
-                oldSelectedToken = CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
+                oldSelectedToken = engine.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
                 oldKeyNickName = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
             } else {
                 StringTokenizer st = new StringTokenizer(oldMappingValue, ":");
@@ -1749,10 +1756,10 @@ public class TokenServlet extends CMSServlet {
 
             String newKeyInfoMap = "tks.mk_mappings." + rnewKeyInfo.substring(0,6); //#xx#xx
             logger.debug(method + " newKeyInfoMap: " + newKeyInfoMap);
-            String newMappingValue = CMS.getConfigStore().getString(newKeyInfoMap, null);
+            String newMappingValue = engine.getConfigStore().getString(newKeyInfoMap, null);
             String newSelectedToken = null;
             if (newMappingValue == null) {
-                newSelectedToken = CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
+                newSelectedToken = engine.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
                 newKeyNickName = rnewKeyInfo;
             } else {
                 StringTokenizer st = new StringTokenizer(newMappingValue, ":");
@@ -1924,7 +1931,8 @@ public class TokenServlet extends CMSServlet {
 
         String errorMsg = "";
         String badParams = "";
-        IConfigStore sconfig = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore sconfig = engine.getConfigStore();
         encryptedData = null;
         String rdata = req.getParameter(IRemoteRequest.TOKEN_DATA);
         String rKeyInfo = req.getParameter(IRemoteRequest.TOKEN_KEYINFO);
@@ -2046,7 +2054,7 @@ public class TokenServlet extends CMSServlet {
             }
         }
 
-        String useSoftToken_s = CMS.getConfigStore().getString("tks.useSoftToken", "true");
+        String useSoftToken_s = engine.getConfigStore().getString("tks.useSoftToken", "true");
         if (!useSoftToken_s.equalsIgnoreCase("true"))
             useSoftToken_s = "false";
 
@@ -2084,9 +2092,9 @@ public class TokenServlet extends CMSServlet {
             keyInfo = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rKeyInfo);
 
             String keyInfoMap = "tks." + keySet + ".mk_mappings." +  rKeyInfo.substring(0,6);
-            String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
+            String mappingValue = engine.getConfigStore().getString(keyInfoMap, null);
             if (mappingValue == null) {
-                selectedToken = CMS.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
+                selectedToken = engine.getConfigStore().getString("tks.defaultSlot", CryptoUtil.INTERNAL_TOKEN_NAME);
                 keyNickName = rKeyInfo;
             } else {
                 StringTokenizer st = new StringTokenizer(mappingValue, ":");
@@ -2467,7 +2475,8 @@ public class TokenServlet extends CMSServlet {
 
         boolean serversideKeygen = false;
 
-        IConfigStore sconfig = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore sconfig = engine.getConfigStore();
         boolean isCryptoValidate = true;
         boolean missingParam = false;
 
@@ -2499,7 +2508,7 @@ public class TokenServlet extends CMSServlet {
         String kek_wrapped_desKeyString = null;
         String keycheck_s = null;
 
-        String useSoftToken_s = CMS.getConfigStore().getString("tks.useSoftToken", "true");
+        String useSoftToken_s = engine.getConfigStore().getString("tks.useSoftToken", "true");
         if (!useSoftToken_s.equalsIgnoreCase("true"))
             useSoftToken_s = "false";
 
@@ -2619,12 +2628,11 @@ public class TokenServlet extends CMSServlet {
             host_challenge = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rhost_challenge);
 
             String keyInfoMap = "tks." + keySet + ".mk_mappings." + rKeyInfo.substring(0,6); //#xx#xx
-            String mappingValue = CMS.getConfigStore().getString(keyInfoMap, null);
+            String mappingValue = engine.getConfigStore().getString(keyInfoMap, null);
 
 
             if (mappingValue == null) {
-                selectedToken =
-                        CMS.getConfigStore().getString("tks.defaultSlot", "internal");
+                selectedToken = engine.getConfigStore().getString("tks.defaultSlot", "internal");
                 keyNickName = rKeyInfo;
             } else {
                 StringTokenizer st = new StringTokenizer(mappingValue, ":");
@@ -2948,7 +2956,8 @@ public class TokenServlet extends CMSServlet {
 
     private PK11SymKey getSharedSecretKey() throws EBaseException, NotInitializedException {
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String sharedSecretName = null;
         try {
 
@@ -3074,7 +3083,8 @@ public class TokenServlet extends CMSServlet {
         values.add(keycheck_s);
 
         //use DRM transport cert to wrap desKey
-        String drmTransNickname = CMS.getConfigStore().getString("tks.drm_transport_cert_nickname", "");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        String drmTransNickname = engine.getConfigStore().getString("tks.drm_transport_cert_nickname", "");
 
         if ((drmTransNickname == null) || (drmTransNickname == "")) {
             logger.error(method + " did not find DRM transport certificate nickname");
@@ -3152,9 +3162,10 @@ public class TokenServlet extends CMSServlet {
         String method = "TokenServlet.readGPSettings: ";
         String gp3Settings = "tks." + keySet + ".prot3";
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String divers = "emv";
         try {
-            divers = CMS.getConfigStore().getString(gp3Settings + ".divers", "emv");
+            divers = engine.getConfigStore().getString(gp3Settings + ".divers", "emv");
         } catch (EBaseException e) {
         }
 
@@ -3165,7 +3176,7 @@ public class TokenServlet extends CMSServlet {
         String diversVer1Keys = "emv";
 
         try {
-            diversVer1Keys = CMS.getConfigStore().getString(gp3Settings + ".diversVer1Keys","emv");
+            diversVer1Keys = engine.getConfigStore().getString(gp3Settings + ".diversVer1Keys","emv");
         } catch (EBaseException e) {
         }
 
@@ -3174,7 +3185,7 @@ public class TokenServlet extends CMSServlet {
 
         String keyType = null;
         try {
-            keyType = CMS.getConfigStore().getString(gp3Settings + ".devKeyType","DES3");
+            keyType = engine.getConfigStore().getString(gp3Settings + ".devKeyType","DES3");
         } catch (EBaseException e) {
         }
 
@@ -3183,7 +3194,7 @@ public class TokenServlet extends CMSServlet {
         params.setDevKeyType(keyType);
 
         try {
-            keyType = CMS.getConfigStore().getString(gp3Settings + ".masterKeyType","DES3");
+            keyType = engine.getConfigStore().getString(gp3Settings + ".masterKeyType","DES3");
         } catch (EBaseException e) {
         }
 
