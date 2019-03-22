@@ -36,6 +36,8 @@ import com.netscape.certsrv.base.PKIException;
  */
 public class TPSAccountService extends AccountService {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSAccountService.class);
+
     IConfigStore configStore = CMS.getConfigStore();
 
     @Override
@@ -71,7 +73,7 @@ public class TPSAccountService extends AccountService {
             accountInfo.setAttribute("components", StringUtils.join(components, ","));
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("TPSAccountService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
 

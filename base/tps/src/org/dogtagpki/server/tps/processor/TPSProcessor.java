@@ -83,6 +83,7 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
 import com.netscape.certsrv.apps.CMS;
@@ -106,10 +107,9 @@ import com.netscape.cms.servlet.tks.SecureChannelProtocol;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
 
-import org.mozilla.jss.netscape.security.x509.RevocationReason;
-
 public class TPSProcessor {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSProcessor.class);
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final int RESULT_NO_ERROR = 0;
@@ -188,8 +188,7 @@ public class TPSProcessor {
         if (theTokenType == null) {
             throw new NullPointerException("TPSProcessor.setSelectedTokenType: Attempt to set invalid null token type!");
         }
-        CMS.debug("TPS_Processor.setSelectedTokenType: tokenType=" +
-                theTokenType);
+        logger.debug("TPS_Processor.setSelectedTokenType: tokenType=" + theTokenType);
         selectedTokenType = theTokenType;
 
         TokenRecord tokenRecord = getTokenRecord();
@@ -209,8 +208,7 @@ public class TPSProcessor {
         if (theKeySet == null) {
             throw new NullPointerException("TPSProcessor.setSelectedKeySet: Attempt to set invalid null key set!");
         }
-        CMS.debug("TPS_Processor.setSelectedKeySet: keySet=" +
-                theKeySet);
+        logger.debug("TPS_Processor.setSelectedKeySet: keySet=" + theKeySet);
         selectedKeySet = theKeySet;
 
     }
@@ -235,7 +233,7 @@ public class TPSProcessor {
     protected TPSBuffer extractTokenCUID(TPSBuffer cplc_data) throws TPSException {
         //Just make sure no one is inputing bogus cplc_data
         if (cplc_data == null || cplc_data.size() < CPLC_DATA_SIZE) {
-            CMS.debug("TPS_Processor.extractTokenCUID: cplc_data: invalid length.");
+            logger.error("TPS_Processor.extractTokenCUID: cplc_data: invalid length.");
             throw new TPSException("TPSProcessor.extractTokenCUID: Can't extract cuid from cplc data!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
@@ -278,7 +276,7 @@ public class TPSProcessor {
 
     protected APDUResponse selectApplet(byte p1, byte p2, TPSBuffer aid) throws IOException, TPSException {
 
-        CMS.debug("In TPS_Processor.SelectApplet.");
+        logger.debug("In TPS_Processor.SelectApplet.");
 
         if (aid == null || aid.size() == 0) {
             throw new TPSException("TPSProcessor.selectApplet: Invalid aid value!",
@@ -296,7 +294,7 @@ public class TPSProcessor {
 
     protected TPSBuffer getStatus() throws IOException, TPSException {
 
-        CMS.debug("In TPS_Processor.GetStatus.");
+        logger.debug("In TPS_Processor.GetStatus.");
 
         GetStatusAPDU get_status_apdu = new GetStatusAPDU();
 
@@ -314,7 +312,7 @@ public class TPSProcessor {
         try {
             session.write(request_msg);
         } catch (IOException e) {
-            CMS.debug("TPS_Processor.HandleAPDURequest failed WriteMsg: " + e.toString());
+            logger.error("TPS_Processor.HandleAPDURequest failed WriteMsg: " + e.getMessage(), e);
             throw e;
 
         }
@@ -324,7 +322,7 @@ public class TPSProcessor {
         try {
             response_msg = (TokenPDUResponseMsg) session.read();
         } catch (IOException e) {
-            CMS.debug("TPS_Processor.HandleAPDURequest failed ReadMsg: " + e.toString());
+            logger.error("TPS_Processor.HandleAPDURequest failed ReadMsg: " + e.getMessage(), e);
             throw e;
 
         }
@@ -333,7 +331,7 @@ public class TPSProcessor {
     }
 
     protected TPSBuffer getCplcData() throws IOException, TPSException {
-        CMS.debug("In TPS_Processor. getCplcData");
+        logger.debug("In TPS_Processor. getCplcData");
 
         GetDataAPDU get_data_apdu = new GetDataAPDU();
 
@@ -352,7 +350,7 @@ public class TPSProcessor {
     }
 
     public TPSBuffer getData(byte[] identifier) throws TPSException, IOException {
-        CMS.debug("In TPSProcessor.getData: identifier: " + identifier.toString());
+        logger.debug("In TPSProcessor.getData: identifier: " + identifier);
 
         if (identifier == null || identifier.length != 2) {
             throw new TPSException("TPSProcessor.getData: Can't get data, invalid input data!",
@@ -373,7 +371,7 @@ public class TPSProcessor {
         //We return null if no applet present
         // This is not an error, the token can be blank.
 
-        CMS.debug("In TPSProcessor.getAppletVersion");
+        logger.debug("In TPSProcessor.getAppletVersion");
 
         selectCoolKeyApplet();
 
@@ -382,20 +380,20 @@ public class TPSProcessor {
         APDUResponse respApdu = handleAPDURequest(get_version_apdu);
 
         if (!respApdu.checkResult()) {
-            CMS.debug("TPSProcessor.getAppletVersion: No applet version found on card!");
+            logger.warn("TPSProcessor.getAppletVersion: No applet version found on card!");
             return null;
         }
 
         TPSBuffer apdu_data = respApdu.getData();
 
         if (apdu_data.size() != 6) {
-            CMS.debug("TPSProcessor.getAppletVersion: incorrect return data size!");
+            logger.error("TPSProcessor.getAppletVersion: incorrect return data size!");
             throw new TPSException("TPSProcessor.getAppletVersion: invalid applet version string returned!");
         }
 
         TPSBuffer build_id = apdu_data.substr(0, 4);
 
-        CMS.debug("TPSProcessor.getAppletVersion: returning: " + build_id.toHexString());
+        logger.debug("TPSProcessor.getAppletVersion: returning: " + build_id.toHexString());
 
         return build_id;
 
@@ -406,7 +404,7 @@ public class TPSProcessor {
         byte resultState = (byte) 0xf0;
 
         String method = "TPSProcessor.getLifecycleState:";
-        CMS.debug(".getLifecycleState: ");
+        logger.debug(method + " getLifecycleState: ");
 
         GetLifecycleAPDU getLifecycle = new GetLifecycleAPDU();
 
@@ -422,18 +420,18 @@ public class TPSProcessor {
 
             TPSBuffer result = response.getResultDataNoCode();
 
-            CMS.debug(method + " result size: " + result.size());
+            logger.debug(method + " result size: " + result.size());
 
             //Only one byte of data returned not including the 2 result bytes
 
             if (result.size() == 1) {
                 resultState = result.at(0);
 
-                CMS.debug(method + " result: " + resultState);
+                logger.debug(method + " result: " + resultState);
             }
 
         } catch (TPSException | IOException e) {
-             CMS.debug(method + " problem getting state: " + e);
+             logger.warn(method + " problem getting state: " + e.getMessage(), e);
         }
 
         return resultState;
@@ -495,7 +493,7 @@ public class TPSProcessor {
 
         String method = "TPSProcessor.initializeUpdate:";
 
-        CMS.debug(method + " Entering...");
+        logger.debug(method + " Entering...");
         InitializeUpdateAPDU initUpdate = new InitializeUpdateAPDU(keyVersion, keyIndex, randomData);
 
         int done = 0;
@@ -505,7 +503,7 @@ public class TPSProcessor {
         APDUResponse resp = handleAPDURequest(initUpdate);
 
         if (!resp.checkResult()) {
-            CMS.debug("TPSProcessor.initializeUpdate: Failed intializeUpdate!");
+            logger.error("TPSProcessor.initializeUpdate: Failed intializeUpdate!");
             throw new TPSException("TPSBuffer.initializeUpdate: Failed initializeUpdate!",
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
@@ -513,7 +511,7 @@ public class TPSProcessor {
 
         TPSBuffer data = resp.getResultDataNoCode();
 
-        CMS.debug(method + " data.size() " + data.size());
+        logger.debug(method + " data.size() " + data.size());
 
         if ((data.size() != INIT_UPDATE_DATA_SIZE) && (data.size() != INIT_UPDATE_DATA_SIZE_02)
                 && (data.size() != INIT_UPDATE_DATA_SIZE_03)) {
@@ -529,7 +527,7 @@ public class TPSProcessor {
         SecureChannel channel = null;
 
         //Create a standard secure channel with current key set.
-        CMS.debug("TPSProcessor.setupSecureChannel: No arguments entering...");
+        logger.debug("TPSProcessor.setupSecureChannel: No arguments entering...");
 
         int defKeyVersion = getChannelDefKeyVersion();
         int defKeyIndex = getChannelDefKeyIndex();
@@ -548,8 +546,7 @@ public class TPSProcessor {
 
         //Assume generating host challenge on TKS, we no longer support not involving the TKS.
 
-        CMS.debug("TPSProcessor.setupSecureChannel: keyVersion: " + keyVersion + " keyIndex: " + keyIndex
-                );
+        logger.debug("TPSProcessor.setupSecureChannel: keyVersion: " + keyVersion + " keyIndex: " + keyIndex);
 
         if(appletInfo == null) {
             throw new TPSException("TPSProcessor.setupSecureChannel: invalid input data.", TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
@@ -558,8 +555,8 @@ public class TPSProcessor {
 
         TPSBuffer randomData = computeRandomData(8, connId);
         if (randomData != null) {
-            //CMS.debug("TPSProcessor.setupSecureChannel: obtained randomData: " + randomData.toHexString());
-            CMS.debug("TPSProcessor.setupSecureChannel: obtained randomData");
+            //logger.debug("TPSProcessor.setupSecureChannel: obtained randomData: " + randomData.toHexString());
+            logger.debug("TPSProcessor.setupSecureChannel: obtained randomData");
         }
 
         // Do this on behalf of external reg, which needs it
@@ -569,12 +566,12 @@ public class TPSProcessor {
 
         TPSBuffer initUpdateResp = initializeUpdate(keyVersion, keyIndex, randomData);
 
-        CMS.debug("TPSProcessor.setupSecureChanne: initUpdateResponse: " + initUpdateResp.toHexString());
+        logger.debug("TPSProcessor.setupSecureChanne: initUpdateResponse: " + initUpdateResp.toHexString());
 
         TPSBuffer key_diversification_data = initUpdateResp.substr(0, DIVERSIFICATION_DATA_SIZE);
         appletInfo.setKDD(key_diversification_data);
 
-        CMS.debug("TPSProcessor.setupSecureChannel: diversification data: " + key_diversification_data.toHexString());
+        logger.debug("TPSProcessor.setupSecureChannel: diversification data: " + key_diversification_data.toHexString());
 
         TPSBuffer key_info_data =  null;
 
@@ -585,7 +582,7 @@ public class TPSProcessor {
         }
 
 
-        CMS.debug("TPSProcessor.setupSecureChannel: key info data: " + key_info_data.toHexString());
+        logger.debug("TPSProcessor.setupSecureChannel: key info data: " + key_info_data.toHexString());
 
         TokenRecord tokenRecord = getTokenRecord();
         tokenRecord.setKeyInfo(key_info_data.toHexStringPlain());
@@ -594,8 +591,8 @@ public class TPSProcessor {
         TPSBuffer sequenceCounter = null;
 
         card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET, CARD_CRYPTOGRAM_SIZE);
-        //CMS.debug("TPSProcessor.setupSecureChannel: card cryptogram: " + card_cryptogram.toHexString());
-        CMS.debug("TPSProcessor.setupSecureChannel: card cryptogram: extracted");
+        //logger.debug("TPSProcessor.setupSecureChannel: card cryptogram: " + card_cryptogram.toHexString());
+        logger.debug("TPSProcessor.setupSecureChannel: card cryptogram: extracted");
 
         TPSBuffer card_challenge = null;
 
@@ -608,20 +605,20 @@ public class TPSProcessor {
                 card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET, CARD_CRYPTOGRAM_SIZE); //new TPSBuffer(canned_card_challenge);
 
                 /*
-                CMS.debug("TPSProcessor.setupSecureChannel 02: card cryptogram: " + card_cryptogram.toHexString());
-                CMS.debug("TPSProcessor.setupSecureChannel 02: card challenge: " + card_challenge.toHexString());
-                CMS.debug("TPSProcessor.setupSecureChannel 02: host challenge: " + randomData.toHexString());
+                logger.debug("TPSProcessor.setupSecureChannel 02: card cryptogram: " + card_cryptogram.toHexString());
+                logger.debug("TPSProcessor.setupSecureChannel 02: card challenge: " + card_challenge.toHexString());
+                logger.debug("TPSProcessor.setupSecureChannel 02: host challenge: " + randomData.toHexString());
                 */
-                CMS.debug("TPSProcessor.setupSecureChannel 02: card cryptogram: extracted");
-                CMS.debug("TPSProcessor.setupSecureChannel 02: card challenge: extracted");
+                logger.debug("TPSProcessor.setupSecureChannel 02: card cryptogram: extracted");
+                logger.debug("TPSProcessor.setupSecureChannel 02: card challenge: extracted");
 
             }
 
             //Set the second byte of the keyInfo data to 0x1, this only gives us the secure protocol version 0x2 here.
             //This will allow symkey to not get confused with that 0x02.
-            CMS.debug("TPSProcessor.setupSecureChannel 02: key Info , before massage: " + key_info_data.toHexString());
+            logger.debug("TPSProcessor.setupSecureChannel 02: key Info , before massage: " + key_info_data.toHexString());
             key_info_data.setAt(1, (byte) 0x1);
-            CMS.debug("TPSProcessor.setupSecureChannel 02: key Info , after massage: " + key_info_data.toHexString());
+            logger.debug("TPSProcessor.setupSecureChannel 02: key Info , after massage: " + key_info_data.toHexString());
 
             tokenRecord.setKeyInfo(key_info_data.toHexStringPlain());
 
@@ -629,15 +626,15 @@ public class TPSProcessor {
             card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET_GP211_SC03,CARD_CHALLENGE_SIZE);
             card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET_GP211_SC03, CARD_CRYPTOGRAM_SIZE);
 
-            CMS.debug("TPSProcessor.setupSecureChannel 03: card cryptogram: " + card_cryptogram.toHexString());
-            CMS.debug("TPSProcessor.setupSecureChannel 03: card challenge: " + card_challenge.toHexString());
-            CMS.debug("TPSProcessor.setupSecureChannel 03: host challenge: " + randomData.toHexString());
+            logger.debug("TPSProcessor.setupSecureChannel 03: card cryptogram: " + card_cryptogram.toHexString());
+            logger.debug("TPSProcessor.setupSecureChannel 03: card challenge: " + card_challenge.toHexString());
+            logger.debug("TPSProcessor.setupSecureChannel 03: host challenge: " + randomData.toHexString());
         } else {
 
             card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET, CARD_CHALLENGE_SIZE);
         }
-        //CMS.debug("TPSProcessor.setupSecureChannel: card challenge: " + card_challenge.toHexString());
-        CMS.debug("TPSProcessor.setupSecureChannel: card challenge: extracted");
+        //logger.debug("TPSProcessor.setupSecureChannel: card challenge: " + card_challenge.toHexString());
+        logger.debug("TPSProcessor.setupSecureChannel: card challenge: extracted");
 
         SecureChannel channel = null;
 
@@ -667,8 +664,8 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        CMS.debug("TPSProcessor.generateSecureChannel: entering.. keyInfoData: " + keyInfoData.toHexString());
-        CMS.debug("TPSProcessor.generateSecureChannel: isSCP02: " + platProtInfo.isSCP02());
+        logger.debug("TPSProcessor.generateSecureChannel: entering.. keyInfoData: " + keyInfoData.toHexString());
+        logger.debug("TPSProcessor.generateSecureChannel: isSCP02: " + platProtInfo.isSCP02());
 
         TPSEngine engine = getTPSEngine();
 
@@ -744,7 +741,7 @@ public class TPSProcessor {
 
             // sharedSecret = getSharedSecretTransportKey(connId);
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("TPSProcessor: " + e.getMessage(), e);
             throw new TPSException("TPSProcessor.generateSecureChannel: Can't get shared secret key!: " + e,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
@@ -772,12 +769,12 @@ public class TPSProcessor {
                sessionKey =  (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret, sessionKeyWrapped.toBytesArray(), false,SymmetricKey.DES3);
 
                 if (sessionKey == null) {
-                    CMS.debug("TPSProcessor.generateSecureChannel: Can't extract session key!");
+                    logger.error("TPSProcessor.generateSecureChannel: Can't extract session key!");
                     throw new TPSException("TPSProcessor.generateSecureChannel: Can't extract session key!",
                             TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
                 }
 
-                CMS.debug("TPSProcessor.generateSecureChannel: retrieved session key: " + sessionKey);
+                logger.debug("TPSProcessor.generateSecureChannel: retrieved session key: " + sessionKey);
 
               /*  encSessionKey = SessionKey.UnwrapSessionKeyWithSharedSecret(tokenName,(PK11SymKey) sharedSecret,
                         encSessionKeyWrapped.toBytesArray()); */
@@ -785,12 +782,12 @@ public class TPSProcessor {
                 encSessionKey = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,encSessionKeyWrapped.toBytesArray(),false,SymmetricKey.DES3);
 
                 if (encSessionKey == null) {
-                    CMS.debug("TPSProcessor.generateSecureChannel: Can't extract enc session key!");
+                    logger.error("TPSProcessor.generateSecureChannel: Can't extract enc session key!");
                     throw new TPSException("TPSProcessor.generateSecureChannel: Can't extract enc session key!",
                             TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
                 }
 
-                CMS.debug("TPSProcessor.generateSecureChannel: retrieved enc session key");
+                logger.debug("TPSProcessor.generateSecureChannel: retrieved enc session key");
 
                 TPSBuffer drmDesKey = null;
                 TPSBuffer kekDesKey = null;
@@ -801,9 +798,9 @@ public class TPSProcessor {
                 kekDesKey = resp.getKekWrappedDesKey();
 
                 if (checkServerSideKeyGen(connId)) {
-                    CMS.debug("TPSProcessor.generateSecureChannel: true for checkServerSideKeyGen");
+                    logger.debug("TPSProcessor.generateSecureChannel: true for checkServerSideKeyGen");
                     /*
-                    CMS.debug("TPSProcessor.generateSecureChannel: drmDesKey: " + drmDesKey + " kekDesKey : "
+                    logger.debug("TPSProcessor.generateSecureChannel: drmDesKey: " + drmDesKey + " kekDesKey : "
                             + kekDesKey
                             + " keyCheck: " + keyCheck);
                     */
@@ -815,8 +812,7 @@ public class TPSProcessor {
                         cardCryptogram, hostChallenge, hostCryptogram, keyInfoData, platProtInfo);
 
             } catch (Exception e) {
-                CMS.debug(e);
-                e.printStackTrace();
+                logger.error("TPSProcessor: " + e.getMessage(), e);
                 throw new TPSException("TPSProcessor.generateSecureChannel: Problem extracting session keys! " + e,
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
@@ -831,7 +827,7 @@ public class TPSProcessor {
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
-            CMS.debug("TPSProcessor.generateSecureChannel Trying secure channel protocol 02");
+            logger.debug("TPSProcessor.generateSecureChannel Trying secure channel protocol 02");
             respEnc02 = engine.computeSessionKeySCP02(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
                     sequenceCounter, new TPSBuffer(SecureChannel.ENCDerivationConstant),
                     connId, getSelectedTokenType(), getSelectedKeySet());
@@ -841,7 +837,7 @@ public class TPSProcessor {
                     encSessionKeyWrappedSCP02.toBytesArray());
 
             if (encSessionKeySCP02 == null) {
-                CMS.debug("TPSProcessor.generateSecureChannel: Can't extract the SCP02 enc session key!");
+                logger.error("TPSProcessor.generateSecureChannel: Can't extract the SCP02 enc session key!");
                 throw new TPSException("TPSProcessor.generateSecureChannel: Can't the emc SCP02 session keys!",
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
@@ -856,7 +852,7 @@ public class TPSProcessor {
                     cmacSessionKeyWrappedSCP02.toBytesArray());
 
             if (cmacSessionKeySCP02 == null) {
-                CMS.debug("TPSProcessor.generateSecureChannel: Can't extract the SCP02 cmac session key!");
+                logger.error("TPSProcessor.generateSecureChannel: Can't extract the SCP02 cmac session key!");
                 throw new TPSException("TPSProcessor.generateSecureChannel: Can't the s,ac SCP02 session keys!",
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
@@ -871,7 +867,7 @@ public class TPSProcessor {
                     rmacSessionKeyWrappedSCP02.toBytesArray());
 
             if (rmacSessionKeySCP02 == null) {
-                CMS.debug("TPSProcessor.generateSecureChannel: Can't extract the SCP02 cmac session key!");
+                logger.error("TPSProcessor.generateSecureChannel: Can't extract the SCP02 cmac session key!");
                 throw new TPSException("TPSProcessor.generateSecureChannel: Can't the cmac SCP02 session keys!",
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
@@ -880,7 +876,7 @@ public class TPSProcessor {
                     sequenceCounter, new TPSBuffer(SecureChannel.DEKDerivationConstant),
                     connId, getSelectedTokenType(), getSelectedKeySet());
 
-            CMS.debug("Past engine.computeSessionKeyData: After dek key request.");
+            logger.debug("Past engine.computeSessionKeyData: After dek key request.");
 
             TPSBuffer dekSessionKeyWrappedSCP02 = respDek02.getSessionKey();
 
@@ -888,7 +884,7 @@ public class TPSProcessor {
                     dekSessionKeyWrappedSCP02.toBytesArray());
 
             if (dekSessionKeySCP02 == null) {
-                CMS.debug("TPSProcessor.generateSecureChannel: Can't extract the SCP02 dek session key!");
+                logger.error("TPSProcessor.generateSecureChannel: Can't extract the SCP02 dek session key!");
                 throw new TPSException("TPSProcessor.generateSecureChannel: Can't the dek SCP02 session keys!",
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
@@ -902,7 +898,7 @@ public class TPSProcessor {
             keyCheck = respDek02.getKeyCheck();
 
             if (drmDesKey == null || kekDesKey == null) {
-                CMS.debug("TPSProcessor.generateSecureChannel: Can't get drmDesKey or kekDesKey from TKS when processing the DEK session key!");
+                logger.error("TPSProcessor.generateSecureChannel: Can't get drmDesKey or kekDesKey from TKS when processing the DEK session key!");
                 throw new TPSException(
                         "TPSProcessor.generateSecureChannel: Can't get drmDesKey or kekDesKey from TKS when processing the DEK session key!",
                         TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
@@ -918,7 +914,7 @@ public class TPSProcessor {
         }
 
         if (platProtInfo.isSCP03()) {
-            CMS.debug("TPSProcessor.generateSecureChannel Trying secure channel protocol 03");
+            logger.debug("TPSProcessor.generateSecureChannel Trying secure channel protocol 03");
 
             resp = engine.computeSessionKeysSCP03(keyDiversificationData, appletInfo.getCUID(), keyInfoData,
                     cardChallenge, hostChallenge, cardCryptogram, connId, getSelectedTokenType(), getSelectedKeySet());
@@ -933,25 +929,25 @@ public class TPSProcessor {
             TPSBuffer kekDesKeyBuff = resp.getKekWrappedDesKey();
 
             if (encSessionKeyBuff != null)
-                CMS.debug(method + " encSessionKeyBuff: " + encSessionKeyBuff.toHexString());
+                logger.debug(method + " encSessionKeyBuff: " + encSessionKeyBuff.toHexString());
 
             if (kekSessionKeyBuff != null)
-                CMS.debug(method + " kekSessionKeyBuff: " + kekSessionKeyBuff.toHexString());
+                logger.debug(method + " kekSessionKeyBuff: " + kekSessionKeyBuff.toHexString());
 
             if (macSessionKeyBuff != null)
-                CMS.debug(method + " macSessionKeyBuff: " + macSessionKeyBuff.toHexString());
+                logger.debug(method + " macSessionKeyBuff: " + macSessionKeyBuff.toHexString());
 
             if (hostCryptogramBuff != null)
-                CMS.debug(method + " hostCryptogramBuff: " + hostCryptogramBuff.toHexString());
+                logger.debug(method + " hostCryptogramBuff: " + hostCryptogramBuff.toHexString());
 
             if (keyCheckBuff != null)
-                CMS.debug(method + " keyCheckBuff: " + keyCheckBuff.toHexString());
+                logger.debug(method + " keyCheckBuff: " + keyCheckBuff.toHexString());
 
             if (drmDesKeyBuff != null)
-                CMS.debug(method + " drmDessKeyBuff: " + drmDesKeyBuff.toHexString());
+                logger.debug(method + " drmDessKeyBuff: " + drmDesKeyBuff.toHexString());
 
             if (kekDesKeyBuff != null)
-                CMS.debug(method + " kekDesKeyBuff: " + kekDesKeyBuff.toHexString());
+                logger.debug(method + " kekDesKeyBuff: " + kekDesKeyBuff.toHexString());
 
 
             if (encSessionKeyBuff != null)
@@ -966,9 +962,9 @@ public class TPSProcessor {
                 kekSessionKeySCP03 = (PK11SymKey) protocol.unwrapWrappedSymKeyOnToken(token, sharedSecret,
                         kekSessionKeyBuff.toBytesArray(), false, SymmetricKey.AES);
 
-            CMS.debug(" encSessionKeySCP03 " + encSessionKeySCP03);
-            CMS.debug(" macSessionKeySCP03 " + macSessionKeySCP03);
-            CMS.debug(" kekSessionKeySCP03 " + kekSessionKeySCP03);
+            logger.debug(" encSessionKeySCP03 " + encSessionKeySCP03);
+            logger.debug(" macSessionKeySCP03 " + macSessionKeySCP03);
+            logger.debug(" kekSessionKeySCP03 " + kekSessionKeySCP03);
 
             channel = new SecureChannel(this, encSessionKeySCP03, macSessionKeySCP03, kekSessionKeySCP03,
                     drmDesKeyBuff, kekDesKeyBuff,
@@ -988,14 +984,14 @@ public class TPSProcessor {
 
     protected boolean checkUpdateAppletEncryption() throws TPSException {
 
-        CMS.debug("TPSProcessor.checkUpdateAppletEncryption entering...");
+        logger.debug("TPSProcessor.checkUpdateAppletEncryption entering...");
 
         IConfigStore configStore = CMS.getConfigStore();
 
         String appletEncryptionConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_UPDATE_APPLET_ENCRYPTION;
 
-        CMS.debug("TPSProcessor.checkUpdateAppletEncryption config to check: " + appletEncryptionConfig);
+        logger.debug("TPSProcessor.checkUpdateAppletEncryption config to check: " + appletEncryptionConfig);
 
         boolean appletEncryption = false;
 
@@ -1007,14 +1003,14 @@ public class TPSProcessor {
                     "TPSProcessor.checkUpdateAppletEncryption: internal error in getting value from config.");
         }
 
-        CMS.debug("TPSProcessor.checkUpdateAppletEncryption returning: " + appletEncryption);
+        logger.debug("TPSProcessor.checkUpdateAppletEncryption returning: " + appletEncryption);
         return appletEncryption;
 
     }
 
     protected int checkAndUpgradeApplet(AppletInfo appletInfo) throws TPSException, IOException {
 
-        CMS.debug("checkAndUpgradeApplet: entering..");
+        logger.debug("checkAndUpgradeApplet: entering..");
 
         String tksConnId = getTKSConnectorID();
 
@@ -1027,13 +1023,13 @@ public class TPSProcessor {
 
             String currentAppletVersion = formatCurrentAppletVersion(appletInfo);
 
-            CMS.debug("TPSProcessor.checkAndUpgradeApplet: currentAppletVersion: " + currentAppletVersion
+            logger.debug("TPSProcessor.checkAndUpgradeApplet: currentAppletVersion: " + currentAppletVersion
                     + " targetAppletVersion: " + targetAppletVersion);
 
             if (targetAppletVersion.compareTo(currentAppletVersion) != 0) {
 
                 upgraded = 1;
-                CMS.debug("TPSProcessor.checkAndUpgradeApplet: Upgrading applet to : " + targetAppletVersion);
+                logger.debug("TPSProcessor.checkAndUpgradeApplet: Upgrading applet to : " + targetAppletVersion);
                 upgradeApplet(appletInfo, "op." + currentTokenOperation, targetAppletVersion, getBeginMessage()
                         .getExtensions(),
                         tksConnId, 5, 12);
@@ -1041,7 +1037,7 @@ public class TPSProcessor {
         }
 
         if (upgraded == 0) {
-            CMS.debug("TPSProcessor.checkAndUpgradeApplet: applet already at correct version or upgrade disabled.");
+            logger.debug("TPSProcessor.checkAndUpgradeApplet: applet already at correct version or upgrade disabled.");
 
             // We didn't need to upgrade the applet but create new channel for now.
             selectCardManager();
@@ -1076,13 +1072,13 @@ public class TPSProcessor {
 
         String directory = getAppletDirectory(operation);
 
-        CMS.debug("TPSProcessor.upgradeApplet: applet target directory: " + directory);
+        logger.debug("TPSProcessor.upgradeApplet: applet target directory: " + directory);
 
         String appletFileExt = getAppletExtension();
 
         String appletFilePath = directory + "/" + new_version + "." + appletFileExt;
 
-        CMS.debug("TPSProcessor.upgradeApplet: targe applet file name: " + appletFilePath);
+        logger.debug("TPSProcessor.upgradeApplet: targe applet file name: " + appletFilePath);
 
         appletData = getAppletFileData(appletFilePath);
 
@@ -1129,13 +1125,13 @@ public class TPSProcessor {
 
     public void selectCoolKeyApplet() throws TPSException, IOException {
 
-        CMS.debug("In selectCoolKeyApplet!");
+        logger.debug("In selectCoolKeyApplet!");
         TPSBuffer netkeyAIDBuff = getNetkeyAID();
 
         APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, netkeyAIDBuff);
 
         if (!select.checkResult()) {
-            CMS.debug("TPSProcessor.selectCoolKeyApplet: Can't select coolkey, token may be blank.");
+            logger.debug("TPSProcessor.selectCoolKeyApplet: Can't select coolkey, token may be blank.");
             /* throw new TPSException("TPSProcessor.upgradeApplet: Cannot select newly created applet!",
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
                     */
@@ -1155,15 +1151,15 @@ public class TPSProcessor {
             contents = Files.readAllBytes(path);
 
         } catch (IOException e) {
-            CMS.debug("TPSProcessor.getAppletFileData: IOException " + e);
+            logger.error("TPSProcessor.getAppletFileData: IOException " + e.getMessage(), e);
             throw e;
         } catch (Exception e) {
-            CMS.debug("PSProcessor.getAppletFileData: Exception: " + e);
+            logger.error("PSProcessor.getAppletFileData: Exception: " + e.getMessage(), e);
             throw new TPSException("TPSProcessor.getAppletFileData: Exception: " + e,
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
-        CMS.debug("TPSProcessor.getAppletFileData: data: " + contents);
+        logger.debug("TPSProcessor.getAppletFileData: data: " + contents);
 
         return contents;
     }
@@ -1177,24 +1173,23 @@ public class TPSProcessor {
      */
     public TPSAuthenticator getAuthentication(String prefix, String tokenType)
             throws EBaseException {
-        CMS.debug("TPSProcessor.getAuthentication");
+        logger.debug("TPSProcessor.getAuthentication");
         String logMsg = null;
 
         if (prefix.isEmpty() || tokenType.isEmpty()) {
             logMsg = "TPSProcessor.getAuthentication: missing parameters: prefix or tokenType";
-            CMS.debug(logMsg);
+            logger.error(logMsg);
             throw new EBaseException(logMsg);
         }
         IConfigStore configStore = CMS.getConfigStore();
         String configName = prefix + "." + tokenType + ".auth.id";
         String authId;
 
-        CMS.debug("TPSProcessor.getAuthentication: getting config: " +
-                configName);
+        logger.debug("TPSProcessor.getAuthentication: getting config: " + configName);
         authId = configStore.getString(configName);
         if (authId == null) {
             logMsg = "TPSProcessor.getAuthentication: config param not found:" + configName;
-            CMS.debug(logMsg);
+            logger.error(logMsg);
             throw new EBaseException(logMsg);
         }
         return getAuthentication(authId);
@@ -1202,12 +1197,12 @@ public class TPSProcessor {
 
     public TPSAuthenticator getAuthentication(String authId)
             throws EBaseException {
-        CMS.debug("TPSProcessor.getAuthentication");
+        logger.debug("TPSProcessor.getAuthentication");
         String logMsg = null;
 
         if (authId.isEmpty()) {
             logMsg = "TPSProcessor.getAuthentication: missing parameters: authId";
-            CMS.debug(logMsg);
+            logger.error(logMsg);
             throw new EBaseException(logMsg);
         }
         IConfigStore configStore = CMS.getConfigStore();
@@ -1217,29 +1212,27 @@ public class TPSProcessor {
         TPSAuthenticator authInst =
                 subsystem.getAuthenticationManager().getAuthInstance(authId);
         String authCredNameConf = "auths.instance." + authId + ".authCredName";
-        CMS.debug("TPSProcessor.getAuthentication: getting config: " +
-                authCredNameConf);
+        logger.debug("TPSProcessor.getAuthentication: getting config: " + authCredNameConf);
         String authCredName = configStore.getString(authCredNameConf);
         if (authCredName == null) {
             logMsg = "TPSProcessor.getAuthentication: config param not found:" + authCredNameConf;
-            CMS.debug(logMsg);
+            logger.error(logMsg);
             throw new EBaseException(logMsg);
         }
         authInst.setAuthCredName(authCredName);
 
         // set ldapStringAttrs for later processing
         String authLdapStringAttrs = "auths.instance." + authId + ".ldapStringAttributes";
-        CMS.debug("TPSProcessor.getAuthentication: getting config: " +
-                authLdapStringAttrs);
+        logger.debug("TPSProcessor.getAuthentication: getting config: " + authLdapStringAttrs);
         String authLdapStringAttributes = configStore.getString(authLdapStringAttrs, "");
         if (authLdapStringAttributes != null && !authLdapStringAttributes.equals("")) {
             logMsg = "TPSProcessor.getAuthentication: got ldapStringAttributes... setting up";
-            CMS.debug(logMsg);
+            logger.debug(logMsg);
             ldapStringAttrs = Arrays.asList(authLdapStringAttributes.split(","));
         } else {
             // not set is okay
             logMsg = "TPSProcessor.getAuthentication: config param not set:" + authLdapStringAttributes;
-            CMS.debug(logMsg);
+            logger.debug(logMsg);
         }
 
         return authInst;
@@ -1259,13 +1252,13 @@ public class TPSProcessor {
 
         userCred = requestUserId(op, cuid, userAuth, beginMsg.getExtensions());
         userid = (String) userCred.get(userAuth.getAuthCredName());
-        CMS.debug(method + op + " userCred (attempted) userid=" + userid);
+        logger.debug(method + op + " userCred (attempted) userid=" + userid);
         tokenRecord.setUserID(userid);
         authToken = authenticateUser(op, userAuth, userCred);
         userid = authToken.getInString("userid");
 
         tokenRecord.setUserID(userid);
-        CMS.debug(method + " auth token userid=" + userid);
+        logger.debug(method + " auth token userid=" + userid);
     }
 
     /**
@@ -1284,10 +1277,10 @@ public class TPSProcessor {
             throws EBaseException, TPSException {
 
         String logMsg = null;
-        CMS.debug("TPSProcessor.authenticateUser");
+        logger.debug("TPSProcessor.authenticateUser");
         if (op.isEmpty() || userAuth == null || userCred == null) {
             logMsg = "TPSProcessor.authenticateUser: missing parameter(s): op, userAuth, or userCred";
-            CMS.debug(logMsg);
+            logger.error(logMsg);
             throw new EBaseException(logMsg);
         }
         IAuthManager auth = userAuth.getAuthManager();
@@ -1296,20 +1289,20 @@ public class TPSProcessor {
             // Authenticate user
             authToken = auth.authenticate(userCred);
             if (authToken != null) {
-                CMS.debug("TPSProcessor.authenticateUser: authentication success");
+                logger.debug("TPSProcessor.authenticateUser: authentication success");
                 Enumeration<String> n = authToken.getElements();
                 while (n.hasMoreElements()) {
                     String name = n.nextElement();
-                    CMS.debug("TPSProcessor.authenticateUser: got authToken val name:" + name);
+                    logger.debug("TPSProcessor.authenticateUser: got authToken val name:" + name);
                 }
                 return authToken;
             } else {
-                CMS.debug("TPSProcessor.authenticateUser: authentication failure with authToken null");
+                logger.error("TPSProcessor.authenticateUser: authentication failure with authToken null");
                 throw new TPSException("TPS error user authentication failed.",
                         TPSStatus.STATUS_ERROR_LOGIN);
             }
         } catch (EBaseException e) {
-            CMS.debug("TPSProcessor.authenticateUser: authentication failure:" + e);
+            logger.error("TPSProcessor.authenticateUser: authentication failure: " + e, e);
             throw new TPSException("TPS error user authentication failed.",
                     TPSStatus.STATUS_ERROR_LOGIN);
         }
@@ -1326,10 +1319,10 @@ public class TPSProcessor {
      */
     IAuthCredentials requestUserId(String op, String cuid, TPSAuthenticator auth, Map<String, String> extensions)
             throws IOException, TPSException, EBaseException {
-        CMS.debug("TPSProcessor.requestUserId");
+        logger.debug("TPSProcessor.requestUserId");
         if (op.isEmpty() ||
                 cuid.isEmpty() || auth == null) {
-            CMS.debug("TPSProcessor.requestUserId: missing parameter(s): op, cuid, or auth");
+            logger.error("TPSProcessor.requestUserId: missing parameter(s): op, cuid, or auth");
             throw new EBaseException("TPSProcessor.requestUserId: missing parameter(s): op, cuid, or auth");
         }
 
@@ -1354,7 +1347,7 @@ public class TPSProcessor {
             Set<String> params = new HashSet<String>();
             for (Map.Entry<String, AuthUIParameter> entry : authParamSet.entrySet()) {
                 params.add(auth.getUiParam(entry.getKey()).toString(locale));
-                CMS.debug("TPSProcessor.requestUserId: for extendedLoginRequest, added param: " +
+                logger.debug("TPSProcessor.requestUserId: for extendedLoginRequest, added param: " +
                         auth.getUiParam(entry.getKey()).toString(locale));
             }
 
@@ -1386,9 +1379,9 @@ public class TPSProcessor {
      */
     public IAuthCredentials mapCredFromMsgResponse(TPSMessage response, TPSAuthenticator auth, boolean extendedLogin)
             throws EBaseException {
-        CMS.debug("TPSProcessor.mapCredFromMsgResponse");
+        logger.debug("TPSProcessor.mapCredFromMsgResponse");
         if (response == null || auth == null) {
-            CMS.debug("TPSProcessor.mapCredFromMsgResponse: missing parameter(s): response or auth");
+            logger.error("TPSProcessor.mapCredFromMsgResponse: missing parameter(s): response or auth");
             throw new EBaseException("TPSProcessor.mapCredFromMsgResponse: missing parameter(s): response or auth");
         }
         IAuthCredentials login =
@@ -1397,8 +1390,7 @@ public class TPSProcessor {
         String[] requiredCreds = auth.getAuthManager().getRequiredCreds();
         for (String cred : requiredCreds) {
             String name = auth.getCredMap(cred, extendedLogin);
-            CMS.debug("TPSProcessor.mapCredFromMsgResponse: cred=" + cred + " &name=" +
-                    name);
+            logger.debug("TPSProcessor.mapCredFromMsgResponse: cred=" + cred + " &name=" + name);
             login.set(cred, response.get(name));
         }
 
@@ -1415,10 +1407,10 @@ public class TPSProcessor {
             TPSAuthenticator auth)
             throws IOException, TPSException, EBaseException {
 
-        CMS.debug("TPSProcessor.requestExtendedLogin");
+        logger.debug("TPSProcessor.requestExtendedLogin");
         if (parameters == null || title.isEmpty() ||
                 description.isEmpty() || auth == null) {
-            CMS.debug("TPSProcessor.requestExtendedLogin: missing parameter(s): parameters, title, description, or auth");
+            logger.error("TPSProcessor.requestExtendedLogin: missing parameter(s): parameters, title, description, or auth");
             throw new EBaseException(
                     "TPSProcessor.requestExtendedLogin: missing parameter(s): parameters, title, description, or auth");
         }
@@ -1428,16 +1420,16 @@ public class TPSProcessor {
         try {
             session.write(loginReq);
         } catch (IOException e) {
-            CMS.debug("TPSProcessor.requestExtendedLogin failed WriteMsg: " + e.toString());
+            logger.error("TPSProcessor.requestExtendedLogin failed WriteMsg: " + e.getMessage(), e);
             throw e;
         }
-        CMS.debug("TPSProcessor.requestExtendedLogin: extendedLoginRequest sent");
+        logger.debug("TPSProcessor.requestExtendedLogin: extendedLoginRequest sent");
 
         ExtendedLoginResponseMsg loginResp = null;
         try {
             loginResp = (ExtendedLoginResponseMsg) session.read();
         } catch (IOException e) {
-            CMS.debug("TPSProcessor.requestExtendedLogin failed ReadMsg: " + e.toString());
+            logger.error("TPSProcessor.requestExtendedLogin failed ReadMsg: " + e.getMessage(), e);
             throw e;
         }
 
@@ -1453,9 +1445,9 @@ public class TPSProcessor {
             TPSAuthenticator auth)
             throws IOException, TPSException, EBaseException {
 
-        CMS.debug("TPSProcessor.requestLogin");
+        logger.debug("TPSProcessor.requestLogin");
         if (auth == null) {
-            CMS.debug("TPSProcessor.requestLogin: missing parameter(s): parameters, title, description, or auth");
+            logger.error("TPSProcessor.requestLogin: missing parameter(s): parameters, title, description, or auth");
             throw new EBaseException(
                     "TPSProcessor.requestLogin: missing parameter(s): parameters, title, description, or auth");
         }
@@ -1464,16 +1456,16 @@ public class TPSProcessor {
         try {
             session.write(loginReq);
         } catch (IOException e) {
-            CMS.debug("TPSProcessor.requestLogin failed WriteMsg: " + e.toString());
+            logger.error("TPSProcessor.requestLogin failed WriteMsg: " + e.getMessage(), e);
             throw e;
         }
-        CMS.debug("TPSProcessor.requestLogin: loginRequest sent");
+        logger.debug("TPSProcessor.requestLogin: loginRequest sent");
 
         LoginResponseMsg loginResp = null;
         try {
             loginResp = (LoginResponseMsg) session.read();
         } catch (IOException e) {
-            CMS.debug("TPSProcessor.requestLogin failed ReadMsg: " + e.toString());
+            logger.error("TPSProcessor.requestLogin failed ReadMsg: " + e.getMessage(), e);
             throw e;
         }
 
@@ -1490,9 +1482,9 @@ public class TPSProcessor {
     protected void fillTokenRecord(TokenRecord tokenRecord, AppletInfo appletInfo)
             throws TPSException {
         String method = "TPSProcessor.fillTokenRecord";
-        CMS.debug(method + ": begins");
+        logger.debug(method + ": begins");
         if (tokenRecord == null || appletInfo == null) {
-            CMS.debug(method + ": params tokenRecord and appletInfo cannot be null");
+            logger.error(method + ": params tokenRecord and appletInfo cannot be null");
             throw new TPSException(
                     method + ": missing parameter(s): parameter appletInfo");
         }
@@ -1503,7 +1495,7 @@ public class TPSProcessor {
         try {
             build_id = getAppletVersion();
         } catch (IOException e) {
-            CMS.debug(method + ": failed getting applet version:" + e + " ... continue");
+            logger.warn(method + ": failed getting applet version:" + e.getMessage(), e);
         }
         if (build_id != null) {
             tokenRecord.setAppletID(Integer.toHexString(app_major_version) + "."
@@ -1511,7 +1503,7 @@ public class TPSProcessor {
                     build_id.toHexStringPlain());
         }
 
-        CMS.debug(method + ": ends");
+        logger.debug(method + ": ends");
 
     }
 
@@ -1521,16 +1513,16 @@ public class TPSProcessor {
             throw new TPSException("TPSProcessor.isTokenRecordPresent: invalid input data.");
         }
 
-        CMS.debug("TPSProcessor.isTokenRecordPresent: " + appletInfo.getCUIDhexString());
+        logger.debug("TPSProcessor.isTokenRecordPresent: " + appletInfo.getCUIDhexString());
 
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         try {
             tokenRecord = tps.tdb.tdbGetTokenEntry(appletInfo.getCUIDhexStringPlain());
             // now the in memory tokenRecord is replaced by the actual token data
-            CMS.debug("TPSProcessor.isTokenRecordPresent: found token...");
+            logger.debug("TPSProcessor.isTokenRecordPresent: found token...");
         } catch (Exception e) {
-            CMS.debug("TPSProcessor.isTokenRecordPresent: token does not exist in tokendb... create one in memory");
+            logger.warn("TPSProcessor: token does not exist in tokendb... create one in memory: " + e.getMessage(), e);
         }
 
         return tokenRecord;
@@ -1557,12 +1549,12 @@ public class TPSProcessor {
                 enrollType + "." +
                 keyType+
                 ".ca.conn";
-            CMS.debug(method + " getting config: " + config);
+            logger.debug(method + " getting config: " + config);
         } else {
             config = TPSEngine.OP_FORMAT_PREFIX + "." +
                 selectedTokenType +
                 ".ca.conn";
-            CMS.debug(method + " getting config: " + config);
+            logger.debug(method + " getting config: " + config);
         }
 
         try {
@@ -1572,7 +1564,7 @@ public class TPSProcessor {
 
         }
 
-        CMS.debug(method + " returning: " + id);
+        logger.debug(method + " returning: " + id);
 
         return id;
     }
@@ -1583,22 +1575,22 @@ public class TPSProcessor {
     protected boolean revokeCertsAtFormat() {
         String method = "revokeCertsAtFormat";
         String logMsg;
-        CMS.debug(method + ": begins");
+        logger.debug(method + ": begins");
 
         IConfigStore configStore = CMS.getConfigStore();
         String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert";
         boolean revokeCert = false;
         try {
-            CMS.debug(method + ": getting config:" + configName);
+            logger.debug(method + ": getting config:" + configName);
             revokeCert = configStore.getBoolean(configName, false);
         } catch (EBaseException e) {
             logMsg = method + ": config not found: " + configName +
-                    "; default to false";
-            CMS.debug(logMsg);
+                    "; default to false: " + e.getMessage();
+            logger.warn(logMsg, e);
         }
         if (!revokeCert) {
             logMsg = method + ":  revokeCert = false";
-            CMS.debug(logMsg);
+            logger.debug(logMsg);
         }
         return revokeCert;
     }
@@ -1609,7 +1601,7 @@ public class TPSProcessor {
 
         IConfigStore configStore = CMS.getConfigStore();
         String configName = TPSEngine.OP_FORMAT_PREFIX + "." + selectedTokenType + ".revokeCert.reason";
-        CMS.debug(method + " finding config: " + configName);
+        logger.debug(method + " finding config: " + configName);
 
         RevocationReason revokeReason = RevocationReason.UNSPECIFIED;
         try {
@@ -1617,8 +1609,8 @@ public class TPSProcessor {
             revokeReason = RevocationReason.fromInt(revokeReasonInt);
         } catch (EBaseException e) {
             logMsg = method + ": config not found: " + configName +
-                    "; default to unspecified";
-            CMS.debug(logMsg);
+                    "; default to unspecified: " + e.getMessage();
+            logger.warn(logMsg, e);
             revokeReason = RevocationReason.UNSPECIFIED;
         }
 
@@ -1638,15 +1630,15 @@ public class TPSProcessor {
 
         if (cuid == null) {
             logMsg = "cuid null";
-            CMS.debug(method + ":" + logMsg);
+            logger.error(method + ":" + logMsg);
             throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
         }
-        CMS.debug(method + ": begins for cuid:" + cuid);
+        logger.debug(method + ": begins for cuid:" + cuid);
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
         boolean isTokenPresent = tps.tdb.isTokenPresent(cuid);
         if (!isTokenPresent) {
             logMsg = method + ": token not found: " + cuid;
-            CMS.debug(logMsg);
+            logger.error(logMsg);
             throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
         }
 
@@ -1654,25 +1646,25 @@ public class TPSProcessor {
         try {
             caRH = new CARemoteRequestHandler(caConnId);
         } catch (EBaseException e) {
-            logMsg = method + ": getting CARemoteRequestHandler failure";
-            CMS.debug(logMsg);
+            logMsg = method + ": getting CARemoteRequestHandler failure: " + e.getMessage();
+            logger.error(logMsg, e);
             throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
         }
         //find all certs belonging to the token
         Collection<TPSCertRecord> certRecords = tps.tdb.tdbGetCertRecordsByCUID(cuid);
 
-        CMS.debug(method + ": found " + certRecords.size() + " certs");
+        logger.debug(method + ": found " + certRecords.size() + " certs");
 
         for (TPSCertRecord cert : certRecords) {
             if (cert.getStatus().equals("revoked")) {
                 // already revoked cert should not be on token any more
-                CMS.debug(method + ": cert " + cert.getSerialNumber()
+                logger.debug(method + ": cert " + cert.getSerialNumber()
                         + " already revoked; remove from tokendb and move on");
                 try {
                     tps.certDatabase.removeRecord(cert.getId());
                 } catch (Exception e) {
-                    logMsg = method + ": removeRecord failed";
-                    CMS.debug(logMsg);
+                    logMsg = method + ": removeRecord failed: " + e.getMessage();
+                    logger.error(logMsg, e);
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
                 }
                 continue;
@@ -1687,22 +1679,22 @@ public class TPSProcessor {
                  * To figure out if this certificate is originally created
                  * for this token, we check the tokenOrigin attribute.
                  */
-                CMS.debug(method + ": cert " + cert.getSerialNumber()
+                logger.debug(method + ": cert " + cert.getSerialNumber()
                         + " originally created for this token: " + origin +
                         " while current token: " + cuid
                         + "; Remove from tokendb and skip the revoke");
                 try {
                     tps.certDatabase.removeRecord(cert.getId());
                 } catch (Exception e) {
-                    logMsg = method + ": removeRecord failed";
-                    CMS.debug(logMsg);
+                    logMsg = method + ": removeRecord failed: " + e.getMessage();
+                    logger.error(logMsg, e);
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
                 }
                 continue;
             }
             if (origin == null) {
                 // no tokenOrigin, then don't care, keep going
-                CMS.debug(method + ": tokenOrigin is not present in tokendb cert record");
+                logger.debug(method + ": tokenOrigin is not present in tokendb cert record");
             }
 
             // revoke the cert
@@ -1711,13 +1703,13 @@ public class TPSProcessor {
              * be referenced by more than one token.
              */
             if (cert.getStatus().equals(TokenCertStatus.ONHOLD.toString())) {
-                CMS.debug(method + ": cert " + cert.getSerialNumber()
+                logger.debug(method + ": cert " + cert.getSerialNumber()
                         + " has status revoked_on_hold; remove from tokendb and move on");
                 try {
                     tps.certDatabase.removeRecord(cert.getId());
                 } catch (Exception e) {
-                    logMsg = method + ": removeRecord failed";
-                    CMS.debug(logMsg);
+                    logMsg = method + ": removeRecord failed: " + e.getMessage();
+                    logger.error(logMsg, e);
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
                 }
                 continue;
@@ -1728,17 +1720,17 @@ public class TPSProcessor {
                 String serial = hexSerial.substring(2); // skip over the '0x'
                 BigInteger bInt = new BigInteger(serial, 16);
                 String serialStr = bInt.toString();
-                CMS.debug(method + ": found cert hex serial: " + serial +
+                logger.debug(method + ": found cert hex serial: " + serial +
                         " dec serial:" + serialStr);
                 try {
                     CARevokeCertResponse response = caRH.revokeCertificate(true, serialStr, cert.getCertificate(),
                             revokeReason);
-                    CMS.debug(method + ": response status =" + response.getStatus());
+                    logger.debug(method + ": response status =" + response.getStatus());
                     auditRevoke(cuid, true, revokeReason.getCode(), String.valueOf(response.getStatus()), serialStr,
                             caConnId, null);
                 } catch (EBaseException e) {
-                    logMsg = method + ": revokeCertificate from CA failed:" + e;
-                    CMS.debug(logMsg);
+                    logMsg = method + ": revokeCertificate from CA failed: " + e.getMessage();
+                    logger.error(logMsg, e);
                     auditRevoke(cuid, true, revokeReason.getCode(), "failure", serialStr, caConnId, null);
 
                     if (revokeReason == RevocationReason.CERTIFICATE_HOLD) {
@@ -1754,7 +1746,7 @@ public class TPSProcessor {
                 }
             } else {
                 logMsg = "mulformed hex serial number :" + hexSerial;
-                CMS.debug(method + ": " + logMsg);
+                logger.error(method + ": " + logMsg);
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, session.getTokenRecord(), session.getIpAddress(),
                         logMsg,
                         "failure");
@@ -1765,18 +1757,18 @@ public class TPSProcessor {
                     "success");
 
             // delete cert from tokendb
-            CMS.debug(method + ": cert " + cert.getSerialNumber()
+            logger.debug(method + ": cert " + cert.getSerialNumber()
                     + ": remove from tokendb");
             try {
                 tps.certDatabase.removeRecord(cert.getId());
             } catch (Exception e) {
-                logMsg = "removeRecord failed:" + e;
-                CMS.debug(method + ": " + logMsg);
+                logMsg = "removeRecord failed: " + e.getMessage();
+                logger.error(method + ": " + logMsg, e);
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
             }
             continue;
         }
-        CMS.debug(method + ": done for cuid:" + cuid);
+        logger.debug(method + ": done for cuid:" + cuid);
     }
 
     /*
@@ -1814,26 +1806,24 @@ public class TPSProcessor {
         ExternalRegAttrs erAttrs = new ExternalRegAttrs(authId);
         IConfigStore configStore = CMS.getConfigStore();
 
-        CMS.debug(method + ": getting from authToken:"
-                + erAttrs.ldapAttrNameTokenType);
+        logger.debug(method + ": getting from authToken: " + erAttrs.ldapAttrNameTokenType);
         vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenType);
         if (vals == null) {
             // get the default externalReg tokenType
             configName = "externalReg.default.tokenType";
             tVal = configStore.getString(configName,
                     "externalRegAddToToken");
-            CMS.debug(method + ": set default tokenType:" + tVal);
+            logger.debug(method + ": set default tokenType: " + tVal);
             erAttrs.setTokenType(tVal);
         } else {
-            CMS.debug(method + ": retrieved tokenType:" + vals[0]);
+            logger.debug(method + ": retrieved tokenType: " + vals[0]);
             erAttrs.setTokenType(vals[0]);
         }
 
-        CMS.debug(method + ": getting from authToken:"
-                + erAttrs.ldapAttrNameTokenCUID);
+        logger.debug(method + ": getting from authToken: " + erAttrs.ldapAttrNameTokenCUID);
         vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenCUID);
         if (vals != null) {
-            CMS.debug(method + ": retrieved cuid:" + vals[0]);
+            logger.debug(method + ": retrieved cuid:" + vals[0]);
             erAttrs.setTokenCUID(vals[0]);
         }
 
@@ -1841,13 +1831,13 @@ public class TPSProcessor {
          * certs to be recovered for this user
          *     - multi-valued
          */
-        CMS.debug(method + ": getting from authToken:"
+        logger.debug(method + ": getting from authToken:"
                 + erAttrs.ldapAttrNameCertsToRecover);
         vals = authToken.getInStringArray(erAttrs.ldapAttrNameCertsToRecover);
         if (vals != null) {
             // if any cert is mis-configured, the whole thing will bail
             for (String val : vals) {
-                CMS.debug(method + ": retrieved certsToRecover:" + val);
+                logger.debug(method + ": retrieved certsToRecover:" + val);
                 /*
                  * Each cert is represented as
                  *    (serial#, caID, keyID, kraID)
@@ -1867,12 +1857,12 @@ public class TPSProcessor {
                 int i = 0;
                 for (i = 0; i < items.length; i++) {
                     if (i == 0) {
-                        CMS.debug(method + "setting serial: " + items[i]);
+                        logger.debug(method + "setting serial: " + items[i]);
                         erCert.setSerial(new BigInteger(items[i]));
                     } else if (i == 1)
                         erCert.setCaConn(items[i]);
                     else if (i == 2) {
-                        CMS.debug(method + "setting keyid: " + items[i]);
+                        logger.debug(method + "setting keyid: " + items[i]);
                         erCert.setKeyid(new BigInteger(items[i]));
                     } else if (i == 3)
                         erCert.setKraConn(items[i]);
@@ -1883,7 +1873,7 @@ public class TPSProcessor {
                 erAttrs.addCertToRecover(erCert);
             }
         } else {
-            CMS.debug(method + ": certsToRecover attribute " + erAttrs.ldapAttrNameCertsToRecover +
+            logger.debug(method + ": certsToRecover attribute " + erAttrs.ldapAttrNameCertsToRecover +
                     " not found");
         }
 
@@ -1892,12 +1882,12 @@ public class TPSProcessor {
          *     - multi-valued
          * TODO: decide if we need CertsToDelete or not
          *
-        CMS.debug(method + ": getting from authToken:"
+        logger.debug(method + ": getting from authToken:"
                 + erAttrs.ldapAttrNameCertsToDelete);
         vals = authToken.getInStringArray(erAttrs.ldapAttrNameCertsToDelete);
         if (vals != null) {
             for (String val : vals) {
-                CMS.debug(method + ": retrieved certsToDelete:" + val);
+                logger.debug(method + ": retrieved certsToDelete:" + val);
 
                 //  Each cert is represented as
                 //     (serial#, caID, revokeOnDelete)
@@ -1934,21 +1924,19 @@ public class TPSProcessor {
         IConfigStore configStore = CMS.getConfigStore();
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
 
-        CMS.debug(method + " begins");
+        logger.debug(method + " begins");
         if (erAttrs == null || erAttrs.getTokenType() == null) {
             // get the default externalReg tokenType
             String configName = "externalReg.default.tokenType";
-            CMS.debug(method + "erAttrs null or externalReg user entry does not contain tokenType...setting to default config: "
+            logger.debug(method + "erAttrs null or externalReg user entry does not contain tokenType...setting to default config: "
                     + configName);
             try {
                 String tokenType = configStore.getString(configName,
                         "externalRegAddToToken");
-                CMS.debug(method + " setting tokenType to default:" +
-                        tokenType);
+                logger.debug(method + " setting tokenType to default: " + tokenType);
                 setSelectedTokenType(tokenType);
             } catch (EBaseException e) {
-                CMS.debug(method + " Internal Error obtaining mandatory config values. Error: "
-                        + e);
+                logger.debug(method + " Internal Error obtaining mandatory config values: " + e.getMessage(), e);
                 String logMsg = "TPS error getting config values from config store." + e.toString();
                 tps.tdb.tdbActivity(currentTokenOperation, session.getTokenRecord(), session.getIpAddress(), logMsg,
                         "failure");
@@ -1956,9 +1944,7 @@ public class TPSProcessor {
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
         } else {
-            CMS.debug(method + " setting tokenType to tokenType attribute of user entry:"
-                    +
-                    erAttrs.getTokenType());
+            logger.debug(method + " setting tokenType to tokenType attribute of user entry: " + erAttrs.getTokenType());
             setSelectedTokenType(erAttrs.getTokenType());
         }
     }
@@ -1970,7 +1956,7 @@ public class TPSProcessor {
         String logMsg = null;
         String appletVersion = null;
 
-        CMS.debug("TPSProcessor.format begins");
+        logger.debug("TPSProcessor.format begins");
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
 
         AppletInfo appletInfo = null;
@@ -1990,16 +1976,16 @@ public class TPSProcessor {
         }
         appletInfo.setAid(getCardManagerAID());
 
-        CMS.debug("TPSProcessor.format: token cuid: " + appletInfo.getCUIDhexStringPlain());
+        logger.debug("TPSProcessor.format: token cuid: " + appletInfo.getCUIDhexStringPlain());
         boolean isTokenPresent = false;
 
         tokenRecord = isTokenRecordPresent(appletInfo);
 
         if (tokenRecord != null) {
-            CMS.debug("TPSProcessor.format: found token...");
+            logger.debug("TPSProcessor.format: found token...");
             isTokenPresent = true;
         } else {
-            CMS.debug("TPSProcessor.format: token does not exist in tokendb... create one in memory");
+            logger.debug("TPSProcessor.format: token does not exist in tokendb... create one in memory");
             tokenRecord = new TokenRecord();
             tokenRecord.setId(appletInfo.getCUIDhexStringPlain());
         }
@@ -2008,7 +1994,7 @@ public class TPSProcessor {
         session.setTokenRecord(tokenRecord);
 
         String cuid = appletInfo.getCUIDhexString();
-        CMS.debug("TPSProcessor.format: CUID hex string=" + appletInfo.getCUIDhexStringPlain());
+        logger.debug("TPSProcessor.format: CUID hex string=" + appletInfo.getCUIDhexStringPlain());
         //tokenRecord.setId(appletInfo.getCUIDhexString(true));
         String msn = appletInfo.getMSNString();
 
@@ -2017,7 +2003,7 @@ public class TPSProcessor {
         byte app_major_version = appletInfo.getAppMajorVersion();
         byte app_minor_version = appletInfo.getAppMinorVersion();
 
-        CMS.debug("TPSProcessor.format: major_version " + major_version + " minor_version: " + minor_version
+        logger.debug("TPSProcessor.format: major_version " + major_version + " minor_version: " + minor_version
                 + " app_major_version: " + app_major_version + " app_minor_version: " + app_minor_version);
 
         String tokenType = "tokenType";
@@ -2025,7 +2011,7 @@ public class TPSProcessor {
         IAuthCredentials userCred =
                 new com.netscape.certsrv.authentication.AuthCredentials();
         if (isExternalReg) {
-            CMS.debug("In TPSProcessor.format isExternalReg: ON");
+            logger.debug("In TPSProcessor.format isExternalReg: ON");
             /*
               need to reach out to the Registration DB (authid)
               Entire user entry should be retrieved and parsed, if needed
@@ -2046,7 +2032,7 @@ public class TPSProcessor {
             try {
                 requireLoginRequest = configStore.getBoolean(configName, false);
             } catch (EBaseException e) {
-                CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
+                logger.error("TPSProcessor.format: Internal Error obtaining mandatory config values: " + e.getMessage(), e);
                 logMsg = "TPS error getting config values from config store." + e.toString();
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
@@ -2054,7 +2040,7 @@ public class TPSProcessor {
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
             if (!requireLoginRequest) {
-                CMS.debug("In TPSProcessor.format: no Login required");
+                logger.debug("In TPSProcessor.format: no Login required");
                 // get the default externalReg tokenType
                 configName = "externalReg.default.tokenType";
                 try {
@@ -2062,24 +2048,24 @@ public class TPSProcessor {
                             "externalRegAddToToken");
                     setSelectedTokenType(tokenType);
                 } catch (EBaseException e) {
-                    CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
+                    logger.error("TPSProcessor.format: Internal Error obtaining mandatory config values: " + e.getMessage(), e);
                     logMsg = "TPS error getting config values from config store." + e.toString();
                     tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
 
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
                 }
-                CMS.debug("In TPSProcessor.format: isExternalReg: setting tokenType to default first:" +
+                logger.debug("In TPSProcessor.format: isExternalReg: setting tokenType to default first:" +
                         tokenType);
             } else {
                 /* get user login and password - set in "login" */
-                CMS.debug("In TPSProcessor.format: isExternalReg: calling requestUserId");
+                logger.debug("In TPSProcessor.format: isExternalReg: calling requestUserId");
                 configName = "externalReg.authId";
                 String authId;
                 try {
                     authId = configStore.getString(configName);
                 } catch (EBaseException e) {
-                    CMS.debug("TPSProcessor.format: Internal Error obtaining mandatory config values. Error: " + e);
+                    logger.error("TPSProcessor.format: Internal Error obtaining mandatory config values: " + e.getMessage(), e);
                     logMsg = "TPS error getting config values from config store." + e.toString();
                     tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
@@ -2098,7 +2084,7 @@ public class TPSProcessor {
                     auditAuthFailure(userid, currentTokenOperation, appletInfo,
                             (userAuth != null) ? userAuth.getID() : null);
 
-                    CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
+                    logger.error("TPSProcessor.format:: authentication exception thrown: " + e.getMessage(), e);
                     logMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
 
                     tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
@@ -2125,19 +2111,19 @@ public class TPSProcessor {
 
                 for (ExternalRegCertToRecover erCert : erCertsToRecover) {
                     BigInteger serial = erCert.getSerial();
-                    CMS.debug("In TPSProcessor.format: " + "serial: " + serial.toString());
+                    logger.debug("In TPSProcessor.format: " + "serial: " + serial);
                     BigInteger keyid = erCert.getKeyid();
                     if (keyid != null)
-                        CMS.debug("In TPSProcessor.format: " + "keyid: " + keyid.toString());
+                        logger.debug("In TPSProcessor.format: " + "keyid: " + keyid);
                     else
-                        CMS.debug("In TPSProcessor.format: " + "no keyid");
+                        logger.debug("In TPSProcessor.format: " + "no keyid");
                 }
                 test ends */
 
                 setExternalRegSelectedTokenType(erAttrs);
 //                setSelectedTokenType(erAttrs.getTokenType());
             }
-            CMS.debug("In TPSProcessor.format: isExternalReg: about to process keySet resolver");
+            logger.debug("In TPSProcessor.format: isExternalReg: about to process keySet resolver");
             /*
              * Note: externalReg.mappingResolver=none indicates no resolver
              *    plugin used
@@ -2155,7 +2141,7 @@ public class TPSProcessor {
                             subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
                     String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet");
                     setSelectedKeySet(keySet);
-                    CMS.debug("In TPSProcessor.format: resolved keySet: " + keySet);
+                    logger.debug("In TPSProcessor.format: resolved keySet: " + keySet);
                 }
             } catch (TPSException e) {
                 logMsg = e.toString();
@@ -2165,7 +2151,7 @@ public class TPSProcessor {
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
         } else {
-            CMS.debug("In TPSProcessor.format isExternalReg: OFF");
+            logger.debug("In TPSProcessor.format isExternalReg: OFF");
             /*
              * Note: op.format.tokenProfileResolver=none indicates no resolver
              *    plugin used (tokenType resolved perhaps via authentication)
@@ -2183,7 +2169,7 @@ public class TPSProcessor {
                             subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
                     tokenType = resolverInst.getResolvedMapping(mappingParams);
                     setSelectedTokenType(tokenType);
-                    CMS.debug("In TPSProcessor.format: resolved tokenType: " + tokenType);
+                    logger.debug("In TPSProcessor.format: resolved tokenType: " + tokenType);
                 }
             } catch (TPSException e) {
                 logMsg = e.toString();
@@ -2192,7 +2178,7 @@ public class TPSProcessor {
 
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
-            CMS.debug("TPSProcessor.format: calculated tokenType: " + tokenType);
+            logger.debug("TPSProcessor.format: calculated tokenType: " + tokenType);
         }
 
         // isExternalReg : user already authenticated earlier
@@ -2201,13 +2187,13 @@ public class TPSProcessor {
             configName = TPSEngine.OP_FORMAT_PREFIX + "." + tokenType + ".auth.enable";
             boolean isAuthRequired;
             try {
-                CMS.debug("TPSProcessor.format: getting config: " + configName);
+                logger.debug("TPSProcessor.format: getting config: " + configName);
                 isAuthRequired = configStore.getBoolean(configName, true);
             } catch (EBaseException e) {
                 String info = " Internal Error obtaining mandatory config values. Error: " + e;
                 auditFormatFailure(userid, appletInfo, info);
 
-                CMS.debug("TPSProcessor.format: " + info);
+                logger.error("TPSProcessor.format: " + info, e);
                 logMsg = "TPS error: " + info;
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
@@ -2228,7 +2214,7 @@ public class TPSProcessor {
                     auditAuthFailure(userid, currentTokenOperation, appletInfo,
                             (userAuth != null) ? userAuth.getID() : null);
 
-                    CMS.debug("TPSProcessor.format:: authentication exception thrown: " + e);
+                    logger.error("TPSProcessor.format:: authentication exception thrown: " + e.getMessage(), e);
                     logMsg = "authentication failed, status = STATUS_ERROR_LOGIN";
 
                     tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
@@ -2244,14 +2230,14 @@ public class TPSProcessor {
         checkProfileStateOK();
 
         if (isTokenPresent) {
-            CMS.debug("TPSProcessor.format: token exists");
+            logger.debug("TPSProcessor.format: token exists");
             TokenStatus newState = TokenStatus.FORMATTED;
             // Check for transition to FORMATTED status.
 
             if (!tps.isOperationTransitionAllowed(tokenRecord, newState)) {
                 String info = " illegal transition attempted: " + tokenRecord.getTokenStatus() +
                         " to " + newState;
-                CMS.debug("TPSProcessor.format: token transition: " + info);
+                logger.error("TPSProcessor.format: token transition: " + info);
                 logMsg = "Operation for CUID " + appletInfo.getCUIDhexStringPlain() + " Disabled. " + info;
                 auditFormatFailure(userid, appletInfo, info);
 
@@ -2261,7 +2247,7 @@ public class TPSProcessor {
                 throw new TPSException(logMsg,
                         TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
             } else {
-                CMS.debug("TPSProcessor.format: token transition allowed " +
+                logger.debug("TPSProcessor.format: token transition allowed " +
                         tokenRecord.getTokenStatus() +
                         " to " + newState);
             }
@@ -2269,12 +2255,12 @@ public class TPSProcessor {
             checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
 
             tokenRecord.setTokenStatus(TokenStatus.UNFORMATTED);
-            CMS.debug("TPSProcessor.format: token does not exist");
+            logger.debug("TPSProcessor.format: token does not exist");
             logMsg = "add token during format";
             try {
                 tps.tdb.tdbAddTokenEntry(tokenRecord, TokenStatus.UNFORMATTED);
                 tps.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord, session.getIpAddress(), logMsg, "success");
-                CMS.debug("TPSProcessor.format: token added");
+                logger.debug("TPSProcessor.format: token added");
             } catch (Exception e) {
                 logMsg = logMsg + ":" + e.toString();
                 tps.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord, session.getIpAddress(), logMsg,
@@ -2296,7 +2282,7 @@ public class TPSProcessor {
 
         String appletRequiredVersion = checkForAppletUpgrade(TPSEngine.OP_FORMAT_PREFIX);
 
-        CMS.debug("TPSProcessor.format: appletVersion found: " + appletVersion + " requiredVersion: "
+        logger.debug("TPSProcessor.format: appletVersion found: " + appletVersion + " requiredVersion: "
                 + appletRequiredVersion);
 
         String tksConnId = getTKSConnectorID();
@@ -2304,7 +2290,7 @@ public class TPSProcessor {
         upgradeApplet(appletInfo,TPSEngine.OP_FORMAT_PREFIX, appletRequiredVersion,
                 beginMsg.getExtensions(), tksConnId,
                 10, 90);
-        CMS.debug("TPSProcessor.format: Completed applet upgrade.");
+        logger.debug("TPSProcessor.format: Completed applet upgrade.");
 
 
         // Add issuer info to the token
@@ -2339,15 +2325,15 @@ public class TPSProcessor {
             } catch (TPSException te) {
                 // failed revocation; capture message and continue
                 String failMsg = "revoke certificates failure";
-                logMsg = failMsg + ":" + te.toString();
-                CMS.debug("TPSProcessor.format: " + logMsg);
+                logMsg = failMsg + ":" + te.getMessage();
+                logger.error("TPSProcessor.format: " + logMsg, te);
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
             } catch (Exception ee) {
                 String failMsg = "revoke certificates failure";
-                logMsg = failMsg + ":" + ee.toString();
-                CMS.debug("TPSProcessor.format: " + logMsg);
+                logMsg = failMsg + ":" + ee.getMessage();
+                logger.error("TPSProcessor.format: " + logMsg, ee);
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
@@ -2359,8 +2345,8 @@ public class TPSProcessor {
             tps.tdb.tdbRemoveCertificatesByCUID(tokenRecord.getId());
         } catch (Exception e) {
             logMsg = "Attempt to clean up record with tdbRemoveCertificatesByCUID failed; token probably clean; continue anyway:"
-                    + e;
-            CMS.debug("TPSProcessor.format: " + logMsg);
+                    + e.getMessage();
+            logger.warn("TPSProcessor.format: " + logMsg, e);
         }
 
         // Update Token DB
@@ -2377,7 +2363,7 @@ public class TPSProcessor {
             throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
         }
 
-        CMS.debug("TPSProcessor.format:: ends");
+        logger.debug("TPSProcessor.format:: ends");
 
     }
 
@@ -2414,7 +2400,7 @@ public class TPSProcessor {
 
     protected String getResolverInstanceName() throws TPSException {
 
-        CMS.debug("TPSProcessor.getResolverInstanceName: entering for operaiton : " + currentTokenOperation);
+        logger.debug("TPSProcessor.getResolverInstanceName: entering for operaiton : " + currentTokenOperation);
         IConfigStore configStore = CMS.getConfigStore();
         String resolverInstName = null;
 
@@ -2441,7 +2427,7 @@ public class TPSProcessor {
         String config = opPrefix +
                 "." + TPSEngine.CFG_MAPPING_RESOLVER;
 
-        CMS.debug("TPSProcessor.getResolverInstanceName: getting config: " + config);
+        logger.debug("TPSProcessor.getResolverInstanceName: getting config: " + config);
         try {
             resolverInstName = configStore.getString(config, opDefault);
         } catch (EBaseException e) {
@@ -2449,25 +2435,25 @@ public class TPSProcessor {
 
         }
 
-        CMS.debug("TPSProcessor.getResolverInstanceName: returning: " + resolverInstName);
+        logger.debug("TPSProcessor.getResolverInstanceName: returning: " + resolverInstName);
 
         return resolverInstName;
     }
 
     protected String getKeySetResolverInstanceName() throws TPSException {
         String method = "TPSProcessor.getKeySetResolverInstanceName: ";
-        CMS.debug(method + " begins");
+        logger.debug(method + " begins");
         IConfigStore configStore = CMS.getConfigStore();
         String resolverInstName = null;
 
         if (!isExternalReg) {
-            CMS.debug(method + "externalReg not enabled; keySet mapping currently only supported in externalReg.");
+            logger.warn(method + "externalReg not enabled; keySet mapping currently only supported in externalReg.");
             return null;
         }
         String config = "externalReg" +
                 "." + TPSEngine.CFG_MAPPING_RESOLVER;
 
-        CMS.debug(method + " getting config: " + config);
+        logger.debug(method + " getting config: " + config);
         try {
             resolverInstName = configStore.getString(config, "none");
         } catch (EBaseException e) {
@@ -2476,7 +2462,7 @@ public class TPSProcessor {
         if (resolverInstName.equals(""))
             resolverInstName = "none";
 
-        CMS.debug(method + " returning: " + resolverInstName);
+        logger.debug(method + " returning: " + resolverInstName);
 
         return resolverInstName;
     }
@@ -2502,7 +2488,7 @@ public class TPSProcessor {
 
             try {
                 mappingParams = new FilterMappingParams();
-                CMS.debug(method + " after new MappingFilterParams");
+                logger.debug(method + " after new MappingFilterParams");
                 mappingParams.set(FilterMappingParams.FILTER_PARAM_MAJOR_VERSION,
                         String.valueOf(major_version));
                 mappingParams.set(FilterMappingParams.FILTER_PARAM_MINOR_VERSION,
@@ -2518,10 +2504,10 @@ public class TPSProcessor {
                     mappingParams.set(FilterMappingParams.FILTER_PARAM_EXT_KEY_SET,
                             beginMsg.getExtensions().get("keySet"));
                 }
-                CMS.debug(method + " MappingFilterParams set");
+                logger.debug(method + " MappingFilterParams set");
 
             } catch (Exception et) {
-                CMS.debug(method + " exception:" + et);
+                logger.error(method + " exception: " + et.getMessage(), et);
                 throw new TPSException(method + " failed.",
                         TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
@@ -2535,7 +2521,7 @@ public class TPSProcessor {
 
         String config = "op." + currentTokenOperation + "." + selectedTokenType + "." + TPSEngine.CFG_ISSUER_INFO_VALUE;
 
-        CMS.debug("TPSProcessor.getIssuerInfoValue: getting config: " + config);
+        logger.debug("TPSProcessor.getIssuerInfoValue: getting config: " + config);
         try {
             info = configStore.getString(config, null);
         } catch (EBaseException e) {
@@ -2548,14 +2534,14 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
-        CMS.debug("TPSProcessor.getIssuerInfoValue: returning: " + info);
+        logger.debug("TPSProcessor.getIssuerInfoValue: returning: " + info);
 
         return info;
     }
 
     void checkProfileStateOK() throws TPSException {
 
-        CMS.debug("TPSProcessor.checkProfileStateOK()");
+        logger.debug("TPSProcessor.checkProfileStateOK()");
 
         String profileState = null;
         try {
@@ -2567,7 +2553,7 @@ public class TPSProcessor {
         }
 
         if (!profileState.equals(Constants.CFG_ENABLED)) {
-            CMS.debug("TPSProcessor.checkProfileStateOK: profile specifically disabled.");
+            logger.error("TPSProcessor.checkProfileStateOK: profile specifically disabled.");
             throw new TPSException("TPSProcessor.checkProfileStateOK: profile disabled!");
         }
 
@@ -2575,14 +2561,14 @@ public class TPSProcessor {
 
     protected boolean checkIssuerInfoEnabled() throws TPSException {
 
-        CMS.debug("TPSProcessor.checkIssuerEnabled entering...");
+        logger.debug("TPSProcessor.checkIssuerEnabled entering...");
 
         IConfigStore configStore = CMS.getConfigStore();
 
         String issuerEnabledConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_ISSUER_INFO_ENABLE;
 
-        CMS.debug("TPSProcessor.checkIssuerEnabled config to check: " + issuerEnabledConfig);
+        logger.debug("TPSProcessor.checkIssuerEnabled config to check: " + issuerEnabledConfig);
 
         boolean issuerInfoEnabled = false;
 
@@ -2594,7 +2580,7 @@ public class TPSProcessor {
                     "TPSProcessor.checkIssuerInfo: internal error in getting value from config.");
         }
 
-        CMS.debug("TPSProcessor.checkIssuerEnabled returning: " + issuerInfoEnabled);
+        logger.debug("TPSProcessor.checkIssuerEnabled returning: " + issuerInfoEnabled);
         return issuerInfoEnabled;
 
     }
@@ -2604,18 +2590,18 @@ public class TPSProcessor {
 
         IConfigStore configStore = CMS.getConfigStore();
         String External_Reg_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." + "enable";
-        CMS.debug("TPS_Processor.checkIsExternalReg: getting config:" + External_Reg_Cfg);
+        logger.debug("TPS_Processor.checkIsExternalReg: getting config:" + External_Reg_Cfg);
 
         try {
             //These defaults are well known, it is safe to use them.
 
-            CMS.debug("In TPS_Processor.checkIsExternalReg.");
+            logger.debug("In TPS_Processor.checkIsExternalReg.");
 
             this.isExternalReg = configStore.getBoolean(External_Reg_Cfg, false);
-            CMS.debug("In TPS_Processor.checkIsExternalReg. isExternalReg: " + isExternalReg);
+            logger.debug("In TPS_Processor.checkIsExternalReg. isExternalReg: " + isExternalReg);
         } catch (EBaseException e1) {
-            CMS.debug("TPS_Processor.checkIsExternalReg: Internal Error obtaining mandatory config values. Error: "
-                    + e1);
+            logger.error("TPS_Processor.checkIsExternalReg: Internal Error obtaining mandatory config values: "
+                    + e1.getMessage(), e1);
             throw new TPSException("TPS error getting config values from config store.");
         }
 
@@ -2627,7 +2613,7 @@ public class TPSProcessor {
         IConfigStore configStore = CMS.getConfigStore();
 
         String profileConfig = "conn." + connId + "." + ".serverKeygen";
-        CMS.debug("TPSProcessor.checkServerSideKeyGen: getting config: " + profileConfig);
+        logger.debug("TPSProcessor.checkServerSideKeyGen: getting config: " + profileConfig);
 
         try {
             result = configStore.getBoolean(profileConfig, false);
@@ -2643,7 +2629,7 @@ public class TPSProcessor {
         IConfigStore configStore = CMS.getConfigStore();
 
         String noAppletConfig = operation + "." + selectedTokenType + "." + TPSEngine.CFG_ALLOW_NO_APPLET;
-        CMS.debug("TPSProcessor.checkAllowNoAppletToken: getting config: " + noAppletConfig);
+        logger.debug("TPSProcessor.checkAllowNoAppletToken: getting config: " + noAppletConfig);
 
         try {
             allow = configStore.getBoolean(noAppletConfig, true);
@@ -2665,7 +2651,7 @@ public class TPSProcessor {
 
         String appletUpdate = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_UPDATE_APPLET_ENABLE;
-        CMS.debug("TPSProcessor.checkForAppletUpdateEnabled: getting config: " + appletUpdate);
+        logger.debug("TPSProcessor.checkForAppletUpdateEnabled: getting config: " + appletUpdate);
         try {
             enabled = configStore.getBoolean(appletUpdate, false);
         } catch (EBaseException e) {
@@ -2674,7 +2660,7 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
 
         }
-        CMS.debug("TPSProcessor.checkForAppletUpdateEnabled: returning " + enabled);
+        logger.debug("TPSProcessor.checkForAppletUpdateEnabled: returning " + enabled);
         return enabled;
     }
 
@@ -2686,7 +2672,7 @@ public class TPSProcessor {
 
         int prot = getProtocol();
 
-        CMS.debug("TPSProcessor.checkForAppletUpgrad: protocol: " + prot);
+        logger.debug("TPSProcessor.checkForAppletUpgrad: protocol: " + prot);
 
         String protString = "";
 
@@ -2697,7 +2683,7 @@ public class TPSProcessor {
 
         String appletRequiredConfig = operation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_APPLET_UPDATE_REQUIRED_VERSION +  protString;
-        CMS.debug("TPSProcessor.checkForAppletUpgrade: getting config: " + appletRequiredConfig);
+        logger.debug("TPSProcessor.checkForAppletUpgrade: getting config: " + appletRequiredConfig);
         try {
             requiredVersion = configStore.getString(appletRequiredConfig, null);
         } catch (EBaseException e) {
@@ -2711,7 +2697,7 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
-        CMS.debug("TPSProcessor.checkForAppletUpgrade: returning: " + requiredVersion);
+        logger.debug("TPSProcessor.checkForAppletUpgrade: returning: " + requiredVersion);
 
         return requiredVersion;
     }
@@ -2722,7 +2708,7 @@ public class TPSProcessor {
         IConfigStore configStore = CMS.getConfigStore();
 
         String unknownConfig = "op." + operation + "." + TPSEngine.CFG_ALLOW_UNKNOWN_TOKEN;
-        CMS.debug("TPSProcessor.checkAllowUnknownToken: getting config: " + unknownConfig);
+        logger.debug("TPSProcessor.checkAllowUnknownToken: getting config: " + unknownConfig);
 
         try {
             allow = configStore.getBoolean(unknownConfig, true);
@@ -2743,7 +2729,7 @@ public class TPSProcessor {
         String id = null;
 
         String config = "op." + currentTokenOperation + "." + selectedTokenType + ".tks.conn";
-        CMS.debug("TPSProcessor.getTKSConectorID: getting config: " + config);
+        logger.debug("TPSProcessor.getTKSConectorID: getting config: " + config);
 
         try {
             id = configStore.getString(config, "tks1");
@@ -2752,7 +2738,7 @@ public class TPSProcessor {
 
         }
 
-        CMS.debug("TPSProcessor.getTKSConectorID: returning: " + id);
+        logger.debug("TPSProcessor.getTKSConectorID: returning: " + id);
 
         return id;
     }
@@ -2761,14 +2747,14 @@ public class TPSProcessor {
 
         String NetKeyAID = null;
         IConfigStore configStore = CMS.getConfigStore();
-        CMS.debug("TPSProcessor.getNetkeyAID: getting config: " + TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
+        logger.debug("TPSProcessor.getNetkeyAID: getting config: " + TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
         try {
 
             NetKeyAID = configStore.getString(TPSEngine.CFG_APPLET_NETKEY_INSTANCE_AID,
                     TPSEngine.CFG_DEF_NETKEY_INSTANCE_AID);
 
         } catch (EBaseException e1) {
-            CMS.debug("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values. Error: " + e1);
+            logger.error("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
             throw new TPSException("TPS error getting config values from config store.");
         }
 
@@ -2781,14 +2767,14 @@ public class TPSProcessor {
 
         String NetKeyPAID = null;
         IConfigStore configStore = CMS.getConfigStore();
-        CMS.debug("TPSProcessor.getNetkeyPAID: getting config: " + TPSEngine.CFG_DEF_NETKEY_FILE_AID);
+        logger.debug("TPSProcessor.getNetkeyPAID: getting config: " + TPSEngine.CFG_DEF_NETKEY_FILE_AID);
         try {
 
             NetKeyPAID = configStore.getString(
                     TPSEngine.CFG_APPLET_NETKEY_FILE_AID, TPSEngine.CFG_DEF_NETKEY_FILE_AID);
 
         } catch (EBaseException e1) {
-            CMS.debug("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values. Error: " + e1);
+            logger.error("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
             throw new TPSException("TPS error getting config values from config store.");
         }
 
@@ -2801,14 +2787,14 @@ public class TPSProcessor {
 
         String cardMgrAID = null;
         IConfigStore configStore = CMS.getConfigStore();
-        CMS.debug("TPSProcessor.getCardManagerAID: getting config: " + TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID);
+        logger.debug("TPSProcessor.getCardManagerAID: getting config: " + TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID);
         try {
 
             cardMgrAID = configStore.getString(TPSEngine.CFG_APPLET_CARDMGR_INSTANCE_AID,
                     TPSEngine.CFG_DEF_CARDMGR_INSTANCE_AID);
 
         } catch (EBaseException e1) {
-            CMS.debug("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values. Error: " + e1);
+            logger.error("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values: " + e1.getMessage(), e1);
             throw new TPSException("TPS error getting config values from config store.");
         }
 
@@ -2829,7 +2815,7 @@ public class TPSProcessor {
 
         }
 
-        CMS.debug("TPSProcessor.getAppletExtension: returning: " + extension);
+        logger.debug("TPSProcessor.getAppletExtension: returning: " + extension);
 
         return extension;
     }
@@ -2840,7 +2826,7 @@ public class TPSProcessor {
         String directory = null;
 
         String directoryConfig = operation + "." + selectedTokenType + "." + TPSEngine.CFG_APPLET_DIRECTORY;
-        CMS.debug("TPSProcessor.getAppletDirectory: getting config: " + directoryConfig);
+        logger.debug("TPSProcessor.getAppletDirectory: getting config: " + directoryConfig);
 
         //We need a directory
         try {
@@ -2853,7 +2839,7 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
-        CMS.debug("getAppletDirectory: returning: " + directory);
+        logger.debug("getAppletDirectory: returning: " + directory);
         return directory;
     }
 
@@ -2869,7 +2855,7 @@ public class TPSProcessor {
 
         }
 
-        CMS.debug("TPSProcess.getChannelBlockSize: returning: " + blockSize);
+        logger.debug("TPSProcess.getChannelBlockSize: returning: " + blockSize);
         return blockSize;
 
     }
@@ -2887,7 +2873,7 @@ public class TPSProcessor {
 
         }
 
-        CMS.debug("TPSProcess.getChannelInstanceSize: returning: " + instanceSize);
+        logger.debug("TPSProcess.getChannelInstanceSize: returning: " + instanceSize);
 
         return instanceSize;
 
@@ -2905,7 +2891,7 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
 
         }
-        CMS.debug("TPSProcess.getAppletMemorySize: returning: " + memSize);
+        logger.debug("TPSProcess.getAppletMemorySize: returning: " + memSize);
 
         return memSize;
     }
@@ -2922,7 +2908,7 @@ public class TPSProcessor {
 
         }
 
-        CMS.debug("TPSProcessor.getChannelDefKeyVersion: " + ver);
+        logger.debug("TPSProcessor.getChannelDefKeyVersion: " + ver);
 
         return ver;
 
@@ -2940,7 +2926,7 @@ public class TPSProcessor {
 
         }
 
-        CMS.debug("TPSProcessor.getChannelDefKeyIndex: " + index);
+        logger.debug("TPSProcessor.getChannelDefKeyIndex: " + index);
 
         return index;
 
@@ -2952,7 +2938,7 @@ public class TPSProcessor {
         String sharedSecretName = null;
         try {
             String configName = "conn." + connId + ".tksSharedSymKeyName";
-            CMS.debug("TPSProcessor.getSharedSecretTransportKeyName: getting config:" + configName);
+            logger.debug("TPSProcessor.getSharedSecretTransportKeyName: getting config:" + configName);
             sharedSecretName = configStore.getString(configName, "sharedSecret");
 
         } catch (EBaseException e) {
@@ -2962,7 +2948,7 @@ public class TPSProcessor {
 
         }
 
-        CMS.debug("TPSProcessor.getSharedSecretTransportKeyName: calculated key name: " + sharedSecretName);
+        logger.debug("TPSProcessor.getSharedSecretTransportKeyName: calculated key name: " + sharedSecretName);
 
         return sharedSecretName;
 
@@ -2972,22 +2958,21 @@ public class TPSProcessor {
 
         String sharedSecretName = getSharedSecretTransportKeyName(connId);
 
-        CMS.debug("TPSProcessor.getSharedSecretTransportKey: calculated key name: " + sharedSecretName);
+        logger.debug("TPSProcessor.getSharedSecretTransportKey: calculated key name: " + sharedSecretName);
 
         String symmKeys = null;
         boolean keyPresent = false;
 
         try {
             symmKeys = SessionKey.ListSymmetricKeys(CryptoUtil.INTERNAL_TOKEN_NAME);
-            CMS.debug("TPSProcessor.getSharedSecretTransportKey: symmKeys List: " + symmKeys);
+            logger.debug("TPSProcessor.getSharedSecretTransportKey: symmKeys List: " + symmKeys);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            CMS.debug(e);
+            logger.warn("TPSProcessor: " + e.getMessage(), e);
         }
 
         for (String keyName : symmKeys.split(",")) {
             if (sharedSecretName.equals(keyName)) {
-                CMS.debug("TPSProcessor.getSharedSecret: shared secret key found!");
+                logger.debug("TPSProcessor.getSharedSecret: shared secret key found!");
                 keyPresent = true;
                 break;
             }
@@ -3003,7 +2988,7 @@ public class TPSProcessor {
         String tokenName = CryptoUtil.INTERNAL_TOKEN_FULL_NAME;
         PK11SymKey sharedSecret = SessionKey.GetSymKeyByName(tokenName, sharedSecretName);
 
-        CMS.debug("TPSProcessor.getSharedSecret: SymKey returns: " + sharedSecret);
+        logger.debug("TPSProcessor.getSharedSecret: SymKey returns: " + sharedSecret);
 
         return sharedSecret;
 
@@ -3031,7 +3016,7 @@ public class TPSProcessor {
         if (!requiresStatusUpdate())
             return;
 
-        CMS.debug("In TPSProcessor.statusUpdate status: " + status + " info: " + info);
+        logger.debug("In TPSProcessor.statusUpdate status: " + status + " info: " + info);
 
         StatusUpdateRequestMsg statusUpdate = new StatusUpdateRequestMsg(status, info);
         session.write(statusUpdate);
@@ -3069,12 +3054,12 @@ public class TPSProcessor {
     protected AppletInfo getAppletInfo() throws TPSException, IOException {
         AppletInfo result = null;
 
-        CMS.debug("TPSProcessor.getAppletInfo, entering ...");
+        logger.debug("TPSProcessor.getAppletInfo, entering ...");
 
         selectCardManager();
 
         TPSBuffer cplc_data = getCplcData();
-        CMS.debug("cplc_data: " + cplc_data.toHexString());
+        logger.debug("cplc_data: " + cplc_data.toHexString());
 
         TPSBuffer token_cuid = extractTokenCUID(cplc_data);
         TPSBuffer token_msn = extractTokenMSN(cplc_data);
@@ -3092,7 +3077,7 @@ public class TPSProcessor {
         byte app_major_version = 0x0;
         byte app_minor_version = 0x0;
 
-        CMS.debug("TPS_Processor.getAppletInfo: status: " + token_status.toHexString());
+        logger.debug("TPS_Processor.getAppletInfo: status: " + token_status.toHexString());
         if (token_status.size() >= 4) {
             major_version = token_status.at(0);
             minor_version = token_status.at(1);
@@ -3121,14 +3106,14 @@ public class TPSProcessor {
         result.setTotalMem(total_mem);
         result.setFreeMem(free_mem);
 
-        CMS.debug("TPSProcessor.getAppletInfo: cuid: " + result.getCUIDhexString() + " msn: " + result.getMSNString()
+        logger.debug("TPSProcessor.getAppletInfo: cuid: " + result.getCUIDhexString() + " msn: " + result.getMSNString()
                 + " major version: " + result.getMajorVersion() + " minor version: " + result.getMinorVersion()
                 + " App major version: " + result.getAppMajorVersion() + " App minor version: "
                 + result.getAppMinorVersion());
 
         String currentAppletVersion = formatCurrentAppletVersion(result);
         if (currentAppletVersion != null) {
-            CMS.debug("TPSProcessor.getAppletInfo: current applet version = " +
+            logger.debug("TPSProcessor.getAppletInfo: current applet version = " +
                 currentAppletVersion);
         }
 
@@ -3136,7 +3121,7 @@ public class TPSProcessor {
     }
 
     protected void selectCardManager() throws TPSException, IOException {
-        CMS.debug("TPSProcessor.selectCardManager: entering..");
+        logger.debug("TPSProcessor.selectCardManager: entering..");
         TPSBuffer aidBuf = getCardManagerAID();
 
         APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, aidBuf);
@@ -3156,7 +3141,7 @@ public class TPSProcessor {
         String symmConfig = "op" + "." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_SYMM_KEY_UPGRADE_ENABLED;
 
-        CMS.debug("TPSProcessor.checkSymmetricKeysEnabled: getting config:" + symmConfig);
+        logger.debug("TPSProcessor.checkSymmetricKeysEnabled: getting config:" + symmConfig);
         try {
             result = configStore.getBoolean(symmConfig, true);
         } catch (EBaseException e) {
@@ -3175,14 +3160,14 @@ public class TPSProcessor {
         String requiredVersionConfig = "op" + "." + currentTokenOperation + "." + selectedTokenType + "."
                 + "update.symmetricKeys.requiredVersion";
 
-        CMS.debug("TPSProcessor.getSymmetricKeysRequiredVersion: getting config: " + requiredVersionConfig);
+        logger.debug("TPSProcessor.getSymmetricKeysRequiredVersion: getting config: " + requiredVersionConfig);
         try {
             version = configStore.getInteger(requiredVersionConfig, 0x0);
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getSymmetricKeysRequired: Internal error getting config value.");
         }
 
-        CMS.debug("TPSProcessor.getSymmetricKeysRequiredVersion: returning version: " + version);
+        logger.debug("TPSProcessor.getSymmetricKeysRequiredVersion: returning version: " + version);
 
         return version;
     }
@@ -3226,7 +3211,7 @@ public class TPSProcessor {
 
         if (checkSymmetricKeysEnabled()) {
 
-            CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: Symm key upgrade enabled.");
+            logger.debug("TPSProcessor.checkAndUpgradeSymKeys: Symm key upgrade enabled.");
             int requiredVersion = getSymmetricKeysRequiredVersion();
 
             // try to make a secure channel with the 'requiredVersion' keys
@@ -3241,7 +3226,7 @@ public class TPSProcessor {
 
             } catch (TPSException e) {
 
-                CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: failed to create secure channel with required version, we need to upgrade the keys.");
+                logger.debug("TPSProcessor.checkAndUpgradeSymKeys: failed to create secure channel with required version, we need to upgrade the keys.");
                 failed = true;
             }
 
@@ -3313,8 +3298,8 @@ public class TPSProcessor {
                 TPSBuffer keySetData = engine.createKeySetData(newVersion, curKeyInfo, protocol,
                         appletInfo.getCUID(),channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId, getSelectedKeySet());
 
-                //CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: new keySetData from TKS: " + keySetData.toHexString());
-                CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: received new keySetData from TKS");
+                //logger.debug("TPSProcessor.checkAndUpgradeSymKeys: new keySetData from TKS: " + keySetData.toHexString());
+                logger.debug("TPSProcessor.checkAndUpgradeSymKeys: received new keySetData from TKS");
 
                 byte curVersion = curKeyInfo.at(0);
                 byte curIndex = curKeyInfo.at(1);
@@ -3327,19 +3312,20 @@ public class TPSProcessor {
                     channel.putKeys(curVersion, curIndex, keySetData);
                 } catch (TPSException e) {
 
-                    CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: failed to put key, checking to see if this a SCP02 with 0xFF default key set.");
+                    logger.warn("TPSProcessor.checkAndUpgradeSymKeys: failed to put key: " + e.getMessage(), e);
+                    logger.warn("TPSProcessor: checking to see if this a SCP02 with 0xFF default key set.");
 
                     if (protocol == 2 && curVersion == (byte) 0xff) {
-                        CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: failed to put key, but we have SCP02 and the 0xFF dev key, try again.");
+                        logger.debug("TPSProcessor.checkAndUpgradeSymKeys: failed to put key, but we have SCP02 and the 0xFF dev key, try again.");
 
                         byte[] nv_dev = { (byte) 0x1, (byte) 0x1 };
                         TPSBuffer devKeySetData = engine.createKeySetData(new TPSBuffer(nv_dev), curKeyInfo, protocol,
                               appletInfo.getCUID(),  channel.getKeyDiversificationData(), channel.getDekSessionKeyWrapped(), connId, getSelectedKeySet());
 
-                        CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: about to get rid of keyset 0xFF and replace it with keyset 0x1 with developer key set");
+                        logger.debug("TPSProcessor.checkAndUpgradeSymKeys: about to get rid of keyset 0xFF and replace it with keyset 0x1 with developer key set");
                         channel.putKeys((byte) 0x0, (byte) 0x1, devKeySetData);
 
-                        CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: We've only upgraded to the dev key set on key set #01, will have to try again to upgrade to #02");
+                        logger.debug("TPSProcessor.checkAndUpgradeSymKeys: We've only upgraded to the dev key set on key set #01, will have to try again to upgrade to #02");
 
                     } else {
                         throw e;
@@ -3353,10 +3339,10 @@ public class TPSProcessor {
                 //Only change in db if we upgrade, thus we don't need to worry about rolling back on failure.
                 //Thus the setting, rollbackKeyVersionOnPutKeyFailure is not needed.
 
-                CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: changing token db keyInfo to: " + newVersion.toHexStringPlain());
+                logger.debug("TPSProcessor.checkAndUpgradeSymKeys: changing token db keyInfo to: " + newVersion.toHexStringPlain());
                 tokenRecord.setKeyInfo(newVersion.toHexStringPlain());
 
-                CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: curVersionStr: " + curVersionStr + " newVersionStr: "
+                logger.debug("TPSProcessor.checkAndUpgradeSymKeys: curVersionStr: " + curVersionStr + " newVersionStr: "
                         + newVersionStr);
                 selectCoolKeyApplet();
 
@@ -3365,14 +3351,14 @@ public class TPSProcessor {
                 auditKeyChangeover(appletInfo, "success", curVersionStr, newVersionStr, null);
 
             } else {
-                CMS.debug("TPSProcessor.checkAndUpgradeSymeKeys: We are already at the desired key set, returning secure channel.");
+                logger.debug("TPSProcessor.checkAndUpgradeSymeKeys: We are already at the desired key set, returning secure channel.");
             }
 
            // tokenRecord.setKeyInfo(channel.getKeyInfoData().toHexStringPlain());
 
         } else {
             //Create a standard secure channel with current key set.
-            CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: Key changeover disabled in the configuration.");
+            logger.debug("TPSProcessor.checkAndUpgradeSymKeys: Key changeover disabled in the configuration.");
 
             defKeyVersion = getChannelDefKeyVersion();
 
@@ -3381,7 +3367,7 @@ public class TPSProcessor {
 
         }
 
-        CMS.debug("TPSProcessor.checkAndUpdradeSymKeys: Leaving successfully....");
+        logger.debug("TPSProcessor.checkAndUpdradeSymKeys: Leaving successfully....");
         return channel;
     }
 
@@ -3396,7 +3382,7 @@ public class TPSProcessor {
         APDUResponse respApdu = handleAPDURequest(listObjects);
 
         if (!respApdu.checkResult()) {
-            CMS.debug("TPSProcessor.listObjects: Bad response from ListObjects! Token possibly has no objects");
+            logger.warn("TPSProcessor.listObjects: Bad response from ListObjects! Token possibly has no objects");
             return null;
         }
 
@@ -3409,7 +3395,7 @@ public class TPSProcessor {
     // Request new pin from client
     protected String requestNewPin(int minLen, int maxLen) throws IOException, TPSException {
 
-        CMS.debug("TPSProcessor.requestNewPin: entering...");
+        logger.debug("TPSProcessor.requestNewPin: entering...");
 
         String newPin = null;
 
@@ -3462,7 +3448,7 @@ public class TPSProcessor {
             String patternToMap = null;
             int firstPos = 0;
             int nextPos = 0;
-            CMS.debug("TPSProcessor.mapPattern: pattern =" + pattern);
+            logger.debug("TPSProcessor.mapPattern: pattern =" + pattern);
             String patternMapped = "";
             firstPos = pattern.indexOf(delim);
             if (firstPos == -1) {
@@ -3478,7 +3464,7 @@ public class TPSProcessor {
 
             patternToMap = pattern.substring(firstPos + 1, nextPos);
 
-            //CMS.debug("TPSProcessor.mapPattern: patternTo map: " + patternToMap);
+            //logger.debug("TPSProcessor.mapPattern: patternTo map: " + patternToMap);
 
             String piece1 = "";
             if (firstPos >= 1)
@@ -3492,12 +3478,12 @@ public class TPSProcessor {
                 String key = entry.getKey();
 
                 String value = entry.getValue();
-                //CMS.debug("TPSProcessor.mapPattern: Exposed: key: " + key + " Param: " + value);
+                //logger.debug("TPSProcessor.mapPattern: Exposed: key: " + key + " Param: " + value);
 
                 if (key.equalsIgnoreCase(patternToMap)) {
-                    CMS.debug("TPSProcessor.mapPattern: found match: key: " + key + " mapped to: " + value);
+                    logger.debug("TPSProcessor.mapPattern: found match: key: " + key + " mapped to: " + value);
                     patternMapped = value;
-                    //CMS.debug("TPSProcessor.mapPattern: pattern mapped: " + patternMapped);
+                    //logger.debug("TPSProcessor.mapPattern: pattern mapped: " + patternMapped);
                     break;
                 }
 
@@ -3509,10 +3495,10 @@ public class TPSProcessor {
         }
 
         if (result.equals("")) {
-            CMS.debug("TPSProcessor.mapPattern: returning: " + inPattern);
+            logger.debug("TPSProcessor.mapPattern: returning: " + inPattern);
             return (inPattern);
         } else {
-            CMS.debug("TPSProcessor.mapPattern: returning: " + result);
+            logger.debug("TPSProcessor.mapPattern: returning: " + result);
             return result;
         }
 
@@ -3520,7 +3506,7 @@ public class TPSProcessor {
 
     protected String formatCurrentAppletVersion(AppletInfo aInfo) throws TPSException, IOException {
         String method = "TPSProcessor.formatCurrentAppletVersion: ";
-        CMS.debug(method + " begins");
+        logger.debug(method + " begins");
         /*
          * TODO: looks like calling formatCurrentAppletVersion() more than
          * once will cause keygen to fail on token. (resolve later if needed)
@@ -3538,7 +3524,7 @@ public class TPSProcessor {
 
         TPSBuffer build_id = getAppletVersion();
         if (build_id == null) {
-            CMS.debug(method + " getAppletVersion returning null");
+            logger.warn(method + " getAppletVersion returning null");
             return null;
         }
         String build_idStr = build_id.toHexStringPlain();
@@ -3548,7 +3534,7 @@ public class TPSProcessor {
         finalVersion = finalVersion.toLowerCase();
 
         aInfo.setFinalAppletVersion(finalVersion);
-        CMS.debug(method + " returing: " + finalVersion);
+        logger.debug(method + " returing: " + finalVersion);
 
         return finalVersion;
 
@@ -3556,7 +3542,7 @@ public class TPSProcessor {
 
     protected void checkAndHandlePinReset(SecureChannel channel) throws TPSException, IOException {
 
-        CMS.debug("TPSProcessor.checkAndHandlePinReset entering...");
+        logger.debug("TPSProcessor.checkAndHandlePinReset entering...");
 
         if (channel == null) {
             throw new TPSException("TPSProcessor.checkAndHandlePinReset: invalid input data!",
@@ -3568,26 +3554,26 @@ public class TPSProcessor {
         String pinResetEnableConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_PIN_RESET_ENABLE;
 
-        CMS.debug("TPSProcessor.checkAndHandlePinReset config to check: " + pinResetEnableConfig);
+        logger.debug("TPSProcessor.checkAndHandlePinReset config to check: " + pinResetEnableConfig);
 
         String minLenConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_PIN_RESET_MIN_LEN;
 
-        CMS.debug("TPSProcessor.checkAndHandlePinReset config to check: " + minLenConfig);
+        logger.debug("TPSProcessor.checkAndHandlePinReset config to check: " + minLenConfig);
 
         String maxLenConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_PIN_RESET_MAX_LEN;
 
-        CMS.debug("TPSProcessor.checkAndHandlePinReset config to check: " + maxLenConfig);
+        logger.debug("TPSProcessor.checkAndHandlePinReset config to check: " + maxLenConfig);
 
         String maxRetriesConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_PIN_RESET_MAX_RETRIES;
 
-        CMS.debug("TPSProcessor.checkAndHandlePinReset config to check: " + maxRetriesConfig);
+        logger.debug("TPSProcessor.checkAndHandlePinReset config to check: " + maxRetriesConfig);
 
         String pinStringConfig = TPSEngine.CFG_PIN_RESET_STRING;
 
-        CMS.debug("TPSProcessor.checkAndHandlePinReset config to check: " + pinStringConfig);
+        logger.debug("TPSProcessor.checkAndHandlePinReset config to check: " + pinStringConfig);
 
         boolean enabled = false;
         int minLen;
@@ -3600,7 +3586,7 @@ public class TPSProcessor {
             enabled = configStore.getBoolean(pinResetEnableConfig, true);
 
             if (enabled == false) {
-                CMS.debug("TPSProcessor.checkAndHandlePinReset:  Pin Reset not allowed by configuration, exiting...");
+                logger.debug("TPSProcessor.checkAndHandlePinReset:  Pin Reset not allowed by configuration, exiting...");
                 return;
 
             }
@@ -3610,7 +3596,7 @@ public class TPSProcessor {
             maxRetries = configStore.getInteger(maxRetriesConfig, 0x7f);
             stringName = configStore.getString(pinStringConfig, "password");
 
-            CMS.debug("TPSProcessor.checkAndHandlePinReset: config vals: enabled: " + enabled + " minLen: "
+            logger.debug("TPSProcessor.checkAndHandlePinReset: config vals: enabled: " + enabled + " minLen: "
                     + minLen + " maxLen: " + maxLen);
 
         } catch (EBaseException e) {
@@ -3651,16 +3637,16 @@ public class TPSProcessor {
             //TPSSession session = getSession();
             boolean isAuthRequired;
             try {
-                CMS.debug("TPSProcessor.checkAndAuthenticateUser: getting config: " + configName);
+                logger.debug("TPSProcessor.checkAndAuthenticateUser: getting config: " + configName);
                 isAuthRequired = configStore.getBoolean(configName, true);
             } catch (EBaseException e) {
-                CMS.debug("TPSProcessor.checkAndAuthenticateUser: Internal Error obtaining mandatory config values. Error: "
-                        + e);
+                logger.error("TPSProcessor.checkAndAuthenticateUser: Internal Error obtaining mandatory config values: "
+                        + e.getMessage(), e);
                 throw new TPSException("TPS error getting config values from config store.",
                         TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
 
-            CMS.debug(method + ": opPrefox: " + opPrefix);
+            logger.debug(method + ": opPrefox: " + opPrefix);
 
             if (isAuthRequired) {
                 TPSAuthenticator userAuth = null;
@@ -3675,7 +3661,7 @@ public class TPSProcessor {
                     auditAuthFailure(userid, currentTokenOperation, appletInfo,
                             (userAuth != null) ? userAuth.getID() : null);
 
-                    CMS.debug("TPSProcessor.checkAndAuthenticateUser:: authentication exception thrown: " + e);
+                    logger.debug("TPSProcessor.checkAndAuthenticateUser:: authentication exception thrown: " + e);
                     String msg = "TPS error user authentication failed:" + e;
                     tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), msg,
                             "failure");
@@ -3705,8 +3691,8 @@ public class TPSProcessor {
             gp211GetSecureChannelProtocolDetails();
         } catch (TPSException e) {
 
-            CMS.debug("TPSProcessor.acquireChannelPlatformProtocolInfo: Error getting gp211 protocol data, assume scp01 "
-                    + e);
+            logger.warn("TPSProcessor.acquireChannelPlatformProtocolInfo: Error getting gp211 protocol data, assume scp01: "
+                    + e.getMessage(), e);
 
             platProtInfo.setPlatform(SecureChannel.GP201);
             platProtInfo.setProtocol(SecureChannel.SECURE_PROTO_01);
@@ -3726,7 +3712,7 @@ public class TPSProcessor {
     }
 
     public void gp211GetSecureChannelProtocolDetails() throws TPSException, IOException {
-        CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: Query card for secure channel protocol details for gp211.");
+        logger.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: Query card for secure channel protocol details for gp211.");
 
         TPSBuffer data = null;
         TPSBuffer keyData = null;
@@ -3738,7 +3724,7 @@ public class TPSProcessor {
             keyData = getData(SecureChannel.GP211_GET_DATA_KEY_INFO);
 
         } catch (TPSException e) {
-            CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: Card can't understand GP211! " + e);
+            logger.error("TPSProcessor.gp211GetSecureChannelProtocolDetails: Card can't understand GP211: " + e.getMessage(), e);
 
             throw e;
 
@@ -3749,8 +3735,8 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        //CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: returned data: " + data.toHexString());
-        CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: card data returned");
+        //logger.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: returned data: " + data.toHexString());
+        logger.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: card data returned");
 
         // Now process the GP211 data returned by the card.
 
@@ -3770,7 +3756,7 @@ public class TPSProcessor {
 
         }
 
-        CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: totalLength: " + totalLength);
+        logger.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: totalLength: " + totalLength);
 
         if (totalLength == 0 || totalLength >= data.size()) {
             throw new TPSException("TPSProcessor.gp211GetSecureChannelProtocolDetails: Invalid return data.",
@@ -3783,7 +3769,7 @@ public class TPSProcessor {
 
         TPSBuffer oidCardRecognitionData = data.substr(offset, length);
 
-        CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: oidCardRecognitionData: "
+        logger.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: oidCardRecognitionData: "
                 + oidCardRecognitionData.toHexString());
 
         platProtInfo.setOidCardRecognitionData(oidCardRecognitionData);
@@ -3794,7 +3780,7 @@ public class TPSProcessor {
 
         TPSBuffer oidCardManagementTypeAndVer = data.substr(offset, length);
 
-        CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: oidCardManagementTypeAndVer: "
+        logger.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: oidCardManagementTypeAndVer: "
                 + oidCardManagementTypeAndVer.toHexString());
 
         platProtInfo.setOidCardManagementTypeAndVer(oidCardManagementTypeAndVer);
@@ -3805,7 +3791,7 @@ public class TPSProcessor {
 
         TPSBuffer oidCardIdentificationScheme = data.substr(offset, length);
 
-        CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: oidCardIdentificationScheme: "
+        logger.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: oidCardIdentificationScheme: "
                 + oidCardIdentificationScheme.toHexString());
 
         platProtInfo.setOidCardIdentificationScheme(oidCardIdentificationScheme);
@@ -3816,7 +3802,7 @@ public class TPSProcessor {
 
         TPSBuffer oidSecureChannelProtocol = data.substr(offset, length);
 
-        CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: oidSecureChannelProtocol: "
+        logger.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: oidSecureChannelProtocol: "
                 + oidSecureChannelProtocol.toHexString());
 
         byte protocol = oidSecureChannelProtocol.at(length - 2);
@@ -3829,7 +3815,7 @@ public class TPSProcessor {
         platProtInfo.setKeysetInfoData(keyData);
 
         if (protocol == SecureChannel.SECURE_PROTO_03) {
-            CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: Found protocol 03!");
+            logger.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: Found protocol 03!");
         }
 
         if ((protocol == SecureChannel.SECURE_PROTO_02) || (protocol == SecureChannel.SECURE_PROTO_03))
@@ -3838,7 +3824,7 @@ public class TPSProcessor {
             platProtInfo.setPlatform(SecureChannel.GP201);
 
 
-        CMS.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: protocol: " + protocol + " implementation: "
+        logger.debug("TPSProcessor.gp211GetSecureChannelProtocolDetails: protocol: " + protocol + " implementation: "
                 + implementation + " keyInfoData: " + keyData.toHexString());
 
     }
@@ -3861,7 +3847,7 @@ public class TPSProcessor {
 
         String method = "checkCardGPKeyVersionIsInRange: ";
 
-        CMS.debug(method + " entering: keyInfoData: " + keyInfoData);
+        logger.debug(method + " entering: keyInfoData: " + keyInfoData);
 
         if (CUID == null || KDD == null || keyInfoData == null) {
             throw new TPSException(method + " Invalid input data!");
@@ -3872,7 +3858,7 @@ public class TPSProcessor {
         String checkBoundedGPKeyVersionConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_ENABLE_BOUNDED_GP_KEY_VERSION;
 
-        CMS.debug(method + " config to check: " + checkBoundedGPKeyVersionConfig);
+        logger.debug(method + " config to check: " + checkBoundedGPKeyVersionConfig);
 
         try {
             result = configStore.getBoolean(checkBoundedGPKeyVersionConfig, true);
@@ -3881,7 +3867,7 @@ public class TPSProcessor {
                     method + " error getting config value.");
         }
 
-        CMS.debug(method + " returning: " + result);
+        logger.debug(method + " returning: " + result);
 
         // Check only if asked.
 
@@ -3892,7 +3878,7 @@ public class TPSProcessor {
             String maxConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                     + TPSEngine.CFG_MAXIMUM_GP_KEY_VERSION;
 
-            CMS.debug(method + " config to check: minConfig: " + minConfig + " maxConfig: " + maxConfig);
+            logger.debug(method + " config to check: minConfig: " + minConfig + " maxConfig: " + maxConfig);
 
             String maxVersion = null;
             String minVersion = null;
@@ -3909,7 +3895,7 @@ public class TPSProcessor {
                 result = false;
             }
 
-            CMS.debug(method + " minVersion: " + minVersion + " maxVersion: " + maxVersion);
+            logger.debug(method + " minVersion: " + minVersion + " maxVersion: " + maxVersion);
 
             if( keyInfoData.length() != 4 && keyInfoData.length() != 6) {
                 result = false;
@@ -3921,21 +3907,21 @@ public class TPSProcessor {
 
                 String keyInfoVer = keyInfoData.substring(0, 2);
 
-                CMS.debug(method + " Version reported from key Info Data: " + keyInfoVer);
+                logger.debug(method + " Version reported from key Info Data: " + keyInfoVer);
 
                 int versionMinCompare = keyInfoVer.compareToIgnoreCase(minVersion);
                 int versionMaxCompare = keyInfoVer.compareToIgnoreCase(maxVersion);
 
-                CMS.debug(method + " versionMinCompare: " + versionMinCompare + " versionMaxCompare: "
+                logger.debug(method + " versionMinCompare: " + versionMinCompare + " versionMaxCompare: "
                         + versionMaxCompare);
 
                 if (versionMinCompare >= 0 && versionMaxCompare <= 0) {
-                    CMS.debug(method + " Version : " + keyInfoVer + " is in range of: " + minVersion + " and: "
+                    logger.debug(method + " Version : " + keyInfoVer + " is in range of: " + minVersion + " and: "
                             + maxVersion);
                     result = true;
                 } else {
                     result = false;
-                    CMS.debug(method + " Version : " + keyInfoVer + " is NOT in range of: " + minVersion + " and: "
+                    logger.debug(method + " Version : " + keyInfoVer + " is NOT in range of: " + minVersion + " and: "
                             + maxVersion);
                 }
             }
@@ -3945,7 +3931,7 @@ public class TPSProcessor {
             result = true;
         }
 
-        CMS.debug(method + " Returning result of: " + result);
+        logger.debug(method + " Returning result of: " + result);
 
         return result;
     }
@@ -3955,7 +3941,7 @@ public class TPSProcessor {
 
         String method = "TPsProcessor.checkCUIDMatchesKDD: " ;
 
-        CMS.debug(method + " CUID " + CUID + " KDD: " + KDD);
+        logger.debug(method + " CUID " + CUID + " KDD: " + KDD);
 
         if (CUID == null || KDD == null) {
             throw new TPSException(method + " invalid input data!");
@@ -3966,7 +3952,7 @@ public class TPSProcessor {
         String checkCUIDMatchesKDDConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_CUID_MUST_MATCH_KDD;
 
-        CMS.debug(method + " config to check: " + checkCUIDMatchesKDDConfig);
+        logger.debug(method + " config to check: " + checkCUIDMatchesKDDConfig);
 
         try {
             result = configStore.getBoolean(checkCUIDMatchesKDDConfig, false);
@@ -3975,15 +3961,15 @@ public class TPSProcessor {
                     method + " error getting config value.");
         }
 
-        CMS.debug(method + " config result: " + result);
+        logger.debug(method + " config result: " + result);
 
         // Check only if asked to
         if (result == true) {
             if (CUID.compareToIgnoreCase(KDD) == 0) {
-                CMS.debug(method + " CUID and KDD values match!");
+                logger.debug(method + " CUID and KDD values match!");
                 result = true;
             } else {
-                CMS.debug(method + " CUID and KDD values differ!");
+                logger.debug(method + " CUID and KDD values differ!");
                 result = false;
             }
         } else {
@@ -3991,7 +3977,7 @@ public class TPSProcessor {
             result = true;
         }
 
-        CMS.debug(method + " returning result: " + result);
+        logger.debug(method + " returning result: " + result);
 
         return result;
     }
@@ -4008,7 +3994,7 @@ public class TPSProcessor {
 
         keyInfo = tokenRecord.getKeyInfo();
 
-        CMS.debug("TPProcessor.getKeyInfioFromTokenDB: returning: " + keyInfo);
+        logger.debug("TPProcessor.getKeyInfioFromTokenDB: returning: " + keyInfo);
 
         return keyInfo;
 
@@ -4030,7 +4016,7 @@ public class TPSProcessor {
         String checkValidateVersion = "op." + currentTokenOperation + "." + selectedTokenType + "."
                 + TPSEngine.CFG_VALIDATE_CARD_KEY_INFO_AGAINST_DB;
 
-        CMS.debug(method + " config to check: " + checkValidateVersion);
+        logger.debug(method + " config to check: " + checkValidateVersion);
 
         try {
             result = configStore.getBoolean(checkValidateVersion, true);
@@ -4039,7 +4025,7 @@ public class TPSProcessor {
                     method + " error getting config value.");
         }
 
-        CMS.debug(method + " config result: " + result);
+        logger.debug(method + " config result: " + result);
 
 
         if(result == true) {
@@ -4047,15 +4033,15 @@ public class TPSProcessor {
 
             String keyInfoInDB = getKeyInfoFromTokenDB(CUID);
 
-            CMS.debug(method + " keyInfoFromTokenDB: " + keyInfoInDB);
-            CMS.debug(method + " keyInfoFromToken: " +  keyInfoData);
+            logger.debug(method + " keyInfoFromTokenDB: " + keyInfoInDB);
+            logger.debug(method + " keyInfoFromToken: " +  keyInfoData);
 
 
             if(keyInfoData.compareToIgnoreCase(keyInfoInDB) != 0) {
-                CMS.debug(method + " Key Info in the DB is NOT the same as the one from the token!");
+                logger.debug(method + " Key Info in the DB is NOT the same as the one from the token!");
                 result = false;
             } else {
-                CMS.debug(method + " Key Info in the DB IS the same as the one from the token!");
+                logger.debug(method + " Key Info in the DB IS the same as the one from the token!");
                 result = true;
             }
 
@@ -4063,7 +4049,7 @@ public class TPSProcessor {
             result = true;
         }
 
-        CMS.debug(method + " returning result: " + result);
+        logger.debug(method + " returning result: " + result);
 
         return result;
 
