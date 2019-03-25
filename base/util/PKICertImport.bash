@@ -383,7 +383,8 @@ function PKICertImport() {
         echo ""
         echo "Optional arguments:"
         echo "--ascii, -a: the certificate is in ASCII encoded"
-        echo "--chain, -c: check the entire PKCS12 chain; requires --pkcs12"
+        echo "--chain, -c: import the entire PKCS12 chain; requires --pkcs12"
+        echo "--leaf-only, -l: import only the leaf certificate; requires --pkcs12"
         echo "--password, -f <path>: password file for the NSS DB"
         echo "--pkcs12, -p: the certificate is a .p12/PKCS12 file"
         echo "--chain-trust, -r <flags>: trust flags to assign intermediate certificates; requires --chain"
@@ -695,10 +696,12 @@ function PKICertImport() {
         certutil -L "${list_args[@]}" |
             grep "[$tf]*,[$tf]*,[$tf]*" |
             sed "s/[[:space:]]*[$tf]*,[$tf]*,[$tf]*//g" |
+            sed 's/[[:space:]]*$//g' |
             sort > "$before_certs"
-        certutil -K -d dbs/verify/ |
+        certutil -K "${list_args[@]}" |
             grep '^<[[:space:]]*[0-9]*>' |
             sed 's/^<[[:space:]]*[0-9]*>[[:space:]]*rsa//g' |
+            sed 's/[[:space:]]*$//g' |
             awk '{print $1}' |
             sort > "$before_keys"
 
@@ -720,10 +723,12 @@ function PKICertImport() {
         certutil -L "${list_args[@]}" |
             grep "[$tf]*,[$tf]*,[$tf]*" |
             sed "s/[[:space:]]*[$tf]*,[$tf]*,[$tf]*//g" |
+            sed 's/[[:space:]]*$//g' |
             sort > "$after_certs"
-        certutil -K -d dbs/verify/ |
+        certutil -K "${list_args[@]}" |
             grep '^<[[:space:]]*[0-9]*>' |
             sed 's/^<[[:space:]]*[0-9]*>[[:space:]]*rsa//g' |
+            sed 's/[[:space:]]*$//g' |
             awk '{print $1}' |
             sort > "$after_keys"
 
