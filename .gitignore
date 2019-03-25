@@ -9,3 +9,4 @@ __pycache__
 .idea/
 tests/artifacts/
 tests/tests.retry
+base/util/test/PKICertImport/dbs

@@ -342,6 +342,10 @@ BuildRequires:    zlib-devel
 # build dependency to build man pages
 BuildRequires:    go-md2man
 
+# PKICertImport depends on certutil and openssl
+BuildRequires:    nss-tools
+BuildRequires:    openssl
+
 # description for top-level package (if there is a separate meta package)
 %if "%{name}" != "%{vendor}-pki"
 %description
@@ -590,6 +594,10 @@ Summary:          PKI Tools Package
 Requires:         openldap-clients
 Requires:         nss-tools >= 3.36.1
 Requires:         pki-base-java = %{version}
+
+# PKICertImport depends on certutil and openssl
+Requires:         nss-tools
+Requires:         openssl
 
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make
@@ -995,6 +1003,10 @@ cd build
     INSTALL="install -p" \
     --no-print-directory \
     all install
+
+%if %{with_test}
+ctest --output-on-failure
+%endif
 
 %if %{with meta}
 %{__mkdir_p} %{buildroot}%{_datadir}/doc/pki
