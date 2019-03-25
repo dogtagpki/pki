@@ -636,8 +636,10 @@ public class StorageKeyUnit extends EncryptionUnit implements
      */
     public boolean changeAgentPassword(String id, String oldpwd,
             String newpwd) throws EBaseException {
-        // locate the id(s)
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
+        // locate the id(s)
         byte share[]=null;
         for (int i = 0;; i++) {
             try {
@@ -653,12 +655,12 @@ public class StorageKeyUnit extends EncryptionUnit implements
                             encryptShareWithInternalStorage(
                                     share, newpwd));
                     mStorageConfig.commit(false);
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(share);
                     return true;
                 }
             } catch (Exception e) {
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(share);
                 break;
             }
@@ -895,6 +897,9 @@ public class StorageKeyUnit extends EncryptionUnit implements
     }
 
     public void checkPassword(String userid, String pwd) throws EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         for (int i = 0;; i++) {
             String uid = null;
 
@@ -912,7 +917,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
                 if (data == null) {
                     throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
                 } else {
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(data);
                 }
                 return;
@@ -991,6 +996,9 @@ public class StorageKeyUnit extends EncryptionUnit implements
      */
     private String constructPassword(Credential creds[])
             throws EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         // sort the credential according to the order in
         // configuration file
         Hashtable<String, byte[]> v = new Hashtable<String, byte[]>();
@@ -1016,7 +1024,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
                     }
 
                     v.put(Integer.toString(i), pwd);
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(pwd);
                     break;
                 }
@@ -1061,7 +1069,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             byte secret[] = j.recoverSecret();
             String pwd = new String(secret);
 
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             jssSubsystem.obscureBytes(secret);
 
             return pwd;

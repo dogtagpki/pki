@@ -145,6 +145,7 @@ public class EnrollmentService implements IService {
      */
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
+
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = null;
         Boolean allowEncDecrypt_archival = false;
@@ -156,7 +157,7 @@ public class EnrollmentService implements IService {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.startTiming("archival", true /* main action */);
         }
@@ -275,7 +276,7 @@ public class EnrollmentService implements IService {
                 }
 
                 unwrapped = Arrays.copyOfRange(tmp_unwrapped, first, tmp_unwrapped.length);
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(tmp_unwrapped);
             } /*else {  allowEncDecrypt_archival != true
                  this is done below with unwrap()
@@ -359,7 +360,7 @@ public class EnrollmentService implements IService {
                 } catch (Exception e) {
                     logger.error("EnrollmentService: " + e.getMessage(), e);
 
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(unwrapped);
                     mKRA.log(ILogger.LL_FAILURE, e.toString());
 
@@ -442,7 +443,7 @@ public class EnrollmentService implements IService {
                         CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY") + ": " + e, e);
 
             } finally {
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(unwrapped);
             }
 

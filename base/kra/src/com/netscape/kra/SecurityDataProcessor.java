@@ -196,7 +196,7 @@ public class SecurityDataProcessor {
                 }
 
                 unwrapped = Arrays.copyOfRange(tmp_unwrapped, first, tmp_unwrapped.length);
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(tmp_unwrapped);
 
             } else {
@@ -272,7 +272,7 @@ public class SecurityDataProcessor {
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY"));
         } finally {
             // clean up some data
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             jssSubsystem.obscureBytes(securityData);
             jssSubsystem.obscureBytes(unwrapped);
         }
@@ -375,6 +375,7 @@ public class SecurityDataProcessor {
             throws EBaseException {
 
         CMS.debug("SecurityDataService.recover(): start");
+
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = null;
 
@@ -493,7 +494,7 @@ public class SecurityDataProcessor {
                     payloadWrapName,
                     transportUnit.getOldWrappingParams().getPayloadWrapAlgorithm());
         } catch (Exception e1) {
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             jssSubsystem.obscureBytes(unwrappedSecData);
             throw new EBaseException("Failed to generate IV when wrapping secret", e1);
         }
@@ -515,7 +516,7 @@ public class SecurityDataProcessor {
                     iv != null? new IVParameterSpec(iv): null,
                     iv_wrap != null? new IVParameterSpec(iv_wrap): null);
             } catch (Exception e) {
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(unwrappedSecData);
                 throw new EBaseException("Cannot generate wrapping params: " + e, e);
             }
@@ -542,7 +543,7 @@ public class SecurityDataProcessor {
 
                 char[] passChars = CryptoUtil.bytesToChars(unwrappedPass);
                 pass = new Password(passChars);
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureChars(passChars);
 
 
@@ -574,7 +575,7 @@ public class SecurityDataProcessor {
                 params.put(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA, pbeWrappedData);
 
             } catch (Exception e) {
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(unwrappedSecData);
                 throw new EBaseException("Cannot unwrap passphrase: " + e, e);
 
@@ -583,7 +584,7 @@ public class SecurityDataProcessor {
                     pass.clear();
                 }
 
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(unwrappedPass);
 
             }
@@ -616,7 +617,7 @@ public class SecurityDataProcessor {
                     }
 
                 } catch (Exception e) {
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(unwrappedSecData);
                     throw new EBaseException("Cannot wrap symmetric key: " + e, e);
                 }
@@ -634,7 +635,7 @@ public class SecurityDataProcessor {
                             wrapParams.getPayloadEncryptionAlgorithm(),
                             wrapParams.getPayloadEncryptionIV());
                 } catch (Exception e) {
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(unwrappedSecData);
                     throw new EBaseException("Cannot encrypt passphrase: " + e, e);
                 }
@@ -666,7 +667,7 @@ public class SecurityDataProcessor {
                     }
 
                 } catch (Exception e) {
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(unwrappedSecData);
                     throw new EBaseException("Cannot wrap private key: " + e, e);
                 }
@@ -697,7 +698,7 @@ public class SecurityDataProcessor {
 
 
         //If we made it this far, all is good, and clear out the unwrappedSecData before returning.
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         jssSubsystem.obscureBytes(unwrappedSecData);
 
         params.put(IRequest.SECURITY_DATA_TYPE, dataType);
@@ -733,7 +734,8 @@ public class SecurityDataProcessor {
         int numBytes = alg.getIVLength();
         byte[] bytes = new byte[numBytes];
 
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         SecureRandom random = jssSubsystem.getRandomNumberGenerator();
         random.nextBytes(bytes);
 
@@ -767,7 +769,8 @@ public class SecurityDataProcessor {
         int numBytes = alg.getBlockSize();
         byte[] bytes = new byte[numBytes];
 
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         SecureRandom random = jssSubsystem.getRandomNumberGenerator();
         random.nextBytes(bytes);
 

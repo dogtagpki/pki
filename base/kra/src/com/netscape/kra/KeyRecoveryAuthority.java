@@ -681,11 +681,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     private void verifyCredential(Vector<Credential> creds, String uid,
             String pwd) throws EBaseException {
-        // see if we have the uid already
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
+        // see if we have the uid already
         if (!mConfig.getBoolean("keySplitting")) {
             // check if the uid is in the specified group
-            IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+            IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
             if (!ug.isMemberOf(uid, mConfig.getString("recoveryAgentGroup"))) {
                 // invalid group
                 throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_NOT_EXIST"));
@@ -906,11 +908,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      */
     public void addAgentAsyncKeyRecovery(String reqID, String agentID)
             throws EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IRequestQueue queue = null;
         IRequest r = null;
 
         // check if the uid is in the specified group
-        IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
         if (!ug.isMemberOf(agentID, mConfig.getString("recoveryAgentGroup"))) {
             // invalid group
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_NOT_EXIST"));

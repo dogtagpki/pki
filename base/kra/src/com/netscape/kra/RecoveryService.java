@@ -158,7 +158,7 @@ public class RecoveryService implements IService {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "cannot get crypto token"));
         }
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.startTiming("recovery", true /* main action */);
         }
@@ -252,7 +252,7 @@ public class RecoveryService implements IService {
                 }
                 // verifyKeyPair() is RSA-centric
                 if (verifyKeyPair(pubData, privateKeyData) == false) {
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(privateKeyData);
                     mKRA.log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
@@ -278,7 +278,7 @@ public class RecoveryService implements IService {
                 throw e;
             } finally {
                 //We don't need this data any more
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(privateKeyData);
             }
 
@@ -461,8 +461,10 @@ public class RecoveryService implements IService {
      */
     public void createPFX(IRequest request, Hashtable<String, Object> params,
             PrivateKey priKey, CryptoToken ct) throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=false");
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         org.mozilla.jss.util.Password pass = null;
         try {
             // create p12
@@ -501,7 +503,7 @@ public class RecoveryService implements IService {
                     org.mozilla.jss.util.Password(
                             pwdChar);
             {
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureChars(pwdChar);
             }
 
@@ -513,7 +515,7 @@ public class RecoveryService implements IService {
 
             ASN1Value key;
             if (legacyP12) {
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 SecureRandom ran = jssSubsystem.getRandomNumberGenerator();
                 byte[] salt = new byte[20];
                 ran.nextBytes(salt);
@@ -648,7 +650,9 @@ public class RecoveryService implements IService {
      */
     public void createPFX(IRequest request, Hashtable<String, Object> params,
             byte priData[]) throws EBaseException {
+
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
+
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         org.mozilla.jss.util.Password pass = null;
         try {
@@ -685,7 +689,7 @@ public class RecoveryService implements IService {
             pass = new org.mozilla.jss.util.Password(
                     pwdChars);
 
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             jssSubsystem.obscureChars(pwdChars);
 
 

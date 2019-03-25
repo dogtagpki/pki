@@ -153,6 +153,7 @@ public class NetkeyKeygenService implements IService {
      */
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
+
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditSubjectID = null;
         byte[] wrapped_des_key;
@@ -160,7 +161,7 @@ public class NetkeyKeygenService implements IService {
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         String iv_s = "";
         try {
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             SecureRandom random = jssSubsystem.getRandomNumberGenerator();
             random.nextBytes(iv);
         } catch (Exception e) {

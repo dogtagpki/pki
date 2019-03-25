@@ -74,6 +74,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.key.KeyRequestDAO;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -100,7 +101,8 @@ public class KeyService extends SubsystemService implements KeyResource {
     private String approvers;
 
     public KeyService() {
-        kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        kra = ( IKeyRecoveryAuthority ) engine.getSubsystem( "kra" );
         repo = kra.getKeyRepository();
         queue = kra.getRequestQueue();
         service = (IKeyService) kra;
