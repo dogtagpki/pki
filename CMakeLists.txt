@@ -39,6 +39,10 @@ option(WITH_PYTHON3_DEFAULT "Build server and scripts with Python 3" OFF)
 
 set(APPLICATION_VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINOR}.${APPLICATION_VERSION_PATCH}")
 
+if(WITH_TEST)
+    enable_testing()
+endif(WITH_TEST)
+
 # where to look first for cmake modules
 # (before ${CMAKE_ROOT}/Modules/ is checked)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
