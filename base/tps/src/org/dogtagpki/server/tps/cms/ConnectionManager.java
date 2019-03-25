@@ -31,6 +31,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IConnector;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;
 
@@ -48,8 +49,8 @@ public class ConnectionManager
     public ConnectionManager() {
         // initialize the ca list for revocation routing:
         //    tps.connCAList=ca1,ca2...ca<n>
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         IConfigStore conf = subsystem.getConfigStore();
         String caListString;
         try {
@@ -93,9 +94,11 @@ public class ConnectionManager
      *   tps.connector.ca1.uri.unrevoke=/ca/ee/subsystem/ca/doUnrevoke
      */
     public void initConnectors() throws EBaseException {
+
         CMS.debug("ConnectionManager: initConnectors(): begins.");
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         IConfigStore conf = subsystem.getConfigStore();
         IConfigStore connectorSubstore = conf.getSubStore("connector");
         Enumeration<String> connector_enu = connectorSubstore.getSubStoreNames();

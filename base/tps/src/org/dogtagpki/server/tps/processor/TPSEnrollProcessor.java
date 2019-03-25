@@ -95,7 +95,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String logMsg = null;
         String auditInfo = null;
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
         IConfigStore configStore = engine.getConfigStore();
         String configName;
@@ -239,7 +239,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
                             appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
                             appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
-                    TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                    TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
                     BaseMappingResolver resolverInst = subsystem.getMappingResolverManager()
                             .getResolverInstance(resolverInstName);
                     String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet");
@@ -266,7 +266,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
                             appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
                             appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
-                    TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                    TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
                     BaseMappingResolver resolverInst = subsystem.getMappingResolverManager()
                             .getResolverInstance(resolverInstName);
                     tokenType = resolverInst.getResolvedMapping(mappingParams);
@@ -523,7 +523,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         if (lastObjVer != 0) {
             while (lastObjVer == 0xff) {
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 SecureRandom randomGenerator = jssSubsystem.getRandomNumberGenerator();
                 lastObjVer = randomGenerator.nextInt(1000);
             }
@@ -948,7 +948,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         int lastFormatVersion = 0x0100;
         int lastObjectVersion;
 
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         SecureRandom randomGenerator = jssSubsystem.getRandomNumberGenerator();
 
         lastObjectVersion = randomGenerator.nextInt(1000);
@@ -1074,7 +1075,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
         String configName;
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
 
         ArrayList<TokenRecord> tokenRecords = null;
@@ -1265,7 +1266,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
         CMS.debug(method + "currentCertIndex = " + certsInfo.getCurrentCertIndex());
 
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         ArrayList<CertEnrollInfo> preRecoveredCerts = certsInfo.getExternalRegRecoveryEnrollList();
 
@@ -1469,7 +1471,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         int keyTypeNum = getNumberCertsToRenew();
         /*
          * Get certs from the tokendb for this token to find out about
@@ -1863,7 +1865,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         TPSStatus status = TPSStatus.STATUS_ERROR_RECOVERY_IS_PROCESSED;
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         IConfigStore configStore = engine.getConfigStore();
 
         CMS.debug("TPSEnrollProcessor.processRecovery: entering:");
@@ -2369,6 +2371,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         }
         CMS.debug("TPSEnrollProcessor.enrollOneCertificate: currentCertIndex = " + certsInfo.getCurrentCertIndex());
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         statusUpdate(cEnrollInfo.getStartProgressValue(), "PROGRESS_KEY_GENERATION");
         boolean serverSideKeyGen = checkForServerSideKeyGen(cEnrollInfo);
         boolean objectOverwrite = checkForObjectOverwrite(cEnrollInfo);
@@ -2592,7 +2595,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
                      *     becomes:
                      *       CN=Jane.Doe.0123456789,E=jdoe@redhat.com,O=TMS Org
                      */
-                    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
                     IConfigStore configStore = engine.getConfigStore();
                     String configName;
                     configName = TPSEngine.OP_ENROLL_PREFIX + "." +
@@ -2812,7 +2814,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             //Add origin, special handling for recovery case.
             if (isRecovery == true) {
                 CMS.debug("TPSEnrollProcessor.enrollOneCertificate: about to find origiinal cert record");
-                TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
                 TPSCertRecord origCertRec = tps.getTokendb().tdbGetOrigCertRecord(x509Cert);
                 if (origCertRec != null) {
                     CMS.debug("TPSEnrollProcessor.enrollOneCertificate: token origin found");
@@ -3827,7 +3829,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         String method = "TPSEnrollProcessor.checkUserAlreadyHasActiveToken: ";
         boolean result = false;
 
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         try {
             tps.tdb.tdbHasActiveToken(userid);
             result = true;
@@ -3845,7 +3848,8 @@ public class TPSEnrollProcessor extends TPSProcessor {
         boolean result = false;
         String method = "TPSEnrollProcessor.checkUserAlreadyHasOtherActiveToken: ";
 
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         try {
             tps.tdb.tdbHasOtherActiveToken(userid, cuid);
             result = true;

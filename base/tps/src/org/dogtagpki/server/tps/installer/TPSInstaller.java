@@ -46,7 +46,7 @@ public class TPSInstaller {
     public void configureCAConnector(URI uri, String nickname) {
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
         IConfigStore cs = engine.getConfigStore();
 
@@ -65,7 +65,7 @@ public class TPSInstaller {
     public void configureTKSConnector(URI uri, String nickname) {
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
         IConfigStore cs = engine.getConfigStore();
 
@@ -84,7 +84,7 @@ public class TPSInstaller {
     public void configureKRAConnector(Boolean keygen, URI uri, String nickname) {
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         ConnectorDatabase database = subsystem.getConnectorDatabase();
         IConfigStore cs = engine.getConfigStore();
 

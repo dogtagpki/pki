@@ -79,7 +79,7 @@ public class MappingResolverManager
         CMS.debug(method + " begins");
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
-        registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
         if (registry == null) {
             CMS.debug(method + " registry null");
             return;

@@ -35,6 +35,7 @@ import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.event.TokenPinResetEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class TPSPinResetProcessor extends TPSProcessor {
 
@@ -65,7 +66,8 @@ public class TPSPinResetProcessor extends TPSProcessor {
         CMS.debug(method + ": entering...");
 
         String logMsg = null;
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         AppletInfo appletInfo = null;
         TokenRecord tokenRecord = null;
@@ -114,8 +116,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
                 FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
                         appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
                         appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
-                TPSSubsystem subsystem =
-                        (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
                 BaseMappingResolver resolverInst =
                         subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
                 tokenType = resolverInst.getResolvedMapping(mappingParams);

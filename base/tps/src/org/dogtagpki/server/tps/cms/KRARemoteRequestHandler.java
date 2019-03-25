@@ -26,6 +26,7 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmsutil.http.HttpResponse;
 
@@ -72,8 +73,8 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("KRARemoteRequestHandler: serverSideKeyGen(): input parameter null.");
         }
 
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
         CMS.debug("KRARemoteRequestHandler: serverSideKeyGen(): sending request to KRA");
@@ -250,8 +251,8 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("KRARemoteRequestHandler: recoverKey(): input parameter null.");
         }
 
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         CMS.debug("KRARemoteRequestHandler: getting conn id: " + connid);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);

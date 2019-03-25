@@ -1211,8 +1211,7 @@ public class TPSProcessor {
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
 
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TPSAuthenticator authInst =
                 subsystem.getAuthenticationManager().getAuthInstance(authId);
         String authCredNameConf = "auths.instance." + authId + ".authCredName";
@@ -1519,7 +1518,8 @@ public class TPSProcessor {
 
         logger.debug("TPSProcessor.isTokenRecordPresent: " + appletInfo.getCUIDhexString());
 
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         try {
             tokenRecord = tps.tdb.tdbGetTokenEntry(appletInfo.getCUIDhexStringPlain());
@@ -1641,7 +1641,9 @@ public class TPSProcessor {
             throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
         }
         logger.debug(method + ": begins for cuid:" + cuid);
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         boolean isTokenPresent = tps.tdb.isTokenPresent(cuid);
         if (!isTokenPresent) {
             logMsg = method + ": token not found: " + cuid;
@@ -1932,7 +1934,7 @@ public class TPSProcessor {
         String method = "TPSProcessor.setExternalRegSelectedTokenType: ";
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         logger.debug(method + " begins");
         if (erAttrs == null || erAttrs.getTokenType() == null) {
@@ -1968,7 +1970,7 @@ public class TPSProcessor {
         String appletVersion = null;
 
         logger.debug("TPSProcessor.format begins");
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         AppletInfo appletInfo = null;
         TokenRecord tokenRecord = null;
@@ -2146,8 +2148,7 @@ public class TPSProcessor {
                     FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
                             appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
                             appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
-                    TPSSubsystem subsystem =
-                            (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                    TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
                     BaseMappingResolver resolverInst =
                             subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
                     String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet");
@@ -2174,8 +2175,7 @@ public class TPSProcessor {
                 if (!resolverInstName.equals("none") && (selectedKeySet == null)) {
                     FilterMappingParams mappingParams  = createFilterMappingParams(resolverInstName, appletInfo.getCUIDhexStringPlain(), msn, major_version, minor_version);
 
-                    TPSSubsystem subsystem =
-                            (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                    TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
                     BaseMappingResolver resolverInst =
                             subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
                     tokenType = resolverInst.getResolvedMapping(mappingParams);
@@ -3061,8 +3061,8 @@ public class TPSProcessor {
     }
 
     public TPSEngine getTPSEngine() {
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         return subsystem.getEngine();
 
@@ -3668,8 +3668,7 @@ public class TPSProcessor {
             String configName = opPrefix + "." + tokenType + ".auth.enable";
             IConfigStore configStore = engine.getConfigStore();
 
-            TPSSubsystem tps =
-                    (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             //TPSSession session = getSession();
             boolean isAuthRequired;
             try {

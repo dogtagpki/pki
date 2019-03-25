@@ -38,6 +38,7 @@ import com.netscape.certsrv.logging.ActivityCollection;
 import com.netscape.certsrv.logging.ActivityData;
 import com.netscape.certsrv.logging.ActivityResource;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
@@ -103,8 +104,9 @@ public class ActivityService extends PKIService implements ActivityResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
             ActivityCollection response = new ActivityCollection();
 
@@ -195,8 +197,9 @@ public class ActivityService extends PKIService implements ActivityResource {
 
         logger.debug("ActivityService.getActivity(\"" + activityID + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
 
             return createOKResponse(createActivityData(database.getRecord(activityID)));

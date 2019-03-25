@@ -39,6 +39,7 @@ import com.netscape.certsrv.tps.cert.TPSCertCollection;
 import com.netscape.certsrv.tps.cert.TPSCertData;
 import com.netscape.certsrv.tps.cert.TPSCertResource;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
@@ -115,8 +116,9 @@ public class TPSCertService extends PKIService implements TPSCertResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
 
             Iterator<TPSCertRecord> activities = database.findRecords(filter, attributes).iterator();
@@ -161,8 +163,9 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
         logger.debug("TPSCertService.getCert(\"" + certID + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
 
             return createOKResponse(createCertData(database.getRecord(certID)));

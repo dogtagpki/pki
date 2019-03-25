@@ -22,9 +22,8 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.util.Locale;
 
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-
 import org.dogtagpki.server.tps.TPSSubsystem;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -36,6 +35,7 @@ import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements a self test to check the validity of the TPS.
@@ -148,7 +148,8 @@ public class TPSValidity extends ASelfTest {
      */
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(tpsSubId);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(tpsSubId);
         if (tps == null) {
             // log that the TPS is not installed
             String logMessage = CMS.getLogMessage(

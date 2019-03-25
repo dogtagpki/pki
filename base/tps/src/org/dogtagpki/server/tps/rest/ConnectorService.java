@@ -45,6 +45,7 @@ import com.netscape.certsrv.tps.connector.ConnectorCollection;
 import com.netscape.certsrv.tps.connector.ConnectorData;
 import com.netscape.certsrv.tps.connector.ConnectorResource;
 import com.netscape.cms.servlet.base.SubsystemService;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
@@ -95,8 +96,9 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
 
             Iterator<ConnectorRecord> connections = database.findRecords(filter).iterator();
@@ -148,8 +150,9 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.getConnector(\"" + connectorID + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
 
             return createOKResponse(createConnectorData(database.getRecord(connectorID)));
@@ -176,8 +179,9 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.addConnector(\"" + connectorData.getID() + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
 
             String status = connectorData.getStatus();
@@ -232,8 +236,9 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.updateConnector(\"" + connectorID + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
 
             ConnectorRecord record = database.getRecord(connectorID);
@@ -317,8 +322,9 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.changeStatus(\"" + connectorID + "\", \"" + action + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
 
             ConnectorRecord record = database.getRecord(connectorID);
@@ -432,8 +438,9 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.removeConnector(\"" + connectorID + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
 
             ConnectorRecord record = database.getRecord(connectorID);

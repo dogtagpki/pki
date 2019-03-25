@@ -45,6 +45,7 @@ import com.netscape.certsrv.tps.authenticator.AuthenticatorCollection;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorResource;
 import com.netscape.cms.servlet.base.SubsystemService;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
@@ -97,8 +98,9 @@ public class AuthenticatorService extends SubsystemService implements Authentica
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             Iterator<AuthenticatorRecord> authenticators = database.findRecords(filter).iterator();
@@ -150,8 +152,9 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.getAuthenticator(\"" + authenticatorID + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             return createOKResponse(createAuthenticatorData(database.getRecord(authenticatorID)));
@@ -178,8 +181,9 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.addAuthenticator(\"" + authenticatorData.getID() + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             String status = authenticatorData.getStatus();
@@ -235,8 +239,9 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.updateAuthenticator(\"" + authenticatorID + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             AuthenticatorRecord record = database.getRecord(authenticatorID);
@@ -323,8 +328,9 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.changeStatus(\"" + authenticatorID + "\", \"" + action + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             AuthenticatorRecord record = database.getRecord(authenticatorID);
@@ -435,8 +441,9 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.removeAuthenticator(\"" + authenticatorID + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             AuthenticatorRecord record = database.getRecord(authenticatorID);

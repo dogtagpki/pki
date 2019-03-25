@@ -136,8 +136,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
 
@@ -274,8 +273,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
 
@@ -447,8 +445,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
 
@@ -572,8 +569,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
         CMS.debug("TKSRemoteRequestHandler: createKeySetData(): sending request to tks.");
@@ -660,9 +656,11 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             CMS.debug("TKSRemoteRequestHandler: computeRandomData(): invalid dataSize requested:" + dataSize);
             throw new EBaseException("TKSRemoteRequestHandler: computeRandomData(): invalid dataSize requested");
         }
+
         CMS.debug("TKSRemoteRequestHandler: computeRandomData(): sending request to tks.");
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
         HttpResponse resp =
@@ -744,8 +742,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
 
-        TPSSubsystem subsystem =
-                (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
         CMS.debug("TKSRemoteRequestHandler: encryptData(): sending request to tks.");
