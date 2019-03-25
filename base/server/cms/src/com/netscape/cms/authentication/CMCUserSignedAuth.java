@@ -501,8 +501,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                     // have a chance to capture user identification info
                                     if (issuerANY != null) {
                                         // get CA signing cert
-                                        ICertificateAuthority ca = null;
-                                        ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+                                        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
                                         X500Name caName = ca.getX500Name();
 
                                         try {

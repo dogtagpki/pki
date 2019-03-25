@@ -100,9 +100,10 @@ public class PublisherAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         String authority = config.getInitParameter(PROP_AUTHORITY);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
 
         if (authority != null)
-            mAuth = (IAuthority) CMS.getSubsystem(authority);
+            mAuth = (IAuthority) engine.getSubsystem(authority);
         if (mAuth != null)
             if (mAuth instanceof ICertificateAuthority) {
                 mProcessor = ((ICertificateAuthority) mAuth).getPublisherProcessor();
@@ -431,6 +432,7 @@ public class PublisherAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = mAuth.getConfigStore();
         IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
         IConfigStore ldapcfg = publishcfg.getSubStore(IPublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
@@ -462,7 +464,7 @@ public class PublisherAdminServlet extends AdminServlet {
             if (name.equals(Constants.PR_PUBLISHING_QUEUE_STATUS))
                 continue;
             if (name.equals(Constants.PR_CERT_NAMES)) {
-                ICryptoSubsystem jss = (ICryptoSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                ICryptoSubsystem jss = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
                 params.put(name, jss.getAllCerts());
             } else {

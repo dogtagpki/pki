@@ -58,6 +58,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
@@ -141,7 +142,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         mOCSPAuthority = (IOCSPAuthority) owner;
         mConfig = config;
 
-        mDBService = (IDBSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_DBS);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mDBService = (IDBSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_DBS);
 
         // Standalone OCSP server only stores information about revoked
         // certificates. So there is no way for the OCSP server to
@@ -335,7 +337,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             throw new EBaseException("OCSP request is empty");
         }
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
 
         mOCSPAuthority.incNumOCSPRequest(1);
         long startTime = CMS.getCurrentDate().getTime();

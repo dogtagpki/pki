@@ -57,6 +57,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -104,7 +105,8 @@ public class GetBySerial extends CMSServlet {
         // handle templates locally.
         mTemplates.remove(ICMSRequest.SUCCESS);
 
-        ICertificateAuthority mCa = (ICertificateAuthority) CMS.getSubsystem("ca");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority mCa = (ICertificateAuthority) engine.getSubsystem("ca");
         if (mCa == null) {
             return;
         }
@@ -155,6 +157,9 @@ public class GetBySerial extends CMSServlet {
         } catch (NumberFormatException e) {
             serialNo = null;
         }
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         if (serial == null || serialNo == null) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_INVALID_SERIAL_NUMBER"));
@@ -219,7 +224,7 @@ public class GetBySerial extends CMSServlet {
                 ArgBlock ctx = new ArgBlock();
                 Locale[] locale = new Locale[1];
                 CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
-                ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
                 CertificateChain cachain = ca.getCACertChain();
                 X509Certificate[] cacerts = cachain.getChain();
                 X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];

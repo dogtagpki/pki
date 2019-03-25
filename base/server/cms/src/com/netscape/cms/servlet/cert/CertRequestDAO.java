@@ -47,6 +47,7 @@ import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -66,13 +67,14 @@ public class CertRequestDAO extends CMSRequestDAO {
 
     public CertRequestDAO() {
         super("ca");
-        ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ca = (ICertificateAuthority) engine.getSubsystem("ca");
         queue = ca.getRequestQueue();
         if (ca.noncesEnabled()) {
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             random = jssSubsystem.getRandomNumberGenerator();
         }
-        ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
+        ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
     }
 
     /**

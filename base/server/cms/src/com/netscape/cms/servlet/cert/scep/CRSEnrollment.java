@@ -231,7 +231,9 @@ public class CRSEnrollment extends HttpServlet {
         String crsCA = sc.getInitParameter(PROP_AUTHORITY);
         if (crsCA == null)
             crsCA = "ca";
-        mAuthority = (ICertAuthority) CMS.getSubsystem(crsCA);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mAuthority = (ICertAuthority) engine.getSubsystem(crsCA);
         ca = (ICertificateAuthority) mAuthority;
 
         if (mAuthority == null) {
@@ -288,11 +290,11 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         try {
-            mProfileSubsystem = (IProfileSubsystem) CMS.getSubsystem("profile");
+            mProfileSubsystem = (IProfileSubsystem) engine.getSubsystem("profile");
             mProfileId = sc.getInitParameter("profileId");
             logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
 
-            mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+            mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
             mAuthManagerName = sc.getInitParameter(PROP_CRSAUTHMGR);
             mAppendDN = sc.getInitParameter(PROP_APPENDDN);
             String tmp = sc.getInitParameter(PROP_CREATEENTRY);
@@ -323,7 +325,7 @@ public class CRSEnrollment extends HttpServlet {
         } catch (NoSuchAlgorithmException e) {
         }
 
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         mRandom = jssSubsystem.getRandomNumberGenerator();
 
     }

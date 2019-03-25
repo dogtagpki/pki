@@ -146,7 +146,7 @@ public class AdminServlet extends HttpServlet {
         super.init(sc);
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mUG = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        mUG = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
         mConfig = engine.getConfigStore();
 
         String srcType = AUTHZ_SRC_LDAP;
@@ -158,8 +158,7 @@ public class AdminServlet extends HttpServlet {
         } catch (EBaseException e) {
             logger.warn("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE") + ": " + e.getMessage(), e);
         }
-        mAuthz =
-                (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        mAuthz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
 
         mServletID = getSCparam(sc, PROP_ID, "servlet id unknown");
         logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", mServletID));
@@ -283,8 +282,7 @@ public class AdminServlet extends HttpServlet {
             } catch (EBaseException e) {
                 // do nothing for now.
             }
-            IAuthSubsystem auth = (IAuthSubsystem)
-                    CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+            IAuthSubsystem auth = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
             X509Certificate cert = null;
 
             if (authType.equals("sslclientauth")) {

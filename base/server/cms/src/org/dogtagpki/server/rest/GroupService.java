@@ -47,6 +47,7 @@ import com.netscape.certsrv.usrgrp.IGroupConstants;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
@@ -55,7 +56,8 @@ public class GroupService extends SubsystemService implements GroupResource {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupService.class);
 
-    public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    public IUGSubsystem userGroupManager = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
 
     public GroupData createGroupData(IGroup group) throws Exception {
 

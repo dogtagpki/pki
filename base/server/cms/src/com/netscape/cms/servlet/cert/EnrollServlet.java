@@ -282,7 +282,7 @@ public class EnrollServlet extends CMSServlet {
                 }
 
                 // cfu
-                mCa = (ICertificateAuthority) CMS.getSubsystem("ca");
+                mCa = (ICertificateAuthority) engine.getSubsystem("ca");
 
                 init_testbed_hack(mConfig);
             } catch (Exception e) {
@@ -1289,8 +1289,7 @@ public class EnrollServlet extends CMSServlet {
             // if ca, fill in default signing alg here
 
             try {
-                ICertificateAuthority caSub =
-                        (ICertificateAuthority) CMS.getSubsystem("ca");
+                ICertificateAuthority caSub = (ICertificateAuthority) engine.getSubsystem("ca");
                 if (certInfoArray != null && caSub != null) {
                     for (int ix = 0; ix < certInfoArray.length; ix++) {
                         X509CertInfo ci = certInfoArray[ix];
@@ -1518,7 +1517,8 @@ public class EnrollServlet extends CMSServlet {
     protected void addAdminAgent(CMSRequest cmsReq, X509CertImpl[] issuedCerts)
             throws EBaseException {
         String userid = cmsReq.getHttpParams().getValueAsString("uid");
-        IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
 
         IUser adminuser = ug.createUser(userid);
 

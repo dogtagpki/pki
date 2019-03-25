@@ -41,6 +41,7 @@ import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
+import com.netscape.cmscore.apps.CMSEngine;
 
 //////////////////////
 // class definition //
@@ -195,7 +196,8 @@ public class CAValidity
      */
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(mCaSubId);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(mCaSubId);
         if (ca == null) {
             // log that the CA is not installed
             String logMessage = CMS.getLogMessage(

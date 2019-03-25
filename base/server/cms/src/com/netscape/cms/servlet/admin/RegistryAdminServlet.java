@@ -36,6 +36,7 @@ import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This implements the administration servlet for registry subsystem.
@@ -81,7 +82,8 @@ public class RegistryAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mRegistry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mRegistry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
     }
 
     /**

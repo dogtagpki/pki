@@ -38,6 +38,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
 
@@ -102,7 +103,8 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
             throw new EAuthzAccessDenied("No userid provided");
         }
 
-        IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
         IGroup group = ug.getGroupFromName(groupName);
         if (!group.isMember(user)) {
             logger.error("BasicGroupAuthz: access denied. User: " + user + " is not a member of group: " + groupName);

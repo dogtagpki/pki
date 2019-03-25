@@ -125,7 +125,7 @@ public class RemoteAuthConfig extends CMSServlet {
             }
         }
 
-        mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
 
         mTemplates.remove(ICMSRequest.SUCCESS);
     }

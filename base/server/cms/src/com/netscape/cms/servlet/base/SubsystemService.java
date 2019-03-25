@@ -33,13 +33,15 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.Auditor;
 
 public class SubsystemService extends PKIService {
 
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
     protected Auditor auditor = Auditor.getAuditor();
     protected Logger logger = Logger.getLogger();
 

@@ -325,8 +325,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         logger.debug("ProfileSubmitCMCServlet: SubId=" + mProfileSubId);
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IProfileSubsystem ps = (IProfileSubsystem)
-                CMS.getSubsystem(mProfileSubId);
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             logger.warn("ProfileSubmitCMCServlet: ProfileSubsystem not found");

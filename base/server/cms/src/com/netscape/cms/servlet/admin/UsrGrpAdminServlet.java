@@ -99,7 +99,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
      */
     public UsrGrpAdminServlet() {
         super();
-        mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mAuthz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
     }
 
     /**
@@ -107,7 +108,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mMgr = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mMgr = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
     }
 
     /**
@@ -135,6 +137,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             return;
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         Locale clientLocale = super.getLocale(req);
 
         try {
@@ -177,19 +180,19 @@ public class UsrGrpAdminServlet extends AdminServlet {
          */
 
         try {
-            ISubsystem subsystem = CMS.getSubsystem("ca");
+            ISubsystem subsystem = engine.getSubsystem("ca");
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_CA_GROUP;
-            subsystem = CMS.getSubsystem("ra");
+            subsystem = engine.getSubsystem("ra");
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_RA_GROUP;
-            subsystem = CMS.getSubsystem("kra");
+            subsystem = engine.getSubsystem("kra");
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_KRA_GROUP;
-            subsystem = CMS.getSubsystem("ocsp");
+            subsystem = engine.getSubsystem("ocsp");
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_OCSP_GROUP;
-            subsystem = CMS.getSubsystem("tks");
+            subsystem = engine.getSubsystem("tks");
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_TKS_GROUP;
             if (scope != null) {

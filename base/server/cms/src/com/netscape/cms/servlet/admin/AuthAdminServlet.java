@@ -77,7 +77,8 @@ public class AuthAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mAuths = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mAuths = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
         AUTHZ_RES_NAME = "certServer.auth.configuration";
     }
 

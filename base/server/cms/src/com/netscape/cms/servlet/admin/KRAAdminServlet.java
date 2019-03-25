@@ -34,6 +34,7 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class representings an administration servlet for Key
@@ -64,7 +65,8 @@ public class KRAAdminServlet extends AdminServlet {
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mKRA = (IKeyRecoveryAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mKRA = (IKeyRecoveryAuthority) engine.getSubsystem(CMS.SUBSYSTEM_KRA);
     }
 
     /**

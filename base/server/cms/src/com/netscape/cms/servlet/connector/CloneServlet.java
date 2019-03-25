@@ -87,14 +87,15 @@ public class CloneServlet extends CMSServlet {
 
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mConfig = sc;
         String authority = sc.getInitParameter(PROP_AUTHORITY);
 
         if (authority != null)
-            mAuthority = (IAuthority)
-                    CMS.getSubsystem(authority);
+            mAuthority = (IAuthority) engine.getSubsystem(authority);
         mReqEncoder = new HttpRequestEncoder();
-        mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
     }
 
     public void service(HttpServletRequest req,

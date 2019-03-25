@@ -42,6 +42,7 @@ import com.netscape.certsrv.selftests.SelfTestResource;
 import com.netscape.certsrv.selftests.SelfTestResult;
 import com.netscape.certsrv.selftests.SelfTestResults;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
@@ -93,8 +94,9 @@ public class SelfTestService extends PKIService implements SelfTestResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            ISelfTestSubsystem subsystem = (ISelfTestSubsystem)CMS.getSubsystem(ISelfTestSubsystem.ID);
+            ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
 
             // filter self tests
             Collection<String> results = new ArrayList<String>();
@@ -145,8 +147,9 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         logger.debug("SelfTestService.getSelfTest(\"" + selfTestID + "\")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            ISelfTestSubsystem subsystem = (ISelfTestSubsystem)CMS.getSubsystem(ISelfTestSubsystem.ID);
+            ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
             return createOKResponse(createSelfTestData(subsystem, selfTestID));
 
         } catch (Exception e) {
@@ -166,8 +169,9 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             throw new BadRequestException("Invalid action: " + action);
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            ISelfTestSubsystem subsystem = (ISelfTestSubsystem)CMS.getSubsystem(ISelfTestSubsystem.ID);
+            ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
             subsystem.runSelfTestsOnDemand();
 
         } catch (Exception e) {
@@ -185,8 +189,9 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         SelfTestResults results = new SelfTestResults();
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            ISelfTestSubsystem subsystem = (ISelfTestSubsystem)CMS.getSubsystem(ISelfTestSubsystem.ID);
+            ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
             for (String selfTestID : subsystem.listSelfTestsEnabledOnDemand()) {
                 Response response = runSelfTest(selfTestID);
                 SelfTestResult result = (SelfTestResult)response.getEntity();
@@ -209,8 +214,9 @@ public class SelfTestService extends PKIService implements SelfTestResource {
         SelfTestResult result = new SelfTestResult();
         result.setID(selfTestID);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            ISelfTestSubsystem subsystem = (ISelfTestSubsystem)CMS.getSubsystem(ISelfTestSubsystem.ID);
+            ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
             subsystem.runSelfTest(selfTestID);
             result.setStatus("PASSED");
 

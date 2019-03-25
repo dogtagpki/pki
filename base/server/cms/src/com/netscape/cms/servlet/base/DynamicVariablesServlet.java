@@ -264,7 +264,7 @@ public class DynamicVariablesServlet extends CMSServlet {
 
                         if (varcode.equals(VAR_AUTHMGRS)) {
                             toBeWritten = "";
-                            IAuthSubsystem as = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+                            IAuthSubsystem as = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
                             Enumeration<IAuthManager> ame = as.getAuthManagers();
 
                             Date d = CMS.getCurrentDate();

@@ -45,7 +45,8 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
     private IStorageKeyUnit storageUnit;
 
     public KRAInfoService() {
-        kra = (IKeyRecoveryAuthority) CMS.getSubsystem("kra");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        kra = (IKeyRecoveryAuthority) engine.getSubsystem("kra");
         storageUnit = kra.getStorageKeyUnit();
     }
 

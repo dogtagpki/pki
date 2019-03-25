@@ -78,7 +78,8 @@ public class SecurityDomainProcessor extends CAProcessor {
 
     public SecurityDomainProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
         super("securitydomain", locale);
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         random = jssSubsystem.getRandomNumberGenerator();
     }
 
@@ -93,7 +94,7 @@ public class SecurityDomainProcessor extends CAProcessor {
 
         subsystem = subsystem.toUpperCase();
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IUGSubsystem ugSubsystem = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
+        IUGSubsystem ugSubsystem = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
 
         String group = getEnterpriseGroupName(subsystem);
         logger.debug("SecurityDomainProcessor: group: " + group);

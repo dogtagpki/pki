@@ -157,7 +157,8 @@ public class HashEnrollServlet extends CMSServlet {
             }
 
             // cfu
-            mCa = (ICertificateAuthority) CMS.getSubsystem("ca");
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            mCa = (ICertificateAuthority) engine.getSubsystem("ca");
 
             init_testbed_hack(mConfig);
         } catch (Exception e) {
@@ -191,8 +192,7 @@ public class HashEnrollServlet extends CMSServlet {
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 
@@ -389,8 +389,7 @@ public class HashEnrollServlet extends CMSServlet {
         //AuthToken authToken = access.getAuthToken();
         IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
         IAuthManager authMgr1 = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr1;
         String pageID = httpParams.getValueAsString("pageID", null);

@@ -36,6 +36,7 @@ import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author alee
@@ -45,7 +46,8 @@ import com.netscape.certsrv.request.RequestId;
 public abstract class CMSRequestDAO {
     protected IRequestQueue queue;
     protected IAuthority authority;
-    protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
 
     private String[] vlvFilters = {
             "(requeststate=*)", "(requesttype=enrollment)",
@@ -63,7 +65,8 @@ public abstract class CMSRequestDAO {
     public static final String ATTR_SERIALNO = "serialNumber";
 
     public CMSRequestDAO(String authorityName) {
-        authority = (IAuthority) CMS.getSubsystem(authorityName);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        authority = (IAuthority) engine.getSubsystem(authorityName);
         queue = authority.getRequestQueue();
     }
 

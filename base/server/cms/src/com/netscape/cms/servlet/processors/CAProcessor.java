@@ -127,9 +127,10 @@ public class CAProcessor extends Processor {
     protected String authMgr;
     protected String getClientCert = "false";
     // subsystems
-    protected ICertificateAuthority authority = (ICertificateAuthority) CMS.getSubsystem("ca");
-    protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
-    protected IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    protected ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem("ca");
+    protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+    protected IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
     protected ICertUserLocator ul = ug.getCertUserLocator();
     protected IRequestQueue queue;
     protected IProfileSubsystem ps;
@@ -172,7 +173,7 @@ public class CAProcessor extends Processor {
             profileSubId = IProfileSubsystem.ID;
         }
 
-        ps = (IProfileSubsystem) CMS.getSubsystem(profileSubId);
+        ps = (IProfileSubsystem) engine.getSubsystem(profileSubId);
         if (ps == null) {
             throw new EBaseException("CAProcessor: Profile Subsystem not found");
         }
@@ -196,7 +197,8 @@ public class CAProcessor extends Processor {
      ******************************************/
 
     public void startTiming(String event) {
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.startTiming(event, true);
         }
@@ -204,7 +206,8 @@ public class CAProcessor extends Processor {
     }
 
     public void endTiming(String event) {
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.endTiming(event);
         }
@@ -212,7 +215,8 @@ public class CAProcessor extends Processor {
     }
 
     public void endAllEvents() {
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             Iterator<String> iter = statEvents.iterator();
             while (iter.hasNext()) {

@@ -65,7 +65,8 @@ public class GroupMemberProcessor extends Processor {
 
     public static String[] multiRoleGroupEnforceList;
 
-    public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    public IUGSubsystem userGroupManager = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
 
     protected UriInfo uriInfo;
 

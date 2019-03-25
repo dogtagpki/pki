@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.IDBSubsystem;
@@ -128,16 +127,6 @@ public final class CMS {
     public static void debug(String msg) {
         if (_engine != null)
             _engine.debug(msg);
-    }
-
-    /**
-     * Retrieves the registered subsytem with the given name.
-     *
-     * @param name subsystem name
-     * @return subsystem of the given name
-     */
-    public static ISubsystem getSubsystem(String name) {
-        return _engine.getSubsystem(name);
     }
 
     /**

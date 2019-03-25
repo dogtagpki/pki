@@ -251,8 +251,8 @@ public abstract class CMSServlet extends HttpServlet {
     protected String mAuthzResourceName = null;
 
     protected String mOutputTemplatePath = null;
-    private IUGSubsystem mUG = (IUGSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    private IUGSubsystem mUG = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
 
     public CMSServlet() {
     }
@@ -275,7 +275,7 @@ public abstract class CMSServlet extends HttpServlet {
         this.servletConfig = sc;
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        mAuthz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
         mId = sc.getInitParameter(PROP_ID);
 
         try {
@@ -301,7 +301,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         if (authority != null) {
-            mAuthority = (IAuthority) CMS.getSubsystem(authority);
+            mAuthority = (IAuthority) engine.getSubsystem(authority);
             if (mAuthority instanceof ICertificateAuthority)
                 certAuthority = (ICertificateAuthority) mAuthority;
         }
@@ -1566,7 +1566,8 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     public static String generateSalt() {
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         SecureRandom rnd = jssSubsystem.getRandomNumberGenerator();
         String salt = new Integer(rnd.nextInt()).toString();
         return salt;

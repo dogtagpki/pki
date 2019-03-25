@@ -956,7 +956,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                         logger.debug("CMCAuth: finished checking signature");
 
                         // authenticate signer's certificate using the userdb
-                        IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+                        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
 
                         IAuthManager agentAuth = authSS.getAuthManager(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);//AGENT_AUTHMGR_ID);
                         if (agentAuth == null) {

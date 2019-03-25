@@ -49,6 +49,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.SubjectNameDefault;
 import com.netscape.cms.profile.def.UserSubjectNameDefault;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements the unique subject name constraint.
@@ -156,7 +157,8 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
             throws ERejectException {
         logger.debug("UniqueSubjectNameConstraint: validate start");
         CertificateSubjectName sn = null;
-        IAuthority authority = (IAuthority) CMS.getSubsystem("ca");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IAuthority authority = (IAuthority) engine.getSubsystem("ca");
 
         mKeyUsageExtensionChecking = getConfigBoolean(CONFIG_KEY_USAGE_EXTENSION_CHECKING);
         ICertificateRepository certdb = null;

@@ -454,22 +454,22 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             // retrieve the subsystem
             String subsystem = "";
 
-            ISubsystem caSubsystem = CMS.getSubsystem("ca");
+            ISubsystem caSubsystem = engine.getSubsystem("ca");
             if (caSubsystem != null) {
                 subsystem = "ca";
             }
 
-            ISubsystem raSubsystem = CMS.getSubsystem("ra");
+            ISubsystem raSubsystem = engine.getSubsystem("ra");
             if (raSubsystem != null) {
                 subsystem = "ra";
             }
 
-            ISubsystem kraSubsystem = CMS.getSubsystem("kra");
+            ISubsystem kraSubsystem = engine.getSubsystem("kra");
             if (kraSubsystem != null) {
                 subsystem = "kra";
             }
 
-            ISubsystem ocspSubsystem = CMS.getSubsystem("ocsp");
+            ISubsystem ocspSubsystem = engine.getSubsystem("ocsp");
             if (ocspSubsystem != null) {
                 subsystem = "ocsp";
             }

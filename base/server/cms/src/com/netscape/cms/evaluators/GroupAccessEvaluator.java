@@ -30,6 +30,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class represents a group acls evaluator.
@@ -51,7 +52,8 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
      */
     public GroupAccessEvaluator() {
 
-        mUG = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mUG = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
 
         if (mUG == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UG_NULL"));

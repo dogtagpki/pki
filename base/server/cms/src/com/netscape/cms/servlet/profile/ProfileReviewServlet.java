@@ -51,6 +51,7 @@ import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -81,14 +82,16 @@ public class ProfileReviewServlet extends ProfileServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
 
         if (mAuthorityId != null)
-            authority = (ICertificateAuthority) CMS.getSubsystem(mAuthorityId);
+            authority = (ICertificateAuthority) engine.getSubsystem(mAuthorityId);
 
         if (authority != null && authority.noncesEnabled()) {
 
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             mRandom = jssSubsystem.getRandomNumberGenerator();
         }
     }
@@ -107,6 +110,7 @@ public class ProfileReviewServlet extends ProfileServlet {
 
         logger.debug("ProfileReviewServlet: start serving");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         Locale locale = getLocale(request);
         ArgSet args = new ArgSet();
         IAuthToken authToken = null;
@@ -154,8 +158,7 @@ public class ProfileReviewServlet extends ProfileServlet {
             mProfileSubId = IProfileSubsystem.ID;
         }
         logger.debug("ProfileReviewServlet: SubId=" + mProfileSubId);
-        IProfileSubsystem ps = (IProfileSubsystem)
-                CMS.getSubsystem(mProfileSubId);
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             logger.error("ProfileReviewServlet: ProfileSubsystem not found");

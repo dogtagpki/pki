@@ -38,6 +38,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements a CA signing cert enrollment default policy
@@ -77,8 +78,8 @@ public class CAValidityDefault extends EnrollDefault {
     public void init(IProfile profile, IConfigStore config)
             throws EProfileException {
         super.init(profile, config);
-        mCA = (ICertificateAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mCA = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
     }
 
     public void setConfig(String name, String value)

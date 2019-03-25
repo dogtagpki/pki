@@ -84,7 +84,8 @@ public class UserService extends SubsystemService implements UserResource {
     public final static String BACK_SLASH = "\\";
     public final static String SYSTEM_USER = "$System$";
 
-    public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    public IUGSubsystem userGroupManager = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
 
     public UserData createUserData(IUser user) throws Exception {
 

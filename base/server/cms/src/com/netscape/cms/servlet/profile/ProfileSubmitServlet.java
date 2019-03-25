@@ -57,6 +57,7 @@ import com.netscape.cms.servlet.cert.RenewalProcessor;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -208,6 +209,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         HttpServletRequest request = cmsReq.getHttpReq();
         Locale locale = getLocale(request);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
 
         String profileId = processor.getProfileID() == null ? request.getParameter("profileId") : processor.getProfileID();
@@ -230,8 +232,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             } catch (IllegalArgumentException e) {
                 throw new BadRequestDataException("invalid AuthorityID: " + aidString, e);
             }
-            ICertificateAuthority ca = (ICertificateAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
             ca = ca.getCA(aid);
             if (ca == null)
                 throw new CANotFoundException("CA not found: " + aidString);

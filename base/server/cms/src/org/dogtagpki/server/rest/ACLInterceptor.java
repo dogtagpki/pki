@@ -51,6 +51,7 @@ import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
@@ -144,8 +145,8 @@ public class ACLInterceptor implements ContainerRequestFilter {
         if (principal != null)
             logger.debug("ACLInterceptor: principal: " + principal.getName());
 
-        IAuthzSubsystem authzSubsystem =
-            (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IAuthzSubsystem authzSubsystem = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
 
         IAuthToken authToken = null;
         String authzMgrName = null;

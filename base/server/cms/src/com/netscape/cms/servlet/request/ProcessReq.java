@@ -50,6 +50,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -239,6 +240,7 @@ public class ProcessReq extends CMSServlet {
 
         header.addBigIntegerValue("seqNum", seqNum, 10);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IRequest r = mQueue.findRequest(new RequestId(seqNum));
 
         if (r != null) {
@@ -257,11 +259,11 @@ public class ProcessReq extends CMSServlet {
             }
 
             // add authority names to know what privileges can be requested.
-            if (CMS.getSubsystem("kra") != null)
+            if (engine.getSubsystem("kra") != null)
                 header.addStringValue("localkra", "yes");
-            if (CMS.getSubsystem("ca") != null)
+            if (engine.getSubsystem("ca") != null)
                 header.addStringValue("localca", "yes");
-            if (CMS.getSubsystem("ra") != null)
+            if (engine.getSubsystem("ra") != null)
                 header.addStringValue("localra", "yes");
 
             // DONT NEED TO DO THIS FOR DRM

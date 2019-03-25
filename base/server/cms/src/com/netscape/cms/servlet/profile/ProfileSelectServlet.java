@@ -133,8 +133,7 @@ public class ProfileSelectServlet extends ProfileServlet {
             mProfileSubId = IProfileSubsystem.ID;
         }
         logger.debug("ProfileSelectServlet: SubId=" + mProfileSubId);
-        IProfileSubsystem ps = (IProfileSubsystem)
-                CMS.getSubsystem(mProfileSubId);
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             logger.error("ProfileSelectServlet: ProfileSubsystem not found");
@@ -146,7 +145,7 @@ public class ProfileSelectServlet extends ProfileServlet {
         }
 
         // retrieve request
-        IAuthority authority = (IAuthority) CMS.getSubsystem(mAuthorityId);
+        IAuthority authority = (IAuthority) engine.getSubsystem(mAuthorityId);
 
         if (authority == null) {
             logger.error("ProfileSelectServlet: Authority " + mAuthorityId + " not found");

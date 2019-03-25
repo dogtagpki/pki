@@ -80,6 +80,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -396,6 +397,8 @@ public class ProcessCertReq extends CMSServlet {
             long notValidBefore, long notValidAfter,
             Locale locale, long startTime)
             throws EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
@@ -1219,11 +1222,11 @@ public class ProcessCertReq extends CMSServlet {
             }
 
             // add authority names to know what privileges can be requested.
-            if (CMS.getSubsystem("kra") != null)
+            if (engine.getSubsystem("kra") != null)
                 header.addStringValue("localkra", "yes");
-            if (CMS.getSubsystem("ca") != null)
+            if (engine.getSubsystem("ca") != null)
                 header.addStringValue("localca", "yes");
-            if (CMS.getSubsystem("ra") != null)
+            if (engine.getSubsystem("ra") != null)
                 header.addStringValue("localra", "yes");
 
             header.addBigIntegerValue("seqNum", seqNum, 10);
@@ -1620,7 +1623,8 @@ public class ProcessCertReq extends CMSServlet {
 
         header.addStringValue(GRANT_PRIVILEGE, privilege);
 
-        IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
         IUser user = ug.createUser(uid);
 
         user.setFullName(uid);

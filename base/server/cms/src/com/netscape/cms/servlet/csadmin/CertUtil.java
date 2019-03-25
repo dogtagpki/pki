@@ -358,7 +358,8 @@ public class CertUtil {
             return;
         }
 
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         IRequestQueue queue = ca.getRequestQueue();
 
         IRequest req = queue.findRequest(new RequestId(reqId));
@@ -481,7 +482,8 @@ public class CertUtil {
             keyAlgorithm = config.getString(prefix + certTag + ".keyalgorithm");
         }
 
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICertificateRepository cr = ca.getCertificateRepository();
 
         X509CertInfo info;
@@ -611,7 +613,8 @@ public class CertUtil {
                 cert.getSerialNumber() + ", " +
                 cert.getSubjectDN() + ")");
 
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICertificateRepository cr = ca.getCertificateRepository();
 
         MetaInfo meta = new MetaInfo();
@@ -631,7 +634,8 @@ public class CertUtil {
         } catch (Exception e) {
             logger.warn("Unable to retrieve server configuration: " + e, e);
         }
-        IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
+
+        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         String id = "user" + num;
 
         try {

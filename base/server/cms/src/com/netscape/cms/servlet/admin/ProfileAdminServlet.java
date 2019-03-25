@@ -103,8 +103,9 @@ public class ProfileAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
-        mRegistry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
-        mProfileSub = (IProfileSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_PROFILE);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mRegistry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        mProfileSub = (IProfileSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_PROFILE);
     }
 
     /**
@@ -2421,7 +2422,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String auth = req.getParameter("auth");
             String config = null;
 
-            ISubsystem subsystem = CMS.getSubsystem("ca");
+            ISubsystem subsystem = engine.getSubsystem("ca");
             String subname = "ca";
 
             if (subsystem == null)

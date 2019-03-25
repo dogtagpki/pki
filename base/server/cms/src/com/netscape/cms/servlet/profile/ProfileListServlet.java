@@ -36,6 +36,7 @@ import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * List all enabled profiles.
@@ -73,6 +74,7 @@ public class ProfileListServlet extends ProfileServlet {
 
         logger.debug("ProfileListServlet: start serving");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         Locale locale = getLocale(request);
 
         ArgSet args = new ArgSet();
@@ -106,8 +108,7 @@ public class ProfileListServlet extends ProfileServlet {
             mProfileSubId = IProfileSubsystem.ID;
         }
         logger.debug("ProfileListServlet: SubId=" + mProfileSubId);
-        IProfileSubsystem ps = (IProfileSubsystem)
-                CMS.getSubsystem(mProfileSubId);
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             logger.warn("ProfileListServlet: ProfileSubsystem " +

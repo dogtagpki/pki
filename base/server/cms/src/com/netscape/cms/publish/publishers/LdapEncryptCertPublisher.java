@@ -43,6 +43,7 @@ import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertUtils;
 
 import netscape.ldap.LDAPAttribute;
@@ -302,6 +303,9 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
 
     private void revokeCert(X509CertImpl cert)
             throws EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         try {
             if (mConfig.getBoolean(PROP_REVOKE_CERT, true) == false) {
                 return;
@@ -311,8 +315,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         }
         BigInteger serialNum = cert.getSerialNumber();
         // need to revoke certificate also
-        ICertificateAuthority ca = (ICertificateAuthority)
-                CMS.getSubsystem("ca");
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
         ICAService service = (ICAService) ca.getCAService();
         RevokedCertImpl crlEntry = formCRLEntry(
                 serialNum, RevocationReason.KEY_COMPROMISE);

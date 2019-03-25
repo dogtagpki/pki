@@ -34,6 +34,7 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class representings an administration servlet for Registration
@@ -77,7 +78,8 @@ public class RAAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mRA = (IRegistrationAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_RA);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mRA = (IRegistrationAuthority) engine.getSubsystem(CMS.SUBSYSTEM_RA);
     }
 
     /**

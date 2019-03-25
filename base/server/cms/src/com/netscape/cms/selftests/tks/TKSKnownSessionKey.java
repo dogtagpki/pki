@@ -150,7 +150,7 @@ public class TKSKnownSessionKey
         }
 
         String defKeySetMacKey = null;
-        tks = CMS.getSubsystem(mTksSubId);
+        tks = engine.getSubsystem(mTksSubId);
         if (tks != null) {
             tksConfig = tks.getConfigStore();
             if (tksConfig != null) {

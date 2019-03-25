@@ -133,8 +133,7 @@ public class UpdateNumberRange extends CMSServlet {
 
             IRepository repo = null;
             if (cstype.equals("KRA")) {
-                IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) CMS.getSubsystem(
-                        IKeyRecoveryAuthority.ID);
+                IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
                 if (type.equals("request")) {
                     repo = kra.getRequestQueue().getRequestRepository();
                 } else if (type.equals("serialNo")) {
@@ -144,8 +143,7 @@ public class UpdateNumberRange extends CMSServlet {
                 }
 
             } else { // CA
-                ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(
-                        ICertificateAuthority.ID);
+                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 if (type.equals("request")) {
                     repo = ca.getRequestQueue().getRequestRepository();
                 } else if (type.equals("serialNo")) {

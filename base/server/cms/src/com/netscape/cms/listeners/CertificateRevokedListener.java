@@ -320,9 +320,10 @@ public class CertificateRevokedListener implements IRequestListener {
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT,
                 mHttpPort);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             RevokedCertImpl revCert = crlentries[0];
-            ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
             ICertificateRepository certDB = ca.getCertificateRepository();
             X509Certificate cert = certDB.getX509Certificate(revCert.getSerialNumber());
 

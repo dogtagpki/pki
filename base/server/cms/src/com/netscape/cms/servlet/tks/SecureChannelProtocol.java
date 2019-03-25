@@ -28,6 +28,7 @@ import org.mozilla.jss.pkcs11.PKCS11Constants;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -214,6 +215,7 @@ public class SecureChannelProtocol {
 
         logger.debug(method + " entering. nickname: " + keyNickName + " selectedToken: " + selectedToken);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         CryptoManager cm = null;
         CryptoToken token = null;
         CryptoToken internalToken = null;
@@ -343,7 +345,7 @@ public class SecureChannelProtocol {
                     byte[] finalKeyBytes = nistKdf.kdf_AES_CMAC_SCP03(divKey, context, constant, 16);
                     sessionKey = unwrapAESSymKeyOnToken(token, finalKeyBytes, false);
 
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(finalKeyBytes);
 
                     //The final session key is AES.
@@ -396,7 +398,7 @@ public class SecureChannelProtocol {
                     byte[] finalKeyBytes = nistKdf.kdf_AES_CMAC_SCP03(divKey, context, constant, 16);
                     sessionKey = unwrapAESSymKeyOnToken(token, finalKeyBytes, false);
 
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(finalKeyBytes);
                 }
             }
@@ -862,6 +864,7 @@ public class SecureChannelProtocol {
             throw new EBaseException(method + " Invalid key size!");
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         KeyGenerator kg;
         SymmetricKey finalAESKey;
         try {
@@ -912,7 +915,7 @@ public class SecureChannelProtocol {
             finalAESKey = keyUnWrap.unwrapSymmetric(wrappedKey, SymmetricKey.AES, 16);
 
 
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             jssSubsystem.obscureBytes(wrappedKey);
 
             //byte[] finalKeyBytes = finalAESKey.getKeyData();

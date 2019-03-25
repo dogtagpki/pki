@@ -108,15 +108,16 @@ public class ConnectorServlet extends CMSServlet {
 
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         mConfig = sc;
         String authority = sc.getInitParameter(PROP_AUTHORITY);
 
         if (authority != null)
-            mAuthority = (IAuthority)
-                    CMS.getSubsystem(authority);
+            mAuthority = (IAuthority) engine.getSubsystem(authority);
         mReqEncoder = new HttpRequestEncoder();
 
-        mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
     }
 
     public void service(HttpServletRequest request,
@@ -315,6 +316,7 @@ public class ConnectorServlet extends CMSServlet {
         // x509certinfo from ra into request
         X509CertInfo info = null;
         ByteArrayOutputStream byteStream;
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
 
         try {
             info = request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
@@ -364,8 +366,7 @@ public class ConnectorServlet extends CMSServlet {
         }
 
         String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
-        IProfileSubsystem ps = (IProfileSubsystem)
-                CMS.getSubsystem("profile");
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem("profile");
         IEnrollProfile profile = null;
 
         // profile subsystem may not be available. In case of KRA for

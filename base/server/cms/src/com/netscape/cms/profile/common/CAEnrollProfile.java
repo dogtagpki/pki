@@ -42,6 +42,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertUtils;
 
 /**
@@ -58,8 +59,8 @@ public class CAEnrollProfile extends EnrollProfile {
     }
 
     public IAuthority getAuthority() {
-        IAuthority authority = (IAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IAuthority authority = (IAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
 
         if (authority == null)
             return null;
@@ -67,8 +68,8 @@ public class CAEnrollProfile extends EnrollProfile {
     }
 
     public X500Name getIssuerName() {
-        ICertificateAuthority ca = (ICertificateAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
         X500Name issuerName = ca.getX500Name();
 
         return issuerName;

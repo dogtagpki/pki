@@ -42,6 +42,7 @@ import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
+import com.netscape.cmscore.apps.CMSEngine;
 
 //////////////////////
 // class definition //
@@ -197,7 +198,8 @@ public class OCSPValidity
     public void runSelfTest(ILogEventListener logger) throws Exception {
         String logMessage = null;
 
-        IOCSPAuthority ocsp = (IOCSPAuthority) CMS.getSubsystem(mOcspSubId);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(mOcspSubId);
         if (ocsp == null) {
             // log that the OCSP is not installed
             logMessage = CMS.getLogMessage(

@@ -23,6 +23,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -53,11 +54,12 @@ public class IndexTemplateFiller implements ICMSTemplateFiller {
         ArgBlock ctx = new ArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(header, ctx);
 
-        ISubsystem ca = CMS.getSubsystem("ca");
-        ISubsystem ra = CMS.getSubsystem("ra");
-        ISubsystem kra = CMS.getSubsystem("kra");
-        ISubsystem ocsp = CMS.getSubsystem("ocsp");
-        ISubsystem tks = CMS.getSubsystem("tks");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ISubsystem ca = engine.getSubsystem("ca");
+        ISubsystem ra = engine.getSubsystem("ra");
+        ISubsystem kra = engine.getSubsystem("kra");
+        ISubsystem ocsp = engine.getSubsystem("ocsp");
+        ISubsystem tks = engine.getSubsystem("tks");
 
         ArgBlock rarg = null;
         int count = 0;

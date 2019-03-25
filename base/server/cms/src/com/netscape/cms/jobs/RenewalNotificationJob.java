@@ -263,8 +263,8 @@ public class RenewalNotificationJob
         mId = id;
         mImplName = implName;
 
-        mCA = (ICertificateAuthority)
-                CMS.getSubsystem("ca");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mCA = (ICertificateAuthority) engine.getSubsystem("ca");
         if (mCA == null) {
             mSummary = false;
             return;

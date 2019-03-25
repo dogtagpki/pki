@@ -27,6 +27,7 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.key.KeyRecordParser;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Output a 'pretty print' of a Key Archival request
@@ -53,10 +54,11 @@ public class KeyReqParser extends ReqParser {
         super.fillRequestIntoArg(l, req, argSet, arg);
 
         String type = req.getRequestType();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
 
         if (type.equals(IRequest.ENROLLMENT_REQUEST)) {
             BigInteger recSerialNo = req.getExtDataInBigInteger("keyRecord");
-            IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) CMS.getSubsystem("kra");
+            IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem("kra");
             if (kra != null) {
                 KeyRecordParser.fillRecordIntoArg(
                         kra.getKeyRepository().readKeyRecord(recSerialNo),

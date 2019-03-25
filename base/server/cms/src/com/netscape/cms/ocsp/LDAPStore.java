@@ -51,6 +51,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertID;
 import com.netscape.cmsutil.ocsp.CertStatus;
@@ -285,7 +286,8 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             throw new EBaseException("OCSP request is empty");
         }
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
 
         mOCSPAuthority.incNumOCSPRequest(1);
         long startTime = CMS.getCurrentDate().getTime();

@@ -758,6 +758,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             return new X509CertImpl(b);
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String adminSubjectDN = data.getAdminSubjectDN();
         cs.putString("preop.cert.admin.dn", adminSubjectDN);
 
@@ -769,7 +770,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     data.getAdminCertRequestType(), adminSubjectDN);
 
             String serialno = cs.getString("preop.admincert.serialno.0");
-            ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ICertificateRepository repo = ca.getCertificateRepository();
 
             return repo.getX509Certificate(new BigInteger(serialno, 16));
@@ -823,7 +824,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         X509CertImpl[] adminCerts = new X509CertImpl[] { adminCert };
 
-        IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IUser user = ug.getUser(request.getAdminUID());
         user.setX509Certificates(adminCerts);
         ug.addUserCert(user);
@@ -899,7 +901,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             if (StringUtils.isEmpty(replicationPassword)) {
                 // generate random password
 
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 SecureRandom random = jssSubsystem.getRandomNumberGenerator();
                 replicationPassword = Integer.toString(random.nextInt());
             }

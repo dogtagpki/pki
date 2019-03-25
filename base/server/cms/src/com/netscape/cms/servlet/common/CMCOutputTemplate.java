@@ -581,10 +581,11 @@ public class CMCOutputTemplate {
     private ContentInfo getContentInfo(ResponseBody respBody, SET certs) {
         String method = "CMCOutputTemplate: getContentInfo: ";
         logger.debug(method + "begins");
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            ICertificateAuthority ca = null;
             // add CA cert chain
-            ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
             CertificateChain certchains = ca.getCACertChain();
             java.security.cert.X509Certificate[] chains = certchains.getChain();
 
@@ -697,7 +698,8 @@ public class CMCOutputTemplate {
                 }
 
                 // Get CA certs
-                ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+                CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
                 CertificateChain certchains = ca.getCACertChain();
                 java.security.cert.X509Certificate[] chains = certchains.getChain();
 
@@ -737,6 +739,9 @@ public class CMCOutputTemplate {
 
     private int processConfirmCertAcceptanceControl(
             TaggedAttribute attr, SEQUENCE controlSeq, int bpid) {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         if (attr != null) {
             INTEGER bodyId = attr.getBodyPartID();
             SEQUENCE seq = new SEQUENCE();
@@ -755,8 +760,7 @@ public class CMCOutputTemplate {
                                     ASN1Util.encode(issuers.elementAt(0))));
                     byte[] b = issuer.getEncoded();
                     X500Name n = new X500Name(b);
-                    ICertificateAuthority ca = null;
-                    ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
                     X500Name caName = ca.getX500Name();
                     boolean confirmAccepted = false;
                     if (n.toString().equalsIgnoreCase(caName.toString())) {
@@ -797,6 +801,9 @@ public class CMCOutputTemplate {
     private void processGetCertControl(TaggedAttribute attr, SET certs)
             throws InvalidBERException, java.security.cert.CertificateEncodingException,
             IOException, EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         if (attr != null) {
             SET vals = attr.getValues();
 
@@ -808,7 +815,7 @@ public class CMCOutputTemplate {
                 ANY issuer = getCert.getIssuer();
                 byte b[] = issuer.getEncoded();
                 X500Name n = new X500Name(b);
-                ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
                 X500Name caName = ca.getX500Name();
                 if (!n.toString().equalsIgnoreCase(caName.toString())) {
                     logger.error("CMCOutputTemplate: Issuer names are equal in the GetCert Control");
@@ -828,6 +835,9 @@ public class CMCOutputTemplate {
 
     private int processQueryPendingControl(TaggedAttribute attr,
             SEQUENCE controlSeq, int bpid) {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         if (attr != null) {
             SET values = attr.getValues();
             if (values != null && values.size() > 0) {
@@ -841,7 +851,7 @@ public class CMCOutputTemplate {
                                         ASN1Util.encode(values.elementAt(i)));
                         String requestId = new String(reqId.toByteArray());
 
-                        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+                        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
                         IRequestQueue queue = ca.getRequestQueue();
                         IRequest r = queue.findRequest(new RequestId(requestId));
                         if (r != null) {
@@ -1085,7 +1095,7 @@ public class CMCOutputTemplate {
                     logger.debug(method + "checking shared secret");
 
                     String configName = "SharedToken";
-                    IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+                    IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
 
                     IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
                     if (sharedTokenAuth == null) {
@@ -1182,7 +1192,7 @@ public class CMCOutputTemplate {
                 }
 
                 if (revoke) {
-                    ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
                     ICertificateRepository repository = ca.getCertificateRepository();
                     ICertRecord record = null;
                     try {

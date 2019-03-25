@@ -80,7 +80,8 @@ public class EnableEnrollResult extends CMSServlet {
 
         mTemplates.remove(ICMSRequest.SUCCESS);
 
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         random = jssSubsystem.getRandomNumberGenerator();
     }
 
@@ -154,7 +155,7 @@ public class EnableEnrollResult extends CMSServlet {
         header.addStringValue("machineName", machine);
         header.addStringValue("port", port);
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 

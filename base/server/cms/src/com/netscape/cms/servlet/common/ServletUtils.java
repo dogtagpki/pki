@@ -110,7 +110,7 @@ public class ServletUtils {
     public static String getACLMethod(String aclInfo, String authzMgr, String id) throws EBaseException {
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String srcType = AUTHZ_SRC_LDAP;
-        IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
 
         try {
             IConfigStore authzConfig = engine.getConfigStore().getSubStore(AUTHZ_CONFIG_STORE);

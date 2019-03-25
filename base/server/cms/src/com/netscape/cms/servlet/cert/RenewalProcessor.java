@@ -58,6 +58,7 @@ import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class RenewalProcessor extends CertProcessor {
 
@@ -88,6 +89,8 @@ public class RenewalProcessor extends CertProcessor {
             }
 
             logger.debug("RenewalProcessor: processRenewal()");
+
+            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
 
             startTiming("enrollment");
             request.setAttribute("reqType", "renewal");
@@ -120,7 +123,7 @@ public class RenewalProcessor extends CertProcessor {
             // if not found, get serial number from profile input (no auth required)
             if (certSerial == null) {
 
-                IPluginRegistry registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+                IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
                 // find SerialNumRenewInput
                 for (ProfileInput input : data.getInputs()) {

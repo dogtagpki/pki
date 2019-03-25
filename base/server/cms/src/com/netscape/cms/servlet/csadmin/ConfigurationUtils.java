@@ -2339,7 +2339,8 @@ public class ConfigurationUtils {
             String certTag)
             throws Exception {
 
-        ISubsystem ca = CMS.getSubsystem(ICertificateAuthority.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
 
         if (ca == null) {
             String s = PCERT_PREFIX + certTag + ".type";
@@ -2697,6 +2698,8 @@ public class ConfigurationUtils {
         String tag = cert.getCertTag();
         logger.debug("ConfigurationUtils.createCertRecord(" + tag + ")");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         // parsing cert data
         X509CertImpl x509CertImpl = new X509CertImpl(cert.getCert());
         X509CertInfo info = x509CertImpl.getInfo();
@@ -2716,7 +2719,7 @@ public class ConfigurationUtils {
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
 
         // creating cert request record
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICertificateRepository cr = ca.getCertificateRepository();
         IRequestQueue queue = ca.getRequestQueue();
 
@@ -2925,7 +2928,7 @@ public class ConfigurationUtils {
         // update the locally created request for renewal
         CertUtil.updateLocalRequest(cs, "admin", binRequest, certRequestType, subject);
 
-        ISubsystem ca = CMS.getSubsystem("ca");
+        ISubsystem ca = engine.getSubsystem("ca");
         if (ca != null) {
             createPKCS7(impl);
         }
@@ -2936,7 +2939,7 @@ public class ConfigurationUtils {
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
         CertificateChain cachain = ca.getCACertChain();
         java.security.cert.X509Certificate[] cacerts = cachain.getChain();
         X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
@@ -2961,7 +2964,7 @@ public class ConfigurationUtils {
             EBaseException, LDAPException {
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
+        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IConfigStore config = engine.getConfigStore();
         String groupNames = config.getString("preop.admin.group", "Certificate Manager Agents,Administrators");
 
@@ -3334,8 +3337,7 @@ public class ConfigurationUtils {
         int port = cs.getInteger("preop.ca.httpsadminport", -1);
 
         // retrieve CA subsystem certificate from the CA
-        IUGSubsystem system =
-                (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
+        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         String id = "";
 
         String b64 = getSubsystemCert(host, port, true);
@@ -3525,7 +3527,7 @@ public class ConfigurationUtils {
             NotInitializedException, ObjectNotFoundException, TokenException, IOException {
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IUGSubsystem system = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
+        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
 
         // checking existing user
         IUser user = system.getUser(DBUSER);
@@ -3602,8 +3604,11 @@ public class ConfigurationUtils {
     }
 
     public static void addProfilesToTPSUser(String adminID) throws EUsrGrpException, LDAPException {
+
         logger.debug("Adding all profiles to TPS admin user");
-        IUGSubsystem system = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IUser user = system.getUser(adminID);
 
         List<String> profiles = new ArrayList<String>();
@@ -3714,7 +3719,7 @@ public class ConfigurationUtils {
 
     public static void removeOldDBUsers(String subjectDN) throws EBaseException, LDAPException {
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
+        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IConfigStore cs = engine.getConfigStore();
         String userbasedn = "ou=people, " + cs.getString("internaldb.basedn");
         IConfigStore dbCfg = cs.getSubStore("internaldb");

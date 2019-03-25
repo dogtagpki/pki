@@ -32,6 +32,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements an enrollment default policy
@@ -72,14 +73,15 @@ public class SigningAlgDefault extends EnrollDefault {
     }
 
     public String getSigningAlg() {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String signingAlg = getConfig(CONFIG_ALGORITHM);
         // if specified, use the specified one. Otherwise, pick
         // the best selection for the user
         if (signingAlg == null || signingAlg.equals("") ||
                 signingAlg.equals("-")) {
             // best pick for the user
-            ICertificateAuthority ca = (ICertificateAuthority)
-                    CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
             return ca.getDefaultAlgorithm();
         } else {
             return signingAlg;
@@ -88,8 +90,8 @@ public class SigningAlgDefault extends EnrollDefault {
 
     public String getDefSigningAlgorithms() {
         StringBuffer allowed = new StringBuffer();
-        ICertificateAuthority ca = (ICertificateAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
         String algos[] = ca.getCASigningAlgorithms();
         for (int i = 0; i < algos.length; i++) {
             if (allowed.length() == 0) {

@@ -330,8 +330,9 @@ public class RequestProcessor extends CertProcessor {
             // this shouldn't happen because request was already accepted
             throw new BadRequestDataException("Invalid AuthorityID in request data");
         }
-        ICertificateAuthority ca = (ICertificateAuthority)
-            CMS.getSubsystem("ca");
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
         if (ca == null)
             // this shouldn't happen
             throw new CANotFoundException("Could not get host authority");  // shouldn't happen

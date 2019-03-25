@@ -50,6 +50,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements a basic profile.
@@ -152,9 +153,10 @@ public abstract class BasicProfile implements IProfile {
     }
 
     public IProfileAuthenticator getAuthenticator() throws EProfileException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
-            IAuthSubsystem authSub = (IAuthSubsystem)
-                    CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+            IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
             IProfileAuthenticator auth = (IProfileAuthenticator)
                     authSub.get(mAuthInstanceId);
 
@@ -204,7 +206,8 @@ public abstract class BasicProfile implements IProfile {
         mOwner = owner;
         mConfig = config;
 
-        mRegistry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mRegistry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
         // Configure File Formats:
         // visible

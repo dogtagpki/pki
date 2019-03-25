@@ -46,6 +46,7 @@ import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Toggle the approval state of a profile
@@ -94,6 +95,8 @@ public class ProfileApproveServlet extends ProfileServlet {
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditProfileID = auditProfileID(request);
@@ -185,7 +188,7 @@ public class ProfileApproveServlet extends ProfileServlet {
                 mProfileSubId = IProfileSubsystem.ID;
             }
             logger.debug("ProfileApproveServlet: SubId=" + mProfileSubId);
-            ps = (IProfileSubsystem) CMS.getSubsystem(mProfileSubId);
+            ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
             if (ps == null) {
                 logger.error("ProfileApproveServlet: ProfileSubsystem not found");
@@ -208,7 +211,7 @@ public class ProfileApproveServlet extends ProfileServlet {
             }
 
             // retrieve request
-            IAuthority authority = (IAuthority) CMS.getSubsystem(mAuthorityId);
+            IAuthority authority = (IAuthority) engine.getSubsystem(mAuthorityId);
 
             if (authority == null) {
                 logger.error("ProfileApproveServlet: Authority " + mAuthorityId + " not found");
@@ -498,8 +501,8 @@ public class ProfileApproveServlet extends ProfileServlet {
             mProfileSubId = IProfileSubsystem.ID;
         }
 
-        IProfileSubsystem ps = (IProfileSubsystem)
-                CMS.getSubsystem(mProfileSubId);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;

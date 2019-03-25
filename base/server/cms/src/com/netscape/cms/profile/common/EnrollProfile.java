@@ -404,7 +404,7 @@ public abstract class EnrollProfile extends BasicProfile
 
             // generate a challenge of 64 bytes;
 
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             SecureRandom random = jssSubsystem.getRandomNumberGenerator();
 
             byte[] challenge = new byte[64];
@@ -674,9 +674,11 @@ public abstract class EnrollProfile extends BasicProfile
             throw new Exception(msg);
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         // for CMCUserSignedAuth, the signing user is the subject of
         // the new cert
-        ICertificateAuthority authority = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
         try {
             BigInteger serialNo = new BigInteger(certSerial);
             userCert = authority.getCertificateRepository().getX509Certificate(serialNo);
@@ -1402,11 +1404,12 @@ public abstract class EnrollProfile extends BasicProfile
         String configName = "SharedToken";
         char[] sharedSecret = null;
         byte[] sharedSecretBytes = null;
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
 
         try {
 
             try {
-                IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+                IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
 
                 IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
                 if (sharedTokenAuth == null) {
@@ -1682,6 +1685,7 @@ public abstract class EnrollProfile extends BasicProfile
             return false;
         }
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String ident_string = ident.toString();
         String auditAttemptedCred = null;
 
@@ -1700,7 +1704,7 @@ public abstract class EnrollProfile extends BasicProfile
 
         try {
             String configName = "SharedToken";
-            IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+            IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
 
             IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
             if (sharedTokenAuth == null) {

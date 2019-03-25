@@ -107,7 +107,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     public KeyRequestDAO() {
         super("kra");
-        kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        kra = ( IKeyRecoveryAuthority ) engine.getSubsystem( "kra" );
         repo = kra.getKeyRepository();
         service = (IKeyService) kra;
     }

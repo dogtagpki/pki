@@ -88,14 +88,6 @@ public interface ICMSEngine extends ISubsystem {
         throws EBaseException;
 
     /**
-     * Retrieves the registered subsytem with the given name.
-     *
-     * @param name subsystem name
-     * @return subsystem of the given name
-     */
-    public ISubsystem getSubsystem(String name);
-
-    /**
      * Puts a message into the debug file.
      *
      * @param msg debugging message

@@ -37,6 +37,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements an enrollment default policy
@@ -256,6 +257,8 @@ public class ValidityDefault extends EnrollDefault {
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         // always + 60 seconds
         String startTimeStr = getConfig(CONFIG_START_TIME);
         logger.debug("ValidityDefault: start time: " + startTimeStr);
@@ -312,8 +315,7 @@ public class ValidityDefault extends EnrollDefault {
                 request.getExtDataInBoolean("installAdjustValidity", false);
         if (adjustValidity) {
             logger.debug("ValidityDefault: populate: adjustValidity is true");
-            ICertificateAuthority ca = (ICertificateAuthority)
-                    CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
             try {
                 X509CertImpl caCert = ca.getCACert();
                 Date caNotAfter = caCert.getNotAfter();

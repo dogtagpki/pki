@@ -127,8 +127,9 @@ public class PolicyAdminServlet extends AdminServlet {
         //            ====================================================
         //            krapolicy              kra/krapolicy
         //
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         if (authority != null)
-            mAuthority = (IAuthority) CMS.getSubsystem(authority);
+            mAuthority = (IAuthority) engine.getSubsystem(authority);
         if (mAuthority != null)
             if (mAuthority instanceof ICertificateAuthority) {
                 mProcessor = ((ICertificateAuthority) mAuthority).getPolicyProcessor();

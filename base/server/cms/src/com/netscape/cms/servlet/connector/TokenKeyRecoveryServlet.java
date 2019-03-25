@@ -39,6 +39,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 
 /**
@@ -73,14 +74,16 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         mConfig = config;
         String authority = config.getInitParameter(PROP_AUTHORITY);
 
         if (authority != null)
-            mAuthority = (IAuthority)
-                    CMS.getSubsystem(authority);
+            mAuthority = (IAuthority) engine.getSubsystem(authority);
 
-        mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
     }
 
     /**

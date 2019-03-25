@@ -21,6 +21,14 @@ import java.io.ByteArrayOutputStream;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -32,15 +40,8 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * This class implements the output plugin that outputs
@@ -108,6 +109,9 @@ public class PKCS7Output extends EnrollOutput implements IProfileOutput {
 
     public String getValue(String name, Locale locale, IRequest request)
             throws EProfileException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
         if (name.equals(VAL_PRETTY_CERT)) {
             X509CertImpl cert = request.getExtDataInCert(
                     EnrollProfile.REQUEST_ISSUED_CERT);
@@ -124,8 +128,7 @@ public class PKCS7Output extends EnrollOutput implements IProfileOutput {
                 if (cert == null)
                     return null;
 
-                ICertificateAuthority ca = (ICertificateAuthority)
-                        CMS.getSubsystem("ca");
+                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
                 CertificateChain cachain = ca.getCACertChain();
                 X509Certificate[] cacerts = cachain.getChain();
 

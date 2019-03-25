@@ -181,8 +181,7 @@ public class SharedSecret extends DirBasedAuthentication
 
         initLdapConn(config);
 
-        ICertificateAuthority authority =
-                (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
         issuanceProtPrivKey = authority.getIssuanceProtPrivKey();
         if (issuanceProtPrivKey != null)
             logger.debug(method + "got issuanceProtPrivKey");

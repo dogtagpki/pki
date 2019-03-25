@@ -51,7 +51,8 @@ public class KRAConnectorProcessor extends CAProcessor {
 
     public KRAConnectorProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
         super("kraconnector", locale);
-        ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
         ICAService caService = (ICAService)ca.getCAService();
         connectorExists = (caService.getKRAConnector() != null)? true:false;
     }
@@ -120,7 +121,8 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void stopConnector() {
-        ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
         ICAService caService = (ICAService)ca.getCAService();
         IConnector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
@@ -129,7 +131,8 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void startConnector() {
-        ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
         ICAService caService = (ICAService)ca.getCAService();
         IConnector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
@@ -142,7 +145,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         stopConnector();
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
         ICAService caService = (ICAService)ca.getCAService();
         IConfigStore cs = engine.getConfigStore();
 
@@ -155,7 +158,8 @@ public class KRAConnectorProcessor extends CAProcessor {
     public void deleteConnector() {
         stopConnector();
 
-        ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
         ICAService caService = (ICAService)ca.getCAService();
         caService.setKRAConnector(null);
     }

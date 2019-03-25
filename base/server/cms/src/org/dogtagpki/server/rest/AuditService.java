@@ -106,7 +106,7 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         Map<String, String> eventConfigs = new TreeMap<String, String>();
 
-        LogSubsystem logSubsystem = (LogSubsystem) CMS.getSubsystem(LogSubsystem.ID);
+        LogSubsystem logSubsystem = (LogSubsystem) engine.getSubsystem(LogSubsystem.ID);
 
         // load all audit events as disabled initially
         for (String name : logSubsystem.getAuditEvents()) {

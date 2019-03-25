@@ -49,6 +49,7 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.ServletUtils;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This servlet is the base class of all profile servlets.
@@ -181,7 +182,10 @@ public class ProfileServlet extends CMSServlet {
                     sc.getInitParameter(PROP_TEMPLATE));
         mGetClientCert = sc.getInitParameter(PROP_CLIENTAUTH);
         mAuthMgr = sc.getInitParameter(PROP_AUTHMGR);
-        mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mAuthz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+
         mAuthzResourceName = sc.getInitParameter(PROP_RESOURCEID);
         mProfileSubId = sc.getInitParameter(PROP_PROFILE_SUB_ID);
         mId = sc.getInitParameter(PROP_ID);
@@ -256,7 +260,9 @@ public class ProfileServlet extends CMSServlet {
             }
             return;
         }
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.startTiming("output_template");
         }
@@ -380,7 +386,8 @@ public class ProfileServlet extends CMSServlet {
     }
 
     public void startTiming(String event) {
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.startTiming(event, true);
         }
@@ -388,7 +395,8 @@ public class ProfileServlet extends CMSServlet {
     }
 
     public void endTiming(String event) {
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.endTiming(event);
         }
