@@ -144,7 +144,7 @@ public class OCSPInstallerService extends SystemConfigService {
             leafCert = certs[0];
         }
 
-        IOCSPAuthority ocsp = (IOCSPAuthority) CMS.getSubsystem(IOCSPAuthority.ID);
+        IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
         IDefStore defStore = ocsp.getDefaultStore();
 
         // (1) need to normalize (sort) the chain

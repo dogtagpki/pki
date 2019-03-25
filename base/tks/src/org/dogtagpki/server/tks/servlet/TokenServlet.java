@@ -1991,7 +1991,7 @@ public class TokenServlet extends CMSServlet {
                 logger.debug("TokenServlet: processEncryptData(): contain data in request, however, random generation on TKS is required. Generating...");
             }
             try {
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 SecureRandom random = jssSubsystem.getRandomNumberGenerator();
                 data = new byte[16];
                 random.nextBytes(data);
@@ -2278,6 +2278,7 @@ public class TokenServlet extends CMSServlet {
         logger.debug("TokenServlet::processComputeRandomData");
 
         SessionContext sContext = SessionContext.getContext();
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
 
         String agentId = "";
         if (sContext != null) {
@@ -2315,7 +2316,7 @@ public class TokenServlet extends CMSServlet {
 
         if (!missingParam) {
             try {
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 SecureRandom random = jssSubsystem.getRandomNumberGenerator();
                 randomData = new byte[dataSize];
                 random.nextBytes(randomData);
