@@ -53,9 +53,11 @@ public class ProfileSubsystem
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+
         logger.debug("ProfileSubsystem: start init");
-        IPluginRegistry registry = (IPluginRegistry)
-                CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
         mConfig = config;
         mOwner = owner;

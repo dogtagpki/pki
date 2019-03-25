@@ -36,6 +36,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.publish.IXcertPublisherProcessor;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -104,11 +105,12 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
         logger.debug("CrossCertPairSubsystem: initializing");
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         try {
             mConfig = config;
             mLogger = Logger.getLogger();
             synchronized (this) {
-                mCa = (ICertificateAuthority) CMS.getSubsystem("ca");
+                mCa = (ICertificateAuthority) engine.getSubsystem("ca");
                 mPublisherProcessor = mCa.getPublisherProcessor();
             }
 

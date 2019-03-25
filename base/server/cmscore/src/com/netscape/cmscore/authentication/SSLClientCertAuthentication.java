@@ -45,6 +45,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * SSL client based authentication.
@@ -111,7 +112,8 @@ public class SSLClientCertAuthentication implements IAuthManager {
         }
         logger.debug("SSLCertAuth: Got client certificate");
 
-        mCA = (ICertificateAuthority) CMS.getSubsystem("ca");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mCA = (ICertificateAuthority) engine.getSubsystem("ca");
 
         if (mCA != null) {
             mCertDB = mCA.getCertificateRepository();
@@ -247,11 +249,12 @@ public class SSLClientCertAuthentication implements IAuthManager {
     }
 
     private IRequestQueue getReqQueue() {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IRequestQueue queue = null;
 
         try {
-            IRegistrationAuthority ra =
-                    (IRegistrationAuthority) CMS.getSubsystem("ra");
+            IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem("ra");
 
             if (ra != null) {
                 queue = ra.getRequestQueue();

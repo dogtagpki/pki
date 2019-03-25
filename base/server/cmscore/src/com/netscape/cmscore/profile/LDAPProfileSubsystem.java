@@ -156,8 +156,9 @@ public class LDAPProfileSubsystem
      * Read the given LDAPEntry into the profile subsystem.
      */
     private synchronized void readProfile(LDAPEntry ldapProfile) {
-        IPluginRegistry registry = (IPluginRegistry)
-            CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
         String nsUniqueId =
             ldapProfile.getAttribute("nsUniqueId").getStringValueArray()[0];

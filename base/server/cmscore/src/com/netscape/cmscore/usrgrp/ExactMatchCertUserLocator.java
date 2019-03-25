@@ -19,8 +19,6 @@ package com.netscape.cmscore.usrgrp;
 
 import java.security.cert.X509Certificate;
 
-import netscape.ldap.LDAPException;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.usrgrp.Certificates;
@@ -28,6 +26,9 @@ import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cmscore.apps.CMSEngine;
+
+import netscape.ldap.LDAPException;
 
 /**
  * This interface defines a strategy on how to match
@@ -62,7 +63,9 @@ public class ExactMatchCertUserLocator implements ICertUserLocator {
      */
     public IUser locateUser(Certificates certs) throws
             EUsrGrpException, LDAPException, ELdapException {
-        mUG = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        mUG = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
 
         X509Certificate certificates[] = certs.getCertificates();
 

@@ -193,7 +193,8 @@ public class CertificateRepository extends Repository
             throw new EBaseException ("Range size is too small to support random certificate serial numbers.");
         }
 
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         SecureRandom random = jssSubsystem.getRandomNumberGenerator();
 
         BigInteger randomNumber = new BigInteger(mBitLength, random);

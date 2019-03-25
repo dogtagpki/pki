@@ -31,6 +31,7 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
     protected static final String PROP_CHECK_OWNER = "checkOwner";
@@ -123,13 +124,14 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
      */
     public synchronized void commitProfile(String id)
             throws EProfileException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore cs = mProfiles.get(id).getConfigStore();
 
         // first create a *new* profile object from the configStore
         // and initialise it with the updated configStore
         //
-        IPluginRegistry registry = (IPluginRegistry)
-            CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
         String classId = mProfileClassIds.get(id);
         IPluginInfo info = registry.getPluginInfo("profile", classId);
         String className = info.getClassName();
