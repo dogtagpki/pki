@@ -54,6 +54,7 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.SubsystemRegistry;
 
 public class CMSCRLExtensions implements ICMSCRLExtensions {
@@ -578,7 +579,9 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     public void setConfigParams(String id, NameValuePairs nvp, IConfigStore config) {
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
         String ipId = nvp.get("id");
 
         ICRLIssuingPoint ip = null;
@@ -672,7 +675,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
                 if (modifiedCRLConfig == true) {
                     //Commit to this CRL IssuingPoint's config store
-                    ICertificateAuthority CA = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                    ICertificateAuthority CA = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
                     IConfigStore crlsSubStore = CA.getConfigStore();
                     crlsSubStore = crlsSubStore.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
                     crlsSubStore = crlsSubStore.getSubStore(ipId);

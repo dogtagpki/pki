@@ -30,6 +30,9 @@ import java.util.Map;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.AuthorityData;
@@ -58,9 +61,7 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.SubsystemService;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.x509.X500Name;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author ftweedal
@@ -71,7 +72,8 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
     ICertificateAuthority hostCA;
 
     public AuthorityService() {
-        hostCA = (ICertificateAuthority) CMS.getSubsystem("ca");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        hostCA = (ICertificateAuthority) engine.getSubsystem("ca");
     }
 
     @Override

@@ -2476,8 +2476,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         logger.debug("updateCRLNow: mEnableCRLUpdates =" + mEnableCRLUpdates);
         logger.debug("updateCRLNow: mDoLastAutoUpdate =" + mDoLastAutoUpdate);
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate))
             return;
+
         logger.debug("Updating CRL");
         transactionLogger.log(AuditFormat.LEVEL,
                     CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATE_STARTED"),
@@ -2582,7 +2584,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             clonedExpiredCerts.clear();
             mSchemaCounter = 0;
 
-            IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+            IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
             if (statsSub != null) {
                 statsSub.startTiming("generation");
             }
@@ -3019,7 +3021,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             throws EBaseException {
         SessionContext sc = SessionContext.getContext();
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.startTiming("crl_publishing");
         }

@@ -80,6 +80,7 @@ import com.netscape.cms.servlet.cert.CertRequestDAO;
 import com.netscape.cms.servlet.cert.FilterBuilder;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -101,9 +102,11 @@ public class CertService extends PKIService implements CertResource {
     public static final int DEFAULT_MAXRESULTS = 20;
 
     public CertService() {
-        authority = (ICertificateAuthority) CMS.getSubsystem("ca");
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        authority = (ICertificateAuthority) engine.getSubsystem("ca");
         if (authority.noncesEnabled()) {
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             random = jssSubsystem.getRandomNumberGenerator();
         }
         repo = authority.getCertificateRepository();

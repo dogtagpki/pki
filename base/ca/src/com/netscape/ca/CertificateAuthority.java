@@ -1432,10 +1432,12 @@ public class CertificateAuthority
      */
     public X509CRLImpl sign(X509CRLImpl crl, String algname)
             throws EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         ensureReady();
         X509CRLImpl signedcrl = null;
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.startTiming("signing");
         }
@@ -1505,11 +1507,13 @@ public class CertificateAuthority
      */
     public X509CertImpl sign(X509CertInfo certInfo, String algname)
             throws EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         ensureReady();
 
         X509CertImpl signedcert = null;
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.startTiming("signing");
         }
@@ -2432,6 +2436,7 @@ public class CertificateAuthority
          *    Otherwise, we move forward to generate and sign the
          *    aggregate OCSP response.
          */
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         ICertificateAuthority ocspCA = this;
         if (caMap.size() > 0 && tbsReq.getRequestCount() > 0) {
             Request req = tbsReq.getRequestAt(0);
@@ -2452,7 +2457,7 @@ public class CertificateAuthority
         logger.debug("CertificateAuthority: validating OCSP request");
 
         mNumOCSPRequest++;
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         long startTime = CMS.getCurrentDate().getTime();
 
         try {
@@ -2794,6 +2799,7 @@ public class CertificateAuthority
             String subjectDN, String description)
             throws EBaseException {
 
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         ensureReady();
 
         // check requested DN
@@ -2821,7 +2827,6 @@ public class CertificateAuthority
             throw new EBaseException("Failed to convert issuer DN to string: " + e);
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         String thisClone = engine.getEEHost() + ":" + engine.getEESSLPort();
 
         LDAPAttribute[] attrs = {
@@ -2872,8 +2877,7 @@ public class CertificateAuthority
             // Sign certificate
             Locale locale = Locale.getDefault();
             String profileId = "caCACert";
-            IProfileSubsystem ps = (IProfileSubsystem)
-                CMS.getSubsystem(IProfileSubsystem.ID);
+            IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
             IProfile profile = ps.getProfile(profileId);
             ArgBlock argBlock = new ArgBlock();
             argBlock.set("cert_request_type", "pkcs10");
@@ -2942,6 +2946,8 @@ public class CertificateAuthority
      */
     public void renewAuthority(HttpServletRequest httpReq)
             throws EBaseException {
+
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         if (
             authorityParentID != null
             && !authorityParentID.equals(authorityID)
@@ -2950,8 +2956,7 @@ public class CertificateAuthority
             issuer.ensureReady();
         }
 
-        IProfileSubsystem ps = (IProfileSubsystem)
-            CMS.getSubsystem(IProfileSubsystem.ID);
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
         IProfile profile = ps.getProfile("caManualRenewal");
         CertEnrollmentRequest req = CertEnrollmentRequestFactory.create(
             new ArgBlock(), profile, httpReq.getLocale());

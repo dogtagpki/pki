@@ -77,6 +77,7 @@ import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
@@ -88,8 +89,9 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileService.class);
 
-    private IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
-    private IPluginRegistry registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    private IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
+    private IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
     @Override
     public Response listProfiles(Integer start, Integer size) {
@@ -327,7 +329,8 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     public static ProfileDataInfo createProfileDataInfo(String profileId, boolean visibleOnly, UriInfo uriInfo,
             Locale locale) throws EBaseException {
 
-        IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
         if (profileId == null) {
             throw new EBaseException("Error creating ProfileDataInfo.");
         }

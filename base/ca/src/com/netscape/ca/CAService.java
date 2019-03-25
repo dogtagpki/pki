@@ -88,6 +88,7 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.LocalConnector;
@@ -329,8 +330,8 @@ public class CAService implements ICAService, IService {
             throw new EBaseException("profileId not found");
         }
 
-        IProfileSubsystem ps = (IProfileSubsystem)
-                CMS.getSubsystem("profile");
+        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem("profile");
         IProfile profile = null;
 
         try {
