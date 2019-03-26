@@ -4,7 +4,6 @@ import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 
@@ -15,6 +14,8 @@ import com.netscape.certsrv.base.EPropertyNotFound;
  * @author cfu
  */
 public class FilterMappingResolver extends BaseMappingResolver {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FilterMappingResolver.class);
 
     public FilterMappingResolver() {
     }
@@ -44,53 +45,53 @@ public class FilterMappingResolver extends BaseMappingResolver {
         String targetMappedName = null;
         String selectedMappedName = null;
 
-        CMS.debug(method + " starts");
+        logger.debug(method + " starts");
 
         major_version = mappingParams.getInt(FilterMappingParams.FILTER_PARAM_MAJOR_VERSION);
-        CMS.debug(method + " param major_version =" + major_version);
+        logger.debug(method + " param major_version =" + major_version);
 
         minor_version = mappingParams.getInt(FilterMappingParams.FILTER_PARAM_MINOR_VERSION);
-        CMS.debug(method + " param minor_version =" + minor_version);
+        logger.debug(method + " param minor_version =" + minor_version);
 
         cuid =  mappingParams.getString(FilterMappingParams.FILTER_PARAM_CUID);
-        CMS.debug(method + " param cuid =" + cuid);
+        logger.debug(method + " param cuid =" + cuid);
         // msn = (String) mappingParams.get(FilterMappingParams.FILTER_PARAM_MSN);
 
         // they don't necessarily have extension
         try {
             extTokenType = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_TYPE);
         } catch (TPSException e) {
-            CMS.debug(method + " OK to not have tokenType extension. Continue.");
+            logger.warn(method + " OK to not have tokenType extension. Continue: " + e.getMessage(), e);
         }
         try {
             extTokenATR = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_ATR);
         } catch (TPSException e) {
-            CMS.debug(method + " OK to not have tokenATR extension. Continue.");
+            logger.warn(method + " OK to not have tokenATR extension. Continue: " + e.getMessage(), e);
         }
         try {
             extKeySet = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_KEY_SET);
         } catch (TPSException e) {
-            CMS.debug(method + " OK to not have keySet extension. Continue.");
+            logger.warn(method + " OK to not have keySet extension. Continue: " + e.getMessage(), e);
         }
 
 
-        CMS.debug(method + " mapping params retrieved.");
+        logger.debug(method + " mapping params retrieved.");
 
         String configName = prefix + "." + TPSEngine.CFG_PROFILE_MAPPING_ORDER;
 
         try {
-            CMS.debug(method + " getting mapping order:" +
+            logger.debug(method + " getting mapping order:" +
                     configName);
             mappingOrder = configStore.getString(configName);
         } catch (EPropertyNotFound e) {
-            CMS.debug(method + " exception:" + e);
+            logger.error(method + " exception:" + e.getMessage(), e);
             throw new TPSException(
                     method + " configuration incorrect! Mising mapping order:" + configName,
                     TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
 
         } catch (EBaseException e1) {
             //The whole feature won't work if this is wrong.
-            CMS.debug(method + " exception:" + e1);
+            logger.error(method + " exception:" + e1.getMessage(), e1);
             throw new TPSException(
                     method + " Internal error obtaining config value:" + configName,
                     TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
@@ -99,11 +100,11 @@ public class FilterMappingResolver extends BaseMappingResolver {
 
         for (String mappingId : mappingOrder.split(",")) {
 
-            CMS.debug(method + "  mapping: " + mappingId);
+            logger.debug(method + "  mapping: " + mappingId);
 
             String mappingConfigName = prefix + ".mapping." + mappingId + ".target." + nameToMap;
 
-            CMS.debug(method + "  mappingConfigName: " + mappingConfigName);
+            logger.debug(method + "  mappingConfigName: " + mappingConfigName);
 
             //We need this to exist.
             try {
@@ -120,14 +121,14 @@ public class FilterMappingResolver extends BaseMappingResolver {
                                 + mappingConfigName,
                         TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
-            CMS.debug(method + "  targetMappedName: " + targetMappedName);
+            logger.debug(method + "  targetMappedName: " + targetMappedName);
 
             /*
              * For this and remaining names, it is not automatically an error if we don't get anything back
              * from the config.  It is just not considered.
              */
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.tokenType";
-            CMS.debug(method + "  mappingConfigName: " + mappingConfigName);
+            logger.debug(method + "  mappingConfigName: " + mappingConfigName);
 
             try {
                 tokenType = configStore.getString(mappingConfigName, null);
@@ -137,7 +138,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
                                 + mappingConfigName,
                         TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
-            CMS.debug(method + " tokenType: " + tokenType);
+            logger.debug(method + " tokenType: " + tokenType);
 
             if (tokenType != null && tokenType.length() > 0) {
 
@@ -151,7 +152,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
             }
 
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.keySet";
-            CMS.debug(method + " mappingConfigName: " + mappingConfigName);
+            logger.debug(method + " mappingConfigName: " + mappingConfigName);
 
             try {
                 keySet = configStore.getString(mappingConfigName, null);
@@ -162,7 +163,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
                         TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
 
-            CMS.debug(method + " keySet: " + keySet);
+            logger.debug(method + " keySet: " + keySet);
 
             if (keySet != null && keySet.length() > 0) {
 
@@ -176,7 +177,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
             }
 
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.tokenATR";
-            CMS.debug(method + " mappingConfigName: " + mappingConfigName);
+            logger.debug(method + " mappingConfigName: " + mappingConfigName);
 
             String tokenATR = null;
 
@@ -189,7 +190,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
                         TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
 
-            CMS.debug(method + " tokenATR: " + tokenATR);
+            logger.debug(method + " tokenATR: " + tokenATR);
 
             if (tokenATR != null && tokenATR.length() > 0) {
                 if (extTokenATR == null) {
@@ -202,7 +203,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
             }
 
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.tokenCUID.start";
-            CMS.debug(method + " mappingConfigName: " + mappingConfigName);
+            logger.debug(method + " mappingConfigName: " + mappingConfigName);
 
             String tokenCUIDStart = null;
 
@@ -216,7 +217,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
                         TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
 
-            CMS.debug(method + " tokenCUIDStart: " + tokenCUIDStart);
+            logger.debug(method + " tokenCUIDStart: " + tokenCUIDStart);
 
             if (tokenCUIDStart != null && tokenCUIDStart.length() > 0) {
                 if (cuid == null) {
@@ -228,14 +229,14 @@ public class FilterMappingResolver extends BaseMappingResolver {
                 }
 
                 if (cuid.compareToIgnoreCase(tokenCUIDStart) < 0) {
-                    CMS.debug(method + " cuid < tokenCUIDStart ... out of range");
+                    logger.debug(method + " cuid < tokenCUIDStart ... out of range");
                     continue;
                 }
 
             }
 
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.tokenCUID.end";
-            CMS.debug(method + " mappingConfigName: " + mappingConfigName);
+            logger.debug(method + " mappingConfigName: " + mappingConfigName);
 
             String tokenCUIDEnd = null;
             try {
@@ -247,7 +248,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
                         TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
 
-            CMS.debug(method + " tokenCUIDEnd: " + tokenCUIDEnd);
+            logger.debug(method + " tokenCUIDEnd: " + tokenCUIDEnd);
 
             if (tokenCUIDEnd != null && tokenCUIDEnd.length() > 0) {
                 if (cuid == null) {
@@ -259,14 +260,14 @@ public class FilterMappingResolver extends BaseMappingResolver {
                 }
 
                 if (cuid.compareToIgnoreCase(tokenCUIDEnd) > 0) {
-                    CMS.debug(method + " cuid > tokenCUIDEnd ... out of range");
+                    logger.debug(method + " cuid > tokenCUIDEnd ... out of range");
                     continue;
                 }
 
             }
 
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.appletMajorVersion";
-            CMS.debug(method + " mappingConfigName: " + mappingConfigName);
+            logger.debug(method + " mappingConfigName: " + mappingConfigName);
 
             String majorVersion = null;
             String minorVersion = null;
@@ -280,7 +281,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
                         TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
 
-            CMS.debug(method + " majorVersion: " + majorVersion);
+            logger.debug(method + " majorVersion: " + majorVersion);
             if (majorVersion != null && majorVersion.length() > 0) {
 
                 int major = Integer.parseInt(majorVersion);
@@ -291,7 +292,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
             }
 
             mappingConfigName = prefix + ".mapping." + mappingId + ".filter.appletMinorVersion";
-            CMS.debug(method + "  mappingConfigName: " + mappingConfigName);
+            logger.debug(method + "  mappingConfigName: " + mappingConfigName);
 
             try {
                 minorVersion = configStore.getString(mappingConfigName, null);
@@ -301,7 +302,7 @@ public class FilterMappingResolver extends BaseMappingResolver {
                                 + mappingConfigName,
                         TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
             }
-            CMS.debug(method + " minorVersion " + minorVersion);
+            logger.debug(method + " minorVersion " + minorVersion);
 
             if (minorVersion != null && minorVersion.length() > 0) {
 
@@ -314,12 +315,12 @@ public class FilterMappingResolver extends BaseMappingResolver {
 
             //if we make it this far, we have a mapped name
             selectedMappedName = targetMappedName;
-            CMS.debug(method + " Selected mapped name: " + selectedMappedName);
+            logger.debug(method + " Selected mapped name: " + selectedMappedName);
             break;
         }
 
         if (selectedMappedName == null) {
-            CMS.debug(method + " ends, found: " + selectedMappedName);
+            logger.error(method + " ends, found: " + selectedMappedName);
             throw new TPSException(method + " Can't map to target name!",
                     TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_FAILED);
         }
