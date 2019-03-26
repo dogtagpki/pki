@@ -43,6 +43,8 @@ import com.netscape.cmscore.dbs.Database;
  */
 public class ConfigDatabase extends Database<ConfigRecord> {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigDatabase.class);
+
     CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
     IConfigStore configStore = engine.getConfigStore();
 
@@ -59,7 +61,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
     @Override
     public Collection<ConfigRecord> findRecords(String filter) throws Exception {
 
-        CMS.debug("ConfigDatabase.findRecords()");
+        logger.debug("ConfigDatabase.findRecords()");
 
         Collection<ConfigRecord> result = new ArrayList<ConfigRecord>();
 
@@ -88,7 +90,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
     @Override
     public ConfigRecord getRecord(String configID) throws Exception {
 
-        CMS.debug("ConfigDatabase.getRecord(\"" + configID + "\")");
+        logger.debug("ConfigDatabase.getRecord(\"" + configID + "\")");
 
         ConfigRecord record = new ConfigRecord();
         record.setID(configID);
@@ -119,7 +121,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
     @Override
     public void updateRecord(String configID, ConfigRecord newRecord) throws Exception {
 
-        CMS.debug("ConfigDatabase.updateRecord(\"" + configID + "\")");
+        logger.debug("ConfigDatabase.updateRecord(\"" + configID + "\")");
 
         configStore.put("target." + configID + ".displayname", newRecord.getDisplayName());
         configStore.put("target." + configID + ".pattern", newRecord.getPattern());
@@ -130,7 +132,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
 
     public Map<String, String> getProperties(ConfigRecord record, String key) throws EBaseException {
 
-        CMS.debug("ConfigDatabase.getProperties(\"" + record.getID() + "\", \"" + key + "\")");
+        logger.debug("ConfigDatabase.getProperties(\"" + record.getID() + "\", \"" + key + "\")");
 
         if (key != null && !record.containsKey(key)) {
             throw new ResourceNotFoundException("Entry does not exist: " + key);
@@ -153,19 +155,19 @@ public class ConfigDatabase extends Database<ConfigRecord> {
 
     public void validateProperties(ConfigRecord record, String key, Map<String, String> properties) throws Exception {
 
-        CMS.debug("ConfigDatabase.validateProperties(\"" + record.getID() + "\")");
+        logger.debug("ConfigDatabase.validateProperties(\"" + record.getID() + "\")");
 
         String filter = createFilter(record, key);
         for (String name : properties.keySet()) {
             if (name.matches(filter)) continue;
-            CMS.debug("Property " + name + " doesn't match filter " + filter + ".");
+            logger.error("Property " + name + " doesn't match filter " + filter + ".");
             throw new BadRequestException("Invalid property: " + name);
         }
     }
 
     public void addProperties(ConfigRecord record, String key, Map<String, String> properties) throws Exception {
 
-        CMS.debug("ConfigDatabase.addProperties(\"" + record.getID() + "\")");
+        logger.debug("ConfigDatabase.addProperties(\"" + record.getID() + "\")");
 
         for (String name : properties.keySet()) {
             String value = properties.get(name);
@@ -175,7 +177,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
 
     public void removeProperties(ConfigRecord record, String key) throws Exception {
 
-        CMS.debug("ConfigDatabase.removeProperties(\"" + record.getID() + "\")");
+        logger.debug("ConfigDatabase.removeProperties(\"" + record.getID() + "\")");
 
         Map<String, String> oldProperties = getProperties(record, key);
         for (String name : oldProperties.keySet()) {
@@ -185,7 +187,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
 
     public void commit() throws Exception {
 
-        CMS.debug("ConfigDatabase.commit()");
+        logger.debug("ConfigDatabase.commit()");
 
         // save configuration
         configStore.commit(true);

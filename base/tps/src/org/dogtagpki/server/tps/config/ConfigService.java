@@ -27,7 +27,6 @@ import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.logging.ILogger;
@@ -40,8 +39,10 @@ import com.netscape.cms.servlet.base.SubsystemService;
  */
 public class ConfigService extends SubsystemService implements ConfigResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigService.class);
+
     public ConfigService() {
-        CMS.debug("ConfigService.<init>()");
+        logger.debug("ConfigService.<init>()");
     }
 
     public ConfigData createConfigData(Map<String, String> properties) throws UnsupportedEncodingException {
@@ -58,7 +59,7 @@ public class ConfigService extends SubsystemService implements ConfigResource {
     @Override
     public Response getConfig() {
 
-        CMS.debug("ConfigService.getConfig()");
+        logger.debug("ConfigService.getConfig()");
 
         try {
             ConfigDatabase configDatabase = new ConfigDatabase();
@@ -89,7 +90,7 @@ public class ConfigService extends SubsystemService implements ConfigResource {
             throw e;
         }
 
-        CMS.debug("ConfigService.updateConfig()");
+        logger.debug("ConfigService.updateConfig()");
 
         try {
             ConfigDatabase configDatabase = new ConfigDatabase();
@@ -118,14 +119,13 @@ public class ConfigService extends SubsystemService implements ConfigResource {
             return createOKResponse(configData);
 
         } catch (PKIException e) {
-            CMS.debug(method +": " + e);
+            logger.error(method +": " + e.getMessage(), e);
             auditConfigTokenGeneral(ILogger.FAILURE, method,
                     auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            CMS.debug(method +": " + e);
+            logger.error(method +": " + e.getMessage(), e);
             auditConfigTokenGeneral(ILogger.FAILURE, method,
                     auditModParams, e.toString());
             throw new PKIException(e.getMessage());
