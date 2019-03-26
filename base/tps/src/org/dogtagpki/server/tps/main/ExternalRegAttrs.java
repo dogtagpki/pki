@@ -10,6 +10,9 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMSEngine;
 
 public class ExternalRegAttrs {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExternalRegAttrs.class);
+
     public String ldapAttrNameTokenType;
     public String ldapAttrNameTokenCUID;
     public String ldapAttrNameCertsToRecover;
@@ -31,17 +34,17 @@ public class ExternalRegAttrs {
 
         try {
             configName = "auths.instance." + authId + ".externalReg.tokenTypeAttributeName";
-            CMS.debug(method + ": getting config: " + configName);
+            logger.debug(method + ": getting config: " + configName);
             ldapAttrNameTokenType = configStore.getString(configName,
                     "tokenType");
 
             configName = "auths.instance." + authId + ".externalReg.cuidAttributeName";
-            CMS.debug(method + ": getting config: " + configName);
+            logger.debug(method + ": getting config: " + configName);
             ldapAttrNameTokenCUID = configStore.getString(configName,
                     "tokenCUID");
 
             configName = "auths.instance." + authId + ".externalReg.certs.recoverAttributeName";
-            CMS.debug(method + ": getting config: " + configName);
+            logger.debug(method + ": getting config: " + configName);
             ldapAttrNameCertsToRecover = configStore.getString(configName,
                     "certsToRecover");
 
@@ -49,7 +52,7 @@ public class ExternalRegAttrs {
                     TPSEngine.CFG_ER_DELEGATION + ".enable";
             isDelegation = configStore.getBoolean(RH_Delegation_Cfg, false);
         } catch (EBaseException e) {
-            CMS.debug("ExternalRegAttrs: unable to obtain certain config values.  Default to be used");
+            logger.warn("ExternalRegAttrs: unable to obtain certain config values. Default to be used: " + e.getMessage(), e);
         }
 
         certsToRecover = new ArrayList<ExternalRegCertToRecover>();
