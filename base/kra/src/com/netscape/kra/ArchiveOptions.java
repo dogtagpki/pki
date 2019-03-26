@@ -37,6 +37,9 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 
 class ArchiveOptions {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ArchiveOptions.class);
+
     private String mSymmAlgOID = null;
     private byte mSymmAlgParams[] = null;
     private byte mEncSymmKey[] = null;
@@ -50,7 +53,7 @@ class ArchiveOptions {
             AlgorithmIdentifier symmAlg = null;
 
             if (key.getType() == org.mozilla.jss.pkix.crmf.EncryptedKey.ENVELOPED_DATA) {
-                CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENVELOPED_DATA");
+                logger.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENVELOPED_DATA");
                 // this is the new RFC4211 EncryptedKey that should
                 // have EnvelopedData to replace the deprecated EncryptedValue
                 enveloped_val = key.getEnvelopedData();
@@ -67,7 +70,7 @@ class ArchiveOptions {
 
                 SET recipients = env_data.getRecipientInfos();
                 if (recipients.size() <= 0) {
-                    CMS.debug("EnrollService: ArchiveOptions() - missing recipient information ");
+                    logger.error("EnrollService: ArchiveOptions() - missing recipient information ");
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
                             "[PKIArchiveOptions] missing recipient information "));
                 }
@@ -81,9 +84,9 @@ class ArchiveOptions {
                 OCTET_STRING oString = eCI.getEncryptedContent();
                 BIT_STRING encVal = new BIT_STRING(oString.toByteArray(), 0);
                 mEncValue = encVal.getBits();
-                CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENVELOPED_DATA done");
+                logger.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENVELOPED_DATA done");
             } else if (key.getType() == org.mozilla.jss.pkix.crmf.EncryptedKey.ENCRYPTED_VALUE) {
-                CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENCRYPTED_VALUE");
+                logger.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENCRYPTED_VALUE");
                 // this is deprecated: EncryptedValue
                 val = key.getEncryptedValue();
                 symmAlg = val.getSymmAlg();
@@ -97,23 +100,23 @@ class ArchiveOptions {
                 BIT_STRING encVal = val.getEncValue();
 
                 mEncValue = encVal.getBits();
-                CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENCRYPTED_VALUE done");
+                logger.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENCRYPTED_VALUE done");
             } else {
-                CMS.debug("EnrollService: ArchiveOptions() invalid EncryptedKey type");
+                logger.error("EnrollService: ArchiveOptions() invalid EncryptedKey type");
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[PKIArchiveOptions] type "
                         + key.getType()));
             }
 
         } catch (InvalidBERException e) {
-            CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
+            logger.error("EnrollService: ArchiveOptions(): " + e.getMessage(), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
                     "[PKIArchiveOptions]" + e.toString()));
         } catch (IOException e) {
-            CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
+            logger.error("EnrollService: ArchiveOptions(): " + e.getMessage(), e);
             throw new EBaseException("ArchiveOptions() exception caught: " +
                     e.toString());
         } catch (Exception e) {
-            CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
+            logger.error("EnrollService: ArchiveOptions(): " + e.getMessage(), e);
             throw new EBaseException("ArchiveOptions() exception caught: " +
                     e.toString());
         }

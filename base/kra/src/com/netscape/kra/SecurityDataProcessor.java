@@ -59,6 +59,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class SecurityDataProcessor {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDataProcessor.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public final static String ATTR_KEY_RECORD = "keyRecord";
@@ -102,8 +103,8 @@ public class SecurityDataProcessor {
         // parameter for realm
         String realm = request.getRealm();
 
-        CMS.debug("SecurityDataProcessor.archive. Request id: " + requestId.toString());
-        CMS.debug("SecurityDataProcessor.archive wrappedSecurityData: " + wrappedSecurityData);
+        logger.debug("SecurityDataProcessor.archive. Request id: " + requestId);
+        logger.debug("SecurityDataProcessor.archive wrappedSecurityData: " + wrappedSecurityData);
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = null;
@@ -240,7 +241,7 @@ public class SecurityDataProcessor {
             } else if (unwrapped != null && allowEncDecrypt_archival == true) {
                 privateSecurityData = storageUnit.encryptInternalPrivate(unwrapped, params);
                 doEncrypt = true;
-                CMS.debug("allowEncDecrypt_archival of symmetric key.");
+                logger.debug("allowEncDecrypt_archival of symmetric key.");
             } else if (securityData != null) {
                 privateSecurityData = storageUnit.encryptInternalPrivate(securityData, params);
                 doEncrypt = true;
@@ -258,7 +259,7 @@ public class SecurityDataProcessor {
                 throw new EBaseException("Failed to create security data to archive!");
             }
         } catch (Exception e) {
-            CMS.debug("Failed to create security data to archive: " + e.getMessage());
+            logger.error("Failed to create security data to archive: " + e.getMessage(), e);
 
             signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                     auditSubjectID,
@@ -354,7 +355,7 @@ public class SecurityDataProcessor {
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_STATE"), e);
         }
 
-        CMS.debug("KRA adding Security Data key record " + serialNo);
+        logger.debug("KRA adding Security Data key record " + serialNo);
 
         keyRepository.addKeyRecord(rec);
 
@@ -374,7 +375,7 @@ public class SecurityDataProcessor {
     public boolean recover(IRequest request)
             throws EBaseException {
 
-        CMS.debug("SecurityDataService.recover(): start");
+        logger.debug("SecurityDataService.recover(): start");
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore config = null;
@@ -392,7 +393,7 @@ public class SecurityDataProcessor {
         request.setExtData(ATTR_KEY_RECORD, keyId.toBigInteger());
 
         if (params == null) {
-            CMS.debug("SecurityDataProcessor.recover(): Can't get volatile params.");
+            logger.error("SecurityDataProcessor.recover(): Can't get volatile params.");
             throw new EBaseException("Can't obtain volatile params!");
         }
 
@@ -410,7 +411,7 @@ public class SecurityDataProcessor {
 
         if (transWrappedSessKeyStr == null && sessWrappedPassPhraseStr == null) {
             //We may be in recovery case where no params were initially submitted.
-            CMS.debug("SecurityDataProcessor.recover(): No params provided.");
+            logger.warn("SecurityDataProcessor.recover(): No params provided.");
             return false;
         }
 
@@ -433,7 +434,7 @@ public class SecurityDataProcessor {
 
         if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
             if (encrypted) {
-                CMS.debug("Recover symmetric key by decrypting as per allowEncDecrypt_recovery: true.");
+                logger.debug("Recover symmetric key by decrypting as per allowEncDecrypt_recovery: true.");
                 unwrappedSecData = recoverSecurityData(keyRecord);
             } else {
                 symKey = recoverSymKey(keyRecord);
@@ -444,7 +445,7 @@ public class SecurityDataProcessor {
         } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
             try {
                 if (encrypted) {
-                    CMS.debug("Recover asymmetric key by decrypting as per allowEncDecrypt_recovery: true.");
+                    logger.debug("Recover asymmetric key by decrypting as per allowEncDecrypt_recovery: true.");
                     unwrappedSecData = recoverSecurityData(keyRecord);
                 } else {
                     byte[] publicKeyData = keyRecord.getPublicKeyData();
@@ -526,7 +527,7 @@ public class SecurityDataProcessor {
         String pbeWrappedData = null;
 
         if (sessWrappedPassPhraseStr != null) {
-            CMS.debug("SecurityDataProcessor.recover(): secure retrieved data with tranport passphrase");
+            logger.debug("SecurityDataProcessor.recover(): secure retrieved data with tranport passphrase");
             byte[] unwrappedPass = null;
             Password pass = null;
 
@@ -549,9 +550,9 @@ public class SecurityDataProcessor {
 
                 if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
 
-                    CMS.debug("SecurityDataProcessor.recover(): wrap or encrypt stored symmetric key with transport passphrase");
+                    logger.debug("SecurityDataProcessor.recover(): wrap or encrypt stored symmetric key with transport passphrase");
                     if (encrypted) {
-                        CMS.debug("SecurityDataProcessor.recover(): allowEncDecyypt_recovery: true, symmetric key:  create blob with unwrapped key.");
+                        logger.debug("SecurityDataProcessor.recover(): allowEncDecyypt_recovery: true, symmetric key:  create blob with unwrapped key.");
                         pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
                     } else {
                         pbeWrappedData = createEncryptedContentInfo(ct, symKey, null, null, pass);
@@ -559,14 +560,14 @@ public class SecurityDataProcessor {
 
                 } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
 
-                    CMS.debug("SecurityDataProcessor.recover(): encrypt stored passphrase with transport passphrase");
+                    logger.debug("SecurityDataProcessor.recover(): encrypt stored passphrase with transport passphrase");
                     pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
                 } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
                     if (encrypted) {
-                        CMS.debug("SecurityDataProcessor.recover(): allowEncDecyypt_recovery: true, asymmetric key:  create blob with unwrapped key.");
+                        logger.debug("SecurityDataProcessor.recover(): allowEncDecyypt_recovery: true, asymmetric key:  create blob with unwrapped key.");
                         pbeWrappedData = createEncryptedContentInfo(ct, null, unwrappedSecData, null, pass);
                     } else {
-                        CMS.debug("SecurityDataProcessor.recover(): wrap stored private key with transport passphrase");
+                        logger.debug("SecurityDataProcessor.recover(): wrap stored private key with transport passphrase");
                         pbeWrappedData = createEncryptedContentInfo(ct, null, null, privateKey,
                                 pass);
                     }
@@ -590,13 +591,13 @@ public class SecurityDataProcessor {
             }
 
         } else {
-            CMS.debug("SecurityDataProcessor.recover(): secure retrieved data with session key");
+            logger.debug("SecurityDataProcessor.recover(): secure retrieved data with session key");
 
             if (dataType.equals(KeyRequestResource.SYMMETRIC_KEY_TYPE)) {
-                CMS.debug("SecurityDataProcessor.recover(): wrap or encrypt stored symmetric key with session key");
+                logger.debug("SecurityDataProcessor.recover(): wrap or encrypt stored symmetric key with session key");
                 try {
                     if (encrypted) {
-                        CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key with session key as per allowEncDecrypt_recovery: true.");
+                        logger.debug("SecurityDataProcessor.recover(): encrypt symmetric key with session key as per allowEncDecrypt_recovery: true.");
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.ENCRYPT, wrapParams);
                         key_data = CryptoUtil.encryptUsingSymmetricKey(
@@ -623,7 +624,7 @@ public class SecurityDataProcessor {
                 }
 
             } else if (dataType.equals(KeyRequestResource.PASS_PHRASE_TYPE)) {
-                CMS.debug("SecurityDataProcessor.recover(): encrypt stored passphrase with session key");
+                logger.debug("SecurityDataProcessor.recover(): encrypt stored passphrase with session key");
                 try {
                     unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                             SymmetricKey.Usage.ENCRYPT, wrapParams);
@@ -641,10 +642,10 @@ public class SecurityDataProcessor {
                 }
 
             } else if (dataType.equals(KeyRequestResource.ASYMMETRIC_KEY_TYPE)) {
-                CMS.debug("SecurityDataProcessor.recover(): wrap or encrypt stored private key with session key");
+                logger.debug("SecurityDataProcessor.recover(): wrap or encrypt stored private key with session key");
                 try {
                     if (encrypted) {
-                        CMS.debug("SecurityDataProcessor.recover(): encrypt symmetric key.");
+                        logger.debug("SecurityDataProcessor.recover(): encrypt symmetric key.");
                         unwrappedSess = transportUnit.unwrap_session_key(ct, wrappedSessKey,
                                 SymmetricKey.Usage.ENCRYPT, wrapParams);
 
@@ -801,7 +802,7 @@ public class SecurityDataProcessor {
                     keyRecord.getPrivateKeyData(),
                     keyRecord.getWrappingParams(storageUnit.getOldWrappingParams()));
         } catch (Exception e) {
-            CMS.debug("Failed to recover security data: " + e);
+            logger.error("Failed to recover security data: " + e.getMessage(), e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
                     "recoverSecurityData() " + e.toString()));
         }

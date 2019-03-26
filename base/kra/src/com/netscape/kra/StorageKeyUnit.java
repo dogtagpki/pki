@@ -86,6 +86,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class StorageKeyUnit extends EncryptionUnit implements
         ISubsystem, IStorageKeyUnit {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StorageKeyUnit.class);
     private IConfigStore mConfig = null;
 
     // private RSAPublicKey mPublicKey = null;
@@ -405,10 +406,10 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
         try {
             if (mCert == null) {
-                CMS.debug("mCert is null...retrieving " + config.getString(PROP_NICKNAME));
+                logger.debug("mCert is null...retrieving " + config.getString(PROP_NICKNAME));
                 mCert = mManager.findCertByNickname(
                            config.getString(PROP_NICKNAME));
-                CMS.debug("mCert = " + mCert);
+                logger.debug("mCert = " + mCert);
             }
         } catch (Exception e) {
             mKRA.log(ILogger.LL_FAILURE,
@@ -494,7 +495,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             throws EBaseException {
         try {
 
-            CMS.debug("StorageKeyUnit.unwrapStorageKey.");
+            logger.debug("StorageKeyUnit.unwrapStorageKey.");
 
             KeyWrapper wrapper = token.getKeyWrapper(
                     KeyWrapAlgorithm.DES3_CBC_PAD);
@@ -532,7 +533,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
     public byte[] wrapStorageKey(CryptoToken token,
             SymmetricKey sk, PrivateKey pri)
             throws EBaseException {
-        CMS.debug("StorageKeyUnit.wrapStorageKey.");
+        logger.debug("StorageKeyUnit.wrapStorageKey.");
         try {
             // move public & private to config/storage.dat
             // delete private key
@@ -698,17 +699,17 @@ public class StorageKeyUnit extends EncryptionUnit implements
                                        "com.netscape.cms.shares.OldShare");
             s = (IShare) Class.forName(className).newInstance();
         } catch (Exception e) {
-            CMS.debug("Loading Shares error " + e);
+            logger.warn("Loading Shares error " + e.getMessage(), e);
         }
         if (s == null) {
-            CMS.debug("Share plugin is not found");
+            logger.warn("Share plugin is not found");
             return false;
         }
 
         try {
             s.initialize(secret.getBytes(), new_m);
         } catch (Exception e) {
-            CMS.debug("Failed to initialize Share plugin");
+            logger.warn("Failed to initialize Share plugin: " + e.getMessage(), e);
             return false;
         }
 
@@ -837,7 +838,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             byte share[], String pwd)
             throws EBaseException {
         try {
-            CMS.debug("StorageKeyUnit.encryptShare");
+            logger.debug("StorageKeyUnit.encryptShare");
             Cipher cipher = token.getCipherContext(
                     EncryptionAlgorithm.DES3_CBC_PAD);
             SymmetricKey sk = StorageKeyUnit.buildSymmetricKey(token, pwd);
@@ -944,7 +945,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             String encoding, String pwd)
             throws EBaseException {
         try {
-            CMS.debug("StorageKeyUnit.decryptShare");
+            logger.debug("StorageKeyUnit.decryptShare");
             byte share[] = Utils.base64decode(encoding);
             Cipher cipher = token.getCipherContext(
                     EncryptionAlgorithm.DES3_CBC_PAD);
@@ -1045,17 +1046,17 @@ public class StorageKeyUnit extends EncryptionUnit implements
                                        "com.netscape.cms.shares.OldJoinShares");
             j = (IJoinShares) Class.forName(className).newInstance();
         } catch (Exception e) {
-            CMS.debug("JoinShares error " + e);
+            logger.warn("JoinShares error " + e.getMessage(), e);
         }
         if (j == null) {
-            CMS.debug("JoinShares plugin is not found");
+            logger.error("JoinShares plugin is not found");
             throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
         try {
             j.initialize(v.size());
         } catch (Exception e) {
-            CMS.debug("Failed to initialize JoinShares");
+            logger.error("Failed to initialize JoinShares: " + e.getMessage(), e);
             throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
         Enumeration<String> e = v.keys();
@@ -1104,7 +1105,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
     public byte[] encryptInternalPrivate(byte priKey[], WrappingParams params) throws Exception {
         try (DerOutputStream out = new DerOutputStream()) {
-            CMS.debug("EncryptionUnit.encryptInternalPrivate");
+            logger.debug("EncryptionUnit.encryptInternalPrivate");
             CryptoToken internalToken = getInternalToken();
 
             // (1) generate session key
@@ -1163,7 +1164,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             if ((priKey == null && symmKey == null) || (priKey != null && symmKey != null)) {
                 return null;
             }
-            CMS.debug("EncryptionUnit.wrap interal.");
+            logger.debug("EncryptionUnit.wrap interal.");
             CryptoToken token = getToken();
 
             SymmetricKey.Usage usages[] = new SymmetricKey.Usage[2];
@@ -1199,14 +1200,14 @@ public class StorageKeyUnit extends EncryptionUnit implements
                         params.getPayloadWrapAlgorithm());
             }
 
-            CMS.debug("EncryptionUnit:wrap() privKey wrapped");
+            logger.debug("EncryptionUnit:wrap() privKey wrapped");
 
             byte[] session = CryptoUtil.wrapUsingPublicKey(
                     token,
                     getPublicKey(),
                     sk,
                     params.getSkWrapAlgorithm());
-            CMS.debug("EncryptionUnit:wrap() session key wrapped");
+            logger.debug("EncryptionUnit:wrap() session key wrapped");
 
             // use MY own structure for now:
             // SEQUENCE {
@@ -1230,7 +1231,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
     public byte[] decryptInternalPrivate(byte wrappedKeyData[], WrappingParams params)
             throws Exception {
-        CMS.debug("EncryptionUnit.decryptInternalPrivate");
+        logger.debug("EncryptionUnit.decryptInternalPrivate");
         DerValue val = new DerValue(wrappedKeyData);
         // val.tag == DerValue.tag_Sequence
         DerInputStream in = val.data;
@@ -1242,7 +1243,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
         CryptoToken token = getToken();
 
         // (1) unwrap the session key
-        CMS.debug("decryptInternalPrivate(): getting key wrapper on slot:" + token.getName());
+        logger.debug("decryptInternalPrivate(): getting key wrapper on slot:" + token.getName());
         SymmetricKey sk = unwrap_session_key(token, session, SymmetricKey.Usage.DECRYPT, params);
 
         // (2) decrypt the private key

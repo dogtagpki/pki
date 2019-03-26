@@ -19,7 +19,6 @@ package com.netscape.kra;
 
 import java.math.BigInteger;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
@@ -40,6 +39,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
  */
 public class SecurityDataRecoveryService implements IService {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDataRecoveryService.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private IKeyRecoveryAuthority kra = null;
@@ -67,7 +67,7 @@ public class SecurityDataRecoveryService implements IService {
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
 
-        CMS.debug("SecurityDataRecoveryService.serviceRequest()");
+        logger.debug("SecurityDataRecoveryService.serviceRequest()");
 
         // parameters for auditing
         String auditSubjectID = request.getExtDataInString(IRequest.ATTR_REQUEST_OWNER);

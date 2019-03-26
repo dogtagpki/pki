@@ -26,13 +26,11 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.security.IEncryptionUnit;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 /**
  * A class represents the transport key pair. This key pair
@@ -43,6 +41,8 @@ import org.mozilla.jss.netscape.security.util.WrappingParams;
  */
 public abstract class EncryptionUnit implements IEncryptionUnit {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EncryptionUnit.class);
+
     /* Establish one constant IV for base class, to be used for
        internal operations. Constant IV acceptable for symmetric keys.
     */
@@ -52,7 +52,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     public static final IVParameterSpec IV2 = new IVParameterSpec(iv2);
 
     public EncryptionUnit() {
-        CMS.debug("EncryptionUnit.EncryptionUnit this: " + this.toString());
+        logger.debug("EncryptionUnit.EncryptionUnit this: " + this);
     }
 
     public abstract CryptoToken getToken();
