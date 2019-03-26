@@ -18,14 +18,12 @@
 
 package org.dogtagpki.server.tps.cms;
 
-import com.netscape.certsrv.apps.CMS;
 import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.util.Hashtable;
 
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-
 import org.dogtagpki.server.connector.IRemoteRequest;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * CARetrieveCertResponse is the class for the response to
@@ -34,6 +32,8 @@ import org.dogtagpki.server.connector.IRemoteRequest;
  */
 public class CARetrieveCertResponse extends RemoteResponse
 {
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CARetrieveCertResponse.class);
+
     public CARetrieveCertResponse(Hashtable<String, Object> ht) {
         nameValTable = ht;
     }
@@ -73,10 +73,10 @@ public class CARetrieveCertResponse extends RemoteResponse
             cert.checkValidity();
             return true;
         } catch (CertificateExpiredException e) {
-            CMS.debug("CARetrieveCertResponse.isCertValid: exception thrown: " + e.toString());
+            logger.warn("CARetrieveCertResponse.isCertValid: " + e.getMessage(), e);
             return false;
         } catch (CertificateNotYetValidException e) {
-            CMS.debug("CARetrieveCertResponse.isCertValid: exception thrown: " + e.toString());
+            logger.warn("CARetrieveCertResponse.isCertValid: " + e.getMessage(), e);
             return false;
         }
     }
