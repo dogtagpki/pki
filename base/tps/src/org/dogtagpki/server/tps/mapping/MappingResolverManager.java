@@ -35,6 +35,8 @@ import com.netscape.cmscore.apps.CMSEngine;
  */
 public class MappingResolverManager
 {
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MappingResolverManager.class);
+
     private static final String TOKEN_MAPPING_RESOLVER_TYPE = "tpsMappingResolver";
     public static final String PROP_RESOLVER_LIST = "list";
     public static final String PROP_RESOLVER_CLASS_ID = "class_id";
@@ -76,12 +78,12 @@ public class MappingResolverManager
     public void initMappingResolverInstances()
             throws EBaseException {
         String method = "mappingResolverManager.initMappingResolverInstance:";
-        CMS.debug(method + " begins");
+        logger.debug(method + " begins");
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
         registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
         if (registry == null) {
-            CMS.debug(method + " registry null");
+            logger.warn(method + " registry null");
             return;
         }
 
@@ -90,7 +92,7 @@ public class MappingResolverManager
 
         for (String prInst : profileList.split(",")) {
             String classID = prConf.getString(prInst + "." + PROP_RESOLVER_CLASS_ID);
-            CMS.debug(method + " initializing classID=" + classID);
+            logger.debug(method + " initializing classID=" + classID);
             IPluginInfo resolverInfo =
                     registry.getPluginInfo(TOKEN_MAPPING_RESOLVER_TYPE, classID);
             String resolverClass = resolverInfo.getClassName();
@@ -99,14 +101,12 @@ public class MappingResolverManager
                 resolver = (BaseMappingResolver)
                         Class.forName(resolverClass).newInstance();
             } catch (Exception e) {
-                // throw Exception
-                CMS.debug(method + " resolver plugin Class.forName " +
-                        resolverClass + " " + e.toString());
+                logger.error(method + " resolver plugin Class.forName " + resolverClass + ": " + e.getMessage(), e);
                 throw new EBaseException(e.toString());
             }
             resolver.init(prInst);
             addResolver(prInst, resolver);
-            CMS.debug(method + " resolver instance added: " + prInst);
+            logger.debug(method + " resolver instance added: " + prInst);
         }
     }
 

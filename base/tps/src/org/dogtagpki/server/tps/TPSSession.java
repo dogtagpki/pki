@@ -30,9 +30,9 @@ import org.dogtagpki.tps.msg.BeginOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg;
 import org.dogtagpki.tps.msg.TPSMessage;
 
-import com.netscape.certsrv.apps.CMS;
-
 public class TPSSession {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSSession.class);
 
     private TPSConnection connection;
     private String ipAddress; /* remote IP */
@@ -46,14 +46,14 @@ public class TPSSession {
             throw new NullPointerException("TPSSession incoming connection is null!");
         }
 
-        CMS.debug("TPSSession constructor conn: " + conn);
+        logger.debug("TPSSession constructor conn: " + conn);
         connection = conn;
 
         if (ip == null) {
          // probably unlikely to happen; log it and continue anyway
-            CMS.debug("TPSSession constructor remote ipAddress null");
+            logger.debug("TPSSession constructor remote ipAddress null");
         } else {
-            CMS.debug("TPSSession constructor remote ipAddress: " + getIpAddress());
+            logger.debug("TPSSession constructor remote ipAddress: " + getIpAddress());
         }
         setIpAddress(ip);
 
@@ -66,16 +66,16 @@ public class TPSSession {
     public TPSMessage read() throws IOException {
         TPSMessage message = null;
 
-        CMS.debug("TPSSession.read() about to call read on connection : " + connection);
+        logger.debug("TPSSession.read() about to call read on connection : " + connection);
 
         try {
             message = connection.read();
-            //CMS.debug("TPSSession.read() created message " + message);
-            CMS.debug("TPSSession.read() message created");
+            //logger.debug("TPSSession.read() created message " + message);
+            logger.debug("TPSSession.read() message created");
 
         } catch (IOException e) {
             //Catch here so we can log
-            CMS.debug("TPSSession.process: Exception reading from the client: " + e.toString());
+            logger.error("TPSSession.process: Exception reading from the client: " + e.getMessage(), e);
             throw e;
         }
 
@@ -87,8 +87,7 @@ public class TPSSession {
         try {
             connection.write(msg);
         } catch (Exception e) {
-            //Catch here so we can log
-            CMS.debug("Exception writing to client: " + e.toString());
+            logger.error("Exception writing to client: " + e.getMessage(), e);
             throw e;
         }
 
@@ -96,7 +95,7 @@ public class TPSSession {
 
     public void process() throws IOException {
         EndOpMsg.TPSStatus status = EndOpMsg.TPSStatus.STATUS_NO_ERROR;
-        CMS.debug("In TPSSession.process()");
+        logger.debug("In TPSSession.process()");
 
         TPSMessage firstMsg = read();
 
@@ -142,11 +141,11 @@ public class TPSSession {
             }
         } catch (TPSException e) {
             //Get the status from the exception and return it to the client.
-            CMS.debug("TPSSession.process: Message processing failed: " + e);
+            logger.warn("TPSSession.process: Message processing failed: " + e.getMessage(), e);
             status = e.getStatus();
             result = EndOpMsg.RESULT_ERROR;
         } catch (IOException e) {
-            CMS.debug("TPSSession.process: IO error happened during processing: " + e);
+            logger.error("TPSSession.process: IO error happened during processing: " + e.getMessage(), e);
             // We get here we are done.
             throw e;
 
@@ -155,7 +154,7 @@ public class TPSSession {
         EndOpMsg endOp = new EndOpMsg(firstMsg.getOpType(), result, status);
         write(endOp);
 
-        CMS.debug("TPSSession.process: leaving: result: " + result + " status: " + status);
+        logger.debug("TPSSession.process: leaving: result: " + result + " status: " + status);
 
     }
 

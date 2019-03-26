@@ -13,10 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 
-import com.netscape.certsrv.apps.CMS;
-
 public class TPSPhoneHome extends HttpServlet {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSPhoneHome.class);
     private static final long serialVersionUID = 1864386666927370987L;
     private static String phoneHomeName = "phoneHome.xml";
 
@@ -24,7 +23,7 @@ public class TPSPhoneHome extends HttpServlet {
         //Simply return xml file to the client
         //In the future we could get this info from elsewhere such as LDAP
 
-        CMS.debug("TPSPhoneHome entering.");
+        logger.debug("TPSPhoneHome entering.");
 
         renderPhoneHome(request, response);
     }
@@ -34,7 +33,7 @@ public class TPSPhoneHome extends HttpServlet {
         ServletOutputStream stream = null;
         BufferedInputStream buf = null;
         FileInputStream input = null;
-        CMS.debug("TPSPhoneHome.renderPhoneHome entering.");
+        logger.debug("TPSPhoneHome.renderPhoneHome entering.");
 
         try {
 
@@ -49,7 +48,7 @@ public class TPSPhoneHome extends HttpServlet {
 
             confPath += File.separator + phoneHomeName;
 
-            CMS.debug("TPSPhoneHome.renderPhoneHome: confPath" + confPath);
+            logger.debug("TPSPhoneHome.renderPhoneHome: confPath: " + confPath);
 
             input = new FileInputStream(confPath);
             // InputStream input = ctx.getResourceAsStream(phoneHomeName);
@@ -62,10 +61,10 @@ public class TPSPhoneHome extends HttpServlet {
                 readData.add((byte) readBytes);
             }
 
-            CMS.debug("TPSPhoneHome.renderPhoneHome: data: " + readData.toHexString());
+            logger.debug("TPSPhoneHome.renderPhoneHome: data: " + readData.toHexString());
 
         } catch (IOException e) {
-            CMS.debug("TPSPhoneHome.renderPhoneHome: Error encountered:  " + e);
+            logger.error("TPSPhoneHome.renderPhoneHome:  " + e.getMessage(), e);
             throw new ServletException("TPSPhoneHome.renderPhoneHome: Error encountered:  " + e);
         } finally {
             if (stream != null)
@@ -80,7 +79,7 @@ public class TPSPhoneHome extends HttpServlet {
 
     private String getConfigPath() {
 
-        CMS.debug("TPSPhoneHome.getConfigPath: entering.");
+        logger.debug("TPSPhoneHome.getConfigPath: entering.");
 
         String path = null;
         String context = getServletContext().getContextPath();
@@ -96,17 +95,17 @@ public class TPSPhoneHome extends HttpServlet {
             instanceDir = System.getProperty("catalina.base");
 
         } catch (Exception e) {
-            CMS.debug("TPSPhoneHome.getConfigPath: System.getProperty exception: " + e);
+            logger.warn("TPSPhoneHome.getConfigPath: System.getProperty: " + e.getMessage(), e);
             return null;
         }
 
-        CMS.debug("TPSPhoneHome.getConfigPath: instanceDir: " + instanceDir);
+        logger.debug("TPSPhoneHome.getConfigPath: instanceDir: " + instanceDir);
 
         //Finish off path of conf directory
         path = instanceDir + File.separator + "conf" + File.separator +
                 subsystem + File.separator;
 
-        CMS.debug("TPSPhoneHome.getConfigPath: returning: " + path);
+        logger.debug("TPSPhoneHome.getConfigPath: returning: " + path);
 
         return path;
 

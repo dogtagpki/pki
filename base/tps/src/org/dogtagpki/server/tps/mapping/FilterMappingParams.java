@@ -24,8 +24,6 @@ import java.util.Set;
 import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
-import com.netscape.certsrv.apps.CMS;
-
 /**
  * A class represents filter mapping params information.
  * <P>
@@ -33,6 +31,8 @@ import com.netscape.certsrv.apps.CMS;
  * @author cfu
  */
 public class FilterMappingParams {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FilterMappingParams.class);
 
     public static final String FILTER_PARAM_MAJOR_VERSION = "fp_major_version";
     public static final String FILTER_PARAM_MINOR_VERSION = "fp_minor_version";
@@ -79,7 +79,7 @@ public class FilterMappingParams {
            throws TPSException {
         String val = content.get(name);
         if (val == null) {
-            CMS.debug("FilterMappingParams.getString: param null:"+ name);
+            logger.error("FilterMappingParams.getString: param null: " + name);
             throw new TPSException (
                     "FilterMappingParams.getString: param null:"+ name,
                     TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_PARAMS_NOT_FOUND);
@@ -97,7 +97,7 @@ public class FilterMappingParams {
            throws TPSException {
         String val = content.get(name);
         if (val == null) {
-            CMS.debug("FilterMappingParams.getInt: param null:"+ name);
+            logger.error("FilterMappingParams.getInt: param null: " + name);
             throw new TPSException (
                     "FilterMappingParams.getInt: param null:"+ name,
                     TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_PARAMS_NOT_FOUND);
@@ -106,7 +106,7 @@ public class FilterMappingParams {
             int intVal = Integer.parseInt(val);
             return intVal;
         } catch (NumberFormatException e) {
-            CMS.debug("FilterMappingParams.getInt: param "+ name + "=" + val + e);
+            logger.error("FilterMappingParams.getInt: param " + name + "=" + val + ": " + e.getMessage(), e);
             throw new TPSException (
                     "FilterMappingParams.getInt: param major_version:"+ e,
                     TPSStatus.STATUS_ERROR_MISCONFIGURATION);

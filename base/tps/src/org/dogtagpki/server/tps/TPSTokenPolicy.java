@@ -32,6 +32,9 @@ import com.netscape.cmscore.apps.CMSEngine;
  * @author cfu
  */
 public class TPSTokenPolicy {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSTokenPolicy.class);
+
     private TPSSubsystem tps;
     private static final String DEFAULT_POLICY_SET_STRING =
             "RE_ENROLL=YES;RENEW=NO;FORCE_FORMAT=NO;PIN_RESET=NO;RESET_PIN_RESET_TO_NO=NO";
@@ -45,7 +48,7 @@ public class TPSTokenPolicy {
     public TPSTokenPolicy (TPSSubsystem tps) throws TPSException {
         if (tps == null) {
             String msg = "TPSTokenPolicy.TPSTokenPolicy: tps cannnot be null";
-            CMS.debug(msg);
+            logger.error(msg);
             throw new TPSException(msg);
         }
         this.tps = tps;
