@@ -35,10 +35,11 @@ import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.main.Util;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 
 public class TPSEngine {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSEngine.class);
 
     public enum RA_Algs {
         ALG_RSA,
@@ -226,7 +227,7 @@ public class TPSEngine {
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        CMS.debug("TPSEngine.computeSessionKeySCP02");
+        logger.debug("TPSEngine.computeSessionKeySCP02");
 
         TKSRemoteRequestHandler tks = null;
 
@@ -241,7 +242,7 @@ public class TPSEngine {
 
         int status = resp.getStatus();
         if (status != 0) {
-            CMS.debug("TPSEngine.computeSessionKeySCP02: Non zero status result: " + status);
+            logger.error("TPSEngine.computeSessionKeySCP02: Non zero status result: " + status);
             throw new TPSException("TPSEngine.computeSessionKeySCP02: invalid returned status: " + status);
 
         }
@@ -266,7 +267,7 @@ public class TPSEngine {
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
         }
 
-        CMS.debug("TPSEngine.computeSessionKeysSCP03");
+        logger.debug("TPSEngine.computeSessionKeysSCP03");
 
         TKSRemoteRequestHandler tks = null;
 
@@ -282,7 +283,7 @@ public class TPSEngine {
 
         int status = resp.getStatus();
         if (status != 0) {
-            CMS.debug("TPSEngine.computeSessionKeysSCP03: Non zero status result: " + status);
+            logger.error("TPSEngine.computeSessionKeysSCP03: Non zero status result: " + status);
             throw new TPSException("TPSEngine.computeSessionKeysSCP03: invalid returned status: " + status);
 
         }
@@ -308,7 +309,7 @@ public class TPSEngine {
 
         }
 
-        CMS.debug("TPSEngine.computeSessionKey");
+        logger.debug("TPSEngine.computeSessionKey");
 
         TKSRemoteRequestHandler tks = null;
 
@@ -323,7 +324,7 @@ public class TPSEngine {
 
         int status = resp.getStatus();
         if (status != 0) {
-            CMS.debug("TPSEngine.computeSessionKey: Non zero status result: " + status);
+            logger.error("TPSEngine.computeSessionKey: Non zero status result: " + status);
             throw new TPSException("TPSEngine.computeSessionKey: invalid returned status: " + status);
 
         }
@@ -337,7 +338,7 @@ public class TPSEngine {
 
         String method = "TPSEngine.recoverCertificate";
 
-        CMS.debug(method + ": serial # =" + serialS);
+        logger.debug(method + ": serial # =" + serialS);
 
         if (cert == null || serialS == null || keyType == null || caConnID == null) {
             throw new TPSException(method + " Invalid input data!", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
@@ -356,11 +357,11 @@ public class TPSEngine {
 
             retrieveResponse = caRH.retrieveCertificate(serialBI);
             retrievedCertB64 = retrieveResponse.getCertB64();
-            CMS.debug(method + ": retrieved cert: " + retrievedCertB64);
+            logger.debug(method + ": retrieved cert: " + retrievedCertB64);
             // test ends - remove up to here
 
         } catch (EBaseException e) {
-            CMS.debug(method + ":" + e);
+            logger.error(method + ":" + e.getMessage(), e);
             throw new TPSException(method + ": Exception thrown: " + e,
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
@@ -378,13 +379,13 @@ public class TPSEngine {
 
         String method = "TPSEngine.renewCertificate";
 
-        CMS.debug(method + " entering...");
+        logger.debug(method + " entering...");
 
         if (cert == null || serialS == null || keyType == null || tokenType == null || caConnID == null) {
             throw new TPSException(method + " Invalid input data!", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
-        CMS.debug(method + ": serial # =" + serialS);
+        logger.debug(method + ": serial # =" + serialS);
         String serialhex = serialS.substring(2); // strip off the "0x"
         BigInteger serialBI = new BigInteger(serialhex, 16);
 
@@ -402,10 +403,10 @@ public class TPSEngine {
              */
             renewResponse = caRH.renewCertificate(serialBI, tokenType, keyType);
             retrievedCertB64 = renewResponse.getRenewedCertB64();
-            CMS.debug(method + ": retrieved cert: " + retrievedCertB64);
+            logger.debug(method + ": retrieved cert: " + retrievedCertB64);
 
         } catch (EBaseException e) {
-            CMS.debug(method + ":" + e);
+            logger.error(method + ":" + e.getMessage(), e);
             throw new TPSException(method + ": Exception thrown: " + e,
                     TPSStatus.STATUS_ERROR_RENEWAL_FAILED);
         }
@@ -422,7 +423,7 @@ public class TPSEngine {
             throws TPSException {
 
         String method = "TPSEngine.createKeySetData:";
-        CMS.debug(method + " entering...");
+        logger.debug(method + " entering...");
 
         if (newMasterVersion == null || oldVersion == null || cuid == null || kdd == null || connId == null) {
             throw new TPSException(method + " Invalid input data",
@@ -444,7 +445,7 @@ public class TPSEngine {
 
         int status = resp.getStatus();
         if (status != 0) {
-            CMS.debug(method + " Non zero status result: " + status);
+            logger.debug(method + " Non zero status result: " + status);
             throw new TPSException(method + " invalid returned status: " + status,
                     TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
 
@@ -453,7 +454,7 @@ public class TPSEngine {
         TPSBuffer keySetData = resp.getKeySetData();
 
         if (keySetData == null) {
-            CMS.debug(method + " No valid key set data returned.");
+            logger.error(method + " No valid key set data returned.");
             throw new TPSException(method + " No valid key set data returned.",
                     TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
 
@@ -481,7 +482,7 @@ public class TPSEngine {
             isECC = true;
         }
 
-        CMS.debug("TPSEngine.isAlgorithmECC: result: " + isECC);
+        logger.debug("TPSEngine.isAlgorithmECC: result: " + isECC);
         return isECC;
 
     }
@@ -525,17 +526,17 @@ public class TPSEngine {
             TPSBuffer sDesKey,
             String b64cert, String drmConnId,BigInteger keyid) throws TPSException {
         String method = "TPSEngine.recoverKey";
-        CMS.debug("TPSEngine.recoverKey");
+        logger.debug("TPSEngine.recoverKey");
         if (cuid == null)
-            CMS.debug(method + ": cuid null");
+            logger.debug(method + ": cuid null");
         else if (userid == null)
-            CMS.debug(method + ": userid null");
+            logger.debug(method + ": userid null");
         else if (sDesKey == null)
-            CMS.debug(method + ": isDesKey null");
+            logger.debug(method + ": isDesKey null");
         else if (b64cert == null)
-            CMS.debug(method + ": b64cert null");
+            logger.debug(method + ": b64cert null");
         else if (drmConnId == null)
-            CMS.debug(method + ": drmConnId null");
+            logger.debug(method + ": drmConnId null");
 
         if (cuid == null || userid == null || sDesKey == null ||  drmConnId == null) {
             throw new TPSException("TPSEngine.recoverKey: invalid input data!", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
@@ -590,7 +591,7 @@ public class TPSEngine {
             boolean isECC) throws TPSException {
 
 /*
-        CMS.debug("TPSEngine.serverSideKeyGen entering... keySize: " + keySize + " cuid: " + cuid + " userid: "
+        logger.debug("TPSEngine.serverSideKeyGen entering... keySize: " + keySize + " cuid: " + cuid + " userid: "
                 + userid + " drmConnId: " + drmConnId + " wrappedDesKey: " + wrappedDesKey + " archive: " + archive
                 + " isECC: " + isECC);
 */
