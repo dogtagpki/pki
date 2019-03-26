@@ -34,6 +34,8 @@ import com.netscape.cmscore.apps.CMSEngine;
  */
 public class AuthenticationManager
 {
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthenticationManager.class);
+
     private Hashtable<String, TPSAuthenticator> authInstances;
 
     public AuthenticationManager() {
@@ -76,7 +78,7 @@ public class AuthenticationManager
      *   auths.instance.ldap1.pluginName=UidPwdDirAuth
      */
     public void initAuthInstances() throws EBaseException {
-        CMS.debug("AuthenticationManager: initAuthInstances(): begins.");
+        logger.debug("AuthenticationManager: initAuthInstances(): begins.");
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
         IConfigStore authInstSubstore = conf.getSubStore("auths.instance");
@@ -84,17 +86,17 @@ public class AuthenticationManager
         authInstances = new Hashtable<String, TPSAuthenticator>();
         while (auth_enu.hasMoreElements()) {
             String authInstID = auth_enu.nextElement();
-            CMS.debug("AuthenticationManager: initAuthInstances(): initializing authentication instance " + authInstID);
+            logger.debug("AuthenticationManager: initAuthInstances(): initializing authentication instance " + authInstID);
             IConfigStore authInstSub =
                     authInstSubstore.getSubStore(authInstID);
             TPSAuthenticator authInst =
                     createAuthentication(authInstSub, authInstID);
             authInstances.put(authInstID, authInst);
-            CMS.debug("AuthenticationManager: initAuthInstances(): authentication instance "
+            logger.debug("AuthenticationManager: initAuthInstances(): authentication instance "
                     + authInstID +
                     " initialized.");
         }
-        CMS.debug("AuthenticationManager: initAuthInstances(): ends.");
+        logger.debug("AuthenticationManager: initAuthInstances(): ends.");
     }
 
     /*
@@ -106,11 +108,10 @@ public class AuthenticationManager
     private TPSAuthenticator createAuthentication(IConfigStore conf, String authInstID)
             throws EBaseException {
 
-        CMS.debug("AuthenticationManager: createAuthentication(): begins for " +
-                authInstID);
+        logger.debug("AuthenticationManager: createAuthentication(): begins for " + authInstID);
 
         if (conf == null || conf.size() <= 0) {
-            CMS.debug("AuthenticationManager: createAuthentication(): conf null or empty.");
+            logger.error("AuthenticationManager: createAuthentication(): conf null or empty.");
             throw new EBaseException("called with null config store");
         }
 
@@ -118,7 +119,7 @@ public class AuthenticationManager
 
         IConfigStore uiSub = conf.getSubStore("ui");
         if (uiSub == null) {
-            CMS.debug("AuthenticationManager: createAuthentication(): conf "
+            logger.error("AuthenticationManager: createAuthentication(): conf "
                     + conf.getName() + ".ui" + " null or empty.");
             throw new EBaseException("config " + conf.getName() + ".ui" + " not found");
         }
@@ -126,7 +127,7 @@ public class AuthenticationManager
         // init ui title
         IConfigStore uiTitleSub = uiSub.getSubStore("title");
         if (uiTitleSub == null) {
-            CMS.debug("AuthenticationManager: createAuthentication(): conf "
+            logger.error("AuthenticationManager: createAuthentication(): conf "
                     + uiSub.getName() + ".title" + " null or empty.");
             throw new EBaseException("config " + uiSub.getName() + ".title" + " not found");
         }
@@ -137,19 +138,19 @@ public class AuthenticationManager
             String locale = uiTitle_enu.nextElement();
             String title = uiTitleSub.getString(locale);
             if (title.isEmpty()) {
-                CMS.debug("AuthenticationManager: createAuthentication(): title for locale "
+                logger.debug("AuthenticationManager: createAuthentication(): title for locale "
                         + locale + " not found");
                 continue;
             }
             auth.setUiTitle(locale, title);
-            CMS.debug("AuthenticationManager: createAuthentication(): added title="
+            logger.debug("AuthenticationManager: createAuthentication(): added title="
                     + title + ", locale= " + locale);
         }
 
         // init ui description
         IConfigStore uiDescSub = uiSub.getSubStore("description");
         if (uiDescSub == null) {
-            CMS.debug("AuthenticationManager: createAuthentication(): conf "
+            logger.error("AuthenticationManager: createAuthentication(): conf "
                     + uiSub.getName() + ".description" + " null or empty.");
             throw new EBaseException("config " + uiSub.getName() + ".description" + " not found");
         }
@@ -159,30 +160,30 @@ public class AuthenticationManager
             String locale = uiDesc_enu.nextElement();
             String description = uiDescSub.getString(locale);
             if (description.isEmpty()) {
-                CMS.debug("AuthenticationManager: createAuthentication(): description for locale "
+                logger.debug("AuthenticationManager: createAuthentication(): description for locale "
                         + locale + " not found");
                 continue;
             }
             auth.setUiDescription(locale, description);
-            CMS.debug("AuthenticationManager: createAuthentication(): added description="
+            logger.debug("AuthenticationManager: createAuthentication(): added description="
                     + description + ", locale= " + locale);
         }
 
         // init ui parameters
         IConfigStore uiParamSub = uiSub.getSubStore("id");
         if (uiParamSub == null) {
-            CMS.debug("AuthenticationManager: createAuthentication(): conf "
+            logger.error("AuthenticationManager: createAuthentication(): conf "
                     + uiSub.getName() + ".id" + " null or empty.");
             throw new EBaseException("config " + uiSub.getName() + ".id" + " not found");
         }
         Enumeration<String> uiParam_enu = uiParamSub.getSubStoreNames();
         while (uiParam_enu.hasMoreElements()) {
             String id = uiParam_enu.nextElement();
-            CMS.debug("AuthenticationManager: createAuthentication(): id param=" +
+            logger.debug("AuthenticationManager: createAuthentication(): id param=" +
                     id);
             IConfigStore idNameSub = uiParamSub.getSubStore(id + ".name");
             if (idNameSub == null) {
-                CMS.debug("AuthenticationManager: createAuthentication(): conf "
+                logger.debug("AuthenticationManager: createAuthentication(): conf "
                         + uiParamSub.getName() + ".name" + " null or empty.");
                 continue;
             }
@@ -193,18 +194,18 @@ public class AuthenticationManager
                 String locale = idName_enu.nextElement();
                 String name = idNameSub.getString(locale);
                 if (name.isEmpty()) {
-                    CMS.debug("AuthenticationManager: createAuthentication(): name for locale "
+                    logger.debug("AuthenticationManager: createAuthentication(): name for locale "
                             + locale + " not found");
                     continue;
                 }
-                CMS.debug("AuthenticationManager: createAuthentication(): name =" +
+                logger.debug("AuthenticationManager: createAuthentication(): name =" +
                         name + " for locale " + locale);
                 up.setParamName(locale, name);
             }
 
             IConfigStore idDescSub = uiParamSub.getSubStore(id + ".description");
             if (idDescSub == null) {
-                CMS.debug("AuthenticationManager: createAuthentication(): conf "
+                logger.debug("AuthenticationManager: createAuthentication(): conf "
                         + uiParamSub.getName() + ".description" + " null or empty.");
                 continue;
             }
@@ -213,61 +214,59 @@ public class AuthenticationManager
                 String locale = idDesc_enu.nextElement();
                 String desc = idDescSub.getString(locale);
                 if (desc.isEmpty()) {
-                    CMS.debug("AuthenticationManager: createAuthentication(): description for locale "
+                    logger.debug("AuthenticationManager: createAuthentication(): description for locale "
                             + locale + " not found");
                     continue;
                 }
-                CMS.debug("AuthenticationManager: createAuthentication(): desc =" +
-                        desc);
+                logger.debug("AuthenticationManager: createAuthentication(): desc=" + desc);
                 up.setParamDescription(locale, desc);
             }
 
             auth.setUiParam(id, up);
-            CMS.debug("AuthenticationManager: createAuthentication(): added param="
-                    + id);
+            logger.debug("AuthenticationManager: createAuthentication(): added param=" + id);
 
             // map the auth mgr required cred to cred name in request message
             IConfigStore credMapSub = uiParamSub.getSubStore(id + ".credMap");
             if (credMapSub == null) {
-                CMS.debug("AuthenticationManager: createAuthentication(): conf "
+                logger.debug("AuthenticationManager: createAuthentication(): conf "
                         + uiParamSub.getName() + ".credMap" + " null or empty.");
                 continue;
             }
             String authCred = credMapSub.getString("authCred");
             if (authCred.isEmpty()) {
-                CMS.debug("AuthenticationManager: createAuthentication(): conf "
+                logger.debug("AuthenticationManager: createAuthentication(): conf "
                         + credMapSub.getName() + ".authCred" + " null or empty.");
                 continue;
             }
 
             IConfigStore msgCredSub = credMapSub.getSubStore("msgCred");
             if (msgCredSub == null) {
-                CMS.debug("AuthenticationManager: createAuthentication(): conf "
+                logger.debug("AuthenticationManager: createAuthentication(): conf "
                         + uiParamSub.getName() + ".msgCred" + " null or empty.");
                 continue;
             }
 
             String msgCred_login = msgCredSub.getString("login");
             if (msgCred_login.isEmpty()) {
-                CMS.debug("AuthenticationManager: createAuthentication(): conf "
+                logger.debug("AuthenticationManager: createAuthentication(): conf "
                         + msgCredSub.getName() + ".login" + " null or empty.");
                 continue;
             }
             auth.setCredMap(authCred, msgCred_login,
                     false /* not extendedLogin*/);
-            CMS.debug("AuthenticationManager: createAuthentication(): added cred map_login="
+            logger.debug("AuthenticationManager: createAuthentication(): added cred map_login="
                     + authCred + ":" + msgCred_login);
 
             String msgCred_extlogin = msgCredSub.getString("extlogin");
             if (msgCred_extlogin.isEmpty()) {
-                CMS.debug("AuthenticationManager: createAuthentication(): conf "
+                logger.debug("AuthenticationManager: createAuthentication(): conf "
                         + msgCredSub.getName() + ".extlogin" + " null or empty.");
                 continue;
             }
 
             auth.setCredMap(authCred, msgCred_extlogin,
                     true /* extendedLogin*/);
-            CMS.debug("AuthenticationManager: createAuthentication(): added cred map_extlogin="
+            logger.debug("AuthenticationManager: createAuthentication(): added cred map_extlogin="
                     + authCred + ":" + msgCred_extlogin);
 
         }
@@ -275,8 +274,7 @@ public class AuthenticationManager
         Integer retries = uiSub.getInteger("retries", 1);
         auth.setNumOfRetries(retries.intValue());
 
-        CMS.debug("AuthenticationManager: createAuthentication(): completed for " +
-                authInstID);
+        logger.debug("AuthenticationManager: createAuthentication(): completed for " + authInstID);
         return auth;
     }
 
