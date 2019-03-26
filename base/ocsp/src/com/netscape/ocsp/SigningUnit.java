@@ -55,6 +55,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public final class SigningUnit implements ISigningUnit {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SigningUnit.class);
+
     private CryptoManager mManager = null;
     private CryptoToken mToken = null;
     private PublicKey mPubk = null;
@@ -121,7 +123,7 @@ public final class SigningUnit implements ISigningUnit {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 
-        CMS.debug("OCSP SigningUnit.init(" + owner.getId() + ", " + config.getName() + ")");
+        logger.debug("OCSP SigningUnit.init(" + owner.getId() + ", " + config.getName() + ")");
 
         mOwner = owner;
         mConfig = config;
@@ -140,24 +142,24 @@ public final class SigningUnit implements ISigningUnit {
                 setNewNickName(mNickname);
             }
 
-            CMS.debug("SigningUnit: Loading certificate " + mNickname);
+            logger.debug("SigningUnit: Loading certificate " + mNickname);
             mCert = mManager.findCertByNickname(mNickname);
-            CMS.debug("SigningUnit: certificate serial number: " + mCert.getSerialNumber());
+            logger.debug("SigningUnit: certificate serial number: " + mCert.getSerialNumber());
 
             mCertImpl = new X509CertImpl(mCert.getEncoded());
 
-            CMS.debug("SigningUnit: Loading private key");
+            logger.debug("SigningUnit: Loading private key");
             mPrivk = mManager.findPrivKeyByCert(mCert);
 
             String privateKeyID = CryptoUtil.encodeKeyID(mPrivk.getUniqueID());
-            CMS.debug("SigningUnit: private key ID: " + privateKeyID);
+            logger.debug("SigningUnit: private key ID: " + privateKeyID);
 
             mPubk = mCert.getPublicKey();
 
             // get def alg and check if def sign alg is valid for token.
             mDefSigningAlgname = config.getString(PROP_DEFAULT_SIGNALG);
             mDefSigningAlgorithm = checkSigningAlgorithmFromName(mDefSigningAlgname);
-            CMS.debug("SigningUnit: signing algorithm: " + mDefSigningAlgorithm);
+            logger.debug("SigningUnit: signing algorithm: " + mDefSigningAlgorithm);
 
             mInited = true;
 
@@ -243,13 +245,12 @@ public final class SigningUnit implements ISigningUnit {
 
             // XXX use a pool of signers based on alg ?
             // XXX Map algor. name to id. hack: use hardcoded define for now.
-            CMS.debug(
-                    "Getting algorithm context for " + algname + " " + signAlg);
+            logger.debug("Getting algorithm context for " + algname + " " + signAlg);
             Signature signer = mToken.getSignatureContext(signAlg);
 
             signer.initSign(mPrivk);
             signer.update(data);
-            CMS.debug("Signing OCSP Response");
+            logger.debug("Signing OCSP Response");
             return signer.sign();
         } catch (NoSuchAlgorithmException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
