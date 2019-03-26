@@ -43,6 +43,8 @@ import com.netscape.cmscore.connector.RemoteAuthority;
  */
 public class ConnectionManager
 {
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConnectionManager.class);
+
     private Hashtable<String, IConnector> connectors;
     List<String> caList;
 
@@ -55,14 +57,14 @@ public class ConnectionManager
         String caListString;
         try {
             caListString = conf.getString("connCAList");
-            CMS.debug("ConnectionManager: ConnectionManager(): Initializing CA routing list");
+            logger.debug("ConnectionManager: ConnectionManager(): Initializing CA routing list");
         } catch (EBaseException e) {
-            CMS.debug("ConnectionManager: ConnectionManager(): no connCAList for ca discovery.  No revocation routing");
+            logger.warn("ConnectionManager: ConnectionManager(): no connCAList for ca discovery.  No revocation routing: " + e.getMessage(), e);
             return;
         }
 
         caList = Arrays.asList(caListString.split(","));
-        CMS.debug("ConnectionManager: ConnectionManager(): CA routing list initialized.");
+        logger.debug("ConnectionManager: ConnectionManager(): CA routing list initialized.");
     }
 
     public List<String> getCAList() {
@@ -95,7 +97,7 @@ public class ConnectionManager
      */
     public void initConnectors() throws EBaseException {
 
-        CMS.debug("ConnectionManager: initConnectors(): begins.");
+        logger.debug("ConnectionManager: initConnectors(): begins.");
 
         CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
@@ -105,24 +107,24 @@ public class ConnectionManager
         connectors = new Hashtable<String, IConnector>();
         while (connector_enu.hasMoreElements()) {
             String connectorID = connector_enu.nextElement();
-            CMS.debug("ConnectionManager: initConnectors(): initializing connector " + connectorID);
+            logger.debug("ConnectionManager: initConnectors(): initializing connector " + connectorID);
             IConfigStore connectorConfig =
                     connectorSubstore.getSubStore(connectorID);
             IConnector conn = null;
             boolean enable = connectorConfig.getBoolean("enable", false);
             if (!enable) {
-                CMS.debug("ConnectionManager: initConnectors(): connector disabled.");
+                logger.debug("ConnectionManager: initConnectors(): connector disabled.");
                 continue;
             }
-            CMS.debug("ConnectionManager: initConnectors(): connector enabled.");
+            logger.debug("ConnectionManager: initConnectors(): connector enabled.");
             conn = createConnector(connectorConfig);
 
             connectors.put(connectorID, conn);
-            CMS.debug("ConnectionManager: initConnectors(): connector "
+            logger.debug("ConnectionManager: initConnectors(): connector "
                     + connectorID +
                     " initialized.");
         }
-        CMS.debug("ConnectionManager: initConnectors(): ends.");
+        logger.debug("ConnectionManager: initConnectors(): ends.");
     }
 
     /*
@@ -135,15 +137,15 @@ public class ConnectionManager
             throws EBaseException {
         IConnector connector = null;
 
-        CMS.debug("ConnectionManager: createConnector(): begins.");
+        logger.debug("ConnectionManager: createConnector(): begins.");
         if (conf == null || conf.size() <= 0) {
-            CMS.debug("ConnectionManager: createConnector(): conf null or empty.");
+            logger.error("ConnectionManager: createConnector(): conf null or empty.");
             throw new EBaseException("called with null config store");
         }
 
         String host = conf.getString("host");
         if (host == null) {
-            CMS.debug("ConnectionManager: createConnector(): host not found in config.");
+            logger.error("ConnectionManager: createConnector(): host not found in config.");
             throw new EBaseException("host not found in config");
         }
         // port doesn't have to contain anything if failover supplied in host
@@ -152,23 +154,23 @@ public class ConnectionManager
         Hashtable<String, String> uris = new Hashtable<String, String>();
         IConfigStore uriSubstore = conf.getSubStore("uri");
         if (uriSubstore == null) {
-            CMS.debug("ConnectionManager: createConnector(): uri(s) not found in config.");
+            logger.error("ConnectionManager: createConnector(): uri(s) not found in config.");
             throw new EBaseException("uri(s) not found in config");
         }
-        CMS.debug("ConnectionManager: createConnector(): uriSubstore name=" + uriSubstore.getName() + " size ="
+        logger.debug("ConnectionManager: createConnector(): uriSubstore name=" + uriSubstore.getName() + " size ="
                 + uriSubstore.size());
 
         Enumeration<String> uri_enu = uriSubstore.getPropertyNames();
         while (uri_enu.hasMoreElements()) {
             String op = uri_enu.nextElement();
             if ((op != null) && !op.equals(""))
-                CMS.debug("ConnectionManager: createConnector(): op name=" + op);
+                logger.debug("ConnectionManager: createConnector(): op name=" + op);
             else
                 continue;
 
             String uriValue = uriSubstore.getString(op);
             if ((uriValue != null) && !uriValue.equals(""))
-                CMS.debug("ConnectionManager: createConnector(): uri value=" + uriValue);
+                logger.debug("ConnectionManager: createConnector(): uri value=" + uriValue);
             else
                 continue;
             uris.put(op, uriValue);
@@ -176,9 +178,9 @@ public class ConnectionManager
 
         String nickname = conf.getString("nickName", null);
         if (nickname != null)
-            CMS.debug("ConnectionManager: createConnector(): nickName=" + nickname);
+            logger.debug("ConnectionManager: createConnector(): nickName=" + nickname);
         else {
-            CMS.debug("ConnectionManager: createConnector(): nickName not found in config");
+            logger.error("ConnectionManager: createConnector(): nickName not found in config");
             throw new EBaseException("nickName not found in config");
         }
         /*
@@ -194,7 +196,7 @@ public class ConnectionManager
         RemoteAuthority remauthority =
                 new RemoteAuthority(host, port, uris, timeout, MediaType.APPLICATION_FORM_URLENCODED);
 
-        CMS.debug("ConnectionManager: createConnector(): establishing HttpConnector");
+        logger.debug("ConnectionManager: createConnector(): establishing HttpConnector");
         if (timeout == 0) {
             connector =
                     new HttpConnector(null, nickname, clientCiphers, remauthority, resendInterval, conf);
@@ -203,7 +205,7 @@ public class ConnectionManager
                     new HttpConnector(null, nickname, clientCiphers, remauthority, resendInterval, conf, timeout);
         }
 
-        CMS.debug("ConnectionManager: createConnector(): ends.");
+        logger.debug("ConnectionManager: createConnector(): ends.");
         return connector;
     }
 
@@ -222,17 +224,17 @@ public class ConnectionManager
      *     testConn.send("renewal",
      *       "serial_num=6&profileId=caTokenUserEncryptionKeyRenewal&renewal=true");
      *   if (resp != null) {
-     *       CMS.debug("Connector test: HttpResponse content:"+
+     *       logger.debug("Connector test: HttpResponse content:"+
      *           resp.getContent());
      *   } else {
-     *       CMS.debug("Connector test: HttpResponse content null");
+     *       logger.warn("Connector test: HttpResponse content null");
      *   }
      *
      * @param connID connection id per defined in the configuration
      * @return IConnector the connector matching the connection id
      */
     public IConnector getConnector(String connID) {
-        CMS.debug("ConnectionManager: getConnector(): returning connID="+ connID);
+        logger.debug("ConnectionManager: getConnector(): returning connID="+ connID);
         return connectors.get(connID);
     }
 
