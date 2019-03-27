@@ -18,7 +18,6 @@
 package com.netscape.certsrv.apps;
 
 import java.text.MessageFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -105,28 +104,6 @@ public final class CMS {
      */
     public static void setCMSEngine(ICMSEngine engine) {
         _engine = engine;
-    }
-
-    /**
-     * Returns a server wide system time. Plugins should call
-     * this method to retrieve system time.
-     *
-     * @return current time
-     */
-    public static Date getCurrentDate() {
-        if (_engine == null)
-            return new Date();
-        return _engine.getCurrentDate();
-    }
-
-    /**
-     * Puts a message into the debug file.
-     *
-     * @param msg debugging message
-     */
-    public static void debug(String msg) {
-        if (_engine != null)
-            _engine.debug(msg);
     }
 
     /**

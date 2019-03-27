@@ -28,7 +28,6 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
@@ -1576,13 +1575,6 @@ public class CMSEngine implements ICMSEngine {
         }
 
         return pid;
-    }
-
-    public Date getCurrentDate() {
-        if (mTimeSource == null) {
-            return new Date();
-        }
-        return mTimeSource.getCurrentDate();
     }
 
     public void setConfigSDSessionId(String val) {

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.apps;
 
-import java.util.Date;
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -57,14 +56,6 @@ public interface ICMSEngine extends ISubsystem {
     public void setCSState(int mode);
 
     /**
-     * Returns a server wide system time. Plugins should call
-     * this method to retrieve system time.
-     *
-     * @return current time
-     */
-    public Date getCurrentDate();
-
-    /**
      * Returns the names of all the registered subsystems.
      *
      * @return a list of string-based subsystem names
@@ -86,13 +77,6 @@ public interface ICMSEngine extends ISubsystem {
      */
     public void setSubsystemEnabled(String id, boolean enabled)
         throws EBaseException;
-
-    /**
-     * Puts a message into the debug file.
-     *
-     * @param msg debugging message
-     */
-    public void debug(String msg);
 
     /**
      * Blocks all new incoming requests.
