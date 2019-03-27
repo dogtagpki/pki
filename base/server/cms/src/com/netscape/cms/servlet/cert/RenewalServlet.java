@@ -126,7 +126,7 @@ public class RenewalServlet extends CMSServlet {
      */
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
-        long startTime = CMS.getCurrentDate().getTime();
+        long startTime = new Date().getTime();
         IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
 
@@ -384,7 +384,7 @@ public class RenewalServlet extends CMSServlet {
 
         renewed_cert = certs[0];
         respondSuccess(cmsReq, renewed_cert);
-        long endTime = CMS.getCurrentDate().getTime();
+        long endTime = new Date().getTime();
 
         mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
                 AuditFormat.LEVEL,

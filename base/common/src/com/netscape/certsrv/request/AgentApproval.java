@@ -62,5 +62,5 @@ public class AgentApproval
     }
 
     String mUserName;
-    Date mDate = new Date(); /* CMS.getCurrentDate(); */
+    Date mDate = new Date();
 }

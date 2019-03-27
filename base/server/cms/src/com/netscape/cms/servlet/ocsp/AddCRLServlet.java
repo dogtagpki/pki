@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CRLException;
 import java.security.cert.X509CRL;
+import java.util.Date;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
@@ -266,7 +267,7 @@ public class AddCRLServlet extends CMSServlet {
             X509CRLImpl crl = null;
 
             try {
-                long startTime = CMS.getCurrentDate().getTime();
+                long startTime = new Date().getTime();
                 logger.debug("AddCRLServlet: mapCRL start startTime=" + startTime);
                 if (statsSub != null) {
                     statsSub.startTiming("decode_crl");
@@ -275,7 +276,7 @@ public class AddCRLServlet extends CMSServlet {
                 if (statsSub != null) {
                     statsSub.endTiming("decode_crl");
                 }
-                long endTime = CMS.getCurrentDate().getTime();
+                long endTime = new Date().getTime();
                 logger.debug("AddCRLServlet: mapCRL done endTime=" + endTime +
                         " diff=" + (endTime - startTime));
 

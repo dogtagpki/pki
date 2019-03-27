@@ -247,7 +247,7 @@ public class SearchReqs extends CMSServlet {
             throws EBaseException {
 
         try {
-            long startTime = CMS.getCurrentDate().getTime();
+            long startTime = new Date().getTime();
 
             if (filter.indexOf(CURRENT_TIME, 0) > -1) {
                 filter = insertCurrentTime(filter);
@@ -291,7 +291,7 @@ public class SearchReqs extends CMSServlet {
                     ArgBlock rarg = new ArgBlock();
                     mParser.fillRequestIntoArg(locale, request, argSet, rarg);
                     argSet.addRepeatRecord(rarg);
-                    long endTime = CMS.getCurrentDate().getTime();
+                    long endTime = new Date().getTime();
 
                     header.addIntegerValue(OUT_CURRENTCOUNT, count);
                     header.addStringValue("time", Long.toString(endTime - startTime));

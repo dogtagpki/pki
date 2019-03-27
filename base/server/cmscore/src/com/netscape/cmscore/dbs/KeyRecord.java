@@ -27,6 +27,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
@@ -34,8 +35,6 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyState;
 import com.netscape.cms.servlet.key.KeyRecordParser;
-
-import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 /**
  * A class represents a Key record. It maintains the key
@@ -109,8 +108,8 @@ public class KeyRecord implements IDBObj, IKeyRecord {
         mOwnerName = owner;
         mAlgorithm = algorithm;
         mState = KeyState.VALID;
-        mCreateTime = com.netscape.certsrv.apps.CMS.getCurrentDate();
-        mModifyTime = com.netscape.certsrv.apps.CMS.getCurrentDate();
+        mCreateTime = new Date();
+        mModifyTime = new Date();
         mArchivedBy = agentId;
     }
 

@@ -348,7 +348,7 @@ public class DoRevokeTPS extends CMSServlet {
             }
         }
 
-        long startTime = CMS.getCurrentDate().getTime();
+        long startTime = new Date().getTime();
         IRequest revReq = null;
         int count = 0;
         X509CertImpl[] oldCerts;
@@ -440,7 +440,7 @@ public class DoRevokeTPS extends CMSServlet {
                         oldCertsV.addElement(xcert);
 
                         RevokedCertImpl revCertImpl = new RevokedCertImpl(xcert.getSerialNumber(),
-                                CMS.getCurrentDate(), entryExtn);
+                                new Date(), entryExtn);
 
                         revCertImplsV.addElement(revCertImpl);
                         logger.debug(method + "Certificate 0x" + xcert.getSerialNumber().toString(16)
@@ -616,7 +616,7 @@ public class DoRevokeTPS extends CMSServlet {
                     return;
                 }
 
-                long endTime = CMS.getCurrentDate().getTime();
+                long endTime = new Date().getTime();
 
                 // audit log the success.
                 for (int j = 0; j < count; j++) {

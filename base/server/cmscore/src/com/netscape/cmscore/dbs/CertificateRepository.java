@@ -736,7 +736,7 @@ public class CertificateRepository extends Repository
                     CertRecord.ATTR_X509CERT);
 
             if (x509cert != null) {
-                Date now = CMS.getCurrentDate();
+                Date now = new Date();
 
                 if (x509cert.getNotBefore().after(now)) {
                     // not yet valid
@@ -786,7 +786,7 @@ public class CertificateRepository extends Repository
      */
     public void transitValidCertificates() throws EBaseException {
 
-        Date now = CMS.getCurrentDate();
+        Date now = new Date();
         ICertRecordList recList = getValidCertsByNotAfterDate(now, -1 * mTransitRecordPageSize);
 
         int size = recList.getSize();
@@ -843,7 +843,7 @@ public class CertificateRepository extends Repository
      * if an revoked certificate becomes expired.
      */
     public void transitRevokedExpiredCertificates() throws EBaseException {
-        Date now = CMS.getCurrentDate();
+        Date now = new Date();
         ICertRecordList recList = getRevokedCertsByNotAfterDate(now, -1 * mTransitRecordPageSize);
 
         int size = recList.getSize();
@@ -899,7 +899,7 @@ public class CertificateRepository extends Repository
      */
     public void transitInvalidCertificates() throws EBaseException {
 
-        Date now = CMS.getCurrentDate();
+        Date now = new Date();
 
         ICertRecordList recList = getInvalidCertsByNotBeforeDate(now, -1 * mTransitRecordPageSize);
 
@@ -1100,7 +1100,7 @@ public class CertificateRepository extends Repository
                     serialNo.toString() + "," + getDN();
 
             mods.add(CertRecord.ATTR_MODIFY_TIME, Modification.MOD_REPLACE,
-                    CMS.getCurrentDate());
+                    new Date());
             s.modify(name, mods);
         } finally {
             if (s != null)
@@ -1160,7 +1160,7 @@ public class CertificateRepository extends Repository
                         uid);
             }
             mods.add(CertRecord.ATTR_REVOKED_ON, Modification.MOD_REPLACE,
-                    CMS.getCurrentDate());
+                    new Date());
         } else {
             if (uid == null) {
                 mods.add(CertRecord.ATTR_REVOKED_BY, Modification.MOD_ADD,
@@ -1170,7 +1170,7 @@ public class CertificateRepository extends Repository
                         uid);
             }
             mods.add(CertRecord.ATTR_REVOKED_ON, Modification.MOD_ADD,
-                    CMS.getCurrentDate());
+                    new Date());
             mods.add(CertRecord.ATTR_CERT_STATUS, Modification.MOD_REPLACE,
                     CertRecord.STATUS_REVOKED);
         }
@@ -1727,7 +1727,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(&(!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
                     CertRecord.ATTR_X509CERT + "." +
                     CertificateValidity.NOT_BEFORE + "<=" +
@@ -1764,7 +1764,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(&(";
 
             if (from != null && from.length() > 0)
@@ -1806,7 +1806,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(&(!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
                     CertRecord.ATTR_X509CERT + "." +
                     CertificateValidity.NOT_BEFORE + "<=" +
@@ -1845,7 +1845,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(&(";
 
             if (from != null && from.length() > 0)
@@ -1880,7 +1880,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(!(" + CertRecord.ATTR_X509CERT + "." +
                     CertificateValidity.NOT_AFTER + ">=" +
                     DateMapper.dateToDB(now) + "))";
@@ -1912,7 +1912,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(&(";
 
             if (from != null && from.length() > 0)
@@ -1951,7 +1951,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(&";
 
             ldapfilter += "(!(" + CertRecord.ATTR_X509CERT + "." +

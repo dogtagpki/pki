@@ -37,6 +37,7 @@ import java.security.cert.CertificateException;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -1103,9 +1104,9 @@ public class KeyCertUtil {
                 BigIntegerMapper.BigIntegerToDB(
                         serialno)));
         attrs.add(new LDAPAttribute("dateOfCreate",
-                DateMapper.dateToDB((CMS.getCurrentDate()))));
+                DateMapper.dateToDB(new Date())));
         attrs.add(new LDAPAttribute("dateOfModify",
-                DateMapper.dateToDB((CMS.getCurrentDate()))));
+                DateMapper.dateToDB(new Date())));
         attrs.add(new LDAPAttribute("certStatus",
                 "VALID"));
         attrs.add(new LDAPAttribute("autoRenew",

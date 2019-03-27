@@ -124,7 +124,7 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
         if (renew_grace_after > 0)
             renew_grace_after_BI = renew_grace_after_BI.multiply(BigInteger.valueOf(1000 * 86400));
 
-        Date current = CMS.getCurrentDate();
+        Date current = new Date();
         long millisDiff = origExpDate.getTime() - current.getTime();
         logger.debug(method + " millisDiff="
                 + millisDiff + " origExpDate=" + origExpDate.getTime() + " current=" + current.getTime());

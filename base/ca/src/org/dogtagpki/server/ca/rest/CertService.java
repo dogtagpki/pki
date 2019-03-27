@@ -181,7 +181,7 @@ public class CertService extends PKIService implements CertResource {
         RevocationProcessor processor;
         try {
             processor = new RevocationProcessor("caDoRevoke-agent", getLocale(headers));
-            processor.setStartTime(CMS.getCurrentDate().getTime());
+            processor.setStartTime(new Date().getTime());
 
             // TODO: set initiative based on auth info
             processor.setInitiative(AuditFormat.FROMAGENT);

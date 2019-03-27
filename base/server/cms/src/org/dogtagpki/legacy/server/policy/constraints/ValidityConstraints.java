@@ -24,6 +24,8 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
@@ -31,9 +33,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import org.mozilla.jss.netscape.security.x509.CertificateValidity;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * ValidityConstraints is a default rule for Enrollment and
@@ -218,7 +217,7 @@ public class ValidityConstraints extends APolicyRule
                     continue;
                 }
 
-                Date now = CMS.getCurrentDate();
+                Date now = new Date();
 
                 if (notBefore.getTime() > (now.getTime() + mLeadTime)) {
                     setError(req, CMS.getUserMessage("CMS_POLICY_INVALID_BEGIN_TIME",
@@ -295,7 +294,7 @@ public class ValidityConstraints extends APolicyRule
      * time of the request.
      */
     protected CertificateValidity makeDefaultValidity(IRequest req) {
-        long now = roundTimeToSecond((CMS.getCurrentDate()).getTime());
+        long now = roundTimeToSecond(new Date().getTime());
 
         // We will set the max duration as the default validity.
         long notBeforeTime = now - mNotBeforeSkew;

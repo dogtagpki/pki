@@ -353,7 +353,7 @@ public class CAValidityDefault extends EnrollDefault {
         }
         long startTime = Long.parseLong(startTimeStr);
 
-        Date notBefore = new Date(CMS.getCurrentDate().getTime() + (1000 * startTime));
+        Date notBefore = new Date(new Date().getTime() + (1000 * startTime));
         logger.debug("CAValidityDefault: not before: " + notBefore);
 
         String rangeStr = getConfig(CONFIG_RANGE, "7305");

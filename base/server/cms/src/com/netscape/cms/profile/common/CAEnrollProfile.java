@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.common;
 
+import java.util.Date;
 import java.util.Enumeration;
 
 import org.mozilla.jss.netscape.security.x509.X500Name;
@@ -78,7 +79,7 @@ public class CAEnrollProfile extends EnrollProfile {
     public void execute(IRequest request)
             throws EProfileException, ERejectException {
 
-        long startTime = CMS.getCurrentDate().getTime();
+        long startTime = new Date().getTime();
 
         if (!isEnable()) {
             logger.error("CAEnrollProfile: Profile Not Enabled");
@@ -209,7 +210,7 @@ public class CAEnrollProfile extends EnrollProfile {
 
         request.setExtData(REQUEST_ISSUED_CERT, theCert);
 
-        long endTime = CMS.getCurrentDate().getTime();
+        long endTime = new Date().getTime();
 
         String initiative = AuditFormat.FROMAGENT
                           + " userID: "

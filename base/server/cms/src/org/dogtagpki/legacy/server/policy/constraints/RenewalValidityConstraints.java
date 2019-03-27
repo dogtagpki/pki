@@ -24,6 +24,11 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IRenewalPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
@@ -31,12 +36,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.x509.CertificateValidity;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * RenewalValidityConstraints is a default rule for Certificate
@@ -225,7 +224,7 @@ public class RenewalValidityConstraints extends APolicyRule
                         oldValidity.get(CertificateValidity.NOT_AFTER);
 
                 // Is the Certificate still valid?
-                Date now = CMS.getCurrentDate();
+                Date now = new Date();
 
                 if (notAfter.after(now)) {
                     // Check if the renewal interval is alright.
@@ -305,7 +304,7 @@ public class RenewalValidityConstraints extends APolicyRule
     private void setDummyValidity(X509CertInfo certInfo) {
         try {
             certInfo.set(X509CertInfo.VALIDITY,
-                    new CertificateValidity(CMS.getCurrentDate(), new Date()));
+                    new CertificateValidity(new Date(), new Date()));
         } catch (Exception e) {
         }
     }

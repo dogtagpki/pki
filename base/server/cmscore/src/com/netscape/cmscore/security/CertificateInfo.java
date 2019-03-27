@@ -29,6 +29,9 @@ import java.security.cert.CertificateParsingException;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.crypto.PQGParamGenException;
+import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.x509.AlgorithmId;
@@ -47,10 +50,6 @@ import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
-
-import org.mozilla.jss.asn1.ASN1Util;
-import org.mozilla.jss.crypto.PQGParamGenException;
-import org.mozilla.jss.crypto.SignatureAlgorithm;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -101,7 +100,7 @@ public abstract class CertificateInfo {
 
         /*
          String period = (String)mProperties.get(Constants.PR_VALIDITY_PERIOD);
-         Date notBeforeDate = CMS.getCurrentDate();
+         Date notBeforeDate = new Date();
          Date notAfterDate = new Date(notBeforeDate.getYear(),
          notBeforeDate.getMonth(),
          notBeforeDate.getDate()+Integer.parseInt(period));

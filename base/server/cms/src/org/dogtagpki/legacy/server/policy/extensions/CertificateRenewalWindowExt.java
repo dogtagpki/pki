@@ -25,6 +25,10 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.extensions.CertificateRenewalWindowExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -34,11 +38,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import org.mozilla.jss.netscape.security.extensions.CertificateRenewalWindowExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Certificate Renewal Window Extension Policy
@@ -148,7 +147,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
         }
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             CertificateRenewalWindowExtension crwExt = null;
 
             if (mEndTime == null || mEndTime.equals("")) {

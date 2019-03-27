@@ -20,8 +20,6 @@ package com.netscape.cmscore.authentication;
 import java.math.BigInteger;
 import java.util.Date;
 
-import com.netscape.certsrv.apps.CMS;
-
 /**
  * class storing verified certificate.
  *
@@ -49,7 +47,7 @@ public class VerifiedCert {
         mStatus = status;
         mSerialNumber = serialNumber;
         mCertEncoded = certEncoded;
-        mCreated = CMS.getCurrentDate();
+        mCreated = new Date();
     }
 
     public int check(BigInteger serialNumber, byte[] certEncoded,
@@ -68,7 +66,7 @@ public class VerifiedCert {
                     }
                     if (i >= mCertEncoded.length) {
                         Date expires = new Date(mCreated.getTime() + (interval * 1000));
-                        Date now = CMS.getCurrentDate();
+                        Date now = new Date();
 
                         if (now.after(expires))
                             mStatus = EXPIRED;
@@ -77,7 +75,7 @@ public class VerifiedCert {
                 }
             } else if (unknownStateInterval > 0) {
                 Date expires = new Date(mCreated.getTime() + (unknownStateInterval * 1000));
-                Date now = CMS.getCurrentDate();
+                Date now = new Date();
 
                 if (now.after(expires))
                     mStatus = EXPIRED;

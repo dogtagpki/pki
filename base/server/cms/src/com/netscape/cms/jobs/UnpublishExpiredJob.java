@@ -170,7 +170,7 @@ public class UnpublishExpiredJob extends AJobBase
         //		System.out.println("in ExpiredUnpublishJob "+
         //						   getId()+ " : run()");
         // get time now..."now" is before the loop
-        Date date = CMS.getCurrentDate();
+        Date date = new Date();
         long now = date.getTime();
         DateFormat dateFormat = DateFormat.getDateTimeInstance();
         String nowString = dateFormat.format(date);

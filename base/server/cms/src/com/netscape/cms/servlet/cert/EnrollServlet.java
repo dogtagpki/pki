@@ -605,7 +605,7 @@ public class EnrollServlet extends CMSServlet {
                                 );
                     }
                 } else { // other imcomplete status
-                    long endTime = CMS.getCurrentDate().getTime();
+                    long endTime = new Date().getTime();
 
                     mLogger.log(ILogger.EV_AUDIT,
                             ILogger.S_OTHER,
@@ -735,7 +735,7 @@ public class EnrollServlet extends CMSServlet {
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            startTime = CMS.getCurrentDate().getTime();
+            startTime = new Date().getTime();
             httpParams = cmsReq.getHttpParams();
             httpReq = cmsReq.getHttpReq();
             if (mAuthMgr != null) {
@@ -1418,7 +1418,7 @@ public class EnrollServlet extends CMSServlet {
             }
 
             // audit log the success.
-            long endTime = CMS.getCurrentDate().getTime();
+            long endTime = new Date().getTime();
 
             mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
                     AuditFormat.LEVEL,

@@ -562,7 +562,7 @@ public abstract class ARequestQueue
     public void updateRequest(IRequest r) {
         // defualt is to really update ldap
         String delayLDAPCommit = r.getExtDataInString("delayLDAPCommit");
-        ((Request) r).mModificationTime = CMS.getCurrentDate();
+        ((Request) r).mModificationTime = new Date();
 
         String name = getUserIdentity();
 
@@ -1462,8 +1462,8 @@ class Request implements IRequest {
     protected String realm;
     protected ExtDataHashtable<Object> mExtData = new ExtDataHashtable<Object>();
 
-    Date mCreationTime = CMS.getCurrentDate();
-    Date mModificationTime = CMS.getCurrentDate();
+    Date mCreationTime = new Date();
+    Date mModificationTime = new Date();
 
     @Override
     public String getRealm() {

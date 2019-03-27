@@ -158,7 +158,7 @@ public class RenewalConstraints extends APolicyRule
 
                     // Is the Certificate eligible for renewal ?
 
-                    Date now = CMS.getCurrentDate();
+                    Date now = new Date();
 
                     Date renewedNotAfter = new Date(notAfter.getTime() +
                             mRenewalNotAfter);
@@ -191,7 +191,7 @@ public class RenewalConstraints extends APolicyRule
                         oldValidity.get(CertificateValidity.NOT_AFTER);
 
                 // Is the Certificate still valid?
-                Date now = CMS.getCurrentDate();
+                Date now = new Date();
 
                 logger.debug("RenewalConstraints: cert " + i + " notAfter " + notAfter + " now=" + now);
                 if (notAfter.before(now)) {

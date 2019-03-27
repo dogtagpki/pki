@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.common;
 
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -469,7 +470,7 @@ public abstract class BasicProfile implements IProfile {
             }
 
             mConfig.putString("lastModified",
-                    Long.toString(CMS.getCurrentDate().getTime()));
+                    Long.toString(new Date().getTime()));
             mConfig.commit(false);
         } catch (Exception e) {
         }
@@ -522,7 +523,7 @@ public abstract class BasicProfile implements IProfile {
             mInputs.remove(inputId);
             mConfig.putString("input." + PROP_INPUT_LIST, newlist);
             mConfig.putString("lastModified",
-                    Long.toString(CMS.getCurrentDate().getTime()));
+                    Long.toString(new Date().getTime()));
             mConfig.commit(false);
         } catch (Exception e) {
         }
@@ -570,7 +571,7 @@ public abstract class BasicProfile implements IProfile {
             mOutputs.remove(outputId);
             mConfig.putString("output." + PROP_OUTPUT_LIST, newlist);
             mConfig.putString("lastModified",
-                    Long.toString(CMS.getCurrentDate().getTime()));
+                    Long.toString(new Date().getTime()));
             mConfig.commit(false);
         } catch (Exception e) {
         }
@@ -668,7 +669,7 @@ public abstract class BasicProfile implements IProfile {
 
             try {
                 mConfig.putString("lastModified",
-                        Long.toString(CMS.getCurrentDate().getTime()));
+                        Long.toString(new Date().getTime()));
                 mConfig.commit(false);
             } catch (EBaseException e) {
                 logger.warn(e.getMessage(), e);
@@ -761,7 +762,7 @@ public abstract class BasicProfile implements IProfile {
 
             try {
                 mConfig.putString("lastModified",
-                        Long.toString(CMS.getCurrentDate().getTime()));
+                        Long.toString(new Date().getTime()));
                 mConfig.commit(false);
             } catch (EBaseException e) {
                 logger.warn(e.getMessage(), e);
@@ -1002,7 +1003,7 @@ public abstract class BasicProfile implements IProfile {
                     constraintClassId);
             try {
                 mConfig.putString("lastModified",
-                        Long.toString(CMS.getCurrentDate().getTime()));
+                        Long.toString(new Date().getTime()));
                 policyStore.commit(false);
             } catch (EBaseException e) {
                 logger.warn("BasicProfile: commiting config store " +

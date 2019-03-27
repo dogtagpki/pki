@@ -373,7 +373,7 @@ public class DoRevoke extends CMSServlet {
             throws EBaseException {
 
         logger.debug("DoRevoke: eeSerialNumber: " + eeSerialNumber);
-        long startTime = CMS.getCurrentDate().getTime();
+        long startTime = new Date().getTime();
 
         RevocationProcessor processor =
                 new RevocationProcessor(servletConfig.getServletName(), getLocale(req));

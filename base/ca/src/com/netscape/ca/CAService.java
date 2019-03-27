@@ -648,7 +648,7 @@ public class CAService implements ICAService, IService {
                     (begin.getTime() == 0 && end.getTime() == 0)) {
                 logger.debug("setting default validity");
 
-                begin = CMS.getCurrentDate();
+                begin = new Date();
                 end = new Date(begin.getTime() + ca.getDefaultValidity());
                 certi.set(CertificateValidity.NAME,
                         new CertificateValidity(begin, end));

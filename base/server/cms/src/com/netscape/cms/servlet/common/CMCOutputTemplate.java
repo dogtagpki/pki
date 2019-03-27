@@ -1335,7 +1335,7 @@ public class CMCOutputTemplate {
                         entryExtn.set(crlReasonExtn.getName(), crlReasonExtn);
                     }
 
-                    RevokedCertImpl revCertImpl = new RevokedCertImpl(impl.getSerialNumber(), CMS.getCurrentDate(),
+                    RevokedCertImpl revCertImpl = new RevokedCertImpl(impl.getSerialNumber(), new Date(),
                             entryExtn);
                     RevokedCertImpl[] revCertImpls = new RevokedCertImpl[1];
                     revCertImpls[0] = revCertImpl;

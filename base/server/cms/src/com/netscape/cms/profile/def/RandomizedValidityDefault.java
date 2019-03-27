@@ -312,7 +312,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
         }
         int notAfterRandomBits = Integer.parseInt(notAfterRandomBitsStr);
         int randomSeconds = randomSecs(notBeforeRandomBits);
-        long currentTime = CMS.getCurrentDate().getTime();
+        long currentTime = new Date().getTime();
         Date notBefore = new Date(currentTime + (1000 * startTime));
         logger.debug("RandomizedValidityDefault populate  notBefore           = "+notBefore);
         Date notBeforeRandomized = new Date(currentTime + (1000 * (startTime - randomSeconds)));

@@ -48,7 +48,7 @@ public class AgentApprovals
 
         if (a != null) {
             logger.debug("Updating existing approval: " + userName);
-            a.mDate = new Date(); /* CMS.getCurrentDate(); */
+            a.mDate = new Date();
             return a;
         }
 

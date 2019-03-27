@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.request;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
@@ -410,7 +411,7 @@ public class QueryReq extends CMSServlet {
         CMSTemplateParams argset = new CMSTemplateParams(header, context);
 
         try {
-            long startTime = CMS.getCurrentDate().getTime();
+            long startTime = new Date().getTime();
             // preserve the type of request that we are
             // requesting.
 
@@ -480,7 +481,7 @@ public class QueryReq extends CMSServlet {
                 currentCount++;
 
             }// while
-            long endTime = CMS.getCurrentDate().getTime();
+            long endTime = new Date().getTime();
 
             header.addIntegerValue(OUT_CURRENTCOUNT, currentCount);
             header.addStringValue("time", Long.toString(endTime - startTime));

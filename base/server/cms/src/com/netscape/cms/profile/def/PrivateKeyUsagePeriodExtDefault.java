@@ -299,7 +299,7 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
                 startTimeStr = "60";
             }
             long startTime = Long.parseLong(startTimeStr);
-            Date notBefore = new Date(CMS.getCurrentDate().getTime() +
+            Date notBefore = new Date(new Date().getTime() +
                     (1000 * startTime));
             long notAfterVal = 0;
 

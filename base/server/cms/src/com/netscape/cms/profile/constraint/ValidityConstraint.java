@@ -229,7 +229,7 @@ public class ValidityConstraint extends EnrollConstraint {
         }
         long notBeforeGracePeriod = Long.parseLong(notBeforeGracePeriodStr) * SECS_IN_MS;
 
-        Date current = CMS.getCurrentDate();
+        Date current = new Date();
         if (notBeforeCheck) {
             if (notBefore.getTime() > (current.getTime() + notBeforeGracePeriod)) {
                 logger.debug("ValidityConstraint: notBefore (" + notBefore + ") > current + " +

@@ -328,7 +328,7 @@ public class RenewalNotificationJob
             mPreMS = mspredays * msperday;
             mPostMS = mspostdays * msperday;
 
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             DateFormat dateFormat = DateFormat.getDateTimeInstance();
             String nowString = dateFormat.format(now);
 

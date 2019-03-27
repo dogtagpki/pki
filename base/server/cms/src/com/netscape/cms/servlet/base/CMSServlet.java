@@ -493,10 +493,10 @@ public abstract class CMSServlet extends HttpServlet {
                 SessionContext.releaseContext();
                 return;
             }
-            long startTime = CMS.getCurrentDate().getTime();
+            long startTime = new Date().getTime();
             process(cmsRequest);
             renderResult(cmsRequest);
-            Date endDate = CMS.getCurrentDate();
+            Date endDate = new Date();
             long endTime = endDate.getTime();
             logger.info("CMSServlet: curDate: "
                     + endDate + " id: " + mId + " time: " + (endTime - startTime));
@@ -1539,7 +1539,7 @@ public abstract class CMSServlet extends HttpServlet {
                     CMS.getLogMessage("CMSGW_ERROR_SETTING_CRLREASON"));
         }
         RevokedCertImpl crlentry =
-                new RevokedCertImpl(serialNo, CMS.getCurrentDate(), crlentryexts);
+                new RevokedCertImpl(serialNo, new Date(), crlentryexts);
 
         return crlentry;
     }

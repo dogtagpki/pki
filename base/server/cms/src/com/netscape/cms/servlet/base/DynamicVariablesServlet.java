@@ -267,7 +267,7 @@ public class DynamicVariablesServlet extends CMSServlet {
                             IAuthSubsystem as = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
                             Enumeration<IAuthManager> ame = as.getAuthManagers();
 
-                            Date d = CMS.getCurrentDate();
+                            Date d = new Date();
                             long now = d.getTime();
 
                             if (now > (mAuthMgrCacheTime + 1000 * AUTHMGRCACHE)) {

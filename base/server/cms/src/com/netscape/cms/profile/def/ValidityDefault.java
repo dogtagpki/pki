@@ -273,7 +273,7 @@ public class ValidityDefault extends EnrollDefault {
         }
         long startTime = Long.parseLong(startTimeStr);
 
-        Date notBefore = new Date(CMS.getCurrentDate().getTime() + (1000 * startTime));
+        Date notBefore = new Date(new Date().getTime() + (1000 * startTime));
         logger.debug("ValidityDefault: not before: " + notBefore);
 
         String rangeStr = getConfig(CONFIG_RANGE, "7305");

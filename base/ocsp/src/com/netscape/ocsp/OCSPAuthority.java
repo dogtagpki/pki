@@ -24,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -352,9 +353,9 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      */
     public OCSPResponse validate(OCSPRequest request)
             throws EBaseException {
-        long startTime = (CMS.getCurrentDate()).getTime();
+        long startTime = new Date().getTime();
         OCSPResponse response = mDefStore.validate(request);
-        long endTime = (CMS.getCurrentDate()).getTime();
+        long endTime = new Date().getTime();
 
         mServedTime = mServedTime + (endTime - startTime);
         return response;
@@ -541,7 +542,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * NameID rid = new NameID((Name)nameTemplate.decode(
      * new ByteArrayInputStream(name.getEncoded())));
      * ResponseData rd = new ResponseData(rid, new GeneralizedTime(
-     * CMS.getCurrentDate()), res);
+     * new Date()), res);
      *
      * BasicOCSPResponse basicRes = sign(rd);
      *

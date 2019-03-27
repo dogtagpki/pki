@@ -169,7 +169,7 @@ public class RevocationConstraints extends APolicyRule
                         oldValidity.get(CertificateValidity.NOT_AFTER);
 
                 // Is the Certificate still valid?
-                Date now = CMS.getCurrentDate();
+                Date now = new Date();
 
                 if (notAfter.before(now)) {
                     String params[] = { getInstanceName() };

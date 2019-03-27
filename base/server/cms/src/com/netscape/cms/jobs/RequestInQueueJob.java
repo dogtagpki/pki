@@ -164,7 +164,7 @@ public class RequestInQueueJob extends AJobBase
         if (mSummary == false)
             return;
 
-        Date date = CMS.getCurrentDate();
+        Date date = new Date();
         DateFormat dateFormat = DateFormat.getDateTimeInstance();
         String nowString = dateFormat.format(date);
 

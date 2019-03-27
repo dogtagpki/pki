@@ -2458,7 +2458,7 @@ public class CertificateAuthority
 
         mNumOCSPRequest++;
         IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
-        long startTime = CMS.getCurrentDate().getTime();
+        long startTime = new Date().getTime();
 
         try {
             //log(ILogger.LL_INFO, "start OCSP request");
@@ -2471,7 +2471,7 @@ public class CertificateAuthority
                 statsSub.startTiming("lookup");
             }
 
-            long lookupStartTime = CMS.getCurrentDate().getTime();
+            long lookupStartTime = new Date().getTime();
 
             for (int i = 0; i < tbsReq.getRequestCount(); i++) {
                 Request req = tbsReq.getRequestAt(i);
@@ -2479,7 +2479,7 @@ public class CertificateAuthority
                 singleResponses.addElement(sr);
             }
 
-            long lookupEndTime = CMS.getCurrentDate().getTime();
+            long lookupEndTime = new Date().getTime();
             mLookupTime += lookupEndTime - lookupStartTime;
 
             if (statsSub != null) {
@@ -2519,7 +2519,7 @@ public class CertificateAuthority
             }
 
             ResponseData rd = new ResponseData(rid,
-                    new GeneralizedTime(CMS.getCurrentDate()), res, nonce);
+                    new GeneralizedTime(new Date()), res, nonce);
 
             if (statsSub != null) {
                 statsSub.endTiming("build_response");
@@ -2529,11 +2529,11 @@ public class CertificateAuthority
                 statsSub.startTiming("signing");
             }
 
-            long signStartTime = CMS.getCurrentDate().getTime();
+            long signStartTime = new Date().getTime();
 
             BasicOCSPResponse basicRes = sign(rd);
 
-            long signEndTime = CMS.getCurrentDate().getTime();
+            long signEndTime = new Date().getTime();
             mSignTime += signEndTime - signStartTime;
 
             if (statsSub != null) {
@@ -2546,7 +2546,7 @@ public class CertificateAuthority
                             new OCTET_STRING(ASN1Util.encode(basicRes))));
 
             //log(ILogger.LL_INFO, "done OCSP request");
-            long endTime = CMS.getCurrentDate().getTime();
+            long endTime = new Date().getTime();
             mTotalTime += endTime - startTime;
 
             return response;
@@ -2608,7 +2608,7 @@ public class CertificateAuthority
         logger.debug("CertificateAuthority: processing request for cert 0x" + serialNo.toString(16));
 
         CertStatus certStatus = null;
-        GeneralizedTime thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
+        GeneralizedTime thisUpdate = new GeneralizedTime(new Date());
 
         byte[] nameHash = null;
         String digestName = cid.getDigestName();

@@ -432,7 +432,7 @@ public class CMCRevReqServlet extends CMSServlet {
 
                         RevokedCertImpl revCertImpl =
                                 new RevokedCertImpl(cert.getSerialNumber(),
-                                        CMS.getCurrentDate(), entryExtn);
+                                        new Date(), entryExtn);
 
                         revCertImplsV.addElement(revCertImpl);
                         count++;
@@ -492,7 +492,7 @@ public class CMCRevReqServlet extends CMSServlet {
 
                             RevokedCertImpl revCertImpl =
                                     new RevokedCertImpl(certs[i].getSerialNumber(),
-                                            CMS.getCurrentDate(), entryExtn);
+                                            new Date(), entryExtn);
 
                             revCertImplsV.addElement(revCertImpl);
                             count++;
@@ -514,7 +514,7 @@ public class CMCRevReqServlet extends CMSServlet {
 
                         RevokedCertImpl revCertImpl =
                                 new RevokedCertImpl(cert.getSerialNumber(),
-                                        CMS.getCurrentDate(), entryExtn);
+                                        new Date(), entryExtn);
 
                         revCertImplsV.addElement(revCertImpl);
                         count++;

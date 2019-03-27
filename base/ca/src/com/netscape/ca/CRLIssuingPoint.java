@@ -2267,7 +2267,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     } catch (IOException e) {
                     }
                     RevokedCertImpl newRevokedCert = new RevokedCertImpl(serialNumber,
-                            CMS.getCurrentDate(), entryExt);
+                            new Date(), entryExt);
 
                     mUnrevokedCerts.put(serialNumber, newRevokedCert);
                 }
@@ -2343,7 +2343,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 } catch (IOException e) {
                 }
                 RevokedCertImpl newRevokedCert = new RevokedCertImpl(serialNumber,
-                        CMS.getCurrentDate(), entryExt);
+                        new Date(), entryExt);
 
                 mExpiredCerts.put(serialNumber, newRevokedCert);
             }
@@ -2498,7 +2498,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if (signingAlgorithm == null || signingAlgorithm.length() == 0)
             signingAlgorithm = mSigningAlgorithm;
         mLastSigningAlgorithm = signingAlgorithm;
-        Date thisUpdate = CMS.getCurrentDate();
+        Date thisUpdate = new Date();
         Date nextUpdate = null;
         Date nextDeltaUpdate = null;
 

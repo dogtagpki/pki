@@ -27,6 +27,10 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.PrivateKeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -36,11 +40,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
-import org.mozilla.jss.netscape.security.x509.PrivateKeyUsageExtension;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * PrivateKeyUsagePeriod Identifier Extension policy.
@@ -65,7 +64,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
 
     private static final String DATE_PATTERN = "MM/dd/yyyy";
     static SimpleDateFormat formatter = new SimpleDateFormat(DATE_PATTERN);
-    private static Date now = CMS.getCurrentDate();
+    private static Date now = new Date();
     private static Date six_months = new Date(now.getTime() + defDuration);
 
     public static final String DEFAULT_NOT_BEFORE = formatter.format(now);

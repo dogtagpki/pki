@@ -251,7 +251,7 @@ public class ProcessCertReq extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
-        long startTime = CMS.getCurrentDate().getTime();
+        long startTime = new Date().getTime();
         String toDo = null;
         String subject = null;
         String signatureAlgorithm = null;
@@ -541,7 +541,7 @@ public class ProcessCertReq extends CMSServlet {
                             CertificateValidity certValidity =
                                     (CertificateValidity)
                                     certInfo[i].get(X509CertInfo.VALIDITY);
-                            Date currentTime = CMS.getCurrentDate();
+                            Date currentTime = new Date();
                             boolean validityChanged = false;
 
                             // only override these values if agent specified them
@@ -897,7 +897,7 @@ public class ProcessCertReq extends CMSServlet {
 
                         // return potentially more than one certificates.
                         if (issuedCerts != null) {
-                            long endTime = CMS.getCurrentDate().getTime();
+                            long endTime = new Date().getTime();
                             StringBuffer sbuf = new StringBuffer();
 
                             //header.addBigIntegerValue("serialNumber",

@@ -298,7 +298,7 @@ public class UpdateCRL extends CMSServlet {
             Locale locale)
             throws EBaseException {
 
-        long startTime = CMS.getCurrentDate().getTime();
+        long startTime = new Date().getTime();
         String waitForUpdate =
                 req.getParameter("waitForUpdate");
         String clearCache =
@@ -415,7 +415,7 @@ public class UpdateCRL extends CMSServlet {
             }
 
             if (addLen != null && startFrom != null) {
-                Date revocationDate = CMS.getCurrentDate();
+                Date revocationDate = new Date();
                 String err = null;
 
                 CRLExtensions entryExts = crlEntryExtensions(reason, invalidity);
@@ -538,7 +538,7 @@ public class UpdateCRL extends CMSServlet {
                 authMgr = authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
             }
 
-            long endTime = CMS.getCurrentDate().getTime();
+            long endTime = new Date().getTime();
 
             if (crlIssuingPoint.getNextUpdate() != null) {
                 mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,

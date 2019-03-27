@@ -1722,7 +1722,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             renewGraceAfterBI = renewGraceAfterBI.multiply(BigInteger.valueOf(1000 * 86400));
 
         Date origExpDate = cert.getValidNotAfter();
-        Date current = CMS.getCurrentDate();
+        Date current = new Date();
         long millisDiff = origExpDate.getTime() - current.getTime();
         logger.debug(method + ": millisDiff="
                 + millisDiff + " origExpDate=" + origExpDate.getTime() + " current=" + current.getTime());

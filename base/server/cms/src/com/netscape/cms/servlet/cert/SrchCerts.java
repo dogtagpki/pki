@@ -591,7 +591,7 @@ public class SrchCerts extends CMSServlet {
             Locale locale)
             throws EBaseException {
         try {
-            long startTime = CMS.getCurrentDate().getTime();
+            long startTime = new Date().getTime();
 
             if (filter.indexOf(CURRENT_TIME, 0) > -1) {
                 filter = insertCurrentTime(filter);
@@ -626,7 +626,7 @@ public class SrchCerts extends CMSServlet {
                 }
             }
 
-            long endTime = CMS.getCurrentDate().getTime();
+            long endTime = new Date().getTime();
 
             header.addStringValue("op", req.getParameter("op"));
             if (mAuthName != null)

@@ -327,7 +327,7 @@ public class UniqueKeyConstraint extends EnrollConstraint {
      *
      *         }
      *         RevokedCertImpl crlentry =
-     *         new RevokedCertImpl(serialNo, CMS.getCurrentDate(),
+     *         new RevokedCertImpl(serialNo, new Date(),
      *         crlentryexts);
      *
      *         return crlentry;

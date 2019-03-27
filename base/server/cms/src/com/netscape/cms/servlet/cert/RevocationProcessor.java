@@ -237,7 +237,7 @@ public class RevocationProcessor extends CertProcessor {
 
     public void addCertificateToRevoke(X509CertImpl cert) {
         addCertificate(cert);
-        revCertImpls.add(new RevokedCertImpl(cert.getSerialNumber(), CMS.getCurrentDate(), entryExtn));
+        revCertImpls.add(new RevokedCertImpl(cert.getSerialNumber(), new Date(), entryExtn));
     }
 
     public void addSerialNumberToUnrevoke(BigInteger serialNumber) throws EBaseException {
@@ -346,7 +346,7 @@ public class RevocationProcessor extends CertProcessor {
                 throw new EBaseException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
             }
 
-            long endTime = CMS.getCurrentDate().getTime();
+            long endTime = new Date().getTime();
 
             // audit log the success.
             for (X509CertImpl cert : certificates) {

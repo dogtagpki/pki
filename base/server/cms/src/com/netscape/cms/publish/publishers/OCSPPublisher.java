@@ -26,6 +26,7 @@ import java.net.Socket;
 import java.net.URLEncoder;
 import java.security.cert.CRLException;
 import java.security.cert.X509CRL;
+import java.util.Date;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -303,10 +304,10 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                     ILogger.LL_INFO, "OCSPPublisher: start sending CRL");
-            long startTime = CMS.getCurrentDate().getTime();
+            long startTime = new Date().getTime();
             logger.debug("OCSPPublisher: start CRL sending startTime=" + startTime);
             httpReq.write(outputStreamWriter);
-            long endTime = CMS.getCurrentDate().getTime();
+            long endTime = new Date().getTime();
             logger.debug("OCSPPublisher: done CRL sending endTime=" + endTime + " diff=" + (endTime - startTime));
 
             // Read the response

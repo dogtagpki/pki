@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -97,7 +96,7 @@ public class StatsSubsystem implements IStatsSubsystem {
             milestones = new Vector<StatsMilestone>();
             mHashtable.put(t.toString(), milestones);
         }
-        long startTime = CMS.getCurrentDate().getTime();
+        long startTime = new Date().getTime();
         StatsEvent currentST = null;
         for (int i = 0; i < milestones.size(); i++) {
             StatsMilestone se = milestones.elementAt(i);
@@ -123,7 +122,7 @@ public class StatsSubsystem implements IStatsSubsystem {
     }
 
     public void endTiming(String id) {
-        long endTime = CMS.getCurrentDate().getTime();
+        long endTime = new Date().getTime();
         Thread t = Thread.currentThread();
         if (!mHashtable.containsKey(t.toString())) {
             return; /* error */
@@ -142,7 +141,7 @@ public class StatsSubsystem implements IStatsSubsystem {
     }
 
     public void resetCounters() {
-        mStartTime = CMS.getCurrentDate();
+        mStartTime = new Date();
         mAllTrans.resetCounters();
     }
 
