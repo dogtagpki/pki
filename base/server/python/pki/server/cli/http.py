@@ -456,12 +456,18 @@ class HTTPConnectorModCLI(pki.cli.CLI):
         print('Usage: pki-server http-connector-mod [OPTIONS] <connector ID>')
         print()
         print('  -i, --instance <instance ID>              Instance ID (default: pki-tomcat).')
-        print('      --type <type>                         Connector type: JSS (default), JSSE.')
+        print('      --type <type>                         Connector type: JSS, JSSE.')
         print('      --nss-database-dir <dir>              NSS database directory.')
         print('      --nss-password-file <file>            NSS password file.')
         print('      --keystore-file <file>                Key store file.')
         print('      --keystore-password-file <file>       Key store password file.')
         print('      --server-cert-nickname-file <file>    Server certificate nickname file.')
+        print('      --port <port>                         Port number.')
+        print('      --protocol <protocol>                 Protocol.')
+        print('      --scheme <scheme>                     Scheme.')
+        print('      --secure <true|false>                 Secure.')
+        print('      --sslEnabled <true|false>             SSL enabled.')
+        print('      --sslImpl <class>                     SSL implementation.')
         print('  -v, --verbose                             Run in verbose mode.')
         print('      --debug                               Run in debug mode.')
         print('      --help                                Show help message.')
@@ -475,6 +481,8 @@ class HTTPConnectorModCLI(pki.cli.CLI):
                 'nss-database-dir=', 'nss-password-file=',
                 'keystore-file=', 'keystore-password-file=',
                 'server-cert-nickname-file=',
+                'port=', 'protocol=', 'scheme=',
+                'secure=', 'sslEnabled=', 'sslImpl=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -483,12 +491,18 @@ class HTTPConnectorModCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
-        connector_type = 'JSS'
+        connector_type = None
         nss_database_dir = None
         nss_password_file = None
         keystore_file = None
         keystore_password_file = None
         server_cert_nickname_file = None
+        port = None
+        protocol = None
+        scheme = None
+        secure = None
+        sslEnabled = None
+        sslImpl = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -511,6 +525,24 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
             elif o == '--server-cert-nickname-file':
                 server_cert_nickname_file = a
+
+            elif o == '--port':
+                port = a
+
+            elif o == '--protocol':
+                protocol = a
+
+            elif o == '--scheme':
+                scheme = a
+
+            elif o == '--secure':
+                secure = a
+
+            elif o == '--sslEnabled':
+                sslEnabled = a
+
+            elif o == '--sslImpl':
+                sslImpl = a
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -545,12 +577,6 @@ class HTTPConnectorModCLI(pki.cli.CLI):
         server_config = instance.get_server_config()
         connector = server_config.get_connector(name)
 
-        HTTPConnectorCLI.set_param(connector, 'certdbDir', nss_database_dir)
-        HTTPConnectorCLI.set_param(connector, 'passwordClass',
-                                   'org.apache.tomcat.util.net.jss.PlainPasswordFile')
-        HTTPConnectorCLI.set_param(connector, 'passwordFile', nss_password_file)
-        HTTPConnectorCLI.set_param(connector, 'serverCertNickFile', server_cert_nickname_file)
-
         if connector_type == 'JSS':
 
             connector.set(
@@ -568,6 +594,12 @@ class HTTPConnectorModCLI(pki.cli.CLI):
 
             connector.attrib.pop('trustManagerClassName', None)
 
+            HTTPConnectorCLI.set_param(connector, 'certdbDir', nss_database_dir)
+            HTTPConnectorCLI.set_param(connector, 'passwordClass',
+                                       'org.apache.tomcat.util.net.jss.PlainPasswordFile')
+            HTTPConnectorCLI.set_param(connector, 'passwordFile', nss_password_file)
+            HTTPConnectorCLI.set_param(connector, 'serverCertNickFile', server_cert_nickname_file)
+
         elif connector_type == 'JSSE':
 
             connector.set(
@@ -584,8 +616,20 @@ class HTTPConnectorModCLI(pki.cli.CLI):
             HTTPConnectorCLI.set_param(connector, 'trustManagerClassName',
                                        'org.dogtagpki.tomcat.PKITrustManager')
 
+            HTTPConnectorCLI.set_param(connector, 'certdbDir', nss_database_dir)
+            HTTPConnectorCLI.set_param(connector, 'passwordClass',
+                                       'org.apache.tomcat.util.net.jss.PlainPasswordFile')
+            HTTPConnectorCLI.set_param(connector, 'passwordFile', nss_password_file)
+            HTTPConnectorCLI.set_param(connector, 'serverCertNickFile', server_cert_nickname_file)
+
         else:
-            raise Exception('Invalid connector type: %s' % connector_type)
+
+            HTTPConnectorCLI.set_param(connector, 'port', port)
+            HTTPConnectorCLI.set_param(connector, 'protocol', protocol)
+            HTTPConnectorCLI.set_param(connector, 'scheme', scheme)
+            HTTPConnectorCLI.set_param(connector, 'secure', secure)
+            HTTPConnectorCLI.set_param(connector, 'SSLEnabled', sslEnabled)
+            HTTPConnectorCLI.set_param(connector, 'sslImplementationName', sslImpl)
 
         server_config.save()
 
