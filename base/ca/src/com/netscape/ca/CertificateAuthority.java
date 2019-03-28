@@ -125,6 +125,7 @@ import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -335,20 +336,10 @@ public class CertificateAuthority
     private boolean mUseNonces = true;
     private int mMaxNonces = 100;
 
-    /* Variables to manage loading and tracking of lightweight CAs
-     *
-     * The initialLoadDone latch causes the host authority's 'init'
-     * method to block until the monitor thread has finished the
-     * initial loading of lightweight CAs.
-     *
-     * In other words: the "server startup" cannot complete until
-     * all the lightweight CAs that exist at start time are loaded.
-     */
+    /* Variables to manage loading and tracking of lightweight CAs */
     private static boolean stopped = false;
     private static boolean foundHostAuthority = false;
-    private static Integer initialNumAuthorities = null;
-    private static int numAuthoritiesLoaded = 0;
-    private static CountDownLatch initialLoadDone = new CountDownLatch(1);
+    private AsyncLoader lwcaLoader = new AsyncLoader(10 /*10s timeout*/);
 
     /* Maps and sets of entryUSNs and nsUniqueIds for avoiding race
      * conditions and unnecessary reloads related to replication */
@@ -637,10 +628,17 @@ public class CertificateAuthority
             if (isHostAuthority() && haveLightweightCAsContainer()) {
                 new Thread(this, "authorityMonitor").start();
                 try {
-                    initialLoadDone.await();
+                    // block until the expected number of authorities
+                    // have been loaded (based on numSubordinates of
+                    // container entry), or watchdog times it out (in case
+                    // numSubordinates is larger than the number of entries
+                    // we can see, e.g. replication conflict entries).
+                    lwcaLoader.awaitLoadDone();
                 } catch (InterruptedException e) {
                     CMS.debug("CertificateAuthority: caught InterruptedException "
                             + "while waiting for initial load of authorities.");
+                    CMS.debug("You may have replication conflict entries or "
+                            + "extraneous data under " + authorityBaseDN());
                 }
 
                 if (!foundHostAuthority) {
@@ -3260,12 +3258,6 @@ public class CertificateAuthority
         }
     }
 
-    private void checkInitialLoadDone() {
-        if (initialNumAuthorities != null
-                && numAuthoritiesLoaded >= initialNumAuthorities)
-            initialLoadDone.countDown();
-    }
-
     public void run() {
         int op = LDAPPersistSearchControl.ADD
             | LDAPPersistSearchControl.MODIFY
@@ -3273,6 +3265,9 @@ public class CertificateAuthority
             | LDAPPersistSearchControl.MODDN;
         LDAPPersistSearchControl persistCtrl =
             new LDAPPersistSearchControl(op, false, true, true);
+
+        String lwcaContainerDNString = authorityBaseDN();
+        DN lwcaContainerDN = new DN(lwcaContainerDNString);
 
         CMS.debug("authorityMonitor: starting.");
 
@@ -3286,38 +3281,52 @@ public class CertificateAuthority
                 cons.setServerTimeLimit(0 /* seconds */);
                 String[] attrs = {"*", "entryUSN", "nsUniqueId", "numSubordinates"};
                 LDAPSearchResults results = conn.search(
-                    authorityBaseDN(), LDAPConnection.SCOPE_SUB,
+                    lwcaContainerDNString, LDAPConnection.SCOPE_SUB,
                     "(objectclass=*)", attrs, false, cons);
+
+                /* Wait until the last possible moment before taking
+                 * the load lock so that we can continue to service
+                 * requests while LDAP is down.
+                 */
+                lwcaLoader.startLoading();
+
                 while (!stopped && results.hasMoreElements()) {
                     LDAPEntry entry = results.next();
+                    DN entryDN = new DN(entry.getDN());
 
-                    /* This behaviour requires detailed explanation.
-                     *
-                     * We want to block startup until all the
-                     * lightweight CAs existing at startup time are
-                     * loaded.  To do this, we need to know how many
-                     * authority entries there are.  And we must do
-                     * this atomically - we cannot issue two LDAP
-                     * searches in case things change.
-                     *
-                     * Therefore, we do a subtree search from the
-                     * authority container.  When we find the
-                     * container (objectClass=organizationalUnit),
-                     * we set initialNumAuthorities to the value of
-                     * its numSubordinates attribute.
-                     *
-                     * We increment numAuthoritiesLoaded for each
-                     * authority entry.  When numAuthoritiesLoaded
-                     * equals initialNumAuthorities, we unlock the
-                     * initialLoadDone latch.
-                     */
+                    if (entryDN.countRDNs() == lwcaContainerDN.countRDNs()) {
+                        /* This must be the base entry of the search, i.e. the
+                         * LWCA container.  Read numSubordinates to get the
+                         * expected number of LWCA entries to read.
+                         *
+                         * numSubordinates is not reliable; it may be too high
+                         * due to objects we cannot see (e.g. replication
+                         * conflict entries).  In that case AsyncLoader has a
+                         * watchdog timer to interrupt waiting threads after it
+                         * times out.
+                         */
+                        lwcaLoader.setNumItems(new Integer(
+                            entry.getAttribute("numSubordinates")
+                                .getStringValueArray()[0]));
+                        continue;
+                    }
+
+                    if (entryDN.countRDNs() > lwcaContainerDN.countRDNs() + 1) {
+                        /* This entry is unexpectedly deep.  We ignore it.
+                         * numSubordinates only counts immediate subordinates
+                         * (https://tools.ietf.org/html/draft-boreham-numsubordinates-01)
+                         * so don't increment() the AsyncLoader.
+                         */
+                        continue;
+                    }
+
+                    /* This entry is at the expected depth.  Is it a LWCA entry? */
                     String[] objectClasses =
                         entry.getAttribute("objectClass").getStringValueArray();
-                    if (Arrays.asList(objectClasses).contains("organizationalUnit")) {
-                        initialNumAuthorities = new Integer(
-                            entry.getAttribute("numSubordinates")
-                                .getStringValueArray()[0]);
-                        checkInitialLoadDone();
+                    if (!Arrays.asList(objectClasses).contains("authority")) {
+                        /* It is not a LWCA entry; ignore it.  But it does
+                         * contribute to numSubordinates so increment the loader. */
+                        lwcaLoader.increment();
                         continue;
                     }
 
@@ -3352,8 +3361,7 @@ public class CertificateAuthority
                     } else {
                         CMS.debug("authorityMonitor: immediate result");
                         readAuthority(entry);
-                        numAuthoritiesLoaded += 1;
-                        checkInitialLoadDone();
+                        lwcaLoader.increment();
                     }
                 }
             } catch (ELdapException e) {
