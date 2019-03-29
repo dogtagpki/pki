@@ -58,7 +58,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -118,7 +117,7 @@ import com.netscape.cmsutil.password.NuxwdogPasswordStore;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 
-public class CMSEngine implements ICMSEngine {
+public class CMSEngine implements ISubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
 

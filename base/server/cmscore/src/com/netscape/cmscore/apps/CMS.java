@@ -24,7 +24,6 @@ import java.util.ResourceBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.SessionContext;
@@ -47,12 +46,6 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
  * public objects such as subsystems via this inteface.
  * This object also include a set of utility functions.
  *
- * This object does not include the actual implementation.
- * It acts as a public interface for plugins, and the
- * actual implementation is in the CMS engine
- * (com.netscape.cmscore.apps.CMSEngine) that implements
- * ICMSEngine interface.
- *
  * @version $Revision$, $Date$
  */
 public final class CMS {
@@ -64,7 +57,6 @@ public final class CMS {
     public static final int DEBUG_INFORM = 10;
 
     public static final String CONFIG_FILE = "CS.cfg";
-    private static ICMSEngine _engine = null;
 
     public static final String SUBSYSTEM_LOG = ILogSubsystem.ID;
     public static final String SUBSYSTEM_CRYPTO = ICryptoSubsystem.ID;
@@ -81,30 +73,18 @@ public final class CMS {
     public static final String SUBSYSTEM_PROFILE = IProfileSubsystem.ID;
     public static final String SUBSYSTEM_JOBS = IJobsScheduler.ID;
     public static final String SUBSYSTEM_SELFTESTS = ISelfTestSubsystem.ID;
+
     public static final int PRE_OP_MODE = 0;
     public static final int RUNNING_MODE = 1;
 
-    /**
-     * Private constructor.
-     *
-     * @param engine CMS engine implementation
-     */
-    private CMS(ICMSEngine engine) {
-        _engine = engine;
+    private static CMSEngine engine;
+
+    public static CMSEngine getCMSEngine() {
+        return engine;
     }
 
-    public static ICMSEngine getCMSEngine() {
-        return _engine;
-    }
-
-    /**
-     * This method is used for unit tests. It allows the underlying _engine
-     * to be stubbed out.
-     *
-     * @param engine The stub engine to set, for testing.
-     */
-    public static void setCMSEngine(ICMSEngine engine) {
-        _engine = engine;
+    public static void setCMSEngine(CMSEngine engine) {
+        CMS.engine = engine;
     }
 
     /**
