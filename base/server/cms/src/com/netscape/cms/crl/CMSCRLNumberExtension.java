@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
@@ -29,6 +28,7 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 import org.mozilla.jss.netscape.security.x509.CRLNumberExtension;
 import org.mozilla.jss.netscape.security.x509.Extension;

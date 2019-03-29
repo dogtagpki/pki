@@ -21,12 +21,12 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.TimerTask;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMS;
 
 public class SessionTimer extends TimerTask {
 

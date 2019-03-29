@@ -27,12 +27,12 @@ import org.mozilla.jss.netscape.security.x509.AVAValueConverter;
 import org.mozilla.jss.netscape.security.x509.DirStrConverter;
 import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Subsystem for configuring X500Name related things.

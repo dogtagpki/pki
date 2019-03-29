@@ -27,10 +27,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.dogtagpki.server.tps.TPSSubsystem;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IConnector;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;

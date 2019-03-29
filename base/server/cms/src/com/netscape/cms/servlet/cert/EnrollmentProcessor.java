@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
@@ -46,6 +45,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 public class EnrollmentProcessor extends CertProcessor {

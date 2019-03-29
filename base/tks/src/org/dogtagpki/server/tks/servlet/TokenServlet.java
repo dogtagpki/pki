@@ -40,7 +40,6 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -58,6 +57,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.tks.GPParams;
 import com.netscape.cms.servlet.tks.NistSP800_108KDF;
 import com.netscape.cms.servlet.tks.SecureChannelProtocol;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 import com.netscape.cmscore.security.JssSubsystem;

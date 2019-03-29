@@ -18,9 +18,9 @@ import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.SystemCertService;
 import org.dogtagpki.server.rest.UserService;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 public class OCSPApplication extends Application {

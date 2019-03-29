@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -52,6 +51,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.tomcat.ExternalPrincipal;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 public class CertProcessor extends CAProcessor {

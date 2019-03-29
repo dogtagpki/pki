@@ -24,13 +24,13 @@ import java.security.KeyPair;
 import org.mozilla.jss.crypto.PQGParamGenException;
 import org.mozilla.jss.crypto.PQGParams;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.security.KeyCertData;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;

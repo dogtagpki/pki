@@ -26,10 +26,10 @@ import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.rest.AccountService;
 
 import com.netscape.certsrv.account.AccountInfo;
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 /**

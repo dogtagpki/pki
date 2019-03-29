@@ -151,7 +151,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
         } else if (name.equalsIgnoreCase(ATTR_REALM)) {
             realm = (String) object;
         } else {
-            throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(com.netscape.cmscore.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
@@ -193,7 +193,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
         } else if (name.equalsIgnoreCase(ATTR_REALM)) {
             return realm;
         } else {
-            throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(com.netscape.cmscore.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
@@ -202,7 +202,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
      * <P>
      */
     public void delete(String name) throws EBaseException {
-        throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+        throw new EBaseException(com.netscape.cmscore.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
     /**

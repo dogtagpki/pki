@@ -20,10 +20,10 @@ package org.dogtagpki.server.tps;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.tps.main.TPSException;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 /*

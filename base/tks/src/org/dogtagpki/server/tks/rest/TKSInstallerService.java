@@ -19,9 +19,9 @@ package org.dogtagpki.server.tks.rest;
 
 import org.dogtagpki.server.rest.SystemConfigService;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.system.ConfigurationRequest;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;

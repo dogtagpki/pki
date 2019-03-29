@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.password;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.password.EPasswordCheckException;
 import com.netscape.certsrv.password.IConfigPasswordCheck;
 import com.netscape.certsrv.password.IPasswordCheck;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class checks the given password if it meets the specific requirements.

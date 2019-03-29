@@ -33,7 +33,6 @@ import org.dogtagpki.legacy.policy.IPolicySet;
 import org.dogtagpki.legacy.policy.IRenewalPolicy;
 import org.dogtagpki.legacy.policy.IRevocationPolicy;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -42,6 +41,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SubsystemRegistry;

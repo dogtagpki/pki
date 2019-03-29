@@ -22,7 +22,7 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IExpression;
 
-import com.netscape.certsrv.apps.CMS;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Default implementation of predicate parser.

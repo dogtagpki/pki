@@ -22,12 +22,12 @@ import java.util.Hashtable;
 
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.extensions.EExtensionsException;
 import com.netscape.certsrv.extensions.ICMSExtension;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Loads extension classes from configuration file and return

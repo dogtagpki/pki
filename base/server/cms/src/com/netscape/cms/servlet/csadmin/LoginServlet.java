@@ -24,7 +24,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
 
-import com.netscape.certsrv.apps.CMS;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 public class LoginServlet extends BaseServlet {

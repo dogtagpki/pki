@@ -40,7 +40,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -61,6 +60,7 @@ import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
 import com.netscape.cms.servlet.csadmin.ReplicationUtil;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.authentication.AuthSubsystem;

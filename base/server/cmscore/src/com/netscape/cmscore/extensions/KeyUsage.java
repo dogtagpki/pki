@@ -24,13 +24,13 @@ import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.extensions.EExtensionsException;
 import com.netscape.certsrv.extensions.ICMSExtension;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 
 public class KeyUsage implements ICMSExtension {

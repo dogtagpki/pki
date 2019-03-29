@@ -27,7 +27,7 @@ import java.util.Vector;
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
-import com.netscape.certsrv.apps.CMS;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents an access control list (ACL). An ACL

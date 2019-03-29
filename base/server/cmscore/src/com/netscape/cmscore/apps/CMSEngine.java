@@ -58,7 +58,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;

@@ -31,11 +31,11 @@ import org.dogtagpki.server.PKIServerSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.cms.realm.PKIRealm;
 import com.netscape.cms.tomcat.ProxyRealm;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import org.mozilla.jss.netscape.security.util.Utils;
 

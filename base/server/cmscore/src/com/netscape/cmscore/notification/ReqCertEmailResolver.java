@@ -20,7 +20,6 @@ package com.netscape.cmscore.notification;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
@@ -28,6 +27,7 @@ import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 import org.mozilla.jss.netscape.security.x509.X500Name;
 

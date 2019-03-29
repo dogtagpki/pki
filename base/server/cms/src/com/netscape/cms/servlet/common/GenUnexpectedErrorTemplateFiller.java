@@ -19,10 +19,10 @@ package com.netscape.cms.servlet.common;
 
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**

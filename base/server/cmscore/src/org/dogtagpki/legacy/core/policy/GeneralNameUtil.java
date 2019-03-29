@@ -46,10 +46,10 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Class that can be used to form general names from configuration file.

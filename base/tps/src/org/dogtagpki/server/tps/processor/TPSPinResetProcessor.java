@@ -32,9 +32,9 @@ import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.BeginOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.event.TokenPinResetEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 public class TPSPinResetProcessor extends TPSProcessor {

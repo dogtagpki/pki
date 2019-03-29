@@ -19,10 +19,10 @@ package com.netscape.cmscore.base;
 
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents a subsystem loader.

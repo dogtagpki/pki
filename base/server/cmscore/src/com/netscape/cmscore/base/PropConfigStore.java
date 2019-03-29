@@ -35,12 +35,12 @@ import org.mozilla.jss.util.Base64OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISourceConfigStore;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents a in-memory configuration store.

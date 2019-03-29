@@ -24,9 +24,9 @@ import java.util.StringTokenizer;
 
 import org.dogtagpki.util.logging.PKILogger;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cmscore.apps.CMS;
 
 public class Debug
         implements ISubsystem {

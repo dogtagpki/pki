@@ -26,8 +26,8 @@ import org.mozilla.jss.crypto.SymmetricKeyDeriver;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.pkcs11.PKCS11Constants;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;

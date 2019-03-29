@@ -23,7 +23,6 @@ import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -35,6 +34,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.KeyUsageExtDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserExtensionDefault;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements the key usage extension constraint.

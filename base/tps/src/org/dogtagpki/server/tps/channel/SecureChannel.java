@@ -53,9 +53,9 @@ import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.pkcs11.PKCS11Constants;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 public class SecureChannel {

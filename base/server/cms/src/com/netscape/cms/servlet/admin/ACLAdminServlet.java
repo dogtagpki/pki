@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.IACL;
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzManager;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -40,6 +39,7 @@ import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.authorization.ACL;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Manage Access Control List configuration

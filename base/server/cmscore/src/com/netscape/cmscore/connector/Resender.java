@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.dogtagpki.server.PKIClientSocketListener;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.IRemoteAuthority;
@@ -38,6 +37,7 @@ import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 

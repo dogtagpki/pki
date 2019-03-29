@@ -30,10 +30,10 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.Enumeration;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * File templates. This implementation will take

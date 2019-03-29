@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
@@ -16,6 +15,7 @@ import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureResource;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 public class FeatureService extends PKIService implements FeatureResource {
