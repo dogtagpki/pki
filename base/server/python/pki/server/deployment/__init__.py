@@ -19,15 +19,12 @@
 #
 
 from __future__ import absolute_import
-import os
 import socket
 import struct
 import subprocess
 import time
 from time import strftime as date
-from lxml import etree
 
-from . import pkiconfig as config
 from . import pkihelper as util
 from . import pkimanifest as manifest
 
@@ -149,45 +146,6 @@ class PKIDeployer:
             subsystem_dict = dict(self.main_config.items(self.subsystem_name))
             subsystem_dict[0] = None
             self.mdict.update(subsystem_dict)
-
-    def deploy_webapp(self, name, doc_base, descriptor):
-        """
-        Deploy a web application into a Tomcat instance.
-
-        This method will copy the specified deployment descriptor into
-        <instance>/conf/Catalina/localhost/<name>.xml and point the docBase
-        to the specified location. The web application will become available
-        under "/<name>" URL path.
-
-        See also: http://tomcat.apache.org/tomcat-7.0-doc/config/context.html
-
-        :param name: Web application name.
-        :type name: str
-        :param doc_base: Path to web application content.
-        :type doc_base: str
-        :param descriptor: Path to deployment descriptor (context.xml).
-        :type descriptor: str
-        """
-        new_descriptor = os.path.join(
-            self.mdict['pki_instance_configuration_path'],
-            "Catalina",
-            "localhost",
-            name + ".xml")
-
-        parser = etree.XMLParser(remove_blank_text=True)
-        document = etree.parse(descriptor, parser)
-
-        context = document.getroot()
-        context.set('docBase', doc_base)
-
-        with open(new_descriptor, 'wb') as f:
-            # xml as UTF-8 encoded bytes
-            document.write(f, pretty_print=True, encoding='utf-8')
-
-        os.chown(new_descriptor, self.mdict['pki_uid'], self.mdict['pki_gid'])
-        os.chmod(
-            new_descriptor,
-            config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS)
 
     def record(self, name, record_type, uid, gid, perms, acls=None):
         record = manifest.Record()

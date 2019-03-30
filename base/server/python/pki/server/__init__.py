@@ -365,6 +365,42 @@ class PKIServer(object):
             os.path.join(self.lib_dir, 'tomcatjss.jar'),
             force)
 
+    def deploy_webapp(self, webapp_id, descriptor, doc_base=None):
+        """
+        Deploy a web application into a Tomcat instance.
+
+        This method will copy the specified deployment descriptor into
+        <instance>/conf/Catalina/localhost/<ID>.xml and point the docBase
+        to the specified location.
+
+        See also: https://tomcat.apache.org/tomcat-8.5-doc/config/context.html
+
+        :param webapp_id: Web application ID.
+        :type webapp_id: str
+        :param descriptor: Path to deployment descriptor (context.xml).
+        :type descriptor: str
+        :param doc_base: Path to web application content.
+        :type doc_base: str
+        """
+        context_xml = os.path.join(
+            self.conf_dir,
+            'Catalina',
+            'localhost',
+            webapp_id + '.xml')
+
+        document = etree.parse(descriptor, parser)
+        context = document.getroot()
+
+        if doc_base is not None:
+            context.set('docBase', doc_base)
+
+        with open(context_xml, 'wb') as f:
+            # xml as UTF-8 encoded bytes
+            document.write(f, pretty_print=True, encoding='utf-8')
+
+        os.chown(context_xml, self.uid, self.gid)
+        os.chmod(context_xml, 0o0660)
+
     def remove(self, force=False):
 
         logger.info('Removing instance: %s', self.name)
