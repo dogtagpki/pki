@@ -36,6 +36,7 @@ class WebappCLI(pki.cli.CLI):
 
         self.add_module(WebappFindCLI())
         self.add_module(WebappDeployCLI())
+        self.add_module(WebappUndeployCLI())
 
     @staticmethod
     def print_webapp(webapp):
@@ -186,3 +187,63 @@ class WebappDeployCLI(pki.cli.CLI):
             raise Exception('Invalid instance: %s' % instance_name)
 
         instance.deploy_webapp(webapp_id, descriptor, doc_base)
+
+
+class WebappUndeployCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(WebappUndeployCLI, self).__init__('undeploy', 'Undeploy webapp')
+
+    def print_help(self):
+        print('Usage: pki-server webapp-undeploy [OPTIONS] [<instance ID>]')
+        print()
+        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                   Run in verbose mode.')
+        print('      --debug                     Run in debug mode.')
+        print('      --help                      Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) < 1:
+            raise Exception('Missing Webapp ID')
+
+        webapp_id = args[0]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not instance.is_valid():
+            raise Exception('Invalid instance: %s' % instance_name)
+
+        instance.undeploy_webapp(webapp_id)
