@@ -187,6 +187,7 @@ add_custom_command(
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-cert.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-cert.8
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-kra.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-kra.8
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-ocsp.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-ocsp.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-tks.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-tks.8
 )
 
 install(
