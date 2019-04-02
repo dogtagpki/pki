@@ -46,6 +46,7 @@ import pki.server.cli.selftest
 import pki.server.cli.subsystem
 import pki.server.cli.tks
 import pki.server.cli.tps
+import pki.server.cli.webapp
 import pki.util
 
 
@@ -69,6 +70,8 @@ class PKIServerCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.password.PasswordCLI())
         self.add_module(pki.server.cli.nss.NSSCLI())
         self.add_module(pki.server.cli.jss.JSSCLI())
+
+        self.add_module(pki.server.cli.webapp.WebappCLI())
 
         self.add_module(pki.server.cli.ca.CACLI())
         self.add_module(pki.server.cli.kra.KRACLI())
