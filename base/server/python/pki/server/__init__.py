@@ -401,6 +401,16 @@ class PKIServer(object):
         os.chown(context_xml, self.uid, self.gid)
         os.chmod(context_xml, 0o0660)
 
+    def undeploy_webapp(self, webapp_id, force=False):
+
+        context_xml = os.path.join(
+            self.conf_dir,
+            'Catalina',
+            'localhost',
+            webapp_id + '.xml')
+
+        pki.util.remove(context_xml, force=force)
+
     def remove(self, force=False):
 
         logger.info('Removing instance: %s', self.name)
