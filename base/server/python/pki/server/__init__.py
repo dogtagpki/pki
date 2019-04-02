@@ -365,6 +365,49 @@ class PKIServer(object):
             os.path.join(self.lib_dir, 'tomcatjss.jar'),
             force)
 
+    def get_webapps(self):
+
+        webapps = []
+
+        context_dir = os.path.join(
+            self.conf_dir,
+            'Catalina',
+            'localhost')
+
+        for filename in os.listdir(context_dir):
+
+            if not filename.endswith('.xml'):
+                continue
+
+            webapp = {}
+
+            webapp_id = filename[:-4]
+            webapp['id'] = webapp_id
+
+            parts = webapp_id.split('##')
+
+            name = parts[0]
+            if name == 'ROOT':
+                webapp['path'] = '/'
+            else:
+                webapp['path'] = '/' + name.replace('#', '/')
+
+            if len(parts) > 1:
+                webapp['version'] = parts[1]
+
+            context_xml = os.path.join(context_dir, filename)
+            webapp['descriptor'] = context_xml
+
+            document = etree.parse(context_xml, parser)
+            context = document.getroot()
+
+            doc_base = context.get('docBase', None)
+            webapp['docBase'] = doc_base
+
+            webapps.append(webapp)
+
+        return sorted(webapps, key=lambda webapp: webapp['id'])
+
     def deploy_webapp(self, webapp_id, descriptor, doc_base=None):
         """
         Deploy a web application into a Tomcat instance.
