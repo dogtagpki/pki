@@ -33,18 +33,7 @@ add_custom_command(
     TARGET pki-tps-man
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/man/man5
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-tps-connector.5.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man5/pki-tps-connector.5
-)
-
-# install manual pages
-install(
-    DIRECTORY
-        man/
-    DESTINATION
-        ${MAN_INSTALL_DIR}
-    FILE_PERMISSIONS
-        OWNER_READ OWNER_WRITE
-        GROUP_READ
-        WORLD_READ
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-tps-profile.5.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man5/pki-tps-profile.5
 )
 
 # install directories
