@@ -1392,6 +1392,8 @@ def ldap_conn_args(ldap_url, use_ldapi, dm_pass_file):
     else:
         if ldap_url:
             args.extend(['-H', ldap_url])
+            if not ldap_url.startswith('ldaps'):
+                args.append('-ZZ')  # require STARTTLS
         args.extend(['-D', 'cn=Directory Manager', '-y', dm_pass_file])
     return args
 
