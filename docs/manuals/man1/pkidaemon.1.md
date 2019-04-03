@@ -1,48 +1,43 @@
-.\" First parameter, NAME, should be all caps
-.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
-.\" other parameters are allowed: see man(7), man(1)
-.TH pkidaemon 1 "Jul 8, 2015" "version 10.2" "pkidaemon" Dogtag Team
-.\" Please adjust this date whenever revising the man page.
-.\"
-.\" Some roff macros, for reference:
-.\" .nh        disable hyphenation
-.\" .hy        enable hyphenation
-.\" .ad l      left justify
-.\" .ad b      justify to both left and right margins
-.\" .nf        disable filling
-.\" .fi        enable filling
-.\" .br        insert line break
-.\" .sp <n>    insert n+1 empty lines
-.\" for man page specific macros, see man(7)
-.SH NAME
-\fBpkidaemon\fR \- provides status management of PKI instances
+# pkidaemon 1 "Jul 8, 2015" PKI "pkidaemon"
 
-.SH SYNOPSIS
-.nf
-\fBpkidaemon {start|status} [instance-name]\fR
-.fi
-.TP
-\fBNote:\fP Although this tool currently resides in the \fB/usr/bin\fP directory, proper use of it requires it to be run with super user privileges.
+## NAME
 
-.SH DESCRIPTION
-.PP
-The \fBpkidaemon\fR command with the 'status' argument provides a way to display the status of all existing PKI instances on a machine.  Optionally, an individual PKI instance may be specified by using an optional \fB[instance-name]\fP.
-.PP
-The \fBpkidaemon\fR 'start' argument is currently only used internally by the systemctl scripts.
+pkidaemon - provides status management of PKI instances
 
-.SH OPTIONS
-As stated above, the only optional argument to \fBpkidaemon\fR is \fB[instance-name]\fP.  If a valid instance name is specified, only the status of that instance will be displayed.
+## SYNOPSIS
 
-.SH EXAMPLES
+**pkidaemon** &lt;start|status&gt; [*instance-name*]
 
-For the following examples, two instances were installed.  The first contained a CA, KRA, OCSP, TKS and TPS in a shared PKI instance named 'pki-tomcat', while the second simply contained a CA running on different ports and named 'pki-tomcat-2'.
+**Note:** Although this tool currently resides in the **/usr/bin** directory,
+proper use of it requires it to be run with super user privileges.
 
-For the OCSP 'Unsecure URL' and the OCSP 'Secure EE URL' which both specify a static string of '<ocsp request blob>', the intention is for the user to replace this static string with an actual OCSP request blob relevant to their particular deployment.
+## DESCRIPTION
 
-.SS Listing the status of all local PKI instances on this machine:
-.BR
-.PP
-\fB# pkidaemon status\fR
+The **pkidaemon status** argument provides a way to display the status of all existing PKI instances on a machine.
+Optionally, an individual PKI instance may be specified by using an optional *instance-name*.
+
+The **pkidaemon start** argument is currently only used internally by the systemctl scripts.
+
+## OPTIONS
+
+As stated above, the only optional argument to **pkidaemon** is *instance-name*.
+If a valid instance name is specified, only the status of that instance will be displayed.
+
+## EXAMPLES
+
+For the following examples, two instances were installed. 
+The first contained a CA, KRA, OCSP, TKS and TPS in a shared PKI instance named 'pki-tomcat',
+while the second simply contained a CA running on different ports and named 'pki-tomcat-2'.
+
+For the OCSP 'Unsecure URL' and the OCSP 'Secure EE URL'
+which both specify a static string of '&lt;ocsp request blob&gt;',
+the intention is for the user to replace this static string
+with an actual OCSP request blob relevant to their particular deployment.
+
+### Listing the status of all local PKI instances on this machine:
+
+```
+$ pkidaemon status
 
 REPORT STATUS OF 'tomcat' INSTANCE(S):
 
@@ -160,11 +155,12 @@ Status for pki-tomcat-2: pki-tomcat-2 is running ..
     ====================================================================
 
 FINISHED REPORTING STATUS OF 'tomcat' INSTANCE(S).
+```
 
-.SS Listing the status of the PKI instance named 'pki-tomcat':
-.BR
-.PP
-\fB# pkidaemon status pki-tomcat\fR
+### Listing the status of the PKI instance named 'pki-tomcat':
+
+```
+$ pkidaemon status pki-tomcat
 
 Status for pki-tomcat: pki-tomcat is running ..
 
@@ -257,11 +253,12 @@ Status for pki-tomcat: pki-tomcat is running ..
     Name:  example.com Security Domain
     URL:   https://pki.example.com:8443
     ====================================================================
+```
 
-.SS Listing the status of the PKI instance named 'pki-tomcat-2':
-.BR
-.PP
-\fB# pkidaemon status pki-tomcat-2\fR
+### Listing the status of the PKI instance named 'pki-tomcat-2':
+
+```
+$ pkidaemon status pki-tomcat-2
 
 Status for pki-tomcat-2: pki-tomcat-2 is running ..
 
@@ -283,18 +280,21 @@ Status for pki-tomcat-2: pki-tomcat-2 is running ..
     Name:  example.com Security Domain
     URL:   https://pki.example.com:18443
     ====================================================================
+```
 
-.SH BUGS
-Report bugs to http://bugzilla.redhat.com.
+## SEE ALSO
 
-.SH AUTHORS
-Matthew Harmsen <mharmsen@redhat.com>.  \fBpkidaemon\fP was written by the Certificate Server project.
+**pkispawn(8)**  
+**pkidestroy(8)**  
+**pki_default.cfg(5)**  
+**pki(1)**
 
-.SH COPYRIGHT
-Copyright (c) 2015 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+## AUTHORS
 
-.SH SEE ALSO
-.BR pkispawn(8),
-.BR pkidestroy(8),
-.BR pki_default.cfg(5),
-.BR pki(1)
+Matthew Harmsen &lt;mharmsen@redhat.com&gt;.
+
+## COPYRIGHT
+
+Copyright (c) 2015 Red Hat, Inc.
+This is licensed under the GNU General Public License, version 2 (GPLv2).
+A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
