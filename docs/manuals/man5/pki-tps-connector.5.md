@@ -1,190 +1,150 @@
-.\" First parameter, NAME, should be all caps
-.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
-.\" other parameters are allowed: see man(7), man(1)
-.TH pki-tps-connector 5 "April 22, 2014" "version 10.2" "PKI TPS Connector Configuration" Dogtag Team
-.\" Please adjust this date whenever revising the man page.
-.\"
-.\" Some roff macros, for reference:
-.\" .nh        disable hyphenation
-.\" .hy        enable hyphenation
-.\" .ad l      left justify
-.\" .ad b      justify to both left and right margins
-.\" .nf        disable filling
-.\" .fi        enable filling
-.\" .br        insert line break
-.\" .sp <n>    insert n+1 empty lines
-.\" for man page specific macros, see man(7)
-.SH NAME
-pki-tps-connector \- PKI TPS Connector Configuration
+# pki-tps-connector 5 "April 22, 2014" PKI "PKI TPS Connector Configuration"
 
-.SH LOCATION
-/var/lib/pki/<instance>/conf/tps/CS.cfg
+## NAME
 
-.SH DESCRIPTION
+pki-tps-connector - PKI TPS Connector Configuration
+
+## LOCATION
+
+/var/lib/pki/*instance*/conf/tps/CS.cfg
+
+## DESCRIPTION
 
 TPS connector provides a mechanism for TPS to communicate with other PKI subsystems.
-There are three supported connector types: CA, KRA, and TKS. The connectors are
-defined using properties in the TPS configuration file.
+There are three supported connector types: CA, KRA, and TKS.
+The connectors are defined using properties in the TPS configuration file.
 
-.SH CA CONNECTOR
+## CA CONNECTOR
 
-A CA connector is defined using properties that begin with tps.connector.ca<n> where
-n is a positive integer indicating the ID of the CA connector.
+A CA connector is defined using properties that begin with tps.connector.ca&lt;n&gt;
+where n is a positive integer indicating the ID of the CA connector.
 
-.SS tps.connector.ca<n>.enable
-
+**tps.connector.ca&lt;n&gt;.enable**  
 This property contains a boolean value indicating whether the connector is enabled.
 
-.SS tps.connector.ca<n>.host
-
+**tps.connector.ca&lt;n&gt;.host**  
 In no-failover configuration, the property contains the hostname of the CA.
 
-In failover configuration, the property contains a list of hostnames and port numbers
-of the CA subsystems. The format is hostname:port separated by spaces.
+In failover configuration, the property contains a list of hostnames and port numbers of the CA subsystems.
+The format is hostname:port separated by spaces.
 
-.SS tps.connector.ca<n>.port
-
+**tps.connector.ca&lt;n&gt;.port**  
 In no-failover configuration, the property contains the port number of the CA.
 
-.SS tps.connector.ca<n>.nickName
+**tps.connector.ca&lt;n&gt;.nickName**  
+This property contains the nickname of the TPS subsystem certificate for SSL client authentication to the CA.
 
-This property contains the nickname of the TPS subsystem certificate for SSL client
-authentication to the CA.
-
-.SS tps.connector.ca<n>.minHttpConns
-
+**tps.connector.ca&lt;n&gt;.minHttpConns**  
 This property contains the minimum number of HTTP connections.
 
-.SS tps.connector.ca<n>.maxHttpConns
-
+**tps.connector.ca&lt;n&gt;.maxHttpConns**  
 This property contains the maximum number of HTTP connections.
 
-.SS tps.connector.ca<n>.uri.<op>
-
-This property contains the URI to contact CA for the operation <op>.
+**tps.connector.ca&lt;n&gt;.uri.&lt;op&gt;**  
+This property contains the URI to contact CA for the operation &lt;op&gt;.
 Example ops: enrollment, renewal, revoke, unrevoke, getcert.
 
-.SS tps.connector.ca<n>.timeout
-
+**tps.connector.ca&lt;n&gt;.timeout**  
 This property contains the connection timeout.
 
-.SS tps.connCAList
-
-This property is used for \fIRevocation Routing\fP. It contains a list of ordered ca id's separated by ',' that the revocation attempt should be made to.
+**tps.connCAList**  
+This property is used for **Revocation Routing**.
+It contains a list of ordered ca id's separated by ',' that the revocation attempt should be made to.
 Example:
 tps.connCAList=ca1,ca2
 
-.SS tps.connector.ca<n>.caNickname
+**tps.connector.ca&lt;n&gt;.caNickname**  
+This property is used for **Revocation Routing**.
+It contains the nickname of the CA signing certificate that represents this ca&lt;n&gt;.
 
-This property is used for \fIRevocation Routing\fP.  It contains the nickname of the CA signing certificate that represents this ca<n>.
+**tps.connector.ca&lt;n&gt;.caSKI**  
+This property is used for **Revocation Routing**.
+It contains the Subject Key Identifier of the CA signing certificate of this ca&lt;n&gt;.
+This value is automatically calculated by TPS once and should not need handling by the administrator.
 
-.SS tps.connector.ca<n>.caSKI
+## KRA CONNECTOR
 
-This property is used for \fIRevocation Routing\fP . It contains the Subject Key Identifier of the CA signing certificate of this ca<n>. This value is automatically calculated by TPS once and should not need handling by the administrator.
-
-.SH KRA CONNECTOR
-
-A KRA connector is defined using properties that begin with tps.connector.kra<n> where
+A KRA connector is defined using properties that begin with tps.connector.kra&lt;n&gt; where
 n is a positive integer indicating the ID of the KRA connector.
 
-.SS tps.connector.kra<n>.enable
-
+**tps.connector.kra&lt;n&gt;.enable**  
 This property contains a boolean value indicating whether the connector is enabled.
 
-.SS tps.connector.kra<n>.host
-
+**tps.connector.kra&lt;n&gt;.host**  
 In no-failover configuration, the property contains the hostname of the KRA.
 
 In failover configuration, the property contains a list of hostnames and port numbers
 of the KRA subsystems. The format is hostname:port separated by spaces.
 
-.SS tps.connector.kra<n>.port
-
+**tps.connector.kra&lt;n&gt;.port**  
 In no-failover configuration, the property contains the port number of the KRA.
 
-.SS tps.connector.kra<n>.nickName
-
+**tps.connector.kra&lt;n&gt;.nickName**  
 This property contains the nickname of the TPS subsystem certificate for SSL client
 authentication to the KRA.
 
-.SS tps.connector.kra<n>.minHttpConns
-
+**tps.connector.kra&lt;n&gt;.minHttpConns**  
 This property contains the minimum number of HTTP connections.
 
-.SS tps.connector.kra<n>.maxHttpConns
-
+**tps.connector.kra&lt;n&gt;.maxHttpConns**  
 This property contains the maximum number of HTTP connections.
 
-.SS tps.connector.kra<n>.uri.<op>
-
-This property contains the URI to contact KRA for the operation <op>.
+**tps.connector.kra&lt;n&gt;.uri.&lt;op&gt;**  
+This property contains the URI to contact KRA for the operation &lt;op&gt;.
 Example ops: GenerateKeyPair, TokenKeyRecovery.
 
-.SS tps.connector.kra<n>.timeout
-
+**tps.connector.kra&lt;n&gt;.timeout**  
 This property contains the connection timeout.
 
-.SH TKS CONNECTOR
+## TKS CONNECTOR
 
-A TKS connector is defined using properties that begin with tps.connector.tks<n> where
+A TKS connector is defined using properties that begin with tps.connector.tks&lt;n&gt; where
 n is a positive integer indicating the ID of the TKS connector.
 
-.SS tps.connector.tks<n>.enable
-
+**tps.connector.tks&lt;n&gt;.enable**  
 This property contains a boolean value indicating whether the connector is enabled.
 
-.SS tps.connector.tks<n>.host
-
+**tps.connector.tks&lt;n&gt;.host**  
 In no-failover configuration, the property contains the hostname of the TKS.
 
 In failover configuration, the property contains a list of hostnames and port numbers
 of the TKS subsystems. The format is hostname:port separated by spaces.
 
-.SS tps.connector.tks<n>.port
-
+**tps.connector.tks&lt;n&gt;.port**  
 In no-failover configuration, the property contains the port number of the TKS.
 
-.SS tps.connector.tks<n>.nickName
-
+**tps.connector.tks&lt;n&gt;.nickName**  
 This property contains the nickname of the TPS subsystem certificate for SSL client
 authentication to the TKS.
 
-.SS tps.connector.tks<n>.minHttpConns
-
+**tps.connector.tks&lt;n&gt;.minHttpConns**  
 This property contains the minimum number of HTTP connections.
 
-.SS tps.connector.tks<n>.maxHttpConns
-
+**tps.connector.tks&lt;n&gt;.maxHttpConns**  
 This property contains the maximum number of HTTP connections.
 
-.SS tps.connector.tks<n>.uri.<op>
-
-This property contains the URI to contact TKS for the operation <op>.
+**tps.connector.tks&lt;n&gt;.uri.&lt;op&gt;**  
+This property contains the URI to contact TKS for the operation &lt;op&gt;.
 Example ops: computeRandomData, computeSessionKey, createKeySetData, encryptData.
 
-.SS tps.connector.tks<n>.timeout
-
+**tps.connector.tks&lt;n&gt;.timeout**  
 This property contains the connection timeout.
 
-.SS tps.connector.tks<n>.generateHostChallenge
-
+**tps.connector.tks&lt;n&gt;.generateHostChallenge**  
 This property contains a boolean value indicating whether to generate host challenge.
 
-.SS tps.connector.tks<n>.serverKeygen
-
+**tps.connector.tks&lt;n&gt;.serverKeygen**  
 This property contains a boolean value indicating whether to generate keys on server side.
 
-.SS tps.connector.tks<n>.keySet
-
+**tps.connector.tks&lt;n&gt;.keySet**  
 This property contains the key set to be used on TKS.
 
-.SS tps.connector.tks<n>.tksSharedSymKeyName
-
+**tps.connector.tks&lt;n&gt;.tksSharedSymKeyName**  
 This property contains the shared secret key name.
 
-.SH EXAMPLE
+## EXAMPLE
 
-.nf
+```
 tps.connector.ca1.enable=true
 tps.connector.ca1.host=server.example.com
 tps.connector.ca1.port=8443
@@ -229,10 +189,14 @@ tps.connector.tks1.uri.computeRandomData=/tks/agent/tks/computeRandomData
 tps.connector.tks1.uri.computeSessionKey=/tks/agent/tks/computeSessionKey
 tps.connector.tks1.uri.createKeySetData=/tks/agent/tks/createKeySetData
 tps.connector.tks1.uri.encryptData=/tks/agent/tks/encryptData
-.fi
+```
 
-.SH AUTHORS
-Dogtag Team <pki-devel@redhat.com>.
+## AUTHORS
 
-.SH COPYRIGHT
-Copyright (c) 2014 Red Hat, Inc. This is licensed under the GNU General Public License, version 2 (GPLv2). A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+Dogtag PKI Team &lt;pki-devel@redhat.com&gt;.
+
+## COPYRIGHT
+
+Copyright (c) 2014 Red Hat, Inc.
+This is licensed under the GNU General Public License, version 2 (GPLv2).
+A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
