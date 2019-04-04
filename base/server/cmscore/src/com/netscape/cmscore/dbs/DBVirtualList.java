@@ -28,6 +28,7 @@ import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
 
+import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
@@ -436,6 +437,13 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             String ldapFilter = mRegistry.getFilter(mFilter);
             String ldapAttrs[] = null;
             LDAPSearchResults result;
+
+            Integer size_limit = (Integer) mConn.getOption(LDAPv2.SIZELIMIT);
+            if (size_limit == 0 ||
+                    (size_limit > 0 && mPageSize != 0 && Math.abs(mPageSize) < size_limit))
+            {
+                mConn.setOption(LDAPv2.SIZELIMIT, Math.abs(mPageSize));
+            }
 
             if (mAttrs != null) {
                 ldapAttrs = mRegistry.getLDAPAttributes(mAttrs);
