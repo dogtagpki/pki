@@ -23,6 +23,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.ILdapBoundConnFactory;
 
+import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSocketFactory;
@@ -41,11 +42,13 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
 
     protected int mMinConns = 5;
     protected int mMaxConns = 1000;
+    protected int mMaxResults = 0;
     protected LdapConnInfo mConnInfo = null;
     protected LdapAuthInfo mAuthInfo = null;
 
     public static final String PROP_MINCONNS = "minConns";
     public static final String PROP_MAXCONNS = "maxConns";
+    public static final String PROP_MAXRESULTS = "maxResults";
     public static final String PROP_LDAPCONNINFO = "ldapconn";
     public static final String PROP_LDAPAUTHINFO = "ldapauth";
 
@@ -107,8 +110,27 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
             LdapConnInfo connInfo, LdapAuthInfo authInfo) throws ELdapException {
         logger.debug("Creating LdapBoundConnFactory(" + id + ")");
         this.id = id;
-        init(minConns, maxConns, connInfo, authInfo);
+        init(minConns, maxConns, mMaxResults, connInfo, authInfo);
     }
+
+    /**
+     * Constructor for LdapBoundConnFactory
+     *
+     * @param minConns minimum number of connections to have available
+     * @param maxConns max number of connections to have available. This is
+     *            the maximum number of clones of this connection or separate connections one wants to allow.
+     * @param maxResults max number of results to return per query
+     * @param serverInfo server connection info - host, port, etc.
+     */
+    public LdapBoundConnFactory(String id, int minConns, int maxConns,
+            int maxResults, LdapConnInfo connInfo, LdapAuthInfo authInfo)
+            throws ELdapException {
+        logger.debug("Creating LdapBoundConnFactory(" + id + ")");
+        this.id = id;
+        init(minConns, maxConns, maxResults, connInfo, authInfo);
+    }
+
+
 
     /**
      * Constructor for initialize
@@ -120,6 +142,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
 
         int minConns = config.getInteger(PROP_MINCONNS, mMinConns);
         int maxConns = config.getInteger(PROP_MAXCONNS, mMaxConns);
+        int maxResults = config.getInteger(PROP_MAXRESULTS, mMaxResults);
 
         LdapConnInfo connInfo = new LdapConnInfo(config.getSubStore(PROP_LDAPCONNINFO));
 
@@ -131,7 +154,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         doCloning = config.getBoolean("doCloning", true);
         logger.debug("LdapBoundConnFactory: doCloning: " + doCloning);
 
-        init(minConns, maxConns, connInfo, authInfo);
+        init(minConns, maxConns, maxResults, connInfo, authInfo);
     }
 
     /**
@@ -144,7 +167,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      * @param authInfo ldap authentication info.
      * @exception ELdapException if any error occurs.
      */
-    private void init(int minConns, int maxConns,
+    private void init(int minConns, int maxConns, int maxResults,
             LdapConnInfo connInfo, LdapAuthInfo authInfo)
             throws ELdapException {
 
@@ -157,6 +180,9 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         if (minConns > maxConns)
             throw new ELdapException("Minimum number of connections is bigger than maximum: " + minConns + " > " + maxConns);
 
+        if (maxResults < 0)
+            throw new ELdapException("Invalid maximum number of results: " + maxResults);
+
         if (connInfo == null)
             throw new IllegalArgumentException("Missing connection info");
 
@@ -165,6 +191,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
 
         mMinConns = minConns;
         mMaxConns = maxConns;
+        mMaxResults = maxResults;
         mConnInfo = connInfo;
         mAuthInfo = authInfo;
 
@@ -387,6 +414,16 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
             logger.warn("LdapBoundConnFactory: connections are available for " + mConnInfo.getHost() + ":" + mConnInfo.getPort());
         }
         logger.debug("LdapBoundConnFactory: number of connections: " + mNumConns);
+
+        try {
+            // Before returning the connection, set the SIZELIMIT option; this
+            // ensures that if the connection is recycled and the previous owner
+            // changed the SIZELIMIT option to a different value, the next owner
+            // always starts with the default.
+            conn.setOption(LDAPv2.SIZELIMIT, mMaxResults);
+        } catch (LDAPException e) {
+            throw new ELdapException("Unable to set LDAP size limit: " + e.getMessage(), e);
+        }
 
         return conn;
     }
