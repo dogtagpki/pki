@@ -23,6 +23,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 
+import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSocketFactory;
@@ -40,10 +41,12 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
     protected int mMinConns = 5;
     protected int mMaxConns = 1000;
+    protected int mMaxResults = 0;
     protected LdapConnInfo mConnInfo = null;
 
     public static final String PROP_MINCONNS = "minConns";
     public static final String PROP_MAXCONNS = "maxConns";
+    public static final String PROP_MAXRESULTS = "maxResults";
     public static final String PROP_LDAPCONNINFO = "ldapconn";
 
     public static final String PROP_ERROR_IF_DOWN = "errorIfDown";
@@ -84,8 +87,25 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
             LdapConnInfo connInfo) throws ELdapException {
         logger.debug("Creating LdapAnonConnFactory(" + id + ")");
         this.id = id;
-        init(minConns, maxConns, connInfo);
+        init(minConns, maxConns, mMaxResults, connInfo);
     }
+
+    /**
+     * Constructor for LdapAnonConnFactory
+     *
+     * @param minConns minimum number of connections to have available
+     * @param maxConns max number of connections to have available. This is
+     *            the maximum number of clones of this connection one wants to allow.
+     * @param maxResults max number of results to return per query
+     * @param serverInfo server connection info - host, port, etc.
+     */
+    public LdapAnonConnFactory(String id, int minConns, int maxConns,
+            int maxResults, LdapConnInfo connInfo) throws ELdapException {
+        logger.debug("Creating LdapAnonConnFactory(" + id + ")");
+        this.id = id;
+        init(minConns, maxConns, maxResults, connInfo);
+    }
+
 
     public int totalConn() {
         return mTotal;
@@ -108,19 +128,20 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
         int minConns = config.getInteger(PROP_MINCONNS, mMinConns);
         int maxConns = config.getInteger(PROP_MAXCONNS, mMaxConns);
+        int maxResults = config.getInteger(PROP_MAXRESULTS, mMaxResults);
 
         LdapConnInfo connInfo = new LdapConnInfo(config.getSubStore(PROP_LDAPCONNINFO));
 
         mErrorIfDown = config.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
 
-        init(minConns, maxConns, connInfo);
+        init(minConns, maxConns, maxResults, connInfo);
     }
 
     /**
      * initialize routine from parameters.
      */
-    protected void init(int minConns, int maxConns, LdapConnInfo connInfo)
-            throws ELdapException {
+    protected void init(int minConns, int maxConns, int maxResults,
+            LdapConnInfo connInfo) throws ELdapException {
         if (mInited)
             return; // XXX should throw exception here ?
 
@@ -133,11 +154,15 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         if (minConns > maxConns)
             throw new ELdapException("Minimum number of connections is bigger than maximum: " + minConns + " > " + maxConns);
 
+        if (maxResults < 0)
+            throw new ELdapException("Invalid maximum number of results: " + maxResults);
+
         if (connInfo == null)
             throw new IllegalArgumentException("Missing connection info");
 
         mMinConns = minConns;
         mMaxConns = maxConns;
+        mMaxResults = maxResults;
         mConnInfo = connInfo;
 
         mConns = new AnonConnection[mMaxConns];
@@ -294,6 +319,16 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
             }
         }
         //This is the end of the fix for Bugzilla #630176
+
+        try {
+            // Before returning the connection, set the SIZELIMIT option; this
+            // ensures that if the connection is recycled and the previous owner
+            // changed the SIZELIMIT option to a different value, the next owner
+            // always starts with the default.
+            conn.setOption(LDAPv2.SIZELIMIT, mMaxResults);
+        } catch (LDAPException e) {
+            throw new ELdapException("Unable to set LDAP size limit: " + e.getMessage(), e);
+        }
 
         return conn;
     }
