@@ -1406,7 +1406,7 @@ fi
 %{_mandir}/man1/pki-client.1.gz
 %{_mandir}/man1/pki-group.1.gz
 %{_mandir}/man1/pki-group-member.1.gz
-%{_mandir}/man1/pki-key.1.gz
+%{_mandir}/man1/pki-kra-key.1.gz
 %{_mandir}/man1/pki-pkcs12-cert.1.gz
 %{_mandir}/man1/pki-pkcs12-key.1.gz
 %{_mandir}/man1/pki-pkcs12.1.gz
