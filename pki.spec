@@ -1400,9 +1400,9 @@ fi
 %{_mandir}/man1/PrettyPrintCrl.1.gz
 %{_mandir}/man1/pki.1.gz
 %{_mandir}/man1/pki-audit.1.gz
+%{_mandir}/man1/pki-ca-cert.1.gz
 %{_mandir}/man1/pki-ca-kraconnector.1.gz
 %{_mandir}/man1/pki-ca-profile.1.gz
-%{_mandir}/man1/pki-cert.1.gz
 %{_mandir}/man1/pki-client.1.gz
 %{_mandir}/man1/pki-group.1.gz
 %{_mandir}/man1/pki-group-member.1.gz
