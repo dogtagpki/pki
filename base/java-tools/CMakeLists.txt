@@ -14,6 +14,7 @@ add_custom_command(
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/pki.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/pki.1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/pki-audit.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/pki-audit.1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/pki-securitydomain.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/pki-securitydomain.1
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/pki-tps-profile.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/pki-tps-profile.1
 )
 
 # install static man pages
