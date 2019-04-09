@@ -1,69 +1,60 @@
-.\" First parameter, NAME, should be all caps
-.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
-.\" other parameters are allowed: see man(7), man(1)
-.TH CMCEnroll 1 "July 20, 2016" "version 10.3" "PKI CMC Enrollment Tool" Dogtag Team
-.\" Please adjust this date whenever revising the man page.
-.\"
-.\" Some roff macros, for reference:
-.\" .nh        disable hyphenation
-.\" .hy        enable hyphenation
-.\" .ad l      left justify
-.\" .ad b      justify to both left and right margins
-.\" .nf        disable filling
-.\" .fi        enable filling
-.\" .br        insert line break
-.\" .sp <n>    insert n+1 empty lines
-.\" for man page specific macros, see man(7)
-.SH NAME
-CMCEnroll \- Used to sign a certificate request with an agent's certificate.
-.PP
-\fBNote:\fP
-This tool has not yet been updated to work with the latest improvement in the CA to conform to RFC 5272.  Please use \fBCMCRequest\fP instead.
+# CMCEnroll 1 "July 20, 2016" PKI "PKI CMC Enrollment Tool"
 
-.SH SYNOPSIS
-.PP
-\fBCMCEnroll -d <directory_of_NSS_security_database_containing_agent_cert> -n <certificate_nickname> -r <certificate_request_file> -p <certificate_DB_passwd>\fP
+## NAME
 
-.SH DESCRIPTION
-.PP
-The Certificate Management over Cryptographic Message Syntax (CMC) Enrollment utility, \fBCMCEnroll\fP, provides a command-line utility used to sign a certificate request with an agent's certificate. This can be used in conjunction with the CA end-entity CMC Enrollment form to sign and enroll certificates for users.
-.PP
-\fBCMCEnroll\fP takes a standard PKCS #10 certificate request and signs it with an agent certificate. The output is also a certificate request which can be submitted through the appropriate profile.
+CMCEnroll - Used to sign a certificate request with an agent's certificate.
 
-.SH OPTIONS
-.PP
+**Note:**
+This tool has not yet been updated to work with the latest improvement in the CA to conform to RFC 5272.
+Please use **CMCRequest** instead.
+
+## SYNOPSIS
+
+**CMCEnroll** **-d** *NSS-database* **-n** *certificate-nickname* **-r** *certificate-request-file* **-p** *NSS-database-passwd*
+
+## DESCRIPTION
+
+The Certificate Management over Cryptographic Message Syntax (CMC) Enrollment utility, **CMCEnroll**,
+provides a command-line utility used to sign a certificate request with an agent's certificate.
+This can be used in conjunction with the CA end-entity CMC Enrollment form to sign and enroll certificates for users.
+
+**CMCEnroll** takes a standard PKCS #10 certificate request and signs it with an agent certificate.
+The output is also a certificate request which can be submitted through the appropriate profile.
+
+## OPTIONS
+
 The following parameters are mandatory:
-.PP
-\fBNote:\fP
+
+**Note:**
 Surround values that include spaces with quotation marks.
-.TP
-.B -d <directory_of_NSS_security_database_containing_agent_cert>
-The directory containing the NSS database associated with the agent certificate. This is usually the agent's personal directory, such as their browser certificate database in the home directory.
 
-.TP
-.B -n <certificate_nickname>
-The nickname of the agent certificate that is used to sign the request.
+**-d** *NSS-database*  
+    The directory containing the NSS database associated with the agent certificate.
+    This is usually the agent's personal directory, such as their browser certificate database in the home directory.
 
-.TP
-.B -r <certificate_request_file>
-The filename of the certificate request.
+**-n** *certificate-nickname*  
+    The nickname of the agent certificate that is used to sign the request.
 
-.TP
-.B -p <certificate_DB_passwd>
-The password to the NSS certificate database which contains the agent certificate, given in \fB-d <directory_of_NSS_security_database_containing_agent_cert>\fP.
+**-r** *certificate-request-file*  
+    The filename of the certificate request.
 
-.SH EXAMPLES
-.PP
+**-p** *NSS-database-passwd*  
+    The password to the NSS certificate database which contains the agent certificate,
+    given in **-d** *NSS-database*.
+
+## EXAMPLES
+
 Signed requests must be submitted to the CA to be processed.
-.PP
-\fBNote:\fP For this example to work automatically, the \fBCMCAuth\fP plug-in must be enabled on the CA server (which it is by default).
-.TP
-(1) Create a PKCS #10 certificate request using a tool like \fBcertutil\fP:
-.IP
-.nf
-# cd ~/.mozilla/firefox/<browser profile>
 
-# certutil -d . -L
+**Note:**
+For this example to work automatically, the **CMCAuth** plug-in must be enabled on the CA server (which it is by default).
+
+(1) Create a PKCS #10 certificate request using a tool like **certutil**:
+
+```
+$ cd $HOME/.mozilla/firefox/<profile>
+
+$ certutil -L -d .
 Certificate Nickname                                         Trust Attributes
                                                              SSL,S/MIME,JAR/XPI
 
@@ -84,7 +75,7 @@ DigiCert SHA2 High Assurance Server CA                       ,,
 COMODO RSA Organization Validation Secure Server CA          ,,
 CA Signing Certificate - example.com Security Domain         CT,C,C
 
-# certutil -d . -R -s "CN=CMCEnroll Test Certificate" -a
+$ certutil -R -d . -s "CN=CMCEnroll Test Certificate" -a
 
 A random seed must be generated that will be used in the
 creation of your key.  One of the easiest ways to create a
@@ -128,13 +119,13 @@ FsymesuxhePL7sYkkmazjgQTkA/JXLe6FYX213xQ+FGfQvmAqc9xHu5jvnBXX+Ub
 ucixaLKUiRIVHfTmuUb/qenEBQM2vzWDZawHL5SBSa/Zxjy2iVMrQBeOiLcu8bTL
 TAmSCbonRTilFrKFVG0H+Y9+5bulOdJc64XOvj9DRJd1FJoocw0eGhw31I5rJA==
 -----END CERTIFICATE REQUEST-----
-.if
+```
 
-.TP
+
 (2) Copy the PKCS #10 ASCII output to a text file.
-.IP
-.nf
-# vi cert.req
+
+```
+$ vi cert.req
 -----BEGIN CERTIFICATE REQUEST-----
 MIICajCCAVICAQAwJTEjMCEGA1UEAxMaQ01DRW5yb2xsIFRlc3QgQ2VydGlmaWNh
 dGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDamQA6psK7Tnic3DAt
@@ -150,22 +141,44 @@ FsymesuxhePL7sYkkmazjgQTkA/JXLe6FYX213xQ+FGfQvmAqc9xHu5jvnBXX+Ub
 ucixaLKUiRIVHfTmuUb/qenEBQM2vzWDZawHL5SBSa/Zxjy2iVMrQBeOiLcu8bTL
 TAmSCbonRTilFrKFVG0H+Y9+5bulOdJc64XOvj9DRJd1FJoocw0eGhw31I5rJA==
 -----END CERTIFICATE REQUEST-----
-.if
+```
 
-.TP
-(3) Run the \fBCMCEnroll\fP command to sign the certificate request. If the input file is "\fB~/.mozilla/firefox/<profile>/cert.req\fP", the agent's certificate is stored in the "\fB~/.mozilla/firefox\<profile>fP" directory, the certificate common name for this CA is "\fBPKI Administrator for example.com\fP", and the password for the certificate database is "\fBSecret123\fP", the command is as follows:
-.IP
-.nf
-# CMCEnroll -d "~/.mozilla/firefox/<profile>/" -n "PKI Administrator for example.com" -r "~/.mozilla/firefox/<profile>/cert.req" -p "Secret123"
+
+(3) Run the **CMCEnroll** command to sign the certificate request.
+If the input file is "$HOME/.mozilla/firefox/&lt;profile&gt;/cert.req",
+the agent's certificate is stored in the "$HOME/.mozilla/firefox/&lt;profile&gt;" directory,
+the certificate common name for this CA is "PKI Administrator for example.com",
+and the password for the certificate database is "Secret.123", the command is as follows:
+
+```
+$ CMCEnroll -d "$HOME/.mozilla/firefox/<profile>" \
+    -n "PKI Administrator for example.com" \
+    -r "$HOME/.mozilla/firefox/<profile>/cert.req" \
+    -p "Secret.123"
 cert/key prefix =
-path = ~/.mozilla/firefox/<profile>/
+path = <home>/.mozilla/firefox/<profile>
 -----BEGIN CERTIFICATE REQUEST-----
-MIICajCCAVICAQAwJTEjMCEGA1UEAxMaQ01DRW5yb2xsIFRlc3QgQ2VydGlmaWNhdGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDamQA6psK7Tnic3DAtIyAMCk7FK3PuSseJSrR/C7W05tPvrlp5vUKxpmcA+Pg3AANp5gVMQOps6riAvoK76NKTkw4Me09Cowad7ay9IBBY4QqqBmRnfT3Mm6U5tJWeqvq1cIkwoxzHllgsGBGMQduI7URjhQYx3p+srGSe0fM7bqK+AU6aJh4r0jc1A6pCv/2XMOY1IUzmjIEnNq2RWOpnsWQ4UDma1r8sUzKgNhkuhjPU5U5YGt9+0jiuqv14dbKi7UJN3DPtkEXZNOrFrGgqKhdUqLhrdm+x/Hgw/aZoSDFYXON9jFTFyMUyUkWXZq5sfwghWUC2q4DsbfvH68h1AgMBAAGgADANBgkqhkiG9w0BAQsFAAOCAQEAQ9aHQvPDcDuOJOL62pQeoDJpYtFmsDaksdhedG27usjPuX06XmzSIV3/D2zfPib2fpfdrHB5901TdehlghQVOkN6sSoih60GSD9zCkFD1eESywJJeZssRfDG4gk2Ls9wXz5ZY/QwSx6C97SodF0cuDHLFsymesuxhePL7sYkkmazjgQTkA/JXLe6FYX213xQ+FGfQvmAqc9xHu5jvnBXX+UbucixaLKUiRIVHfTmuUb/qenEBQM2vzWDZawHL5SBSa/Zxjy2iVMrQBeOiLcu8bTLTAmSCbonRTilFrKFVG0H+Y9+5bulOdJc64XOvj9DRJd1FJoocw0eGhw31I5rJA==-----END CERTIFICATE REQUEST-----
-.if
-The output of this command is stored in a file with the same filename as the request with a \fB.out\fP appended to the filename (e. g. - cert.req.out):
-.IP
-.nf
-# cat cert.req.out
+MIICajCCAVICAQAwJTEjMCEGA1UEAxMaQ01DRW5yb2xsIFRlc3QgQ2VydGlmaWNh
+dGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDamQA6psK7Tnic3DAt
+IyAMCk7FK3PuSseJSrR/C7W05tPvrlp5vUKxpmcA+Pg3AANp5gVMQOps6riAvoK7
+6NKTkw4Me09Cowad7ay9IBBY4QqqBmRnfT3Mm6U5tJWeqvq1cIkwoxzHllgsGBGM
+QduI7URjhQYx3p+srGSe0fM7bqK+AU6aJh4r0jc1A6pCv/2XMOY1IUzmjIEnNq2R
+WOpnsWQ4UDma1r8sUzKgNhkuhjPU5U5YGt9+0jiuqv14dbKi7UJN3DPtkEXZNOrF
+rGgqKhdUqLhrdm+x/Hgw/aZoSDFYXON9jFTFyMUyUkWXZq5sfwghWUC2q4DsbfvH
+68h1AgMBAAGgADANBgkqhkiG9w0BAQsFAAOCAQEAQ9aHQvPDcDuOJOL62pQeoDJp
+YtFmsDaksdhedG27usjPuX06XmzSIV3/D2zfPib2fpfdrHB5901TdehlghQVOkN6
+sSoih60GSD9zCkFD1eESywJJeZssRfDG4gk2Ls9wXz5ZY/QwSx6C97SodF0cuDHL
+FsymesuxhePL7sYkkmazjgQTkA/JXLe6FYX213xQ+FGfQvmAqc9xHu5jvnBXX+Ub
+ucixaLKUiRIVHfTmuUb/qenEBQM2vzWDZawHL5SBSa/Zxjy2iVMrQBeOiLcu8bTL
+TAmSCbonRTilFrKFVG0H+Y9+5bulOdJc64XOvj9DRJd1FJoocw0eGhw31I5rJA==
+-----END CERTIFICATE REQUEST-----
+```
+
+The output of this command is stored in a file with the same filename
+as the request with a **.out** appended to the filename (e.g. cert.req.out):
+
+```
+$ cat cert.req.out
 -----BEGIN CERTIFICATE REQUEST-----
 MIIMhwYJKoZIhvcNAQcCoIIMeDCCDHQCAQMxCzAJBgUrDgMCGgUAMIIC6QYIKwYB
 BQUHDAKgggLbBIIC1zCCAtMwVDAvAgECBggrBgEFBQcHBjEgBB5Da2UvQ1V6VEZF
@@ -235,12 +248,10 @@ CAMc+DH99xx0yotaAr5HE9tauNJejo4CDVYwUn/5syTcw3molt2Ely2FIFEyI3HD
 yPmP2OHw/xqlBhFvnoecbtpTq2DiWGPWJHSnzcdInuXudHHaIsribXK8HGw2MnCD
 8Sq7UsrvBe50v0YebYzQdXYrsnluNc+Cwm2PdDQDfPT39e7iwGSLGi4KrQ==
 -----END CERTIFICATE REQUEST-----
-.if
+```
 
-.TP
 (4) Submit the signed certificate request through the CA end-entities page:
-.IP
-.nf
+
 (a) Open the end-entities page.
 
 (b) Select the "Signed CMC-Authenticated User Certificate Enrollment" profile.
@@ -250,17 +261,16 @@ yPmP2OHw/xqlBhFvnoecbtpTq2DiWGPWJHSnzcdInuXudHHaIsribXK8HGw2MnCD
 (d) Remove the "-----BEGIN CERTIFICATE REQUEST-----" header and the "-----END CERTIFICATE REQUEST-----" footer from the pasted content.
 
 (e) Fill in the contact information, and submit the form.
-.if
 
-.TP
+
 (5) The certificate is immediately processed and returned since a signed request was sent and the CMCAuth plug-in was enabled:
-.IP
-.nf
+
+```
 Congratulations, your request has been processed successfully
 
-Your request ID is \fB7\fP.
+Your request ID is 7.
 
-\fBOutputs\fP
+Outputs
 
 * Certificate Pretty Print
 
@@ -382,12 +392,11 @@ axszSMsh
 ----------------------
 | Import Certificate |
 ----------------------
-.if
+```
 
-.TP
 (6) Use the agent page to search for the new certificate:
-.IP
-.nf
+
+```
 Certificate   0x07
 
 Certificate contents
@@ -559,15 +568,18 @@ FEvOGwvl5WZiqbHtUfDy/6ys54EXmZjITce96WJRDdKjqSSCxDAtRVVBMael55z/
 5tfoGN09hayHFFOyZtZgp5Z91XC8ZEVNnPbRo+MWKx/LXjKEBy2U4qnv+eIft/6V
 BA4EgEwB53sf7ht901zQ26XjXqu9tHgxAA==
 -----END PKCS7-----
-.if
+```
 
-.SH AUTHORS
-Matthew Harmsen <mharmsen@redhat.com>.
+## SEE ALSO
 
-.SH COPYRIGHT
-Copyright (c) 2016 Red Hat, Inc. This is licensed under the GNU General Public
-License, version 2 (GPLv2). A copy of this license is available at
-http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+**CMCRequest(1)**, **CMCResponse(1)**, **CMCRevoke(1)**, **pki(1)**
 
-.SH SEE ALSO
-.BR CMCRequest(1), CMCResponse(1), CMCRevoke(1), pki(1)
+## AUTHORS
+
+Matthew Harmsen &lt;mharmsen@redhat.com&gt;.
+
+## COPYRIGHT
+
+Copyright (c) 2016 Red Hat, Inc.
+This is licensed under the GNU General Public License, version 2 (GPLv2).
+A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
