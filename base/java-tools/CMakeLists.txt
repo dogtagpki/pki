@@ -12,6 +12,7 @@ add_custom_command(
     TARGET pki-tools-man
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/man/man1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/AtoB.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/AtoB.1
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/BtoA.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/BtoA.1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/pki.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/pki.1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/pki-audit.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/pki-audit.1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/pki-ca-cert.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/pki-ca-cert.1
