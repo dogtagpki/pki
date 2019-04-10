@@ -1,55 +1,48 @@
-.\" First parameter, NAME, should be all caps
-.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
-.\" other parameters are allowed: see man(7), man(1)
-.TH PrettyPrintCert 1 "July 20, 2016" "version 10.3" "PKI Certificate Print Tool" Dogtag Team
-.\" Please adjust this date whenever revising the man page.
-.\"
-.\" Some roff macros, for reference:
-.\" .nh        disable hyphenation
-.\" .hy        enable hyphenation
-.\" .ad l      left justify
-.\" .ad b      justify to both left and right margins
-.\" .nf        disable filling
-.\" .fi        enable filling
-.\" .br        insert line break
-.\" .sp <n>    insert n+1 empty lines
-.\" for man page specific macros, see man(7)
-.SH NAME
-PrettyPrintCert  \- print the contents of a certificate stored as ASCII base-64 encoded data to a readable format.
+# PrettyPrintCert 1 "July 20, 2016" PKI "PKI Certificate Print Tool"
 
-.SH SYNOPSIS
-.PP
-\fBPrettyPrintCert [-simpleinfo] <input_file> [output_file]\fP
+## NAME
 
-.SH DESCRIPTION
-.PP
-The \fBPrettyPrintCert\fP command provides a command-line utility used to print the contents of a certificate stored as ASCII base-64 encoded data to a readable format.  The output of this command is displayed to standard output, but can be optionally saved into a specified file.  An additional non-mandatory option is available which limits the certificate information output of this command for easier parsing.
+PrettyPrintCert - print the contents of a certificate stored
+as ASCII base-64 encoded data to a readable format.
 
-.SH OPTIONS
-.TP
-.B [-simpleinfo]
-\fBOptional\fP. Prints limited certificate information in an easy to parse format; if this option is not specified, the entire contents of the certificate will be printed.
+## SYNOPSIS
 
-.TP
-.B <input_file>
-\fBMandatory\fP. Specifies the path to the file containing the ASCII base-64 encoded certificate.
+**PrettyPrintCert** [**-simpleinfo**] *input-file* [*output-file*]
 
-.TP
-.B [output_file]
-\fBOptional\fP. Specifies the path to the file in which the tool should write the certificate. If this option is not specified, the certificate information is written to the standard output.
+## DESCRIPTION
 
-.SH EXAMPLES
-.PP
-The following example converts the ASCII base-64 encoded certificate in the \fBascii_data.cert\fP file and writes the certificate in the pretty-print form to the output file \fBcert.out\fP:
-.IP
-.nf
-PrettyPrintCert ascii_data.cert cert.out
-.if
+The **PrettyPrintCert** command provides a command-line utility
+used to print the contents of a certificate stored as ASCII base-64 encoded data to a readable format.
+The output of this command is displayed to standard output,
+but can be optionally saved into a specified file.
+An additional non-mandatory option is available
+which limits the certificate information output of this command for easier parsing.
 
-.PP
-For this example, the base-64 encoded certificate data in the \fBascii_data.cert\fP looks like the following:
-.IP
-.nf
+## OPTIONS
+
+**-simpleinfo**  
+    Optional. Prints limited certificate information in an easy to parse format;
+    if this option is not specified, the entire contents of the certificate will be printed.
+
+**&lt;input-file&gt;**  
+    Mandatory. Specifies the path to the file containing the ASCII base-64 encoded certificate.
+
+**&lt;output-file&gt;**  
+    Optional. Specifies the path to the file in which the tool should write the certificate.
+    If this option is not specified, the certificate information is written to the standard output.
+
+## EXAMPLES
+
+The following example converts the ASCII base-64 encoded certificate in the ascii_data.cert file
+and writes the certificate in the pretty-print form to the output file cert.out:
+
+```
+$ PrettyPrintCert ascii_data.cert cert.out
+```
+
+For this example, the base-64 encoded certificate data in the ascii_data.cert looks like the following:
+
+```
 -----BEGIN CERTIFICATE-----
 MIIECjCCAvKgAwIBAgIBCTANBgkqhkiG9w0BAQsFADBOMSswKQYDVQQKDCJ1c2Vy
 c3lzLnJlZGhhdC5jb20gU2VjdXJpdHkgRG9tYWluMR8wHQYDVQQDDBZDQSBTaWdu
@@ -74,12 +67,11 @@ pdKqL3SgBNUdyfiV6vywevI9jFoZBlsQbn4EjBs2nNeaFSZhZ1NG6tktSt85fJ51
 IAiZv9Ipq0deHxFgpEywPq9lSrMZnm178PFlzRQUySHSm1pA+ngTydUKqZqAU0vr
 XIDTmj4lE93VPZspnPS94p/0OT4Pe3NKAe+IbIv/
 -----END CERTIFICATE-----
-.if
+```
 
-.PP
-The certificate in pretty-print format in the \fBcert.out\fP file looks like the following:
-.IP
-.nf
+The certificate in pretty-print format in the cert.out file looks like the following:
+
+```
     Certificate:
         Data:
             Version:  v3
@@ -171,34 +163,37 @@ The certificate in pretty-print format in the \fBcert.out\fP file looks like the
                 00:6E:82:7A:BA:38:1E:29:FC:F8:80:F1:DD:7C:81:92:
                 F1:C2:E3:34:27:1A:7A:EB:95:36:DB:65:41:A2:46:19:
                 FB:14:89:00:B5:8B:DB:AA:33:41:8C:6C:C4:75:CF:17
-.if
+```
 
-.PP
-The following example command takes the same ASCII base-64 encoded certificate in the \fBascii_data.cert\fP file and writes the information contained within the certificate to the simple format output file \fBcert.simple\fP:
-.IP
-.nf
-PrettyPrintCert -simpleinfo ascii_data.cert cert.simple
-.if
+The following example command takes the same ASCII base-64 encoded certificate
+in the ascii_data.cert file and writes the information contained within the certificate
+to the simple format output file cert.simple:
 
-.PP
-The simple certificate information in the \fBcert.simple\fP output file looks like the following:
-.IP
-.nf
+```
+$ PrettyPrintCert -simpleinfo ascii_data.cert cert.simple
+```
+
+The simple certificate information in the cert.simple output file looks like the following:
+
+```
 UID=admin
 E=admin@example.com
 CN=PrettyPrintCert Test Certificate
 OU=IS
 O=Example Corporation
 C=US
-.if
+```
 
-.SH AUTHORS
-Matthew Harmsen <mharmsen@redhat.com>.
+## SEE ALSO
 
-.SH COPYRIGHT
-Copyright (c) 2016 Red Hat, Inc. This is licensed under the GNU General Public
-License, version 2 (GPLv2). A copy of this license is available at
-http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+**PrettyPrintCrl(1)**, **pki(1)**
 
-.SH SEE ALSO
-.BR PrettyPrintCrl(1), pki(1)
+## AUTHORS
+
+Matthew Harmsen &lt;mharmsen@redhat.com&gt;.
+
+## COPYRIGHT
+
+Copyright (c) 2016 Red Hat, Inc.
+This is licensed under the GNU General Public License, version 2 (GPLv2).
+A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
