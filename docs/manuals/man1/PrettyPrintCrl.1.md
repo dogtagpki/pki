@@ -1,51 +1,43 @@
-.\" First parameter, NAME, should be all caps
-.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
-.\" other parameters are allowed: see man(7), man(1)
-.TH PrettyPrintCrl 1 "July 20, 2016" "version 10.3" "PKI CRL Print Tool" Dogtag Team
-.\" Please adjust this date whenever revising the man page.
-.\"
-.\" Some roff macros, for reference:
-.\" .nh        disable hyphenation
-.\" .hy        enable hyphenation
-.\" .ad l      left justify
-.\" .ad b      justify to both left and right margins
-.\" .nf        disable filling
-.\" .fi        enable filling
-.\" .br        insert line break
-.\" .sp <n>    insert n+1 empty lines
-.\" for man page specific macros, see man(7)
-.SH NAME
-PrettyPrintCrl  \- reads a certificate revocation list (CRL) stored in an ASCII base-64 encoded file and outputs it in a readable format.
+# PrettyPrintCrl 1 "July 20, 2016" PKI "PKI CRL Print Tool"
 
-.SH SYNOPSIS
-.PP
-\fBPrettyPrintCrl <input_file> [output_file]\fP
+## NAME
 
-.SH DESCRIPTION
-.PP
-The \fBPrettyPrintCrl\fP command provides a command-line utility used to print the contents of a CRL stored as ASCII base-64 encoded data in a file to a readable format.  The output of this command is displayed to standard output, but can be optionally saved into a specified file.
+PrettyPrintCrl - reads a certificate revocation list (CRL) stored in an ASCII base-64 encoded file
+and outputs it in a readable format.
 
-.SH OPTIONS
-.TP
-.B <input_file>
-\fBMandatory\fP. Specifies the path to the file that contains the ASCII base-64 encoded CRL.
+## SYNOPSIS
 
-.TP
-.B [output_file]
-\fBOptional\fP. Specifies the path to the file to write the CRL. If the output file is not specified, the CRL information is written to the standard output.
+**PrettyPrintCrl** *input-file* [*output-file*]
 
-.SH EXAMPLES
-.PP
-The following example \fBPrettyPrintCrl\fP command takes the ASCII base-64 encoded CRL in the \fBascii_data.crl\fP file and writes the CRL in the pretty-print format to the output file \fBcrl.out\fP:
-.IP
-.nf
-PrettyPrintCrl ascii_data.crl crl.out
-.if
+## DESCRIPTION
 
-.PP
-For this example, the base-64 encoded CRL data in the \fBascii_data.crl\fP looks like the following:
-.IP
-.nf
+The **PrettyPrintCrl** command provides a command-line utility used to print the contents of a CRL
+stored as ASCII base-64 encoded data in a file to a readable format.
+The output of this command is displayed to standard output,
+but can be optionally saved into a specified file.
+
+## OPTIONS
+
+**&lt;input-file&gt;**  
+    Mandatory. Specifies the path to the file that contains the ASCII base-64 encoded CRL.
+
+**&lt;output-file&gt;**  
+    Optional. Specifies the path to the file to write the CRL.
+    If the output file is not specified, the CRL information is written to the standard output.
+
+## EXAMPLES
+
+The following example **PrettyPrintCrl** command takes the ASCII base-64 encoded CRL
+in the ascii_data.crl file and writes the CRL in the pretty-print format
+to the output file crl.out:
+
+```
+$ PrettyPrintCrl ascii_data.crl crl.out
+```
+
+For this example, the base-64 encoded CRL data in the ascii_data.crl looks like the following:
+
+```
 -----BEGIN X509 CRL-----
 MIICVDCCATwCAQEwDQYJKoZIhvcNAQELBQAwTjErMCkGA1UECgwidXNlcnN5cy5y
 ZWRoYXQuY29tIFNlY3VyaXR5IERvbWFpbjEfMB0GA1UEAwwWQ0EgU2lnbmluZyBD
@@ -61,12 +53,11 @@ irU8RTXo7OhO6xKDAaHjzVVynjfGdIDaavl1fjwXFufwZBeiXm1zyyFSvDUdny4G
 29NTmM2945jCESeR7DV2q1LHG/v2rzCOKTWdPdXTPCics05KzUA4S6X+mp051wkh
 yJM2LYpV6lKV6JiczHLrgf5QcqfwSkTX
 -----END X509 CRL-----
-.if
+```
 
-.PP
-The CRL in pretty-print format in the \fBcrl.out\fP file looks like the following:
-.IP
-.nf
+The CRL in pretty-print format in the crl.out file looks like the following:
+
+```
     Certificate Revocation List:
         Data:
             Version:  v2
@@ -127,15 +118,18 @@ The CRL in pretty-print format in the \fBcrl.out\fP file looks like the followin
                 29:35:9D:3D:D5:D3:3C:28:9C:B3:4E:4A:CD:40:38:4B:
                 A5:FE:9A:9D:39:D7:09:21:C8:93:36:2D:8A:55:EA:52:
                 95:E8:98:9C:CC:72:EB:81:FE:50:72:A7:F0:4A:44:D7
-.if
+```
 
-.SH AUTHORS
-Matthew Harmsen <mharmsen@redhat.com>.
+## SEE ALSO
 
-.SH COPYRIGHT
-Copyright (c) 2016 Red Hat, Inc. This is licensed under the GNU General Public
-License, version 2 (GPLv2). A copy of this license is available at
-http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
+**PrettyPrintCert(1)**, **pki(1)**
 
-.SH SEE ALSO
-.BR PrettyPrintCert(1), pki(1)
+## AUTHORS
+
+Matthew Harmsen &lt;mharmsen@redhat.com&gt;.
+
+## COPYRIGHT
+
+Copyright (c) 2016 Red Hat, Inc.
+This is licensed under the GNU General Public License, version 2 (GPLv2).
+A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.

@@ -21,6 +21,7 @@ add_custom_command(
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/KRATool.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/KRATool.1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/PKCS10Client.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/PKCS10Client.1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/PrettyPrintCert.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/PrettyPrintCert.1
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/PrettyPrintCrl.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/PrettyPrintCrl.1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/pki.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/pki.1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/pki-audit.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/pki-audit.1
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/pki-ca-cert.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/pki-ca-cert.1
