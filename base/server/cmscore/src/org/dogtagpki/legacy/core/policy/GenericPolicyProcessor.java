@@ -44,7 +44,6 @@ import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.PropConfigStore;
-import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.util.AssertionException;
 
@@ -148,11 +147,10 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             throws EBaseException {
         logger.debug("GenericPolicyProcessor::init begins");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mAuthority = (IAuthority) owner;
         mConfig = config;
-        mGlobalStore =
-                SubsystemRegistry.getInstance().get("MAIN").getConfigStore();
+        mGlobalStore = engine.getConfigStore();
 
         try {
             IConfigStore configStore = engine.getConfigStore();

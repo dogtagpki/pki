@@ -27,8 +27,10 @@ import java.security.SignatureException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -90,7 +92,6 @@ import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.authentication.VerifiedCerts;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.base.FileConfigStore;
-import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -133,7 +134,7 @@ public class CMSEngine implements ISubsystem {
     public static final String PROP_SIGNED_AUDIT_CERT_NICKNAME =
                               "log.instance.SignedAudit.signedAuditCertNickname";
 
-    public static final SubsystemRegistry mSSReg = SubsystemRegistry.getInstance();
+    public static final Map<String, ISubsystem> subsystems = new HashMap<>();
 
     public String name;
     public String instanceDir; /* path to instance <server-root>/cert-<instance-name> */
@@ -752,21 +753,17 @@ public class CMSEngine implements ISubsystem {
         return info[ADMIN][PORT];
     }
 
-    public Enumeration<String> getSubsystemNames() {
-        return mSSReg.keys();
-    }
-
-    public Enumeration<ISubsystem> getSubsystems() {
-        return mSSReg.elements();
+    public Collection<ISubsystem> getSubsystems() {
+        return subsystems.values();
     }
 
     public ISubsystem getSubsystem(String name) {
-        return mSSReg.get(name);
+        return subsystems.get(name);
     }
 
     protected void initSubsystems() throws EBaseException {
 
-        mSSReg.put(ID, this);
+        subsystems.put(ID, this);
 
         initSubsystems(staticSubsystems);
 
@@ -907,7 +904,7 @@ public class CMSEngine implements ISubsystem {
         ISubsystem ss = ssinfo.instance;
 
         logger.debug("CMSEngine: initSubsystem(" + id + ")");
-        mSSReg.put(id, ss);
+        subsystems.put(id, ss);
 
         if (ssinfo.updateIdOnInit) {
             ss.setId(id);
@@ -1599,8 +1596,7 @@ public class CMSEngine implements ISubsystem {
         ICertificateRepository certDB = null;
 
         try {
-            ICertificateAuthority ca = (ICertificateAuthority)
-                    SubsystemRegistry.getInstance().get("ca");
+            ICertificateAuthority ca = (ICertificateAuthority) subsystems.get("ca");
 
             if (ca != null) {
                 certDB = ca.getCertificateRepository();
@@ -1616,8 +1612,7 @@ public class CMSEngine implements ISubsystem {
         IRequestQueue queue = null;
 
         try {
-            IRegistrationAuthority ra = (IRegistrationAuthority)
-                    SubsystemRegistry.getInstance().get("ra");
+            IRegistrationAuthority ra = (IRegistrationAuthority) subsystems.get("ra");
 
             if (ra != null) {
                 queue = ra.getRequestQueue();

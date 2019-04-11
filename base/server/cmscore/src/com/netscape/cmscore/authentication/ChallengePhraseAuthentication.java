@@ -43,7 +43,7 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.base.SubsystemRegistry;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CertRecord;
 
 /**
@@ -145,8 +145,9 @@ public class ChallengePhraseAuthentication implements IAuthManager {
      */
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
-        mCA = (ICertificateAuthority)
-                SubsystemRegistry.getInstance().get("ca");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        mCA = (ICertificateAuthority) engine.getSubsystem("ca");
 
         if (mCA != null) {
             mCertDB = mCA.getCertificateRepository();
@@ -373,11 +374,12 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     }
 
     private IRequestQueue getReqQueue() {
+
+        CMSEngine engine = CMS.getCMSEngine();
         IRequestQueue queue = null;
 
         try {
-            IRegistrationAuthority ra = (IRegistrationAuthority)
-                    SubsystemRegistry.getInstance().get("ra");
+            IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem("ra");
 
             if (ra != null) {
                 queue = ra.getRequestQueue();

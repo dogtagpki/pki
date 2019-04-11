@@ -55,7 +55,6 @@ import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.base.SubsystemRegistry;
 
 public class CMSCRLExtensions implements ICMSCRLExtensions {
 
@@ -199,12 +198,12 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     public CMSCRLExtensions(ICRLIssuingPoint crlIssuingPoint, IConfigStore config) {
         boolean modifiedConfig = false;
 
+        CMSEngine engine = CMS.getCMSEngine();
         mConfig = config;
         mCRLExtConfig = config.getSubStore(PROP_EXTENSION);
         mCRLIssuingPoint = crlIssuingPoint;
 
-        IConfigStore mFileConfig =
-                SubsystemRegistry.getInstance().get("MAIN").getConfigStore();
+        IConfigStore mFileConfig = engine.getConfigStore();
 
         IConfigStore crlExtConfig = mFileConfig;
         StringTokenizer st = new StringTokenizer(mCRLExtConfig.getName(), ".");
@@ -580,7 +579,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
     public void setConfigParams(String id, NameValuePairs nvp, IConfigStore config) {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
         String ipId = nvp.get("id");
 
