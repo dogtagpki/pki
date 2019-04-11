@@ -193,7 +193,7 @@ public class TokenKeyRecoveryService implements IService {
         String iv_s = "";
 
         logger.debug("KRA services token key recovery request");
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = null;
         Boolean allowEncDecrypt_recovery = false;
 
@@ -372,7 +372,7 @@ public class TokenKeyRecoveryService implements IService {
                     return false;
                 }
             } catch (Exception e) {
-                com.netscape.cmscore.util.Debug.printStackTrace(e);
+                logger.warn("TokenKeyRecoveryService: " + e.getMessage(), e);
                 request.setExtData(IRequest.RESULT, Integer.valueOf(9));
                 audit(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,

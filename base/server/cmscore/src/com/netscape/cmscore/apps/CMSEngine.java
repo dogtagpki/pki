@@ -1225,15 +1225,6 @@ public class CMSEngine implements ISubsystem {
         mServerCertNickname = newName;
     }
 
-    public void debug(String msg) {
-        if (!Debug.on()) {
-            // this helps to not saving stuff to file when debug
-            // is disable
-            return;
-        }
-        Debug.trace(msg);
-    }
-
     public IMailNotification getMailNotification() {
         try {
             String className = mConfig.getString("notificationClassName",

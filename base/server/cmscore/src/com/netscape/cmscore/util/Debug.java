@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
@@ -49,59 +47,13 @@ public class Debug
 
     private static boolean TRACE_ON = false;
 
-    private static int mDebugLevel = VERBOSE;
-
     private static Hashtable<String, String> mHK = null;
-
-    public static void trace(int level, String t) {
-        if (!TRACE_ON)
-            return;
-
-        if (level <= OBNOXIOUS) {
-            CMS.logger.trace(t);
-
-        } else if (level <= VERBOSE) {
-            CMS.logger.debug(t);
-
-        } else if (level <= INFORM) {
-            CMS.logger.info(t);
-
-        } else {
-            CMS.logger.warn(t);
-        }
-    }
-
-    public static void trace(String t) {
-        trace(VERBOSE, t);
-    }
-
-    public static void print(int level, String t) {
-        trace(level, t);
-    }
-
-    public static void print(String t) {
-        print(VERBOSE, t);
-    }
 
     private static char getNybble(byte b) {
         if (b < 10) {
             return (char)('0' + b);
         } else {
             return (char)('a' + b - 10);
-        }
-    }
-
-    /**
-     * If tracing enabled, dump a byte array to debugging printstream
-     * as hex, colon-seperated bytes, 16 bytes to a line
-     */
-    public static void print(byte[] b) {
-        if (!TRACE_ON)
-            return;
-
-        String s = dump(b);
-        if (s.length() > 0) {
-            CMS.logger.debug(s);
         }
     }
 
@@ -112,54 +64,15 @@ public class Debug
         for (int i = 0; i < b.length; i++) {
             sb.append(getNybble((byte) ((b[i] & 0xf0) >> 4)));
             sb.append(getNybble((byte) (b[i] & 0x0f)));
-            sb.append(" ");
 
             if (((i % 16) == 15) && i != b.length) {
-                CMS.logger.debug(sb.toString());
-                sb = new StringBuilder();
+                sb.append('\n');
+            } else {
+                sb.append(" ");
             }
         }
 
         return sb.toString();
-    }
-
-    /**
-     * Print the current stack trace to the debug printstream
-     */
-    public static void printStackTrace() {
-        if (!TRACE_ON)
-            return;
-        Exception e = new Exception("Debug");
-
-        printStackTrace(e);
-    }
-
-    /**
-     * Print the stack trace of the named exception
-     * to the debug printstream
-     */
-    public static void printStackTrace(Throwable e) {
-        if (!TRACE_ON)
-            return;
-
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-
-        // If the exception does not have a message, the stack trace will
-        // show the exception class name.
-        //
-        // However, if the exception has a message, the stack trace will
-        // only show the message. To help troubleshooting, the class name
-        // is prepended to the message.
-
-        if (e.getMessage() != null) {
-            pw.print(e.getClass().getName());
-            pw.print(": ");
-        }
-
-        e.printStackTrace(pw);
-
-        CMS.logger.warn(sw.toString());
     }
 
     /**
@@ -175,7 +88,6 @@ public class Debug
      */
 
     public static void setLevel(int level) {
-        mDebugLevel = level;
 
         PKILogger.Level logLevel;
 
@@ -193,17 +105,6 @@ public class Debug
         }
 
         PKILogger.setLevel(logLevel);
-    }
-
-    public static int getLevel(int level) {
-        return mDebugLevel;
-    }
-
-    /**
-     * Test if debugging is on. Do NOT write to System.out in your debug code
-     */
-    public static boolean on() {
-        return TRACE_ON;
     }
 
     /*  ISubsystem methods: */
@@ -261,11 +162,14 @@ public class Debug
                     }
                 }
             }
-            trace("============================================");
-            trace("=====  DEBUG SUBSYSTEM INITIALIZED   =======");
-            trace("============================================");
+
             int level = mConfig.getInteger(PROP_LEVEL, VERBOSE);
             setLevel(level);
+
+            CMS.logger.debug("============================================");
+            CMS.logger.debug("=====  DEBUG SUBSYSTEM INITIALIZED   =======");
+            CMS.logger.debug("============================================");
+
         } catch (Exception e) {
             // Don't do anything. Logging is not set up yet, and
             // we can't write to STDOUT.
