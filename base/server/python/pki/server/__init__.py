@@ -234,6 +234,11 @@ class PKIServer(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
+    def restart(self):
+        cmd = ['systemctl', 'restart', '%s.service' % self.service_name]
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
     def makedirs(self, path, force=False):
         pki.util.makedirs(
             path, uid=self.uid, gid=self.gid, force=force)

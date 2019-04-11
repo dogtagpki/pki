@@ -63,6 +63,7 @@ class PKIServerCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.StatusCLI())
         self.add_module(pki.server.cli.StartCLI())
         self.add_module(pki.server.cli.StopCLI())
+        self.add_module(pki.server.cli.RestartCLI())
 
         self.add_module(pki.server.cli.http.HTTPCLI())
         self.add_module(pki.server.cli.listener.ListenerCLI())
@@ -427,3 +428,57 @@ class StopCLI(pki.cli.CLI):
             return
 
         instance.stop()
+
+
+class RestartCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(RestartCLI, self).__init__('restart', 'Restart instance')
+
+    def print_help(self):
+        print('Usage: pki-server restart [OPTIONS] [<instance ID>]')
+        print()
+        print('  -v, --verbose                 Run in verbose mode.')
+        print('      --debug                   Run in debug mode.')
+        print('      --help                    Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'v', [
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+
+        for o, _ in opts:
+            if o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) > 0:
+            instance_name = args[0]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance: %s' % instance_name)
+            sys.exit(1)
+
+        instance.restart()
