@@ -57,7 +57,6 @@ run_dev_junit_tests() {
     CLASSPATH=$CLASSPATH:/usr/share/java/ldapjdk.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/apache-commons-lang.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/istack-commons-runtime.jar
-    CLASSPATH=$CLASSPATH:/usr/share/java/scannotation.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/servlet.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/velocity.jar
     CLASSPATH=$CLASSPATH:/usr/share/java/xerces-j2.jar

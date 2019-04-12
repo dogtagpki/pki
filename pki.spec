@@ -548,7 +548,6 @@ Requires:         slf4j
 %else
 Requires:         slf4j-jdk14
 %endif
-Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
@@ -1036,7 +1035,6 @@ EOF
 %if 0%{?rhel} && 0%{?rhel} <= 7
 # no link customization
 %else
-    rm -f %{buildroot}%{_datadir}/pki/lib/scannotation.jar
     ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/lib/jboss-logging.jar
     ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/lib/jboss-annotations-api_1.2_spec.jar
 %endif
@@ -1077,8 +1075,6 @@ mv %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5/01-AddTPSExternalRegISEtoke
 
 # Customize server common library links in /usr/share/pki/server/common/lib
 %if 0%{?fedora} || 0%{?rhel} > 7
-    rm -f %{buildroot}%{_datadir}/pki/server/common/lib/scannotation.jar
-    rm -f %{buildroot}%{_datadir}/pki/server/common/lib/resteasy-jaxrs-api.jar
     ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/server/common/lib/jboss-jaxrs-2.0-api.jar
     ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-logging.jar
     ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-annotations-api_1.2_spec.jar
