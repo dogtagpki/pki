@@ -27,6 +27,7 @@ import grp
 import io
 import logging
 import os
+import pathlib
 import pwd
 import re
 import shutil
@@ -1206,6 +1207,8 @@ class PKIInstance(PKIServer):
             'localhost',
             'pki.xml')
 
+        self.with_maven_deps = False
+
     def __eq__(self, other):
         if not isinstance(other, PKIInstance):
             return NotImplemented
@@ -1327,6 +1330,87 @@ class PKIInstance(PKIServer):
 
         self.symlink(PKIInstance.UNIT_FILE, self.unit_file, force=force)
 
+    def create_libs(self, force=False):
+
+        if not self.with_maven_deps:
+            super(PKIInstance, self).create_libs(force=force)
+            return
+
+        logger.info('Updating Maven dependencies')
+
+        cmd = [
+            'mvn',
+            '-f', '/usr/share/pki/pom.xml',
+            'dependency:resolve'
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
+        repo_dir = '%s/.m2/repository' % pathlib.Path.home()
+
+        pom_xml = '/usr/share/pki/pom.xml'
+        logger.info('Loading %s', pom_xml)
+
+        document = etree.parse(pom_xml, parser)
+        project = document.getroot()
+
+        xmlns = 'http://maven.apache.org/POM/4.0.0'
+
+        groupId = project.findtext('{%s}groupId' % xmlns)
+        logger.info('Group: %s', groupId)
+
+        artifactId = project.findtext('{%s}artifactId' % xmlns)
+        logger.info('Artifact: %s', artifactId)
+
+        version = project.findtext('{%s}version' % xmlns)
+        logger.info('Version: %s', version)
+
+        dependencies = project.findall('{%s}dependencies/{%s}dependency' % (xmlns, xmlns))
+
+        self.makedirs(self.lib_dir, force=force)
+        self.makedirs(self.common_dir, force=force)
+        self.makedirs(self.common_lib_dir, force=force)
+
+        for dependency in dependencies:
+
+            groupId = dependency.findtext('{%s}groupId' % xmlns)
+            artifactId = dependency.findtext('{%s}artifactId' % xmlns)
+            version = dependency.findtext('{%s}version' % xmlns)
+            fileType = dependency.findtext('{%s}type' % xmlns, default='jar')
+
+            groupDir = groupId.replace('.', '/')
+            directory = os.path.join(repo_dir, groupDir, artifactId, version)
+            filename = artifactId + '-' + version + '.' + fileType
+            source = os.path.join(directory, filename)
+
+            # install Maven libraries in common/lib except slf4j
+            if artifactId in ['slf4j-api', 'slf4j-jdk14']:
+                dest = os.path.join(self.lib_dir, filename)
+            else:
+                dest = os.path.join(self.common_lib_dir, filename)
+
+            logger.info('Copying %s to %s', source, dest)
+            self.copy(source, dest, force)
+
+        common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
+
+        # install PKI libraries in common/lib
+        for filename in [
+                'jss4.jar',
+                'ldapjdk.jar',
+                'pki-cmsutil.jar',
+                'pki-nsutil.jar',
+                'pki-tomcat.jar',
+                'symkey.jar',
+                'tomcatjss.jar']:
+
+            source = os.path.join(common_lib_dir, filename)
+            dest = os.path.join(self.common_lib_dir, filename)
+
+            logger.info('Linking %s to %s', dest, source)
+            self.symlink(source, dest, force=force)
+
     def load(self):
 
         super(PKIInstance, self).load()
@@ -1373,6 +1457,17 @@ class PKIInstance(PKIServer):
         pki.util.unlink(conf_dir, force=force)
 
         super(PKIInstance, self).remove(force=force)
+
+    def remove_libs(self, force=False):
+
+        # remove <instance>/common which is always a folder
+        pki.util.rmtree(self.common_dir, force=force)
+
+        # remove <instance>/lib which could be a link or a folder
+        if os.path.islink(self.lib_dir):
+            pki.util.unlink(self.lib_dir, force=force)
+        else:
+            pki.util.rmtree(self.lib_dir, force=force)
 
     @staticmethod
     def read_external_certs(conf_file):

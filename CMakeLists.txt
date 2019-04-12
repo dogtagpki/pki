@@ -152,3 +152,10 @@ endif ()
 if (NOT "${THEME}" STREQUAL "")
     add_subdirectory(themes)
 endif ()
+
+install(
+    FILES
+        pom.xml
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}
+)
