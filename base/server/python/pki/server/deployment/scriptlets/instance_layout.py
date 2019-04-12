@@ -149,16 +149,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 "pki.xml"))
 
         logger.info('Creating %s', deployer.mdict['pki_instance_lib'])
-        # Create Tomcat instance library
         deployer.directory.create(deployer.mdict['pki_instance_lib'])
-        for name in os.listdir(deployer.mdict['pki_tomcat_lib_path']):
-            deployer.symlink.create(
-                os.path.join(
-                    deployer.mdict['pki_tomcat_lib_path'],
-                    name),
-                os.path.join(
-                    deployer.mdict['pki_instance_lib'],
-                    name))
 
         for name in os.listdir('/usr/share/pki/server/lib'):
             deployer.symlink.create(

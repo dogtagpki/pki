@@ -553,7 +553,8 @@ class MigrateCLI(pki.cli.CLI):
         resources.set('allowLinking', 'true')
 
     def migrate_tomcat_libraries(self, instance):
-        # remove old links
+
+        # remove unnecessary links to Tomcat libraries
         for filename in os.listdir(instance.lib_dir):
 
             path = os.path.join(instance.lib_dir, filename)
@@ -562,15 +563,6 @@ class MigrateCLI(pki.cli.CLI):
                 print('Removing %s' % path)
 
             os.remove(path)
-
-        tomcat_dir = os.path.join(pki.server.Tomcat.SHARE_DIR, 'lib')
-
-        # create new links
-        for filename in os.listdir(tomcat_dir):
-
-            source = os.path.join(tomcat_dir, filename)
-            dest = os.path.join(instance.lib_dir, filename)
-            self.create_link(instance, source, dest)
 
         # slf4j-api.jar
         source = '/usr/share/pki/server/lib/slf4j-api.jar'
