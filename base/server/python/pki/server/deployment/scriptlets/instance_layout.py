@@ -148,6 +148,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 "localhost",
                 "pki.xml"))
 
+        instance.with_maven_deps = deployer.with_maven_deps
         instance.create_libs()
 
         deployer.directory.create(deployer.mdict['pki_tomcat_tmpdir_path'])

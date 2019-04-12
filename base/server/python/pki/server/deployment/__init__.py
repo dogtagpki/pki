@@ -65,6 +65,8 @@ class PKIDeployer:
         self.parser = None
         self.nss_db_type = None
 
+        self.with_maven_deps = False
+
         # Set installation time
         ticks = time.time()
         self.install_time = time.asctime(time.localtime(ticks))

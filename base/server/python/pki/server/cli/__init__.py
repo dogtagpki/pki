@@ -312,6 +312,7 @@ class CreateCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server create [OPTIONS] [<instance ID>]')
         print()
+        print('      --with-maven-deps         Install Maven dependencies.')
         print('      --force                   Force creation.')
         print('  -v, --verbose                 Run in verbose mode.')
         print('      --debug                   Run in debug mode.')
@@ -322,7 +323,7 @@ class CreateCLI(pki.cli.CLI):
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'v', [
-                'force',
+                'with-maven-deps', 'force',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -331,10 +332,14 @@ class CreateCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        with_maven_deps = False
         force = False
 
         for o, _ in opts:
-            if o == '--force':
+            if o == '--with-maven-deps':
+                with_maven_deps = True
+
+            elif o == '--force':
                 force = True
 
             elif o in ('-v', '--verbose'):
@@ -363,7 +368,8 @@ class CreateCLI(pki.cli.CLI):
 
         logging.info('Creating instance: %s', instance_name)
 
-        instance.create(force)
+        instance.with_maven_deps = with_maven_deps
+        instance.create(force=force)
 
 
 class RemoveCLI(pki.cli.CLI):
@@ -426,7 +432,7 @@ class RemoveCLI(pki.cli.CLI):
         logging.info('Removing instance: %s', instance_name)
 
         instance.stop()
-        instance.remove(force)
+        instance.remove(force=force)
 
 
 class StatusCLI(pki.cli.CLI):

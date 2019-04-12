@@ -1316,6 +1316,7 @@ fi
 %doc %{_datadir}/doc/pki-base/html
 %dir %{_datadir}/pki
 %{_datadir}/pki/VERSION
+%{_datadir}/pki/pom.xml
 %dir %{_datadir}/pki/etc
 %{_datadir}/pki/etc/pki.conf
 %{_datadir}/pki/etc/logging.properties

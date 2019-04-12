@@ -109,6 +109,12 @@ def main(argv):
         action='store_true',
         help='enforce strict hostname/FQDN checks')
 
+    parser.optional.add_argument(
+        '--with-maven-deps',
+        dest='with_maven_deps',
+        action='store_true',
+        help='Install Maven dependencies')
+
     args = parser.process_command_line_arguments()
 
     config.default_deployment_cfg = \
@@ -533,6 +539,9 @@ def main(argv):
     # Process the various "scriptlets" to create the specified PKI subsystem.
     pki_subsystem_scriptlets = parser.mdict['spawn_scriplets'].split()
     deployer.init(parser)
+
+    logger.info('Installing Maven dependencies: %s', args.with_maven_deps)
+    deployer.with_maven_deps = args.with_maven_deps
 
     try:
         for scriptlet_name in pki_subsystem_scriptlets:
