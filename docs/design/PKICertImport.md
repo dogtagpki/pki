@@ -396,7 +396,7 @@ Assumptions about NSS DB:
 
 Test:
 
-    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L --unsafe-trust-then-verify
+    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-usage L --unsafe-trust-then-verify
 
 Result:
 
@@ -417,12 +417,12 @@ Assumptions about NSS DB:
 
 Test:
 
-    PKICertImport -d . -n "Server A.B" -i server-a-a.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
-    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
-    PKICertImport -d . -n "Server A.A.B" -i server-a-c.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
-    PKICertImport -d . -n "Server B.B" -i server-b-a.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
-    PKICertImport -d . -n "Server B.A.A" -i server-b-b.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
-    PKICertImport -d . -n "Server B.A.B" -i server-b-c.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
+    PKICertImport -d . -n "Server A.B" -i server-a-a.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-usage L
+    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-usage L
+    PKICertImport -d . -n "Server A.A.B" -i server-a-c.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-usage L
+    PKICertImport -d . -n "Server B.B" -i server-b-a.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-usage L
+    PKICertImport -d . -n "Server B.A.A" -i server-b-b.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-usage L
+    PKICertImport -d . -n "Server B.A.B" -i server-b-c.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-usage L
 
 Result:
 
@@ -440,9 +440,9 @@ Assumptions about NSS DB:
 
 Test:
 
-    PKICertImport -d . -n "Server A.B" -i server-a-a.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
-    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
-    PKICertImport -d . -n "Server A.A.B" -i server-a-c.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-verify L
+    PKICertImport -d . -n "Server A.B" -i server-a-a.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-usage L
+    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-usage L
+    PKICertImport -d . -n "Server A.A.B" -i server-a-c.p12 -t ,, -u V --pkcs12 --chain --chain-trust CT,C,C --chain-usage L
 
 Result:
 
