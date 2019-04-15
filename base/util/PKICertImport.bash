@@ -394,7 +394,7 @@ function PKICertImport() {
         echo ""
         echo "Unsafe arguments:"
         echo "--unsafe-keep-keys -- keep case in event of verification failure"
-        echo "--unsafe-turst-then-verify -- specify trust flags before verification of chain"
+        echo "--unsafe-trust-then-verify -- specify trust flags before verification of chain"
         echo ""
         echo "Environment variables:"
         echo "VERBOSE: see certutil commands being run"
