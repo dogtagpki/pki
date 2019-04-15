@@ -110,7 +110,7 @@ Used only for `.p12` chain imports:
    given. When specified, apply trust flags (from `PKCS12_CHAIN_TRUST`) before
    validation. This allows importing the root certificate from a `.p12` chain,
    versus requiring it chain to a known/trusted root.
- - `PKCS12_LEAF`: whether or not the `--leaf` option was given. If present,
+ - `PKCS12_LEAF`: whether or not the `--leaf-only` option was given. If present,
    we import only the leaf certificate and key from the `.p12` file.
 
 The values for the above variables are parsed in the `_parse_args` function.
@@ -176,7 +176,7 @@ The following functions wrap other utilities for importing `.p12` chains:
 
  - `_split_pkcs12`: split the leaf certificate from the rest of the `.p12`
    contents. This ensures we can apply the specified nickname to the leaf
-   certificate. When `--leaf` is specified, we also construct a new `.p12`
+   certificate. When `--leaf-only` is specified, we also construct a new `.p12`
    with only the leaf certificate and key.
  - `_import_pkcs12`: import a `.p12` chain using `pk12util`. Before and after
    import, we check the list of certificates and keys in the NSS DB to
@@ -247,10 +247,10 @@ authentication (`T`).
 ### PKCS12 Client Certificate (Leaf Only)
 
 Client certificates are validated with `-u C`. Trust is automatically assigned
-when the private keys are present. We also specify `--leaf` to import only
+when the private keys are present. We also specify `--leaf-only` to import only
 the leaf.
 
-    PKICertImport -d . -n "Nick Named" -i nick-named.p12 -t ,, -u C --pkcs12 --leaf
+    PKICertImport -d . -n "Nick Named" -i nick-named.p12 -t ,, -u C --pkcs12 --leaf-only
 
 
 ### PKCS12 Client Certificate (Chain)
@@ -464,9 +464,9 @@ Assumptions about NSS DB:
 
 Test:
 
-    PKICertImport -d . -n "Server A.B" -i server-a-a.p12 -t ,, -u V --pkcs12 --leaf
-    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --leaf
-    PKICertImport -d . -n "Server A.A.B" -i server-a-c.p12 -t ,, -u V --pkcs12 --leaf
+    PKICertImport -d . -n "Server A.B" -i server-a-a.p12 -t ,, -u V --pkcs12 --leaf-only
+    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --leaf-only
+    PKICertImport -d . -n "Server A.A.B" -i server-a-c.p12 -t ,, -u V --pkcs12 --leaf-only
 
 Result:
 
@@ -485,8 +485,8 @@ Assumptions about NSS DB:
 
 Test:
 
-    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --leaf
-    PKICertImport -d . -n "Server A.A.B" -i server-a-c.p12 -t ,, -u V --pkcs12 --leaf
+    PKICertImport -d . -n "Server A.A.A" -i server-a-b.p12 -t ,, -u V --pkcs12 --leaf-only
+    PKICertImport -d . -n "Server A.A.B" -i server-a-c.p12 -t ,, -u V --pkcs12 --leaf-only
 
 Result:
 
