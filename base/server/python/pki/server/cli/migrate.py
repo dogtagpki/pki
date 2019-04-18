@@ -151,8 +151,6 @@ class MigrateCLI(pki.cli.CLI):
             'pki.xml')
         self.migrate_context_xml(pki_context_xml, tomcat_version)
 
-        self.migrate_tomcat_libraries(instance)
-
     def migrate_server_xml(self, instance, filename, tomcat_version):
         if self.verbose:
             print('Migrating %s' % filename)
@@ -551,29 +549,6 @@ class MigrateCLI(pki.cli.CLI):
             context.append(resources)
 
         resources.set('allowLinking', 'true')
-
-    def migrate_tomcat_libraries(self, instance):
-
-        # remove unnecessary links to Tomcat libraries
-        for filename in os.listdir(instance.lib_dir):
-
-            path = os.path.join(instance.lib_dir, filename)
-
-            if self.verbose:
-                print('Removing %s' % path)
-
-            os.remove(path)
-
-        # slf4j-api.jar
-        source = '/usr/share/pki/server/lib/slf4j-api.jar'
-        dest = os.path.join(instance.lib_dir, 'slf4j-api.jar')
-        self.create_link(instance, source, dest)
-
-        # slf4j-jdk14.jar
-        source = '/usr/share/pki/server/lib/slf4j-jdk14.jar'
-        dest = os.path.join(instance.lib_dir, 'slf4j-jdk14.jar')
-        if os.path.islink(source):
-            self.create_link(instance, source, dest)
 
     def create_link(self, instance, source, dest):
 
