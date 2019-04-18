@@ -142,6 +142,14 @@ class PKIServer(object):
         return os.path.join(self.base_dir, 'lib')
 
     @property
+    def common_dir(self):
+        return os.path.join(self.base_dir, 'common')
+
+    @property
+    def common_lib_dir(self):
+        return os.path.join(self.common_dir, 'lib')
+
+    @property
     def log_dir(self):
         return os.path.join(self.base_dir, 'logs')
 
@@ -267,8 +275,9 @@ class PKIServer(object):
         catalina_policy = os.path.join(Tomcat.CONF_DIR, 'catalina.policy')
         self.copy(catalina_policy, self.catalina_policy, force=force)
 
-        catalina_properties = os.path.join(Tomcat.CONF_DIR, 'catalina.properties')
-        self.copy(catalina_properties, self.catalina_properties, force=force)
+        catalina_properties = os.path.join(
+            PKIServer.SHARE_DIR, 'server', 'conf', 'catalina.properties')
+        self.symlink(catalina_properties, self.catalina_properties, force=force)
 
         context_xml = os.path.join(Tomcat.CONF_DIR, 'context.xml')
         self.copy(context_xml, self.context_xml, force=force)
@@ -296,7 +305,14 @@ class PKIServer(object):
         conf_d_dir = os.path.join(self.conf_dir, 'conf.d')
         self.makedirs(conf_d_dir, force=force)
 
-        self.makedirs(self.lib_dir, force=force)
+        lib_dir = os.path.join(PKIServer.SHARE_DIR, 'lib')
+        self.symlink(lib_dir, self.lib_dir, force=force)
+
+        self.makedirs(self.common_dir, force=force)
+
+        common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
+        self.symlink(common_lib_dir, self.common_lib_dir, force=force)
+
         self.makedirs(self.temp_dir, force=force)
         self.makedirs(self.webapps_dir, force=force)
         self.makedirs(self.work_dir, force=force)
@@ -470,7 +486,9 @@ class PKIServer(object):
         pki.util.rmtree(self.work_dir, force=force)
         pki.util.rmtree(self.webapps_dir, force=force)
         pki.util.rmtree(self.temp_dir, force=force)
-        pki.util.rmtree(self.lib_dir, force=force)
+        pki.util.unlink(self.common_lib_dir, force=force)
+        pki.util.rmtree(self.common_dir, force=force)
+        pki.util.unlink(self.lib_dir, force=force)
         pki.util.rmtree(self.conf_dir, force=force)
         pki.util.unlink(self.bin_dir, force=force)
         pki.util.rmtree(self.base_dir, force=force)
