@@ -34,135 +34,8 @@ class JSSCLI(pki.cli.CLI):
         super(JSSCLI, self).__init__(
             'jss', 'JSS management commands')
 
-        self.add_module(JSSInstallCLI())
-        self.add_module(JSSUninstallCLI())
-
         self.add_module(JSSEnableCLI())
         self.add_module(JSSDisableCLI())
-
-
-class JSSInstallCLI(pki.cli.CLI):
-
-    def __init__(self):
-        super(JSSInstallCLI, self).__init__(
-            'install', 'Install JSS library in PKI server')
-
-    def print_help(self):
-        print('Usage: pki-server jss-install [OPTIONS]')
-        print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --force                        Force installation.')
-        print('  -v, --verbose                      Run in verbose mode.')
-        print('      --debug                        Run in debug mode.')
-        print('      --help                         Show help message.')
-        print()
-
-    def execute(self, argv):
-
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'force',
-                'verbose', 'debug', 'help'])
-
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = 'pki-tomcat'
-        force = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--force':
-                force = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-
-        if not instance.is_valid():
-            print("ERROR: Invalid instance: %s" % instance_name)
-            sys.exit(1)
-
-        instance.install_jss_lib(force=force)
-
-
-class JSSUninstallCLI(pki.cli.CLI):
-
-    def __init__(self):
-        super(JSSUninstallCLI, self).__init__(
-            'uninstall', 'Uninstall JSS library in PKI server')
-
-    def print_help(self):
-        print('Usage: pki-server jss-uninstall [OPTIONS]')
-        print()
-        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --force                        Force uninstallation.')
-        print('  -v, --verbose                      Run in verbose mode.')
-        print('      --debug                        Run in debug mode.')
-        print('      --help                         Show help message.')
-        print()
-
-    def execute(self, argv):
-
-        try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'force',
-                'verbose', 'debug', 'help'])
-
-        except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
-            self.print_help()
-            sys.exit(1)
-
-        instance_name = 'pki-tomcat'
-        force = False
-
-        for o, a in opts:
-            if o in ('-i', '--instance'):
-                instance_name = a
-
-            elif o == '--force':
-                force = True
-
-            elif o in ('-v', '--verbose'):
-                logging.getLogger().setLevel(logging.INFO)
-
-            elif o == '--debug':
-                logging.getLogger().setLevel(logging.DEBUG)
-
-            elif o == '--help':
-                self.print_help()
-                sys.exit()
-
-            else:
-                print('ERROR: unknown option: %s' % o)
-                self.print_help()
-                sys.exit(1)
-
-        instance = pki.server.PKIServerFactory.create(instance_name)
-
-        if not instance.is_valid():
-            print("ERROR: Invalid instance: %s" % instance_name)
-            sys.exit(1)
-
-        instance.uninstall_jss_lib(force=force)
 
 
 class JSSEnableCLI(pki.cli.CLI):
@@ -175,7 +48,6 @@ class JSSEnableCLI(pki.cli.CLI):
         print('Usage: pki-server jss-enable [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --force                        Force enablement.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -186,7 +58,6 @@ class JSSEnableCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'force',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -195,14 +66,10 @@ class JSSEnableCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
-        force = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
-
-            elif o == '--force':
-                force = True
 
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
@@ -224,8 +91,6 @@ class JSSEnableCLI(pki.cli.CLI):
         if not instance.is_valid():
             print("ERROR: Invalid instance: %s" % instance_name)
             sys.exit(1)
-
-        instance.install_jss_lib(force=force)
 
         jss_config = instance.load_jss_config()
 

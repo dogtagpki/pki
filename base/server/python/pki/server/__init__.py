@@ -351,43 +351,6 @@ class PKIServer(object):
 
         pki.util.chown(self.nssdb_dir, self.uid, self.gid)
 
-    def install_jss_lib(self, force=False):
-
-        self.symlink(
-            '/usr/share/java/commons-lang.jar',
-            os.path.join(self.lib_dir, 'commons-lang.jar'),
-            force)
-
-        self.symlink(
-            '/usr/share/java/commons-codec.jar',
-            os.path.join(self.lib_dir, 'commons-codec.jar'),
-            force)
-
-        self.symlink(
-            '/usr/share/java/slf4j/slf4j-api.jar',
-            os.path.join(self.lib_dir, 'slf4j-api.jar'),
-            force)
-
-        self.symlink(
-            '/usr/share/java/slf4j/slf4j-jdk14.jar',
-            os.path.join(self.lib_dir, 'slf4j-jdk14.jar'),
-            force)
-
-        self.symlink(
-            '/usr/share/java/jaxb-api.jar',
-            os.path.join(self.lib_dir, 'jaxb-api.jar'),
-            force)
-
-        self.symlink(
-            '/usr/lib/java/jss4.jar',
-            os.path.join(self.lib_dir, 'jss4.jar'),
-            force)
-
-        self.symlink(
-            '/usr/share/java/tomcatjss.jar',
-            os.path.join(self.lib_dir, 'tomcatjss.jar'),
-            force)
-
     def get_webapps(self):
 
         webapps = []
@@ -496,15 +459,6 @@ class PKIServer(object):
     def remove_nssdb(self, force=False):
 
         pki.util.rmtree(self.nssdb_dir, force=force)
-
-    def uninstall_jss_lib(self, force=False):
-        pki.util.unlink(os.path.join(self.lib_dir, 'tomcatjss.jar'), force)
-        pki.util.unlink(os.path.join(self.lib_dir, 'jss4.jar'), force)
-        pki.util.unlink(os.path.join(self.lib_dir, 'jaxb-api.jar'), force)
-        pki.util.unlink(os.path.join(self.lib_dir, 'slf4j-jdk14.jar'), force)
-        pki.util.unlink(os.path.join(self.lib_dir, 'slf4j-api.jar'), force)
-        pki.util.unlink(os.path.join(self.lib_dir, 'commons-codec.jar'), force)
-        pki.util.unlink(os.path.join(self.lib_dir, 'commons-lang.jar'), force)
 
     def load(self):
 
