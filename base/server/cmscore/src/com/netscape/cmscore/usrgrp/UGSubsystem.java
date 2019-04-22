@@ -1150,10 +1150,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             SessionContext sessionContext = SessionContext.getContext();
             String adminId = (String) sessionContext.get(SessionContext.USER_ID);
 
-            mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                    AuditFormat.LEVEL, AuditFormat.REMOVEUSERFORMAT,
-                    new Object[] { adminId, userid }
-                    );
+            logger.info(
+                    AuditFormat.REMOVEUSERFORMAT,
+                    adminId,
+                    userid
+            );
 
         } catch (LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
