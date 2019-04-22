@@ -48,18 +48,8 @@ public class RequestSubsystem
 
     public final static String ID = IRequestSubsystem.SUB_ID;
 
-    // singleton enforcement
-
-    private static RequestSubsystem mInstance = new RequestSubsystem();
-
-    public static RequestSubsystem getInstance() {
-        return mInstance;
+    public RequestSubsystem() {
     }
-
-    private RequestSubsystem() {
-    }
-
-    // end singleton enforcement.
 
     //
     // Create a new request queue.  The LDAP DN for the entry

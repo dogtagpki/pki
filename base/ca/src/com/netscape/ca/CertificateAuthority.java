@@ -2205,6 +2205,7 @@ public class CertificateAuthority
             return;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         mPolicy = new CAPolicy();
         mPolicy.init(this, mConfig.getSubStore(PROP_POLICY));
         logger.debug("CA policy inited");
@@ -2220,8 +2221,8 @@ public class CertificateAuthority
         try {
             int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
-            mRequestQueue =
-                    RequestSubsystem.getInstance().getRequestQueue(
+            RequestSubsystem reqSub = (RequestSubsystem) engine.getSubsystem(RequestSubsystem.ID);
+            mRequestQueue = reqSub.getRequestQueue(
                             getId(), reqdb_inc, mPolicy, mService, mNotify, mPNotify);
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_QUEUE_FAILED", e.toString()));

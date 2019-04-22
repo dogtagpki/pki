@@ -74,7 +74,6 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IRequestScheduler;
-import com.netscape.certsrv.request.IRequestSubsystem;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
@@ -267,6 +266,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         if (mInitialized)
             return;
 
+        CMSEngine engine = CMS.getCMSEngine();
         mConfig = config;
         mOwner = owner;
 
@@ -363,7 +363,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         mNotify = new KRANotify(this);
         mPNotify = new ARequestNotifier();
-        IRequestSubsystem reqSub = RequestSubsystem.getInstance();
+        RequestSubsystem reqSub = (RequestSubsystem) engine.getSubsystem(RequestSubsystem.ID);
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
         mRequestQueue = reqSub.getRequestQueue(getId(), reqdb_inc,

@@ -168,6 +168,8 @@ public class CMSEngine implements ISubsystem {
     private String mServerCertNickname = null;
     private String serverStatus = null;
 
+    private RequestSubsystem requestSubsystem = new RequestSubsystem();
+
     // static subsystems - must be singletons
     public Map<String, SubsystemInfo> staticSubsystems = new LinkedHashMap<>();
 
@@ -822,8 +824,7 @@ public class CMSEngine implements ISubsystem {
                 new SubsystemInfo(X500NameSubsystem.ID, X500NameSubsystem.getInstance()));
         // skip TP subsystem;
         // problem in needing dbsubsystem in constructor. and it's not used.
-        staticSubsystems.put(RequestSubsystem.ID,
-                new SubsystemInfo(RequestSubsystem.ID, RequestSubsystem.getInstance()));
+        staticSubsystems.put(RequestSubsystem.ID, new SubsystemInfo(RequestSubsystem.ID, requestSubsystem));
 
         logger.debug("CMSEngine: loading dyn subsystems");
 
