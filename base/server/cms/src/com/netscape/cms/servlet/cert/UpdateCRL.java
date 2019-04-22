@@ -541,35 +541,29 @@ public class UpdateCRL extends CMSServlet {
             long endTime = new Date().getTime();
 
             if (crlIssuingPoint.getNextUpdate() != null) {
-                mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                        AuditFormat.LEVEL,
+                logger.info(
                         AuditFormat.CRLUPDATEFORMAT,
-                        new Object[] {
-                                AuditFormat.FROMAGENT + " agentID: " + agentId,
-                                authMgr,
-                                "completed",
-                                crlIssuingPoint.getId(),
-                                crlIssuingPoint.getCRLNumber(),
-                                crlIssuingPoint.getLastUpdate(),
-                                crlIssuingPoint.getNextUpdate(),
-                                Long.toString(crlIssuingPoint.getCRLSize())
-                                        + " time: " + (endTime - startTime) }
-                        );
+                        AuditFormat.FROMAGENT + " agentID: " + agentId,
+                        authMgr,
+                        "completed",
+                        crlIssuingPoint.getId(),
+                        crlIssuingPoint.getCRLNumber(),
+                        crlIssuingPoint.getLastUpdate(),
+                        crlIssuingPoint.getNextUpdate(),
+                        crlIssuingPoint.getCRLSize() + " time: " + (endTime - startTime)
+                );
             } else {
-                mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                        AuditFormat.LEVEL,
+                logger.info(
                         AuditFormat.CRLUPDATEFORMAT,
-                        new Object[] {
-                                AuditFormat.FROMAGENT + " agentID: " + agentId,
-                                authMgr,
-                                "completed",
-                                crlIssuingPoint.getId(),
-                                crlIssuingPoint.getCRLNumber(),
-                                crlIssuingPoint.getLastUpdate(),
-                                "not set",
-                                Long.toString(crlIssuingPoint.getCRLSize())
-                                        + " time: " + (endTime - startTime) }
-                        );
+                        AuditFormat.FROMAGENT + " agentID: " + agentId,
+                        authMgr,
+                        "completed",
+                        crlIssuingPoint.getId(),
+                        crlIssuingPoint.getCRLNumber(),
+                        crlIssuingPoint.getLastUpdate(),
+                        "not set",
+                        crlIssuingPoint.getCRLSize() + " time: " + (endTime - startTime)
+                );
             }
 
         } catch (EBaseException e) {

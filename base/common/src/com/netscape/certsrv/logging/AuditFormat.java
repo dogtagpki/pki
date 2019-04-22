@@ -88,7 +88,7 @@ public class AuditFormat {
 
     // 0:initiative
     public static final String CRLUPDATEFORMAT =
-            "CRLUpdate request {0} authenticated by {1} is {2}. Id: {3}\ncrl Number: {4} last update time: {5} next update time: {6} number of entries in the CRL: {7}";
+            "CRLUpdate request {} authenticated by {} is {}. Id: {}\ncrl Number: {} last update time: {} next update time: {} number of entries in the CRL: {}";
 
     // audit user/group
     public static final String ADDUSERFORMAT =
