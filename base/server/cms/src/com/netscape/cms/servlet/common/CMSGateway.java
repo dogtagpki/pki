@@ -37,8 +37,6 @@ import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
@@ -64,9 +62,6 @@ public class CMSGateway {
     private static boolean mEnableAdminEnroll = true;
     private static IConfigStore mConfig = null;
 
-    // system logger.
-    protected static Logger mLogger = Logger.getLogger();
-
     static {
         CMSEngine engine = CMS.getCMSEngine();
         mEnableFileServing = true;
@@ -75,8 +70,7 @@ public class CMSGateway {
             mEnableAdminEnroll =
                     mConfig.getBoolean(PROP_ENABLE_ADMIN_ENROLL, false);
         } catch (EBaseException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_BAD_CONFIG_PARAM"));
+            logger.error("CMSGateway: " + CMS.getLogMessage("CMSGW_BAD_CONFIG_PARAM"), e);
         }
     }
 

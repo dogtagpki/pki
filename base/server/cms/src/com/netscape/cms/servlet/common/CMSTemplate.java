@@ -46,6 +46,7 @@ import com.netscape.cmscore.apps.CMS;
  */
 public class CMSTemplate extends CMSFile {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSTemplate.class);
     public static final String SUFFIX = ".template";
 
     /*==========================================================
@@ -80,8 +81,7 @@ public class CMSTemplate extends CMSFile {
         try {
             init(file);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_CANT_LOAD_TEMPLATE", mAbsPath, e.toString()));
+            logger.error("CMSTemplate: " + CMS.getLogMessage("CMSGW_CANT_LOAD_TEMPLATE", mAbsPath, e.toString()), e);
             throw new ECMSGWException(
                     CMS.getLogMessage("CMSGW_ERROR_LOADING_TEMPLATE"));
         }
@@ -107,7 +107,7 @@ public class CMSTemplate extends CMSFile {
         String content = loadFile(template);
 
         if (content == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_TEMPLATE_EMPTY", mAbsPath));
+            logger.error("CMSTemplate: " + CMS.getLogMessage("CMSGW_TEMPLATE_EMPTY", mAbsPath));
             throw new ECMSGWException(
                     CMS.getLogMessage("CMSGW_TEMPLATE_NO_CONTENT_1", mAbsPath));
         }
@@ -118,7 +118,7 @@ public class CMSTemplate extends CMSFile {
         int location = content.indexOf(TEMPLATE_TAG);
 
         if (location == -1) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+            logger.error("CMSTemplate: " + CMS.getLogMessage(
                     "CMSGW_TEMPLATE_MISSING", mAbsPath, TEMPLATE_TAG));
             throw new ECMSGWException(
                     CMS.getLogMessage("CMSGW_MISSING_TEMPLATE_TAG_2",
@@ -303,8 +303,7 @@ public class CMSTemplate extends CMSFile {
             in.close();
             inStream.close();
         } catch (IOException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERR_CLOSE_TEMPL_FILE", mAbsPath, e.getMessage()));
+            logger.warn("CMSTemplate: " + CMS.getLogMessage("CMSGW_ERR_CLOSE_TEMPL_FILE", mAbsPath, e.getMessage()), e);
         }
         return buf.toString();
     }
