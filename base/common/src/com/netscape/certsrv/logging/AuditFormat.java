@@ -104,7 +104,7 @@ public class AuditFormat {
     public static final String ADDUSERGROUPFORMAT =
             "Admin UID: {} added User UID: {} to group: {}";
     public static final String REMOVEUSERGROUPFORMAT =
-            "Admin UID: {0} removed User UID: {1} from group: {2}";
+            "Admin UID: {} removed User UID: {} from group: {}";
     public static final String ADDCERTSUBJECTDNFORMAT =
             "Admin UID: {0} added cert subject DN for User UID: {1}. cert DN: {2}";
     public static final String REMOVECERTSUBJECTDNFORMAT =
