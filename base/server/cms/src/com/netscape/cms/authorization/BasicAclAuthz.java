@@ -21,7 +21,6 @@ import com.netscape.certsrv.authorization.IAuthzManager;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.logging.ILogger;
 
 /**
  * A class for basic acls authorization manager
@@ -58,13 +57,13 @@ public class BasicAclAuthz extends AAclAuthz
             throws EBaseException {
         super.init(name, implName, config);
 
-        log(ILogger.LL_INFO, "initialization done");
+        logger.info("BasicAclAuthz: initialization done");
     }
 
     /**
      * graceful shutdown
      */
     public void shutdown() {
-        log(ILogger.LL_INFO, "shutting down");
+        logger.info("BasicAclAuthz: shutting down");
     }
 }

@@ -27,7 +27,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -115,14 +114,14 @@ public class DirAclAuthz extends AAclAuthz
             throws EBaseException {
         super.init(name, implName, config);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         searchBase = config.getString(PROP_SEARCHBASE, null);
 
         // initialize LDAP connection factory
         IConfigStore ldapConfig = config.getSubStore("ldap");
 
         if (ldapConfig == null) {
-            log(ILogger.LL_MISCONF, "failed to get config ldap info");
+            logger.warn("DirAclAuthz: failed to get config ldap info");
             return;
         }
 
@@ -161,7 +160,7 @@ public class DirAclAuthz extends AAclAuthz
 
             returnConn(conn);
             if (res.hasMoreElements()) {
-                log(ILogger.LL_INFO, "ldap search found cn=aclResources");
+                logger.info("DirAclAuthz: ldap search found cn=aclResources");
 
                 LDAPEntry entry = (LDAPEntry) res.nextElement();
                 LDAPAttribute aclRes = entry.getAttribute("resourceACLS");
@@ -173,16 +172,16 @@ public class DirAclAuthz extends AAclAuthz
                     addACLs(en.nextElement());
                 }
             } else {
-                log(ILogger.LL_INFO, "ldap search found no cn=aclResources");
+                logger.info("DirAclAuthz: ldap search found no cn=aclResources");
             }
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_INIT_ERROR", e.toString()));
+            logger.error("DirAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_INIT_ERROR", e.toString()), e);
             throw new EACLsException(CMS.getUserMessage("CMS_ACL_CONNECT_LDAP_FAIL", mBaseDN));
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_INIT_ERROR", e.toString()));
+            logger.warn("DirAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_INIT_ERROR", e.toString()), e);
         }
 
-        log(ILogger.LL_INFO, "initialization done");
+        logger.info("DirAclAuthz: initialization done");
     }
 
     /**
@@ -208,7 +207,7 @@ public class DirAclAuthz extends AAclAuthz
             // flushing failed, set flag
             needsFlush = true;
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_FLUSH_RESOURCES", ex.toString()));
+            logger.error("DirAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_FLUSH_RESOURCES", ex.toString()), ex);
 
             throw ex;
         }
@@ -250,7 +249,7 @@ public class DirAclAuthz extends AAclAuthz
             try {
                 returnConn(conn);
             } catch (ELdapException e) {
-                log(ILogger.LL_FAILURE, "couldn't return conn ?");
+                logger.warn("DirAclAuthz: couldn't return connection: " + e.getMessage(), e);
             }
         }
     }
@@ -273,14 +272,14 @@ public class DirAclAuthz extends AAclAuthz
                 flushResourceACLs();
             } catch (EACLsException e) {
                 // flushing failed again...too bad
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_FLUSH_ERROR", e.toString()));
+                logger.warn("DirAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_FLUSH_ERROR", e.toString()), e);
             }
         }
 
         try {
             if (mLdapConnFactory != null) mLdapConnFactory.reset();
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_LDAP_ERROR", e.toString()));
+            logger.warn("DirAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_LDAP_ERROR", e.toString()), e);
         }
     }
 
