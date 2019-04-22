@@ -702,17 +702,14 @@ public class ConnectorServlet extends CMSServlet {
                             );
                         }
                     } else {
-                        mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.NODNFORMAT,
-                                new Object[] {
-                                        thisreq.getRequestType(),
-                                        thisreq.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        thisreq.getRequestStatus() }
-                                );
+                                thisreq.getRequestType(),
+                                thisreq.getRequestId(),
+                                initiative,
+                                authMgr,
+                                thisreq.getRequestStatus()
+                        );
                     }
                 } else {
                     if (thisreq.getRequestType().equals(IRequest.ENROLLMENT_REQUEST)) {
@@ -740,17 +737,14 @@ public class ConnectorServlet extends CMSServlet {
                                 );
                             }
                         } else {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.NODNFORMAT,
-                                    new Object[] {
-                                            thisreq.getRequestType(),
-                                            thisreq.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "completed" }
-                                    );
+                                    thisreq.getRequestType(),
+                                    thisreq.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "completed"
+                            );
                         }
                     } else if (thisreq.getRequestType().equals(IRequest.RENEWAL_REQUEST)) {
                         X509CertImpl[] certs =
@@ -775,17 +769,14 @@ public class ConnectorServlet extends CMSServlet {
                                                     renewed_cert.getSerialNumber().toString(16) }
                                     );
                         } else {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.NODNFORMAT,
-                                    new Object[] {
-                                            thisreq.getRequestType(),
-                                            thisreq.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "completed with error" }
-                                    );
+                                    thisreq.getRequestType(),
+                                    thisreq.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "completed with error"
+                            );
                         }
                     } else if (thisreq.getRequestType().equals(IRequest.REVOCATION_REQUEST)) {
                         Certificate[] oldCerts =
@@ -867,17 +858,14 @@ public class ConnectorServlet extends CMSServlet {
                             }
                         }
                     } else {
-                        mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.NODNFORMAT,
-                                new Object[] {
-                                        thisreq.getRequestType(),
-                                        thisreq.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        "completed" }
-                                );
+                                thisreq.getRequestType(),
+                                thisreq.getRequestId(),
+                                initiative,
+                                authMgr,
+                                "completed"
+                        );
                     }
                 }
 

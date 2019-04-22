@@ -819,17 +819,14 @@ public class ProcessCertReq extends CMSServlet {
                                         ""
                                 );
                             } else {
-                                mLogger.log(ILogger.EV_AUDIT,
-                                        ILogger.S_OTHER,
-                                        AuditFormat.LEVEL,
+                                logger.info(
                                         AuditFormat.NODNFORMAT,
-                                        new Object[] {
-                                                r.getRequestType(),
-                                                r.getRequestId(),
-                                                initiative,
-                                                authMgr,
-                                                "pending" }
-                                        );
+                                        r.getRequestType(),
+                                        r.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        "pending"
+                                );
                             }
                         }
                     } else if (r.getRequestStatus().equals(
@@ -864,17 +861,14 @@ public class ProcessCertReq extends CMSServlet {
                                         ""
                                 );
                             } else {
-                                mLogger.log(ILogger.EV_AUDIT,
-                                        ILogger.S_OTHER,
-                                        AuditFormat.LEVEL,
+                                logger.info(
                                         AuditFormat.NODNFORMAT,
-                                        new Object[] {
-                                                r.getRequestType(),
-                                                r.getRequestId(),
-                                                initiative,
-                                                authMgr,
-                                                r.getRequestStatus() }
-                                        );
+                                        r.getRequestType(),
+                                        r.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        r.getRequestStatus()
+                                );
                             }
                         }
                     } else if (r.getRequestStatus().equals(
@@ -936,17 +930,14 @@ public class ProcessCertReq extends CMSServlet {
                                         ""
                                 );
                             } else {
-                                mLogger.log(ILogger.EV_AUDIT,
-                                        ILogger.S_OTHER,
-                                        AuditFormat.LEVEL,
+                                logger.info(
                                         AuditFormat.NODNFORMAT,
-                                        new Object[] {
-                                                r.getRequestType(),
-                                                r.getRequestId(),
-                                                initiative,
-                                                authMgr,
-                                                "completed" }
-                                        );
+                                        r.getRequestType(),
+                                        r.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        "completed"
+                                );
                             }
 
                             // store a message in the signed audit log file
@@ -1051,17 +1042,14 @@ public class ProcessCertReq extends CMSServlet {
                                     ""
                             );
                         } else {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.NODNFORMAT,
-                                    new Object[] {
-                                            r.getRequestType(),
-                                            r.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "rejected" }
-                                    );
+                                    r.getRequestType(),
+                                    r.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "rejected"
+                            );
                         }
                     }
 
@@ -1102,17 +1090,14 @@ public class ProcessCertReq extends CMSServlet {
                                     ""
                             );
                         } else {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.NODNFORMAT,
-                                    new Object[] {
-                                            r.getRequestType(),
-                                            r.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "canceled" }
-                                    );
+                                    r.getRequestType(),
+                                    r.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "canceled"
+                            );
                         }
 
                     }
@@ -1159,18 +1144,15 @@ public class ProcessCertReq extends CMSServlet {
                                     ""
                             );
                         } else {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.NODNFORMAT,
-                                    new Object[] {
-                                            r.getRequestType(),
-                                            r.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "cloned to reqID: " +
-                                                    clonedRequest.getRequestId().toString() }
-                                    );
+                                    r.getRequestType(),
+                                    r.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "cloned to reqID: " +
+                                            clonedRequest.getRequestId().toString()
+                            );
                         }
                     }
 

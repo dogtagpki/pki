@@ -393,17 +393,14 @@ public class CloneServlet extends CMSServlet {
                         );
                     }
                 } else {
-                    mLogger.log(ILogger.EV_AUDIT,
-                            ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
+                    logger.info(
                             AuditFormat.NODNFORMAT,
-                            new Object[] {
-                                    thisreq.getRequestType(),
-                                    thisreq.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    thisreq.getRequestStatus() }
-                            );
+                            thisreq.getRequestType(),
+                            thisreq.getRequestId(),
+                            initiative,
+                            authMgr,
+                            thisreq.getRequestStatus()
+                    );
                 }
             } else {
                 if (thisreq.getRequestType().equals(IRequest.CLA_CERT4CRL_REQUEST)) {

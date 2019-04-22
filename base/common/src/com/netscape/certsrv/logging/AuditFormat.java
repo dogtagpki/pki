@@ -70,7 +70,7 @@ public class AuditFormat {
     public static final String FORMAT =
             "{} reqID {} {} authenticated by {} is {} DN requested: {} {}";
     public static final String NODNFORMAT =
-            "{0} reqID {1} {2} authenticated by {3} is {4}";
+            "{} reqID {} {} authenticated by {} is {}";
 
     public static final String ENROLLMENTFORMAT =
             "Enrollment request reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} {5}";
