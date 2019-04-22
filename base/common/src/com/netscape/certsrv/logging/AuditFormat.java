@@ -96,7 +96,7 @@ public class AuditFormat {
     public static final String REMOVEUSERFORMAT =
             "Admin UID: {} removed User UID: {} ";
     public static final String MODIFYUSERFORMAT =
-            "Admin UID: {0} modified User UID: {1}";
+            "Admin UID: {} modified User UID: {}";
     public static final String ADDUSERCERTFORMAT =
             "Admin UID: {0} added cert for User UID: {1}. cert DN: {2} serial number: 0x{3}";
     public static final String REMOVEUSERCERTFORMAT =

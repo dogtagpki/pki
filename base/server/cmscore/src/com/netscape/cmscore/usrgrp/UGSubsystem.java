@@ -1287,10 +1287,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             SessionContext sessionContext = SessionContext.getContext();
             String adminId = (String) sessionContext.get(SessionContext.USER_ID);
 
-            mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                    AuditFormat.LEVEL, AuditFormat.MODIFYUSERFORMAT,
-                    new Object[] { adminId, user.getUserID() }
-                    );
+            logger.info(
+                    AuditFormat.MODIFYUSERFORMAT,
+                    adminId,
+                    user.getUserID()
+            );
 
         } catch (LDAPException e) {
             throw LDAPExceptionConverter.toPKIException(e);
