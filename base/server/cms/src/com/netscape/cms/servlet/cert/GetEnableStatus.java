@@ -93,7 +93,7 @@ public class GetEnableStatus extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
 
@@ -141,7 +141,7 @@ public class GetEnableStatus extends CMSServlet {
 
         IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
         long timeout = HashAuthentication.DEFAULT_TIMEOUT / 1000;

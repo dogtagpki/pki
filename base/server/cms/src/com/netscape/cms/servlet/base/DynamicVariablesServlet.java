@@ -93,7 +93,7 @@ public class DynamicVariablesServlet extends CMSServlet {
     private ServletContext mServletCtx = null;
     private static String mCrlurl = "";
     static {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.getConfigStore().getSubStore(PROP_CLONING);
 
         try {
@@ -192,7 +192,7 @@ public class DynamicVariablesServlet extends CMSServlet {
             HttpServletResponse httpResp)
             throws ServletException, IOException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         boolean running_state = engine.isInRunningState();
 
         if (!running_state)
@@ -264,7 +264,7 @@ public class DynamicVariablesServlet extends CMSServlet {
 
                         if (varcode.equals(VAR_AUTHMGRS)) {
                             toBeWritten = "";
-                            IAuthSubsystem as = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+                            IAuthSubsystem as = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
                             Enumeration<IAuthManager> ame = as.getAuthManagers();
 
                             Date d = new Date();

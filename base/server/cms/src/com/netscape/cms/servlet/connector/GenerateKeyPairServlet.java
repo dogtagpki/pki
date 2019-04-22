@@ -79,14 +79,14 @@ public class GenerateKeyPairServlet extends CMSServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         mConfig = config;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore sconfig = engine.getConfigStore();
         String authority = config.getInitParameter(PROP_AUTHORITY);
 
         if (authority != null)
             mAuthority = (IAuthority) engine.getSubsystem(authority);
 
-        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         // supported EC cuves by the smart cards
         String curveList = null;
         try {

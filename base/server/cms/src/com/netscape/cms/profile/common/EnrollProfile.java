@@ -1409,7 +1409,7 @@ public abstract class EnrollProfile extends BasicProfile
         try {
 
             try {
-                IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+                IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
 
                 IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
                 if (sharedTokenAuth == null) {
@@ -1704,7 +1704,7 @@ public abstract class EnrollProfile extends BasicProfile
 
         try {
             String configName = "SharedToken";
-            IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+            IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
 
             IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
             if (sharedTokenAuth == null) {

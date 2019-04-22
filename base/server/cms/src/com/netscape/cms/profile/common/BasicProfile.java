@@ -155,9 +155,9 @@ public abstract class BasicProfile implements IProfile {
 
     public IProfileAuthenticator getAuthenticator() throws EProfileException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+            IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
             IProfileAuthenticator auth = (IProfileAuthenticator)
                     authSub.get(mAuthInstanceId);
 
@@ -207,7 +207,7 @@ public abstract class BasicProfile implements IProfile {
         mOwner = owner;
         mConfig = config;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mRegistry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
         // Configure File Formats:

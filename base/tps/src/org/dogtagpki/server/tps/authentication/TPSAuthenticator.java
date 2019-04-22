@@ -71,8 +71,8 @@ public class TPSAuthenticator {
             throws EBaseException {
         id = authId;
         // retrieves and set authentication manager
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        CMSEngine engine = CMS.getCMSEngine();
+        IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         authManager = authSub.getAuthManager(authId);
         uiTitle = new HashMap<String, String>();
         uiDescription = new HashMap<String, String>();

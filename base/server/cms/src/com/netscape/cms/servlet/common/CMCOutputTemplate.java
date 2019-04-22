@@ -357,7 +357,7 @@ public class CMCOutputTemplate {
                 controlSeq.addElement(tagattr);
             }
 
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
 
             if (success_bpids.size() > 0) {
                 boolean confirmRequired = false;
@@ -582,7 +582,7 @@ public class CMCOutputTemplate {
         String method = "CMCOutputTemplate: getContentInfo: ";
         logger.debug(method + "begins");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             // add CA cert chain
             ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
@@ -698,7 +698,7 @@ public class CMCOutputTemplate {
                 }
 
                 // Get CA certs
-                CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                CMSEngine engine = CMS.getCMSEngine();
                 ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
                 CertificateChain certchains = ca.getCACertChain();
                 java.security.cert.X509Certificate[] chains = certchains.getChain();
@@ -740,7 +740,7 @@ public class CMCOutputTemplate {
     private int processConfirmCertAcceptanceControl(
             TaggedAttribute attr, SEQUENCE controlSeq, int bpid) {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         if (attr != null) {
             INTEGER bodyId = attr.getBodyPartID();
@@ -802,7 +802,7 @@ public class CMCOutputTemplate {
             throws InvalidBERException, java.security.cert.CertificateEncodingException,
             IOException, EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         if (attr != null) {
             SET vals = attr.getValues();
@@ -836,7 +836,7 @@ public class CMCOutputTemplate {
     private int processQueryPendingControl(TaggedAttribute attr,
             SEQUENCE controlSeq, int bpid) {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         if (attr != null) {
             SET values = attr.getValues();
@@ -971,7 +971,7 @@ public class CMCOutputTemplate {
         String msg = "";
         logger.debug(method + "begins");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         boolean revoke = false;
         SessionContext context = SessionContext.getContext();
         String authManagerId = (String) context.get(SessionContext.AUTH_MANAGER_ID);
@@ -1095,7 +1095,7 @@ public class CMCOutputTemplate {
                     logger.debug(method + "checking shared secret");
 
                     String configName = "SharedToken";
-                    IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+                    IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
 
                     IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
                     if (sharedTokenAuth == null) {
@@ -1557,7 +1557,7 @@ public class CMCOutputTemplate {
                         // now check validity of the cert
                         java.security.cert.X509Certificate[] x509Certs = new java.security.cert.X509Certificate[1];
                         x509Certs[0] = cert;
-                        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                        CMSEngine engine = CMS.getCMSEngine();
                         if (engine.isRevoked(x509Certs)) {
                             logger.warn(method + "CMC signing cert is a revoked certificate");
                             return false;

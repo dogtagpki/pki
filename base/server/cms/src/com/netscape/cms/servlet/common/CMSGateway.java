@@ -68,7 +68,7 @@ public class CMSGateway {
     protected static Logger mLogger = Logger.getLogger();
 
     static {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mEnableFileServing = true;
         mConfig = engine.getConfigStore().getSubStore(PROP_CMSGATEWAY);
         try {
@@ -105,7 +105,7 @@ public class CMSGateway {
 
     public static void setEnableAdminEnroll(boolean enableAdminEnroll)
             throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore mainConfig = engine.getConfigStore();
 
         //!!! Is it thread safe? xxxx
@@ -176,8 +176,8 @@ public class CMSGateway {
         if (httpArgs == null)
             httpArgs = new ArgBlock(toHashtable(httpReq));
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        CMSEngine engine = CMS.getCMSEngine();
+        IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
 
         String authMgr_http = httpArgs.getValueAsString(
                 AUTHMGR_PARAM, null);

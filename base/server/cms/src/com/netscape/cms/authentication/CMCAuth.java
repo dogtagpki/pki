@@ -215,7 +215,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         mName = name;
         mImplName = implName;
         mConfig = config;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mBypassClientAuth = engine.getConfigStore().getBoolean("cmc.bypassClientAuth", false);
 
         log(ILogger.LL_INFO, "Initialization complete!");
@@ -251,7 +251,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         String auditCertSubject = ILogger.UNIDENTIFIED;
         String auditSignerInfo = ILogger.UNIDENTIFIED;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         SessionContext auditContext = SessionContext.getExistingContext();
         X509Certificate clientCert =
                (X509Certificate) auditContext.get(SessionContext.SSL_CLIENT_CERT);
@@ -779,7 +779,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
             SessionContext auditContext,
             AuthToken authToken,
             SignedData cmcFullReq) throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String method = "CMCAuth: verifySignerInfo: ";
         String msg = "";
         EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
@@ -956,7 +956,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                         logger.debug("CMCAuth: finished checking signature");
 
                         // authenticate signer's certificate using the userdb
-                        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+                        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
 
                         IAuthManager agentAuth = authSS.getAuthManager(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);//AGENT_AUTHMGR_ID);
                         if (agentAuth == null) {

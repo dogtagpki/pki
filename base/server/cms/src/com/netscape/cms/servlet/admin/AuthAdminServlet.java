@@ -77,8 +77,8 @@ public class AuthAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mAuths = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        CMSEngine engine = CMS.getCMSEngine();
+        mAuths = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         AUTHZ_RES_NAME = "certServer.auth.configuration";
     }
 
@@ -180,7 +180,7 @@ public class AuthAdminServlet extends AdminServlet {
             }
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             if (op.equals(OpDef.OP_AUTH)) {
                 if (scope.equals(ScopeDef.SC_AUTHTYPE)) {
@@ -348,7 +348,7 @@ public class AuthAdminServlet extends AdminServlet {
         String user = combo.substring(0, semicolon);
         String pw = combo.substring(semicolon + 1);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         engine.putPasswordCache(user, pw);
     }
 

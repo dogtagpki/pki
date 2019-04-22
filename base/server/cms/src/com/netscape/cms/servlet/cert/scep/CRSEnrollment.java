@@ -232,7 +232,7 @@ public class CRSEnrollment extends HttpServlet {
         if (crsCA == null)
             crsCA = "ca";
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mAuthority = (ICertAuthority) engine.getSubsystem(crsCA);
         ca = (ICertificateAuthority) mAuthority;
 
@@ -294,7 +294,7 @@ public class CRSEnrollment extends HttpServlet {
             mProfileId = sc.getInitParameter("profileId");
             logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
 
-            mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+            mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
             mAuthManagerName = sc.getInitParameter(PROP_CRSAUTHMGR);
             mAppendDN = sc.getInitParameter(PROP_APPENDDN);
             String tmp = sc.getInitParameter(PROP_CREATEENTRY);
@@ -343,7 +343,7 @@ public class CRSEnrollment extends HttpServlet {
                       HttpServletResponse httpResp)
             throws ServletException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         boolean running_state = engine.isInRunningState();
 
         if (!running_state)

@@ -157,7 +157,7 @@ public class HashEnrollServlet extends CMSServlet {
             }
 
             // cfu
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
             mCa = (ICertificateAuthority) engine.getSubsystem("ca");
 
             init_testbed_hack(mConfig);
@@ -189,10 +189,10 @@ public class HashEnrollServlet extends CMSServlet {
             return;
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 
@@ -334,7 +334,7 @@ public class HashEnrollServlet extends CMSServlet {
         saveHttpHeaders(httpReq, req);
         saveHttpParams(httpParams, req);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken token = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
@@ -389,7 +389,7 @@ public class HashEnrollServlet extends CMSServlet {
         //AuthToken authToken = access.getAuthToken();
         IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         IAuthManager authMgr1 = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr1;
         String pageID = httpParams.getValueAsString("pageID", null);

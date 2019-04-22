@@ -109,7 +109,7 @@ public class ConnectorServlet extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mConfig = sc;
         String authority = sc.getInitParameter(PROP_AUTHORITY);
 
@@ -117,14 +117,14 @@ public class ConnectorServlet extends CMSServlet {
             mAuthority = (IAuthority) engine.getSubsystem(authority);
         mReqEncoder = new HttpRequestEncoder();
 
-        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
     }
 
     public void service(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         boolean running_state = engine.isInRunningState();
 
         if (!running_state)
@@ -316,7 +316,7 @@ public class ConnectorServlet extends CMSServlet {
         // x509certinfo from ra into request
         X509CertInfo info = null;
         ByteArrayOutputStream byteStream;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         try {
             info = request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);

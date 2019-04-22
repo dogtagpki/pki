@@ -88,20 +88,20 @@ public class CloneServlet extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mConfig = sc;
         String authority = sc.getInitParameter(PROP_AUTHORITY);
 
         if (authority != null)
             mAuthority = (IAuthority) engine.getSubsystem(authority);
         mReqEncoder = new HttpRequestEncoder();
-        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
     }
 
     public void service(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException, IOException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         boolean running_state = engine.isInRunningState();
 
         if (!running_state)

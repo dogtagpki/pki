@@ -95,7 +95,7 @@ public class RemoteAuthConfig extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         mFileConfig = engine.getConfigStore();
@@ -125,7 +125,7 @@ public class RemoteAuthConfig extends CMSServlet {
             }
         }
 
-        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
 
         mTemplates.remove(ICMSRequest.SUCCESS);
     }

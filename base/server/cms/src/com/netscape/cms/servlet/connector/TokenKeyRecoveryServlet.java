@@ -75,7 +75,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         mConfig = config;
         String authority = config.getInitParameter(PROP_AUTHORITY);
@@ -83,7 +83,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         if (authority != null)
             mAuthority = (IAuthority) engine.getSubsystem(authority);
 
-        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
     }
 
     /**
