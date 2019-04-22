@@ -3036,7 +3036,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 }
             }
 
-            ISelfTestSubsystem mSelfTestSubsystem = (ISelfTestSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_SELFTESTS);
+            ISelfTestSubsystem mSelfTestSubsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
 
             if ((request == null) ||
                     (request.equals(""))) {

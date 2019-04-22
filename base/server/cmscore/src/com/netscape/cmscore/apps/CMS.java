@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 
 /**
  * This represents the CMS server. Plugins can access other
@@ -43,8 +42,6 @@ public final class CMS {
     public static final int DEBUG_INFORM = 10;
 
     public static final String CONFIG_FILE = "CS.cfg";
-
-    public static final String SUBSYSTEM_SELFTESTS = ISelfTestSubsystem.ID;
 
     public static final int PRE_OP_MODE = 0;
     public static final int RUNNING_MODE = 1;
