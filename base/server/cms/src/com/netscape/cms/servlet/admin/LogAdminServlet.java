@@ -91,8 +91,8 @@ public class LogAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mSys = (ILogSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_LOG);
+        CMSEngine engine = CMS.getCMSEngine();
+        mSys = (ILogSubsystem) engine.getSubsystem(ILogSubsystem.ID);
     }
 
     /**
@@ -333,12 +333,12 @@ public class LogAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         Enumeration<String> e = mSys.getLogInsts().keys();
 
         for (; e.hasMoreElements();) {
             String name = e.nextElement();
-            ILogEventListener value = ((ILogSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_LOG)).getLogInstance(name);
+            ILogEventListener value = ((ILogSubsystem) engine.getSubsystem(ILogSubsystem.ID)).getLogInstance(name);
 
             if (value == null)
                 continue;
