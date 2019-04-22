@@ -652,45 +652,36 @@ public class HashEnrollServlet extends CMSServlet {
                             wholeMsg.append("\n");
                             wholeMsg.append(msgs.nextElement());
                         }
-                        mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.ENROLLMENTFORMAT,
-                                new Object[] {
-                                        req.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        status.toString(),
-                                        certInfo.get(X509CertInfo.SUBJECT),
-                                        " violation: " +
-                                                wholeMsg.toString() },
-                                ILogger.L_MULTILINE
-                                );
+                                req.getRequestId(),
+                                initiative,
+                                authMgr,
+                                status,
+                                certInfo.get(X509CertInfo.SUBJECT),
+                                " violation: " + wholeMsg
+                        );
                     } else { // no policy violation, from agent
-                        mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.ENROLLMENTFORMAT,
-                                new Object[] {
-                                        req.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        status.toString(),
-                                        certInfo.get(X509CertInfo.SUBJECT), "" }
-                                );
+                                req.getRequestId(),
+                                initiative,
+                                authMgr,
+                                status,
+                                certInfo.get(X509CertInfo.SUBJECT),
+                                ""
+                        );
                     }
-                } else { // other imcomplete status
-                    mLogger.log(ILogger.EV_AUDIT,
-                            ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
+                } else { // other incomplete status
+                    logger.info(
                             AuditFormat.ENROLLMENTFORMAT,
-                            new Object[] {
-                                    req.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    status.toString(),
-                                    certInfo.get(X509CertInfo.SUBJECT), "" }
-                            );
+                            req.getRequestId(),
+                            initiative,
+                            authMgr,
+                            status,
+                            certInfo.get(X509CertInfo.SUBJECT),
+                            ""
+                    );
                 }
             } catch (IOException e) {
                 log(ILogger.LL_FAILURE,
@@ -722,18 +713,15 @@ public class HashEnrollServlet extends CMSServlet {
                         cmsReq.setErrorDescription(err);
                         // audit log the error
                         try {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.ENROLLMENTFORMAT,
-                                    new Object[] {
-                                            req.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "completed with error: " +
-                                                    err,
-                                            certInfo.get(X509CertInfo.SUBJECT), "" }
-                                    );
+                                    req.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "completed with error: " + err,
+                                    certInfo.get(X509CertInfo.SUBJECT),
+                                    ""
+                            );
                         } catch (IOException e) {
                             log(ILogger.LL_FAILURE,
                                     CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
@@ -755,18 +743,16 @@ public class HashEnrollServlet extends CMSServlet {
                 req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
         // audit log the success.
-        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                AuditFormat.LEVEL,
+        logger.info(
                 AuditFormat.ENROLLMENTFORMAT,
-                new Object[] {
-                        req.getRequestId(),
-                        initiative,
-                        authMgr,
-                        "completed",
-                        issuedCerts[0].getSubjectDN(),
-                        "cert issued serial number: 0x" +
-                                issuedCerts[0].getSerialNumber().toString(16) }
-                );
+                req.getRequestId(),
+                initiative,
+                authMgr,
+                "completed",
+                issuedCerts[0].getSubjectDN(),
+                "cert issued serial number: 0x" +
+                        issuedCerts[0].getSerialNumber().toString(16)
+        );
 
         // return cert as mime type binary if requested.
         if (checkImportCertToNav(

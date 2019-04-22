@@ -1696,17 +1696,15 @@ public class CRSEnrollment extends HttpServlet {
 
         crsResp.setPKIStatus(CRSPKIMessage.mStatus_SUCCESS);
 
-        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            AuditFormat.ENROLLMENTFORMAT,
-                            new Object[] {
-                                    pkiReq.getRequestId(),
-                                    AuditFormat.FROMROUTER,
-                                    mAuthManagerName == null ? AuditFormat.NOAUTH : mAuthManagerName,
-                                    "pending",
-                                    subject,
-                                    "" }
-                            );
+        logger.info(
+                AuditFormat.ENROLLMENTFORMAT,
+                pkiReq.getRequestId(),
+                AuditFormat.FROMROUTER,
+                mAuthManagerName == null ? AuditFormat.NOAUTH : mAuthManagerName,
+                "pending",
+                subject,
+                ""
+        );
 
         return pkiReq;
     }
