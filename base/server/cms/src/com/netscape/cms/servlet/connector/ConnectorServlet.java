@@ -755,19 +755,17 @@ public class ConnectorServlet extends CMSServlet {
                         X509CertImpl renewed_cert = certs[0];
 
                         if (old_cert != null && renewed_cert != null) {
-                            mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.RENEWALFORMAT,
-                                    new Object[] {
-                                            thisreq.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "completed",
-                                            old_cert.getSubjectDN(),
-                                            old_cert.getSerialNumber().toString(16),
-                                            "new serial number: 0x" +
-                                                    renewed_cert.getSerialNumber().toString(16) }
-                                    );
+                                    thisreq.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "completed",
+                                    old_cert.getSubjectDN(),
+                                    old_cert.getSerialNumber().toString(16),
+                                    "new serial number: 0x" +
+                                            renewed_cert.getSerialNumber().toString(16)
+                            );
                         } else {
                             logger.info(
                                     AuditFormat.NODNFORMAT,

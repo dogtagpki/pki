@@ -75,7 +75,7 @@ public class AuditFormat {
     public static final String ENROLLMENTFORMAT =
             "Enrollment request reqID {} {} authenticated by {} is {}. DN requested: {} {}";
     public static final String RENEWALFORMAT =
-            "Renewal request reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} old serial number: 0x{5} {6}";
+            "Renewal request reqID {} {} authenticated by {} is {}. DN requested: {} old serial number: 0x{} {}";
     public static final String REVOCATIONFORMAT =
             "Revocation request reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} serial number: 0x{5} revocation reason: {6} {7}";
 
