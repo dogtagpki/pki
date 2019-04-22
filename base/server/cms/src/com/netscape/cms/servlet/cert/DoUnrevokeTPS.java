@@ -304,16 +304,14 @@ public class DoUnrevokeTPS extends CMSServlet {
 
                 if (result != null && result.equals(IRequest.RES_SUCCESS)) {
                     if (certs[0] != null) {
-                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.DOUNREVOKEFORMAT,
-                                new Object[] {
-                                        unrevReq.getRequestId(),
-                                        initiative,
-                                        "completed",
-                                        certs[0].getSubjectDN(),
-                                        "0x" + serialNumbers[0].toString(16) }
-                                );
+                                unrevReq.getRequestId(),
+                                initiative,
+                                "completed",
+                                certs[0].getSubjectDN(),
+                                "0x" + serialNumbers[0].toString(16)
+                        );
                     }
                 } else {
                     String error = unrevReq.getExtDataInString(IRequest.ERROR);
@@ -322,18 +320,14 @@ public class DoUnrevokeTPS extends CMSServlet {
                         o_status = "status=3";
                         errorString = "error=" + error;
                         if (certs[0] != null) {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.DOUNREVOKEFORMAT,
-                                    new Object[] {
-                                            unrevReq.getRequestId(),
-                                            initiative,
-                                            "completed with error: " +
-                                                    error,
-                                            certs[0].getSubjectDN(),
-                                            "0x" + serialNumbers[0].toString(16) }
-                                    );
+                                    unrevReq.getRequestId(),
+                                    initiative,
+                                    "completed with error: " + error,
+                                    certs[0].getSubjectDN(),
+                                    "0x" + serialNumbers[0].toString(16)
+                            );
                         }
                     }
                 }
@@ -432,32 +426,28 @@ public class DoUnrevokeTPS extends CMSServlet {
                 o_status = "status=2";
                 errorString = "error=" + status.toString();
                 if (certs[0] != null) {
-                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
+                    logger.info(
                             AuditFormat.DOUNREVOKEFORMAT,
-                            new Object[] {
-                                    unrevReq.getRequestId(),
-                                    initiative,
-                                    "pending",
-                                    certs[0].getSubjectDN(),
-                                    "0x" + serialNumbers[0].toString(16) }
-                            );
+                            unrevReq.getRequestId(),
+                            initiative,
+                            "pending",
+                            certs[0].getSubjectDN(),
+                            "0x" + serialNumbers[0].toString(16)
+                    );
                 }
             } else {
                 o_status = "status=2";
                 errorString = "error=Undefined request status";
 
                 if (certs[0] != null) {
-                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
+                    logger.info(
                             AuditFormat.DOUNREVOKEFORMAT,
-                            new Object[] {
-                                    unrevReq.getRequestId(),
-                                    initiative,
-                                    status.toString(),
-                                    certs[0].getSubjectDN(),
-                                    "0x" + serialNumbers[0].toString(16) }
-                            );
+                                unrevReq.getRequestId(),
+                                initiative,
+                                status,
+                                certs[0].getSubjectDN(),
+                                "0x" + serialNumbers[0].toString(16)
+                        );
                 }
             }
 

@@ -84,7 +84,7 @@ public class AuditFormat {
             "Revocation request reqID {} {} is {}. DN requested: {} serial number: 0x{} revocation reason: {}";
     // 1: fromAgent AgentID: xxx authenticated by xxx
     public static final String DOUNREVOKEFORMAT =
-            "Unrevocation request reqID {0} {1} is {2}. DN requested: {3} serial number: 0x{4}";
+            "Unrevocation request reqID {} {} is {}. DN requested: {} serial number: 0x{}";
 
     // 0:initiative
     public static final String CRLUPDATEFORMAT =
