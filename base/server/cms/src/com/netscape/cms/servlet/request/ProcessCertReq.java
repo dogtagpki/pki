@@ -795,35 +795,29 @@ public class ProcessCertReq extends CMSServlet {
                         cmsReq.setStatus(ICMSRequest.PENDING);
                         if (certInfo != null) {
                             for (int i = 0; i < certInfo.length; i++) {
-                                mLogger.log(ILogger.EV_AUDIT,
-                                        ILogger.S_OTHER,
-                                        AuditFormat.LEVEL,
+                                logger.info(
                                         AuditFormat.FORMAT,
-                                        new Object[] {
-                                                r.getRequestType(),
-                                                r.getRequestId(),
-                                                initiative,
-                                                authMgr,
-                                                "pending",
-                                                certInfo[i].get(X509CertInfo.SUBJECT),
-                                                "" }
-                                        );
+                                        r.getRequestType(),
+                                        r.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        "pending",
+                                        certInfo[i].get(X509CertInfo.SUBJECT),
+                                        ""
+                                );
                             }
                         } else {
                             if (subject != null) {
-                                mLogger.log(ILogger.EV_AUDIT,
-                                        ILogger.S_OTHER,
-                                        AuditFormat.LEVEL,
+                                logger.info(
                                         AuditFormat.FORMAT,
-                                        new Object[] {
-                                                r.getRequestType(),
-                                                r.getRequestId(),
-                                                initiative,
-                                                authMgr,
-                                                "pending",
-                                                subject,
-                                                "" }
-                                        );
+                                        r.getRequestType(),
+                                        r.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        "pending",
+                                        subject,
+                                        ""
+                                );
                             } else {
                                 mLogger.log(ILogger.EV_AUDIT,
                                         ILogger.S_OTHER,
@@ -846,35 +840,29 @@ public class ProcessCertReq extends CMSServlet {
                         cmsReq.setStatus(ICMSRequest.SVC_PENDING);
                         if (certInfo != null) {
                             for (int i = 0; i < certInfo.length; i++) {
-                                mLogger.log(ILogger.EV_AUDIT,
-                                        ILogger.S_OTHER,
-                                        AuditFormat.LEVEL,
+                                logger.info(
                                         AuditFormat.FORMAT,
-                                        new Object[] {
-                                                r.getRequestType(),
-                                                r.getRequestId(),
-                                                initiative,
-                                                authMgr,
-                                                r.getRequestStatus(),
-                                                certInfo[i].get(X509CertInfo.SUBJECT),
-                                                "" }
-                                        );
+                                        r.getRequestType(),
+                                        r.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        r.getRequestStatus(),
+                                        certInfo[i].get(X509CertInfo.SUBJECT),
+                                        ""
+                                );
                             }
                         } else {
                             if (subject != null) {
-                                mLogger.log(ILogger.EV_AUDIT,
-                                        ILogger.S_OTHER,
-                                        AuditFormat.LEVEL,
+                                logger.info(
                                         AuditFormat.FORMAT,
-                                        new Object[] {
-                                                r.getRequestType(),
-                                                r.getRequestId(),
-                                                initiative,
-                                                authMgr,
-                                                r.getRequestStatus(),
-                                                subject,
-                                                "" }
-                                        );
+                                        r.getRequestType(),
+                                        r.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        r.getRequestStatus(),
+                                        subject,
+                                        ""
+                                );
                             } else {
                                 mLogger.log(ILogger.EV_AUDIT,
                                         ILogger.S_OTHER,
@@ -910,22 +898,19 @@ public class ProcessCertReq extends CMSServlet {
                                     sbuf.append(", ");
                                 sbuf.append("0x" +
                                         issuedCerts[i].getSerialNumber().toString(16));
-                                mLogger.log(ILogger.EV_AUDIT,
-                                        ILogger.S_OTHER,
-                                        AuditFormat.LEVEL,
+                                logger.info(
                                         AuditFormat.FORMAT,
-                                        new Object[] {
-                                                r.getRequestType(),
-                                                r.getRequestId(),
-                                                initiative,
-                                                authMgr,
-                                                "completed",
-                                                issuedCerts[i].getSubjectDN(),
-                                                "cert issued serial number: 0x"
-                                                        +
-                                                        issuedCerts[i].getSerialNumber().toString(16) + " time: "
-                                                        + (endTime - startTime) }
-                                        );
+                                        r.getRequestType(),
+                                        r.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        "completed",
+                                        issuedCerts[i].getSubjectDN(),
+                                        "cert issued serial number: 0x"
+                                                +
+                                                issuedCerts[i].getSerialNumber().toString(16) + " time: "
+                                                + (endTime - startTime)
+                                );
 
                                 // store a message in the signed audit log file
                                 // (one for each manual "agent"
@@ -940,19 +925,16 @@ public class ProcessCertReq extends CMSServlet {
                                     "serialNumber", sbuf.toString());
                         } else {
                             if (subject != null) {
-                                mLogger.log(ILogger.EV_AUDIT,
-                                        ILogger.S_OTHER,
-                                        AuditFormat.LEVEL,
+                                logger.info(
                                         AuditFormat.FORMAT,
-                                        new Object[] {
-                                                r.getRequestType(),
-                                                r.getRequestId(),
-                                                initiative,
-                                                authMgr,
-                                                "completed",
-                                                subject,
-                                                "" }
-                                        );
+                                        r.getRequestType(),
+                                        r.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        "completed",
+                                        subject,
+                                        ""
+                                );
                             } else {
                                 mLogger.log(ILogger.EV_AUDIT,
                                         ILogger.S_OTHER,
@@ -1045,35 +1027,29 @@ public class ProcessCertReq extends CMSServlet {
                     mQueue.rejectRequest(r);
                     if (certInfo != null) {
                         for (int i = 0; i < certInfo.length; i++) {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.FORMAT,
-                                    new Object[] {
-                                            r.getRequestType(),
-                                            r.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "rejected",
-                                            certInfo[i].get(X509CertInfo.SUBJECT),
-                                            "" }
-                                    );
+                                    r.getRequestType(),
+                                    r.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "rejected",
+                                    certInfo[i].get(X509CertInfo.SUBJECT),
+                                    ""
+                            );
                         }
                     } else {
                         if (subject != null) {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.FORMAT,
-                                    new Object[] {
-                                            r.getRequestType(),
-                                            r.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "rejected",
-                                            subject,
-                                            "" }
-                                    );
+                                    r.getRequestType(),
+                                    r.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "rejected",
+                                    subject,
+                                    ""
+                            );
                         } else {
                             mLogger.log(ILogger.EV_AUDIT,
                                     ILogger.S_OTHER,
@@ -1102,35 +1078,29 @@ public class ProcessCertReq extends CMSServlet {
 
                     if (certInfo != null) {
                         for (int i = 0; i < certInfo.length; i++) {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.FORMAT,
-                                    new Object[] {
-                                            r.getRequestType(),
-                                            r.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "canceled",
-                                            certInfo[i].get(X509CertInfo.SUBJECT),
-                                            "" }
-                                    );
+                                    r.getRequestType(),
+                                    r.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "canceled",
+                                    certInfo[i].get(X509CertInfo.SUBJECT),
+                                    ""
+                            );
                         }
                     } else {
                         if (subject != null) {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.FORMAT,
-                                    new Object[] {
-                                            r.getRequestType(),
-                                            r.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "canceled",
-                                            subject,
-                                            "" }
-                                    );
+                                    r.getRequestType(),
+                                    r.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "canceled",
+                                    subject,
+                                    ""
+                            );
                         } else {
                             mLogger.log(ILogger.EV_AUDIT,
                                     ILogger.S_OTHER,
@@ -1163,37 +1133,31 @@ public class ProcessCertReq extends CMSServlet {
 
                     if (certInfo != null) {
                         for (int i = 0; i < certInfo.length; i++) {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.FORMAT,
-                                    new Object[] {
-                                            r.getRequestType(),
-                                            r.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "cloned to reqID: " +
-                                                    clonedRequest.getRequestId().toString(),
-                                            certInfo[i].get(X509CertInfo.SUBJECT),
-                                            "" }
-                                    );
+                                    r.getRequestType(),
+                                    r.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "cloned to reqID: " +
+                                            clonedRequest.getRequestId().toString(),
+                                    certInfo[i].get(X509CertInfo.SUBJECT),
+                                    ""
+                            );
                         }
                     } else {
                         if (subject != null) {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.FORMAT,
-                                    new Object[] {
-                                            r.getRequestType(),
-                                            r.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "cloned to reqID: " +
-                                                    clonedRequest.getRequestId().toString(),
-                                            subject,
-                                            "" }
-                                    );
+                                    r.getRequestType(),
+                                    r.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "cloned to reqID: " +
+                                            clonedRequest.getRequestId().toString(),
+                                    subject,
+                                    ""
+                            );
                         } else {
                             mLogger.log(ILogger.EV_AUDIT,
                                     ILogger.S_OTHER,

@@ -601,18 +601,16 @@ public class EnrollmentService implements IService {
                 authMgr =
                         authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
             }
-            transactionLogger.log(
-                    AuditFormat.LEVEL,
+            logger.info(
                     AuditFormat.FORMAT,
-                    new Object[] {
-                            IRequest.KEYARCHIVAL_REQUEST,
-                            request.getRequestId(),
-                            AuditFormat.FROMAGENT + " agentID: " + agentId,
-                            authMgr,
-                            "completed",
-                            owner,
-                            "serial number: 0x" + serialNo.toString(16) }
-                    );
+                    IRequest.KEYARCHIVAL_REQUEST,
+                    request.getRequestId(),
+                    AuditFormat.FROMAGENT + " agentID: " + agentId,
+                    authMgr,
+                    "completed",
+                    owner,
+                    "serial number: 0x" + serialNo.toString(16)
+            );
 
             auditPublicKey = auditPublicKey(rec);
             signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createSuccessEvent(

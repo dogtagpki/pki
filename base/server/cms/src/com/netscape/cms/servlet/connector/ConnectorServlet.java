@@ -690,19 +690,16 @@ public class ConnectorServlet extends CMSServlet {
                 if (!thisreq.getRequestStatus().equals(RequestStatus.COMPLETE)) {
                     if (x509Info != null) {
                         for (int i = 0; i < x509Info.length; i++) {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.FORMAT,
-                                    new Object[] {
-                                            thisreq.getRequestType(),
-                                            thisreq.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            thisreq.getRequestStatus(),
-                                            x509Info[i].get(X509CertInfo.SUBJECT),
-                                            "" }
-                                    );
+                                    thisreq.getRequestType(),
+                                    thisreq.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    thisreq.getRequestStatus(),
+                                    x509Info[i].get(X509CertInfo.SUBJECT),
+                                    ""
+                            );
                         }
                     } else {
                         mLogger.log(ILogger.EV_AUDIT,
@@ -730,20 +727,17 @@ public class ConnectorServlet extends CMSServlet {
                         // return potentially more than one certificates.
                         if (x509Certs != null) {
                             for (int i = 0; i < x509Certs.length; i++) {
-                                mLogger.log(ILogger.EV_AUDIT,
-                                        ILogger.S_OTHER,
-                                        AuditFormat.LEVEL,
+                                logger.info(
                                         AuditFormat.FORMAT,
-                                        new Object[] {
-                                                thisreq.getRequestType(),
-                                                thisreq.getRequestId(),
-                                                initiative,
-                                                authMgr,
-                                                "completed",
-                                                x509Certs[i].getSubjectDN(),
-                                                "cert issued serial number: 0x" +
-                                                        x509Certs[i].getSerialNumber().toString(16) }
-                                        );
+                                        thisreq.getRequestType(),
+                                        thisreq.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        "completed",
+                                        x509Certs[i].getSubjectDN(),
+                                        "cert issued serial number: 0x" +
+                                                x509Certs[i].getSerialNumber().toString(16)
+                                );
                             }
                         } else {
                             mLogger.log(ILogger.EV_AUDIT,

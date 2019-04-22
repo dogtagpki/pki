@@ -68,7 +68,7 @@ public class AuditFormat {
      * 6: other info. eg cert serial number, violation policies
      */
     public static final String FORMAT =
-            "{0} reqID {1} {2} authenticated by {3} is {4} DN requested: {5} {6}";
+            "{} reqID {} {} authenticated by {} is {} DN requested: {} {}";
     public static final String NODNFORMAT =
             "{0} reqID {1} {2} authenticated by {3} is {4}";
 

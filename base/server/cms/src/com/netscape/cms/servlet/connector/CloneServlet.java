@@ -381,19 +381,16 @@ public class CloneServlet extends CMSServlet {
             if (!thisreq.getRequestStatus().equals(RequestStatus.COMPLETE)) {
                 if (certInfo != null) {
                     for (int i = 0; i < certInfo.length; i++) {
-                        mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.FORMAT,
-                                new Object[] {
-                                        thisreq.getRequestType(),
-                                        thisreq.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        thisreq.getRequestStatus(),
-                                        certInfo[i].get(X509CertInfo.SUBJECT),
-                                        "" }
-                                );
+                                thisreq.getRequestType(),
+                                thisreq.getRequestId(),
+                                initiative,
+                                authMgr,
+                                thisreq.getRequestStatus(),
+                                certInfo[i].get(X509CertInfo.SUBJECT),
+                                ""
+                        );
                     }
                 } else {
                     mLogger.log(ILogger.EV_AUDIT,

@@ -33,7 +33,6 @@ import com.netscape.certsrv.ca.ICAService;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -41,7 +40,6 @@ import com.netscape.certsrv.profile.IProfileUpdater;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertUtils;
@@ -217,22 +215,18 @@ public class CAEnrollProfile extends EnrollProfile {
                           + (String) sc.get(SessionContext.USER_ID);
         String authMgr = (String) sc.get(SessionContext.AUTH_MANAGER_ID);
 
-        Logger logger = Logger.getLogger();
-        if (logger != null) {
-            logger.log(ILogger.EV_AUDIT,
-                        ILogger.S_OTHER, AuditFormat.LEVEL, AuditFormat.FORMAT,
-                        new Object[] {
-                                request.getRequestType(),
-                                request.getRequestId(),
-                                initiative,
-                                authMgr,
-                                "completed",
-                                theCert.getSubjectDN(),
-                                "cert issued serial number: 0x" +
-                                        theCert.getSerialNumber().toString(16) +
-                                        " time: " + (endTime - startTime) }
-                    );
-        }
+        logger.info(
+                AuditFormat.FORMAT,
+                request.getRequestType(),
+                request.getRequestId(),
+                initiative,
+                authMgr,
+                "completed",
+                theCert.getSubjectDN(),
+                "cert issued serial number: 0x" +
+                        theCert.getSerialNumber().toString(16) +
+                        " time: " + (endTime - startTime)
+        );
 
         request.setRequestStatus(RequestStatus.COMPLETE);
 

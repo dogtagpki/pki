@@ -335,18 +335,16 @@ public class RecoveryService implements IService {
                         authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
             }
         }
-        transactionLogger.log(
-                AuditFormat.LEVEL,
+        logger.info(
                 AuditFormat.FORMAT,
-                new Object[] {
-                        IRequest.KEYRECOVERY_REQUEST,
-                        request.getRequestId(),
-                        initiative,
-                        authMgr,
-                        "completed",
-                        ((X509CertImpl) x509cert).getSubjectDN(),
-                        "serial number: 0x" + serialno.toString(16) }
-                );
+                IRequest.KEYRECOVERY_REQUEST,
+                request.getRequestId(),
+                initiative,
+                authMgr,
+                "completed",
+                ((X509CertImpl) x509cert).getSubjectDN(),
+                "serial number: 0x" + serialno.toString(16)
+        );
 
         if (statsSub != null) {
             statsSub.endTiming("recovery");
