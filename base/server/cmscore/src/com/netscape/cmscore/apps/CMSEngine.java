@@ -18,7 +18,6 @@
 package com.netscape.cmscore.apps;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -34,7 +33,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.Vector;
@@ -50,12 +48,7 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
-import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
 import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -81,7 +74,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
-import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -1165,38 +1157,6 @@ public class CMSEngine implements ISubsystem {
 
     public boolean isInRunningState() {
         return isStarted;
-    }
-
-    public byte[] getPKCS7(Locale locale, IRequest req) {
-        try {
-            X509CertImpl cert = req.getExtDataInCert(
-                    IEnrollProfile.REQUEST_ISSUED_CERT);
-            if (cert == null)
-                return null;
-
-            ICertificateAuthority ca = (ICertificateAuthority) getSubsystem(ICertificateAuthority.ID);
-            CertificateChain cachain = ca.getCACertChain();
-            X509Certificate[] cacerts = cachain.getChain();
-
-            X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
-            int m = 1, n = 0;
-
-            for (; n < cacerts.length; m++, n++) {
-                userChain[m] = (X509CertImpl) cacerts[n];
-            }
-
-            userChain[0] = cert;
-            PKCS7 p7 = new PKCS7(new AlgorithmId[0],
-                    new ContentInfo(new byte[0]),
-                    userChain,
-                    new SignerInfo[0]);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-            p7.encodeSignedData(bos);
-            return bos.toByteArray();
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     public String getServerCertNickname() {

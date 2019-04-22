@@ -29,6 +29,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.dogtagpki.server.ca.CAEngine;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
@@ -76,7 +77,6 @@ import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This servlet submits end-user request into the profile framework.
@@ -324,7 +324,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
         logger.debug("ProfileSubmitCMCServlet: SubId=" + mProfileSubId);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CAEngine engine = (CAEngine) CMS.getCMSEngine();
         IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {
