@@ -22,10 +22,8 @@ import java.io.PrintStream;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IMailNotification;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -42,7 +40,6 @@ import netscape.net.smtp.SmtpClient;
 public class MailNotification implements IMailNotification {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MailNotification.class);
-    private Logger mLogger = Logger.getLogger();
     protected final static String PROP_SMTP_SUBSTORE = "smtp";
     protected final static String PROP_HOST = "host";
 
@@ -57,7 +54,7 @@ public class MailNotification implements IMailNotification {
     public MailNotification() {
         if (mHost == null) {
             try {
-                CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                CMSEngine engine = CMS.getCMSEngine();
                 IConfigStore config = engine.getConfigStore();
                 IConfigStore c = config.getSubStore(PROP_SMTP_SUBSTORE);
 
@@ -103,7 +100,7 @@ public class MailNotification implements IMailNotification {
 
         // set "to"
         if ((mTo != null) && (!mTo.equals(""))) {
-            log(ILogger.LL_INFO, "mail to be sent to " + mTo);
+            logger.info("MailNotification: mail to be sent to " + mTo);
             sc.to(mTo);
         } else {
             logger.error("MailNotification.sendNotification: missing receiver");
@@ -133,8 +130,7 @@ public class MailNotification implements IMailNotification {
             sc.closeServer();
             logger.debug("MailNotification.sendNotification: after closeServer");
         } catch (IOException e) {
-            logger.error("MailNotification.sendNotification: send failed: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.error("MailNotification: Unable to send: " + e.getMessage(), e);
             throw new ENotificationException(
                     CMS.getUserMessage("CMS_NOTIFICATION_SMTP_SEND_FAILED", mTo));
         }
@@ -194,12 +190,4 @@ public class MailNotification implements IMailNotification {
     public void setTo(String to) {
         mTo = to;
     }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, "MailNotification: " + msg);
-    }
-
 }
