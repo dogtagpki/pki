@@ -52,8 +52,8 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
      */
     public GroupAccessEvaluator() {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mUG = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        mUG = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
 
         if (mUG == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UG_NULL"));

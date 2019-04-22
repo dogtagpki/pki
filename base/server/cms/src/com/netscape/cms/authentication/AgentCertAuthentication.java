@@ -92,8 +92,8 @@ public class AgentCertAuthentication implements IAuthManager,
         mImplName = implName;
         mConfig = config;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mUGSub = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        mUGSub = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         mCULocator = mUGSub.getCertUserLocator();
     }
 
@@ -137,7 +137,7 @@ public class AgentCertAuthentication implements IAuthManager,
         logger.debug("AgentCertAuthentication: start");
         logger.debug("authenticator instance name is " + getName());
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         // force SSL handshake
         SessionContext context = SessionContext.getExistingContext();
@@ -218,7 +218,7 @@ public class AgentCertAuthentication implements IAuthManager,
 
         if (!groupname.equals("")) {
             logger.debug("check if " + user.getUserID() + " is  in group " + groupname);
-            IUGSubsystem uggroup = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+            IUGSubsystem uggroup = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
             if (!uggroup.isMemberOf(user, groupname)) {
                 logger.error(user.getUserID() + " is not in this group " + groupname);
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHORIZATION_ERROR"));

@@ -251,8 +251,8 @@ public abstract class CMSServlet extends HttpServlet {
     protected String mAuthzResourceName = null;
 
     protected String mOutputTemplatePath = null;
-    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-    private IUGSubsystem mUG = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+    CMSEngine engine = CMS.getCMSEngine();
+    private IUGSubsystem mUG = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
 
     public CMSServlet() {
     }
@@ -274,7 +274,7 @@ public abstract class CMSServlet extends HttpServlet {
 
         this.servletConfig = sc;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mAuthz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
         mId = sc.getInitParameter(PROP_ID);
 
@@ -420,7 +420,7 @@ public abstract class CMSServlet extends HttpServlet {
             HttpServletResponse httpResp)
             throws ServletException, IOException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         boolean running_state = engine.isInRunningState();
 
         if (!running_state)
@@ -1566,7 +1566,7 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     public static String generateSalt() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         SecureRandom rnd = jssSubsystem.getRandomNumberGenerator();
         String salt = new Integer(rnd.nextInt()).toString();

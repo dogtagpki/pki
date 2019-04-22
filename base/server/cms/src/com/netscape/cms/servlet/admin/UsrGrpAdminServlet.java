@@ -99,7 +99,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
      */
     public UsrGrpAdminServlet() {
         super();
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mAuthz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
     }
 
@@ -108,8 +108,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mMgr = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        mMgr = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
     }
 
     /**
@@ -137,7 +137,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             return;
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         Locale clientLocale = super.getLocale(req);
 
         try {
@@ -670,7 +670,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1946,7 +1946,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported

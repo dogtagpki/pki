@@ -145,8 +145,8 @@ public class AdminServlet extends HttpServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mUG = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        mUG = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         mConfig = engine.getConfigStore();
 
         String srcType = AUTHZ_SRC_LDAP;
@@ -221,7 +221,7 @@ public class AdminServlet extends HttpServlet {
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         boolean running_state = engine.isInRunningState();
 
         if (!running_state)
@@ -268,7 +268,7 @@ public class AdminServlet extends HttpServlet {
     protected void authenticate(HttpServletRequest req) throws
             IOException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditUID = ILogger.UNIDENTIFIED;
         String authType = "";
 

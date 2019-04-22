@@ -61,11 +61,11 @@ public class Auditor implements IAuditor {
             return null;
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         Enumeration<IGroup> groups;
 
         try {
-            IUGSubsystem userGroupSubsystem = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+            IUGSubsystem userGroupSubsystem = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
             groups = userGroupSubsystem.findGroups("*");
 
         } catch (Exception e) {

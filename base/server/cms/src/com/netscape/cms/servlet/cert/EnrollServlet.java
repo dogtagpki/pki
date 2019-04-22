@@ -177,7 +177,7 @@ public class EnrollServlet extends CMSServlet {
 
             logger.debug("EnrollServlet: In Enroll Servlet init!");
 
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
             try {
                 IConfigStore configStore = engine.getConfigStore();
                 String PKI_Subsystem = configStore.getString("subsystem.0.id",
@@ -710,7 +710,7 @@ public class EnrollServlet extends CMSServlet {
      */
     protected void processX509(CMSRequest cmsReq)
             throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
@@ -1517,8 +1517,8 @@ public class EnrollServlet extends CMSServlet {
     protected void addAdminAgent(CMSRequest cmsReq, X509CertImpl[] issuedCerts)
             throws EBaseException {
         String userid = cmsReq.getHttpParams().getValueAsString("uid");
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
 
         IUser adminuser = ug.createUser(userid);
 

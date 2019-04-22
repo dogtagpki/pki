@@ -31,8 +31,6 @@ import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
-import com.netscape.certsrv.tks.ITKSAuthority;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 
 /**
  * This represents the CMS server. Plugins can access other
@@ -51,8 +49,6 @@ public final class CMS {
 
     public static final String CONFIG_FILE = "CS.cfg";
 
-    public static final String SUBSYSTEM_TKS = ITKSAuthority.ID;
-    public static final String SUBSYSTEM_UG = IUGSubsystem.ID;
     public static final String SUBSYSTEM_AUTH = IAuthSubsystem.ID;
     public static final String SUBSYSTEM_AUTHZ = IAuthzSubsystem.ID;
     public static final String SUBSYSTEM_REGISTRY = IPluginRegistry.ID;

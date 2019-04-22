@@ -50,7 +50,7 @@ public class PKIRealm extends RealmBase {
     public Principal authenticate(String username, String password) {
         logger.info("Authenticating user " + username + " with password.");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditSubjectID = ILogger.UNIDENTIFIED;
         String attemptedAuditUID = username;
 
@@ -93,7 +93,7 @@ public class PKIRealm extends RealmBase {
         // in cert based auth, subject id from cert has already passed SSL authentication
         // what remains is to see if the user exists in the internal user db
         // therefore both auditSubjectID and attemptedAuditUID are the same
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditSubjectID = getAuditUserfromCert(certs[0]);
         String attemptedAuditUID = auditSubjectID;
 
@@ -167,8 +167,8 @@ public class PKIRealm extends RealmBase {
     }
 
     protected IUser getUser(String username) throws EUsrGrpException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IUGSubsystem ugSub = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        IUGSubsystem ugSub = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IUser user = ugSub.getUser(username);
         logger.info("User DN: " + user.getUserDN());
         return user;
@@ -178,8 +178,8 @@ public class PKIRealm extends RealmBase {
 
         List<String> roles = new ArrayList<String>();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IUGSubsystem ugSub = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        IUGSubsystem ugSub = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         Enumeration<IGroup> groups = ugSub.findGroupsByUser(user.getUserDN(), null);
 
         logger.info("Roles:");

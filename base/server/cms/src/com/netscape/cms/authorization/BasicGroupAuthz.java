@@ -103,8 +103,8 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
             throw new EAuthzAccessDenied("No userid provided");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IGroup group = ug.getGroupFromName(groupName);
         if (!group.isMember(user)) {
             logger.error("BasicGroupAuthz: access denied. User: " + user + " is not a member of group: " + groupName);

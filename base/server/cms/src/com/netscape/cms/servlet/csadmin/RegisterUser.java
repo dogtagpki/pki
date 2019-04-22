@@ -91,7 +91,7 @@ public class RegisterUser extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = null;
         try {
             authToken = authenticate(cmsReq);
@@ -151,7 +151,7 @@ public class RegisterUser extends CMSServlet {
                              "+state;;1" +
                              "+userType;;<null>+email;;<null>+password;;<null>+phone;;<null>";
 
-        IUGSubsystem ugsys = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+        IUGSubsystem ugsys = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
 
         IUser user = null;
         boolean foundByCert = false;

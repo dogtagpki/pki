@@ -398,7 +398,7 @@ public class ProcessCertReq extends CMSServlet {
             Locale locale, long startTime)
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
@@ -1623,8 +1623,8 @@ public class ProcessCertReq extends CMSServlet {
 
         header.addStringValue(GRANT_PRIVILEGE, privilege);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IUser user = ug.createUser(uid);
 
         user.setFullName(uid);

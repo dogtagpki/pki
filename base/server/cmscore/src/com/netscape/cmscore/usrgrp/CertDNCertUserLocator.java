@@ -64,8 +64,8 @@ public class CertDNCertUserLocator implements ICertUserLocator {
     public IUser locateUser(Certificates certs) throws
             EUsrGrpException, LDAPException, ELdapException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mUG = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        mUG = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
 
         X509Certificate certificates[] = certs.getCertificates();
 

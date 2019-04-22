@@ -65,8 +65,8 @@ public class GroupMemberProcessor extends Processor {
 
     public static String[] multiRoleGroupEnforceList;
 
-    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-    public IUGSubsystem userGroupManager = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+    CMSEngine engine = CMS.getCMSEngine();
+    public IUGSubsystem userGroupManager = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
 
     protected UriInfo uriInfo;
 
@@ -193,7 +193,7 @@ public class GroupMemberProcessor extends Processor {
 
     public GroupMemberData addGroupMember(GroupMemberData groupMemberData) {
         String groupID = groupMemberData.getGroupID();
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -268,7 +268,7 @@ public class GroupMemberProcessor extends Processor {
             return true;
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String groupList = null;
         if (multiRoleGroupEnforceList == null) {
             try {

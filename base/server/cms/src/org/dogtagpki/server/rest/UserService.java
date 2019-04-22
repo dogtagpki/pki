@@ -84,8 +84,8 @@ public class UserService extends SubsystemService implements UserResource {
     public final static String BACK_SLASH = "\\";
     public final static String SYSTEM_USER = "$System$";
 
-    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-    public IUGSubsystem userGroupManager = (IUGSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_UG);
+    CMSEngine engine = CMS.getCMSEngine();
+    public IUGSubsystem userGroupManager = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
 
     public UserData createUserData(IUser user) throws Exception {
 
@@ -195,7 +195,7 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
             IConfigStore cs = engine.getConfigStore();
             IUser user;
 
@@ -274,7 +274,7 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (userData == null) throw new BadRequestException("User data is null.");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String userID = userData.getUserID();
         logger.debug("User ID: " + userID);
@@ -413,7 +413,7 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (userData == null) throw new BadRequestException("User data is null.");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         IConfigStore cs = engine.getConfigStore();
@@ -504,7 +504,7 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (userData == null) throw new BadRequestException("User data is null.");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         IConfigStore cs = engine.getConfigStore();
