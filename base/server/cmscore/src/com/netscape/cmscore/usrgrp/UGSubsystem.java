@@ -1045,14 +1045,13 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                 SessionContext sessionContext = SessionContext.getContext();
                 String adminId = (String) sessionContext.get(SessionContext.USER_ID);
 
-                mLogger.log(ILogger.EV_AUDIT,
-                        ILogger.S_USRGRP,
-                        AuditFormat.LEVEL,
+                logger.info(
                         AuditFormat.REMOVEUSERCERTFORMAT,
-                        new Object[] { adminId, user.getUserID(),
-                                certs[0].getSubjectDN().toString(),
-                                certs[i].getSerialNumber().toString(16) }
-                        );
+                        adminId,
+                        user.getUserID(),
+                        certs[0].getSubjectDN(),
+                        certs[i].getSerialNumber().toString(16)
+                );
 
             } catch (CertificateEncodingException e) {
                 throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
