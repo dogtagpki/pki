@@ -31,7 +31,6 @@ import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.profile.IProfileSubsystem;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
@@ -54,7 +53,6 @@ public final class CMS {
 
     public static final String CONFIG_FILE = "CS.cfg";
 
-    public static final String SUBSYSTEM_RA = IRegistrationAuthority.ID;
     public static final String SUBSYSTEM_KRA = IKeyRecoveryAuthority.ID;
     public static final String SUBSYSTEM_OCSP = IOCSPAuthority.ID;
     public static final String SUBSYSTEM_TKS = ITKSAuthority.ID;

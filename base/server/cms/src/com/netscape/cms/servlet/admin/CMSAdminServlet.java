@@ -433,7 +433,7 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         if (isRAInstalled) {
-            IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(CMS.SUBSYSTEM_RA);
+            IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
             String raNickname = ra.getNickname();
 
             params.put(Constants.PR_CERT_RA, getCertNickname(raNickname));
@@ -539,7 +539,7 @@ public final class CMSAdminServlet extends AdminServlet {
             if (isCAInstalled)
                 ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             if (isRAInstalled)
-                ra = (IRegistrationAuthority) engine.getSubsystem(CMS.SUBSYSTEM_RA);
+                ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
             if (isKRAInstalled)
                 kra = (IKeyRecoveryAuthority) engine.getSubsystem(CMS.SUBSYSTEM_KRA);
 
@@ -1285,7 +1285,7 @@ public final class CMSAdminServlet extends AdminServlet {
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(CMS.SUBSYSTEM_RA);
+        IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
 
         if (CryptoUtil.isInternalToken(tokenName))
             ra.setNewNickName(nickname);
@@ -1299,7 +1299,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
     private String getRANewnickname() throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(CMS.SUBSYSTEM_RA);
+        IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
 
         return ra.getNewNickName();
     }
@@ -1734,7 +1734,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     //modifyRADMCert(nickname);
                     modifyAgentGatewayCert(nickname);
                     if (isSubsystemInstalled("ra")) {
-                        IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(CMS.SUBSYSTEM_RA);
+                        IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
 
                         modifyEEGatewayCert(ra, nickname);
                     }
@@ -2101,7 +2101,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 }
             } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)) {
                 setRANewnickname("", "");
-                IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(CMS.SUBSYSTEM_RA);
+                IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
 
                 ra.setNickname(nickname);
             } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
@@ -2142,7 +2142,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 //modifyRADMCert(nickname);
                 modifyAgentGatewayCert(nickname);
                 if (isSubsystemInstalled("ra")) {
-                    IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(CMS.SUBSYSTEM_RA);
+                    IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
 
                     modifyEEGatewayCert(ra, nickname);
                 }
@@ -2434,7 +2434,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 nickname = signingUnit.getNickname();
             }
         } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)) {
-            IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(CMS.SUBSYSTEM_RA);
+            IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
 
             nickname = ra.getNickname();
         } else if (certType.equals(Constants.PR_KRA_TRANSPORT_CERT)) {

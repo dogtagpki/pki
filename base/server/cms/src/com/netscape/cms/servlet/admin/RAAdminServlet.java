@@ -78,8 +78,8 @@ public class RAAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mRA = (IRegistrationAuthority) engine.getSubsystem(CMS.SUBSYSTEM_RA);
+        CMSEngine engine = CMS.getCMSEngine();
+        mRA = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
     }
 
     /**
