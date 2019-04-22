@@ -1307,7 +1307,7 @@ public final class CMSAdminServlet extends AdminServlet {
     private void setOCSPNewnickname(String tokenName, String nickname)
             throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(CMS.SUBSYSTEM_OCSP);
+        IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
 
         if (ocsp != null) {
             ISigningUnit signingUnit = ocsp.getSigningUnit();
@@ -1337,7 +1337,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
     private String getOCSPNewnickname() throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(CMS.SUBSYSTEM_OCSP);
+        IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
 
         if (ocsp != null) {
             ISigningUnit signingUnit = ocsp.getSigningUnit();
@@ -2106,7 +2106,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 ra.setNickname(nickname);
             } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
                 setOCSPNewnickname("", "");
-                IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(CMS.SUBSYSTEM_OCSP);
+                IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
 
                 if (ocsp != null) {
                     ISigningUnit signingUnit = ocsp.getSigningUnit();
@@ -2420,7 +2420,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             nickname = signingUnit.getNickname();
         } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
-            IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(CMS.SUBSYSTEM_OCSP);
+            IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
 
             if (ocsp == null) {
                 // this is a local CA service

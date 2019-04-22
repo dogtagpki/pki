@@ -70,8 +70,8 @@ public class OCSPAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mOCSP = (IOCSPAuthority) engine.getSubsystem(CMS.SUBSYSTEM_OCSP);
+        CMSEngine engine = CMS.getCMSEngine();
+        mOCSP = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
     }
 
     /**
