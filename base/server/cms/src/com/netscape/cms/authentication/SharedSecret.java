@@ -164,7 +164,7 @@ public class SharedSecret extends DirBasedAuthentication
         logger.debug(method + " begins.");
         super.init(name, implName, config);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         //TODO later:
         //mRemoveShrTok =
         //        config.getBoolean(PROP_REMOVE_SharedToken, DEF_REMOVE_SharedToken);
@@ -181,7 +181,7 @@ public class SharedSecret extends DirBasedAuthentication
 
         initLdapConn(config);
 
-        ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+        ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         issuanceProtPrivKey = authority.getIssuanceProtPrivKey();
         if (issuanceProtPrivKey != null)
             logger.debug(method + "got issuanceProtPrivKey");

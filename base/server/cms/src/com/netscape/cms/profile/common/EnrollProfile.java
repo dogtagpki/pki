@@ -397,7 +397,7 @@ public abstract class EnrollProfile extends BasicProfile
             throw new EBaseException(method + msg);
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         byte[] req_key_data = req.getExtDataInByteArray(IEnrollProfile.REQUEST_KEY);
         if (req_key_data != null) {
             logger.debug(method + "found user public key in request");
@@ -674,11 +674,11 @@ public abstract class EnrollProfile extends BasicProfile
             throw new Exception(msg);
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         // for CMCUserSignedAuth, the signing user is the subject of
         // the new cert
-        ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+        ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         try {
             BigInteger serialNo = new BigInteger(certSerial);
             userCert = authority.getCertificateRepository().getX509Certificate(serialNo);
@@ -721,7 +721,7 @@ public abstract class EnrollProfile extends BasicProfile
         //logger.debug(method + " Start parseCMC(): " + certreq);
         logger.debug(method + "starts");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditMessage = "";
         String auditSubjectID = auditSubjectID();
 
@@ -1204,7 +1204,7 @@ public abstract class EnrollProfile extends BasicProfile
             return null;
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority authority = (ICertificateAuthority) getAuthority();
         PrivateKey issuanceProtPrivKey = authority.getIssuanceProtPrivKey();
         if (issuanceProtPrivKey != null)
@@ -1404,7 +1404,7 @@ public abstract class EnrollProfile extends BasicProfile
         String configName = "SharedToken";
         char[] sharedSecret = null;
         byte[] sharedSecretBytes = null;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         try {
 
@@ -1685,7 +1685,7 @@ public abstract class EnrollProfile extends BasicProfile
             return false;
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String ident_string = ident.toString();
         String auditAttemptedCred = null;
 
@@ -1845,7 +1845,7 @@ public abstract class EnrollProfile extends BasicProfile
             return false;
 
         String configName = "cmc.sharedSecret.class";
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ISharedToken tokenClass = engine.getSharedTokenClass(configName);
         if (tokenClass == null) {
             logger.warn(method + " Failed to retrieve shared secret authentication plugin class");
@@ -1885,7 +1885,7 @@ public abstract class EnrollProfile extends BasicProfile
             IRequest req)
             throws EProfileException, ECMCPopFailedException, ECMCBadRequestException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -2141,7 +2141,7 @@ public abstract class EnrollProfile extends BasicProfile
         String method = "EnrollProfile: fillCertReqMsg: ";
         logger.debug(method + "Start parseCertReqMsg ");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             CertRequest certReq = certReqMsg.getCertReq();
             req.setExtData("bodyPartId", certReq.getCertReqId());
@@ -2328,7 +2328,7 @@ public abstract class EnrollProfile extends BasicProfile
         byte data[] = Utils.base64decode(creq);
         PKCS10 pkcs10 = null;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         CryptoManager cm = null;
         CryptoToken savedToken = null;
         boolean sigver = true;
@@ -2781,7 +2781,7 @@ public abstract class EnrollProfile extends BasicProfile
             popFailed(locale, auditSubjectID, auditMessage);
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             CryptoToken verifyToken = null;
             String tokenName = engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);

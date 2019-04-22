@@ -83,8 +83,8 @@ public class UniqueKeyConstraint extends EnrollConstraint {
     public void init(IProfile profile, IConfigStore config)
             throws EProfileException {
         super.init(profile, config);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mCA = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = CMS.getCMSEngine();
+        mCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) {

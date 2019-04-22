@@ -257,7 +257,7 @@ public class ValidityDefault extends EnrollDefault {
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         // always + 60 seconds
         String startTimeStr = getConfig(CONFIG_START_TIME);
@@ -315,7 +315,7 @@ public class ValidityDefault extends EnrollDefault {
                 request.getExtDataInBoolean("installAdjustValidity", false);
         if (adjustValidity) {
             logger.debug("ValidityDefault: populate: adjustValidity is true");
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             try {
                 X509CertImpl caCert = ca.getCACert();
                 Date caNotAfter = caCert.getNotAfter();

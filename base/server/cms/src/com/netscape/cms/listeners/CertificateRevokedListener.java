@@ -113,7 +113,7 @@ public class CertificateRevokedListener implements IRequestListener {
 
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -258,7 +258,7 @@ public class CertificateRevokedListener implements IRequestListener {
     }
 
     private void mailIt(String mEmail, RevokedCertImpl crlentries[]) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
@@ -320,10 +320,10 @@ public class CertificateRevokedListener implements IRequestListener {
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT,
                 mHttpPort);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             RevokedCertImpl revCert = crlentries[0];
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ICertificateRepository certDB = ca.getCertificateRepository();
             X509Certificate cert = certDB.getX509Certificate(revCert.getSerialNumber());
 

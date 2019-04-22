@@ -60,8 +60,8 @@ public class CAEnrollProfile extends EnrollProfile {
     }
 
     public IAuthority getAuthority() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IAuthority authority = (IAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = CMS.getCMSEngine();
+        IAuthority authority = (IAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
         if (authority == null)
             return null;
@@ -69,8 +69,8 @@ public class CAEnrollProfile extends EnrollProfile {
     }
 
     public X500Name getIssuerName() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         X500Name issuerName = ca.getX500Name();
 
         return issuerName;

@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
@@ -55,7 +54,6 @@ public final class CMS {
 
     public static final String CONFIG_FILE = "CS.cfg";
 
-    public static final String SUBSYSTEM_CA = ICertificateAuthority.ID;
     public static final String SUBSYSTEM_RA = IRegistrationAuthority.ID;
     public static final String SUBSYSTEM_KRA = IKeyRecoveryAuthority.ID;
     public static final String SUBSYSTEM_OCSP = IOCSPAuthority.ID;

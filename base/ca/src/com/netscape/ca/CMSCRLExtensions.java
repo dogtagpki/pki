@@ -580,7 +580,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     public void setConfigParams(String id, NameValuePairs nvp, IConfigStore config) {
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         String ipId = nvp.get("id");
 
         ICRLIssuingPoint ip = null;
@@ -674,7 +674,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
                 if (modifiedCRLConfig == true) {
                     //Commit to this CRL IssuingPoint's config store
-                    ICertificateAuthority CA = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+                    ICertificateAuthority CA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                     IConfigStore crlsSubStore = CA.getConfigStore();
                     crlsSubStore = crlsSubStore.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
                     crlsSubStore = crlsSubStore.getSubStore(ipId);

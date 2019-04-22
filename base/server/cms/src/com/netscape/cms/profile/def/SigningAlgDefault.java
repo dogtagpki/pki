@@ -74,14 +74,14 @@ public class SigningAlgDefault extends EnrollDefault {
 
     public String getSigningAlg() {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String signingAlg = getConfig(CONFIG_ALGORITHM);
         // if specified, use the specified one. Otherwise, pick
         // the best selection for the user
         if (signingAlg == null || signingAlg.equals("") ||
                 signingAlg.equals("-")) {
             // best pick for the user
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             return ca.getDefaultAlgorithm();
         } else {
             return signingAlg;
@@ -90,8 +90,8 @@ public class SigningAlgDefault extends EnrollDefault {
 
     public String getDefSigningAlgorithms() {
         StringBuffer allowed = new StringBuffer();
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         String algos[] = ca.getCASigningAlgorithms();
         for (int i = 0; i < algos.length; i++) {
             if (allowed.length() == 0) {

@@ -418,7 +418,7 @@ public final class CMSAdminServlet extends AdminServlet {
         params.put(Constants.PR_TOKEN_LIST, tokenNewList);
 
         if (isCAInstalled) {
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ISigningUnit signingUnit = ca.getSigningUnit();
 
             caTokenName = signingUnit.getTokenName();
@@ -537,7 +537,7 @@ public final class CMSAdminServlet extends AdminServlet {
             IKeyRecoveryAuthority kra = null;
 
             if (isCAInstalled)
-                ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+                ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             if (isRAInstalled)
                 ra = (IRegistrationAuthority) engine.getSubsystem(CMS.SUBSYSTEM_RA);
             if (isKRAInstalled)
@@ -1260,7 +1260,7 @@ public final class CMSAdminServlet extends AdminServlet {
     private void setCANewnickname(String tokenName, String nickname)
             throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ISigningUnit signingUnit = ca.getSigningUnit();
 
         if (CryptoUtil.isInternalToken(tokenName))
@@ -1275,7 +1275,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
     private String getCANewnickname() throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ISigningUnit signingUnit = ca.getSigningUnit();
 
         return signingUnit.getNewNickName();
@@ -1321,7 +1321,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     signingUnit.setNewNickName(tokenName + ":" + nickname);
             }
         } else {
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ISigningUnit signingUnit = ca.getOCSPSigningUnit();
 
             if (CryptoUtil.isInternalToken(tokenName))
@@ -1344,7 +1344,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             return signingUnit.getNewNickName();
         } else {
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ISigningUnit signingUnit = ca.getOCSPSigningUnit();
 
             return signingUnit.getNewNickName();
@@ -1481,7 +1481,7 @@ public final class CMSAdminServlet extends AdminServlet {
             String certType = (String) properties.get(Constants.RS_ID);
 
             ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ICertificateRepository repository =
                     ca.getCertificateRepository();
             ISigningUnit signingUnit = ca.getSigningUnit();
@@ -2052,7 +2052,7 @@ public final class CMSAdminServlet extends AdminServlet {
             }
 
             if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 ISigningUnit signingUnit = ca.getSigningUnit();
                 String signatureAlg =
                         jssSubSystem.getSignatureAlgorithm(nickname);
@@ -2120,7 +2120,7 @@ public final class CMSAdminServlet extends AdminServlet {
                         signingUnit.updateConfig(nickname, tokenname1);
                     }
                 } else {
-                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                     ISigningUnit signingUnit = ca.getOCSPSigningUnit();
 
                     if (nickname.equals(nicknameWithoutTokenName)) {
@@ -2147,7 +2147,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     modifyEEGatewayCert(ra, nickname);
                 }
                 if (isSubsystemInstalled("ca")) {
-                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
                     modifyCAGatewayCert(ca, nickname);
                 }
@@ -2415,7 +2415,7 @@ public final class CMSAdminServlet extends AdminServlet {
         CMSEngine engine = CMS.getCMSEngine();
 
         if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ISigningUnit signingUnit = ca.getSigningUnit();
 
             nickname = signingUnit.getNickname();
@@ -2424,7 +2424,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             if (ocsp == null) {
                 // this is a local CA service
-                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 ISigningUnit signingUnit = ca.getOCSPSigningUnit();
 
                 nickname = signingUnit.getNickname();

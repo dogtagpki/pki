@@ -122,9 +122,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         if (aidString != null && adnString != null)
             throw new BadRequestException("Cannot provide both issuer-id and issuer-dn");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         AuthorityID aid = null;
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         if (aidString != null) {
             try {
                 aid = new AuthorityID(aidString);
@@ -386,7 +386,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new BadRequestException(message);
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
         if (ps == null) {
             String message = "Unable to get enrollment template: Profile Service not available";
@@ -446,7 +446,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         start = start == null ? DEFAULT_START : start;
         size = size == null ? DEFAULT_PAGESIZE : size;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
 
         if (ps == null) {

@@ -99,11 +99,11 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
         }
         Object request = keys.get(KEY_CERT);
         X509Certificate cert = null;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         if (request instanceof RevokedCertImpl) {
             RevokedCertImpl revCert = (RevokedCertImpl) request;
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ICertificateRepository certDB = ca.getCertificateRepository();
 
             cert = certDB.getX509Certificate(revCert.getSerialNumber());

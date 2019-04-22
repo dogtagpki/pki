@@ -171,8 +171,8 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
     public void populate(IRequest request, X509CertInfo info)
             throws EProfileException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         String aidString = request.getExtDataInString(
                 IRequest.AUTHORITY_ID);
         if (aidString != null)

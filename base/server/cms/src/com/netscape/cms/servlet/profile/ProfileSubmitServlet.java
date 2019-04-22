@@ -209,7 +209,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         HttpServletRequest request = cmsReq.getHttpReq();
         Locale locale = getLocale(request);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
 
         String profileId = processor.getProfileID() == null ? request.getParameter("profileId") : processor.getProfileID();
@@ -232,7 +232,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             } catch (IllegalArgumentException e) {
                 throw new BadRequestDataException("invalid AuthorityID: " + aidString, e);
             }
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ca = ca.getCA(aid);
             if (ca == null)
                 throw new CANotFoundException("CA not found: " + aidString);

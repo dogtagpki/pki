@@ -41,8 +41,8 @@ public abstract class CAEnrollConstraint extends EnrollConstraint {
      * Retrieves the CA certificate.
      */
     public X509CertImpl getCACert() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         X509CertImpl caCert = ca.getCACert();
 
         return caCert;
