@@ -1519,12 +1519,15 @@ public class EnrollServlet extends CMSServlet {
             if (!agentGroup.isMember(userid)) {
                 agentGroup.addMemberName(userid);
                 ug.modifyGroup(agentGroup);
-                mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                        AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
-                        new Object[] { userid, userid, CA_AGENT_GROUP }
-                        );
 
+                logger.info(
+                        AuditFormat.ADDUSERGROUPFORMAT,
+                        userid,
+                        userid,
+                        CA_AGENT_GROUP
+                );
             }
+
         } else {
             String msg = "Cannot add admin to the " +
                     CA_AGENT_GROUP +

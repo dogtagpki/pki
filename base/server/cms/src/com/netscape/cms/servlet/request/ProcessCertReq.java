@@ -1624,21 +1624,25 @@ public class ProcessCertReq extends CMSServlet {
             SessionContext sContext = SessionContext.getContext();
             String adminId = (String) sContext.get(SessionContext.USER_ID);
 
-            mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                    AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
-                    new Object[] { adminId, uid, groupname }
-                    );
+            logger.info(
+                    AuditFormat.ADDUSERGROUPFORMAT,
+                    adminId,
+                    uid,
+                    groupname
+            );
 
             if (group1 != null) {
                 group1.addMemberName(uid);
                 ug.modifyGroup(group1);
 
-                mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                        AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
-                        new Object[] { adminId, uid, groupname1 }
-                        );
-
+                logger.info(
+                        AuditFormat.ADDUSERGROUPFORMAT,
+                        adminId,
+                        uid,
+                        groupname1
+                );
             }
+
         } catch (Exception e) {
             String msg =
                     "Could not add user " + uid + " to group " + groupname;

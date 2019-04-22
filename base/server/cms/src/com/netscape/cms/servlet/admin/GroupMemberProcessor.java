@@ -240,9 +240,12 @@ public class GroupMemberProcessor extends Processor {
             SessionContext sContext = SessionContext.getContext();
             String adminId = (String) sContext.get(SessionContext.USER_ID);
 
-            systemLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                    AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
-                    new Object[] { adminId, memberID, groupID });
+            logger.info(
+                    AuditFormat.ADDUSERGROUPFORMAT,
+                    adminId,
+                    memberID,
+                    groupID
+            );
 
             auditAddGroupMember(groupID, groupMemberData, ILogger.SUCCESS);
 

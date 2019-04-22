@@ -841,10 +841,12 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     SessionContext sContext = SessionContext.getContext();
                     String adminId = (String) sContext.get(SessionContext.USER_ID);
 
-                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                            AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
-                            new Object[] { adminId, id, groupName }
-                            );
+                    logger.info(
+                            AuditFormat.ADDUSERGROUPFORMAT,
+                            adminId,
+                            id,
+                            groupName
+                    );
                 }
 
                 NameValuePairs params = new NameValuePairs();
