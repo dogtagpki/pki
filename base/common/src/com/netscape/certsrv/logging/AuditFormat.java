@@ -22,6 +22,7 @@ package com.netscape.certsrv.logging;
  * class "AuditFormat" is legacy and has nothing to do with the signed
  * audit log events format
  *
+ * @author mzhao
  * @version $Revision$, $Date$
  */
 public class AuditFormat {
