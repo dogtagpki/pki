@@ -833,12 +833,13 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                 SessionContext sessionContext = SessionContext.getContext();
                 String adminId = (String) sessionContext.get(SessionContext.USER_ID);
 
-                mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                        AuditFormat.LEVEL, AuditFormat.ADDUSERCERTFORMAT,
-                        new Object[] { adminId, user.getUserID(),
-                                cert[0].getSubjectDN().toString(),
-                                cert[0].getSerialNumber().toString(16) }
-                        );
+                logger.info(
+                        AuditFormat.ADDUSERCERTFORMAT,
+                        adminId,
+                        user.getUserID(),
+                        cert[0].getSubjectDN(),
+                        cert[0].getSerialNumber().toString(16)
+                );
 
             } catch (LDAPException e) {
                 logger.error("UGSubsystem: " + e.getMessage(), e);
