@@ -63,7 +63,7 @@ public class CAInstallerService extends SystemConfigService {
     @Override
     public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         try {
             if (!request.isClone()) {
@@ -125,7 +125,7 @@ public class CAInstallerService extends SystemConfigService {
 
         super.initializeDatabase(data);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         if (!data.isClone()
                 && engine.getSubsystem("profile") instanceof LDAPProfileSubsystem) {
@@ -143,7 +143,7 @@ public class CAInstallerService extends SystemConfigService {
         super.reinitSubsystems();
 
         // Enable subsystems after database initialization.
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         SubsystemInfo si = engine.dynSubsystems.get(CertificateAuthority.ID);
         si.enabled = true;
@@ -169,9 +169,8 @@ public class CAInstallerService extends SystemConfigService {
     public void importProfiles(String configRoot)
             throws EBaseException, ELdapException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IPluginRegistry registry = (IPluginRegistry)
-                engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        CMSEngine engine = CMS.getCMSEngine();
+        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
         IConfigStore profileCfg = cs.getSubStore("profile");
         String profileIds = profileCfg.getString("list", "");
         StringTokenizer st = new StringTokenizer(profileIds, ",");

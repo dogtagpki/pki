@@ -103,8 +103,8 @@ public class ProfileAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mRegistry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        CMSEngine engine = CMS.getCMSEngine();
+        mRegistry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
         mProfileSub = (IProfileSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_PROFILE);
     }
 
@@ -2349,7 +2349,7 @@ public class ProfileAdminServlet extends AdminServlet {
         String user = combo.substring(0, semicolon);
         String pw = combo.substring(semicolon + 1);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         engine.putPasswordCache(user, pw);
     }
 
@@ -2380,7 +2380,7 @@ public class ProfileAdminServlet extends AdminServlet {
             HttpServletResponse resp)
             throws ServletException, IOException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 

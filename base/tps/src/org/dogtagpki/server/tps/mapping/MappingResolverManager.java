@@ -79,9 +79,9 @@ public class MappingResolverManager
             throws EBaseException {
         String method = "mappingResolverManager.initMappingResolverInstance:";
         logger.debug(method + " begins");
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
-        registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
         if (registry == null) {
             logger.warn(method + " registry null");
             return;

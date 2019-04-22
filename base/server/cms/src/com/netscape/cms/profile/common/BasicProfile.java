@@ -208,7 +208,7 @@ public abstract class BasicProfile implements IProfile {
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();
-        mRegistry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        mRegistry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
 
         // Configure File Formats:
         // visible

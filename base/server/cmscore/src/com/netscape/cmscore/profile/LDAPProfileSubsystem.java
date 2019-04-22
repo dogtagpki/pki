@@ -100,7 +100,7 @@ public class LDAPProfileSubsystem
         nsUniqueIds = new TreeMap<>();
         deletedNsUniqueIds = new TreeSet<>();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         dbFactory = new LdapBoundConnFactory("LDAPProfileSubsystem");
@@ -157,8 +157,8 @@ public class LDAPProfileSubsystem
      */
     private synchronized void readProfile(LDAPEntry ldapProfile) {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        CMSEngine engine = CMS.getCMSEngine();
+        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
 
         String nsUniqueId =
             ldapProfile.getAttribute("nsUniqueId").getStringValueArray()[0];

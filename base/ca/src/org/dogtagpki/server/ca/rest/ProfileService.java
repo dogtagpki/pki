@@ -89,9 +89,9 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileService.class);
 
-    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    CMSEngine engine = CMS.getCMSEngine();
     private IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
-    private IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+    private IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
 
     @Override
     public Response listProfiles(Integer start, Integer size) {
@@ -329,7 +329,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     public static ProfileDataInfo createProfileDataInfo(String profileId, boolean visibleOnly, UriInfo uriInfo,
             Locale locale) throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
         if (profileId == null) {
             throw new EBaseException("Error creating ProfileDataInfo.");

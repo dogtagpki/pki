@@ -82,8 +82,8 @@ public class RegistryAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mRegistry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        CMSEngine engine = CMS.getCMSEngine();
+        mRegistry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
     }
 
     /**

@@ -90,7 +90,7 @@ public class RenewalProcessor extends CertProcessor {
 
             logger.debug("RenewalProcessor: processRenewal()");
 
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
 
             startTiming("enrollment");
             request.setAttribute("reqType", "renewal");
@@ -123,7 +123,7 @@ public class RenewalProcessor extends CertProcessor {
             // if not found, get serial number from profile input (no auth required)
             if (certSerial == null) {
 
-                IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+                IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
 
                 // find SerialNumRenewInput
                 for (ProfileInput input : data.getInputs()) {

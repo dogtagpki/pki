@@ -125,13 +125,13 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
     public synchronized void commitProfile(String id)
             throws EProfileException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = mProfiles.get(id).getConfigStore();
 
         // first create a *new* profile object from the configStore
         // and initialise it with the updated configStore
         //
-        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
         String classId = mProfileClassIds.get(id);
         IPluginInfo info = registry.getPluginInfo("profile", classId);
         String className = info.getClassName();

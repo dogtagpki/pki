@@ -56,8 +56,8 @@ public class ProfileSubsystem
 
         logger.debug("ProfileSubsystem: start init");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        CMSEngine engine = CMS.getCMSEngine();
+        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
 
         mConfig = config;
         mOwner = owner;
@@ -110,7 +110,7 @@ public class ProfileSubsystem
             boolean isNew) throws EProfileException {
         IProfile profile = null;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String configPath;
         try {
             configPath = engine.getConfigStore().getString("instanceRoot")
@@ -140,7 +140,7 @@ public class ProfileSubsystem
 
     public void deleteProfile(String id) throws EProfileException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String configPath;
         try {
             configPath = engine.getConfigStore().getString("instanceRoot")
@@ -190,7 +190,7 @@ public class ProfileSubsystem
     private void createProfileConfig(String id, String classId)
             throws EProfileException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String configPath;
         try {
             configPath = engine.getConfigStore().getString("instanceRoot")
