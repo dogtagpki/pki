@@ -10,7 +10,6 @@ import com.netscape.cmscore.dbs.DBRegistryDefaultStub;
 import com.netscape.cmscore.dbs.DBSSessionDefaultStub;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.DBSubsystemDefaultStub;
-import com.netscape.cmscore.logging.LoggerDefaultStub;
 
 import junit.framework.TestCase;
 
@@ -20,7 +19,6 @@ import junit.framework.TestCase;
  * (like the CMS logging system).
  */
 public abstract class CMSBaseTestCase extends TestCase {
-    LoggerDefaultStub logger;
     DBSubsystemStub db;
     DBRegistryDefaultStub registry;
     DBSSessionDefaultStub session;
@@ -30,7 +28,6 @@ public abstract class CMSBaseTestCase extends TestCase {
     }
 
     public final void setUp() {
-        logger = new LoggerDefaultStub();
         db = new DBSubsystemStub();
         registry = new DBRegistryDefaultStub();
         session = new DBSSessionDefaultStub();
