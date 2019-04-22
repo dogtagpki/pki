@@ -100,7 +100,7 @@ public class PublisherAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         String authority = config.getInitParameter(PROP_AUTHORITY);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         if (authority != null)
             mAuth = (IAuthority) engine.getSubsystem(authority);
@@ -432,7 +432,7 @@ public class PublisherAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = mAuth.getConfigStore();
         IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
         IConfigStore ldapcfg = publishcfg.getSubStore(IPublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
@@ -464,7 +464,7 @@ public class PublisherAdminServlet extends AdminServlet {
             if (name.equals(Constants.PR_PUBLISHING_QUEUE_STATUS))
                 continue;
             if (name.equals(Constants.PR_CERT_NAMES)) {
-                ICryptoSubsystem jss = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                ICryptoSubsystem jss = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
 
                 params.put(name, jss.getAllCerts());
             } else {
@@ -502,7 +502,7 @@ public class PublisherAdminServlet extends AdminServlet {
     private void setLDAPDest(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         //Save New Settings to the config file
         IConfigStore config = mAuth.getConfigStore();
@@ -623,7 +623,7 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         logger.debug("PublisherAdmineServlet: in testSetLDAPDest");
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         //Save New Settings to the config file
         IConfigStore config = mAuth.getConfigStore();
         IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);

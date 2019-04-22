@@ -320,7 +320,7 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         NameValuePairs params = new NameValuePairs();
 
         params.put(Constants.PR_TOKEN_LIST, jssSubSystem.getTokenList());
@@ -334,7 +334,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
 
         params.put(Constants.PR_ALL_NICKNAMES, jssSubSystem.getAllCerts());
 
@@ -386,7 +386,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         }
 
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         String caTokenName = "";
 
         NameValuePairs params = new NameValuePairs();
@@ -513,7 +513,7 @@ public final class CMSAdminServlet extends AdminServlet {
         try {
             Enumeration<String> enum1 = req.getParameterNames();
             NameValuePairs params = new NameValuePairs();
-            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
 
             jssSubSystem.getInternalTokenName();
 
@@ -904,7 +904,7 @@ public final class CMSAdminServlet extends AdminServlet {
             if (name.equals(Constants.PR_TOKEN_LIST)) {
                 String selectedToken = req.getParameter(name);
 
-                ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
 
                 CryptoToken token = null;
 
@@ -1017,7 +1017,7 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
 
         jssSubSystem.loggedInToken(tokenName, pwd);
 
@@ -1042,7 +1042,7 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         boolean status = jssSubSystem.isTokenLoggedIn(value);
 
         NameValuePairs params = new NameValuePairs();
@@ -1113,7 +1113,7 @@ public final class CMSAdminServlet extends AdminServlet {
             dir = pathname;
 
             CMSEngine engine = CMS.getCMSEngine();
-            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
 
             KeyPair keypair = null;
             PQGParams pqgParams = null;
@@ -1480,7 +1480,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             String certType = (String) properties.get(Constants.RS_ID);
 
-            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
             ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(CMS.SUBSYSTEM_CA);
             ICertificateRepository repository =
                     ca.getCertificateRepository();
@@ -1933,7 +1933,7 @@ public final class CMSAdminServlet extends AdminServlet {
                      + File.separator + "config" + File.separator + pathname;
 
             CMSEngine engine = CMS.getCMSEngine();
-            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
             //String nickname = getNickname(certType);
             String nicknameWithoutTokenName = "";
 
@@ -2364,7 +2364,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 return;
             }
 
-            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
             String content = jssSubSystem.getCertPrettyPrint(b64Cert,
                     super.getLocale(req));
 
@@ -2535,7 +2535,7 @@ public final class CMSAdminServlet extends AdminServlet {
             nickname = getNickname(certType);
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         String content = jssSubSystem.getCertPrettyPrint(pkcs,
                 super.getLocale(req));
 
@@ -2552,7 +2552,7 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         String nickname = "";
         String serialno = "";
         String issuername = "";
@@ -2595,7 +2595,7 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         String nickname = "";
         String serialno = "";
         String issuername = "";
@@ -2637,7 +2637,7 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         NameValuePairs pairs = jssSubSystem.getCACerts();
 
         sendResponse(SUCCESS, null, pairs, resp);
@@ -2649,7 +2649,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         String id = req.getParameter(Constants.RS_ID);
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         int mindex = id.indexOf(":SERIAL#<");
         String nickname = id.substring(0, mindex);
         String sstr1 = id.substring(mindex);
@@ -2666,7 +2666,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         String id = req.getParameter(Constants.RS_ID);
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         int mindex = id.indexOf(":SERIAL#<");
         String nickname = id.substring(0, mindex);
         String sstr1 = id.substring(mindex);
@@ -2681,7 +2681,7 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         NameValuePairs pairs = jssSubSystem.getRootCerts();
 
         sendResponse(SUCCESS, null, pairs, resp);
@@ -2691,7 +2691,7 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         NameValuePairs pairs = jssSubSystem.getAllCertsManage();
 
         sendResponse(SUCCESS, null, pairs, resp);
@@ -2701,7 +2701,7 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         NameValuePairs pairs = jssSubSystem.getUserCerts();
         sendResponse(SUCCESS, null, pairs, resp);
     }
@@ -2711,7 +2711,7 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
         Enumeration<String> enum1 = req.getParameterNames();
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         String nickname = "";
         String date = "";
 
@@ -2750,7 +2750,7 @@ public final class CMSAdminServlet extends AdminServlet {
             String value = req.getParameter(key);
 
             if (key.equals(Constants.PR_SUBJECT_NAME)) {
-                ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
 
                 jssSubSystem.isX500DN(value);
             }
@@ -2813,7 +2813,7 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
 
         jssSubSystem.checkCertificateExt(certExt);
         sendResponse(SUCCESS, null, null, resp);
@@ -2838,7 +2838,7 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         String subjectName = jssSubSystem.getSubjectDN(nickname);
 
         params.put(Constants.PR_SUBJECT_NAME, subjectName);
@@ -2863,7 +2863,7 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         String subjectName = jssSubSystem.getSubjectDN(nickname);
 
         params.put(Constants.PR_SUBJECT_NAME, subjectName);
@@ -2883,7 +2883,7 @@ public final class CMSAdminServlet extends AdminServlet {
         logger.debug("CMSAdminServlet: setRootCertTrust()");
 
         CMSEngine engine = CMS.getCMSEngine();
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
         try {
             jssSubSystem.setRootCertTrust(nickname, serialno, issuername, trust);
         } catch (EBaseException e) {
@@ -2931,7 +2931,7 @@ public final class CMSAdminServlet extends AdminServlet {
         // to the signed audit log and stored as failures
         try {
             Enumeration<String> enum1 = req.getParameterNames();
-            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+            ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
             String trust = "";
 
             while (enum1.hasMoreElements()) {

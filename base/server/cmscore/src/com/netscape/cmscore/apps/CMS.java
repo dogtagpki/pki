@@ -35,7 +35,6 @@ import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.registry.IPluginRegistry;
-import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
@@ -57,7 +56,6 @@ public final class CMS {
 
     public static final String CONFIG_FILE = "CS.cfg";
 
-    public static final String SUBSYSTEM_CRYPTO = ICryptoSubsystem.ID;
     public static final String SUBSYSTEM_DBS = IDBSubsystem.SUB_ID;
     public static final String SUBSYSTEM_CA = ICertificateAuthority.ID;
     public static final String SUBSYSTEM_RA = IRegistrationAuthority.ID;
