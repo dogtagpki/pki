@@ -35,7 +35,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.jobs.IJobsScheduler;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
@@ -195,7 +194,7 @@ public class UnpublishExpiredJob extends AJobBase
              expired = list.getCertRecords(0, size - 1);
              */
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
         }
 
         int count = 0; // how many have been unpublished successfully
@@ -230,10 +229,8 @@ public class UnpublishExpiredJob extends AJobBase
                 if (mSummary == true)
                     buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                             STATUS_FAILURE);
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("JOBS_META_INFO_ERROR",
-                                cert.getSerialNumber().toString(16) +
-                                        e.toString()));
+                logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("JOBS_META_INFO_ERROR",
+                                cert.getSerialNumber().toString(16) + e.getMessage()), e);
             }
 
             String ridString = null;
@@ -246,20 +243,16 @@ public class UnpublishExpiredJob extends AJobBase
                 if (mSummary == true)
                     buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                             STATUS_FAILURE);
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("JOBS_META_REQUEST_ERROR",
-                                cert.getSerialNumber().toString(16) +
-                                        e.toString()));
+                logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("JOBS_META_REQUEST_ERROR",
+                                cert.getSerialNumber().toString(16) + e.getMessage()), e);
             } catch (NullPointerException e) {
                 // no requestId in MetaInfo...skip to next record
                 negCount += 1;
                 if (mSummary == true)
                     buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                             STATUS_FAILURE);
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("JOBS_META_REQUEST_ERROR",
-                                cert.getSerialNumber().toString(16) +
-                                        e.toString()));
+                logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("JOBS_META_REQUEST_ERROR",
+                                cert.getSerialNumber().toString(16) + e.getMessage()), e);
             }
 
             if (ridString != null) {
@@ -279,10 +272,8 @@ public class UnpublishExpiredJob extends AJobBase
                     if (mSummary == true)
                         buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                                 STATUS_FAILURE);
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("JOBS_FIND_REQUEST_ERROR",
-                                    cert.getSerialNumber().toString(16) +
-                                            e.toString()));
+                    logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("JOBS_FIND_REQUEST_ERROR",
+                                    cert.getSerialNumber().toString(16) + e.getMessage()), e);
                 }
                 try {
                     if ((mPublisherProcessor != null) &&
@@ -300,10 +291,8 @@ public class UnpublishExpiredJob extends AJobBase
                     if (mSummary == true)
                         buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                                 STATUS_FAILURE);
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("JOBS_UNPUBLISH_ERROR",
-                                    cert.getSerialNumber().toString(16) +
-                                            e.toString()));
+                    logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("JOBS_UNPUBLISH_ERROR",
+                                    cert.getSerialNumber().toString(16) + e.getMessage()), e);
                 }
             } // ridString != null
             else {
@@ -323,10 +312,8 @@ public class UnpublishExpiredJob extends AJobBase
                     if (mSummary == true)
                         buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                                 STATUS_FAILURE);
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("JOBS_UNPUBLISH_ERROR",
-                                    cert.getSerialNumber().toString(16) +
-                                            e.toString()));
+                    logger.warn("UnpublishExpiredJob: " + CMS.getLogMessage("JOBS_UNPUBLISH_ERROR",
+                                    cert.getSerialNumber().toString(16) + e.getMessage()), e);
                 }
             } // ridString == null
 

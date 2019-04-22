@@ -192,7 +192,7 @@ public class PublishCertsJob extends AJobBase
              expired = list.getCertRecords(0, size - 1);
              */
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.warn("PublishCertsJob: " + CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
         }
 
         int count = 0; // how many have been published successfully
@@ -237,10 +237,8 @@ public class PublishCertsJob extends AJobBase
                 if (mSummary == true)
                     buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                             STATUS_FAILURE);
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("JOBS_META_INFO_ERROR",
-                                cert.getSerialNumber().toString(16) +
-                                        e.toString()));
+                logger.warn("PublishCertsJob: " + CMS.getLogMessage("JOBS_META_INFO_ERROR",
+                                cert.getSerialNumber().toString(16) + e.getMessage()), e);
             }
 
             String ridString = null;
@@ -253,20 +251,16 @@ public class PublishCertsJob extends AJobBase
                 if (mSummary == true)
                     buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                             STATUS_FAILURE);
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("JOBS_META_REQUEST_ERROR",
-                                cert.getSerialNumber().toString(16) +
-                                        e.toString()));
+                logger.warn("PublishCertsJob: " + CMS.getLogMessage("JOBS_META_REQUEST_ERROR",
+                                cert.getSerialNumber().toString(16) + e.getMessage()), e);
             } catch (NullPointerException e) {
                 // no requestId in MetaInfo...skip to next record
                 negCount += 1;
                 if (mSummary == true)
                     buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                             STATUS_FAILURE);
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("JOBS_META_REQUEST_ERROR",
-                                cert.getSerialNumber().toString(16) +
-                                        e.toString()));
+                logger.warn("PublishCertsJob: " + CMS.getLogMessage("JOBS_META_REQUEST_ERROR",
+                                cert.getSerialNumber().toString(16) + e.getMessage()), e);
             }
 
             if (ridString != null) {
@@ -286,10 +280,8 @@ public class PublishCertsJob extends AJobBase
                     if (mSummary == true)
                         buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                                 STATUS_FAILURE);
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("JOBS_FIND_REQUEST_ERROR",
-                                    cert.getSerialNumber().toString(16) +
-                                            e.toString()));
+                    logger.warn("PublishCertsJob: " + CMS.getLogMessage("JOBS_FIND_REQUEST_ERROR",
+                                    cert.getSerialNumber().toString(16) + e.getMessage()), e);
                 }
                 try {
                     if ((mPublisherProcessor != null) &&
@@ -307,10 +299,8 @@ public class PublishCertsJob extends AJobBase
                     if (mSummary == true)
                         buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                                 STATUS_FAILURE);
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("JOBS_PUBLISH_ERROR",
-                                    cert.getSerialNumber().toString(16) +
-                                            e.toString()));
+                    logger.warn("PublishCertsJob: " + CMS.getLogMessage("JOBS_PUBLISH_ERROR",
+                                    cert.getSerialNumber().toString(16) + e.getMessage()), e);
                 }
             } // ridString != null
             else {
@@ -333,10 +323,8 @@ public class PublishCertsJob extends AJobBase
                         buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                                 STATUS_FAILURE);
 
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("JOBS_PUBLISH_ERROR",
-                                    cert.getSerialNumber().toString(16) +
-                                            e.toString()));
+                    logger.warn("PublishCertsJob: " + CMS.getLogMessage("JOBS_PUBLISH_ERROR",
+                                    cert.getSerialNumber().toString(16) + e.getMessage()), e);
                 }
             } // ridString == null
 

@@ -36,7 +36,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.jobs.IJobsScheduler;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
@@ -427,7 +426,7 @@ public class RenewalNotificationJob
                         cp.process(element);
                     } catch (Exception e) {
                         //Don't abort the entire operation. The error should already be logged
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_FAILED_PROCESS", e.toString()));
+                        logger.warn("RenewalNotificationJob: " + CMS.getLogMessage("JOBS_FAILED_PROCESS", e.toString()), e);
                     }
                 }
 
@@ -462,7 +461,7 @@ public class RenewalNotificationJob
                                         mContentParams);
 
                         if (summaryContent == null) {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_SUMMARY_CONTENT_NULL"));
+                            logger.warn("RenewalNotificationJob: " + CMS.getLogMessage("JOBS_SUMMARY_CONTENT_NULL"));
                             mailSummary(" no summaryContent");
                         } else {
                             mMailHTML = mSummaryHTML;
@@ -470,15 +469,15 @@ public class RenewalNotificationJob
                         }
                     } catch (Exception e) {
                         // log error
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_EXCEPTION_IN_RUN", e.toString()));
+                        logger.warn("RenewalNotificationJob: " + CMS.getLogMessage("JOBS_EXCEPTION_IN_RUN", e.toString()), e);
                     }
                 }
             } catch (EBaseException e) {
                 // log error
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+                logger.warn("RenewalNotificationJob: " + CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
             }
         } catch (EBaseException ex) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("Configuration error:", ex.toString()));
+            logger.warn("RenewalNotificationJob: " + CMS.getLogMessage("Configuration error:", ex.toString()), ex);
         }
     }
 
@@ -638,8 +637,7 @@ class CertRecProcessor implements IElementProcessor {
                 if (mJob.mSummary == true)
                     mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                             AJobBase.STATUS_FAILURE);
-                mJob.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("JOBS_GET_CERT_ERROR",
+                logger.warn("CertRecProcessor: " + CMS.getLogMessage("JOBS_GET_CERT_ERROR",
                                 cr.getCertificate().getSerialNumber().toString(16)));
             } else {
                 ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
@@ -683,9 +681,8 @@ class CertRecProcessor implements IElementProcessor {
             mIC.mNumSuccessful++;
 
         } catch (Exception e) {
-            logger.warn("RenewalNotificationJob Exception: " + e.getMessage(), e);
+            logger.warn("RenewalNotificationJob: " + e.getMessage(), e);
             mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS, AJobBase.STATUS_FAILURE);
-            mJob.log(ILogger.LL_FAILURE, e.toString(), ILogger.L_MULTILINE);
             if (numFailCounted == false) {
                 mIC.mNumFail++;
             }

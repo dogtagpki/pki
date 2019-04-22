@@ -27,12 +27,10 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailTemplate;
@@ -67,7 +65,6 @@ public abstract class AJobBase implements IJob, Runnable {
     protected String mCron = null;
     protected IJobCron mJobCron = null;
 
-    protected Logger mLogger = Logger.getLogger();
     protected static String[] mConfigParams = null;
 
     protected String mSummaryMailSubject = null;
@@ -170,7 +167,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
         if (template != null) {
             if (!template.init()) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
+                logger.warn("AJobBase: " + CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
                 return null;
             }
 
@@ -181,7 +178,7 @@ public abstract class AJobBase implements IJob, Runnable {
             }
             templateString = template.toString();
         } else {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
+            logger.warn("AJobBase: " + CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
         }
 
         return templateString;
@@ -189,7 +186,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     protected void mailSummary(String content) {
         // no need for email resolver here...
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSummarySenderEmail);
@@ -203,15 +200,9 @@ public abstract class AJobBase implements IJob, Runnable {
         try {
             mn.sendNotification();
         } catch (ENotificationException e) {
-            // already logged, lets audit
-            mLogger.log(ILogger.EV_AUDIT,
-                    ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()));
+            logger.warn("AJobBase: " + CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()), e);
         } catch (IOException e) {
-            // already logged, lets audit
-            mLogger.log(ILogger.EV_AUDIT,
-                    ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()));
+            logger.warn("AJobBase: " + CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()), e);
         }
     }
 
@@ -267,34 +258,6 @@ public abstract class AJobBase implements IJob, Runnable {
             logger.debug("AJobBase: buildContentParams: null value for name= " + name);
             mContentParams.put(name, "");
         }
-    }
-
-    /**
-     * logs an entry in the log file. Used by classes extending this class.
-     *
-     * @param level log level
-     * @param msg log message in String
-     */
-    public void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, mId + ": " + msg);
-    }
-
-    /**
-     * capable of logging multiline entry in the log file. Used by classes extending this class.
-     *
-     * @param level log level
-     * @param msg log message in String
-     * @param multiline boolean indicating whether the message is a
-     *            multi-lined message.
-     */
-    public void log(int level, String msg, boolean multiline) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, mId + ": " + msg, multiline);
     }
 
     public void stop() {
