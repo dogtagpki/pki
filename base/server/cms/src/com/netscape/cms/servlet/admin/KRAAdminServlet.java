@@ -65,8 +65,8 @@ public class KRAAdminServlet extends AdminServlet {
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mKRA = (IKeyRecoveryAuthority) engine.getSubsystem(CMS.SUBSYSTEM_KRA);
+        CMSEngine engine = CMS.getCMSEngine();
+        mKRA = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
     }
 
     /**
