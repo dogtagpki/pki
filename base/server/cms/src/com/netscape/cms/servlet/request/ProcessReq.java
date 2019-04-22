@@ -39,6 +39,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
@@ -240,7 +241,7 @@ public class ProcessReq extends CMSServlet {
 
         header.addBigIntegerValue("seqNum", seqNum, 10);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IRequest r = mQueue.findRequest(new RequestId(seqNum));
 
         if (r != null) {
@@ -259,11 +260,11 @@ public class ProcessReq extends CMSServlet {
             }
 
             // add authority names to know what privileges can be requested.
-            if (engine.getSubsystem("kra") != null)
+            if (engine.getSubsystem(IKeyRecoveryAuthority.ID) != null)
                 header.addStringValue("localkra", "yes");
-            if (engine.getSubsystem("ca") != null)
+            if (engine.getSubsystem(ICertificateAuthority.ID) != null)
                 header.addStringValue("localca", "yes");
-            if (engine.getSubsystem("ra") != null)
+            if (engine.getSubsystem(IRegistrationAuthority.ID) != null)
                 header.addStringValue("localra", "yes");
 
             // DONT NEED TO DO THIS FOR DRM

@@ -51,8 +51,8 @@ public class KRAConnectorProcessor extends CAProcessor {
 
     public KRAConnectorProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
         super("kraconnector", locale);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService caService = (ICAService)ca.getCAService();
         connectorExists = (caService.getKRAConnector() != null)? true:false;
     }
@@ -68,7 +68,7 @@ public class KRAConnectorProcessor extends CAProcessor {
             throw new BadRequestException("Bad Request: KRA Host or Port not defined");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String host = cs.getString(PREFIX + ".host");
         String port = cs.getString(PREFIX + ".port");
@@ -121,8 +121,8 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void stopConnector() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService caService = (ICAService)ca.getCAService();
         IConnector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
@@ -131,8 +131,8 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void startConnector() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService caService = (ICAService)ca.getCAService();
         IConnector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
@@ -144,8 +144,8 @@ public class KRAConnectorProcessor extends CAProcessor {
         // stop the old connector
         stopConnector();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService caService = (ICAService)ca.getCAService();
         IConfigStore cs = engine.getConfigStore();
 
@@ -158,14 +158,14 @@ public class KRAConnectorProcessor extends CAProcessor {
     public void deleteConnector() {
         stopConnector();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService caService = (ICAService)ca.getCAService();
         caService.setKRAConnector(null);
     }
 
     public void addConnector(KRAConnectorInfo info) throws EPropertyNotFound, EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String newHost = info.getHost();
         String newPort = info.getPort();
@@ -221,7 +221,7 @@ public class KRAConnectorProcessor extends CAProcessor {
             throw new ConnectorNotFoundException("No KRAConnector has been configured.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         KRAConnectorInfo info = new KRAConnectorInfo();
@@ -237,7 +237,7 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void addHost(String newHost, String newPort) throws EPropertyNotFound, EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         if ((newHost == null) || (newPort == null)) {

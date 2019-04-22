@@ -332,7 +332,7 @@ public class CAService implements ICAService, IService {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem("profile");
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
         IProfile profile = null;
 
         try {

@@ -338,7 +338,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
 
         mOCSPAuthority.incNumOCSPRequest(1);
         long startTime = new Date().getTime();

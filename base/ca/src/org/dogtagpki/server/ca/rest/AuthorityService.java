@@ -72,8 +72,8 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
     ICertificateAuthority hostCA;
 
     public AuthorityService() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        hostCA = (ICertificateAuthority) engine.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        hostCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
     }
 
     @Override

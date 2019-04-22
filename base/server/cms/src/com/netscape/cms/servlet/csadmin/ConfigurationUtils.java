@@ -260,7 +260,7 @@ public class ConfigurationUtils {
 
         certchain = CryptoUtil.normalizeCertStr(certchain);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         cs.putString("preop." + tag + ".pkcs7", certchain);
 
@@ -299,7 +299,7 @@ public class ConfigurationUtils {
 
     public static String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         String csType = cs.getString("cs.type");
@@ -343,7 +343,7 @@ public class ConfigurationUtils {
     }
 
     public static String getOldCookie(String sdhost, int sdport, String user, String passwd) throws Exception {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         String subca_url = "https://" + engine.getEEHost() + ":"
@@ -420,7 +420,7 @@ public class ConfigurationUtils {
             IOException, ParserConfigurationException {
         ByteArrayInputStream bis = new ByteArrayInputStream(domainXML.getBytes());
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         XMLObject parser = new XMLObject(bis);
@@ -501,7 +501,7 @@ public class ConfigurationUtils {
     public static boolean isValidCloneURI(String domainXML, String cloneHost, int clonePort) throws EPropertyNotFound,
             EBaseException, SAXException, IOException, ParserConfigurationException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String csType = cs.getString("cs.type");
         ByteArrayInputStream bis = new ByteArrayInputStream(domainXML.getBytes());
@@ -530,7 +530,7 @@ public class ConfigurationUtils {
     public static void getConfigEntriesFromMaster()
             throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.getConfigStore();
         String cstype = "";
 
@@ -626,7 +626,7 @@ public class ConfigurationUtils {
         logger.debug("updateNumberRange start host=" + hostname + " adminPort=" + adminPort + " eePort=" + eePort);
         logger.debug("updateNumberRange content: " + content);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         String cstype = cs.getString("cs.type", "");
@@ -695,7 +695,7 @@ public class ConfigurationUtils {
             String servlet, MultivaluedMap<String, String> content, IConfigStore config)
             throws Exception {
         logger.debug("updateConfigEntries start");
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String c = post(hostname, port, https, servlet, content, null, null);
 
         if (c != null) {
@@ -967,7 +967,7 @@ public class ConfigurationUtils {
 
     public static void verifySystemCertificates() throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         CryptoManager cm = CryptoManager.getInstance();
@@ -1135,7 +1135,7 @@ public class ConfigurationUtils {
             NoSuchItemOnTokenException, TokenException {
 
         CryptoManager cm = CryptoManager.getInstance();
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         // nickname has no token prepended to it, so no need to strip
@@ -1209,7 +1209,7 @@ public class ConfigurationUtils {
 
     public static boolean isCASigningCert(String name) throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         try {
             String nickname = cs.getString("preop.master.signing.nickname");
@@ -1227,7 +1227,7 @@ public class ConfigurationUtils {
 
     public static boolean isAuditSigningCert(String name) throws EPropertyNotFound, EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String nickname = cs.getString("preop.master.audit_signing.nickname");
         if (nickname.equals(name))
@@ -1243,7 +1243,7 @@ public class ConfigurationUtils {
         CryptoToken ct = cm.getInternalKeyStorageToken();
         CryptoStore store = ct.getCryptoStore();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String list = cs.getString("preop.cert.list", "");
         StringTokenizer st = new StringTokenizer(list, ",");
@@ -1277,7 +1277,7 @@ public class ConfigurationUtils {
     public static ArrayList<String> getMasterCertKeyList() throws EBaseException {
         ArrayList<String> list = new ArrayList<String>();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String certList = cs.getString("preop.cert.list", "");
         StringTokenizer st = new StringTokenizer(certList, ",");
@@ -1325,7 +1325,7 @@ public class ConfigurationUtils {
 
     public static void enableUSNPlugin() throws IOException, EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
@@ -1344,7 +1344,7 @@ public class ConfigurationUtils {
 
     public static void populateDB() throws IOException, EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String baseDN = cs.getString("internaldb.basedn");
         String database = cs.getString("internaldb.database", "");
@@ -1463,7 +1463,7 @@ public class ConfigurationUtils {
     private static void populateIndexes(LDAPConnection conn) throws EPropertyNotFound, IOException, EBaseException {
         logger.debug("populateIndexes(): start");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         importLDIFS("preop.internaldb.index_task_ldif", conn, false);
@@ -1697,7 +1697,7 @@ public class ConfigurationUtils {
             EPropertyNotFound,
             EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         logger.debug("importLDIFS: param=" + param);
@@ -1845,7 +1845,7 @@ public class ConfigurationUtils {
     public static void populateDBManager() throws Exception {
         logger.debug("populateDBManager(): start");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
@@ -1866,7 +1866,7 @@ public class ConfigurationUtils {
     public static void populateVLVIndexes() throws Exception {
         logger.debug("populateVLVIndexes(): start");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
@@ -2102,7 +2102,7 @@ public class ConfigurationUtils {
             Context context,
             Cert certObj) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.getConfigStore();
         String caType = certObj.getType();
         logger.debug("configCert: caType is " + caType);
@@ -2213,7 +2213,7 @@ public class ConfigurationUtils {
             throws Exception {
 
         String caType;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String v = config.getString("preop.ca.type", "");
 
         logger.debug("configCert: remote CA");
@@ -2339,7 +2339,7 @@ public class ConfigurationUtils {
             String certTag)
             throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
 
         if (ca == null) {
@@ -2459,7 +2459,7 @@ public class ConfigurationUtils {
 
         logger.debug("ConfigurationUtils: Searching for " + wantedTag + " in " + csType + " hosts");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         ByteArrayInputStream bis = new ByteArrayInputStream(domainXML.getBytes());
         XMLObject parser = new XMLObject(bis);
@@ -2497,7 +2497,7 @@ public class ConfigurationUtils {
 
     public static void updateCloneConfig() throws EBaseException, IOException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.getConfigStore();
         String cstype = config.getString("cs.type", null);
         cstype = cstype.toLowerCase();
@@ -2698,7 +2698,7 @@ public class ConfigurationUtils {
         String tag = cert.getCertTag();
         logger.debug("ConfigurationUtils.createCertRecord(" + tag + ")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         // parsing cert data
         X509CertImpl x509CertImpl = new X509CertImpl(cert.getCert());
@@ -2760,7 +2760,7 @@ public class ConfigurationUtils {
         String subsystem = cert.getSubsystem();
         String nickname = cert.getNickname();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.getConfigStore();
 
         boolean enable = config.getBoolean(PCERT_PREFIX + certTag + ".enable", true);
@@ -2825,7 +2825,7 @@ public class ConfigurationUtils {
 
         logger.debug("backupKeys(): start");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String certlist = cs.getString("preop.cert.list");
 
@@ -2897,7 +2897,7 @@ public class ConfigurationUtils {
     public static void createAdminCertificate(String certRequest, String certRequestType, String subject)
             throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         byte[] binRequest = Utils.base64decode(certRequest);
@@ -2928,7 +2928,7 @@ public class ConfigurationUtils {
         // update the locally created request for renewal
         CertUtil.updateLocalRequest(cs, "admin", binRequest, certRequestType, subject);
 
-        ISubsystem ca = engine.getSubsystem("ca");
+        ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
         if (ca != null) {
             createPKCS7(impl);
         }
@@ -2937,9 +2937,9 @@ public class ConfigurationUtils {
 
     public static void createPKCS7(X509CertImpl cert) throws IOException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         CertificateChain cachain = ca.getCACertChain();
         java.security.cert.X509Certificate[] cacerts = cachain.getChain();
         X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
@@ -2963,7 +2963,7 @@ public class ConfigurationUtils {
     public static void createAdmin(String uid, String email, String name, String pwd) throws IOException,
             EBaseException, LDAPException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IConfigStore config = engine.getConfigStore();
         String groupNames = config.getString("preop.admin.group", "Certificate Manager Agents,Administrators");
@@ -3060,7 +3060,7 @@ public class ConfigurationUtils {
 
         logger.debug("ConfigurationUtils: submitAdminCertRequest()");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.getConfigStore();
 
         if (profileId == null) {
@@ -3123,7 +3123,7 @@ public class ConfigurationUtils {
     public static void createSecurityDomain() throws EBaseException, LDAPException, NumberFormatException, IOException,
             SAXException, ParserConfigurationException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
@@ -3190,7 +3190,7 @@ public class ConfigurationUtils {
 
     public static void updateSecurityDomain() throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         int sd_agent_port = cs.getInteger("securitydomain.httpsagentport");
@@ -3281,7 +3281,7 @@ public class ConfigurationUtils {
 
         logger.debug("ConfigurationUtils: updateDomainXML start hostname=" + hostname + " port=" + port);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String c = null;
         if (useClientAuth) {
             IConfigStore cs = engine.getConfigStore();
@@ -3331,7 +3331,7 @@ public class ConfigurationUtils {
     }
 
     public static void setupClientAuthUser() throws Exception {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String host = cs.getString("preop.ca.hostname", "");
         int port = cs.getInteger("preop.ca.httpsadminport", -1);
@@ -3410,7 +3410,7 @@ public class ConfigurationUtils {
     public static String getTransportCert(URI secdomainURI, URI kraUri)
             throws Exception {
         logger.debug("getTransportCert() start");
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String sessionId = engine.getConfigSDSessionId();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
@@ -3446,7 +3446,7 @@ public class ConfigurationUtils {
             InvalidAlgorithmParameterException, NotInitializedException, TokenException, ObjectNotFoundException,
             IOException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String host = cs.getString("service.machineName");
         String port = cs.getString("service.securePort");
@@ -3526,7 +3526,7 @@ public class ConfigurationUtils {
     public static void setupDBUser() throws CertificateException, LDAPException, EBaseException,
             NotInitializedException, ObjectNotFoundException, TokenException, IOException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
 
         // checking existing user
@@ -3607,7 +3607,7 @@ public class ConfigurationUtils {
 
         logger.debug("Adding all profiles to TPS admin user");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IUser user = system.getUser(adminID);
 
@@ -3619,7 +3619,7 @@ public class ConfigurationUtils {
     }
 
     public static void registerUser(URI secdomainURI, URI targetURI, String targetType) throws Exception {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String csType = cs.getString("cs.type");
         String uid = csType.toUpperCase() + "-" + cs.getString("machineName", "")
@@ -3673,7 +3673,7 @@ public class ConfigurationUtils {
 
     public static void exportTransportCert(URI secdomainURI, URI targetURI, String transportCert) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String name = "transportCert-" + cs.getString("machineName", "")
                 + "-" + cs.getString("service.securePort", "");
@@ -3718,7 +3718,7 @@ public class ConfigurationUtils {
     }
 
     public static void removeOldDBUsers(String subjectDN) throws EBaseException, LDAPException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IConfigStore cs = engine.getConfigStore();
         String userbasedn = "ou=people, " + cs.getString("internaldb.basedn");
@@ -3744,7 +3744,7 @@ public class ConfigurationUtils {
     public static String getSubsystemCert() throws EBaseException, NotInitializedException, ObjectNotFoundException,
             TokenException, CertificateEncodingException, IOException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String subsystem = cs.getString(PCERT_PREFIX + "subsystem.subsystem");
 
@@ -3769,7 +3769,7 @@ public class ConfigurationUtils {
     }
 
     public static void updateAuthdbInfo(String basedn, String host, String port, String secureConn) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         cs.putString("auths.instance.ldap1.ldap.basedn", basedn);
@@ -3779,7 +3779,7 @@ public class ConfigurationUtils {
     }
 
     public static void updateNextRanges() throws EBaseException, LDAPException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         String endRequestNumStr = cs.getString("dbs.endRequestNumber", "");
@@ -3823,7 +3823,7 @@ public class ConfigurationUtils {
      * @throws EBaseException
      */
     public static void removePreopConfigEntries() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String type = cs.getString("cs.type");
         String list = cs.getString("preop.cert.list", "");

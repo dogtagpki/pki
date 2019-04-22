@@ -43,14 +43,19 @@ import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
+import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.password.IPasswordCheck;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
+import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IGroupConstants;
@@ -180,19 +185,19 @@ public class UsrGrpAdminServlet extends AdminServlet {
          */
 
         try {
-            ISubsystem subsystem = engine.getSubsystem("ca");
+            ISubsystem subsystem = engine.getSubsystem(ICertificateAuthority.ID);
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_CA_GROUP;
-            subsystem = engine.getSubsystem("ra");
+            subsystem = engine.getSubsystem(IRegistrationAuthority.ID);
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_RA_GROUP;
-            subsystem = engine.getSubsystem("kra");
+            subsystem = engine.getSubsystem(IKeyRecoveryAuthority.ID);
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_KRA_GROUP;
-            subsystem = engine.getSubsystem("ocsp");
+            subsystem = engine.getSubsystem(IOCSPAuthority.ID);
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_OCSP_GROUP;
-            subsystem = engine.getSubsystem("tks");
+            subsystem = engine.getSubsystem(ITKSAuthority.ID);
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_TKS_GROUP;
             if (scope != null) {

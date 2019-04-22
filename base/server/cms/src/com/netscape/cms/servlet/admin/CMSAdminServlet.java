@@ -2332,7 +2332,7 @@ public final class CMSAdminServlet extends AdminServlet {
                      + File.separator + "config" + File.separator + pathname;
 
             CMSEngine engine = CMS.getCMSEngine();
-            ICrossCertPairSubsystem ccps = (ICrossCertPairSubsystem) engine.getSubsystem("CrossCertPair");
+            ICrossCertPairSubsystem ccps = (ICrossCertPairSubsystem) engine.getSubsystem(ICrossCertPairSubsystem.ID);
 
             try {
                 //this will import into internal ldap crossCerts entry

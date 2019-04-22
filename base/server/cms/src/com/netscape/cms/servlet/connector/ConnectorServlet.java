@@ -366,7 +366,7 @@ public class ConnectorServlet extends CMSServlet {
         }
 
         String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
-        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem("profile");
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
         IEnrollProfile profile = null;
 
         // profile subsystem may not be available. In case of KRA for

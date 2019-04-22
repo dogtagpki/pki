@@ -282,7 +282,7 @@ public class EnrollServlet extends CMSServlet {
                 }
 
                 // cfu
-                mCa = (ICertificateAuthority) engine.getSubsystem("ca");
+                mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
                 init_testbed_hack(mConfig);
             } catch (Exception e) {
@@ -1289,7 +1289,7 @@ public class EnrollServlet extends CMSServlet {
             // if ca, fill in default signing alg here
 
             try {
-                ICertificateAuthority caSub = (ICertificateAuthority) engine.getSubsystem("ca");
+                ICertificateAuthority caSub = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 if (certInfoArray != null && caSub != null) {
                     for (int ix = 0; ix < certInfoArray.length; ix++) {
                         X509CertInfo ci = certInfoArray[ix];

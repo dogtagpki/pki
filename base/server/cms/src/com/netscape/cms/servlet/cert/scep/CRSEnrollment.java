@@ -290,7 +290,7 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         try {
-            mProfileSubsystem = (IProfileSubsystem) engine.getSubsystem("profile");
+            mProfileSubsystem = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
             mProfileId = sc.getInitParameter("profileId");
             logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
 

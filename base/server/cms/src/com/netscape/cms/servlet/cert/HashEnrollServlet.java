@@ -158,7 +158,7 @@ public class HashEnrollServlet extends CMSServlet {
 
             // cfu
             CMSEngine engine = CMS.getCMSEngine();
-            mCa = (ICertificateAuthority) engine.getSubsystem("ca");
+            mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
             init_testbed_hack(mConfig);
         } catch (Exception e) {

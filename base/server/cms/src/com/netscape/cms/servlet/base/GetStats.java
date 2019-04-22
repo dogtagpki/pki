@@ -89,7 +89,7 @@ public class GetStats extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
 
@@ -127,7 +127,7 @@ public class GetStats extends CMSServlet {
         ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         StatsEvent st = statsSub.getMainStatsEvent();
 
         String op = httpReq.getParameter("op");

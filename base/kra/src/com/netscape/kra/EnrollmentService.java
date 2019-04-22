@@ -146,7 +146,7 @@ public class EnrollmentService implements IService {
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = null;
         Boolean allowEncDecrypt_archival = false;
 
@@ -157,7 +157,7 @@ public class EnrollmentService implements IService {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("archival", true /* main action */);
         }

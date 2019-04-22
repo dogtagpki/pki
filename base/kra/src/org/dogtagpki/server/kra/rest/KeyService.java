@@ -101,8 +101,8 @@ public class KeyService extends SubsystemService implements KeyResource {
     private String approvers;
 
     public KeyService() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        kra = ( IKeyRecoveryAuthority ) engine.getSubsystem( "kra" );
+        CMSEngine engine = CMS.getCMSEngine();
+        kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
         repo = kra.getKeyRepository();
         queue = kra.getRequestQueue();
         service = (IKeyService) kra;

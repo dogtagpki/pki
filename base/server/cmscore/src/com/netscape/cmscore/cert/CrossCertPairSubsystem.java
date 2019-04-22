@@ -105,12 +105,12 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
         logger.debug("CrossCertPairSubsystem: initializing");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             mConfig = config;
             mLogger = Logger.getLogger();
             synchronized (this) {
-                mCa = (ICertificateAuthority) engine.getSubsystem("ca");
+                mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 mPublisherProcessor = mCa.getPublisherProcessor();
             }
 

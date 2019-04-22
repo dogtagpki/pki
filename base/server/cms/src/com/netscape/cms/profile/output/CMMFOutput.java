@@ -112,7 +112,7 @@ public class CMMFOutput extends EnrollOutput implements IProfileOutput {
     public String getValue(String name, Locale locale, IRequest request)
             throws EProfileException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         if (name.equals(VAL_PRETTY_CERT)) {
             X509CertImpl cert = request.getExtDataInCert(
@@ -127,7 +127,7 @@ public class CMMFOutput extends EnrollOutput implements IProfileOutput {
                 if (cert == null)
                     return null;
 
-                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 CertificateChain cachain = ca.getCACertChain();
                 X509Certificate[] cacerts = cachain.getChain();
 

@@ -32,6 +32,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.system.ConfigurationRequest;
@@ -128,7 +129,7 @@ public class CAInstallerService extends SystemConfigService {
         CMSEngine engine = CMS.getCMSEngine();
 
         if (!data.isClone()
-                && engine.getSubsystem("profile") instanceof LDAPProfileSubsystem) {
+                && engine.getSubsystem(IProfileSubsystem.ID) instanceof LDAPProfileSubsystem) {
             try {
                 importProfiles("/usr/share/pki");
             } catch (Exception e) {

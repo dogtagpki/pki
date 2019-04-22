@@ -58,7 +58,7 @@ public class SystemCertService extends PKIService implements SystemCertResource 
      */
     public Response getTransportCert() {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             IConfigStore cs = engine.getConfigStore();
             String type = cs.getString("cs.type");
@@ -101,8 +101,8 @@ public class SystemCertService extends PKIService implements SystemCertResource 
 
     public CertData getTransportCertFromKRA() throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem("kra");
+        CMSEngine engine = CMS.getCMSEngine();
+        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
         if (kra == null) {
             // no KRA
             throw new ResourceNotFoundException("KRA subsystem not found.");

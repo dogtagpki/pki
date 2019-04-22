@@ -30,6 +30,8 @@ import com.netscape.certsrv.base.ISubsystem;
  */
 public interface ICrossCertPairSubsystem extends ISubsystem {
 
+    public static final String ID = "CrossCertPair";
+
     /**
      * "import" the CA cert cross-signed by another CA (potentially a
      * bridge CA) into internal ldap db.

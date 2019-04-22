@@ -141,7 +141,7 @@ public class RecoveryService implements IService {
         CryptoToken ct = null;
         Boolean allowEncDecrypt_recovery = false;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             cm = CryptoManager.getInstance();
             config = engine.getConfigStore();
@@ -158,7 +158,7 @@ public class RecoveryService implements IService {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "cannot get crypto token"));
         }
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("recovery", true /* main action */);
         }
@@ -411,7 +411,7 @@ public class RecoveryService implements IService {
         logger.debug("RecoverService: recoverKey: key to recover is RSA? "+
             isRSA);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
                 Credential creds[] = (Credential[])
@@ -464,7 +464,7 @@ public class RecoveryService implements IService {
 
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=false");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         org.mozilla.jss.util.Password pass = null;
         try {
             // create p12
@@ -615,7 +615,7 @@ public class RecoveryService implements IService {
      */
     public synchronized byte[] recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord)
             throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
             Credential creds[] = (Credential[])
                     request.get(ATTR_AGENT_CREDENTIALS);
@@ -653,7 +653,7 @@ public class RecoveryService implements IService {
 
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         org.mozilla.jss.util.Password pass = null;
         try {
             // create p12

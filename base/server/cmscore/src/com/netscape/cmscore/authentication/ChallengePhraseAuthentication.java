@@ -147,7 +147,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        mCA = (ICertificateAuthority) engine.getSubsystem("ca");
+        mCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
         if (mCA != null) {
             mCertDB = mCA.getCertificateRepository();
@@ -379,7 +379,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
         IRequestQueue queue = null;
 
         try {
-            IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem("ra");
+            IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
 
             if (ra != null) {
                 queue = ra.getRequestQueue();

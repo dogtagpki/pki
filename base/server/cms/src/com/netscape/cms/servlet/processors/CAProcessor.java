@@ -128,7 +128,7 @@ public class CAProcessor extends Processor {
     protected String getClientCert = "false";
     // subsystems
     CMSEngine engine = CMS.getCMSEngine();
-    protected ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem("ca");
+    protected ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
     protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
     protected IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
     protected ICertUserLocator ul = ug.getCertUserLocator();
@@ -198,7 +198,7 @@ public class CAProcessor extends Processor {
 
     public void startTiming(String event) {
         CMSEngine engine = CMS.getCMSEngine();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming(event, true);
         }
@@ -207,7 +207,7 @@ public class CAProcessor extends Processor {
 
     public void endTiming(String event) {
         CMSEngine engine = CMS.getCMSEngine();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.endTiming(event);
         }
@@ -216,7 +216,7 @@ public class CAProcessor extends Processor {
 
     public void endAllEvents() {
         CMSEngine engine = CMS.getCMSEngine();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             Iterator<String> iter = statEvents.iterator();
             while (iter.hasNext()) {

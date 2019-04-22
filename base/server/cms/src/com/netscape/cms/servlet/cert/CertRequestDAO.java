@@ -67,8 +67,8 @@ public class CertRequestDAO extends CMSRequestDAO {
 
     public CertRequestDAO() {
         super("ca");
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ca = (ICertificateAuthority) engine.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         queue = ca.getRequestQueue();
         if (ca.noncesEnabled()) {
             JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);

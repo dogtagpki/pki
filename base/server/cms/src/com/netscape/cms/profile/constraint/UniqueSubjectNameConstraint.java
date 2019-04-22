@@ -157,8 +157,8 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
             throws ERejectException {
         logger.debug("UniqueSubjectNameConstraint: validate start");
         CertificateSubjectName sn = null;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IAuthority authority = (IAuthority) engine.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        IAuthority authority = (IAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
         mKeyUsageExtensionChecking = getConfigBoolean(CONFIG_KEY_USAGE_EXTENSION_CHECKING);
         ICertificateRepository certdb = null;

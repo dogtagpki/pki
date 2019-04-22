@@ -286,8 +286,8 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             throw new EBaseException("OCSP request is empty");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        CMSEngine engine = CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
 
         mOCSPAuthority.incNumOCSPRequest(1);
         long startTime = new Date().getTime();

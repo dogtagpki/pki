@@ -304,7 +304,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
     private void revokeCert(X509CertImpl cert)
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         try {
             if (mConfig.getBoolean(PROP_REVOKE_CERT, true) == false) {
@@ -315,7 +315,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         }
         BigInteger serialNum = cert.getSerialNumber();
         // need to revoke certificate also
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService service = (ICAService) ca.getCAService();
         RevokedCertImpl crlEntry = formCRLEntry(
                 serialNum, RevocationReason.KEY_COMPROMISE);

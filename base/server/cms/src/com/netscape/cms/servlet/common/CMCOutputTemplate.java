@@ -585,7 +585,7 @@ public class CMCOutputTemplate {
         CMSEngine engine = CMS.getCMSEngine();
         try {
             // add CA cert chain
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             CertificateChain certchains = ca.getCACertChain();
             java.security.cert.X509Certificate[] chains = certchains.getChain();
 
@@ -699,7 +699,7 @@ public class CMCOutputTemplate {
 
                 // Get CA certs
                 CMSEngine engine = CMS.getCMSEngine();
-                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 CertificateChain certchains = ca.getCACertChain();
                 java.security.cert.X509Certificate[] chains = certchains.getChain();
 
@@ -760,7 +760,7 @@ public class CMCOutputTemplate {
                                     ASN1Util.encode(issuers.elementAt(0))));
                     byte[] b = issuer.getEncoded();
                     X500Name n = new X500Name(b);
-                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                     X500Name caName = ca.getX500Name();
                     boolean confirmAccepted = false;
                     if (n.toString().equalsIgnoreCase(caName.toString())) {
@@ -815,7 +815,7 @@ public class CMCOutputTemplate {
                 ANY issuer = getCert.getIssuer();
                 byte b[] = issuer.getEncoded();
                 X500Name n = new X500Name(b);
-                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 X500Name caName = ca.getX500Name();
                 if (!n.toString().equalsIgnoreCase(caName.toString())) {
                     logger.error("CMCOutputTemplate: Issuer names are equal in the GetCert Control");
@@ -851,7 +851,7 @@ public class CMCOutputTemplate {
                                         ASN1Util.encode(values.elementAt(i)));
                         String requestId = new String(reqId.toByteArray());
 
-                        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+                        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                         IRequestQueue queue = ca.getRequestQueue();
                         IRequest r = queue.findRequest(new RequestId(requestId));
                         if (r != null) {
@@ -1192,7 +1192,7 @@ public class CMCOutputTemplate {
                 }
 
                 if (revoke) {
-                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+                    ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                     ICertificateRepository repository = ca.getCertificateRepository();
                     ICertRecord record = null;
                     try {

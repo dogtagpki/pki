@@ -104,7 +104,7 @@ public class CertService extends PKIService implements CertResource {
     public CertService() {
 
         CMSEngine engine = CMS.getCMSEngine();
-        authority = (ICertificateAuthority) engine.getSubsystem("ca");
+        authority = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         if (authority.noncesEnabled()) {
             JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             random = jssSubsystem.getRandomNumberGenerator();

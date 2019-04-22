@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
@@ -2422,7 +2423,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String auth = req.getParameter("auth");
             String config = null;
 
-            ISubsystem subsystem = engine.getSubsystem("ca");
+            ISubsystem subsystem = engine.getSubsystem(ICertificateAuthority.ID);
             String subname = "ca";
 
             if (subsystem == null)

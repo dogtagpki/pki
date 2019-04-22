@@ -211,7 +211,7 @@ public class RequestProcessor extends CertProcessor {
     }
 
     private boolean grantPermission(IRequest req, IAuthToken token) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         boolean enable = false;
         try {
             enable = engine.getConfigStore().getBoolean("request.assignee.enable", false);
@@ -331,8 +331,8 @@ public class RequestProcessor extends CertProcessor {
             throw new BadRequestDataException("Invalid AuthorityID in request data");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         if (ca == null)
             // this shouldn't happen
             throw new CANotFoundException("Could not get host authority");  // shouldn't happen

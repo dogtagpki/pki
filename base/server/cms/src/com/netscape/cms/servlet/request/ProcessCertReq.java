@@ -59,13 +59,16 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.publish.IPublisherProcessor;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -1222,11 +1225,11 @@ public class ProcessCertReq extends CMSServlet {
             }
 
             // add authority names to know what privileges can be requested.
-            if (engine.getSubsystem("kra") != null)
+            if (engine.getSubsystem(IKeyRecoveryAuthority.ID) != null)
                 header.addStringValue("localkra", "yes");
-            if (engine.getSubsystem("ca") != null)
+            if (engine.getSubsystem(ICertificateAuthority.ID) != null)
                 header.addStringValue("localca", "yes");
-            if (engine.getSubsystem("ra") != null)
+            if (engine.getSubsystem(IRegistrationAuthority.ID) != null)
                 header.addStringValue("localra", "yes");
 
             header.addBigIntegerValue("seqNum", seqNum, 10);

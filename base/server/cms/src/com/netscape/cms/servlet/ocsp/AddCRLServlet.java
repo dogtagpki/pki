@@ -120,14 +120,14 @@ public class AddCRLServlet extends CMSServlet {
     protected synchronized void process(CMSRequest cmsReq)
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         boolean CRLFetched = false;
         boolean CRLValidated = false;
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditCRLNum = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("add_crl", true /* main action */);
         }

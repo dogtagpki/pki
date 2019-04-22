@@ -45,8 +45,8 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
     private IStorageKeyUnit storageUnit;
 
     public KRAInfoService() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        kra = (IKeyRecoveryAuthority) engine.getSubsystem("kra");
+        CMSEngine engine = CMS.getCMSEngine();
+        kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
         storageUnit = kra.getStorageKeyUnit();
     }
 
@@ -66,21 +66,21 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
     }
 
     String getArchivalMechanism() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         boolean encrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
         return encrypt_archival ? KRAInfoResource.ENCRYPT_MECHANISM : KRAInfoResource.KEYWRAP_MECHANISM;
     }
 
     String getRecoveryMechanism() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         boolean encrypt_recovery = cs.getBoolean("kra.allowEncDecrypt.recovery", false);
         return encrypt_recovery ? KRAInfoResource.ENCRYPT_MECHANISM : KRAInfoResource.KEYWRAP_MECHANISM;
     }
 
     String getWrapAlgorithm() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         boolean encrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
         WrappingParams params = null;
@@ -94,7 +94,7 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
     }
 
     String getEncryptAlgorithm() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         boolean encrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
         WrappingParams params = null;

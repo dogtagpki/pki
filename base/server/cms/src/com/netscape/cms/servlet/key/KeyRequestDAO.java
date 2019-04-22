@@ -107,8 +107,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     public KeyRequestDAO() {
         super("kra");
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        kra = ( IKeyRecoveryAuthority ) engine.getSubsystem( "kra" );
+        CMSEngine engine = CMS.getCMSEngine();
+        kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
         repo = kra.getKeyRepository();
         service = (IKeyService) kra;
     }
@@ -473,7 +473,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new BadRequestException("Invalid key generation request. Missing client ID");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         boolean keyExists = doesKeyExist(clientKeyId, "active");
         if (keyExists == true) {
             throw new BadRequestException("Cannot archive already active existing key!");

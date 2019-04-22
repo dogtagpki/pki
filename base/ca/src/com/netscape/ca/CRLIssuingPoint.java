@@ -649,7 +649,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     private Vector<String> getProfileList(String list) {
         Enumeration<String> e = null;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore pc = engine.getConfigStore().getSubStore("profile");
         if (pc != null)
             e = pc.getSubStoreNames();
@@ -2476,7 +2476,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         logger.debug("updateCRLNow: mEnableCRLUpdates =" + mEnableCRLUpdates);
         logger.debug("updateCRLNow: mDoLastAutoUpdate =" + mDoLastAutoUpdate);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate))
             return;
 
@@ -2584,7 +2584,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             clonedExpiredCerts.clear();
             mSchemaCounter = 0;
 
-            IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+            IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
             if (statsSub != null) {
                 statsSub.startTiming("generation");
             }
@@ -3021,8 +3021,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             throws EBaseException {
         SessionContext sc = SessionContext.getContext();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        CMSEngine engine = CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("crl_publishing");
         }

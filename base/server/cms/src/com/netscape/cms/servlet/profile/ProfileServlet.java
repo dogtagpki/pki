@@ -262,7 +262,7 @@ public class ProfileServlet extends CMSServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("output_template");
         }
@@ -387,7 +387,7 @@ public class ProfileServlet extends CMSServlet {
 
     public void startTiming(String event) {
         CMSEngine engine = CMS.getCMSEngine();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming(event, true);
         }
@@ -396,7 +396,7 @@ public class ProfileServlet extends CMSServlet {
 
     public void endTiming(String event) {
         CMSEngine engine = CMS.getCMSEngine();
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.endTiming(event);
         }

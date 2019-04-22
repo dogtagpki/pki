@@ -516,7 +516,7 @@ public class CertificateAuthority
 
         logger.debug("CertificateAuthority.init(" + owner.getId() + ", " + config.getName() + ")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         try {
             mOwner = owner;
@@ -987,7 +987,7 @@ public class CertificateAuthority
      * Starts up this subsystem.
      */
     public void startup() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (engine.isPreOpMode()) {
             logger.debug("CertificateAuthority.startup(): Do not start CA in pre-op mode");
             return;
@@ -1433,11 +1433,11 @@ public class CertificateAuthority
     public X509CRLImpl sign(X509CRLImpl crl, String algname)
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ensureReady();
         X509CRLImpl signedcrl = null;
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("signing");
         }
@@ -1508,12 +1508,12 @@ public class CertificateAuthority
     public X509CertImpl sign(X509CertInfo certInfo, String algname)
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ensureReady();
 
         X509CertImpl signedcert = null;
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("signing");
         }
@@ -2436,7 +2436,7 @@ public class CertificateAuthority
          *    Otherwise, we move forward to generate and sign the
          *    aggregate OCSP response.
          */
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ocspCA = this;
         if (caMap.size() > 0 && tbsReq.getRequestCount() > 0) {
             Request req = tbsReq.getRequestAt(0);
@@ -2457,7 +2457,7 @@ public class CertificateAuthority
         logger.debug("CertificateAuthority: validating OCSP request");
 
         mNumOCSPRequest++;
-        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         long startTime = new Date().getTime();
 
         try {
@@ -2799,7 +2799,7 @@ public class CertificateAuthority
             String subjectDN, String description)
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ensureReady();
 
         // check requested DN
@@ -2947,7 +2947,7 @@ public class CertificateAuthority
     public void renewAuthority(HttpServletRequest httpReq)
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (
             authorityParentID != null
             && !authorityParentID.equals(authorityID)
@@ -3161,7 +3161,7 @@ public class CertificateAuthority
      * Add this instance to the authorityKeyHosts
      */
     private void addInstanceToAuthorityKeyHosts() throws ELdapException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String thisClone = engine.getEEHost() + ":" + engine.getEESSLPort();
         if (authorityKeyHosts.contains(thisClone)) {
             // already there; nothing to do
@@ -3634,7 +3634,7 @@ public class CertificateAuthority
             String KR_CLASS_KEY = "features.authority.keyRetrieverClass";
             String KR_CONFIG_KEY = "features.authority.keyRetrieverConfig";
 
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
             String className = null;
             try {
                 className = engine.getConfigStore().getString(KR_CLASS_KEY);

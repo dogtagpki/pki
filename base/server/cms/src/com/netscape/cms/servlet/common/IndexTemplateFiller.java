@@ -22,6 +22,11 @@ import java.util.Locale;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.ocsp.IOCSPAuthority;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
+import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
@@ -54,12 +59,12 @@ public class IndexTemplateFiller implements ICMSTemplateFiller {
         ArgBlock ctx = new ArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(header, ctx);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ISubsystem ca = engine.getSubsystem("ca");
-        ISubsystem ra = engine.getSubsystem("ra");
-        ISubsystem kra = engine.getSubsystem("kra");
-        ISubsystem ocsp = engine.getSubsystem("ocsp");
-        ISubsystem tks = engine.getSubsystem("tks");
+        CMSEngine engine = CMS.getCMSEngine();
+        ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
+        ISubsystem ra = engine.getSubsystem(IRegistrationAuthority.ID);
+        ISubsystem kra = engine.getSubsystem(IKeyRecoveryAuthority.ID);
+        ISubsystem ocsp = engine.getSubsystem(IOCSPAuthority.ID);
+        ISubsystem tks = engine.getSubsystem(ITKSAuthority.ID);
 
         ArgBlock rarg = null;
         int count = 0;

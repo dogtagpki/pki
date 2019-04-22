@@ -106,7 +106,7 @@ public class CAPolicy implements IPolicy {
                 r.getRequestId().toString() + ",requestStatus=" +
                 r.getRequestStatus().toString() + ")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (isProfileRequest(r)) {
             logger.debug("CAPolicy: Profile-base Request " +
                     r.getRequestId().toString());
@@ -120,7 +120,7 @@ public class CAPolicy implements IPolicy {
                 return PolicyResult.REJECTED;
             }
 
-            IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem("profile");
+            IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
 
             try {
                 IProfile profile = ps.getProfile(profileId);

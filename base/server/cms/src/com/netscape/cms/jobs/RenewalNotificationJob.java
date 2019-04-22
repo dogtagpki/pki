@@ -263,8 +263,8 @@ public class RenewalNotificationJob
         mId = id;
         mImplName = implName;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mCA = (ICertificateAuthority) engine.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        mCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         if (mCA == null) {
             mSummary = false;
             return;
@@ -288,7 +288,7 @@ public class RenewalNotificationJob
      * responsible parties
      */
     public void run() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         // for forming renewal URL at template
         mHttpHost = engine.getEEHost();
         mHttpPort = engine.getEESSLPort();
@@ -534,7 +534,7 @@ public class RenewalNotificationJob
             ICertRecord cr)
             throws IOException, ENotificationException, EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IMailNotification mn = engine.getMailNotification();
 
         String rcp = null;

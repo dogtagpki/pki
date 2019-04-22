@@ -1131,7 +1131,7 @@ public class CMSEngine implements ISubsystem {
         }
 
         // check serial number ranges if a CA/KRA
-        ICertificateAuthority ca = (ICertificateAuthority) getSubsystem("ca");
+        ICertificateAuthority ca = (ICertificateAuthority) getSubsystem(ICertificateAuthority.ID);
         if ((ca != null) && !isPreOpMode()) {
             logger.debug("CMSEngine: checking request serial number ranges for the CA");
             ca.getRequestQueue().getRequestRepository().checkRanges();
@@ -1140,7 +1140,7 @@ public class CMSEngine implements ISubsystem {
             ca.getCertificateRepository().checkRanges();
         }
 
-        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) getSubsystem("kra");
+        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) getSubsystem(IKeyRecoveryAuthority.ID);
         if ((kra != null) && !isPreOpMode()) {
             logger.debug("CMSEngine: checking request serial number ranges for the KRA");
             kra.getRequestQueue().getRequestRepository().checkRanges();
@@ -1173,8 +1173,7 @@ public class CMSEngine implements ISubsystem {
             if (cert == null)
                 return null;
 
-            ICertificateAuthority ca = (ICertificateAuthority)
-                    getSubsystem("ca");
+            ICertificateAuthority ca = (ICertificateAuthority) getSubsystem(ICertificateAuthority.ID);
             CertificateChain cachain = ca.getCACertChain();
             X509Certificate[] cacerts = cachain.getChain();
 

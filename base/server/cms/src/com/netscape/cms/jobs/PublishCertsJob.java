@@ -124,8 +124,8 @@ public class PublishCertsJob extends AJobBase
         mId = id;
         mImplName = implName;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mCa = (ICertificateAuthority) engine.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         if (mCa == null) {
             return;
         }

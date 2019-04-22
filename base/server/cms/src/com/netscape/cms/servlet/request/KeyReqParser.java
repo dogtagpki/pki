@@ -54,11 +54,11 @@ public class KeyReqParser extends ReqParser {
         super.fillRequestIntoArg(l, req, argSet, arg);
 
         String type = req.getRequestType();
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         if (type.equals(IRequest.ENROLLMENT_REQUEST)) {
             BigInteger recSerialNo = req.getExtDataInBigInteger("keyRecord");
-            IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem("kra");
+            IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
             if (kra != null) {
                 KeyRecordParser.fillRecordIntoArg(
                         kra.getKeyRepository().readKeyRecord(recSerialNo),

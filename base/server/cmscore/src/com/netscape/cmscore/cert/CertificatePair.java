@@ -108,8 +108,8 @@ public class CertificatePair implements ASN1Value {
 
         logger.debug("CertifiatePair: in certOrders() with X509Cert");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         X509Certificate caCert = ca.getCACert();
 
         logger.debug("CertifiatePair: got this caCert");
@@ -243,8 +243,8 @@ public class CertificatePair implements ASN1Value {
 
         logger.debug("CertifiatePair: in certOrders() with byte[]");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        ICrossCertPairSubsystem ccps = (ICrossCertPairSubsystem) engine.getSubsystem("CrossCertPair");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICrossCertPairSubsystem ccps = (ICrossCertPairSubsystem) engine.getSubsystem(ICrossCertPairSubsystem.ID);
         X509Certificate c1 = null;
         X509Certificate c2 = null;
 

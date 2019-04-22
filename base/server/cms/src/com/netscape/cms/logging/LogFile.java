@@ -69,8 +69,10 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
@@ -80,6 +82,8 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.SystemEvent;
+import com.netscape.certsrv.ocsp.IOCSPAuthority;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -412,7 +416,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
             logger.error("LogFile: Disabling subsystem due to signed logging failure");
 
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
             engine.disableSubsystem();
         }
     }
@@ -425,7 +429,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     public void init(IConfigStore config) throws IOException,
             EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String fileName = null;
         String defaultFileName = null;
         String signedAuditDefaultFileName = "";
@@ -454,24 +458,24 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             // retrieve the subsystem
             String subsystem = "";
 
-            ISubsystem caSubsystem = engine.getSubsystem("ca");
+            ISubsystem caSubsystem = engine.getSubsystem(ICertificateAuthority.ID);
             if (caSubsystem != null) {
-                subsystem = "ca";
+                subsystem = ICertificateAuthority.ID;
             }
 
-            ISubsystem raSubsystem = engine.getSubsystem("ra");
+            ISubsystem raSubsystem = engine.getSubsystem(IRegistrationAuthority.ID);
             if (raSubsystem != null) {
-                subsystem = "ra";
+                subsystem = IRegistrationAuthority.ID;
             }
 
-            ISubsystem kraSubsystem = engine.getSubsystem("kra");
+            ISubsystem kraSubsystem = engine.getSubsystem(IKeyRecoveryAuthority.ID);
             if (kraSubsystem != null) {
-                subsystem = "kra";
+                subsystem = IKeyRecoveryAuthority.ID;
             }
 
-            ISubsystem ocspSubsystem = engine.getSubsystem("ocsp");
+            ISubsystem ocspSubsystem = engine.getSubsystem(IOCSPAuthority.ID);
             if (ocspSubsystem != null) {
-                subsystem = "ocsp";
+                subsystem = IOCSPAuthority.ID;
             }
 
             // retrieve the instance name
@@ -1257,7 +1261,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         // Do we care?
         mDate.setTime(ev.getTimeStamp());
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         // XXX
         // This should follow the Common Log Format which still needs
