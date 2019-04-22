@@ -40,13 +40,11 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -107,9 +105,6 @@ public class FlatFileAuth
 
     /** configuration store */
     protected IConfigStore mConfig = null;
-
-    /** system logger */
-    protected Logger mLogger = Logger.getLogger();
 
     /**
      * This array is created as to include all the requested attributes
@@ -221,19 +216,6 @@ public class FlatFileAuth
 
     }
 
-    /**
-     * Log a message.
-     *
-     * @param level The logging level.
-     * @param msg The message to log.
-     */
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
-                level, msg);
-    }
-
     void print(String s) {
         logger.debug("FlatFileAuth: " + s);
     }
@@ -317,17 +299,17 @@ public class FlatFileAuth
                 }
                 if (orgFile.renameTo(new File(name.substring(0, name.length() - 1)))) {
                     if (!newFile.renameTo(new File(mFilename))) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("RENAME_FILE_ERROR", name, mFilename));
+                        logger.warn("FlatFileAuth: " + CMS.getLogMessage("RENAME_FILE_ERROR", name, mFilename));
                         File file = new File(name.substring(0, name.length() - 1));
                         file.renameTo(new File(mFilename));
                     }
                 } else {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("RENAME_FILE_ERROR", mFilename,
+                    logger.warn("FlatFileAuth: " + CMS.getLogMessage("RENAME_FILE_ERROR", mFilename,
                                                               name.substring(0, name.length() - 1)));
                 }
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+            logger.warn("FlatFileAuth: " + CMS.getLogMessage("FILE_ERROR", e.getMessage()), e);
         }
     }
 
@@ -358,7 +340,7 @@ public class FlatFileAuth
                 done = true;
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+            logger.warn("FlatFileAuth: " + CMS.getLogMessage("FILE_ERROR", e.getMessage()), e);
         }
 
         try {
@@ -370,7 +352,7 @@ public class FlatFileAuth
                 writer.close();
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+            logger.warn("FlatFileAuth: " + CMS.getLogMessage("FILE_ERROR", e.getMessage()), e);
         }
 
         try {
@@ -392,7 +374,7 @@ public class FlatFileAuth
                 }
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+            logger.warn("FlatFileAuth: " + CMS.getLogMessage("FILE_ERROR", e.getMessage()), e);
         }
 
         return name;
@@ -417,7 +399,7 @@ public class FlatFileAuth
      */
     protected Hashtable<String, Hashtable<String, String>> readFile(File f, String[] keys)
             throws IOException {
-        log(ILogger.LL_INFO, "Reading file: " + f.getName());
+        logger.info("FlatFileAuth: Reading file: " + f.getName());
         BufferedReader file = new BufferedReader(
                 new FileReader(f)
                 );
@@ -540,7 +522,7 @@ public class FlatFileAuth
                 // printAllEntries();
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("READ_FILE_ERROR", mFilename, e.getMessage()));
+            logger.warn("FlatFileAuth: " + CMS.getLogMessage("READ_FILE_ERROR", mFilename, e.getMessage()));
         }
     }
 

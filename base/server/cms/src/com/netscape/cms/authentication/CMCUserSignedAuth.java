@@ -130,7 +130,6 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         IProfileAuthenticator {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCUserSignedAuth.class);
-    private static Logger mLogger = Logger.getLogger();
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     ////////////////////////
@@ -233,7 +232,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         mImplName = implName;
         mConfig = config;
 
-        log(ILogger.LL_INFO, "Initialization complete!");
+        logger.info("CMCUserSignedAuth: Initialization complete!");
     }
 
     /**
@@ -935,25 +934,6 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
             logger.debug("" + i + " " + s[i]);
         }
         return s;
-    }
-
-    ////////////////////
-    // Logger methods //
-    ////////////////////
-
-    /**
-     * Logs a message for this class in the system log file.
-     * <p>
-     *
-     * @param level The log level.
-     * @param msg The message to log.
-     * @see com.netscape.certsrv.logging.ILogger
-     */
-    protected void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
-                level, "CMC User Signed Authentication: " + msg);
     }
 
     /**

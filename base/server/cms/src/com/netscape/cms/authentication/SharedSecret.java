@@ -45,7 +45,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -290,7 +289,7 @@ public class SharedSecret extends DirBasedAuthentication
 
                 userdn = entry.getDN();
             } else {
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_USER_NOT_EXIST", identification));
+                logger.error("SharedSecret: " + CMS.getLogMessage("CMS_AUTH_USER_NOT_EXIST", identification));
                 msg = method + "ldap search result contains nothing";
                 logger.error(msg);
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));

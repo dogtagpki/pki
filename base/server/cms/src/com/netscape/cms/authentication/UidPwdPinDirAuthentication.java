@@ -35,7 +35,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
@@ -211,7 +210,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             }
             if (pwd.equals("")) {
                 // anonymous binding not allowed
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_EMPTY_PASSWORD", uid));
+                logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_EMPTY_PASSWORD", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
 
@@ -222,7 +221,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             }
             if (pin.equals("")) {
                 // empty pin not allowed
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_EMPTY_PIN", uid));
+                logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_EMPTY_PIN", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
 
@@ -235,14 +234,14 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
 
                 userdn = entry.getDN();
             } else {
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_USER_NOT_EXIST", uid));
+                logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_USER_NOT_EXIST", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
 
             // bind as user dn and pwd - authenticates user with pwd.
             conn.authenticate(userdn, pwd);
 
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", uid));
+            logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", uid));
             // log(ILogger.LL_SECURITY, "found user : " + userdn);
 
             // check pin.
@@ -259,7 +258,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             } catch (Exception f) {
                 logger.warn("Authenticating: conn.disconnect() exception: " + f.getMessage(), f);
             }
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CANNOT_CONNECT_LDAP", e.toString()));
+            logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CANNOT_CONNECT_LDAP", e.toString()));
             throw e;
         } catch (LDAPException e) {
             logger.error("Authenticating: closing bad connection: " + e.getMessage(), e);
@@ -271,20 +270,20 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
             case LDAPException.LDAP_PARTIAL_RESULTS:
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_USER_NOT_EXIST", uid));
+                logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_USER_NOT_EXIST", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
 
             case LDAPException.INVALID_CREDENTIALS:
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_BAD_PASSWORD", uid));
+                logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_BAD_PASSWORD", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
 
             case LDAPException.SERVER_DOWN:
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("LDAP_SERVER_DOWN"));
+                logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("LDAP_SERVER_DOWN"));
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
 
             default:
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.getMessage()));
+                logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("OPERATION_ERROR", e.getMessage()));
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_OTHER_LDAP_EXCEPTION",
                                 e.errorCodeToString()));
@@ -305,14 +304,14 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         if (res.hasMoreElements()) {
             entry = (LDAPEntry) res.nextElement();
         } else {
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_NO_ENTRY_RETURNED", uid, userdn));
+            logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_NO_ENTRY_RETURNED", uid, userdn));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
         LDAPAttribute pinAttr = entry.getAttribute(mPinAttr);
 
         if (pinAttr == null) {
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
+            logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
@@ -320,7 +319,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         Enumeration<byte[]> pinValues = pinAttr.getByteValues();
 
         if (!pinValues.hasMoreElements()) {
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
+            logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
         byte[] entrypin = pinValues.nextElement();
@@ -328,7 +327,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         // compare value digest.
 
         if (entrypin == null || entrypin.length < 2) {
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
+            logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
@@ -347,12 +346,12 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         } else if (hashtype == SENTINEL_NONE) {
             pinDigest = toBeDigested.getBytes();
         } else {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_UKNOWN_ENCODING_TYPE", mPinAttr, "*", userdn));
+            logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_UKNOWN_ENCODING_TYPE", mPinAttr, "*", userdn));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
         if (pinDigest.length != (entrypin.length - 1)) {
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_LENGTH_NOT_MATCHED", uid));
+            logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_LENGTH_NOT_MATCHED", uid));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
@@ -363,7 +362,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
                 break;
         }
         if (i != (entrypin.length - 1)) {
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_BAD_PASSWORD", uid));
+            logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_BAD_PASSWORD", uid));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
@@ -383,7 +382,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
                                 new LDAPAttribute(mPinAttr, entrypin)));
 
             } catch (LDAPException e) {
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_CANT_REMOVE_PIN", userdn));
+                logger.warn("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_CANT_REMOVE_PIN", userdn));
             }
 
         }
