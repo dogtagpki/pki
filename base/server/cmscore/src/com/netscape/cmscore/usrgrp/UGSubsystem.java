@@ -765,10 +765,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         SessionContext sessionContext = SessionContext.getContext();
         String adminId = (String) sessionContext.get(SessionContext.USER_ID);
 
-        mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                AuditFormat.LEVEL, AuditFormat.ADDUSERFORMAT,
-                new Object[] { adminId, id.getUserID() }
-                );
+        logger.info(
+                AuditFormat.ADDUSERFORMAT,
+                adminId,
+                id.getUserID()
+        );
 
         LDAPConnection ldapconn = null;
 
