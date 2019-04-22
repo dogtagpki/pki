@@ -112,6 +112,6 @@ public class AuditFormat {
 
     // LDAP publishing
     public static final String LDAP_PUBLISHED_FORMAT =
-            "{0} successfully published serial number: 0x{1} with DN: {2}";
+            "{} successfully published serial number: 0x{} with DN: {}";
 
 }

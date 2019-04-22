@@ -196,14 +196,13 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
 
             conn.modify(dn, mod);
 
-            // log a successful message to the "transactions" log
-            mLogger.log(ILogger.EV_AUDIT,
-                         ILogger.S_LDAP,
-                         ILogger.LL_INFO,
-                         AuditFormat.LDAP_PUBLISHED_FORMAT,
-                         new Object[] { "LdapUserCertPublisher",
-                                        cert.getSerialNumber().toString(16),
-                                        cert.getSubjectDN() });
+            logger.info(
+                    AuditFormat.LDAP_PUBLISHED_FORMAT,
+                    "LdapUserCertPublisher",
+                    cert.getSerialNumber().toString(16),
+                    cert.getSubjectDN()
+            );
+
         } catch (CertificateEncodingException e) {
             logger.error("LdapUserCertPublisher: error in publish: " + e.getMessage(), e);
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
