@@ -105,7 +105,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
         CMSEngine engine = CMS.getCMSEngine();
         mRegistry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
-        mProfileSub = (IProfileSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_PROFILE);
+        mProfileSub = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
     }
 
     /**

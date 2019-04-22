@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.jobs.IJobsScheduler;
-import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 
 /**
@@ -46,7 +45,6 @@ public final class CMS {
 
     public static final String CONFIG_FILE = "CS.cfg";
 
-    public static final String SUBSYSTEM_PROFILE = IProfileSubsystem.ID;
     public static final String SUBSYSTEM_JOBS = IJobsScheduler.ID;
     public static final String SUBSYSTEM_SELFTESTS = ISelfTestSubsystem.ID;
 
