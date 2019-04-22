@@ -433,22 +433,15 @@ public class RevocationProcessor extends CertProcessor {
 
     public void logRevoke(IRequest revocationRequest, X509Certificate cert, String status, String message) {
 
-        if (systemLogger == null)
-            return;
-
-        systemLogger.log(
-                ILogger.EV_AUDIT,
-                ILogger.S_OTHER,
-                AuditFormat.LEVEL,
+        logger.info(
                 AuditFormat.DOREVOKEFORMAT,
-                new Object[] {
-                        revocationRequest.getRequestId(),
-                        initiative,
-                        status,
-                        cert.getSubjectDN(),
-                        cert.getSerialNumber().toString(16),
-                        message
-                });
+                revocationRequest.getRequestId(),
+                initiative,
+                status,
+                cert.getSubjectDN(),
+                cert.getSerialNumber().toString(16),
+                message
+        );
     }
 
     public void logUnrevoke(IRequest unrevocationRequest, X509Certificate cert, String status) {

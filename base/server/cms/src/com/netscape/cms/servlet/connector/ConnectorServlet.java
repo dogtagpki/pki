@@ -814,19 +814,15 @@ public class ConnectorServlet extends CMSServlet {
                                                 if (oldCerts[j] instanceof X509CertImpl) {
                                                     X509CertImpl cert = (X509CertImpl) oldCerts[j];
 
-                                                    mLogger.log(ILogger.EV_AUDIT,
-                                                            ILogger.S_OTHER,
-                                                            AuditFormat.LEVEL,
+                                                    logger.info(
                                                             AuditFormat.DOREVOKEFORMAT,
-                                                            new Object[] {
-                                                                    thisreq.getRequestId(),
-                                                                    initiative,
-                                                                    "completed with error: " +
-                                                                            err,
-                                                                    cert.getSubjectDN(),
-                                                                    cert.getSerialNumber().toString(16),
-                                                                    RevocationReason.fromInt(reason).toString() }
-                                                            );
+                                                            thisreq.getRequestId(),
+                                                            initiative,
+                                                            "completed with error: " + err,
+                                                            cert.getSubjectDN(),
+                                                            cert.getSerialNumber().toString(16),
+                                                            RevocationReason.fromInt(reason)
+                                                    );
                                                 }
                                             }
                                         }
@@ -840,17 +836,15 @@ public class ConnectorServlet extends CMSServlet {
                                     if (oldCerts[j] instanceof X509CertImpl) {
                                         X509CertImpl cert = (X509CertImpl) oldCerts[j];
 
-                                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                                AuditFormat.LEVEL,
+                                        logger.info(
                                                 AuditFormat.DOREVOKEFORMAT,
-                                                new Object[] {
-                                                        thisreq.getRequestId(),
-                                                        initiative,
-                                                        "completed",
-                                                        cert.getSubjectDN(),
-                                                        cert.getSerialNumber().toString(16),
-                                                        RevocationReason.fromInt(reason).toString() }
-                                                );
+                                                thisreq.getRequestId(),
+                                                initiative,
+                                                "completed",
+                                                cert.getSubjectDN(),
+                                                cert.getSerialNumber().toString(16),
+                                                RevocationReason.fromInt(reason)
+                                        );
                                     }
                                 }
                             }

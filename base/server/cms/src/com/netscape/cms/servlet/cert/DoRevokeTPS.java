@@ -576,19 +576,15 @@ public class DoRevokeTPS extends CMSServlet {
                                         X509CertImpl cert = oldCerts[j];
 
                                         if (oldCerts[j] != null) {
-                                            mLogger.log(ILogger.EV_AUDIT,
-                                                    ILogger.S_OTHER,
-                                                    AuditFormat.LEVEL,
+                                            logger.info(
                                                     AuditFormat.DOREVOKEFORMAT,
-                                                    new Object[] {
-                                                            revReq.getRequestId(),
-                                                            initiative,
-                                                            "completed with error: " +
-                                                                    err,
-                                                            cert.getSubjectDN(),
-                                                            cert.getSerialNumber().toString(16),
-                                                            RevocationReason.fromInt(reason).toString() }
-                                                    );
+                                                    revReq.getRequestId(),
+                                                    initiative,
+                                                    "completed with error: " + err,
+                                                    cert.getSubjectDN(),
+                                                    cert.getSerialNumber().toString(16),
+                                                    RevocationReason.fromInt(reason)
+                                            );
                                         }
                                     }
                                 }
@@ -624,18 +620,16 @@ public class DoRevokeTPS extends CMSServlet {
                         if (oldCerts[j] instanceof X509CertImpl) {
                             X509CertImpl cert = oldCerts[j];
 
-                            mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.DOREVOKEFORMAT,
-                                    new Object[] {
-                                            revReq.getRequestId(),
-                                            initiative,
-                                            "completed",
-                                            cert.getSubjectDN(),
-                                            cert.getSerialNumber().toString(16),
-                                            RevocationReason.fromInt(reason).toString()
-                                                    + " time: " + (endTime - startTime) }
-                                    );
+                                    revReq.getRequestId(),
+                                    initiative,
+                                    "completed",
+                                    cert.getSubjectDN(),
+                                    cert.getSerialNumber().toString(16),
+                                    RevocationReason.fromInt(reason)
+                                            + " time: " + (endTime - startTime)
+                            );
                         }
                     }
                 }
@@ -769,17 +763,15 @@ public class DoRevokeTPS extends CMSServlet {
                         if (oldCerts[j] instanceof X509CertImpl) {
                             X509CertImpl cert = oldCerts[j];
 
-                            mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.DOREVOKEFORMAT,
-                                    new Object[] {
-                                            revReq.getRequestId(),
-                                            initiative,
-                                            stat.toString(),
-                                            cert.getSubjectDN(),
-                                            cert.getSerialNumber().toString(16),
-                                            RevocationReason.fromInt(reason).toString() }
-                                    );
+                                    revReq.getRequestId(),
+                                    initiative,
+                                    stat,
+                                    cert.getSubjectDN(),
+                                    cert.getSerialNumber().toString(16),
+                                    RevocationReason.fromInt(reason)
+                            );
                         }
                     }
                 }

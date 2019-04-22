@@ -487,19 +487,15 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                                 //cmsReq.setErrorDescription(err);
                                 for (int j = 0; j < count; j++) {
                                     if (oldCerts[j] != null) {
-                                        mLogger.log(ILogger.EV_AUDIT,
-                                                ILogger.S_OTHER,
-                                                AuditFormat.LEVEL,
+                                        logger.info(
                                                 AuditFormat.DOREVOKEFORMAT,
-                                                new Object[] {
-                                                        revReq.getRequestId(),
-                                                        initiative,
-                                                        "completed with error: " +
-                                                                err,
-                                                        oldCerts[j].getSubjectDN(),
-                                                        oldCerts[j].getSerialNumber().toString(16),
-                                                        RevocationReason.fromInt(reason).toString() }
-                                                );
+                                                revReq.getRequestId(),
+                                                initiative,
+                                                "completed with error: " + err,
+                                                oldCerts[j].getSubjectDN(),
+                                                oldCerts[j].getSerialNumber().toString(16),
+                                                RevocationReason.fromInt(reason)
+                                        );
                                     }
                                 }
                             }
@@ -511,17 +507,15 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 // audit log the success.
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
-                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.DOREVOKEFORMAT,
-                                new Object[] {
-                                        revReq.getRequestId(),
-                                        initiative,
-                                        "completed",
-                                        oldCerts[j].getSubjectDN(),
-                                        oldCerts[j].getSerialNumber().toString(16),
-                                        RevocationReason.fromInt(reason).toString() }
-                                );
+                                revReq.getRequestId(),
+                                initiative,
+                                "completed",
+                                oldCerts[j].getSubjectDN(),
+                                oldCerts[j].getSerialNumber().toString(16),
+                                RevocationReason.fromInt(reason)
+                        );
                     }
                 }
 
@@ -656,17 +650,15 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 // audit log the pending
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
-                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.DOREVOKEFORMAT,
-                                new Object[] {
-                                        revReq.getRequestId(),
-                                        initiative,
-                                        "pending",
-                                        oldCerts[j].getSubjectDN(),
-                                        oldCerts[j].getSerialNumber().toString(16),
-                                        RevocationReason.fromInt(reason).toString() }
-                                );
+                                revReq.getRequestId(),
+                                initiative,
+                                "pending",
+                                oldCerts[j].getSubjectDN(),
+                                oldCerts[j].getSerialNumber().toString(16),
+                                RevocationReason.fromInt(reason)
+                        );
                     }
                 }
 
@@ -684,17 +676,15 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 // audit log the error
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
-                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.DOREVOKEFORMAT,
-                                new Object[] {
-                                        revReq.getRequestId(),
-                                        initiative,
-                                        stat.toString(),
-                                        oldCerts[j].getSubjectDN(),
-                                        oldCerts[j].getSerialNumber().toString(16),
-                                        RevocationReason.fromInt(reason).toString() }
-                                );
+                                revReq.getRequestId(),
+                                initiative,
+                                stat,
+                                oldCerts[j].getSubjectDN(),
+                                oldCerts[j].getSerialNumber().toString(16),
+                                RevocationReason.fromInt(reason)
+                        );
                     }
                 }
             }

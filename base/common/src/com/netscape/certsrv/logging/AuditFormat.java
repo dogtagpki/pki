@@ -77,11 +77,11 @@ public class AuditFormat {
     public static final String RENEWALFORMAT =
             "Renewal request reqID {} {} authenticated by {} is {}. DN requested: {} old serial number: 0x{} {}";
     public static final String REVOCATIONFORMAT =
-            "Revocation request reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} serial number: 0x{5} revocation reason: {6} {7}";
+            "Revocation request reqID {} {} authenticated by {} is {}. DN requested: {} serial number: 0x{} revocation reason: {} {}";
 
     // 1: fromAgent AgentID: xxx authenticated by xxx
     public static final String DOREVOKEFORMAT =
-            "Revocation request reqID {0} {1} is {2}. DN requested: {3} serial number: 0x{4} revocation reason: {5}";
+            "Revocation request reqID {} {} is {}. DN requested: {} serial number: 0x{} revocation reason: {}";
     // 1: fromAgent AgentID: xxx authenticated by xxx
     public static final String DOUNREVOKEFORMAT =
             "Unrevocation request reqID {0} {1} is {2}. DN requested: {3} serial number: 0x{4}";

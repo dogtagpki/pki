@@ -1383,14 +1383,17 @@ public class CMCOutputTemplate {
                         }
                     }
 
-                    Logger logger = Logger.getLogger();
                     String initiative = AuditFormat.FROMUSER;
-                    logger.log(ILogger.EV_AUDIT, ILogger.S_OTHER, AuditFormat.LEVEL,
-                            AuditFormat.DOREVOKEFORMAT, new Object[] {
-                                    revReq.getRequestId(), initiative, "completed",
-                                    impl.getSubjectDN(),
-                                    impl.getSerialNumber().toString(16),
-                                    reason.toString() });
+                    logger.info(
+                            AuditFormat.DOREVOKEFORMAT,
+                            revReq.getRequestId(),
+                            initiative,
+                            "completed",
+                            impl.getSubjectDN(),
+                            impl.getSerialNumber().toString(16),
+                            reason
+                    );
+
                     CMCOutputTemplate.logger.debug(method + " Certificate revoked.");
                     SEQUENCE success_bpids = new SEQUENCE();
                     success_bpids.addElement(attrbpid);
