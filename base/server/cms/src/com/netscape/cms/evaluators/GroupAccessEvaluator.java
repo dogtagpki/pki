@@ -25,10 +25,8 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -45,7 +43,6 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
     private String mType = "group";
     private IUGSubsystem mUG = null;
     private String mDescription = "group membership evaluator";
-    private Logger mLogger = Logger.getLogger();
 
     /**
      * Class constructor.
@@ -56,7 +53,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
         mUG = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
 
         if (mUG == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UG_NULL"));
+            logger.warn("GroupAccessEvaluator: " + CMS.getLogMessage("EVALUTOR_UG_NULL"));
         }
     }
 
@@ -114,8 +111,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
             if (uid == null) {
                 uid = authToken.getInString(IAuthToken.UID);
                 if (uid == null) {
-                    logger.warn("GroupAccessEvaluator: evaluate: uid null");
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UID_NULL"));
+                    logger.warn("GroupAccessEvaluator: " + CMS.getLogMessage("EVALUTOR_UID_NULL"));
                     return false;
                 }
             }
@@ -167,7 +163,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
             IUser id = (IUser) mSC.get(SessionContext.USER);
 
             if (id == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UID_NULL"));
+                logger.warn("GroupAccessEvaluator: " + CMS.getLogMessage("EVALUTOR_UID_NULL"));
                 return false;
             }
             if (op.equals("="))
@@ -179,12 +175,4 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
 
         return false;
     }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_ACLS,
-                level, "GroupAccessEvaluator: " + msg);
-    }
-
 }
