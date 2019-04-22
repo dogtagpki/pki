@@ -73,8 +73,8 @@ public class JobsAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mJobsSched = (IJobsScheduler) engine.getSubsystem(CMS.SUBSYSTEM_JOBS);
+        CMSEngine engine = CMS.getCMSEngine();
+        mJobsSched = (IJobsScheduler) engine.getSubsystem(IJobsScheduler.ID);
     }
 
     /**
@@ -383,7 +383,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         // is the job instance id unique?
         if (mJobsSched.getInstances().containsKey(id)) {
@@ -479,7 +479,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        IJobsScheduler scheduler = (IJobsScheduler) engine.getSubsystem(CMS.SUBSYSTEM_JOBS);
+        IJobsScheduler scheduler = (IJobsScheduler) engine.getSubsystem(IJobsScheduler.ID);
 
         // initialize the job plugin
         try {
@@ -774,7 +774,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         // Does the job instance exist?
         if (!mJobsSched.getInstances().containsKey(id)) {
@@ -898,7 +898,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         // initialize the job plugin
 
-        IJobsScheduler scheduler = (IJobsScheduler) engine.getSubsystem(CMS.SUBSYSTEM_JOBS);
+        IJobsScheduler scheduler = (IJobsScheduler) engine.getSubsystem(IJobsScheduler.ID);
 
         try {
             newJobInst.init(scheduler, id, implname, substore);
