@@ -142,8 +142,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         mOCSPAuthority = (IOCSPAuthority) owner;
         mConfig = config;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mDBService = (IDBSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_DBS);
+        CMSEngine engine = CMS.getCMSEngine();
+        mDBService = (IDBSubsystem) engine.getSubsystem(IDBSubsystem.SUB_ID);
 
         // Standalone OCSP server only stores information about revoked
         // certificates. So there is no way for the OCSP server to
@@ -337,7 +337,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             throw new EBaseException("OCSP request is empty");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
 
         mOCSPAuthority.incNumOCSPRequest(1);
