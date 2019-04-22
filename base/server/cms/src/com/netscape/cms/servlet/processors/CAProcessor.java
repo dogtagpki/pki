@@ -129,7 +129,7 @@ public class CAProcessor extends Processor {
     // subsystems
     CMSEngine engine = CMS.getCMSEngine();
     protected ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem("ca");
-    protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+    protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
     protected IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
     protected ICertUserLocator ul = ug.getCertUserLocator();
     protected IRequestQueue queue;

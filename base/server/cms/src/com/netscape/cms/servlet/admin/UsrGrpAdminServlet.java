@@ -100,7 +100,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
     public UsrGrpAdminServlet() {
         super();
         CMSEngine engine = CMS.getCMSEngine();
-        mAuthz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        mAuthz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
     }
 
     /**

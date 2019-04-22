@@ -48,7 +48,7 @@ public class ServletUtils {
 
     public static String initializeAuthz(ServletConfig sc,
             IAuthzSubsystem authz, String id) throws ServletException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String srcType = AUTHZ_SRC_LDAP;
 
         try {
@@ -108,9 +108,9 @@ public class ServletUtils {
     }
 
     public static String getACLMethod(String aclInfo, String authzMgr, String id) throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String srcType = AUTHZ_SRC_LDAP;
-        IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
 
         try {
             IConfigStore authzConfig = engine.getConfigStore().getSubStore(AUTHZ_CONFIG_STORE);

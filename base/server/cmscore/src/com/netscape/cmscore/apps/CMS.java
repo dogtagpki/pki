@@ -24,7 +24,6 @@ import java.util.ResourceBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.profile.IProfileSubsystem;
@@ -48,7 +47,6 @@ public final class CMS {
 
     public static final String CONFIG_FILE = "CS.cfg";
 
-    public static final String SUBSYSTEM_AUTHZ = IAuthzSubsystem.ID;
     public static final String SUBSYSTEM_REGISTRY = IPluginRegistry.ID;
     public static final String SUBSYSTEM_PROFILE = IProfileSubsystem.ID;
     public static final String SUBSYSTEM_JOBS = IJobsScheduler.ID;

@@ -46,8 +46,8 @@ import com.netscape.cmscore.apps.CMSEngine;
 public abstract class CMSRequestDAO {
     protected IRequestQueue queue;
     protected IAuthority authority;
-    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-    protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+    CMSEngine engine = CMS.getCMSEngine();
+    protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
 
     private String[] vlvFilters = {
             "(requeststate=*)", "(requesttype=enrollment)",
@@ -65,7 +65,7 @@ public abstract class CMSRequestDAO {
     public static final String ATTR_SERIALNO = "serialNumber";
 
     public CMSRequestDAO(String authorityName) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         authority = (IAuthority) engine.getSubsystem(authorityName);
         queue = authority.getRequestQueue();
     }

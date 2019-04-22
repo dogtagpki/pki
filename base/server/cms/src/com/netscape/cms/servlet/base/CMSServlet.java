@@ -275,7 +275,7 @@ public abstract class CMSServlet extends HttpServlet {
         this.servletConfig = sc;
 
         CMSEngine engine = CMS.getCMSEngine();
-        mAuthz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        mAuthz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
         mId = sc.getInitParameter(PROP_ID);
 
         try {

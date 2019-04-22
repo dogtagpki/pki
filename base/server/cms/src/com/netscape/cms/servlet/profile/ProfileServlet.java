@@ -183,8 +183,8 @@ public class ProfileServlet extends CMSServlet {
         mGetClientCert = sc.getInitParameter(PROP_CLIENTAUTH);
         mAuthMgr = sc.getInitParameter(PROP_AUTHMGR);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mAuthz = (IAuthzSubsystem) engine.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        CMSEngine engine = CMS.getCMSEngine();
+        mAuthz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
 
         mAuthzResourceName = sc.getInitParameter(PROP_RESOURCEID);
         mProfileSubId = sc.getInitParameter(PROP_PROFILE_SUB_ID);
@@ -261,7 +261,7 @@ public class ProfileServlet extends CMSServlet {
             return;
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.startTiming("output_template");
@@ -386,7 +386,7 @@ public class ProfileServlet extends CMSServlet {
     }
 
     public void startTiming(String event) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.startTiming(event, true);
@@ -395,7 +395,7 @@ public class ProfileServlet extends CMSServlet {
     }
 
     public void endTiming(String event) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem("stats");
         if (statsSub != null) {
             statsSub.endTiming(event);
