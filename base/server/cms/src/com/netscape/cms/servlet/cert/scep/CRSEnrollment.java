@@ -176,7 +176,6 @@ public class CRSEnrollment extends HttpServlet {
     private String[] mAllowedEncryptionAlgorithm;
     private SecureRandom mRandom = null;
     private int mNonceSizeLimit = 0;
-    protected Logger mLogger = Logger.getLogger();
     private ICertificateAuthority ca;
     /* for hashing challenge password */
     protected MessageDigest mSHADigest = null;
@@ -237,7 +236,7 @@ public class CRSEnrollment extends HttpServlet {
         ca = (ICertificateAuthority) mAuthority;
 
         if (mAuthority == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_CANT_FIND_AUTHORITY", crsCA));
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_CANT_FIND_AUTHORITY", crsCA));
         }
 
         try {
@@ -395,23 +394,12 @@ public class CRSEnrollment extends HttpServlet {
             }
 
         } catch (ServletException e) {
-            logger.error("ServletException " + e.getMessage(), e);
+            logger.error("CRSEnrollment: " + e.getMessage(), e);
             throw new ServletException(e.getMessage().toString());
         } catch (Exception e) {
-            logger.warn("Service exception " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, e.getMessage());
+            logger.warn("CRSEnrollment: " + e.getMessage(), e);
         }
 
-    }
-
-    /**
-     * Log a message to the system log
-     */
-
-    private void log(int level, String msg) {
-
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    level, "CEP Enrollment: " + msg);
     }
 
     private boolean isAlgorithmAllowed(String[] allowedAlgorithm, String algorithm) {
@@ -543,8 +531,7 @@ public class CRSEnrollment extends HttpServlet {
             logger.debug("Output certificate chain:");
             logger.debug(Debug.dump(bytes));
         } catch (Exception e) {
-            logger.error("handleGetCACert exception " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_SENDING_DER_ENCODE_CERT", e.getMessage()));
+            logger.error("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ERROR_SENDING_DER_ENCODE_CERT", e.getMessage()), e);
             throw new ServletException("Failed sending DER encoded version of CA cert to client");
         }
 
@@ -1072,8 +1059,7 @@ public class CRSEnrollment extends HttpServlet {
 
         IPublisherProcessor ldapPub = mAuthority.getPublisherProcessor();
         if (ldapPub == null || !ldapPub.isCertPublishingEnabled()) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_CREATE_ENTRY_FROM_CEP"));
-
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ERROR_CREATE_ENTRY_FROM_CEP"));
             return result;
         }
 
@@ -1095,7 +1081,7 @@ public class CRSEnrollment extends HttpServlet {
             connection.add(newEntry);
             result = true;
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_FAIL_CREAT_ENTRY_EXISTS", dn));
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_FAIL_CREAT_ENTRY_EXISTS", dn), e);
         } finally {
             try {
                 connFactory.returnConn(connection);
@@ -1304,8 +1290,8 @@ public class CRSEnrollment extends HttpServlet {
                 if (sane == null)
                     sane = makeDefaultSubjectAltName(sanehash);
             } catch (Exception sane_e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_SUBJ_ALT_NAME",
-                        sane_e.getMessage()));
+                logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_SUBJ_ALT_NAME",
+                        sane_e.getMessage()), e);
             }
 
             try {
@@ -1317,9 +1303,8 @@ public class CRSEnrollment extends HttpServlet {
                 }
 
             } catch (Exception sne) {
-                log(ILogger.LL_INFO,
-                        "Unable to use appendDN parameter: "
-                                + mAppendDN + ". Error is " + sne.getMessage() + " Using unmodified subjectname");
+                logger.warn("CRSEnrollment: Unable to use appendDN parameter: "
+                                + mAppendDN + ". Error is " + sne.getMessage() + " Using unmodified subjectname", sne);
             }
 
             if (subject != null)
@@ -1383,8 +1368,8 @@ public class CRSEnrollment extends HttpServlet {
         try {
             return new SubjectAlternativeNameExtension(new GeneralNames(gn));
         } catch (Exception e) {
-            log(ILogger.LL_INFO, CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_SUBJ_ALT_NAME",
-                    e.getMessage()));
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_SUBJ_ALT_NAME",
+                    e.getMessage()), e);
             return null;
         }
     }
@@ -1491,8 +1476,7 @@ public class CRSEnrollment extends HttpServlet {
                     logger.debug("created response from request");
                     return makeResponseFromRequest(req, crsResp, cmsRequest);
                 } else {
-                    logger.error("duplicated transaction id");
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ENROLL_FAIL_DUP_TRANS_ID"));
+                    logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_DUP_TRANS_ID"));
                     crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badRequest);
                     crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
                     return null;
@@ -1503,8 +1487,7 @@ public class CRSEnrollment extends HttpServlet {
             boolean authFailed = authenticateUser(req);
 
             if (authFailed) {
-                logger.error("authentication failed");
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_AUTH"));
+                logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_AUTH"));
                 crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badIdentity);
                 crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
 
@@ -1526,15 +1509,13 @@ public class CRSEnrollment extends HttpServlet {
                 return makeResponseFromRequest(req, crsResp, ireq);
             }
         } catch (CryptoContext.CryptoContextException e) {
-            logger.error("failed to decrypt the request " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_DECRYPT_PKCS10",
-                    e.getMessage()));
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_DECRYPT_PKCS10",
+                    e.getMessage()), e);
             crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badMessageCheck);
             crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
         } catch (EBaseException e) {
-            logger.error("operation failure - " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERNOLL_FAIL_NO_NEW_REQUEST_POSTED",
-                    e.getMessage()));
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ERNOLL_FAIL_NO_NEW_REQUEST_POSTED",
+                    e.getMessage()), e);
             crsResp.setFailInfo(CRSPKIMessage.mFailInfo_internalCAError);
             crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
         }
