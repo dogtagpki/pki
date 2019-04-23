@@ -318,8 +318,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             EBaseException ex = new EBaseException(CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
             String message = CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.getMessage());
-            logger.error(message, e);
-            log(ILogger.LL_FAILURE, message);
+            logger.error("JssSubsystem: " + message, e);
             throw ex;
         }
 
@@ -332,8 +331,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             EBaseException ex = new EBaseException(CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
             String message = CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.getMessage());
-            logger.debug(message, e);
-            log(ILogger.LL_FAILURE, message);
+            logger.error("JssSubsystem: " + message, e);
             throw ex;
         }
 
@@ -451,9 +449,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 1);
 
         if (position == -1) {
-            logger.trace("Unable to install CMS provider");
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_SECURITY_INSTALL_PROVIDER"));
+            logger.warn("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_INSTALL_PROVIDER"));
         }
     }
 
@@ -500,8 +496,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             StringTokenizer ciphers = new StringTokenizer(sslCiphers, ",");
 
             if (!ciphers.hasMoreTokens()) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_SECURITY_INVALID_CIPHER", sslCiphers));
+                logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_INVALID_CIPHER", sslCiphers));
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY", PROP_SSL_CIPHERPREF));
             }
             while (ciphers.hasMoreTokens()) {
@@ -510,10 +505,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
                 if (sslcipher != null) {
                     String msg = "setting ssl cipher " + cipher;
+                    logger.info("JssSubsystem: " + msg);
 
-                    logger.debug("JSSSubsystem: initSSL(): " + msg);
-                    log(ILogger.LL_INFO, msg);
-                    logger.trace(msg);
                     try {
                         SSLSocket.setCipherPreferenceDefault(
                                 sslcipher.intValue(), true);
@@ -571,7 +564,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             EBaseException ex = new EBaseException(
                     CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()), e);
             throw ex;
         }
 
@@ -603,7 +596,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             EBaseException ex = new EBaseException(
                     CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()), e);
             throw ex;
         }
 
@@ -619,7 +612,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             return ctoken.isLoggedIn();
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_TOKEN_LOGGED_IN", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_TOKEN_LOGGED_IN", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR"), e);
         }
     }
@@ -631,7 +624,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             ctoken.login(clk);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_TOKEN_LOGGED_IN", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_TOKEN_LOGGED_IN", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR"), e);
         }
     }
@@ -641,16 +634,16 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             return KeyCertUtil.getCertSubjectName(tokenname, nickname);
         } catch (NoSuchTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_SUBJECT_NAME", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_SUBJECT_NAME", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_SUBJECT_NAME", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_SUBJECT_NAME", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_SUBJECT_NAME", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_SUBJECT_NAME", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_SUBJECT_NAME", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_SUBJECT_NAME", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ""));
         }
     }
@@ -682,7 +675,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             EBaseException ex = new EBaseException(
                     CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()), e);
             throw ex;
         }
 
@@ -723,7 +716,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             EBaseException ex = new EBaseException(
                     CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()), e);
             throw ex;
         }
     }
@@ -760,7 +753,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             EBaseException ex = new EBaseException(
                     CMS.getUserMessage("CMS_BASE_CREATE_SERVICE_FAILED", params));
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GENERAL_ERROR", ex.toString()), e);
             throw ex;
         }
     }
@@ -794,16 +787,16 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             return impl.getSigAlgName();
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_ALG", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_ALG", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (ObjectNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_ALG", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_ALG", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_ALG", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_ALG", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_ALG", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_ALG", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ""));
         }
     }
@@ -816,13 +809,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             return new KeyPair(publicKey, priKey);
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, "Key Pair Error " + e);
+            logger.error("JssSubsystem: Key Pair Error " + e.getMessage(), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (ObjectNotFoundException e) {
-            log(ILogger.LL_FAILURE, "Key Pair Error " + e);
+            logger.error("JssSubsystem: Key Pair Error " + e.getMessage(), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, "Key Pair Error " + e);
+            logger.error("JssSubsystem: Key Pair Error " + e.getMessage(), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         }
     }
@@ -847,21 +840,21 @@ public final class JssSubsystem implements ICryptoSubsystem {
             KeyPair kp = KeyCertUtil.generateKeyPair(token, kpAlg, keySize, pqg);
             return kp;
         } catch (InvalidParameterException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_KEY_PAIR", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_KEY_PAIR", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEYSIZE_PARAMS",
                         "" + keySize));
         } catch (PQGParamGenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_KEY_PAIR", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_KEY_PAIR", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_PQG_GEN_FAILED"));
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_KEY_PAIR", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_KEY_PAIR", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED",
                         kpAlg.toString()));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_KEY_PAIR", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_KEY_PAIR", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_KEY_GEN_FAILED"));
         } catch (InvalidAlgorithmParameterException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_KEY_PAIR", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_KEY_PAIR", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", "DSA"));
         }
     }
@@ -870,7 +863,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             new X500Name(dn); // check for errors
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_X500_NAME", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_X500_NAME", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_X500_NAME", dn));
         }
     }
@@ -884,22 +877,22 @@ public final class JssSubsystem implements ICryptoSubsystem {
             pkcs.print(ps);
             return bs.toString();
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", ""));
         } catch (NoSuchProviderException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_PROVIDER_NOT_SUPPORTED"));
         } catch (InvalidKeyException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY"));
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_REQ_FAILED"));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_CERT", e.toString()));
         } catch (SignatureException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_CERT_REQUEST", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_SIGNATURE"));
         }
     }
@@ -909,27 +902,27 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             KeyCertUtil.importCert(b64E, nickname, certType);
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_DECODE_CERT_FAILED"));
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
             String eString = e.toString();
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             if (eString.contains("Failed to find certificate that was just imported")) {
                 throw new EBaseException(eString);
             } else {
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
             }
         } catch (UserCertConflictException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_USERCERT_CONFLICT"));
         } catch (NicknameConflictException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_NICKNAME_CONFLICT"));
         } catch (NoSuchItemOnTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ITEM_NOT_FOUND_ON_TOKEN"));
         }
     }
@@ -1013,16 +1006,16 @@ public final class JssSubsystem implements ICryptoSubsystem {
             else
                 pair = CryptoUtil.generateECCKeyPair(token, keyCurve, null, ECDH_usages_mask);
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (NoSuchTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_SUCH_ALGORITHM", e.toString()));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ECC_KEY", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         }
 
@@ -1035,25 +1028,25 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             KeyCertUtil.importCert(signedCert, nickname, certType);
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (CertificateEncodingException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ENCODE_CERT_FAILED"));
         } catch (UserCertConflictException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_USERCERT_CONFLICT"));
         } catch (NicknameConflictException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_NICKNAME_CONFLICT"));
         } catch (NoSuchItemOnTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ITEM_NOT_FOUND_ON_TOKEN"));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IMPORT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ENCODE_CERT_FAILED"));
         }
     }
@@ -1074,10 +1067,10 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             return results;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_CERT_INFO", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_CERT_INFO", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_DECODE_CERT_FAILED"));
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_CERT_INFO", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_CERT_INFO", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_DECODE_CERT_FAILED"));
         }
     }
@@ -1101,13 +1094,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 logger.debug("*** removing this interna cert");
             }
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (NoSuchItemOnTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ITEM_NOT_FOUND_ON_TOKEN"));
         }
     }
@@ -1126,7 +1119,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 if (certs == null) {
                     EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
 
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CA_CERT", e.toString()));
+                    logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CA_CERT", e.toString()));
                     throw e;
                 } else {
                     for (int i = 0; i < certs.length; i++) {
@@ -1160,16 +1153,16 @@ public final class JssSubsystem implements ICryptoSubsystem {
             }
 
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (NoSuchItemOnTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ITEM_NOT_FOUND_ON_TOKEN"));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
     }
@@ -1247,7 +1240,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 }
             }
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ALL_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ALL_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ""));
         }
 
@@ -1301,7 +1294,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 }
             }
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ALL_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ALL_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ""));
         }
 
@@ -1372,13 +1365,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 }
             } /* while */
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ALL_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ALL_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
             // } catch (CertificateException e) {
-            //    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ALL_CERT", e.toString()));
+            //    logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ALL_CERT", e.toString()), e);
             //   throw new EBaseException(BaseResources.CERT_ERROR);
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_ALL_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_ALL_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ""));
         }
 
@@ -1394,7 +1387,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             certs = CryptoManager.getInstance().getCACerts();
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_CA_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_CA_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         }
 
@@ -1473,8 +1466,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         pairs.put(nickname, vvalue + ";" + certValue);
                     }
                 } catch (CertificateException e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_SECURITY_GET_CA_CERT_FOR", nickname, e.toString()));
+                    logger.warn("JssSubsystem: " +
+                            CMS.getLogMessage("CMSCORE_SECURITY_GET_CA_CERT_FOR", nickname, e.toString()), e);
                     // allow it to continue with other certs even if one blows
                     // up
                     //            throw new EBaseException(BaseResources.CERT_ERROR);
@@ -1493,7 +1486,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 if (certs == null) {
                     EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
 
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_TRUST_CERT", e.toString()));
+                    logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_TRUST_CERT", e.toString()));
                     throw e;
                 } else {
                     for (int i = 0; i < certs.length; i++) {
@@ -1521,10 +1514,10 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 }
             }
         } catch (ParseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_TRUST_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_TRUST_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_TRUST_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_TRUST_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
     }
@@ -1546,7 +1539,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 if (certs == null) {
                     EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
 
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CA_CERT", e.toString()));
+                    logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CA_CERT", e.toString()));
                     throw e;
                 } else {
                     for (int i = 0; i < certs.length; i++) {
@@ -1573,19 +1566,19 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 }
             }
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (NoSuchItemOnTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ITEM_NOT_FOUND_ON_TOKEN"));
         } catch (ParseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
     }
@@ -1623,7 +1616,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             if (certs == null) {
                 EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+                logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
                 throw e;
             } else {
 
@@ -1655,19 +1648,19 @@ public final class JssSubsystem implements ICryptoSubsystem {
             }
 
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (NoSuchItemOnTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ITEM_NOT_FOUND_ON_TOKEN"));
         } catch (ParseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
     }
@@ -1719,22 +1712,22 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 }
             }
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (NoSuchItemOnTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ITEM_NOT_FOUND_ON_TOKEN"));
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (ObjectNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ITEM_NOT_FOUND_ON_TOKEN"));
         } catch (CertificateEncodingException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_DELETE_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
     }
@@ -1746,16 +1739,16 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             return impl.getSubjectDN().getName();
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_SUBJECT_NAME", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_SUBJECT_NAME", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_SUBJECT_NAME", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_SUBJECT_NAME", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (ObjectNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_SUBJECT_NAME", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_SUBJECT_NAME", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_SUBJECT_NAME", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_SUBJECT_NAME", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
     }
@@ -1799,17 +1792,17 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 }
             } else {
                 EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+                logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
                 throw e;
             }
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
 
@@ -1837,7 +1830,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 }
             } else {
                 EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+                logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
                 throw e;
             }
 
@@ -1851,13 +1844,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 trust = "N/A";
             return trust;
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
     }
@@ -1882,7 +1875,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 }
             } else {
                 EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+                logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
                 throw e;
             }
             CertPrettyPrint print = null;
@@ -1895,13 +1888,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
             else
                 return null;
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
     }
@@ -1926,7 +1919,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 }
             } else {
                 EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+                logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
                 throw e;
             }
             CertPrettyPrint print = null;
@@ -1944,16 +1937,16 @@ public final class JssSubsystem implements ICryptoSubsystem {
             } else
                 return null;
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_SUCH_ALGORITHM", e.toString()));
         }
     }
@@ -1970,7 +1963,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             if (certs == null) {
                 EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+                logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
                 throw e;
             }
             X509CertImpl impl = null;
@@ -1994,16 +1987,16 @@ public final class JssSubsystem implements ICryptoSubsystem {
             else
                 return null;
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         } catch (ParseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
     }
@@ -2052,14 +2045,14 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 return content.toString();
             }
         } catch (InvalidBERException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR",
                         "Failed to decode"));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.getMessage()));
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_PRINT_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ""));
         }
     }
@@ -2091,13 +2084,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             signedCert = KeyCertUtil.signCert(priKey, certInfo, sigAlg);
         } catch (NoSuchTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_SIGN_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_SIGN_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", ""));
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_SIGN_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_SIGN_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (PQGParamGenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_SIGN_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_SIGN_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_PQG_GEN_FAILED"));
         }
 
@@ -2136,19 +2129,19 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 }
             }
         } catch (ObjectNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IS_CA_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IS_CA_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IS_CA_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IS_CA_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR"));
         } catch (CertificateEncodingException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IS_CA_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IS_CA_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR"));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IS_CA_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IS_CA_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ""));
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_IS_CA_CERT", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_IS_CA_CERT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_DECODE_CERT_FAILED"));
         }
     }
@@ -2158,19 +2151,19 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             return KeyCertUtil.getExtensions(tokenname, nickname);
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_EXTENSIONS", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_EXTENSIONS", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_EXTENSIONS", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_EXTENSIONS", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR"));
         } catch (ObjectNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_EXTENSIONS", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_EXTENSIONS", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_EXTENSIONS", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_EXTENSIONS", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_DECODE_CERT_FAILED"));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_EXTENSIONS", e.toString()));
+            logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_GET_EXTENSIONS", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ""));
         }
     }
