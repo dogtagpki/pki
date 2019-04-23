@@ -31,8 +31,6 @@ import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
@@ -65,7 +63,6 @@ public class DBSSession implements IDBSSession {
 
     private IDBSubsystem mDBSystem = null;
     private LDAPConnection mConn = null;
-    private Logger mLogger = Logger.getLogger();
 
     /**
      * Constructs a database session.
@@ -182,7 +179,7 @@ public class DBSSession implements IDBSSession {
              * @phase local ldap read
              * @message DBSSession: <exception thrown>
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_INFO, "DBSSession: " + e.toString());
+            logger.error("DBSSession: " + e.getMessage(), e);
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
                 throw new EDBNotAvailException(
                         CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
