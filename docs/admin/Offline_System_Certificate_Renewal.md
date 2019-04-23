@@ -6,65 +6,50 @@ Offline System Certificate Renewal
 PKI server provides a mechanism to recover from expired system certificates. This mechanism can also be
 used to renew the certificates before they expire. There are 2 ways to renew the certs
 
-1. [Automated Renewal Process](#Automated-Renewal-Process)
-2. [Manual Renewal Process](#Manual-Renewal-Process) 
+1. [Automated Renewal Process](#Automated-Renewal-Process) - supports LDAPS/LDAPI configuration
+2. [Manual Renewal Process](#Manual-Renewal-Process) - supports LDAP/LDAPS/LDAPI configuration
 
-It is assumed that you have the following:
-* Valid CA signing cert
-* Valid admin cert
-
-To verify these assumptions are valid:
-
-1. List details of all system certificates. (Note down the `<cert ID>` of the certificates that need to be renewed)
-
-    ````
-    # pki-server cert-find
-
-      Cert ID: ca_signing
-      Nickname: ca_signing
-      Serial Number: 0x1
-      Subject DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
-      Issuer DN: CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE
-      Not Valid Before: Wed Dec 19 17:33:21 2018
-      Not Valid After: Sun Dec 19 17:33:21 2038
-    ````
-
-2. Check details of the admin certificate
-
-    ````
-    # certutil -L \
-    -d <admin NSS database> \
-    -n <admin cert nickname>
-
-    Certificate:
-        Data:
-            Version: 3 (0x2)
-            Serial Number: 6 (0x6)
-            Signature Algorithm: PKCS #1 SHA-256 With RSA Encryption
-            Issuer: "CN=CA Signing Certificate,OU=pki-tomcat,O=EXAMPLE"
-            Validity:
-                Not Before: Sat Dec 15 02:16:26 2018
-                Not After : Fri Dec 04 02:16:26 2020
-            Subject: "CN=PKI Administrator,E=caadmin@example.com,OU=pki-tomcat,O=
-                EXAMPLE"
-
-    ````
+This tool's behavior is different in an **IPA environment** and **standalone PKI environment**
 
 ## Automated Renewal Process
+
+### IPA Environment (Uses LDAPI)
+
+#### Assumptions:
+
+- Valid CA certificate [WIP to remove this assumption]
+- `cert-fix` must be run as `root`
+- `LDAPI` must be configured, with `root` autobinding to `cn=Directory Manager` or other account with privileges on `o=ipaca` subtree, including password reset privileges
+- The password of the specified agent account will be reset. If needed, it can be changed back afterwards (manually; successful execution of `cert-fix` proves that the operator has privileges to do this)
+- If Dogtag was configured to use TLS certificate authentication to bind to LDAP, the password on the `pkidbuser` account will be reset. (If password authentication was already used, the password does not get reset)
+- LDAPI (ldappasswd) and need to be root
+
+#### Usage:
+
+One line tool that fixes **all** certificates:
+
+    # pki-server cert-fix \
+    --agent-uid <admin UID> \
+    --ldapi-socket <Directory Server LDAPI Socket's path>
+
+If you need to fix only a **specific system certificates**, use the `--cert <Cert_ID>` option. If you need to renew **non-system certs**, use the `--extra-cert <Serial>` option.
+
+
+### Standalone PKI environment (Uses LDAPS)
+
+#### Assumptions:
+
+- Valid CA certificate [WIP to remove this assumption]
+- TLS configured Directory Server
+- If Dogtag was configured to use TLS certificate authentication to bind to LDAP, a Valid DS service certificate
+
+#### Usage:
 
 One line tool that fixes all certificates:
 
     # pki-server cert-fix \
-    -n <admin cert nickname> \
-    -d <admin NSS database> \
-    -c <admin NSS database password>
-
-One line tool to fix one particular certificate:
-
-    # pki-server cert-fix --cert <cert ID> \
-    -n <admin cert nickname> \
-    -d <admin NSS database> \
-    -c <admin NSS database password>
+    --ldap-url <LDAP URL> \
+    --agent-uid <admin nickname>
 
 For all available options, you can type:
 
@@ -83,6 +68,11 @@ It is recommended to run the following steps to ensure that `CS.cfg` and NSS dat
 2. Synchronize NSS database and CS.cfg for all system certificates that are to be renewed
     ````
     # pki-server cert-update <cert ID>
+    ````
+
+3. Stop pki-tomcat instance
+    ````
+    # systemctl stop pki-tomcatd@<instance>
     ````
 
 ### Bringing up the PKI server
@@ -109,7 +99,7 @@ It is recommended to run the following steps to ensure that `CS.cfg` and NSS dat
 
 ### System Certificate Renewal
 
-1. Renew required system certs using PKI tool. For **`sslserver`** cert provide the `serial number` from the **original SSL server cert** to avoid placing request for unintended cert.
+1. If you have a **valid admin cert** and a LDAP/LDAPS Directory server configuration, renew required system certs using PKI tool. For **`sslserver`** cert provide the `serial number` from the **original SSL server cert** to avoid placing request for unintended cert.
     ````
     # pki-server cert-create --renew \
     -n <admin cert nickname> \
@@ -118,6 +108,17 @@ It is recommended to run the following steps to ensure that `CS.cfg` and NSS dat
     <cert ID> \
     --serial <serial number>
     ````
+    **OR**
+
+    If your **admin cert is expired** and TLS/SSL is configured for LDAP [WORK IN PROGRESS]:
+
+    ````
+    # pki-server cert-create --renew \
+    --agent-uid <admin username>
+    ````
+
+    ***NOTE:*** This results in resetting the LDAP password
+
     **OR**
 
     using 3rd party tool, like certmonger. Please refer [certmonger manual](https://www.freeipa.org/page/Certmonger) to renew the certs.
