@@ -35,8 +35,6 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.PropConfigStore;
@@ -144,8 +142,6 @@ public class DBSubsystem implements IDBSubsystem {
     private static final String PROP_INCREMENT_NAME = "increment_name";
     private static final String PROP_RANGE_DN = "rangeDN";
 
-    private Logger mLogger = null;
-
     // singleton enforcement
 
     private static IDBSubsystem mInstance = new DBSubsystem();
@@ -220,9 +216,7 @@ public class DBSubsystem implements IDBSubsystem {
 
     public void setNextSerialConfig(BigInteger serial)
             throws EBaseException {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
-                ILogger.LL_INFO, "DBSubsystem: " +
-                        "Setting next serial number: 0x" + serial.toString(16));
+        logger.info("DBSubsystem: Setting next serial number: 0x" + serial.toString(16));
         mDBConfig.putString(PROP_NEXT_SERIAL_NUMBER,
                 serial.toString(16));
     }
@@ -402,7 +396,7 @@ public class DBSubsystem implements IDBSubsystem {
      * @return start of next range
      */
     public String getNextRange(int repo) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         LDAPConnection conn = null;
         String nextRange = null;
         try {
@@ -483,7 +477,7 @@ public class DBSubsystem implements IDBSubsystem {
      * @return true if range conflict, false otherwise
      */
     public boolean hasRangeConflict(int repo) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         LDAPConnection conn = null;
         boolean conflict = false;
         try {
@@ -536,8 +530,7 @@ public class DBSubsystem implements IDBSubsystem {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        mLogger = Logger.getLogger();
+        CMSEngine engine = CMS.getCMSEngine();
         mDBConfig = config;
         mRepos = new Hashtable[IDBSubsystem.NUM_REPOS];
 
@@ -928,8 +921,7 @@ public class DBSubsystem implements IDBSubsystem {
              * @reason shutdown db subsystem
              * @message DBSubsystem: <exception thrown>
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.warn("DBSubsystem: "+ CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
         }
         if (mRegistry != null)
             mRegistry.shutdown();
@@ -993,21 +985,17 @@ public class DBSubsystem implements IDBSubsystem {
              *
              * @phase create db session
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_DBS_CONN_ERROR", e.toString()));
+            logger.error("DBSubsystem: "+ CMS.getLogMessage("CMSCORE_DBS_CONN_ERROR", e.toString()), e);
             throw new EDBException(
                     CMS.getUserMessage("CMS_DBS_CONNECT_LDAP_FAILED", e.toString()));
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() != 20) {
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_DBS_SCHEMA_ERROR", e.toString()));
+                logger.error("DBSubsystem: "+ CMS.getLogMessage("CMSCORE_DBS_SCHEMA_ERROR", e.toString()), e);
                 throw new EDBException(
                         CMS.getUserMessage("CMS_DBS_ADD_ENTRY_FAILED", e.toString()));
             }
         } catch (EBaseException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR",
-                            e.toString()));
+            logger.warn("DBSubsystem: "+ CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR", e.toString()), e);
         }
         return new DBSSession(this, conn);
     }
