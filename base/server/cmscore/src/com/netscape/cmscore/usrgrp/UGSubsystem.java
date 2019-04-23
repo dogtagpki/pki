@@ -176,7 +176,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                 mLdapConnFactory.reset();
             }
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LDAP_SHUT", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_LDAP_SHUT", e.toString()), e);
         }
     }
 
@@ -242,7 +242,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         } catch (Exception e) {
             // currently this will catch all exceptions
             // TODO: catch user not found exception only, rethrow everything else
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_GET_USER", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_GET_USER", e.toString()), e);
         }
 
         // user not found or other error occurs
@@ -269,9 +269,9 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
             return (User) e.nextElement();
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER", e.toString()), e);
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_INTERNAL_DB", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_INTERNAL_DB", e.toString()), e);
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
@@ -320,13 +320,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
         } catch (LDAPException e) {
             String message = CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER_BY_CERT", e.getMessage());
-            logger.error(message, e);
-            log(ILogger.LL_FAILURE, message);
+            logger.warn("UGSubsystem: " + message, e);
 
         } catch (ELdapException e) {
             String message = CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER_BY_CERT", e.getMessage());
-            logger.error(message, e);
-            log(ILogger.LL_FAILURE, message);
+            logger.warn("UGSubsystem: " + message, e);
 
         } finally {
             if (ldapconn != null)
@@ -369,10 +367,10 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             return e;
 
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USERS", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_FIND_USERS", e.toString()), e);
 
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USERS", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_FIND_USERS", e.toString()), e);
 
         } finally {
             if (ldapconn != null)
@@ -409,7 +407,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
             return e;
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_USERS", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_LIST_USERS", e.toString()), e);
         } catch (Exception e) {
             throw new EUsrGrpException(CMS.getUserMessage("CMS_INTERNAL_ERROR"));
         } finally {
@@ -540,8 +538,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         if (userdn != null) {
             id.setUserDN(userdn);
         } else { // the impossible
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_BUILD_USER", userdn));
-
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_BUILD_USER", userdn));
             throw new EUsrGrpException(CMS.getUserMessage("CMS_INTERNAL_ERROR"));
         }
 
@@ -780,13 +777,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         } catch (LDAPException e) {
             String message = CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.getMessage());
             logger.error(message, e);
-            log(ILogger.LL_FAILURE, message);
             throw LDAPExceptionConverter.toPKIException(e);
 
         } catch (ELdapException e) {
             String message = CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.getMessage());
             logger.error(message, e);
-            log(ILogger.LL_FAILURE, message);
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_USER_FAIL"), e);
 
         } finally {
@@ -816,7 +811,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                 attrCertBin.addValue(cert[0].getEncoded());
                 attrCertStr.addValue(getCertificateString(cert[0]));
             } catch (CertificateEncodingException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER_CERT", e.toString()));
+                logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER_CERT", e.toString()), e);
                 throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
             }
 
@@ -842,12 +837,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                 );
 
             } catch (LDAPException e) {
-                logger.error("UGSubsystem: " + e.getMessage(), e);
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+                logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()), e);
                 throw LDAPExceptionConverter.toPKIException(e);
 
             } catch (ELdapException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+                logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()), e);
                 throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
 
             } finally {
@@ -892,12 +886,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                 );
 
             } catch (LDAPException e) {
-                logger.error("UGSubsystem: " + e.getMessage(), e);
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+                logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()), e);
                 throw LDAPExceptionConverter.toPKIException(e);
 
             } catch (ELdapException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+                logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()), e);
                 throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
 
             } finally {
@@ -943,12 +936,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                 );
 
             } catch (LDAPException e) {
-                logger.error("UGSubsystem: " + e.getMessage(), e);
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+                logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()), e);
                 throw LDAPExceptionConverter.toPKIException(e);
 
             } catch (ELdapException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+                logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()), e);
                 throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
 
             } finally {
@@ -1059,11 +1051,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                 throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
 
             } catch (LDAPException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
+                logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()), e);
                 throw LDAPExceptionConverter.toPKIException(e);
 
             } catch (ELdapException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
+                logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()), e);
                 throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
 
             } finally {
@@ -1094,11 +1086,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             ldapconn.modify(groupDN, singleChange);
 
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER_TO_GROUP", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER_TO_GROUP", e.toString()), e);
             throw LDAPExceptionConverter.toPKIException(e);
 
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER_TO_GROUP", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER_TO_GROUP", e.toString()), e);
 
         } finally {
             if (ldapconn != null)
@@ -1123,11 +1115,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             ldapconn.modify(groupDN, singleChange);
 
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER_FROM_GROUP", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER_FROM_GROUP", e.toString()), e);
             throw LDAPExceptionConverter.toPKIException(e);
 
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER_FROM_GROUP", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER_FROM_GROUP", e.toString()), e);
 
         } finally {
             if (ldapconn != null)
@@ -1159,11 +1151,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             );
 
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()), e);
             throw LDAPExceptionConverter.toPKIException(e);
 
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()), e);
 
         } finally {
             if (ldapconn != null)
@@ -1339,10 +1331,10 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
             return buildGroups(res);
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_GROUPS", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_FIND_GROUPS", e.toString()), e);
             return null;
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_GROUPS", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_FIND_GROUPS", e.toString()), e);
             return null;
         } finally {
             if (ldapconn != null)
@@ -1393,10 +1385,10 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             return buildGroups(res);
 
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()), e);
 
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()), e);
 
         } finally {
             if (ldapconn != null)
@@ -1442,10 +1434,10 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             return buildGroups(res);
 
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()), e);
 
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()), e);
 
         } finally {
             if (ldapconn != null)
@@ -1480,8 +1472,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                     try {
                         grp.set("description", desc);
                     } catch (EBaseException ex) {
-                        // later...
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_BUILD_GROUP", ex.toString()));
+                        logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_BUILD_GROUP", ex.toString()), ex);
                     }
                 }
             }
@@ -1490,8 +1481,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             try {
                 grp.set("description", ""); // safety net
             } catch (EBaseException ex) {
-                // later...
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_BUILD_GROUP", ex.toString()));
+                logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_BUILD_GROUP", ex.toString()), ex);
             }
         }
 
@@ -1523,7 +1513,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             if (v == null || v.length() < 3 || (!(v.substring(0, 3)).equalsIgnoreCase("uid")) ||
                     ((i = v.indexOf('=')) < 0) || ((j = v.indexOf(',')) < 0) || i > j ||
                     (v.substring(i + 1, j)).indexOf('=') > -1 || ((v.substring(3, i)).trim()).length() > 0) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_BAD_GROUP_MEMBER", groupName, v));
+                logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_BAD_GROUP_MEMBER", groupName, v));
             } else {
                 grp.addMemberName(v.substring(v.indexOf('=') + 1, v.indexOf(',')));
             }
@@ -1566,7 +1556,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                 return null;
             return e.nextElement();
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_GET_GROUP", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_GET_GROUP", e.toString()), e);
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
@@ -1603,7 +1593,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
                 }
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_IS_GROUP_PRESENT", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_IS_GROUP_PRESENT", e.toString()), e);
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
@@ -1630,12 +1620,12 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
      */
     public boolean isMemberOf(IUser id, String name) {
         if (id == null) {
-            log(ILogger.LL_WARN, "isMemberOf(): id is null");
+            logger.warn("UGSubsystem: isMemberOf(): id is null");
             return false;
         }
 
         if (name == null) {
-            log(ILogger.LL_WARN, "isMemberOf(): name is null");
+            logger.warn("UGSubsystem: isMemberOf(): name is null");
             return false;
         }
 
@@ -1682,14 +1672,13 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 errMsg = "isMemberOfLdapGroup: " + "Internal DB is unavailable";
             }
-            logger.warn("authorization exception: " + errMsg);
-            // too chatty in system log
-            // log(ILogger.LL_FAILURE, errMsg);
+            logger.warn("UGSubsystem: authorization exception: " + errMsg);
+
         } catch (ELdapException e) {
             String errMsg =
                     "isMemberOfLdapGroup: Could not get connection to internaldb. Error " + e;
-            logger.warn("authorization exception: " + errMsg);
-            log(ILogger.LL_FAILURE, errMsg);
+            logger.warn("UGSubsystem: authorization exception: " + errMsg);
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
@@ -1748,11 +1737,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             ldapconn.add(entry);
 
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_GROUP", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_ADD_GROUP", e.toString()), e);
             throw LDAPExceptionConverter.toPKIException(e);
 
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_GROUP", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_ADD_GROUP", e.toString()), e);
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_GROUP_FAIL"));
 
         } finally {
@@ -1768,7 +1757,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         if (name == null) {
             return;
         } else if (name.equalsIgnoreCase(SUPER_CERT_ADMINS)) {
-            log(ILogger.LL_WARN, "removing Certificate Server Administrators group is not allowed");
+            logger.error("UGSubsystem: removing Certificate Server Administrators group is not allowed");
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_REMOVE_GROUP_FAIL"));
         }
 
@@ -1779,11 +1768,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             ldapconn.delete("cn=" + LDAPUtil.escapeRDNValue(name) + "," + getGroupBaseDN());
 
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_GROUP", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_GROUP", e.toString()), e);
             throw LDAPExceptionConverter.toPKIException(e);
 
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_GROUP", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_GROUP", e.toString()), e);
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_REMOVE_GROUP_FAIL"));
 
         } finally {
@@ -1841,11 +1830,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             ldapconn.modify(dn, mod);
 
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_MODIFY_GROUP", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_MODIFY_GROUP", e.toString()), e);
             throw LDAPExceptionConverter.toPKIException(e);
 
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_MODIFY_GROUP", e.toString()));
+            logger.error("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_MODIFY_GROUP", e.toString()), e);
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_MOD_GROUP_FAIL"));
 
         } finally {
@@ -1895,8 +1884,10 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
                 return entry.getDN();
             }
+
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_CONVERT_UID", e.toString()));
+            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_CONVERT_UID", e.toString()), e);
+
         } finally {
             if (ldapconn != null)
                 returnConn(ldapconn);
