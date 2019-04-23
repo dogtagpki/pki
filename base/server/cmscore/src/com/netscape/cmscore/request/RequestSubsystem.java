@@ -22,12 +22,10 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
@@ -43,6 +41,8 @@ import com.netscape.cmscore.dbs.DBSubsystem;
  * @version $Revision$, $Date$
  */
 public class RequestSubsystem implements ISubsystem {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestSubsystem.class);
 
     public final static String ID = "request";
 
@@ -146,20 +146,12 @@ public class RequestSubsystem implements ISubsystem {
      *
      * @see ISubsystem#startup
      */
-    public void startup()
-            throws EBaseException {
-        mLogger = Logger.getLogger();
-
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_REQQUEUE, ILogger.LL_INFO,
-                "Request subsystem started");
+    public void startup() {
+        logger.info("RequestSubsystem: Request subsystem started");
     }
 
     public void shutdown() {
-
-        if (mLogger != null) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_REQQUEUE, ILogger.LL_INFO,
-                    "Request subsystem stopped");
-        }
+        logger.info("RequestSubsystem: Request subsystem stopped");
     }
 
     public IConfigStore getConfigStore() {
@@ -197,6 +189,4 @@ public class RequestSubsystem implements ISubsystem {
     @SuppressWarnings("unused")
     private ISubsystem mParent;
     private String mId = ID;
-
-    protected Logger mLogger;
 }
