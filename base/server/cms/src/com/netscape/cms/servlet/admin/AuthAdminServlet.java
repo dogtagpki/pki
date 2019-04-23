@@ -554,8 +554,8 @@ public class AuthAdminServlet extends AdminServlet {
             AuthMgrPlugin plugin = new AuthMgrPlugin(id, classPath);
 
             mAuths.getPlugins().put(id, plugin);
-            mAuths.log(ILogger.LL_INFO,
-                    CMS.getLogMessage("ADMIN_SRVLT_PLUGIN_ADD", id));
+
+            logger.info("AuthAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_PLUGIN_ADD", id));
 
             NameValuePairs params = new NameValuePairs();
 
@@ -852,8 +852,7 @@ public class AuthAdminServlet extends AdminServlet {
             // inited and commited ok. now add manager instance to list.
             mAuths.add(id, authMgrInst);
 
-            mAuths.log(ILogger.LL_INFO,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_MGR_ADD", id));
+            logger.info("AuthAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_MGR_ADD", id));
 
             NameValuePairs params = new NameValuePairs();
 
@@ -1647,8 +1646,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             mAuths.add(id, newMgrInst);
 
-            mAuths.log(ILogger.LL_INFO,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_MGR_REPL", id));
+            logger.info("AuthAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_MGR_REPL", id));
 
             NameValuePairs params = new NameValuePairs();
 

@@ -205,14 +205,6 @@ public interface IAuthSubsystem extends ISubsystem {
             throws EAuthMgrPluginNotFound, EBaseException;
 
     /**
-     * Log error message.
-     *
-     * @param level log level
-     * @param msg error message
-     */
-    public void log(int level, String msg);
-
-    /**
      * Get a hashtable containing all authentication plugins.
      *
      * @return all authentication plugins.
