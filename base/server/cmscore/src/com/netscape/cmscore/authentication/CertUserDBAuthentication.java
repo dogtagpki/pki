@@ -87,7 +87,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
             throws EBaseException {
         mName = name;
         mImplName = implName;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mConfig = config;
 
         if (mConfig != null) {
@@ -106,7 +106,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         }
 
         mCULocator = new ExactMatchCertUserLocator();
-        log(ILogger.LL_INFO, CMS.getLogMessage("INIT_DONE", name));
+        logger.info("CertUserDBAuthentication: " + CMS.getLogMessage("INIT_DONE", name));
     }
 
     /**
@@ -146,8 +146,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
                 (X509Certificate[]) authCred.get(CRED_CERT);
 
         if (x509Certs == null) {
-            logger.error("CertUserDBAuth: no client certificate found");
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
+            logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
             throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CERT));
         }
         logger.debug("CertUserDBAuth: Got client certificate");
@@ -155,12 +154,12 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         if (mRevocationCheckingEnabled) {
             X509CertImpl cert0 = (X509CertImpl) x509Certs[0];
             if (cert0 == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_NO_CERT"));
+                logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_NO_CERT"));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
             }
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
             if (engine.isRevoked(x509Certs)) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_REVOKED_CERT"));
+                logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_REVOKED_CERT"));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
         }
@@ -175,11 +174,11 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
             user = (User) mCULocator.locateUser(certs);
         } catch (EUsrGrpException e) {
             logger.error("CertUserDBAuthentication: cannot map certificate to any user: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0].getSerialNumber()
+            logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0].getSerialNumber()
                     .toString(16), x509Certs[0].getSubjectDN().toString(), e.toString()));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         } catch (netscape.ldap.LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_CANNOT_AGENT_AUTH", e.toString()));
+            logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_CANNOT_AGENT_AUTH", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
         }
 
@@ -187,7 +186,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         // UGSubsystem only returns null for user.
         if (user == null) {
             logger.error("CertUserDBAuthentication: cannot map certificate to any user");
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_USER_NOT_FOUND"));
+            logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_AGENT_USER_NOT_FOUND"));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
@@ -199,8 +198,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         authToken.set(TOKEN_UID, user.getUserID());
         authToken.set(CRED_CERT, certs);
 
-        log(ILogger.LL_INFO, CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", user.getUserID()));
-        logger.info("Authenticated user: " + user.getUserDN());
+        logger.info("CertUserDBAuthentication: " + CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", user.getUserID()));
 
         return authToken;
     }
