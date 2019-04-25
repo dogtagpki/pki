@@ -11,8 +11,8 @@ URL:              http://www.dogtagpki.org/
 License:          GPLv2 and LGPLv2
 
 Version:          10.7.0
-Release:          0.1%{?_timestamp}%{?_commit_id}%{?dist}
-%global           _phase -a1
+Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
+# global           _phase -a1
 
 # To create a tarball from a version tag:
 # $ git archive \
@@ -214,7 +214,8 @@ BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
+%if 0%{?rhel} <= 7
 # 'resteasy-base' is a subset of the complete set of
 # 'resteasy' packages and consists of what is needed to
 # support the PKI Restful interface on certain RHEL platforms
@@ -224,6 +225,9 @@ BuildRequires:    resteasy-base-jaxb-provider >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
 BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
+%else
+BuildRequires:    resteasy >= 3.0.26
+%endif
 %else
 BuildRequires:    jboss-annotations-1.2-api
 BuildRequires:    jboss-jaxrs-2.0-api
@@ -314,8 +318,8 @@ BuildRequires:    tomcatjss >= 7.4.0
 %endif
 BuildRequires:    systemd-units
 
-%if 0%{?rhel}
-BuildRequires:    pki-servlet-container >= 1:9.0.7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+BuildRequires:    tomcat >= 7.0.69
 %else
 %if 0%{?fedora} && 0%{?fedora} <= 27
 BuildRequires:    tomcat >= 8.0.49
@@ -323,7 +327,11 @@ BuildRequires:    tomcat >= 8.0.49
 %if 0%{?fedora} && 0%{?fedora} <= 28
 BuildRequires:    tomcat >= 1:8.5.23
 %else
+%if 0%{?rhel}
+BuildRequires:    pki-servlet-engine
+%else
 BuildRequires:    tomcat >= 1:9.0.7
+%endif
 %endif
 %endif
 %endif
@@ -557,7 +565,8 @@ Requires:         jss >= 4.5.3
 Requires:         ldapjdk >= 4.20
 Requires:         pki-base = %{version}
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
+%if 0%{?rhel} <= 7
 # 'resteasy-base' is a subset of the complete set of
 # 'resteasy' packages and consists of what is needed to
 # support the PKI Restful interface on certain RHEL platforms
@@ -567,6 +576,9 @@ Requires:         resteasy-base-jaxb-provider >= 3.0.6-1
 Requires:         resteasy-base-jaxrs >= 3.0.6-1
 Requires:         resteasy-base-jaxrs-api >= 3.0.6-1
 Requires:         resteasy-base-jackson-provider >= 3.0.6-1
+%else
+Requires:         resteasy >= 3.0.26
+%endif
 %else
 Requires:         resteasy-atom-provider >= 3.0.17-1
 Requires:         resteasy-client >= 3.0.17-1
@@ -659,8 +671,8 @@ Requires:         python2-policycoreutils
 
 Requires:         selinux-policy-targeted >= 3.13.1-159
 
-%if 0%{?rhel}
-Requires:         pki-servlet-container >= 1:9.0.7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+Requires:         tomcat >= 7.0.69
 %else
 %if 0%{?fedora} && 0%{?fedora} <= 27
 Requires:         tomcat >= 8.0.49
@@ -668,7 +680,11 @@ Requires:         tomcat >= 8.0.49
 %if 0%{?fedora} && 0%{?fedora} <= 28
 Requires:         tomcat >= 1:8.5.23
 %else
+%if 0%{?rhel}
+Requires:         pki-servlet-engine >= 1:9.0.7
+%else
 Requires:         tomcat >= 1:9.0.7
+%endif
 %endif
 %endif
 %endif
@@ -685,7 +701,11 @@ Requires:         tomcatjss >= 7.4.0
 %endif
 
 # https://pagure.io/freeipa/issue/7742
+%if 0%{?rhel}
+Conflicts:        ipa-server < 4.7.1
+%else
 Conflicts:        freeipa-server < 4.7.1
+%endif
 
 %description -n   pki-server
 The PKI Server Package contains libraries and utilities needed by the
