@@ -17,7 +17,7 @@ This tool's behavior is different in an **IPA environment** and **standalone PKI
 
 #### Assumptions:
 
-- Valid CA certificate [WIP to remove this assumption]
+- Valid CA certificate
 - `cert-fix` must be run as `root`
 - `LDAPI` must be configured, with `root` autobinding to `cn=Directory Manager` or other account with privileges on `o=ipaca` subtree, including password reset privileges
 - The password of the specified agent account will be reset. If needed, it can be changed back afterwards (manually; successful execution of `cert-fix` proves that the operator has privileges to do this)
@@ -39,7 +39,7 @@ If you need to fix only a **specific system certificates**, use the `--cert <Cer
 
 #### Assumptions:
 
-- Valid CA certificate [WIP to remove this assumption]
+- Valid CA certificate
 - TLS configured Directory Server
 - If Dogtag was configured to use TLS certificate authentication to bind to LDAP, a Valid DS service certificate
 
@@ -99,7 +99,7 @@ It is recommended to run the following steps to ensure that `CS.cfg` and NSS dat
 
 ### System Certificate Renewal
 
-1. If you have a **valid admin cert** and a LDAP/LDAPS Directory server configuration, renew required system certs using PKI tool. For **`sslserver`** cert provide the `serial number` from the **original SSL server cert** to avoid placing request for unintended cert.
+1. If you have a **valid admin cert**, renew required system certs using PKI tool. For **`sslserver`** cert provide the `serial number` from the **original SSL server cert** to avoid placing request for unintended cert.
     ````
     # pki-server cert-create --renew \
     -n <admin cert nickname> \
@@ -108,16 +108,6 @@ It is recommended to run the following steps to ensure that `CS.cfg` and NSS dat
     <cert ID> \
     --serial <serial number>
     ````
-    **OR**
-
-    If your **admin cert is expired** and TLS/SSL is configured for LDAP [WORK IN PROGRESS]:
-
-    ````
-    # pki-server cert-create --renew \
-    --agent-uid <admin username>
-    ````
-
-    ***NOTE:*** This results in resetting the LDAP password
 
     **OR**
 
