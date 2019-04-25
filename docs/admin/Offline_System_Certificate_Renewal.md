@@ -21,7 +21,7 @@ This tool's behavior is different in an **IPA environment** and **standalone PKI
 - `cert-fix` must be run as `root`
 - `LDAPI` must be configured, with `root` autobinding to `cn=Directory Manager` or other account with privileges on `o=ipaca` subtree, including password reset privileges
 - The password of the specified agent account will be reset. If needed, it can be changed back afterwards (manually; successful execution of `cert-fix` proves that the operator has privileges to do this)
-- If Dogtag was configured to use TLS certificate authentication to bind to LDAP, the password on the `pkidbuser` account will be reset. (If password authentication was already used, the password does not get reset)
+- The password of the `pkidbuser` account will be reset
 - LDAPI (ldappasswd) and need to be root
 
 #### Usage:
@@ -29,8 +29,8 @@ This tool's behavior is different in an **IPA environment** and **standalone PKI
 One line tool that fixes **all** certificates:
 
     # pki-server cert-fix \
-    --agent-uid <admin UID> \
-    --ldapi-socket <Directory Server LDAPI Socket's path>
+    --agent-uid <agent UID> \
+    --ldapi-socket /var/run/slapd-REALM.socket
 
 If you need to fix only a **specific system certificates**, use the `--cert <Cert_ID>` option. If you need to renew **non-system certs**, use the `--extra-cert <Serial>` option.
 
@@ -49,7 +49,7 @@ One line tool that fixes all certificates:
 
     # pki-server cert-fix \
     --ldap-url <LDAP URL> \
-    --agent-uid <admin nickname>
+    --agent-uid <agent UID>
 
 For all available options, you can type:
 
@@ -97,9 +97,39 @@ It is recommended to run the following steps to ensure that `CS.cfg` and NSS dat
     # systemctl start pki-tomcatd@pki-tomcat
     ````
 
+### Configuring LDAP
+
+Based on the LDAP configuration, you might need to perform these additional steps. If you have a **valid admin cert** OR if you have **non secure** LDAP setup, you can skip this section.
+
+There are 2 different scenarios based on value of `internaldb.ldapauth.authtype` in your target subsystems' CS.cfg:
+
+#### IPA Environment (Uses LDAPI)
+1. Update corresponding CS.cfg key-values as follows:
+
+    ````
+    internaldb.ldapauth.authtype=BasicAuth
+    internaldb.ldapconn.port=389
+    internaldb.ldapconn.secureConn=false
+    internaldb.ldapauth.bindDN=uid=pkidbuser,ou=people,<internaldb.basedn>
+    ````
+
+2. Set a LDAP password using `ldappasswd`:
+    ````
+    # ldappasswd -H /var/run/slapd-REALM.socket -Y EXTERNAL -s <new pasword> uid=pkidbuser,ou=people,<internaldb.basedn>
+    ````
+
+#### PKI Standalone Environment (Uses LDAPS)
+
+1. Update corresponding CS.cfg key-values as follows:
+
+    ````
+    internaldb.ldapconn.port=389
+    internaldb.ldapconn.secureConn=false
+    ````
+
 ### System Certificate Renewal
 
-1. If you have a **valid admin cert**, renew required system certs using PKI tool. For **`sslserver`** cert provide the `serial number` from the **original SSL server cert** to avoid placing request for unintended cert.
+1. This step requires a  **valid admin cert** to renew required system certs using PKI tool. For **`sslserver`** cert provide the `serial number` from the **original SSL server cert** to avoid placing request for unintended cert.
     ````
     # pki-server cert-create --renew \
     -n <admin cert nickname> \
