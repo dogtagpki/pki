@@ -11,6 +11,8 @@ used to renew the certificates before they expire. There are 2 ways to renew the
 
 This tool's behavior is different in an **IPA environment** and **standalone PKI environment**
 
+**NOTE:** If you have a **non-secure** LDAP setup and if you **don't know the agent username/password**, you cannot use this tool
+
 ## Automated Renewal Process
 
 ### IPA Environment (Uses LDAPI)
@@ -94,12 +96,14 @@ It is recommended to run the following steps to ensure that `CS.cfg` and NSS dat
 
 4. Start server
     ````
-    # systemctl start pki-tomcatd@pki-tomcat
+    # systemctl start pki-tomcatd@<instance>
     ````
 
 ### Configuring LDAP
 
-Based on the LDAP configuration, you might need to perform these additional steps. If you have a **valid admin cert** OR if you have **non secure** LDAP setup, you can skip this section.
+**NOTE 1:** If you have a **valid admin cert** OR if you know the **agent username/password**, you can skip this section.
+
+**NOTE 2:** Note down the values that you change in the following steps as it needs to be restored at the end of the process
 
 There are 2 different scenarios based on value of `internaldb.ldapauth.authtype` in your target subsystems' CS.cfg:
 
@@ -112,11 +116,22 @@ There are 2 different scenarios based on value of `internaldb.ldapauth.authtype`
     internaldb.ldapconn.secureConn=false
     internaldb.ldapauth.bindDN=uid=pkidbuser,ou=people,<internaldb.basedn>
     ````
+2. Restart PKI server
+    ````
+    # systemctl restart pki-tomcatd@<instance>
+    ````
 
-2. Set a LDAP password using `ldappasswd`:
+3. Set a LDAP password using `ldappasswd`:
     ````
-    # ldappasswd -H /var/run/slapd-REALM.socket -Y EXTERNAL -s <new pasword> uid=pkidbuser,ou=people,<internaldb.basedn>
+    # ldappasswd -H /var/run/slapd-REALM.socket -Y EXTERNAL -s <LDAP pasword> uid=pkidbuser,ou=people,<internaldb.basedn>
     ````
+
+4. Set the agent password (requires a secure connection to LDAP)
+    ````
+    # ldappasswd -H <LDAP host URL> -D 'cn=Directory Manager' -y <LDAP password> -s <agent password> uid=<agent UID>,ou=people,<internaldb.basedn>
+    ````
+    **NOTE:** If your `<LDAP host URL>` starts with `ldap://`, add `-ZZ` flag to the above command
+
 
 #### PKI Standalone Environment (Uses LDAPS)
 
@@ -127,14 +142,35 @@ There are 2 different scenarios based on value of `internaldb.ldapauth.authtype`
     internaldb.ldapconn.secureConn=false
     ````
 
+2. Restart PKI server
+    ````
+    # systemctl restart pki-tomcatd@<instance>
+    ````
+
+3. Set the agent password (requires a secure connection to LDAP)
+    ````
+    # ldappasswd -H <LDAP host URL> -D 'cn=Directory Manager' -y <LDAP password> -s <agent password> uid=<agent UID>,ou=people,<internaldb.basedn>
+    ````
+    **NOTE:** If your `<LDAP host URL>` starts with `ldap://`, add `-ZZ` flag to the above command
+
 ### System Certificate Renewal
 
-1. This step requires a  **valid admin cert** to renew required system certs using PKI tool. For **`sslserver`** cert provide the `serial number` from the **original SSL server cert** to avoid placing request for unintended cert.
+1. Use a **valid admin cert** OR **agent's username/password** to renew required system certs using PKI tool. For **`sslserver`** cert provide the `serial number` from the **original SSL server cert** to avoid placing request for unintended cert.
     ````
     # pki-server cert-create --renew \
     -n <admin cert nickname> \
     -d <admin NSS database> \
     -c <admin NSS database password> \
+    <cert ID> \
+    --serial <serial number>
+    ````
+
+    **OR**
+
+    ````
+    # pki-server cert-create --renew \
+    -u <agent username> \
+    -w <agent password> \
     <cert ID> \
     --serial <serial number>
     ````
@@ -177,8 +213,9 @@ There are 2 different scenarios based on value of `internaldb.ldapauth.authtype`
     ````
     # pki-server selftest-enable
     ````
+6. Restore the CS.cfg values that you modified earlier in [Configuring LDAP](#Configuring-LDAP) section
 
-6. Start server with new renewed system certificates.
+7. Start server with new renewed system certificates.
     ````
     # systemctl start pki-tomcatd@pki-tomcat
     ````
