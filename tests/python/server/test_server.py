@@ -21,7 +21,8 @@
 
 import unittest
 
-from pki.server import PKISubsystem, PKIInstance
+from pki.server import PKIInstance
+from pki.server.subsystem import PKISubsystem
 
 
 class PKIServerTests(unittest.TestCase):

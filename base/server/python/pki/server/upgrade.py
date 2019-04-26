@@ -28,6 +28,7 @@ import pki
 import pki.upgrade
 import pki.util
 import pki.server
+import pki.server.subsystem
 
 from pki.upgrade import verbose
 
@@ -220,7 +221,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
     def subsystems(self, instance):
         if self.subsystemName:
-            subsystem = pki.server.PKISubsystem(instance, self.subsystemName)
+            subsystem = pki.server.subsystem.PKISubsystem(instance, self.subsystemName)
             subsystem.validate()
             subsystem.load()
             return [subsystem]
@@ -233,7 +234,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                 instance.name)
             for subsystemName in os.listdir(registry_dir):
                 if subsystemName in pki.server.SUBSYSTEM_TYPES:
-                    subsystem = pki.server.PKISubsystem(
+                    subsystem = pki.server.subsystem.PKISubsystem(
                         instance,
                         subsystemName)
                     subsystem.validate()
@@ -246,7 +247,7 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
                     subsystemName,
                     instance.name)
                 if os.path.exists(registry_dir):
-                    subsystem = pki.server.PKISubsystem(
+                    subsystem = pki.server.subsystem.PKISubsystem(
                         instance,
                         subsystemName)
                     subsystem.validate()
