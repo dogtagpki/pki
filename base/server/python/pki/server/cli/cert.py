@@ -446,6 +446,12 @@ class CertCreateCLI(pki.cli.CLI):
         print('      --serial <number>           Provide serial number for the certificate.')
         print('      --output <file>             Provide output file name.')
         print('      --renew                     Renew permanent certificate.')
+        print('  -u <username>                   Username for basic authentication '
+              '(mutually exclusive to -n option).')
+        print('  -w <password>                   Password for basic authentication '
+              '(mutually exclusive to -W option).')
+        print('  -W <passwordfile>               Password file for basic authentication'
+              '(mutually exclusive to -w option).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -454,7 +460,7 @@ class CertCreateCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.gnu_getopt(argv, 'i:d:c:C:n:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:d:c:C:n:u:w:W:v', [
                 'instance=', 'temp', 'serial=',
                 'output=', 'renew',
                 'verbose', 'debug', 'help'])
@@ -473,6 +479,9 @@ class CertCreateCLI(pki.cli.CLI):
         client_cert = None
         output = None
         renew = False
+        agent_username = None
+        agent_password = None
+        agent_password_file = None
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -488,6 +497,9 @@ class CertCreateCLI(pki.cli.CLI):
                 client_nssdb_pass_file = a
 
             elif o == '-n':
+                if agent_username:
+                    logger.error('-n cannot be used with -u')
+                    sys.exit(1)
                 client_cert = a
 
             elif o == '--temp':
@@ -502,6 +514,24 @@ class CertCreateCLI(pki.cli.CLI):
 
             elif o == '--renew':
                 renew = True
+
+            elif o == '-u':
+                if client_cert:
+                    logger.error('-u cannot be used with -n')
+                    sys.exit(1)
+                agent_username = a
+
+            elif o == '-w':
+                if agent_password_file:
+                    logger.error('-w cannot be used with -W')
+                    sys.exit(1)
+                agent_password = a
+
+            elif o == '-W':
+                if agent_password:
+                    logger.error('-W cannot be used with -w')
+                    sys.exit(1)
+                agent_password_file = a
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -526,10 +556,15 @@ class CertCreateCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
+        # Read the password file for password value
+        if agent_password_file:
+            with open(agent_password_file) as f:
+                agent_password = f.read().strip()
+
         if not temp_cert:
-            # For permanent certificate, password of NSS db is required.
-            if not client_nssdb_password and not client_nssdb_pass_file:
-                logger.error('NSS database password is required.')
+            # For permanent certificate, password of either NSS DB OR agent is required.
+            if not client_nssdb_password and not client_nssdb_pass_file and not agent_password:
+                logger.error('NSS database or agent password is required.')
                 self.print_help()
                 sys.exit(1)
 
@@ -550,7 +585,8 @@ class CertCreateCLI(pki.cli.CLI):
                 client_cert=client_cert, client_nssdb=client_nssdb,
                 client_nssdb_pass=client_nssdb_password,
                 client_nssdb_pass_file=client_nssdb_pass_file,
-                serial=serial, temp_cert=temp_cert, renew=renew, output=output)
+                serial=serial, temp_cert=temp_cert, renew=renew, output=output,
+                username=agent_username, password=agent_password)
 
         except server.PKIServerException as e:
             logger.error(str(e))
