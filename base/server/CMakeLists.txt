@@ -57,6 +57,7 @@ javac(pki-server-classes
     CLASSPATH
         ${SLF4J_API_JAR} ${JAXB_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR}
+        ${COMMONS_CLI_JAR}
         ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${LDAPJDK_JAR}
