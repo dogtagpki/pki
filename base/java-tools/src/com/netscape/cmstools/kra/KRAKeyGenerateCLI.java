@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.key.KeyRequestResponse;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyGenerateCLI extends CLI {

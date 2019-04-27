@@ -19,12 +19,12 @@
 package com.netscape.cmstools.group;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.cli.CLI;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupData;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 

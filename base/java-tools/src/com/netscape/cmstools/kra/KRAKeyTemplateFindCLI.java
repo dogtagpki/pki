@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.key.KeyTemplate;
 import com.netscape.certsrv.key.SymKeyGenerationRequest;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyTemplateFindCLI extends CLI {

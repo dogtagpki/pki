@@ -22,9 +22,9 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.user.UserClient;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 

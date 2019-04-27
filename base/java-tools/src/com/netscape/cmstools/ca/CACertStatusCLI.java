@@ -24,6 +24,8 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CLIException;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
@@ -33,8 +35,6 @@ import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmstools.cli.CLIException;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.CertStatus;
 import com.netscape.cmsutil.ocsp.GoodInfo;

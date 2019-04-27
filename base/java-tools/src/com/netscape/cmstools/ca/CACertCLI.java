@@ -21,6 +21,7 @@ package com.netscape.cmstools.ca;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.dogtagpki.cli.CLI;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.ca.CACertClient;
@@ -30,7 +31,6 @@ import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.client.PKIClient;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 

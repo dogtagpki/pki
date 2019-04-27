@@ -17,9 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.system;
 
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.KRAConnectorClient;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**

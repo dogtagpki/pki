@@ -18,6 +18,7 @@
 
 package com.netscape.cmstools.kra;
 
+import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 
@@ -27,7 +28,6 @@ import com.netscape.certsrv.key.KeyInfo;
 import com.netscape.certsrv.key.KeyRequestInfo;
 import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.certsrv.util.NSSCryptoProvider;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 import org.mozilla.jss.netscape.security.util.Cert;

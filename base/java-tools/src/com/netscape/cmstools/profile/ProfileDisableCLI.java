@@ -3,9 +3,9 @@ package com.netscape.cmstools.profile;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.profile.ProfileClient;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class ProfileDisableCLI extends CLI {

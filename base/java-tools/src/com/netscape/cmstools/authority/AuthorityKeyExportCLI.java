@@ -6,6 +6,7 @@ import java.security.PublicKey;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
@@ -19,7 +20,6 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 import org.mozilla.jss.netscape.security.util.WrappingParams;

@@ -18,7 +18,8 @@
 
 package com.netscape.cmstools.key;
 
-import com.netscape.cmstools.cli.CLI;
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.cmstools.cli.ProxyCLI;
 import com.netscape.cmstools.kra.KRAKeyCLI;
 

@@ -21,11 +21,11 @@ package com.netscape.cmstools.logging;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.logging.AuditFile;
 import com.netscape.certsrv.logging.AuditFileCollection;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**

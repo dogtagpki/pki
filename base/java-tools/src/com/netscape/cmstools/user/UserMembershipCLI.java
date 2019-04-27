@@ -18,11 +18,11 @@
 
 package com.netscape.cmstools.user;
 
+import org.dogtagpki.cli.CLI;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.user.UserClient;
 import com.netscape.certsrv.user.UserMembershipData;
-import com.netscape.cmstools.cli.CLI;
 
 /**
  * @author Endi S. Dewata

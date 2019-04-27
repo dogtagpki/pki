@@ -43,6 +43,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.cli.CLI;
+import org.dogtagpki.cli.CLIException;
 import org.dogtagpki.common.Info;
 import org.dogtagpki.common.InfoClient;
 import org.mozilla.jss.CryptoManager;

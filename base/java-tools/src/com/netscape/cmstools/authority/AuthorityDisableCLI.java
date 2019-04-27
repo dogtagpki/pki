@@ -3,10 +3,10 @@ package com.netscape.cmstools.authority;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
-import com.netscape.cmstools.cli.CLI;
 
 public class AuthorityDisableCLI extends CLI {
 

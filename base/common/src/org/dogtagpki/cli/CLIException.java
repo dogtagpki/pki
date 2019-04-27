@@ -16,7 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-package com.netscape.cmstools.cli;
+package org.dogtagpki.cli;
 
 public class CLIException extends Exception {
 

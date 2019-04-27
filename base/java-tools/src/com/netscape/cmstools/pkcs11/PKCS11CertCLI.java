@@ -23,8 +23,8 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.cmstools.cli.CLI;
 
+import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**

@@ -4,11 +4,11 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.authority.AuthorityClient;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.ca.AuthorityID;
-import com.netscape.cmstools.cli.CLI;
 
 public class AuthorityCreateCLI extends CLI {
 

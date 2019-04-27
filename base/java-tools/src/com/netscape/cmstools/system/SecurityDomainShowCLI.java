@@ -21,10 +21,10 @@ package com.netscape.cmstools.system;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SecurityDomainClient;
-import com.netscape.cmstools.cli.CLI;
 
 /**
  * @author Endi S. Dewata

@@ -18,12 +18,13 @@
 
 package com.netscape.cmstools.system;
 
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 

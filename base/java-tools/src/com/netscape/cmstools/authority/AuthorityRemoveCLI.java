@@ -5,9 +5,9 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.authority.AuthorityClient;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class AuthorityRemoveCLI extends CLI {

@@ -19,9 +19,7 @@
 package com.netscape.cmstools.pkcs12;
 
 import org.apache.commons.codec.binary.Hex;
-
-import com.netscape.cmstools.cli.CLI;
-
+import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12KeyInfo;
 
 /**

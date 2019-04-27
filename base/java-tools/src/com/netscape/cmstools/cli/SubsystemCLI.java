@@ -18,6 +18,8 @@
 
 package com.netscape.cmstools.cli;
 
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.certsrv.client.Client;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.SubsystemClient;

@@ -28,10 +28,9 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.binary.Hex;
+import org.dogtagpki.cli.CLI;
 import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.util.Password;
-
-import com.netscape.cmstools.cli.CLI;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 

@@ -20,9 +20,8 @@ package com.netscape.cmstools.pkcs11;
 
 import java.security.Key;
 
+import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.crypto.PrivateKey;
-
-import com.netscape.cmstools.cli.CLI;
 
 /**
  * @author Endi S. Dewata

@@ -17,12 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.system;
 
+import org.dogtagpki.cli.CLI;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
-import com.netscape.cmstools.cli.CLI;
 
 /**
  * @author Ade Lee

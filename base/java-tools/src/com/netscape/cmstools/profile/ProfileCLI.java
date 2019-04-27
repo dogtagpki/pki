@@ -17,6 +17,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.client.PKIClient;
@@ -26,7 +28,6 @@ import com.netscape.certsrv.profile.ProfileData;
 import com.netscape.certsrv.profile.ProfileDataInfo;
 import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.profile.ProfileOutput;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class ProfileCLI extends CLI {

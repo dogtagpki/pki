@@ -21,10 +21,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureClient;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class FeatureFindCLI extends CLI {

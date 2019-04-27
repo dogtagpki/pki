@@ -19,9 +19,9 @@
 package com.netscape.cmstools.pkcs12;
 
 import org.apache.commons.codec.binary.Hex;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.cmstools.cli.CLI;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12CertInfo;

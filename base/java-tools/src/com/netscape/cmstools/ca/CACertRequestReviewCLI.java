@@ -14,12 +14,12 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class CACertRequestReviewCLI extends CLI {

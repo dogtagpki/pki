@@ -21,13 +21,13 @@ package com.netscape.cmstools.logging;
 import java.io.IOException;
 import java.util.Map;
 
+import org.dogtagpki.cli.CLI;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.AuditClient;
 import com.netscape.certsrv.logging.AuditConfig;
 import com.netscape.certsrv.logging.AuditFile;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 
 /**

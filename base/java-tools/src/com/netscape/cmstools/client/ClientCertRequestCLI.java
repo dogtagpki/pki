@@ -31,6 +31,7 @@ import java.util.Vector;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
@@ -51,7 +52,6 @@ import com.netscape.certsrv.profile.ProfileInput;
 import com.netscape.certsrv.system.SystemCertClient;
 import com.netscape.cmstools.CRMFPopClient;
 import com.netscape.cmstools.ca.CACertCLI;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import org.mozilla.jss.netscape.security.util.Cert;
