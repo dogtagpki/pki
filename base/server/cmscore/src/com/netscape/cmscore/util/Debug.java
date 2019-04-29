@@ -117,7 +117,7 @@ public class Debug
         mConfig = config;
 
         try {
-            int level = mConfig.getInteger(PROP_LEVEL, VERBOSE);
+            int level = mConfig.getInteger(PROP_LEVEL, INFORM);
             setLevel(level);
 
             CMS.logger.debug("============================================");

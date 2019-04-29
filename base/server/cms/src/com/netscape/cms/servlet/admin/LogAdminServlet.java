@@ -2205,7 +2205,7 @@ public class LogAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        String value = mConfig.getString(Constants.PR_DEBUG_LOG_LEVEL, "0");
+        String value = mConfig.getString(Constants.PR_DEBUG_LOG_LEVEL, "10"); // default: INFORM
         params.put(Constants.PR_DEBUG_LOG_LEVEL, value);
 
         sendResponse(SUCCESS, null, params, resp);

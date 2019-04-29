@@ -18,8 +18,7 @@ PKI server logging can be configured using the following logging frameworks:
 ### java.util.logging
 
 Tomcat uses java.util.logging (JUL) as the default logging framework.
-The configuration is described in [Tomcat 7 Logging](http://tomcat.apache.org/tomcat-7.0-doc/logging.html)
-and [Tomcat 8 Logging](http://tomcat.apache.org/tomcat-8.0-doc/logging.html).
+The configuration is described in [Tomcat 8.5 Logging](http://tomcat.apache.org/tomcat-8.5-doc/logging.html).
 
 The default configuration is located at /usr/share/pki/server/conf/logging.properties.
 During server deployment a link will be created at /etc/pki/*instance*/logging.properties.
@@ -61,7 +60,7 @@ debug.level=10
 
 The **debug.level** determines the amount of details to be logged.
 The value ranges from 0 (most details) to 10 (least details).
-The default is 10.
+The default value is 10.
 
 ## CUSTOMIZATION
 
