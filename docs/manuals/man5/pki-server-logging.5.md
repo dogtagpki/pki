@@ -59,7 +59,6 @@ The logging configuration is stored in /etc/pki/*instance*/*subsystem*/CS.cfg.
 debug.enabled=true
 debug.level=0
 debug.filename=/var/lib/pki/<instance>/logs/<subsystem>/debug
-debug.showcaller=false
 ```
 
 The **debug.enabled** determines whether the debug log is enabled. By default it is enabled.
@@ -70,9 +69,6 @@ The default is 0.
 
 The **debug.filename** determines the debug log file location.
 By default it is located at /var/lib/pki/*instance*/logs/*subsystem*/debug.
-
-The **debug.showcaller** determines whether to include the caller information in the log message.
-By default it's disabled.
 
 ## CUSTOMIZATION
 

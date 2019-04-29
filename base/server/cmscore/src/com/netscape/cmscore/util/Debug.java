@@ -126,7 +126,6 @@ public class Debug
      * <pre>
      * debug.enabled   : (true|false) default false
      * debug.filename  : can be a pathname, or STDOUT
-     * debug.showcaller: (true|false) default false  [show caller method name for Debug.trace()]
      * </pre>
      */
     public void init(ISubsystem owner, IConfigStore config) {
