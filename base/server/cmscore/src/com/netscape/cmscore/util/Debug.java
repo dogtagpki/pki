@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-import java.util.Hashtable;
-import java.util.StringTokenizer;
-
 import org.dogtagpki.util.logging.PKILogger;
 
 import com.netscape.certsrv.base.IConfigStore;
@@ -46,8 +43,6 @@ public class Debug
     // System.out if the server is running under watchdog
 
     private static boolean TRACE_ON = false;
-
-    private static Hashtable<String, String> mHK = null;
 
     private static char getNybble(byte b) {
         if (b < 10) {
@@ -122,7 +117,6 @@ public class Debug
 
     private static final String PROP_ENABLED = "enabled";
     private static final String PROP_FILENAME = "filename";
-    private static final String PROP_HASHKEYS = "hashkeytypes";
     private static final String PROP_LEVEL = "level";
 
     /**
@@ -132,15 +126,12 @@ public class Debug
      * <pre>
      * debug.enabled   : (true|false) default false
      * debug.filename  : can be a pathname, or STDOUT
-     * debug.hashkeytypes: comma-separated list of hashkey types
-     *    possible values:  "CS.cfg"
      * debug.showcaller: (true|false) default false  [show caller method name for Debug.trace()]
      * </pre>
      */
     public void init(ISubsystem owner, IConfigStore config) {
         mConfig = config;
         String filename = null;
-        String hashkeytypes = null;
 
         try {
             TRACE_ON = mConfig.getBoolean(PROP_ENABLED, false);
@@ -148,18 +139,6 @@ public class Debug
                 filename = mConfig.getString(PROP_FILENAME, null);
                 if (filename == null) {
                     TRACE_ON = false;
-                }
-                hashkeytypes = mConfig.getString(PROP_HASHKEYS, null);
-            }
-            if (TRACE_ON) {
-                if (hashkeytypes != null) {
-                    StringTokenizer st = new StringTokenizer(hashkeytypes,
-                            ",", false);
-                    mHK = new Hashtable<String, String>();
-                    while (st.hasMoreElements()) {
-                        String hkr = st.nextToken();
-                        mHK.put(hkr, "true");
-                    }
                 }
             }
 
