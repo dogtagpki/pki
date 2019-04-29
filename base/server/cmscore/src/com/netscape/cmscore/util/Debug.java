@@ -28,21 +28,9 @@ public class Debug
 
     private static Debug mInstance = new Debug();
 
-    public static final boolean ON = false;
     public static final int OBNOXIOUS = 1;
     public static final int VERBOSE = 5;
     public static final int INFORM = 10;
-
-    // the difference between this and 'ON' is that this is always
-    // guaranteed to log to 'mOut', whereas other parts of the server
-    // may do:
-    //  if (Debug.ON) {
-    //     System.out.println("..");
-    //	}
-    // I want to make sure that any Debug.trace() is not logged to
-    // System.out if the server is running under watchdog
-
-    private static boolean TRACE_ON = false;
 
     private static char getNybble(byte b) {
         if (b < 10) {
@@ -115,23 +103,16 @@ public class Debug
         ID = id;
     }
 
-    private static final String PROP_ENABLED = "enabled";
     private static final String PROP_LEVEL = "level";
 
     /**
      * Debug subsystem initialization. This subsystem is usually
      * given the following parameters:
-     *
-     * <pre>
-     * debug.enabled   : (true|false) default false
-     * </pre>
      */
     public void init(ISubsystem owner, IConfigStore config) {
         mConfig = config;
 
         try {
-            TRACE_ON = mConfig.getBoolean(PROP_ENABLED, false);
-
             int level = mConfig.getInteger(PROP_LEVEL, VERBOSE);
             setLevel(level);
 

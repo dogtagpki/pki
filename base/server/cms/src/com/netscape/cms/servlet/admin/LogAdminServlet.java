@@ -2205,12 +2205,7 @@ public class LogAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        String value = "false";
-
-        value = mConfig.getString(Constants.PR_DEBUG_LOG_ENABLE, "false");
-        params.put(Constants.PR_DEBUG_LOG_ENABLE, value);
-
-        value = mConfig.getString(Constants.PR_DEBUG_LOG_LEVEL, "0");
+        String value = mConfig.getString(Constants.PR_DEBUG_LOG_LEVEL, "0");
         params.put(Constants.PR_DEBUG_LOG_LEVEL, value);
 
         sendResponse(SUCCESS, null, params, resp);
@@ -2227,14 +2222,7 @@ public class LogAdminServlet extends AdminServlet {
             String key = enum1.nextElement();
             String value = req.getParameter(key);
 
-            if (key.equals(Constants.PR_DEBUG_LOG_ENABLE)) {
-                if (value.equals("true") || value.equals("false")) {
-                    mConfig.putString(Constants.PR_DEBUG_LOG_ENABLE, value);
-                } else {
-                    logger.error("setGeneralConfig: Invalid value for " + Constants.PR_DEBUG_LOG_ENABLE + ": " + value);
-                    throw new EBaseException("Invalid value for " + Constants.PR_DEBUG_LOG_ENABLE);
-                }
-            } else if (key.equals(Constants.PR_DEBUG_LOG_LEVEL)) {
+            if (key.equals(Constants.PR_DEBUG_LOG_LEVEL)) {
                 try {
                     Integer.parseInt(value); // check for errors
                     mConfig.putString(Constants.PR_DEBUG_LOG_LEVEL, value);

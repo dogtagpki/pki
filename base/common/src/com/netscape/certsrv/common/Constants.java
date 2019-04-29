@@ -188,7 +188,6 @@ public interface Constants {
     public static final String PR_LOG_TRANSACTIONS = "Transactions";
     public static final String PR_LOG_SYSTEM = "System";
 
-    public static final String PR_DEBUG_LOG_ENABLE = "debug.enabled";
     public static final String PR_DEBUG_LOG_LEVEL = "debug.level";
 
     /*========================================================
