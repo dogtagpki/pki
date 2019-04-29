@@ -28,14 +28,57 @@ This tool's behavior is different in an **IPA environment** and **standalone PKI
 
 #### Usage:
 
-One line tool that fixes **all** certificates:
+1. Determine the `serial number` of the IPA RA, DS LDAP and HTTPD certificates
+    ````
+    # keytool -printcert -file /var/lib/ipa/ra-agent.pem
+    # certutil -L -n Server-Cert -d /etc/dirsrv/slapd-REALM
+    # keytool -printcert -file /var/lib/ipa/certs/httpd.crt
+    ````
 
+2. Ensure DS is running
+    ````
+    # systemctl status dirsrv@REALM
+    ````
+
+3. Run the following command providing **all** the certs that needs to be renewed. Command should complete without error.
+
+    ````
     # pki-server cert-fix \
-    --agent-uid <agent UID> \
-    --ldapi-socket /var/run/slapd-REALM.socket
+    --ldapi-socket /var/run/slapd-REALM.socket \
+    --agent-uid admin \
+    --cert sslserver \
+    --cert subsystem \
+    --cert ca_ocsp_signing \
+    --cert ca_audit_signing \
+    --extra-cert $IPA_RA_SERIAL \
+    --extra-cert $DS_SERIAL \
+    --extra-cert $HTTPD_SERIAL
+    ````
 
-If you need to fix only a **specific system certificates**, use the `--cert <Cert_ID>` option. If you need to renew **non-system certs**, use the `--extra-cert <Serial>` option.
+4. Verify that there is no `internaldb` field in `/etc/pki/pki-tomcat/password.conf`
 
+5. Verify that `CS.cfg` has `internaldb.ldapauth.authtype=SslClientAuth`
+
+6. Copy `/etc/pki/pki-tomcat/certs/$IPA_RA_SERIAL-renewed.crt` to `/var/lib/ipa/ra-agent.pem`
+
+7. Remove old DS cert and import DS renewed cert into DS NSSDB and provide the pin from `/etc/dirsrv/slapd-REALM/pin.txt`
+    ````
+    # certutil -D -n Server-Cert \
+    -d /etc/dirsrv/slapd-REALM/
+
+    # certutil -A -n Server-Cert \
+    -d /etc/dirsrv/slapd-REALM/ \
+    -t ',,' \
+    -a -i /etc/pki/pki-tomcat/certs/${DS_SERIAL}-renewed.crt
+    ````
+8. Copy `/etc/pki/pki-tomcat/certs/$HTTPD_SERIAL` to `/var/lib/ipa/certs/httpd.crt`
+
+9. `ipactl restart` should succeed
+
+10. Verify that PKI operations succeed
+    ````
+    # pki -U https://<host>:8443 ca-cert-find
+    ````
 
 ### Standalone PKI environment (Uses LDAPS)
 
