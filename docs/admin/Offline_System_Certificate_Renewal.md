@@ -120,6 +120,59 @@ It is recommended to run the following steps to ensure that `CS.cfg` and NSS dat
     # systemctl stop pki-tomcatd@<instance>
     ````
 
+### Configuring LDAP
+
+**NOTE 1:** If you have a **valid admin cert** OR if you know the **agent username/password**, you can skip this section.
+
+**NOTE 2:** Note down the values that you change in the following steps as it needs to be restored at the end of the process
+
+There are 2 different scenarios based on value of `internaldb.ldapauth.authtype` in your target subsystems' CS.cfg:
+
+#### IPA Environment (Uses LDAPI)
+1. Update corresponding CS.cfg key-values as follows:
+
+    ````
+    internaldb.ldapauth.authtype=BasicAuth
+    internaldb.ldapconn.port=389
+    internaldb.ldapconn.secureConn=false
+    internaldb.ldapauth.bindDN=uid=pkidbuser,ou=people,<internaldb.basedn>
+    ````
+2. Set a LDAP password using `ldappasswd` (Use `%2F` instead of a `/` in file path):
+    ````
+    # ldappasswd -H ldapi://%2Fvar%2Frun%2Fslapd-REALM.socket -Y EXTERNAL -s <LDAP pasword> uid=pkidbuser,ou=people,<internaldb.basedn>
+    ````
+
+3. Set the agent password (requires a secure connection to LDAP)
+    ````
+    # ldappasswd -H ldapi://%2Fvar%2Frun%2Fslapd-REALM.socket -Y EXTERNAL -s <agent password> uid=<agent UID>,ou=people,<internaldb.basedn>
+    ````
+    **NOTE:** If your `<LDAP host URL>` starts with `ldap://`, add `-ZZ` flag to the above command
+
+4. Set the LDAP password in `password.conf`:
+    ````
+    # echo <LDAP password> >> /etc/pki/pki-tomcat/password.conf
+    ````
+
+#### PKI Standalone Environment (Uses LDAPS)
+
+1. Update corresponding CS.cfg key-values as follows:
+
+    ````
+    internaldb.ldapconn.port=389
+    internaldb.ldapconn.secureConn=false
+    ````
+
+2. Set the agent password (requires a secure connection to LDAP)
+    ````
+    # ldappasswd -H <LDAP host URL> -D 'cn=Directory Manager' -y <LDAP password> -s <agent password> uid=<agent UID>,ou=people,<internaldb.basedn>
+    ````
+    **NOTE:** If your `<LDAP host URL>` starts with `ldap://`, add `-ZZ` flag to the above command
+
+3. Set the LDAP password in `password.conf`:
+    ````
+    # echo <LDAP password> >> /etc/pki/pki-tomcat/password.conf
+    ````
+
 ### Bringing up the PKI server
 
 1. Create temp SSL certificate. The temp cert will be created in `/etc/pki/<instance>/certs/sslserver.crt`
@@ -141,60 +194,6 @@ It is recommended to run the following steps to ensure that `CS.cfg` and NSS dat
     ````
     # systemctl start pki-tomcatd@<instance>
     ````
-
-### Configuring LDAP
-
-**NOTE 1:** If you have a **valid admin cert** OR if you know the **agent username/password**, you can skip this section.
-
-**NOTE 2:** Note down the values that you change in the following steps as it needs to be restored at the end of the process
-
-There are 2 different scenarios based on value of `internaldb.ldapauth.authtype` in your target subsystems' CS.cfg:
-
-#### IPA Environment (Uses LDAPI)
-1. Update corresponding CS.cfg key-values as follows:
-
-    ````
-    internaldb.ldapauth.authtype=BasicAuth
-    internaldb.ldapconn.port=389
-    internaldb.ldapconn.secureConn=false
-    internaldb.ldapauth.bindDN=uid=pkidbuser,ou=people,<internaldb.basedn>
-    ````
-2. Restart PKI server
-    ````
-    # systemctl restart pki-tomcatd@<instance>
-    ````
-
-3. Set a LDAP password using `ldappasswd`:
-    ````
-    # ldappasswd -H /var/run/slapd-REALM.socket -Y EXTERNAL -s <LDAP pasword> uid=pkidbuser,ou=people,<internaldb.basedn>
-    ````
-
-4. Set the agent password (requires a secure connection to LDAP)
-    ````
-    # ldappasswd -H <LDAP host URL> -D 'cn=Directory Manager' -y <LDAP password> -s <agent password> uid=<agent UID>,ou=people,<internaldb.basedn>
-    ````
-    **NOTE:** If your `<LDAP host URL>` starts with `ldap://`, add `-ZZ` flag to the above command
-
-
-#### PKI Standalone Environment (Uses LDAPS)
-
-1. Update corresponding CS.cfg key-values as follows:
-
-    ````
-    internaldb.ldapconn.port=389
-    internaldb.ldapconn.secureConn=false
-    ````
-
-2. Restart PKI server
-    ````
-    # systemctl restart pki-tomcatd@<instance>
-    ````
-
-3. Set the agent password (requires a secure connection to LDAP)
-    ````
-    # ldappasswd -H <LDAP host URL> -D 'cn=Directory Manager' -y <LDAP password> -s <agent password> uid=<agent UID>,ou=people,<internaldb.basedn>
-    ````
-    **NOTE:** If your `<LDAP host URL>` starts with `ldap://`, add `-ZZ` flag to the above command
 
 ### System Certificate Renewal
 
