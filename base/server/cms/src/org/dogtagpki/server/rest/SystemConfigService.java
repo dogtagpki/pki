@@ -90,7 +90,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public String instanceRoot;
 
     public SystemConfigService() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         cs = engine.getConfigStore();
         csType = cs.getString("cs.type");
         csSubsystem = csType.toLowerCase();
@@ -108,7 +108,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public ConfigurationResponse configure(ConfigurationRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: configure()");
+        logger.info("SystemConfigService: configuring subsystem");
 
         try {
             ConfigurationResponse response = new ConfigurationResponse();
@@ -163,7 +163,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public void setupDatabase(ConfigurationRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: setupDatabase()");
+        logger.info("SystemConfigService: setting up database");
 
         try {
             validatePin(request.getPin());
@@ -191,7 +191,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public ConfigurationResponse configureCerts(ConfigurationRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: configureCerts()");
+        logger.info("SystemConfigService: configuring certificates");
 
         try {
             validatePin(request.getPin());
@@ -223,7 +223,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public AdminSetupResponse setupAdmin(AdminSetupRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: setupAdmin()");
+        logger.info("SystemConfigService: setting up admin");
 
         try {
             validatePin(request.getPin());
@@ -297,7 +297,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: finalizeConfiguration()");
+        logger.info("SystemConfigService: finalizing configuration");
 
         try {
             validatePin(request.getPin());
@@ -322,7 +322,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public void setupDatabaseUser(ConfigurationRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: setupDatabaseUser()");
+        logger.info("SystemConfigService: setting up database user");
 
         try {
             validatePin(request.getPin());
@@ -346,7 +346,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public void setupSecurityDomain(ConfigurationRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: setupSecurityDomain()");
+        logger.info("SystemConfigService: setting up security domain");
 
         try {
             validatePin(request.getPin());
@@ -355,7 +355,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
             String securityDomainType = request.getSecurityDomainType();
             if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
                 logger.debug("Creating new security domain");
@@ -394,7 +394,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ConfigurationRequest request,
             Collection<Cert> certs) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
         boolean generateSubsystemCert = request.getGenerateSubsystemCert();
@@ -404,7 +404,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         for (String tag : certList) {
 
-            logger.debug("=== Processing " + tag + " cert ===");
+            logger.info("SystemConfigService: processing " + tag + " cert");
 
             boolean enable = cs.getBoolean("preop.cert." + tag + ".enable", true);
             if (!enable) continue;
@@ -412,8 +412,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             SystemCertData certData = request.getSystemCert(tag);
 
             if (certData == null) {
-                logger.error("No data for '" + tag + "' was found!");
-                throw new BadRequestException("No data for '" + tag + "' was found!");
+                logger.error("SystemConfigService: missing certificate: " + tag);
+                throw new BadRequestException("Missing certificate: " + tag);
             }
 
             if (!generateServerCert && tag.equals("sslserver")) {
@@ -499,9 +499,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.commit(false);
 
         try {
-
             logger.debug("SystemConfigService: loading existing key pair from NSS database");
             KeyPair pair = ConfigurationUtils.loadKeyPair(certData.getNickname(), tokenName);
+            logger.info("SystemConfigService: loaded existing key pair for " + tag + " certificate");
 
             logger.debug("SystemConfigService: storing key pair into CS.cfg");
             ConfigurationUtils.storeKeyPair(cs, tag, pair);
@@ -509,6 +509,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         } catch (ObjectNotFoundException e) {
 
             logger.debug("SystemConfigService: key pair not found, generating new key pair");
+            logger.info("SystemConfigService: generating new key pair for " + tag + " certificate");
 
             KeyPair pair;
             if (keytype.equals("ecc")) {
@@ -564,7 +565,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         try {
             x509Cert = cm.findCertByNickname(fullName);
         } catch (ObjectNotFoundException e) {
-            logger.warn("SystemConfigService: cert not found: " + fullName);
+            logger.debug("SystemConfigService: cert not found: " + fullName);
             x509Cert = null;
         }
 
@@ -578,7 +579,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 || request.getStandAlone()
                 || request.isExternal() && ("kra".equals(subsystem) || "ocsp".equals(subsystem))) {
 
-            logger.debug("SystemConfigService: loading existing " + tag + " cert");
+            logger.info("SystemConfigService: loading existing " + tag + " certificate");
+
             byte[] bytes = x509Cert.getEncoded();
             String b64 = CryptoUtil.base64Encode(bytes);
             String certStr = CryptoUtil.normalizeCertStr(b64);
@@ -631,6 +633,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         // create and configure other system certificate
+        logger.info("SystemConfigService: creating new " + tag + " certificate");
         ConfigurationUtils.configCert(request, null, null, cert);
 
         String certStr = cs.getString(subsystem + "." + tag + ".cert" );
@@ -713,7 +716,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public void backupKeys(KeyBackupRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: backupKeys()");
+        logger.info("SystemConfigService: backing up keys into " + request.getBackupFile());
 
         try {
             validatePin(request.getPin());
@@ -758,7 +761,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             return new X509CertImpl(b);
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String adminSubjectDN = data.getAdminSubjectDN();
         cs.putString("preop.cert.admin.dn", adminSubjectDN);
 
@@ -816,7 +819,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         ConfigurationUtils.createAdmin(request.getAdminUID(), request.getAdminEmail(),
                 request.getAdminName(), request.getAdminPassword());
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         engine.reinit(IUGSubsystem.ID);
     }
 
@@ -824,7 +827,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         X509CertImpl[] adminCerts = new X509CertImpl[] { adminCert };
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IUser user = ug.getUser(request.getAdminUID());
         user.setX509Certificates(adminCerts);
@@ -846,7 +849,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         if (data.isClone() && data.getSetupReplication()) {
             String masterhost = "";
@@ -939,7 +942,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public void reinitSubsystems() throws EBaseException {
 
         // Enable subsystems after database initialization.
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         SubsystemInfo si = engine.staticSubsystems.get(UGSubsystem.ID);
         si.enabled = true;
@@ -1095,7 +1098,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     private void configureNewSecurityDomain(ConfigurationRequest data, String securityDomainName) {
         logger.debug("Creating new security domain");
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         cs.putString("preop.securitydomain.select", "new");
         cs.putString("securitydomain.select", "new");
         cs.putString("preop.securitydomain.name", securityDomainName);
@@ -1172,7 +1175,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         String user = data.getSecurityDomainUser();
         String pass = data.getSecurityDomainPassword();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String installToken;
 
         try {

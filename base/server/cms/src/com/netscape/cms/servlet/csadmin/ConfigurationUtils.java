@@ -1795,7 +1795,7 @@ public class ConfigurationUtils {
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                logger.warn("deleteSubtree: Subtree " + dn + " does not exist.");
+                logger.debug("deleteSubtree: subtree " + dn + " does not exist, ignore");
             } else {
                 logger.error("deleteSubtree: Unable to delete subtree " + dn + ": " + e);
                 throw new EBaseException("Unable to delete subtree " + dn, e);
