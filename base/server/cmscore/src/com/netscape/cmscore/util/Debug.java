@@ -116,7 +116,6 @@ public class Debug
     }
 
     private static final String PROP_ENABLED = "enabled";
-    private static final String PROP_FILENAME = "filename";
     private static final String PROP_LEVEL = "level";
 
     /**
@@ -125,21 +124,13 @@ public class Debug
      *
      * <pre>
      * debug.enabled   : (true|false) default false
-     * debug.filename  : can be a pathname, or STDOUT
      * </pre>
      */
     public void init(ISubsystem owner, IConfigStore config) {
         mConfig = config;
-        String filename = null;
 
         try {
             TRACE_ON = mConfig.getBoolean(PROP_ENABLED, false);
-            if (TRACE_ON) {
-                filename = mConfig.getString(PROP_FILENAME, null);
-                if (filename == null) {
-                    TRACE_ON = false;
-                }
-            }
 
             int level = mConfig.getInteger(PROP_LEVEL, VERBOSE);
             setLevel(level);
