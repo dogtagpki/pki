@@ -101,6 +101,10 @@ For all available options, you can type:
     $ pki-server cert-fix --help
 
 ## Manual Renewal Process
+
+**NOTE:** The steps listed here are for a *PKI standalone environment*. For the *IPA Environment*, the steps are very complicated and it's
+suggested to use the [automated process](#ipa-environment-uses-ldapi)
+
 ### Initialization
 
 It is recommended to run the following steps to ensure that `CS.cfg` and NSS database are synchronized and that the server can operate without any issues.
@@ -128,33 +132,6 @@ It is recommended to run the following steps to ensure that `CS.cfg` and NSS dat
 
 There are 2 different scenarios based on value of `internaldb.ldapauth.authtype` in your target subsystems' CS.cfg:
 
-#### IPA Environment (Uses LDAPI)
-1. Update corresponding CS.cfg key-values as follows:
-
-    ````
-    internaldb.ldapauth.authtype=BasicAuth
-    internaldb.ldapconn.port=389
-    internaldb.ldapconn.secureConn=false
-    internaldb.ldapauth.bindDN=uid=pkidbuser,ou=people,<internaldb.basedn>
-    ````
-2. Set a LDAP password using `ldappasswd` (Use `%2F` instead of a `/` in file path):
-    ````
-    # ldappasswd -H ldapi://%2Fvar%2Frun%2Fslapd-REALM.socket -Y EXTERNAL -s <LDAP pasword> uid=pkidbuser,ou=people,<internaldb.basedn>
-    ````
-
-3. Set the agent password (requires a secure connection to LDAP)
-    ````
-    # ldappasswd -H ldapi://%2Fvar%2Frun%2Fslapd-REALM.socket -Y EXTERNAL -s <agent password> uid=<agent UID>,ou=people,<internaldb.basedn>
-    ````
-    **NOTE:** If your `<LDAP host URL>` starts with `ldap://`, add `-ZZ` flag to the above command
-
-4. Set the LDAP password in `password.conf`:
-    ````
-    # echo <LDAP password> >> /etc/pki/pki-tomcat/password.conf
-    ````
-
-#### PKI Standalone Environment (Uses LDAPS)
-
 1. Update corresponding CS.cfg key-values as follows:
 
     ````
@@ -170,7 +147,7 @@ There are 2 different scenarios based on value of `internaldb.ldapauth.authtype`
 
 3. Set the LDAP password in `password.conf`:
     ````
-    # echo <LDAP password> >> /etc/pki/pki-tomcat/password.conf
+    # echo internaldb=<LDAP password> >> /etc/pki/pki-tomcat/password.conf
     ````
 
 ### Bringing up the PKI server
