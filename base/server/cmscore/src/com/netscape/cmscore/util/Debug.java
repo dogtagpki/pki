@@ -31,6 +31,7 @@ public class Debug
     public static final int OBNOXIOUS = 1;
     public static final int VERBOSE = 5;
     public static final int INFORM = 10;
+    public static final int WARN = 15;
 
     private static char getNybble(byte b) {
         if (b < 10) {
@@ -83,8 +84,11 @@ public class Debug
         } else if (level <= INFORM) {
             logLevel = PKILogger.Level.INFO;
 
-        } else {
+        } else if (level <= WARN) {
             logLevel = PKILogger.Level.WARN;
+
+        } else {
+            logLevel = PKILogger.Level.ERROR;
         }
 
         PKILogger.setLevel(logLevel);

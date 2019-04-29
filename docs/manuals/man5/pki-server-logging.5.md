@@ -56,12 +56,12 @@ Each PKI subsystem uses an internal logging framework for debugging purposes.
 The logging configuration is stored in /etc/pki/*instance*/*subsystem*/CS.cfg.
 
 ```
-debug.level=0
+debug.level=10
 ```
 
 The **debug.level** determines the amount of details to be logged.
 The value ranges from 0 (most details) to 10 (least details).
-The default is 0.
+The default is 10.
 
 ## CUSTOMIZATION
 
