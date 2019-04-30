@@ -214,39 +214,41 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             userDN = userID;
         }
 
+        LDAPConnection ldapconn = null;
+
         try {
-            LDAPConnection ldapconn = null;
+            ldapconn = getConn();
 
-            try {
-                ldapconn = getConn();
+            logger.info("UGSubsystem: retrieving user " + userDN);
 
-                // use base search to find the exact user
-                LDAPSearchResults res = ldapconn.search(
-                        userDN,
-                        LDAPv2.SCOPE_BASE,
-                        "(objectclass=*)",
-                        null,
-                        false);
+            LDAPSearchResults res = ldapconn.search(
+                    userDN,
+                    LDAPv2.SCOPE_BASE,
+                    "(objectclass=*)",
+                    null,
+                    false);
 
-                // throw EUsrGrpException if result is empty
-                Enumeration<IUser> e = buildUsers(res);
+            // throw EUsrGrpException if result is empty
+            Enumeration<IUser> e = buildUsers(res);
 
-                // user found
-                return e.nextElement();
+            // user found
+            return e.nextElement();
 
-            } finally {
-                if (ldapconn != null)
-                    returnConn(ldapconn);
+        } catch (ELdapException e) {
+            throw new EUsrGrpException("Unable to retrieve user: " + userID + ": " + e.getMessage(), e);
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                logger.info("UGSubsystem: user not found: " + userID);
+                return null;
+
+            } else {
+                throw new EUsrGrpException("Unable to retrieve user: " + userID + ": " + e.getMessage(), e);
             }
 
-        } catch (Exception e) {
-            // currently this will catch all exceptions
-            // TODO: catch user not found exception only, rethrow everything else
-            logger.warn("UGSubsystem: " + CMS.getLogMessage("CMSCORE_USRGRP_GET_USER", e.toString()), e);
+        } finally {
+            if (ldapconn != null) returnConn(ldapconn);
         }
-
-        // user not found or other error occurs
-        return null;
     }
 
     /**
