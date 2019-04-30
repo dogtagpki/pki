@@ -47,7 +47,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -505,7 +504,7 @@ public class CertificateAuthority
     public void init(ISubsystem owner, IConfigStore config) throws
             EBaseException {
 
-        logger.debug("CertificateAuthority.init(" + owner.getId() + ", " + config.getName() + ")");
+        logger.info("CertificateAuthority: initialization");
 
         CMSEngine engine = CMS.getCMSEngine();
 
@@ -538,11 +537,12 @@ public class CertificateAuthority
             boolean initSigUnitSucceeded = false;
             try {
                 try {
+                    logger.info("CertificateAuthority: initializing signing unit for CA");
                     initSigUnit();
                     initSigUnitSucceeded = true;
 
                 } catch (CAMissingCertException | CAMissingKeyException e) {
-                    logger.warn("CA signing key and cert not (yet) present in NSSDB");
+                    logger.warn("CertificateAuthority: CA signing key and cert not (yet) present in NSS database");
                     signingUnitException = e;
 
                     if (authorityID == null) {
@@ -552,7 +552,7 @@ public class CertificateAuthority
                         logger.debug("null authorityID -> host authority; not starting KeyRetriever");
 
                     } else if (!keyRetrieverThreads.containsKey(authorityID)) {
-                        logger.debug("Starting KeyRetrieverRunner thread");
+                        logger.info("CertificateAuthority: starting KeyRetrieverRunner thread");
                         Thread t = new Thread(
                             new KeyRetrieverRunner(authorityID, mNickname, authorityKeyHosts),
                             "KeyRetrieverRunner-" + authorityID);
@@ -569,10 +569,10 @@ public class CertificateAuthority
 
             } catch (EBaseException e) {
                 if (engine.isPreOpMode()) {
-                    logger.warn("Exception: " + e.getMessage(), e);
-                    logger.warn("CertificateAuthority.init(): Swallow exception in pre-op mode");
+                    logger.warn("CertificateAuthority: " + e.getMessage(), e);
+                    logger.warn("CertificateAuthority: swallow exception in pre-op mode");
                 } else {
-                    logger.error("Exception: " + e.getMessage(), e);
+                    logger.error("CertificateAuthority: " + e.getMessage(), e);
                     throw e;
                 }
             }
@@ -663,10 +663,10 @@ public class CertificateAuthority
                 initIssuanceProtectionCert();
         } catch (EBaseException e) {
             if (engine.isPreOpMode()) {
-                logger.warn("Exception: " + e.getMessage(), e);
-                logger.warn("CertificateAuthority: Swallow exception in pre-op mode");
+                logger.warn("CertificateAuthority: " + e.getMessage(), e);
+                logger.warn("CertificateAuthority: swallow exception in pre-op mode");
             } else {
-                logger.error("Exception: " + e.getMessage(), e);
+                logger.error("CertificateAuthority: " + e.getMessage(), e);
                 throw e;
             }
         }
@@ -769,8 +769,9 @@ public class CertificateAuthority
         // e.g. if random serial numbers are enabled.
         //
         logger.debug(
-            "Updating certificate in NSSDB; new serial number: "
+            "CertificateAuthority: Updating certificate in NSSDB; new serial number: "
             + authoritySerial);
+
         try {
             X509Certificate oldCert = mCaX509Cert;
             CryptoManager manager = CryptoManager.getInstance();
@@ -783,11 +784,15 @@ public class CertificateAuthority
             manager.getInternalKeyStorageToken().getCryptoStore()
                 .deleteCert(oldCert);
 
-            // reinit signing unit
+            logger.info("CertificateAuthority: reinitializing signing unit after new certificate");
             initSigUnit();
 
-        } catch (CAMissingCertException | CAMissingKeyException e) {
-            logger.warn("CA signing key and cert not (yet) present in NSSDB: " + e);
+        } catch (CAMissingCertException e) {
+            logger.warn("CertificateAuthority: CA signing cert not (yet) present in NSS database");
+            signingUnitException = e;
+
+        } catch (CAMissingKeyException e) {
+            logger.warn("CertificateAuthority: CA signing key not (yet) present in NSS database");
             signingUnitException = e;
 
         } catch (CertificateException e) {
@@ -1684,7 +1689,8 @@ public class CertificateAuthority
      */
     private synchronized void initSigUnit() throws EBaseException {
 
-        // init signing unit
+        logger.debug("CertificateAuthority: initializing signing unit for " + mName);
+
         mSigningUnit = new SigningUnit();
         IConfigStore caSigningCfg = mConfig.getSubStore(PROP_SIGNING_SUBSTORE);
 
@@ -3737,11 +3743,16 @@ public class CertificateAuthority
                 // key replication if initialisation fails again
                 // for some reason
                 //
+                logger.info("CertificateAuthority: reinitializing signing unit in KeyRetrieverRunner");
                 ca.initSigUnit();
                 initSigUnitSucceeded = true;
 
-            } catch (CAMissingCertException | CAMissingKeyException e) {
-                logger.warn("CA signing key and cert not (yet) present in NSSDB");
+            } catch (CAMissingCertException e) {
+                logger.warn("CertificateAuthority: CA signing cert not (yet) present in NSS database");
+                signingUnitException = e;
+
+            } catch (CAMissingKeyException e) {
+                logger.warn("CertificateAuthority: CA signing key not (yet) present in NSS database");
                 signingUnitException = e;
 
             } catch (Throwable e) {

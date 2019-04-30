@@ -163,8 +163,7 @@ public final class SigningUnit implements ISigningUnit {
                 logger.debug("SigningUnit: certificate serial number: " + mCert.getSerialNumber());
 
             } catch (ObjectNotFoundException e) {
-                logger.error("SigningUnit: Unable to find certificate " + mNickname + ": " + e.getMessage(), e);
-                throw new CAMissingCertException(CMS.getUserMessage("CMS_CA_CERT_OBJECT_NOT_FOUND"), e);
+                throw new CAMissingCertException("Certificate not found: " + mNickname + ": " + e.getMessage(), e);
             }
 
             mCertImpl = new X509CertImpl(mCert.getEncoded());
@@ -174,8 +173,7 @@ public final class SigningUnit implements ISigningUnit {
                 mPrivk = mManager.findPrivKeyByCert(mCert);
 
             } catch (ObjectNotFoundException e) {
-                logger.error("SigningUnit: Unable to find private key for " + mNickname + ": " + e.getMessage(), e);
-                throw new CAMissingKeyException(CMS.getUserMessage("CMS_CA_CERT_OBJECT_NOT_FOUND"), e);
+                throw new CAMissingKeyException("Private key not found: " + mNickname + ": " + e.getMessage(), e);
             }
 
             String privateKeyID = CryptoUtil.encodeKeyID(mPrivk.getUniqueID());
@@ -257,7 +255,7 @@ public final class SigningUnit implements ISigningUnit {
      */
     public byte[] sign(byte[] data, String algname)
             throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (!mInited) {
             throw new EBaseException("CASigningUnit not initialized!");
         }
@@ -327,7 +325,7 @@ public final class SigningUnit implements ISigningUnit {
 
     public boolean verify(byte[] data, byte[] signature, String algname)
             throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (!mInited) {
             throw new EBaseException("CASigningUnit not initialized!");
         }
