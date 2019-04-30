@@ -37,8 +37,6 @@ import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -59,8 +57,6 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     public Hashtable<String, AuthzManagerProxy> mAuthzMgrInsts = new Hashtable<String, AuthzManagerProxy>();
     private String mId = "authz";
     private IConfigStore mConfig = null;
-
-    private Logger mLogger = null;
 
     // singleton enforcement
 
@@ -87,7 +83,6 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
         try {
-            mLogger = Logger.getLogger();
             mConfig = config;
 
             // get authz manager plugins.
@@ -118,8 +113,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                         mAuthzMgrPlugins.get(implName);
 
                 if (plugin == null) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_FOUND", implName));
+                    logger.error("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_FOUND", implName));
                     throw new EAuthzMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_PLUGIN_NOT_FOUND",
                             implName));
                 } else {
@@ -140,40 +134,28 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                     authzMgrInst.init(insName, implName, authzMgrConfig);
                     isEnable = true;
 
-                    log(ILogger.LL_INFO,
-                            CMS.getLogMessage("CMSCORE_AUTHZ_INSTANCE_ADDED", insName));
+                    logger.info("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_INSTANCE_ADDED", insName));
+
                 } catch (ClassNotFoundException e) {
-                    String errMsg = "AuthzSubsystem:: init()-" + e.toString();
-
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", errMsg));
+                    logger.error("AuthzSubsystem: " + CMS.getLogMessage("OPERATION_ERROR", e.getMessage()), e);
                     throw new EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
+
                 } catch (IllegalAccessException e) {
-                    String errMsg = "AuthzSubsystem:: init()-" + e.toString();
-
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", errMsg));
+                    logger.error("AuthzSubsystem: " + CMS.getLogMessage("OPERATION_ERROR", e.getMessage()), e);
                     throw new EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
+
                 } catch (InstantiationException e) {
-                    String errMsg = "AuthzSubsystem: init()-" + e.toString();
-
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", errMsg));
+                    logger.error("AuthzSubsystem: " + CMS.getLogMessage("OPERATION_ERROR", e.getMessage()), e);
                     throw new EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
-                } catch (EBaseException e) {
-                    String message = CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString());
-                    log(ILogger.LL_FAILURE, message);
-                    // it is mis-configurated. This give
-                    // administrator another chance to
-                    // fix the problem via console
-                    logger.warn(message, e);
 
-                } catch (Throwable e) {
-                    String message = CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString());
-                    log(ILogger.LL_FAILURE, message);
+                } catch (Exception e) {
                     // Skip the authorization instance if
                     // it is mis-configurated. This give
                     // administrator another chance to
                     // fix the problem via console
-                    logger.warn(message, e);
+                    logger.warn("AuthzSubsystem: unable to initialize authz instance: " + insName + ": " + e.getMessage(), e);
                 }
+
                 // add manager instance to list.
                 mAuthzMgrInsts.put(insName, new
                         AuthzManagerProxy(isEnable, authzMgrInst));
@@ -190,7 +172,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             throw e;
         }
 
-        log(ILogger.LL_INFO, CMS.getLogMessage("INIT_DONE", getId()));
+        logger.info("AuthzSubsystem: " + CMS.getLogMessage("INIT_DONE", getId()));
     }
 
     /**
@@ -297,7 +279,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         AuthzMgrPlugin plugin = mAuthzMgrPlugins.get(implName);
 
         if (plugin == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_FOUND", implName));
+            logger.error("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_FOUND", implName));
             throw new EAuthzMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_PLUGIN_NOT_FOUND",
                     implName));
         }
@@ -311,13 +293,13 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                     Class.forName(className).newInstance();
             return (authzMgrInst.getConfigParams());
         } catch (InstantiationException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()));
+            logger.error("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()), e);
             throw new EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
         } catch (ClassNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()));
+            logger.error("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()), e);
             throw new EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
         } catch (IllegalAccessException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()));
+            logger.error("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()), e);
             throw new EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
         }
     }
@@ -399,7 +381,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             authzMgrInst = (IAuthzManager) Class.forName(classpath).newInstance();
             return (authzMgrInst);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()));
+            logger.warn("AuthzSubsystem: " + CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()), e);
             return null;
         }
     }
@@ -430,7 +412,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     public void startup() throws EBaseException {
         //remove the log since it's already logged from S_ADMIN
         //String infoMsg = "Authz subsystem administration Servlet registered";
-        //log(ILogger.LL_INFO, infoMsg);
+        //logger.info("AuthzSubsystem: " + infoMsg);
     }
 
     /**
@@ -443,7 +425,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
             //String infoMsg =
             //        "Shutting down authz manager instance " + mgr.getName();
-            //log(ILogger.LL_INFO, infoMsg);
+            //logger.info("AuthzSubsystem: " + infoMsg);
             if (mgr != null)
                 mgr.shutdown();
         }
@@ -477,16 +459,6 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      */
     public IAuthzManager getAuthzManager(String name) {
         return get(name);
-    }
-
-    /**
-     * logs an entry in the log file.
-     */
-    public void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHORIZATION,
-                level, msg);
     }
 
     @Override
@@ -526,7 +498,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                 }
             }
         }
+
         throw new EAuthzUnknownRealm("Realm not found");
     }
-
 }

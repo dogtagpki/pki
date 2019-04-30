@@ -21,7 +21,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 
@@ -152,14 +151,6 @@ public interface IAuthzSubsystem extends ISubsystem {
      * @return authorization manager plugin
      */
     public IAuthzManager getAuthzManagerPlugin(String name);
-
-    /**
-     * Log error message.
-     *
-     * @param level log level
-     * @param msg error message
-     */
-    public void log(int level, String msg);
 
     /**
      * Get a hashtable containing all authentication plugins.
