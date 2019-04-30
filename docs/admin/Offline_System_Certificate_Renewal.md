@@ -17,14 +17,20 @@ This tool's behavior is different in an **IPA environment** and **standalone PKI
 
 ### IPA Environment (Uses LDAPI)
 
+#### Reason for using LDAPI mechanism:
+
+This tool was designed with a mindset of "one-stop solution" for sysadmins to bring up a PKI server that failed
+due to expired system certificates. In an IPA environment, LDAPI is used for the following reasons:
+
+- DS certificate may be expired
+- We need to set/reset password for some accounts using `ldappasswd` which need confidentiality. Therefore we cannot use LDAPS/STARTTLS
+
 #### Assumptions:
 
 - Valid CA certificate
 - `cert-fix` must be run as `root`
-- `LDAPI` must be configured, with `root` autobinding to `cn=Directory Manager` or other account with privileges on `o=ipaca` subtree, including password reset privileges
 - The password of the specified agent account will be reset. If needed, it can be changed back afterwards (manually; successful execution of `cert-fix` proves that the operator has privileges to do this)
 - The password of the `pkidbuser` account will be reset
-- LDAPI (ldappasswd) and need to be root
 
 #### Usage:
 
@@ -87,6 +93,9 @@ This tool's behavior is different in an **IPA environment** and **standalone PKI
 - Valid CA certificate
 - TLS configured Directory Server
 - If Dogtag was configured to use TLS certificate authentication to bind to LDAP, a Valid DS service certificate
+- `cert-fix` must be run as `root`
+- The password of the specified agent account will be reset. If needed, it can be changed back afterwards (manually; successful execution of `cert-fix` proves that the operator has privileges to do this)
+- The password of the `pkidbuser` account will be reset
 
 #### Usage:
 
@@ -102,8 +111,9 @@ For all available options, you can type:
 
 ## Manual Renewal Process
 
-**NOTE:** The steps listed here are for a *PKI standalone environment*. For the *IPA Environment*, the steps are very complicated and it's
-suggested to use the [automated process](#ipa-environment-uses-ldapi)
+**NOTE:** The steps listed here are for a *PKI standalone environment*. For the *IPA Environment*, it's suggested to use
+the **IPA specific `ipa-cert-fix` tool** to simplify the process. It uses [`pki-server cert-fix`](#ipa-environment-uses-ldapi)
+behind the scenes.
 
 ### Initialization
 
