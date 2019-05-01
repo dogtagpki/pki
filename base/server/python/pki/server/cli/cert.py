@@ -436,6 +436,7 @@ class CertCreateCLI(pki.cli.CLI):
         # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -p, --port <port number>        Secure port number (default: 8443).')
         print('  -d <database>                   Security database location '
               '(default: ~/.dogtag/nssdb)')
         print('  -c <NSS DB password>            NSS database password')
@@ -460,9 +461,9 @@ class CertCreateCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, args = getopt.gnu_getopt(argv, 'i:d:c:C:n:u:w:W:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:d:c:C:n:u:w:W:p:v', [
                 'instance=', 'temp', 'serial=',
-                'output=', 'renew',
+                'output=', 'renew', 'port=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -482,6 +483,7 @@ class CertCreateCLI(pki.cli.CLI):
         agent_username = None
         agent_password = None
         agent_password_file = None
+        port = '8443'
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -532,6 +534,16 @@ class CertCreateCLI(pki.cli.CLI):
                     logger.error('-W cannot be used with -w')
                     sys.exit(1)
                 agent_password_file = a
+
+            elif o in ('-p', '--port'):
+                port = a
+                try:
+                    n = int(port)
+                    if n < 1 or n > 65535:
+                        raise ValueError
+                except ValueError:
+                    logger.error('-p, --port requires a valid port number as integer')
+                    sys.exit(1)
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -586,7 +598,7 @@ class CertCreateCLI(pki.cli.CLI):
                 client_nssdb_pass=client_nssdb_password,
                 client_nssdb_pass_file=client_nssdb_pass_file,
                 serial=serial, temp_cert=temp_cert, renew=renew, output=output,
-                username=agent_username, password=agent_password)
+                username=agent_username, password=agent_password, secure_port=port)
 
         except server.PKIServerException as e:
             logger.error(str(e))
@@ -1025,6 +1037,7 @@ class CertFixCLI(pki.cli.CLI):
         print('      --ldapi-socket <Path>       Path to DS LDAPI socket')
         print('      --ldap-url <URL>            LDAP URL (mutually exclusive to --ldapi-socket)')
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -p, --port <port number>        Secure port number (default: 8443).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -1034,9 +1047,9 @@ class CertFixCLI(pki.cli.CLI):
         logging.getLogger().setLevel(logging.INFO)
 
         try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+            opts, _ = getopt.gnu_getopt(argv, 'i:p:v', [
                 'instance=', 'cert=', 'extra-cert=', 'agent-uid=',
-                'ldapi-socket=', 'ldap-url=', 'verbose', 'debug', 'help',
+                'ldapi-socket=', 'ldap-url=', 'port=', 'verbose', 'debug', 'help',
             ])
 
         except getopt.GetoptError as e:
@@ -1051,6 +1064,7 @@ class CertFixCLI(pki.cli.CLI):
         agent_uid = None
         ldap_url = None
         use_ldapi = False
+        port = '8443'
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -1084,6 +1098,16 @@ class CertFixCLI(pki.cli.CLI):
                     logger.error('--ldap-url cannot be used with --ldapi-socket')
                     sys.exit(1)
                 ldap_url = a
+
+            elif o in ('-p', '--port'):
+                port = a
+                try:
+                    n = int(port)
+                    if n < 1 or n > 65535:
+                        raise ValueError
+                except ValueError:
+                    logger.error('-p, --port requires a valid port number as integer')
+                    sys.exit(1)
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -1227,7 +1251,7 @@ class CertFixCLI(pki.cli.CLI):
                         logger.info('Requesting new cert for %s', cert_id)
                         instance.cert_create(
                             cert_id=cert_id, renew=True,
-                            username=agent_uid, password=agent_pass)
+                            username=agent_uid, password=agent_pass, secure_port=port)
                     for serial in extra_certs:
                         output = instance.cert_file('{}-renewed'.format(serial))
                         logger.info(
@@ -1236,7 +1260,7 @@ class CertFixCLI(pki.cli.CLI):
                         try:
                             instance.cert_create(
                                 serial=serial, renew=True, output=output,
-                                username=agent_uid, password=agent_pass)
+                                username=agent_uid, password=agent_pass, secure_port=port)
                         except pki.PKIException as e:
                             logger.error("Failed to renew certificate %s: %s", serial, e)
 

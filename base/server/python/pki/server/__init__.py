@@ -584,10 +584,10 @@ class PKIServer(object):
         return subsystem_name, cert_tag
 
     @staticmethod
-    def setup_password_authentication(username, password, subsystem_name='ca'):
+    def setup_password_authentication(username, password, subsystem_name='ca', secure_port='8443'):
         """Return a PKIConnection, logged in using username and password."""
         connection = client.PKIConnection(
-            'https', os.environ['HOSTNAME'], '8443', subsystem_name)
+            'https', os.environ['HOSTNAME'], secure_port, subsystem_name)
         connection.authenticate(username, password)
         account_client = pki.account.AccountClient(connection)
         account_client.login()
@@ -596,7 +596,7 @@ class PKIServer(object):
     @staticmethod
     def setup_cert_authentication(
             client_nssdb_pass, client_nssdb_pass_file, client_cert,
-            client_nssdb, tmpdir, subsystem_name):
+            client_nssdb, tmpdir, subsystem_name, secure_port='8443'):
         """
         Utility method to set up a secure authenticated connection with a
         subsystem of PKI Server through PKI client
@@ -613,6 +613,8 @@ class PKIServer(object):
         :type tmpdir: str
         :param subsystem_name: Name of the subsystem
         :type subsystem_name: str
+        :param secure_port: Secure Port Number
+        :type secure_port: str
         :return: Authenticated secure connection to PKI server
         """
         temp_auth_p12 = os.path.join(tmpdir, 'auth.p12')
@@ -622,7 +624,7 @@ class PKIServer(object):
             raise PKIServerException('Client cert nickname is required.')
 
         # Create a PKIConnection object that stores the details of subsystem.
-        connection = client.PKIConnection('https', os.environ['HOSTNAME'], '8443',
+        connection = client.PKIConnection('https', os.environ['HOSTNAME'], secure_port,
                                           subsystem_name)
 
         # Create a p12 file using
@@ -1424,7 +1426,8 @@ class PKIInstance(PKIServer):
             username=None, password=None,
             client_cert=None, client_nssdb=None,
             client_nssdb_pass=None, client_nssdb_pass_file=None,
-            serial=None, temp_cert=False, renew=False, output=None):
+            serial=None, temp_cert=False, renew=False, output=None,
+            secure_port='8443'):
         """
         Create a new cert for the cert_id provided
 
@@ -1453,6 +1456,8 @@ class PKIInstance(PKIServer):
         :type renew: bool
         :param output: Path to which new cert needs to be written to
         :type output: str
+        :param secure_port: Secure port number in case of renewing a certificate
+        :type secure_port: str
         :return: None
         :rtype: None
         :raises PKIServerException
@@ -1511,7 +1516,7 @@ class PKIInstance(PKIServer):
                 logger.info('Trying to setup a secure connection to CA subsystem.')
                 if username and password:
                     connection = PKIServer.setup_password_authentication(
-                        username, password, subsystem_name='ca')
+                        username, password, subsystem_name='ca', secure_port=secure_port)
                 else:
                     if not client_cert:
                         raise PKIServerException('Client cert nick name required.')
@@ -1523,7 +1528,8 @@ class PKIInstance(PKIServer):
                         client_nssdb_pass_file=client_nssdb_pass_file,
                         client_nssdb=client_nssdb,
                         tmpdir=tmpdir,
-                        subsystem_name='ca'
+                        subsystem_name='ca',
+                        secure_port=secure_port
                     )
                 logger.info('Secure connection with CA is established.')
 
