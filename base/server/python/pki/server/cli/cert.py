@@ -537,6 +537,13 @@ class CertCreateCLI(pki.cli.CLI):
 
             elif o in ('-p', '--port'):
                 port = a
+                try:
+                    n = int(port)
+                    if n < 1 or n > 65535:
+                        raise ValueError
+                except ValueError:
+                    logger.error('-p, --port requires a valid port number as integer')
+                    sys.exit(1)
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -1094,6 +1101,13 @@ class CertFixCLI(pki.cli.CLI):
 
             elif o in ('-p', '--port'):
                 port = a
+                try:
+                    n = int(port)
+                    if n < 1 or n > 65535:
+                        raise ValueError
+                except ValueError:
+                    logger.error('-p, --port requires a valid port number as integer')
+                    sys.exit(1)
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
