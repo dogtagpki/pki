@@ -6,10 +6,10 @@ services:
 cache: pip
 
 env:
-  - BASE_IMAGE_VERSION=28 TASK="PKI"
-  - BASE_IMAGE_VERSION=28 TASK="IPA"
   - BASE_IMAGE_VERSION=29 TASK="PKI"
   - BASE_IMAGE_VERSION=29 TASK="IPA"
+  - BASE_IMAGE_VERSION=30 TASK="PKI"
+  - BASE_IMAGE_VERSION=30 TASK="IPA"
 
 before_install:
   - set -a && source travis/global_variables
