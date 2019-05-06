@@ -72,7 +72,7 @@ echo "Following IPA tests are scheduled to run: "
 echo ${cert_test_file_loc}
 
 # Run ipa-tests
-ipa-run-tests-3 \
+ipa-run-tests \
 --ignore test_integration \
 --ignore test_webui \
 --ignore test_ipapython/test_keyring.py \
