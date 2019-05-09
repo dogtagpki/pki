@@ -50,6 +50,17 @@ script:
       docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-remove.sh
     fi
 
+matrix:
+  fast_finish: true
+  include:
+    - stage: rawhide
+      env: BASE_IMAGE_VERSION=rawhide TASK="PKI"
+    - env: BASE_IMAGE_VERSION=rawhide TASK="IPA"
+  allow_failures:
+    - stage: rawhide
+      env: BASE_IMAGE_VERSION=rawhide TASK="PKI"
+    - env: BASE_IMAGE_VERSION=rawhide TASK="IPA"
+
 after_script:
   - cat ${LOGS}
   - docker kill ${CONTAINER}
