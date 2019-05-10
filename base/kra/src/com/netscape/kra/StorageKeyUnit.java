@@ -1105,7 +1105,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
     public byte[] encryptInternalPrivate(byte priKey[], WrappingParams params) throws Exception {
         try (DerOutputStream out = new DerOutputStream()) {
-            logger.debug("EncryptionUnit.encryptInternalPrivate");
+            logger.debug("StorageKeyUnit.encryptInternalPrivate");
             CryptoToken internalToken = getInternalToken();
 
             // (1) generate session key
@@ -1164,7 +1164,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             if ((priKey == null && symmKey == null) || (priKey != null && symmKey != null)) {
                 return null;
             }
-            logger.debug("EncryptionUnit.wrap interal.");
+            logger.debug("StorageKeyUnit.wrap interal.");
             CryptoToken token = getToken();
 
             SymmetricKey.Usage usages[] = new SymmetricKey.Usage[2];
@@ -1200,14 +1200,14 @@ public class StorageKeyUnit extends EncryptionUnit implements
                         params.getPayloadWrapAlgorithm());
             }
 
-            logger.debug("EncryptionUnit:wrap() privKey wrapped");
+            logger.debug("StorageKeyUnit:wrap() privKey wrapped");
 
             byte[] session = CryptoUtil.wrapUsingPublicKey(
                     token,
                     getPublicKey(),
                     sk,
                     params.getSkWrapAlgorithm());
-            logger.debug("EncryptionUnit:wrap() session key wrapped");
+            logger.debug("StorageKeyUnit:wrap() session key wrapped");
 
             // use MY own structure for now:
             // SEQUENCE {
@@ -1231,7 +1231,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
     public byte[] decryptInternalPrivate(byte wrappedKeyData[], WrappingParams params)
             throws Exception {
-        logger.debug("EncryptionUnit.decryptInternalPrivate");
+        logger.debug("StorageKeyUnit.decryptInternalPrivate");
         DerValue val = new DerValue(wrappedKeyData);
         // val.tag == DerValue.tag_Sequence
         DerInputStream in = val.data;

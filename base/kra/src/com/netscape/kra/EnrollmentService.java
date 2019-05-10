@@ -213,6 +213,7 @@ public class EnrollmentService implements IService {
                         e.toString(),
                         null));
 
+                logger.error("EnrollmentService: serviceRequest: CRMFParser.getPKIArchiveOptions() failed: " + e.toString());
                 throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY") + ": " + e, e);
             }
@@ -261,6 +262,7 @@ public class EnrollmentService implements IService {
                             e.toString(),
                             null));
 
+                    logger.error("EnrollmentService: serviceRequest: mTransportUnit.decryptExternalPrivate() failed: "+ e.toString());
                     throw new EKRAException(
                             CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY") + ": " + e, e);
                 }
@@ -343,6 +345,7 @@ public class EnrollmentService implements IService {
                             e.toString(),
                             null));
 
+                    logger.error("EnrollmentService: serviceRequest: mTransportUnit.unwrap() failed: "+ e.toString());
                     throw new EKRAException(
                             CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY") + ": " + e, e);
                 }
@@ -439,6 +442,7 @@ public class EnrollmentService implements IService {
                         e.toString(),
                         null));
 
+                logger.error("EnrollmentService: serviceRequest: mStorageUnit encrypt or wrap call failed: "+ e.toString());
                 throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY") + ": " + e, e);
 
