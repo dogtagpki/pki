@@ -274,7 +274,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
             org.mozilla.jss.crypto.X509Certificate transCert)
             throws Exception {
 
-        logger.debug("EncryptionUnit.decryptExternalPrivate");
+        logger.debug("TransportKeyUnit.decryptExternalPrivate");
 
         if (transCert == null) {
             transCert = mCert;
