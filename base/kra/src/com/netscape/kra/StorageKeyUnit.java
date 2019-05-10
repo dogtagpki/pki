@@ -1092,7 +1092,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
     public byte[] encryptInternalPrivate(byte priKey[], WrappingParams params) throws Exception {
         try (DerOutputStream out = new DerOutputStream()) {
-            CMS.debug("EncryptionUnit.encryptInternalPrivate");
+            CMS.debug("StorageKeyUnit.encryptInternalPrivate");
             CryptoToken internalToken = getInternalToken();
 
             // (1) generate session key
@@ -1151,7 +1151,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             if ((priKey == null && symmKey == null) || (priKey != null && symmKey != null)) {
                 return null;
             }
-            CMS.debug("EncryptionUnit.wrap interal.");
+            CMS.debug("StorageKeyUnit._wrap: internal.");
             CryptoToken token = getToken();
 
             SymmetricKey.Usage usages[] = new SymmetricKey.Usage[2];
@@ -1165,6 +1165,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
                     params.getSkLength(),
                     usages,
                     true);
+            CMS.debug("StorageKeyUnit._wrap: session key generated.");
 
             // (2) wrap private key with session key
             // KeyWrapper wrapper = internalToken.getKeyWrapper(
@@ -1187,14 +1188,14 @@ public class StorageKeyUnit extends EncryptionUnit implements
                         params.getPayloadWrapAlgorithm());
             }
 
-            CMS.debug("EncryptionUnit:wrap() privKey wrapped");
+            CMS.debug("StorageKeyUnit:_wrap: privKey wrapped");
 
             byte[] session = CryptoUtil.wrapUsingPublicKey(
                     token,
                     getPublicKey(),
                     sk,
                     params.getSkWrapAlgorithm());
-            CMS.debug("EncryptionUnit:wrap() session key wrapped");
+            CMS.debug("StorageKeyUnit:_wrap: session key wrapped");
 
             // use MY own structure for now:
             // SEQUENCE {
@@ -1218,7 +1219,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
     public byte[] decryptInternalPrivate(byte wrappedKeyData[], WrappingParams params)
             throws Exception {
-        CMS.debug("EncryptionUnit.decryptInternalPrivate");
+        CMS.debug("StorageKeyUnit.decryptInternalPrivate");
         DerValue val = new DerValue(wrappedKeyData);
         // val.tag == DerValue.tag_Sequence
         DerInputStream in = val.data;

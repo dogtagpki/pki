@@ -272,7 +272,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
             org.mozilla.jss.crypto.X509Certificate transCert)
             throws Exception {
 
-        CMS.debug("EncryptionUnit.decryptExternalPrivate");
+        CMS.debug("TransportKeyUnit.decryptExternalPrivate");
 
         if (transCert == null) {
             transCert = mCert;
@@ -349,12 +349,14 @@ public class TransportKeyUnit extends EncryptionUnit implements
         CryptoToken token = getToken(transCert);
         PrivateKey wrappingKey = getPrivateKey(transCert);
         String priKeyAlgo = wrappingKey.getAlgorithm();
+
         WrappingParams params = WrappingParams.getWrappingParamsFromArchiveOptions(
                 wrapOID,
                 priKeyAlgo,
                 new IVParameterSpec(wrapIV));
 
         // (1) unwrap the session key
+        CMS.debug("TransportKeyUnit.unwrap: about to unwrap session key");
         SymmetricKey sk = CryptoUtil.unwrap(
                 token,
                 params.getSkType(),
@@ -364,6 +366,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
                 encSymmKey,
                 params.getSkWrapAlgorithm());
 
+        CMS.debug("TransportKeyUnit.unwrap: about to unwrap session-wrapped-private key");
         // (2) unwrap the session-wrapped-private key
         return CryptoUtil.unwrap(
                 token,

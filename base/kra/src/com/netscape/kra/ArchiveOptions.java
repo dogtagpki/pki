@@ -50,7 +50,7 @@ class ArchiveOptions {
             AlgorithmIdentifier symmAlg = null;
 
             if (key.getType() == org.mozilla.jss.pkix.crmf.EncryptedKey.ENVELOPED_DATA) {
-                CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENVELOPED_DATA");
+                CMS.debug("ArchiveOptions: ArchiveOptions() EncryptedKey type= ENVELOPED_DATA");
                 // this is the new RFC4211 EncryptedKey that should
                 // have EnvelopedData to replace the deprecated EncryptedValue
                 enveloped_val = key.getEnvelopedData();
@@ -67,7 +67,7 @@ class ArchiveOptions {
 
                 SET recipients = env_data.getRecipientInfos();
                 if (recipients.size() <= 0) {
-                    CMS.debug("EnrollService: ArchiveOptions() - missing recipient information ");
+                    CMS.debug("ArchiveOptions: ArchiveOptions() - missing recipient information ");
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
                             "[PKIArchiveOptions] missing recipient information "));
                 }
@@ -81,9 +81,9 @@ class ArchiveOptions {
                 OCTET_STRING oString = eCI.getEncryptedContent();
                 BIT_STRING encVal = new BIT_STRING(oString.toByteArray(), 0);
                 mEncValue = encVal.getBits();
-                CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENVELOPED_DATA done");
+                CMS.debug("ArchiveOptions: ArchiveOptions() EncryptedKey type= ENVELOPED_DATA done");
             } else if (key.getType() == org.mozilla.jss.pkix.crmf.EncryptedKey.ENCRYPTED_VALUE) {
-                CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENCRYPTED_VALUE");
+                CMS.debug("ArchiveOptions: ArchiveOptions() EncryptedKey type= ENCRYPTED_VALUE");
                 // this is deprecated: EncryptedValue
                 val = key.getEncryptedValue();
                 symmAlg = val.getSymmAlg();
@@ -97,23 +97,23 @@ class ArchiveOptions {
                 BIT_STRING encVal = val.getEncValue();
 
                 mEncValue = encVal.getBits();
-                CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENCRYPTED_VALUE done");
+                CMS.debug("ArchiveOptions: ArchiveOptions() EncryptedKey type= ENCRYPTED_VALUE done");
             } else {
-                CMS.debug("EnrollService: ArchiveOptions() invalid EncryptedKey type");
+                CMS.debug("ArchiveOptions: ArchiveOptions() invalid EncryptedKey type");
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[PKIArchiveOptions] type "
                         + key.getType()));
             }
 
         } catch (InvalidBERException e) {
-            CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
+            CMS.debug("ArchiveOptions: ArchiveOptions(): " + e.toString());
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
                     "[PKIArchiveOptions]" + e.toString()));
         } catch (IOException e) {
-            CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
+            CMS.debug("ArchiveOptions: ArchiveOptions(): " + e.toString());
             throw new EBaseException("ArchiveOptions() exception caught: " +
                     e.toString());
         } catch (Exception e) {
-            CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
+            CMS.debug("ArchiveOptions: ArchiveOptions(): " + e.toString());
             throw new EBaseException("ArchiveOptions() exception caught: " +
                     e.toString());
         }
