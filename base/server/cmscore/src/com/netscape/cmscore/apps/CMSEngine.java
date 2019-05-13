@@ -254,24 +254,26 @@ public class CMSEngine implements ISubsystem {
     }
 
     public void initializePasswordStore(IConfigStore config) throws EBaseException, IOException {
-        logger.debug("CMSEngine.initializePasswordStore() begins");
+
+        logger.info("CMSEngine: initializing password stores");
+
         // create and initialize mPasswordStore
         getPasswordStore();
 
-        boolean skipPublishingCheck = config.getBoolean(
-                "cms.password.ignore.publishing.failure", true);
+        boolean skipPublishingCheck = config.getBoolean("cms.password.ignore.publishing.failure", true);
         String pwList = config.getString("cms.passwordlist", "internaldb,replicationdb");
         String tags[] = StringUtils.split(pwList, ",");
 
         for (String tag : tags) {
-            int iteration = 0;
-            int result = PW_INVALID_PASSWORD;
+
+            logger.info("CMSEngine: initializing password store for " + tag);
+
             String binddn;
             String authType;
             LdapConnInfo connInfo = null;
-            logger.debug("CMSEngine.initializePasswordStore(): tag=" + tag);
 
             if (tag.equals("internaldb")) {
+
                 authType = config.getString("internaldb.ldapauth.authtype", "BasicAuth");
                 if (!authType.equals("BasicAuth"))
                     continue;
@@ -282,7 +284,9 @@ public class CMSEngine implements ISubsystem {
                         config.getBoolean("internaldb.ldapconn.secureConn"));
 
                 binddn = config.getString("internaldb.ldapauth.bindDN");
+
             } else if (tag.equals("replicationdb")) {
+
                 authType = config.getString("internaldb.ldapauth.authtype", "BasicAuth");
                 if (!authType.equals("BasicAuth"))
                     continue;
@@ -294,7 +298,9 @@ public class CMSEngine implements ISubsystem {
 
                 binddn = "cn=Replication Manager masterAgreement1-" + config.getString("machineName", "") + "-" +
                         config.getString("instanceId", "") + ",cn=config";
+
             } else if (tags.equals("CA LDAP Publishing")) {
+
                 authType = config.getString("ca.publish.ldappublish.ldap.ldapauth.authtype", "BasicAuth");
                 if (!authType.equals("BasicAuth"))
                     continue;
@@ -329,6 +335,7 @@ public class CMSEngine implements ISubsystem {
                     continue;
                 }
                 logger.debug("CMSEngine.initializePasswordStore(): authPrefix=" + authPrefix);
+
                 authType = config.getString(authPrefix +".ldap.ldapauth.authtype", "BasicAuth");
                 logger.debug("CMSEngine.initializePasswordStore(): authType " + authType);
                 if (!authType.equals("BasicAuth"))
@@ -346,6 +353,9 @@ public class CMSEngine implements ISubsystem {
                 }
             }
 
+            int iteration = 0;
+            int result = PW_INVALID_PASSWORD;
+
             do {
                 String passwd = mPasswordStore.getPassword(tag, iteration);
                 result = testLDAPConnection(tag, connInfo, binddn, passwd);
@@ -355,15 +365,16 @@ public class CMSEngine implements ISubsystem {
             if (result != PW_OK) {
                 if ((result == PW_NO_USER) && (tag.equals("replicationdb"))) {
                     logger.warn(
-                        "CMSEngine: init(): password test execution failed for replicationdb" +
-                        "with NO_SUCH_USER.  This may not be a latest instance.  Ignoring ..");
+                        "CMSEngine: password test execution failed for replicationdb " +
+                        "with NO_SUCH_USER. This may not be a latest instance. Ignoring ..");
+
                 } else if (skipPublishingCheck && (result == PW_CANNOT_CONNECT) && (tag.equals("CA LDAP Publishing"))) {
                     logger.warn(
-                        "Unable to connect to the publishing database to check password, " +
-                        "but continuing to start up.  Please check if publishing is operational.");
+                        "CMSEngine: Unable to connect to the publishing database to check password, " +
+                        "but continuing to start up. Please check if publishing is operational.");
                 } else {
                     // password test failed
-                    logger.error("CMSEngine: init(): password test execution failed: " + result);
+                    logger.error("CMSEngine: password test execution failed: " + result);
                     throw new EBaseException("Password test execution failed. Is the database up?");
                 }
             }
@@ -371,42 +382,47 @@ public class CMSEngine implements ISubsystem {
     }
 
     public int testLDAPConnection(String name, LdapConnInfo info, String binddn, String pwd) {
+
         int ret = PW_OK;
 
-        if (StringUtils.isEmpty(pwd))
+        if (StringUtils.isEmpty(pwd)) {
             return PW_INVALID_PASSWORD;
+        }
 
         String host = info.getHost();
         int port = info.getPort();
 
         LDAPConnection conn = new LDAPConnection(new PKISocketFactory(info.getSecure()));
 
-        logger.debug("testLDAPConnection connecting to " + host + ":" + port);
-
         try {
+            logger.info("CMSEngine: verifying connection to " + host + ":" + port + " as " + binddn);
             conn.connect(host, port, binddn, pwd);
+
         } catch (LDAPException e) {
+
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
-                logger.error("testLDAPConnection: The specified user " + binddn + " does not exist");
+                logger.debug("CMSEngine: user does not exist: " + binddn);
                 ret = PW_NO_USER;
                 break;
             case LDAPException.INVALID_CREDENTIALS:
-                logger.error("testLDAPConnection: Invalid Password");
+                logger.debug("CMSEngine: invalid password");
                 ret = PW_INVALID_PASSWORD;
                 break;
             default:
-                logger.error("testLDAPConnection: Unable to connect to " + name + ": " + e);
+                logger.debug("CMSEngine: unable to connect to " + name + ": " + e.getMessage());
                 ret = PW_CANNOT_CONNECT;
                 break;
             }
+
         } finally {
             try {
-                if (conn != null)
-                    conn.disconnect();
+                if (conn != null) conn.disconnect();
             } catch (Exception e) {
+                logger.warn("CMSEngine: unable to disconnect from " + host + ":" + port);
             }
         }
+
         return ret;
     }
 
@@ -1099,6 +1115,9 @@ public class CMSEngine implements ISubsystem {
     }
 
     public void reinit(String id) throws EBaseException {
+
+        logger.info("SystemConfigService: reinitializing " + id + " subsystem");
+
         ISubsystem system = getSubsystem(id);
         IConfigStore cs = mConfig.getSubStore(id);
         system.init(this, cs);
@@ -1142,15 +1161,8 @@ public class CMSEngine implements ISubsystem {
             kra.getKeyRepository().checkRanges();
         }
 
-        /*LogDoc
-         *
-         * @phase server startup
-         * @reason all subsystems are initialized and started.
-         */
-        logger.info(CMS.getLogMessage("SERVER_STARTUP"));
-
         String type = mConfig.get("cs.type");
-        logger.info(type + " is started.");
+        logger.info(type + " subsystem started");
 
         isStarted = true;
     }
