@@ -53,7 +53,7 @@ public class LDAPSecurityDomainSessionTable
 
     public LDAPSecurityDomainSessionTable(long timeToLive) throws ELdapException, EBaseException {
         m_timeToLive = timeToLive;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         IConfigStore internaldb = cs.getSubStore("internaldb");
         mLdapConnFactory = new LdapBoundConnFactory("LDAPSecurityDomainSessionTable");
@@ -63,7 +63,7 @@ public class LDAPSecurityDomainSessionTable
     public int addEntry(String sessionId, String ip,
             String uid, String group) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         LDAPConnection conn = null;
         int status = FAILURE;
@@ -125,7 +125,7 @@ public class LDAPSecurityDomainSessionTable
 
     public int removeEntry(String sessionId) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         LDAPConnection conn = null;
         int status = FAILURE;
@@ -157,7 +157,7 @@ public class LDAPSecurityDomainSessionTable
 
     public boolean sessionExists(String sessionId) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         LDAPConnection conn = null;
         boolean ret = false;
@@ -188,7 +188,7 @@ public class LDAPSecurityDomainSessionTable
 
         logger.debug("LDAPSecurityDomainSessionTable: getSessionIds() ");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         LDAPConnection conn = null;
         Vector<String> ret = new Vector<String>();
@@ -216,7 +216,7 @@ public class LDAPSecurityDomainSessionTable
         } catch (LDAPException e) {
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
-                logger.warn("SecurityDomainSessionTable: No active sessions.");
+                logger.debug("SecurityDomainSessionTable: no active sessions, ignore");
                 break;
             default:
                 logger.error("SecurityDomainSessionTable: RC: " + e.getLDAPResultCode());
@@ -236,7 +236,7 @@ public class LDAPSecurityDomainSessionTable
 
     private String getStringValue(String sessionId, String attr) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         LDAPConnection conn = null;
         String ret = null;
@@ -294,7 +294,7 @@ public class LDAPSecurityDomainSessionTable
 
     public int getSize() throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         LDAPConnection conn = null;
         int ret = 0;

@@ -423,14 +423,13 @@ public abstract class CMSServlet extends HttpServlet {
         CMSEngine engine = CMS.getCMSEngine();
         boolean running_state = engine.isInRunningState();
 
-        if (!running_state)
-            throw new IOException(
-                    "CS server is not ready to serve.");
+        if (!running_state) {
+            throw new IOException("CS server is not ready to serve.");
+        }
 
         try {
             if (engine.getConfigStore().getBoolean("useThreadNaming", false)) {
                 String currentName = Thread.currentThread().getName();
-
                 Thread.currentThread().setName(currentName + "-" + httpReq.getServletPath());
             }
         } catch (Exception e) {
@@ -498,9 +497,9 @@ public abstract class CMSServlet extends HttpServlet {
             renderResult(cmsRequest);
             Date endDate = new Date();
             long endTime = endDate.getTime();
-            logger.info("CMSServlet: curDate: "
-                    + endDate + " id: " + mId + " time: " + (endTime - startTime));
+            logger.debug("CMSServlet: curDate: " + endDate + " id: " + mId + " time: " + (endTime - startTime));
             iCommandQueue.unRegisterProccess(cmsRequest, this);
+
         } catch (EBaseException e) {
             iCommandQueue.unRegisterProccess(cmsRequest, this);
             // ByteArrayOutputStream os = new ByteArrayOutputStream(); for debugging only

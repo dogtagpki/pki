@@ -41,7 +41,6 @@ public class SessionTimer extends TimerTask {
     }
 
     public void run() {
-        logger.debug("SessionTimer: run()");
         try {
             runImpl();
         } catch (Exception e) {
@@ -51,16 +50,19 @@ public class SessionTimer extends TimerTask {
 
     public void runImpl() throws Exception {
 
+        logger.info("SessionTimer: checking security domain sessions");
         Enumeration<String> keys = m_sessiontable.getSessionIDs();
+
         while (keys.hasMoreElements()) {
             String sessionId = keys.nextElement();
             long beginTime = m_sessiontable.getBeginTime(sessionId);
             Date nowDate = new Date();
             long nowTime = nowDate.getTime();
             long timeToLive = m_sessiontable.getTimeToLive();
+
             if ((nowTime - beginTime) > timeToLive) {
                 m_sessiontable.removeEntry(sessionId);
-                logger.debug("SessionTimer run: successfully remove the session id entry from the table.");
+                logger.info("SessionTimer: removed expired security domain session: " + sessionId);
 
                 // audit message
                 String auditParams = "operation;;expire_token+token;;" + sessionId;
@@ -71,7 +73,6 @@ public class SessionTimer extends TimerTask {
                                          auditParams);
 
                 signedAuditLogger.log(auditMessage);
-
             }
         }
     }

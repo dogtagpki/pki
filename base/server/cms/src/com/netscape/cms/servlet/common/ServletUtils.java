@@ -48,48 +48,51 @@ public class ServletUtils {
 
     public static String initializeAuthz(ServletConfig sc,
             IAuthzSubsystem authz, String id) throws ServletException {
+
         CMSEngine engine = CMS.getCMSEngine();
         String srcType = AUTHZ_SRC_LDAP;
 
         try {
             IConfigStore authzConfig = engine.getConfigStore().getSubStore(AUTHZ_CONFIG_STORE);
-
             srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
+
         } catch (EBaseException e) {
-            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
+            logger.warn("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
         }
 
         String aclMethod = null;
 
         if (srcType.equalsIgnoreCase(AUTHZ_SRC_XML)) {
-            logger.debug(CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
+
+            logger.debug("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
             aclMethod = sc.getInitParameter(PROP_AUTHZ_MGR);
-            if (aclMethod != null &&
-                    aclMethod.equalsIgnoreCase(AUTHZ_MGR_BASIC)) {
+
+            if (aclMethod != null && aclMethod.equalsIgnoreCase(AUTHZ_MGR_BASIC)) {
                 String aclInfo = sc.getInitParameter(PROP_ACL);
 
                 if (aclInfo != null) {
                     try {
                         addACLInfo(authz, aclMethod, aclInfo);
                     } catch (EBaseException ee) {
-                        throw new ServletException(
-                                "failed to init authz info from xml config file");
+                        throw new ServletException("Failed to init authz info from xml config file");
                     }
 
-                    logger.debug(CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE",
-                            id));
+                    logger.debug("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", id));
+
                 } else {
-                    logger.warn(CMS.getLogMessage(
+                    logger.warn("ServletUtils: " + CMS.getLogMessage(
                             "ADMIN_SRVLT_PROP_ACL_NOT_SPEC", PROP_ACL, id,
                             AUTHZ_MGR_LDAP));
                 }
+
             } else {
-                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
+                logger.warn("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
                         PROP_AUTHZ_MGR, id, AUTHZ_MGR_LDAP));
             }
+
         } else {
             aclMethod = AUTHZ_MGR_LDAP;
-            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", id));
+            logger.debug("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", id));
         }
 
         return aclMethod;
@@ -116,35 +119,34 @@ public class ServletUtils {
             IConfigStore authzConfig = engine.getConfigStore().getSubStore(AUTHZ_CONFIG_STORE);
             srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
         } catch (EBaseException e) {
-            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
+            logger.warn("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
         }
 
         String aclMethod = null;
 
         if (srcType.equalsIgnoreCase(AUTHZ_SRC_XML)) {
-            logger.debug(CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
-            try {
-                aclMethod = authzMgr;
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            logger.debug("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
+            aclMethod = authzMgr;
+
             if (aclMethod != null && aclMethod.equalsIgnoreCase(AUTHZ_MGR_BASIC)) {
                 if (aclInfo != null) {
                     addACLInfo(authz, aclMethod, aclInfo);
-                    logger.debug(CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", id));
+                    logger.debug("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", id));
+
                 } else {
-                    logger.warn(CMS.getLogMessage(
+                    logger.warn("ServletUtils: " + CMS.getLogMessage(
                             "ADMIN_SRVLT_PROP_ACL_NOT_SPEC", PROP_ACL, id,
                             AUTHZ_MGR_LDAP));
                 }
+
             } else {
-                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
+                logger.warn("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC",
                         PROP_AUTHZ_MGR, id, AUTHZ_MGR_LDAP));
             }
+
         } else {
             aclMethod = AUTHZ_MGR_LDAP;
-            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", id));
+            logger.debug("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", id));
         }
 
         return aclMethod;
