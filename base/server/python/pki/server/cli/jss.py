@@ -22,7 +22,6 @@ from __future__ import absolute_import
 from __future__ import print_function
 import getopt
 import logging
-import os
 import sys
 
 import pki.cli
@@ -100,12 +99,7 @@ class JSSEnableCLI(pki.cli.CLI):
         instance.store_jss_config(jss_config)
 
         server_config = instance.get_server_config()
-
-        listener = server_config.create_listener('org.dogtagpki.tomcat.JSSListener')
-
-        jss_conf = os.path.join(instance.conf_dir, 'jss.conf')
-        listener.set('configFile', jss_conf)
-
+        server_config.create_listener('org.dogtagpki.tomcat.JSSListener')
         server_config.save()
 
 
