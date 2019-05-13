@@ -441,7 +441,7 @@ public abstract class Repository implements IRepository {
      */
     protected void checkRange() throws EBaseException
     {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         // check if we have reached the end of the range
         // if so, move to next range
         BigInteger randomLimit = null;
@@ -508,11 +508,13 @@ public abstract class Repository implements IRepository {
      * @exception EBaseException failed to check next range for conflicts
      */
     public void checkRanges() throws EBaseException {
+
         if (!mDB.getEnableSerialMgmt()) {
-            logger.warn("Repository: Serial Management not enabled. Returning .. ");
+            logger.debug("Repository: serial management not enabled, ignore");
             return;
         }
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+
+        CMSEngine engine = CMS.getCMSEngine();
         if (engine.getEESSLPort() == null) {
             logger.warn("Repository: Server not completely started.  Returning ..");
             return;

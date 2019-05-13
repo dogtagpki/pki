@@ -139,7 +139,7 @@ public class CertificateRepository extends Repository
     public void setEnableRandomSerialNumbers(boolean random, boolean updateMode, boolean forceModeChange) {
         logger.debug("CertificateRepository:  setEnableRandomSerialNumbers   random="+random+"  updateMode="+updateMode);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (mEnableRandomSerialNumbers ^ random || forceModeChange) {
             mEnableRandomSerialNumbers = random;
             logger.debug("CertificateRepository:  setEnableRandomSerialNumbers   switching to " +
@@ -193,7 +193,7 @@ public class CertificateRepository extends Repository
             throw new EBaseException ("Range size is too small to support random certificate serial numbers.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         SecureRandom random = jssSubsystem.getRandomNumberGenerator();
 
@@ -309,7 +309,7 @@ public class CertificateRepository extends Repository
         logger.debug("CertificateRepository: updateCounter  mEnableRandomSerialNumbers="+
                   mEnableRandomSerialNumbers+"  mCounter="+mCounter);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             super.initCacheIfNeeded();
         } catch (Exception e) {
@@ -377,7 +377,7 @@ public class CertificateRepository extends Repository
 
     private BigInteger getInRangeCounter(BigInteger  minSerialNo, BigInteger maxSerialNo)
     throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String c = null;
         String t = null;
         String s = (mDBConfig.getString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, "-1")).trim();
@@ -437,7 +437,7 @@ public class CertificateRepository extends Repository
 
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         mEnableRandomSerialNumbers = mDBConfig.getBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, false);
         mForceModeChange = mDBConfig.getBoolean(PROP_FORCE_MODE_CHANGE, false);
@@ -2453,7 +2453,7 @@ class SerialNumberUpdateTask implements Runnable {
 
     public void run() {
         try {
-            logger.debug("About to start updateSerialNumbers");
+            logger.info("SerialNumberUpdateTask: updating serial numbers");
             updateSerialNumbers();
 
         } catch (EBaseException e) {
