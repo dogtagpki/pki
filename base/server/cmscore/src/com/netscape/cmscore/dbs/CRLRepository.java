@@ -146,20 +146,20 @@ public class CRLRepository extends Repository implements ICRLRepository {
      */
     public ICRLIssuingPointRecord readCRLIssuingPointRecord(String id)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+
+        IDBSSession s = null;
         CRLIssuingPointRecord rec = null;
 
         try {
-            String name = mLdapCRLIssuingPointName + "=" + id +
-                    "," + getDN();
+            s = mDBService.createSession();
 
-            if (s != null) {
-                rec = (CRLIssuingPointRecord) s.read(name);
-            }
+            String name = mLdapCRLIssuingPointName + "=" + id + "," + getDN();
+            rec = (CRLIssuingPointRecord) s.read(name);
+
         } finally {
-            if (s != null)
-                s.close();
+            if (s != null) s.close();
         }
+
         return rec;
     }
 

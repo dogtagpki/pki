@@ -57,6 +57,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
@@ -815,14 +816,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mLastCacheUpdate = System.currentTimeMillis() + mCacheUpdateInterval;
 
         try {
+            logger.info("CRLIssuingPoint: reading CRL issuing point: " + mId);
             crlRecord = mCRLRepository.readCRLIssuingPointRecord(mId);
+
         } catch (EDBNotAvailException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_INST_CRL", e.toString()));
             mInitialized = CRLIssuingPointStatus.InitializationFailed;
             return;
-        } catch (EBaseException e) {
-            // CRL was never set.
-            // fall to the following..
+
+        } catch (EDBRecordNotFoundException e) {
+            logger.debug("CRLIssuingPoint: CRL issuing point not found: " + mId);
         }
 
         if (crlRecord != null) {
@@ -942,13 +945,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         if (crlRecord == null) {
             // no crl was ever created, or crl in db is corrupted.
-            // create new one.
+            logger.info("CRLIssuingPoint: creating new CRL issuing point: " + mId);
 
             IConfigStore ipStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE).getSubStore(mId);
-            try {
 
+            try {
                 BigInteger startingCrlNumberBig = ipStore.getBigInteger(PROP_CRL_STARTING_NUMBER, BigInteger.ZERO);
-                logger.debug("startingCrlNumber: " + startingCrlNumberBig);
+                logger.debug("CRLIssuingPoint: startingCrlNumber: " + startingCrlNumberBig);
 
                 // Check for bogus negative value
 
@@ -977,6 +980,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mDeltaCRLNumber = mCRLNumber;
                 mNextDeltaCRLNumber = mNextCRLNumber;
                 mLastUpdate = new Date(0L);
+
                 if (crlRecord != null) {
                     // This will trigger updateCRLNow, which will also publish CRL.
                     if ((mDoManualUpdate == false) &&
@@ -986,12 +990,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         setManualUpdate(null);
                     }
                 }
+
             } catch (EBaseException ex) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_CREATE_CRL", ex.toString()));
                 mInitialized = CRLIssuingPointStatus.InitializationFailed;
                 return;
             }
         }
+
         mInitialized = CRLIssuingPointStatus.Initialized;
     }
 
@@ -1803,8 +1809,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             mTimeListSize > 0) ||
                             (mEnableUpdateFreq && mAutoUpdateInterval > 0));
 
-                    if (mInitialized == CRLIssuingPointStatus.NotInitialized)
+                    if (mInitialized == CRLIssuingPointStatus.NotInitialized) {
                         initCRL();
+                    }
 
                     if ((mEnableCRLUpdates && mDoManualUpdate) || mDoLastAutoUpdate) {
                         delay = 0;
