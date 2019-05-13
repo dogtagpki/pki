@@ -24,9 +24,6 @@ package com.netscape.certsrv.dbs;
  */
 public class EDBRecordNotFoundException extends EDBException {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -3797213848651705426L;
 
     /**
@@ -36,5 +33,9 @@ public class EDBRecordNotFoundException extends EDBException {
      */
     public EDBRecordNotFoundException(String errorString) {
         super(errorString);
+    }
+
+    public EDBRecordNotFoundException(String errorString, Throwable cause) {
+        super(errorString, cause);
     }
 }

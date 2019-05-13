@@ -172,20 +172,17 @@ public class DBSSession implements IDBSSession {
 
             return mDBSystem.getRegistry().createObject(
                     entry.getAttributeSet());
+
         } catch (LDAPException e) {
 
-            /*LogDoc
-             *
-             * @phase local ldap read
-             * @message DBSSession: <exception thrown>
-             */
-            logger.error("DBSSession: " + e.getMessage(), e);
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
-                        CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
-            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT)
-                throw new EDBRecordNotFoundException(
-                        CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"));
+            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
+                throw new EDBNotAvailException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
+            }
+
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                throw new EDBRecordNotFoundException(CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"), e);
+            }
+
             throw new EDBException("Unable to read LDAP record: " + e.getMessage(), e);
         }
     }
