@@ -302,7 +302,7 @@ class PKIServer(object):
         conf_d_dir = os.path.join(self.conf_dir, 'conf.d')
         self.makedirs(conf_d_dir, force=force)
 
-        lib_dir = os.path.join(PKIServer.SHARE_DIR, 'lib')
+        lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'lib')
         self.symlink(lib_dir, self.lib_dir, force=force)
 
         self.makedirs(self.common_dir, force=force)
