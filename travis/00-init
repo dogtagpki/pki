@@ -23,17 +23,16 @@ useradd --non-unique -u ${BUILDUSER_UID} -g ${BUILDUSER_GID} ${BUILDUSER}
 chown ${BUILDUSER}:${BUILDUSER} ${BUILDDIR}
 
 # workaround for
-# [Errno 2] No such file or directory: '/var/cache/dnf/metadata_lock.pid'
-rm -f /var/cache/dnf/metadata_lock.pid
-dnf install -y dnf-plugins-core sudo wget 389-ds-base
-dnf install -y @buildsys-build @development-tools
+# [Errno 2] No such file or directory: '/var/cache/yum/metadata_lock.pid'
+rm -f /var/cache/yum/metadata_lock.pid
+yum install -y yum-plugin-copr sudo wget 389-ds-base gcc make rpm-build git
 
 # Enable pki related COPR repo
-dnf copr enable -y @pki/${PKI_VERSION}
+yum copr enable -y @pki/${PKI_VERSION}
 
 # update, container might be outdated
-dnf update -y --best --allowerasing
+yum update -y
 
-dnf clean all
-dnf makecache || true
-dnf makecache
+yum clean all
+yum makecache || true
+yum makecache

@@ -22,7 +22,7 @@
 set -e
 
 # Enable FreeIPA copr repo
-dnf copr enable -y @freeipa/freeipa-${IPA_VERSION}
+yum copr enable -y @freeipa/freeipa-${IPA_VERSION}
 
 # Install IPA
-dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests --best --allowerasing
+yum install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python3-ipatests
