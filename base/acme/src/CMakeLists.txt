@@ -5,6 +5,7 @@ javac(pki-acme-classes
         *.java
     CLASSPATH
         ${JAXRS_API_JAR}
+        ${JACKSON2_ANNOTATIONS_JAR}
     OUTPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
 )

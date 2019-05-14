@@ -30,6 +30,7 @@ public class ACMEApplication extends Application {
     private Set<Object> singletons = new LinkedHashSet<Object>();
 
     public ACMEApplication() {
+        classes.add(ACMEDirectoryService.class);
     }
 
     public Set<Class<?>> getClasses() {
