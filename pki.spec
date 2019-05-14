@@ -1496,6 +1496,9 @@ fi
 %{_mandir}/man8/pki-server-tps.8.gz
 %{_datadir}/pki/setup/
 %{_datadir}/pki/server/
+%dir %{_datadir}/pki/acme
+%{_datadir}/pki/acme/conf/
+%{_datadir}/pki/acme/webapps/
 
 %endif # with server
 
