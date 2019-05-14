@@ -27,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.dogtagpki.acme.ACMEDirectory;
+import org.dogtagpki.acme.ACMEMetadata;
 
 @Path("directory")
 public class ACMEDirectoryService {
@@ -57,6 +58,16 @@ public class ACMEDirectoryService {
 
         URI keyChange = uriInfo.getBaseUriBuilder().path("key-change").build();
         directory.setKeyChange(keyChange);
+
+        ACMEMetadata meta = new ACMEMetadata();
+        meta.setTermsOfService("https://example.com/acme/docs/tos.pdf");
+        meta.setWebsite("https://www.example.com/");
+        meta.setCaaIdentities(new String[] {
+           "example.com"
+        });
+        meta.setExternalAccountRequired(false);
+
+        directory.setMeta(meta);
 
         return directory;
     }

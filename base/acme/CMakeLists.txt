@@ -13,6 +13,13 @@ add_custom_command(
 
 install(
     DIRECTORY
+        conf/
+    DESTINATION
+        ${DATA_INSTALL_DIR}/acme/conf/
+)
+
+install(
+    DIRECTORY
         ${APP_SERVER}/conf/
     DESTINATION
         ${DATA_INSTALL_DIR}/acme/conf/
