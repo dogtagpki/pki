@@ -441,6 +441,8 @@ class PKIServer(object):
 
         logger.info('Removing instance: %s', self.name)
 
+        self.stop()
+
         pki.util.remove(self.service_conf, force=force)
         pki.util.rmtree(self.log_dir, force=force)
         pki.util.rmtree(self.work_dir, force=force)
