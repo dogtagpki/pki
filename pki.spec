@@ -1499,6 +1499,7 @@ fi
 %dir %{_datadir}/pki/acme
 %{_datadir}/pki/acme/conf/
 %{_datadir}/pki/acme/webapps/
+%{_javadir}/pki/pki-acme.jar
 
 %endif # with server
 
