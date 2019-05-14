@@ -316,7 +316,7 @@ public class CRMFPopClient {
 
         String curve = cmd.getOptionValue("c", "nistp256");
         boolean sslECDH = Boolean.parseBoolean(cmd.getOptionValue("x", "false"));
-        boolean temporary = Boolean.parseBoolean(cmd.getOptionValue("t", "true"));
+        boolean temporary = Boolean.parseBoolean(cmd.getOptionValue("t", (algorithm.equals("rsa"))? "false":"true"));
         int sensitive = Integer.parseInt(cmd.getOptionValue("s", "-1"));
         int extractable = Integer.parseInt(cmd.getOptionValue("e", "-1"));
 
@@ -363,11 +363,6 @@ public class CRMFPopClient {
         if (algorithm.equals("rsa")) {
             if (cmd.hasOption("c")) {
                 printError("Illegal parameter for RSA: -c");
-                System.exit(1);
-            }
-
-            if (cmd.hasOption("t")) {
-                printError("Illegal parameter for RSA: -t");
                 System.exit(1);
             }
 
@@ -472,7 +467,7 @@ public class CRMFPopClient {
             if (verbose) System.out.println("Generating key pair");
             KeyPair keyPair;
             if (algorithm.equals("rsa")) {
-                keyPair = CryptoUtil.generateRSAKeyPair(token, keySize);
+                keyPair = CryptoUtil.generateRSAKeyPair(token, keySize, temporary);
             } else if (algorithm.equals("ec")) {
                 keyPair = client.generateECCKeyPair(token, curve, sslECDH, temporary, sensitive, extractable);
 
@@ -727,6 +722,11 @@ public class CRMFPopClient {
             return new WrappingParams(
                 SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
                 KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_128_CBC_PAD,
+                kwAlg, ivps, ivps);
+        } else if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP) {
+            return new WrappingParams(
+                SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
+                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_128_CBC,
                 kwAlg, ivps, ivps);
         } else if (kwAlg == KeyWrapAlgorithm.DES3_CBC_PAD) {
             return new WrappingParams(

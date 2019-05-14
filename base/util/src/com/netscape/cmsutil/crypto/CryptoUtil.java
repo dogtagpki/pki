@@ -573,7 +573,15 @@ public class CryptoUtil {
     }
 
     public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize) throws Exception {
+        return generateRSAKeyPair(token, keysize, false);
+    }
+
+    public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize, boolean temporary) throws Exception {
         KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+
+        if (temporary == true)
+            kg.temporaryPairs(true);
+
         kg.initialize(keysize);
         return kg.genKeyPair();
     }
@@ -2905,6 +2913,7 @@ public class CryptoUtil {
             pk = wrapper.unwrapPrivate(wrappedData,
                     keyType, pubKey);
         }
+System.out.println("CryptoUtil: unwrap: unwrap succeeded!");
         return pk;
     }
 
@@ -3065,10 +3074,6 @@ public class CryptoUtil {
         throw new NoSuchAlgorithmException();
     }
 
-    public static final OBJECT_IDENTIFIER KW_AES_KEY_WRAP_PAD = new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.1.8");
-    public static final OBJECT_IDENTIFIER KW_AES_CBC_PAD = new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.1.2");
-    public static final OBJECT_IDENTIFIER KW_DES_CBC_PAD = new OBJECT_IDENTIFIER("1.2.840.113549.3.7");
-
     /*
      * Useful method to map KeyWrap algorithms to an OID.
      * This is not yet defined within JSS, although it will be valuable to do
@@ -3081,27 +3086,33 @@ public class CryptoUtil {
      */
     public static OBJECT_IDENTIFIER getOID(KeyWrapAlgorithm kwAlg) throws NoSuchAlgorithmException {
         String name = kwAlg.toString();
+
+        if (name.equals(KeyWrapAlgorithm.AES_KEY_WRAP.toString()))
+            return KeyWrapAlgorithm.AES_KEY_WRAP_OID;
         if (name.equals(KeyWrapAlgorithm.AES_KEY_WRAP_PAD.toString()))
-            return KW_AES_KEY_WRAP_PAD;
+            return KeyWrapAlgorithm.AES_KEY_WRAP_PAD_OID;
         if (name.equals(KeyWrapAlgorithm.AES_CBC_PAD.toString()))
-            return KW_AES_CBC_PAD;
+            return KeyWrapAlgorithm.AES_CBC_PAD_OID;
         if (name.equals(KeyWrapAlgorithm.DES3_CBC_PAD.toString()))
-            return KW_DES_CBC_PAD;
+            return KeyWrapAlgorithm.DES_CBC_PAD_OID;
         if (name.equals(KeyWrapAlgorithm.DES_CBC_PAD.toString()))
-            return KW_DES_CBC_PAD;
+            return KeyWrapAlgorithm.DES_CBC_PAD_OID;
 
         throw new NoSuchAlgorithmException();
     }
 
     public static KeyWrapAlgorithm getKeyWrapAlgorithmFromOID(String wrapOID) throws NoSuchAlgorithmException {
         OBJECT_IDENTIFIER oid = new OBJECT_IDENTIFIER(wrapOID);
-        if (oid.equals(KW_AES_KEY_WRAP_PAD))
+        if (oid.equals(KeyWrapAlgorithm.AES_KEY_WRAP_PAD_OID))
             return KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
 
-        if (oid.equals(KW_AES_CBC_PAD))
+        if (oid.equals(KeyWrapAlgorithm.AES_KEY_WRAP_OID))
+            return KeyWrapAlgorithm.AES_KEY_WRAP;
+
+        if (oid.equals(KeyWrapAlgorithm.AES_CBC_PAD_OID))
             return KeyWrapAlgorithm.AES_CBC_PAD;
 
-        if (oid.equals(KW_DES_CBC_PAD))
+        if (oid.equals(KeyWrapAlgorithm.DES_CBC_PAD_OID))
             return KeyWrapAlgorithm.DES3_CBC_PAD;
 
         throw new NoSuchAlgorithmException();
