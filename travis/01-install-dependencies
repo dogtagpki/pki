@@ -2,4 +2,4 @@
 set -e
 
 ## prepare additional build dependencies
-yum-builddep -y ${BUILDDIR}/pki/specs/$1.spec
+dnf builddep -y --spec ${BUILDDIR}/pki/specs/$1.spec
