@@ -32,6 +32,7 @@ public class ACMEApplication extends Application {
     public ACMEApplication() {
         classes.add(ACMEDirectoryService.class);
         classes.add(ACMENewNonceService.class);
+        classes.add(ACMENewAccountService.class);
     }
 
     public Set<Class<?>> getClasses() {
