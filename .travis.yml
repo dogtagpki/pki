@@ -50,6 +50,23 @@ script:
       docker exec -i ${CONTAINER} ${SCRIPTDIR}/ds-remove.sh
     fi
 
+matrix:
+  fast_finish: true
+  include:
+    - stage: rawhide
+      env: BASE_IMAGE_VERSION=rawhide TASK="PKI"
+    - env: BASE_IMAGE_VERSION=rawhide TASK="IPA"
+    # This is a dummy job to mark the build as finished, without waiting for rawhide jobs
+    - env: DUMMY_JOB=FOR_FAST_FINISH
+      before_install: true
+      install: true
+      script: true
+      after_script: true
+  allow_failures:
+    - stage: rawhide
+      env: BASE_IMAGE_VERSION=rawhide TASK="PKI"
+    - env: BASE_IMAGE_VERSION=rawhide TASK="IPA"
+
 after_script:
   - cat ${LOGS}
   - docker kill ${CONTAINER}
