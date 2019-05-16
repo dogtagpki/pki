@@ -291,29 +291,18 @@ public class CertificateIssuedListener implements IRequestListener {
         /*
          * parse and process the template
          */
-        if (template != null) {
-            if (!template.init()) {
-                return;
-            }
-
-            buildContentParams(issuedCert, mEmail);
-            EmailFormProcessor et = new EmailFormProcessor();
-            String c = et.getEmailContent(template.toString(), mContentParams);
-
-            if (template.isHTML()) {
-                mn.setContentType("text/html");
-            }
-            mn.setContent(c);
-        } else {
-            logger.error("CertificateIssuedListener: mailIt: template null");
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("LISTENERS_CERT_ISSUED_TEMPLATE_ERROR",
-                            issuedCert[0].getSerialNumber().toString(), mReqId.toString()));
-
-            mn.setContent("Serial Number = " +
-                    issuedCert[0].getSerialNumber() +
-                    "; Request ID = " + mReqId);
+        if (!template.init()) {
+            return;
         }
+
+        buildContentParams(issuedCert, mEmail);
+        EmailFormProcessor et = new EmailFormProcessor();
+        String c = et.getEmailContent(template.toString(), mContentParams);
+
+        if (template.isHTML()) {
+            mn.setContentType("text/html");
+        }
+        mn.setContent(c);
 
         try {
             mn.sendNotification();
@@ -365,28 +354,23 @@ public class CertificateIssuedListener implements IRequestListener {
              */
             EmailTemplate template = new EmailTemplate(mRejectPath);
 
-            if (template != null) {
-                if (!template.init()) {
-                    return;
-                }
-
-                if (template.isHTML()) {
-                    mn.setContentType("text/html");
-                }
-
-                // build some token data
-                mContentParams.put(IEmailFormProcessor.TOKEN_ID, mConfig.getName());
-                mReqId = r.getRequestId();
-                mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
-                        mReqId.toString());
-                EmailFormProcessor et = new EmailFormProcessor();
-                String c = et.getEmailContent(template.toString(), mContentParams);
-
-                mn.setContent(c);
-            } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_CERT_ISSUED_REJECTION"));
-                mn.setContent("Your Certificate Request has been rejected.  Please contact your administrator for assistance");
+            if (!template.init()) {
+                return;
             }
+
+            if (template.isHTML()) {
+                mn.setContentType("text/html");
+            }
+
+            // build some token data
+            mContentParams.put(IEmailFormProcessor.TOKEN_ID, mConfig.getName());
+            mReqId = r.getRequestId();
+            mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
+                    mReqId.toString());
+            EmailFormProcessor et = new EmailFormProcessor();
+            String c = et.getEmailContent(template.toString(), mContentParams);
+
+            mn.setContent(c);
 
             try {
                 mn.sendNotification();

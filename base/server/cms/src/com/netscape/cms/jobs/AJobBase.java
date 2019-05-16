@@ -165,21 +165,17 @@ public abstract class AJobBase implements IJob, Runnable {
          */
         EmailTemplate template = new EmailTemplate(templatePath);
 
-        if (template != null) {
-            if (!template.init()) {
-                logger.warn("AJobBase: " + CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
-                return null;
-            }
-
-            // this should take care of inner tempaltes not being html
-            // we go with the outter template
-            if (template.isHTML()) {
-                mMailHTML = true;
-            }
-            templateString = template.toString();
-        } else {
+        if (!template.init()) {
             logger.warn("AJobBase: " + CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
+            return null;
         }
+
+        // this should take care of inner tempaltes not being html
+        // we go with the outter template
+        if (template.isHTML()) {
+            mMailHTML = true;
+        }
+        templateString = template.toString();
 
         return templateString;
     }

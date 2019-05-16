@@ -161,26 +161,19 @@ public class RequestInQListener implements IRequestListener {
         /*
          * parse and process the template
          */
-        if (template != null) {
-            if (!template.init()) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_TEMPLATE_NOT_INIT"));
-                return;
-            }
-
-            buildContentParams(r);
-            EmailFormProcessor et = new EmailFormProcessor();
-            String c = et.getEmailContent(template.toString(), mContentParams);
-
-            if (template.isHTML()) {
-                mn.setContentType("text/html");
-            }
-            mn.setContent(c);
-        } else {
-            // log and mail
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("LISTENERS_TEMPLATE_NOT_GET"));
-            mn.setContent("Template not retrievable for Request in Queue notification");
+        if (!template.init()) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_TEMPLATE_NOT_INIT"));
+            return;
         }
+
+        buildContentParams(r);
+        EmailFormProcessor et = new EmailFormProcessor();
+        String c = et.getEmailContent(template.toString(), mContentParams);
+
+        if (template.isHTML()) {
+            mn.setContentType("text/html");
+        }
+        mn.setContent(c);
 
         try {
             mn.sendNotification();

@@ -273,28 +273,18 @@ public class CertificateRevokedListener implements IRequestListener {
         /*
          * parse and process the template
          */
-        if (template != null) {
-            if (!template.init()) {
-                return;
-            }
-
-            buildContentParams(crlentries, mEmail);
-            EmailFormProcessor et = new EmailFormProcessor();
-            String c = et.getEmailContent(template.toString(), mContentParams);
-
-            if (template.isHTML()) {
-                mn.setContentType("text/html");
-            }
-            mn.setContent(c);
-        } else {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("LISTENERS_CERT_ISSUED_TEMPLATE_ERROR",
-                            crlentries[0].getSerialNumber().toString(), mReqId.toString()));
-
-            mn.setContent("Serial Number = " +
-                    crlentries[0].getSerialNumber() +
-                    "; Request ID = " + mReqId);
+        if (!template.init()) {
+            return;
         }
+
+        buildContentParams(crlentries, mEmail);
+        EmailFormProcessor et = new EmailFormProcessor();
+        String c = et.getEmailContent(template.toString(), mContentParams);
+
+        if (template.isHTML()) {
+            mn.setContentType("text/html");
+        }
+        mn.setContent(c);
 
         try {
             mn.sendNotification();
