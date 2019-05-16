@@ -25,11 +25,11 @@ import java.security.MessageDigest;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.INTEGER;
@@ -38,13 +38,11 @@ import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
-
 import org.mozilla.jss.netscape.security.util.Utils;
-
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
 /**
  * This class implements an OCSP utility.
@@ -139,9 +137,8 @@ public class OCSPProcessor {
 
         if (verbose) System.out.println("URL: " + url);
 
-        HttpClient httpClient = new DefaultHttpClient();
+        try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
 
-        try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             request.encode(os);
             byte[] requestData = os.toByteArray();
@@ -157,7 +154,7 @@ public class OCSPProcessor {
             HttpPost httpPost = new HttpPost(url);
             httpPost.setEntity(requestEntity);
 
-            HttpResponse response = httpClient.execute(httpPost);
+            HttpResponse response = client.execute(httpPost);
             HttpEntity responseEntity = response.getEntity();
 
             try (InputStream is = responseEntity.getContent()) {
@@ -183,9 +180,6 @@ public class OCSPProcessor {
             } finally {
                 EntityUtils.consume(responseEntity);
             }
-
-        } finally {
-            httpClient.getConnectionManager().shutdown();
         }
     }
 }

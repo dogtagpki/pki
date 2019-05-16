@@ -38,7 +38,8 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.dogtagpki.common.CAInfo;
 import org.dogtagpki.common.CAInfoClient;
@@ -65,6 +66,12 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
@@ -81,14 +88,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Cert;
 import com.netscape.cmsutil.util.HMACDigest;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.util.WrappingParams;
-import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
-import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
-import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * A command-line utility used to generate a Certificate Request Message
@@ -853,9 +853,9 @@ public class CRMFPopClient {
 
         if (verbose) System.out.println("Opening " + url);
 
-        DefaultHttpClient client = new DefaultHttpClient();
-        HttpGet method = new HttpGet(url);
-        try {
+        try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+
+            HttpGet method = new HttpGet(url);
             HttpResponse response = client.execute(method);
 
             if (response.getStatusLine().getStatusCode() != 200) {
@@ -863,9 +863,6 @@ public class CRMFPopClient {
             }
 
             processResponse(response);
-
-        } finally {
-            method.releaseConnection();
         }
     }
 
