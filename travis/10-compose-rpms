@@ -6,7 +6,7 @@ BUILDLOG=/tmp/compose_$1.log
 function compose {
     pushd ${BUILDDIR}/pki
     # run make with --quiet to reduce log verbosity.
-    sudo -u ${BUILDUSER} MAKEFLAGS="-j2 --quiet" -- \
+    sudo -u ${BUILDUSER} MAKEFLAGS="--quiet" -- \
         ./scripts/$1 rpms
     popd
 }
