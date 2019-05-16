@@ -66,8 +66,7 @@ public class LabelCellRenderer
      *==========================================================*/
 
     public void setToolTipText(String text) {
-    	if (component instanceof JComponent)
-            component.setToolTipText(text);
+        component.setToolTipText(text);
     }
 
     public Component getComponent() {

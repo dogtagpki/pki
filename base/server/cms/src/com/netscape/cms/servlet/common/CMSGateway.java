@@ -130,12 +130,10 @@ public class CMSGateway {
         String[] reqCreds = authMgr.getRequiredCreds();
         AuthCredentials creds = new AuthCredentials();
 
-        if (clientCert instanceof java.security.cert.X509Certificate) {
-            try {
-                clientCert = new org.mozilla.jss.netscape.security.x509.X509CertImpl(clientCert.getEncoded());
-            } catch (Exception e) {
-                logger.warn("CMSGateway: getAuthCreds " + e.getMessage(), e);
-            }
+        try {
+            clientCert = new org.mozilla.jss.netscape.security.x509.X509CertImpl(clientCert.getEncoded());
+        } catch (Exception e) {
+            logger.warn("CMSGateway: getAuthCreds " + e.getMessage(), e);
         }
 
         for (int i = 0; i < reqCreds.length; i++) {

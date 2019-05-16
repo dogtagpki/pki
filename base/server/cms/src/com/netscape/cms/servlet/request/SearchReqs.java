@@ -89,18 +89,17 @@ public class SearchReqs extends CMSServlet {
         // override success to render own template.
         mTemplates.remove(ICMSRequest.SUCCESS);
 
-        if (mAuthority instanceof ISubsystem) {
-            ISubsystem sub = mAuthority;
-            IConfigStore authConfig = sub.getConfigStore();
+        ISubsystem sub = mAuthority;
+        IConfigStore authConfig = sub.getConfigStore();
 
-            if (authConfig != null) {
-                try {
-                    mMaxReturns = authConfig.getInteger(PROP_MAX_SEARCH_RETURNS, MAX_RESULTS);
-                } catch (EBaseException e) {
-                    // do nothing
-                }
+        if (authConfig != null) {
+            try {
+                mMaxReturns = authConfig.getInteger(PROP_MAX_SEARCH_RETURNS, MAX_RESULTS);
+            } catch (EBaseException e) {
+                // do nothing
             }
         }
+
         if (mAuthority instanceof ICertificateAuthority) {
             ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
             mQueue = ca.getRequestQueue();

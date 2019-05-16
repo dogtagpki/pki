@@ -572,20 +572,18 @@ public class DoRevokeTPS extends CMSServlet {
                             if (err != null) {
                                 //cmsReq.setErrorDescription(err);
                                 for (int j = 0; j < count; j++) {
-                                    if (oldCerts[j] instanceof X509CertImpl) {
-                                        X509CertImpl cert = oldCerts[j];
+                                    X509CertImpl cert = oldCerts[j];
 
-                                        if (oldCerts[j] != null) {
-                                            logger.info(
-                                                    AuditFormat.DOREVOKEFORMAT,
-                                                    revReq.getRequestId(),
-                                                    initiative,
-                                                    "completed with error: " + err,
-                                                    cert.getSubjectDN(),
-                                                    cert.getSerialNumber().toString(16),
-                                                    RevocationReason.fromInt(reason)
-                                            );
-                                        }
+                                    if (oldCerts[j] != null) {
+                                        logger.info(
+                                                AuditFormat.DOREVOKEFORMAT,
+                                                revReq.getRequestId(),
+                                                initiative,
+                                                "completed with error: " + err,
+                                                cert.getSubjectDN(),
+                                                cert.getSerialNumber().toString(16),
+                                                RevocationReason.fromInt(reason)
+                                        );
                                     }
                                 }
                             }
@@ -617,20 +615,18 @@ public class DoRevokeTPS extends CMSServlet {
                 // audit log the success.
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
-                        if (oldCerts[j] instanceof X509CertImpl) {
-                            X509CertImpl cert = oldCerts[j];
+                        X509CertImpl cert = oldCerts[j];
 
-                            logger.info(
-                                    AuditFormat.DOREVOKEFORMAT,
-                                    revReq.getRequestId(),
-                                    initiative,
-                                    "completed",
-                                    cert.getSubjectDN(),
-                                    cert.getSerialNumber().toString(16),
-                                    RevocationReason.fromInt(reason)
-                                            + " time: " + (endTime - startTime)
-                            );
-                        }
+                        logger.info(
+                                AuditFormat.DOREVOKEFORMAT,
+                                revReq.getRequestId(),
+                                initiative,
+                                "completed",
+                                cert.getSubjectDN(),
+                                cert.getSerialNumber().toString(16),
+                                RevocationReason.fromInt(reason)
+                                        + " time: " + (endTime - startTime)
+                        );
                     }
                 }
 
@@ -760,19 +756,17 @@ public class DoRevokeTPS extends CMSServlet {
                 // audit log the pending, revoked and rest
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
-                        if (oldCerts[j] instanceof X509CertImpl) {
-                            X509CertImpl cert = oldCerts[j];
+                        X509CertImpl cert = oldCerts[j];
 
-                            logger.info(
-                                    AuditFormat.DOREVOKEFORMAT,
-                                    revReq.getRequestId(),
-                                    initiative,
-                                    stat,
-                                    cert.getSubjectDN(),
-                                    cert.getSerialNumber().toString(16),
-                                    RevocationReason.fromInt(reason)
-                            );
-                        }
+                        logger.info(
+                                AuditFormat.DOREVOKEFORMAT,
+                                revReq.getRequestId(),
+                                initiative,
+                                stat,
+                                cert.getSubjectDN(),
+                                cert.getSerialNumber().toString(16),
+                                RevocationReason.fromInt(reason)
+                        );
                     }
                 }
             }

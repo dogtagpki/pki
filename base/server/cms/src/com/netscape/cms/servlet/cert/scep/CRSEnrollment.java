@@ -240,31 +240,30 @@ public class CRSEnrollment extends HttpServlet {
         }
 
         try {
-            if (mAuthority instanceof ISubsystem) {
-                IConfigStore authorityConfig = ((ISubsystem) mAuthority).getConfigStore();
-                IConfigStore scepConfig = authorityConfig.getSubStore("scep");
-                mEnabled = scepConfig.getBoolean("enable", false);
-                mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
-                mConfiguredEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
-                mNonceSizeLimit = scepConfig.getInteger("nonceSizeLimit", 0);
-                mHashAlgorithmList = scepConfig.getString("allowedHashAlgorithms", "SHA1,SHA256,SHA512");
-                mAllowedHashAlgorithm = mHashAlgorithmList.split(",");
-                mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
-                mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");
-                mNickname = scepConfig.getString("nickname", ca.getNickname());
-                if (mNickname.equals(ca.getNickname())) {
-                    mTokenName = ca.getSigningUnit().getTokenName();
-                } else {
-                    mTokenName = scepConfig.getString("tokenname", "");
-                    mUseCA = false;
-                }
-                if (!CryptoUtil.isInternalToken(mTokenName)) {
-                    int i = mNickname.indexOf(':');
-                    if (!((i > -1) && (mTokenName.length() == i) && (mNickname.startsWith(mTokenName)))) {
-                        mNickname = mTokenName + ":" + mNickname;
-                    }
+            IConfigStore authorityConfig = ((ISubsystem) mAuthority).getConfigStore();
+            IConfigStore scepConfig = authorityConfig.getSubStore("scep");
+            mEnabled = scepConfig.getBoolean("enable", false);
+            mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
+            mConfiguredEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
+            mNonceSizeLimit = scepConfig.getInteger("nonceSizeLimit", 0);
+            mHashAlgorithmList = scepConfig.getString("allowedHashAlgorithms", "SHA1,SHA256,SHA512");
+            mAllowedHashAlgorithm = mHashAlgorithmList.split(",");
+            mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
+            mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");
+            mNickname = scepConfig.getString("nickname", ca.getNickname());
+            if (mNickname.equals(ca.getNickname())) {
+                mTokenName = ca.getSigningUnit().getTokenName();
+            } else {
+                mTokenName = scepConfig.getString("tokenname", "");
+                mUseCA = false;
+            }
+            if (!CryptoUtil.isInternalToken(mTokenName)) {
+                int i = mNickname.indexOf(':');
+                if (!((i > -1) && (mTokenName.length() == i) && (mNickname.startsWith(mTokenName)))) {
+                    mNickname = mTokenName + ":" + mNickname;
                 }
             }
+
         } catch (EBaseException e) {
             logger.warn("CRSEnrollment: init: EBaseException: " + e.getMessage(), e);
         }
