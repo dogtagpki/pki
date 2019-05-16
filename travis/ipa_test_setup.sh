@@ -25,4 +25,4 @@ set -e
 dnf copr enable -y @freeipa/freeipa-${IPA_VERSION}
 
 # Install IPA
-dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad python2-ipatests --best --allowerasing
+dnf install -y freeipa-server freeipa-server-dns freeipa-server-trust-ad --best --allowerasing

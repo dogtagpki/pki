@@ -53,13 +53,13 @@ echo "Following IPA tests are scheduled to run: "
 echo ${cert_test_file_loc}
 
 # Run ipa-tests
-ipa-run-tests \
---ignore test_integration \
---ignore test_webui \
---ignore test_ipapython/test_keyring.py \
--k-test_dns_soa \
---verbose \
-${cert_test_file_loc}
+#ipa-run-tests \
+#--ignore test_integration \
+#--ignore test_webui \
+#--ignore test_ipapython/test_keyring.py \
+#-k-test_dns_soa \
+#--verbose \
+#${cert_test_file_loc}
 
 # Uninstall ipa-server
 ipa-server-install --uninstall -U
