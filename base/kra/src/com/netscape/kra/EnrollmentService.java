@@ -96,7 +96,6 @@ import com.netscape.cmscore.security.JssSubsystem;
 public class EnrollmentService implements IService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollmentService.class);
-    private static Logger transactionLogger = Logger.getLogger(ILogger.EV_AUDIT, ILogger.S_KRA);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     // constants

@@ -259,8 +259,6 @@ public class CertificateRepository extends Repository
         return nextSerialNumber;
     }
 
-    private Object nextSerialNumberMonitor = new Object();
-
     public synchronized BigInteger getNextSerialNumber()
             throws EBaseException {
 

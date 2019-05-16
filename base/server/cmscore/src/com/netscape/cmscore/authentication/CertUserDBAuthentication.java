@@ -30,11 +30,9 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ICertUserDBAuthentication;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
@@ -65,7 +63,6 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
     private IConfigStore mConfig = null;
 
     private ICertUserLocator mCULocator = null;
-    private Logger mLogger = Logger.getLogger();
 
     private boolean mRevocationCheckingEnabled = false;
     private IConfigStore mRevocationChecking = null;
@@ -247,12 +244,4 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
     public IConfigStore getConfigStore() {
         return mConfig;
     }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
-                level, msg);
-    }
-
 }

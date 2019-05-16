@@ -37,14 +37,12 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.LDAPExceptionConverter;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -93,8 +91,6 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
     protected String mBaseDN = null;
     protected static UGSubsystem mUG = null;
 
-    private transient Logger mLogger = null;
-
     // singleton enforcement
 
     private static UGSubsystem mInstance = new UGSubsystem();
@@ -139,8 +135,6 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         }
 
         super.init(owner, config);
-
-        mLogger = Logger.getLogger();
 
         // initialize LDAP connection factory
         try {
@@ -1979,13 +1973,6 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
     protected void returnConn(LDAPConnection conn) {
         if (mLdapConnFactory != null)
             mLdapConnFactory.returnConn(conn);
-    }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_USRGRP,
-                level, "UGSubsystem: " + msg);
     }
 
     public ICertUserLocator getCertUserLocator() {
