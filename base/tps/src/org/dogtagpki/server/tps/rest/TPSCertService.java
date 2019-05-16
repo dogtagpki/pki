@@ -116,7 +116,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
@@ -163,7 +163,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
         logger.debug("TPSCertService.getCert(\"" + certID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();

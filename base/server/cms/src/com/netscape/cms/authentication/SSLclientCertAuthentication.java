@@ -212,7 +212,7 @@ public class SSLclientCertAuthentication implements IAuthManager,
             // do nothing; default to true
         }
         if (checkRevocation) {
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
             if (engine.isRevoked(ci)) {
                 logger.error("SSLclientCertAuthentication: certificate revoked");
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));

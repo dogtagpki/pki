@@ -426,7 +426,7 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
 
                     if (location == null || location.equals("")) {
                         if (method.equals("1.3.6.1.5.5.7.48.1")) {
-                            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                            CMSEngine engine = CMS.getCMSEngine();
                             String hostname = engine.getEENonSSLHost();
                             String port = engine.getEENonSSLPort();
                             if (hostname != null && port != null)

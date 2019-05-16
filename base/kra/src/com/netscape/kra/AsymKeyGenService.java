@@ -72,7 +72,7 @@ public class AsymKeyGenService implements IService {
 
     @Override
     public boolean serviceRequest(IRequest request) throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
         String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
         String algorithm = request.getExtDataInString(IRequest.KEY_GEN_ALGORITHM);

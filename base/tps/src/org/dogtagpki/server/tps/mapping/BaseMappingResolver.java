@@ -23,7 +23,7 @@ public abstract class BaseMappingResolver {
         instanceName = instName;
         prefix = MappingResolverManager.MAPPING_RESOLVER_CFG +
                 "." + instanceName;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         configStore = engine.getConfigStore();
     }
 

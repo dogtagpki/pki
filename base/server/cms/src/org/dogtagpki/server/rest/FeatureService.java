@@ -23,7 +23,7 @@ public class FeatureService extends PKIService implements FeatureResource {
 
     @Override
     public Response listFeatures() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore().getSubStore("features");
         ArrayList<Feature> features = new ArrayList<Feature>();
         Enumeration<String> tags = cs.getSubStoreNames();
@@ -38,7 +38,7 @@ public class FeatureService extends PKIService implements FeatureResource {
 
     @Override
     public Response getFeature(String id) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore().getSubStore("features");
         Enumeration<String> tags = cs.getSubStoreNames();
         while(tags.hasMoreElements()) {

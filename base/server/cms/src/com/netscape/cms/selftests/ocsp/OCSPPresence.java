@@ -197,7 +197,7 @@ public class OCSPPresence
      */
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(mOcspSubId);
         if (ocsp == null) {
             // log that the OCSP is not installed

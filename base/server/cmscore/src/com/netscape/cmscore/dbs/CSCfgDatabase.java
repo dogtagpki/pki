@@ -38,7 +38,7 @@ import com.netscape.cmscore.apps.CMSEngine;
  */
 public class CSCfgDatabase<E extends CSCfgRecord> extends Database<E> {
 
-    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    CMSEngine engine = CMS.getCMSEngine();
     public IConfigStore configStore = engine.getConfigStore();
     public String substoreName;
 

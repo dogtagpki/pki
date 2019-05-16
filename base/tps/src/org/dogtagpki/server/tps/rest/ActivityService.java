@@ -104,7 +104,7 @@ public class ActivityService extends PKIService implements ActivityResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
@@ -197,7 +197,7 @@ public class ActivityService extends PKIService implements ActivityResource {
 
         logger.debug("ActivityService.getActivity(\"" + activityID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();

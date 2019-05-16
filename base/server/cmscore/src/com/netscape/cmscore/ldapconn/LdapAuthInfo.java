@@ -69,7 +69,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
         String pwd = null;
         logger.debug("LdapAuthInfo: getPasswordFromStore: try to get it from password store");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         // hey - should use password store interface to allow different implementations
         // but the problem is, other parts of the system just go directly to the file

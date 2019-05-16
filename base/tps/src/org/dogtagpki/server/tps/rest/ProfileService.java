@@ -96,7 +96,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
@@ -150,7 +150,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
         logger.debug("ProfileService.getProfile(\"" + profileID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
@@ -179,7 +179,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
         logger.debug("ProfileService.addProfile(\"" + profileData.getID() + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
@@ -238,7 +238,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
         logger.debug("ProfileService.updateProfile(\"" + profileID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
@@ -325,7 +325,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
         logger.debug("ProfileService.changeStatus(\"" + profileID + "\", \"" + action + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();
@@ -439,7 +439,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
         logger.debug("ProfileService.removeProfile(\"" + profileID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileDatabase database = subsystem.getProfileDatabase();

@@ -86,7 +86,7 @@ public class ReasonToRevoke extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         if (mAuthority instanceof ICertificateAuthority) {

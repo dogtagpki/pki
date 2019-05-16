@@ -412,7 +412,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
     }
 
     public AuthInfoAccessExtension createExtension() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         AuthInfoAccessExtension ext = null;
         int num = getNumAds();
 

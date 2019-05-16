@@ -78,7 +78,7 @@ public class ImportTransportCert extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = null;
         try {
             authToken = authenticate(cmsReq);

@@ -75,7 +75,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("KRARemoteRequestHandler: serverSideKeyGen(): input parameter null.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
@@ -253,7 +253,7 @@ public class KRARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("KRARemoteRequestHandler: recoverKey(): input parameter null.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         logger.debug("KRARemoteRequestHandler: getting conn id: " + connid);
         HttpConnector conn =

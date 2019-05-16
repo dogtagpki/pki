@@ -68,7 +68,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     }
 
     public void init() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             IConfigStore cs = engine.getConfigStore();
             keepAlive = cs.getBoolean("tcp.keepAlive", true);

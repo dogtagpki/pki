@@ -41,7 +41,7 @@ public class CertInfoProfile {
     private String mProfileSetIDMapping = null;
 
     public CertInfoProfile(String cfg) throws Exception {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.createFileConfigStore(cfg);
         mID = config.getString("id");
         mName = config.getString("name");

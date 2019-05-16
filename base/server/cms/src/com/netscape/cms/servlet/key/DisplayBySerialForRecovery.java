@@ -198,7 +198,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
             HttpServletRequest req, HttpServletResponse resp,
             Locale locale, IAuthToken authToken) throws EAuthzException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             header.addIntegerValue("noOfRequiredAgents",
                     mService.getNoOfRequiredAgents());

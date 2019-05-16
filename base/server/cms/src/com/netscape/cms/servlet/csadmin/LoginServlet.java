@@ -44,7 +44,7 @@ public class LoginServlet extends BaseServlet {
             HttpServletResponse response,
             Context context) {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         Template template = null;
 
         try {

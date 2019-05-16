@@ -86,7 +86,7 @@ public class UpdateNumberRange extends CMSServlet {
 
         logger.debug("UpdateNumberRange process: authentication starts");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
 
         if (authToken == null) {

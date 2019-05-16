@@ -179,7 +179,7 @@ public class DisplayCRL extends CMSServlet {
                          HttpServletResponse resp,
                          String crlIssuingPointId,
                          Locale locale) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ICRLIssuingPoint crlIP = null;
         X509CRLImpl crl = null;
         boolean clonedCA = false;

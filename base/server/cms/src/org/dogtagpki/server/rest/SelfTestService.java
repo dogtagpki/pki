@@ -94,7 +94,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
 
@@ -147,7 +147,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         logger.debug("SelfTestService.getSelfTest(\"" + selfTestID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
             return createOKResponse(createSelfTestData(subsystem, selfTestID));
@@ -169,7 +169,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
             throw new BadRequestException("Invalid action: " + action);
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
             subsystem.runSelfTestsOnDemand();
@@ -189,7 +189,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
 
         SelfTestResults results = new SelfTestResults();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
             for (String selfTestID : subsystem.listSelfTestsEnabledOnDemand()) {
@@ -214,7 +214,7 @@ public class SelfTestService extends PKIService implements SelfTestResource {
         SelfTestResult result = new SelfTestResult();
         result.setID(selfTestID);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             ISelfTestSubsystem subsystem = (ISelfTestSubsystem) engine.getSubsystem(ISelfTestSubsystem.ID);
             subsystem.runSelfTest(selfTestID);

@@ -42,7 +42,7 @@ public class OCSPApplication extends Application {
         classes.add(OCSPInstallerService.class);
 
         // security domain
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         try {
             boolean standalone = cs.getBoolean("ocsp.standalone", false);

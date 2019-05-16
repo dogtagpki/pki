@@ -73,7 +73,7 @@ public class CAApplication extends Application {
         classes.add(CAInfoService.class);
 
         // security domain
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         // check server state

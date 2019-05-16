@@ -111,7 +111,7 @@ public class CertificateIssuedListener implements IRequestListener {
 
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -276,7 +276,7 @@ public class CertificateIssuedListener implements IRequestListener {
     }
 
     private void mailIt(String mEmail, X509CertImpl issuedCert[]) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
@@ -353,7 +353,7 @@ public class CertificateIssuedListener implements IRequestListener {
 
         // now we can mail
         if ((mEmail != null) && !mEmail.equals("")) {
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
             IMailNotification mn = engine.getMailNotification();
 
             mn.setFrom(mSenderEmail);

@@ -79,7 +79,7 @@ public class GetConfigEntries extends CMSServlet {
     protected void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = null;
 
         try {
@@ -220,13 +220,13 @@ public class GetConfigEntries extends CMSServlet {
     }
 
     private String getLDAPPassword() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IPasswordStore pwdStore = engine.getPasswordStore();
         return pwdStore.getPassword("internaldb", 0);
     }
 
     private String getReplicationPassword() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IPasswordStore pwdStore = engine.getPasswordStore();
         return pwdStore.getPassword("replicationdb", 0);
     }

@@ -114,7 +114,7 @@ public class SymKeyGenService implements IService {
             throw new EBaseException("Bad data in SymKeyGenService.serviceRequest");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
         boolean allowEncDecrypt_archival = configStore.getBoolean("kra.allowEncDecrypt.archival", false);
 

@@ -100,7 +100,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("CARemoteRequestHandler: enrollCertificate(): input parameter null.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
         String profileId =
                 conf.getString(TPSEngine.OP_ENROLL_PREFIX + "." +
@@ -292,7 +292,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("CARemoteRequestHandler: retrieveCertificate(): input parameter null.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         //ToDo: I"m not sure why these are not used, let's check this out.
         //It's working though.
@@ -401,7 +401,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("CARemoteRequestHandler: renewCertificate(): input parameter null.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
 
         String profileId =
@@ -536,7 +536,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): input parameter null.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         // IConfigStore conf = CMS.getConfigStore();
 
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
@@ -624,7 +624,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("CARemoteRequestHandler: unrevokeCertificate(): input parameter null.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(unrevCAid);
@@ -715,7 +715,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
 
         logger.debug("CARemoteRequestHandler: revokeFromOtherCA: begins");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         List<String> caList =
                 subsystem.getConnectionManager().getCAList();
@@ -767,7 +767,7 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("CARemoteRequestHandler: getCaSki(): input parameter conn null.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
 
         /*

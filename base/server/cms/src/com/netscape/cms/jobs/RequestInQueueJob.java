@@ -118,7 +118,7 @@ public class RequestInQueueJob extends AJobBase
         mId = id;
         mImplName = implName;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         // read from the configuration file
         String sub = mConfig.getString(PROP_SUBSYSTEM_ID);

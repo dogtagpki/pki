@@ -61,7 +61,7 @@ public class OCSPInstallerService extends SystemConfigService {
         super.initializeDatabase(data);
 
         // Enable subsystems after database initialization.
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         SubsystemInfo si = engine.dynSubsystems.get(OCSPAuthority.ID);
         si.enabled = true;
@@ -79,7 +79,7 @@ public class OCSPInstallerService extends SystemConfigService {
             // import the CA certificate into the OCSP
             // configure the CRL Publishing to OCSP in CA
             if (!ca_host.equals("")) {
-                CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                CMSEngine engine = CMS.getCMSEngine();
                 engine.reinit(IOCSPAuthority.ID);
                 if (!request.isClone())
                     importCACert();
@@ -122,7 +122,7 @@ public class OCSPInstallerService extends SystemConfigService {
 
     public void importCACert() throws IOException, EBaseException, CertificateEncodingException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.getConfigStore();
 
         // get certificate chain from CA
@@ -163,7 +163,7 @@ public class OCSPInstallerService extends SystemConfigService {
 
     public void updateOCSPConfiguration() throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.getConfigStore();
 
         String caHost = config.getString("preop.ca.hostname", "");

@@ -234,7 +234,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mKRA = (IKeyRecoveryAuthority) owner;
         mConfig = config;
 
@@ -638,7 +638,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
     public boolean changeAgentPassword(String id, String oldpwd,
             String newpwd) throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         // locate the id(s)
         byte share[]=null;
@@ -899,7 +899,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
     public void checkPassword(String userid, String pwd) throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         for (int i = 0;; i++) {
             String uid = null;
@@ -998,7 +998,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
     private String constructPassword(Credential creds[])
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         // sort the credential according to the order in
         // configuration file

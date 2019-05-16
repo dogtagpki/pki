@@ -148,7 +148,7 @@ public class TPSValidity extends ASelfTest {
      */
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(tpsSubId);
         if (tps == null) {
             // log that the TPS is not installed

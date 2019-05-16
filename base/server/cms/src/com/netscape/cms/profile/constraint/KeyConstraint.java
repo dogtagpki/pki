@@ -72,7 +72,7 @@ public class KeyConstraint extends EnrollConstraint {
             throws EProfileException {
         super.init(profile, config);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String ecNames = "";
         try {
             ecNames = engine.getConfigStore().getString("keys.ecc.curve.list");

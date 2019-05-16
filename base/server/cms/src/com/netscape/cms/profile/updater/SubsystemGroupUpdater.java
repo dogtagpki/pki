@@ -109,7 +109,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     public void update(IRequest req, RequestStatus status)
             throws EProfileException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditSubjectID = auditSubjectID();
 
         logger.debug("SubsystemGroupUpdater update starts");

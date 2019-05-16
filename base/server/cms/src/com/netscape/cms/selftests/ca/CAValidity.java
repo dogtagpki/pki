@@ -196,7 +196,7 @@ public class CAValidity
      */
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(mCaSubId);
         if (ca == null) {
             // log that the CA is not installed

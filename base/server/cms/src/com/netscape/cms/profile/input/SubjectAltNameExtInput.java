@@ -72,7 +72,7 @@ public class SubjectAltNameExtInput extends EnrollInput implements IProfileInput
     public void init(IProfile profile, IConfigStore config)
         throws EProfileException {
         super.init(profile, config);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             mSANentryNum =
                 engine.getConfigStore().getInteger("ca.SAN.entryNum", DEF_REQ_ENTRIES);

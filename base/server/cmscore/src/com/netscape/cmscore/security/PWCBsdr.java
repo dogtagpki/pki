@@ -50,7 +50,7 @@ public class PWCBsdr implements PasswordCallback {
 
     public PWCBsdr(String prompt) {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         mprompt = prompt;
 

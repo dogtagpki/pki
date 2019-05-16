@@ -210,7 +210,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
      * Initializes this plugin.
      */
     public void init(IConfigStore config) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mConfig = config;
         String dir = null;
 

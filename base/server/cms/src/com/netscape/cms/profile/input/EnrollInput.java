@@ -201,7 +201,7 @@ public abstract class EnrollInput implements IProfileInput {
             return;
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             if (engine.getConfigStore().getBoolean("cms.skipPOPVerify", false)) {
                 logger.debug(method + "skipPOPVerify on, return");

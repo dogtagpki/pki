@@ -83,7 +83,7 @@ public class ProfileReviewServlet extends ProfileServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
 
         if (mAuthorityId != null)
@@ -110,7 +110,7 @@ public class ProfileReviewServlet extends ProfileServlet {
 
         logger.debug("ProfileReviewServlet: start serving");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         Locale locale = getLocale(request);
         ArgSet args = new ArgSet();
         IAuthToken authToken = null;

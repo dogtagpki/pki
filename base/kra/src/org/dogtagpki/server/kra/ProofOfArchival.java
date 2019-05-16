@@ -308,7 +308,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     public void encodeAndSign(PrivateKey key, String algorithm,
             String provider, DerOutputStream out)
             throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             Signature sigEngine = null;
 

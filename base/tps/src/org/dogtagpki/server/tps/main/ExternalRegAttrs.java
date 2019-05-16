@@ -28,7 +28,7 @@ public class ExternalRegAttrs {
 
     public ExternalRegAttrs(String authId) {
         String method = "ExternalRegAttrs";
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
         String configName = null;
 

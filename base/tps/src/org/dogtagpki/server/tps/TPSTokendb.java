@@ -560,7 +560,7 @@ public class TPSTokendb {
 
         logger.debug(method + "begins: tokenReason=" + tokenReason);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
 
             IConfigStore configStore = engine.getConfigStore();
@@ -626,7 +626,7 @@ public class TPSTokendb {
         String method = "TPSTokendb.unrevokeCert";
         String logMsg;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             IConfigStore configStore = engine.getConfigStore();
 
@@ -681,7 +681,7 @@ public class TPSTokendb {
 
         String method = "TPSTokendb.checkShouldRevoke:";
         String msg = "";
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
 
         if (cert == null) {

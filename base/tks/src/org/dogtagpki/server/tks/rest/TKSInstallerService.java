@@ -42,7 +42,7 @@ public class TKSInstallerService extends SystemConfigService {
         super.initializeDatabase(data);
 
         // Enable subsystems after database initialization.
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         SubsystemInfo si = engine.dynSubsystems.get(TKSAuthority.ID);
         si.enabled = true;

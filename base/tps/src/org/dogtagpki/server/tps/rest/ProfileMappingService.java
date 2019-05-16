@@ -98,7 +98,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
@@ -149,7 +149,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
 
         logger.debug("ProfileMappingService.getProfileMapping(\"" + profileMappingID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
@@ -172,7 +172,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
 
         logger.debug("ProfileMappingService.addProfileMapping(\"" + profileMappingData.getID() + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
@@ -212,7 +212,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
 
         logger.debug("ProfileMappingService.updateProfileMapping(\"" + profileMappingID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
@@ -300,7 +300,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
 
         logger.debug("ProfileMappingService.changeStatus(\"" + profileMappingID + "\", \"" + action + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
@@ -418,7 +418,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
 
         logger.debug("ProfileMappingService.removeProfileMapping(\"" + profileMappingID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();

@@ -59,7 +59,7 @@ public class TPSTokenPolicy {
     }
 
     public String getDefaultPolicySetString() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
         String configName = "tokendb.defaultPolicy";
         String policySetString;

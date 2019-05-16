@@ -51,7 +51,7 @@ public class ConnectionManager
     public ConnectionManager() {
         // initialize the ca list for revocation routing:
         //    tps.connCAList=ca1,ca2...ca<n>
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         IConfigStore conf = subsystem.getConfigStore();
         String caListString;
@@ -99,7 +99,7 @@ public class ConnectionManager
 
         logger.debug("ConnectionManager: initConnectors(): begins.");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         IConfigStore conf = subsystem.getConfigStore();
         IConfigStore connectorSubstore = conf.getSubStore("connector");

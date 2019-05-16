@@ -124,7 +124,7 @@ public class TokenAuthentication implements IAuthManager,
 
         logger.debug("TokenAuthentication: start");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         // force SSL handshake
         SessionContext context = SessionContext.getExistingContext();

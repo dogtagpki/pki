@@ -215,7 +215,7 @@ public class SecureChannelProtocol {
 
         logger.debug(method + " entering. nickname: " + keyNickName + " selectedToken: " + selectedToken);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         CryptoManager cm = null;
         CryptoToken token = null;
         CryptoToken internalToken = null;
@@ -864,7 +864,7 @@ public class SecureChannelProtocol {
             throw new EBaseException(method + " Invalid key size!");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         KeyGenerator kg;
         SymmetricKey finalAESKey;
         try {

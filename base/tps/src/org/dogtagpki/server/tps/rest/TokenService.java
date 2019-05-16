@@ -71,7 +71,7 @@ public class TokenService extends SubsystemService implements TokenResource {
             Map<String, String> auditModParams)
                     throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         TokenStatus oldStatus = tokenRecord.getTokenStatus();
@@ -159,7 +159,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
     public TokenData createTokenData(TokenRecord tokenRecord) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         ResourceBundle labels = getResourceBundle("token-states");
@@ -251,7 +251,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
@@ -359,7 +359,7 @@ public class TokenService extends SubsystemService implements TokenResource {
 
         logger.debug("TokenService.getToken(\"" + tokenID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             TokenDatabase database = subsystem.getTokenDatabase();
@@ -402,7 +402,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         String msg = "add token";
@@ -489,7 +489,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         String msg = "replace token";
@@ -571,7 +571,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         String msg = "modify token";
@@ -664,7 +664,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         // for auditing
         TokenStatus oldStatus = null;
@@ -767,7 +767,7 @@ public class TokenService extends SubsystemService implements TokenResource {
         String remoteUser = servletRequest.getRemoteUser();
         String ipAddress = servletRequest.getRemoteAddr();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TokenRecord tokenRecord = null;
         String msg = "remove token";

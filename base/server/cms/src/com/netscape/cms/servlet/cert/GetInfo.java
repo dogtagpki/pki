@@ -190,7 +190,7 @@ public class GetInfo extends CMSServlet {
             HttpServletResponse resp,
             Locale locale)
             throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (mCA != null) {
             String crlIssuingPoints = "";
             String crlNumbers = "";

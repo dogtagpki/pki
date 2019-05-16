@@ -96,7 +96,7 @@ public class ProfileApproveServlet extends ProfileServlet {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditProfileID = auditProfileID(request);
@@ -501,7 +501,7 @@ public class ProfileApproveServlet extends ProfileServlet {
             mProfileSubId = IProfileSubsystem.ID;
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {

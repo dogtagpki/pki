@@ -679,7 +679,7 @@ public abstract class ARequestQueue
      * New non-blocking recover method.
      */
     public void recover() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (engine.isRunningMode()) {
             RecoverThread t = new RecoverThread(this);
 

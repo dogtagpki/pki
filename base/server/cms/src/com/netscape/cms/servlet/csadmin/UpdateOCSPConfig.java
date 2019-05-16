@@ -73,7 +73,7 @@ public class UpdateOCSPConfig extends CMSServlet {
 
         logger.debug("UpdateOCSPConfig process: authentication starts");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
         if (authToken == null) {
             logger.warn("UpdateOCSPConfig process: authToken is null");

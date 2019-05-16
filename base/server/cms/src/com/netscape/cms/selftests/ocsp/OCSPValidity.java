@@ -198,7 +198,7 @@ public class OCSPValidity
     public void runSelfTest(ILogEventListener logger) throws Exception {
         String logMessage = null;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(mOcspSubId);
         if (ocsp == null) {
             // log that the OCSP is not installed

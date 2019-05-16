@@ -95,7 +95,7 @@ public class RequestInQListener implements IRequestListener {
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -145,7 +145,7 @@ public class RequestInQListener implements IRequestListener {
 
         // regardless of type of request...notify for everything
         // no need for email resolver here...
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);

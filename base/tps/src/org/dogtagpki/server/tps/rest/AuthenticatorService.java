@@ -98,7 +98,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
@@ -152,7 +152,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.getAuthenticator(\"" + authenticatorID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
@@ -181,7 +181,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.addAuthenticator(\"" + authenticatorData.getID() + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
@@ -239,7 +239,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.updateAuthenticator(\"" + authenticatorID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
@@ -328,7 +328,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.changeStatus(\"" + authenticatorID + "\", \"" + action + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
@@ -441,7 +441,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
 
         logger.debug("AuthenticatorService.removeAuthenticator(\"" + authenticatorID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();

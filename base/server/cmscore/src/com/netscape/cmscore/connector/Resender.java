@@ -127,7 +127,7 @@ public class Resender implements IResender {
     }
 
     public void run() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (! engine.isInRunningState())
             return;
 

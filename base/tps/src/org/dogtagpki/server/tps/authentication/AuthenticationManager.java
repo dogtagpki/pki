@@ -79,7 +79,7 @@ public class AuthenticationManager
      */
     public void initAuthInstances() throws EBaseException {
         logger.debug("AuthenticationManager: initAuthInstances(): begins.");
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
         IConfigStore authInstSubstore = conf.getSubStore("auths.instance");
         Enumeration<String> auth_enu = authInstSubstore.getSubStoreNames();

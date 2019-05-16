@@ -48,7 +48,7 @@ public class ReplicationUtil {
 
         logger.info("ReplicationUtil: setting up replication");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         IConfigStore masterCfg = cs.getSubStore("preop.internaldb.master");
         IConfigStore replicaCfg = cs.getSubStore("internaldb");

@@ -250,7 +250,7 @@ public class RequestRecord
             // where CMC puts it
             reqType = r.getExtDataInString("auth_token.cert_request_type");
         }
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         Enumeration<String> e = r.getExtDataKeys();
         while (e.hasMoreElements()) {
             String key = e.nextElement();

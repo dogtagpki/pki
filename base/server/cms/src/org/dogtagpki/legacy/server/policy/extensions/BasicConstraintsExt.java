@@ -123,7 +123,7 @@ public class BasicConstraintsExt extends APolicyRule
             mCAPathLen = -1;
         } else {
             CertificateChain caChain = certAuthority.getCACertChain();
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
             if (caChain == null || engine.isPreOpMode()) {
                 logger.warn("BasicConstraintsExt.init(): Abort due to missing CA certificate chain or in pre-op-mode");
                 return;

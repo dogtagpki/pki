@@ -55,7 +55,7 @@ public class KRAInstallerService extends SystemConfigService {
         super.initializeDatabase(data);
 
         // Enable subsystems after database initialization.
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         SubsystemInfo si = engine.dynSubsystems.get(KeyRecoveryAuthority.ID);
         si.enabled = true;
@@ -96,7 +96,7 @@ public class KRAInstallerService extends SystemConfigService {
 
     public void configureKRAConnector() throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         String url = cs.getString("preop.ca.url", "");

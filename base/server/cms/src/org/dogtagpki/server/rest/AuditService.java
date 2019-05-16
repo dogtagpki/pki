@@ -76,7 +76,7 @@ public class AuditService extends SubsystemService implements AuditResource {
     public AuditConfig createAuditConfig(Map<String, String> auditParams)
             throws UnsupportedEncodingException, EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         AuditConfig auditConfig = new AuditConfig();
@@ -167,7 +167,7 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         logger.debug("AuditService.updateAuditConfig()");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             AuditConfig currentAuditConfig = createAuditConfig();
             Map<String, String> currentEventConfigs = currentAuditConfig.getEventConfigs();
@@ -275,7 +275,7 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         logger.debug("AuditService.changeAuditStatus()");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             auditModParams.put("Action", action);
             IConfigStore cs = engine.getConfigStore();
@@ -316,7 +316,7 @@ public class AuditService extends SubsystemService implements AuditResource {
     }
 
     public File getCurrentLogFile() {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String filename = cs.get("log.instance.SignedAudit.fileName");
         return new File(filename);

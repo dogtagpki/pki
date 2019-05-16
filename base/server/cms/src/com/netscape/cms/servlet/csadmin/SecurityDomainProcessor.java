@@ -78,7 +78,7 @@ public class SecurityDomainProcessor extends CAProcessor {
 
     public SecurityDomainProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
         super("securitydomain", locale);
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         random = jssSubsystem.getRandomNumberGenerator();
     }
@@ -93,7 +93,7 @@ public class SecurityDomainProcessor extends CAProcessor {
             String subsystem) throws Exception {
 
         subsystem = subsystem.toUpperCase();
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IUGSubsystem ugSubsystem = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
 
         String group = getEnterpriseGroupName(subsystem);
@@ -156,7 +156,7 @@ public class SecurityDomainProcessor extends CAProcessor {
 
     public DomainInfo getDomainInfo() throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ILdapConnFactory connFactory = null;
         LDAPConnection conn = null;
 

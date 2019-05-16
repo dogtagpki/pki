@@ -79,7 +79,7 @@ public class GetTokenInfo extends CMSServlet {
 
         Node root = xmlObj.createRoot("XMLResponse");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.getConfigStore();
 
         String certlist = "";

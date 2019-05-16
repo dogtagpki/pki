@@ -941,7 +941,7 @@ public class CertUtils {
 
         logger.debug("CertUtils: verifySystemCertByTag(" + tag + ")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditMessage = null;
         IConfigStore config = engine.getConfigStore();
 
@@ -1050,7 +1050,7 @@ public class CertUtils {
      */
     public static void verifySystemCerts(boolean checkValidityOnly) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditMessage = null;
         IConfigStore config = engine.getConfigStore();
 

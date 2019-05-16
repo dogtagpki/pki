@@ -85,7 +85,7 @@ public class UpdateDomainXML extends CMSServlet {
         String status = SUCCESS;
         ILdapConnFactory connFactory = null;
         LDAPConnection conn = null;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         try {
@@ -120,7 +120,7 @@ public class UpdateDomainXML extends CMSServlet {
         String status = SUCCESS;
         ILdapConnFactory connFactory = null;
         LDAPConnection conn = null;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         try {
@@ -156,7 +156,7 @@ public class UpdateDomainXML extends CMSServlet {
         String status = SUCCESS;
         ILdapConnFactory connFactory = null;
         LDAPConnection conn = null;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         try {
@@ -213,7 +213,7 @@ public class UpdateDomainXML extends CMSServlet {
 
         logger.debug("UpdateDomainXML process: authentication starts");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = null;
         try {
             authToken = authenticate(cmsReq);

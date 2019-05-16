@@ -85,7 +85,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             mLogger = Logger.getLogger();
             mConfig = config;

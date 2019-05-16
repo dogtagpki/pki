@@ -235,7 +235,7 @@ public class KeyCertUtil {
     public static X509CertImpl signCert(PrivateKey privateKey, X509CertInfo certInfo,
             SignatureAlgorithm sigAlg)
             throws NoSuchTokenException, EBaseException, NotInitializedException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try (DerOutputStream out = new DerOutputStream()) {
             CertificateAlgorithmId sId = (CertificateAlgorithmId)
                     certInfo.get(X509CertInfo.ALGORITHM_ID);
@@ -986,7 +986,7 @@ public class KeyCertUtil {
         String aia = properties.getAIA();
 
         if ((aia != null) && (aia.equals(Constants.TRUE))) {
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
             String hostname = engine.getEENonSSLHost();
             String port = engine.getEENonSSLPort();
             AuthInfoAccessExtension aiaExt = new AuthInfoAccessExtension(false);

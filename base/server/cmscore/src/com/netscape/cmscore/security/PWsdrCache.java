@@ -69,7 +69,7 @@ public class PWsdrCache {
 
     // for CMSEngine
     public PWsdrCache() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mLogger = Logger.getLogger();
         try {
             mPWcachedb = engine.getConfigStore().getString("pwCache");
@@ -83,7 +83,7 @@ public class PWsdrCache {
     }
 
     private void initToken() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (mToken == null) {
             try {
                 mTokenName = engine.getConfigStore().getString(PROP_PWC_TOKEN_NAME);
@@ -98,7 +98,7 @@ public class PWsdrCache {
 
     // called from PWCBsdr or CMSEngine only
     private void initKey() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (mKeyID == null) {
             try {
                 String keyID = engine.getConfigStore().getString(PROP_PWC_KEY_ID);

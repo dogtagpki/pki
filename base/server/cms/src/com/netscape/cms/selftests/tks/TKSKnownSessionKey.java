@@ -98,7 +98,7 @@ public class TKSKnownSessionKey
 
         super.initSelfTest(subsystem, instanceName, parameters);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mTksSubId = getConfigString(PROP_TKS_SUB_ID);
         mToken = getConfigString("token");
         mKeyName = getConfigString("keyName");
@@ -329,7 +329,7 @@ public class TKSKnownSessionKey
      */
     public void runSelfTest(ILogEventListener listener) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             IConfigStore cs = engine.getConfigStore();
             boolean useNewNames = cs.getBoolean("tks.useNewSharedSecretNames", false);

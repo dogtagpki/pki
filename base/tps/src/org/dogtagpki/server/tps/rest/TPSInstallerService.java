@@ -54,7 +54,7 @@ public class TPSInstallerService extends SystemConfigService  {
         super.initializeDatabase(data);
 
         // Enable subsystems after database initialization.
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         SubsystemInfo si = engine.dynSubsystems.get(SelfTestSubsystem.ID);
         si.enabled = true;

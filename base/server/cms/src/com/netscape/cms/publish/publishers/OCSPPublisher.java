@@ -148,7 +148,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.getConfigStore();
         String nickname = "";
         // get subsystem cert nickname as default for client auth

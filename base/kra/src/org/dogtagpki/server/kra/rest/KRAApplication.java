@@ -43,7 +43,7 @@ public class KRAApplication extends Application {
         classes.add(KRAInstallerService.class);
 
         // security domain
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         try {
             boolean standalone = cs.getBoolean("kra.standalone", false);

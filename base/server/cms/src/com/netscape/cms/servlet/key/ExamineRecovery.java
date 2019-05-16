@@ -203,7 +203,7 @@ public class ExamineRecovery extends CMSServlet {
             Locale locale)
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             header.addStringValue(OUT_OP,
                     req.getParameter(OUT_OP));

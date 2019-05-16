@@ -328,7 +328,7 @@ public class SecureChannel {
                     TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore configStore = engine.getConfigStore();
 
         final String keyCapabilities = "keyCapabilities";

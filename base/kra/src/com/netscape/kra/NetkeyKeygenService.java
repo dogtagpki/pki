@@ -154,7 +154,7 @@ public class NetkeyKeygenService implements IService {
     public boolean serviceRequest(IRequest request)
             throws EBaseException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         String auditSubjectID = null;
         byte[] wrapped_des_key;
 

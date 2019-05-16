@@ -45,7 +45,7 @@ public class ConfigDatabase extends Database<ConfigRecord> {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigDatabase.class);
 
-    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    CMSEngine engine = CMS.getCMSEngine();
     IConfigStore configStore = engine.getConfigStore();
 
     public ConfigDatabase() throws EBaseException {

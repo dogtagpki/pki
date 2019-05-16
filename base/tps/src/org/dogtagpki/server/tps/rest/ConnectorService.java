@@ -96,7 +96,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
@@ -150,7 +150,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.getConnector(\"" + connectorID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
@@ -179,7 +179,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.addConnector(\"" + connectorData.getID() + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
@@ -236,7 +236,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.updateConnector(\"" + connectorID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
@@ -322,7 +322,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.changeStatus(\"" + connectorID + "\", \"" + action + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();
@@ -438,7 +438,7 @@ public class ConnectorService extends SubsystemService implements ConnectorResou
 
         logger.debug("ConnectorService.removeConnector(\"" + connectorID + "\")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ConnectorDatabase database = subsystem.getConnectorDatabase();

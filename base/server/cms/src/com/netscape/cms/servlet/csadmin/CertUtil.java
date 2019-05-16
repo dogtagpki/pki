@@ -358,7 +358,7 @@ public class CertUtil {
             return;
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         IRequestQueue queue = ca.getRequestQueue();
 
@@ -482,7 +482,7 @@ public class CertUtil {
             keyAlgorithm = config.getString(prefix + certTag + ".keyalgorithm");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICertificateRepository cr = ca.getCertificateRepository();
 
@@ -613,7 +613,7 @@ public class CertUtil {
                 cert.getSerialNumber() + ", " +
                 cert.getSubjectDN() + ")");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICertificateRepository cr = ca.getCertificateRepository();
 
@@ -626,7 +626,7 @@ public class CertUtil {
     }
 
     public static void addUserCertificate(X509CertImpl cert) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         int num = 0;
         try {
@@ -730,7 +730,7 @@ public class CertUtil {
 
     public static boolean privateKeyExistsOnToken(String certTag,
             String tokenname, String nickname) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String givenid = "";
         try {

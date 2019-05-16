@@ -193,7 +193,7 @@ public class KRAPresence
      */
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(mSubId);
         if (kra == null) {
             // log that the KRA is not installed

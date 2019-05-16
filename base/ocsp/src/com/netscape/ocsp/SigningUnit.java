@@ -230,7 +230,7 @@ public final class SigningUnit implements ISigningUnit {
      */
     public byte[] sign(byte[] data, String algname)
             throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (!mInited) {
             throw new EBaseException("OCSPSigningUnit not initialized!");
         }
@@ -271,7 +271,7 @@ public final class SigningUnit implements ISigningUnit {
 
     public boolean verify(byte[] data, byte[] signature, String algname)
             throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (!mInited) {
             throw new EBaseException("OCSPSigningUnit not initialized!");
         }

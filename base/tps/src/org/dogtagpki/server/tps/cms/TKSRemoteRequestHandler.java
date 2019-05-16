@@ -113,7 +113,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKey(): input parameter null.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
 
         boolean serverKeygen = false;
@@ -265,7 +265,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException(method +  " invalid input!");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
 
         boolean serverKeygen =
@@ -437,7 +437,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: computeSessionKeySCP02(): input parameter null.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
 
         boolean serverKeygen =
@@ -566,7 +566,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: createKeySetData(): input parameter null.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
         if (keySet == null)
             keySet = conf.getString("tps.connector." + connid + ".keySet", "defKeySet");
@@ -661,7 +661,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
 
         logger.debug("TKSRemoteRequestHandler: computeRandomData(): sending request to tks.");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         HttpConnector conn =
                 (HttpConnector) subsystem.getConnectionManager().getConnector(connid);
@@ -738,7 +738,7 @@ public class TKSRemoteRequestHandler extends RemoteRequestHandler
             throw new EBaseException("TKSRemoteRequestHandler: encryptData(): input parameter null.");
         }
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore conf = engine.getConfigStore();
 
         if (keySet == null)

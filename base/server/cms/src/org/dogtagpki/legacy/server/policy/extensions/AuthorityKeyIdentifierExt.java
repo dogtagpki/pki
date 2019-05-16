@@ -165,7 +165,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
         //CertificateChain caChain = certAuthority.getCACertChain();
         //X509Certificate caCert = caChain.getFirstCertificate();
         X509CertImpl caCert = certAuthority.getCACert();
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (caCert == null || engine.isPreOpMode()) {
             logger.warn("AuthorityKeyIdentifierExt.init(): Abort due to missing CA certificate or in pre-op-mode");
             return;

@@ -106,7 +106,7 @@ public class SecurityDataProcessor {
         logger.debug("SecurityDataProcessor.archive. Request id: " + requestId);
         logger.debug("SecurityDataProcessor.archive wrappedSecurityData: " + wrappedSecurityData);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = null;
 
         try {
@@ -377,7 +377,7 @@ public class SecurityDataProcessor {
 
         logger.debug("SecurityDataService.recover(): start");
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = null;
 
         try {
@@ -735,7 +735,7 @@ public class SecurityDataProcessor {
         int numBytes = alg.getIVLength();
         byte[] bytes = new byte[numBytes];
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         SecureRandom random = jssSubsystem.getRandomNumberGenerator();
         random.nextBytes(bytes);
@@ -770,7 +770,7 @@ public class SecurityDataProcessor {
         int numBytes = alg.getBlockSize();
         byte[] bytes = new byte[numBytes];
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         SecureRandom random = jssSubsystem.getRandomNumberGenerator();
         random.nextBytes(bytes);

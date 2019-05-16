@@ -39,7 +39,7 @@ public class TPSAccountService extends AccountService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSAccountService.class);
 
-    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+    CMSEngine engine = CMS.getCMSEngine();
     IConfigStore configStore = engine.getConfigStore();
 
     @Override

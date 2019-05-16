@@ -85,7 +85,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         mImplName = implName;
         mConfig = config;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         /* internal database directory used */
         DBSubsystem dbs = (DBSubsystem) DBSubsystem.getInstance();
         LdapConnInfo ldapinfo = dbs.getLdapConnInfo();

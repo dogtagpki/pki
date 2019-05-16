@@ -133,7 +133,7 @@ public class CMSAuthInfoAccessExtension
                     }
                 } else {
                     accessLocationType = PROP_URINAME;
-                    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                    CMSEngine engine = CMS.getCMSEngine();
                     String hostname = engine.getEENonSSLHost();
                     String port = engine.getEENonSSLPort();
                     if (hostname != null && port != null) {
@@ -208,7 +208,7 @@ public class CMSAuthInfoAccessExtension
             if (accessLocation != null && accessLocation.length() > 0) {
                 nvp.put(PROP_ACCESS_LOCATION + i, accessLocation);
             } else {
-                CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                CMSEngine engine = CMS.getCMSEngine();
                 String hostname = engine.getEENonSSLHost();
                 String port = engine.getEENonSSLPort();
                 if (hostname != null && port != null) {

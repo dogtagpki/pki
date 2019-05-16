@@ -86,7 +86,7 @@ public class ProfileSelectServlet extends ProfileServlet {
 
         Locale locale = getLocale(request);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = null;
         ArgSet args = new ArgSet();
 

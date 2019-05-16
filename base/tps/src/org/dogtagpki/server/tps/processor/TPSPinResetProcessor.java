@@ -68,7 +68,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
         logger.debug(method + ": entering...");
 
         String logMsg = null;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         AppletInfo appletInfo = null;

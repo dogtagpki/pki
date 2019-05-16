@@ -111,7 +111,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         this.owner = owner;
         this.config = config;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
         IConfigStore cs = engine.getConfigStore();
 
@@ -373,7 +373,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public org.mozilla.jss.crypto.X509Certificate getSubsystemCert() throws EBaseException, NotInitializedException,
             ObjectNotFoundException, TokenException {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String nickname = cs.getString("tps.subsystem.nickname", "");
         String tokenname = cs.getString("tps.subsystem.tokenname", "");

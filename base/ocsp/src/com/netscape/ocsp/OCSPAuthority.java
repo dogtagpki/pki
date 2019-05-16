@@ -330,7 +330,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * Notifies this subsystem if owner is in running mode.
      */
     public void startup() throws EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             if (mDefStore != null)
                 mDefStore.startup();

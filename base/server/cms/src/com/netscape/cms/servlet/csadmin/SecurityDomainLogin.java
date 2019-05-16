@@ -48,7 +48,7 @@ public class SecurityDomainLogin extends BaseServlet {
             HttpServletResponse response,
             Context context) {
         Template template = null;
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         try {
             String url = request.getParameter("url");

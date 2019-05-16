@@ -106,7 +106,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
         }
         mCA = (ICertificateAuthority) certAuthority;
         ISigningUnit su = mCA.getSigningUnit();
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (su == null || engine.isPreOpMode()) {
             logger.warn("SubCANameConstraints.init(): Abort due to missing signing unit or in pre-op mode");
             return;

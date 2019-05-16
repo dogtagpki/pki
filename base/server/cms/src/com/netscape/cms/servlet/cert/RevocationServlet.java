@@ -110,7 +110,7 @@ public class RevocationServlet extends CMSServlet {
             if (mFormPath == null)
                 mFormPath = "/" + TPL_FILE;
 
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
 
             if (mAuthority instanceof ICertificateAuthority) {
                 if (((ICertificateAuthority) mAuthority).noncesEnabled()) {

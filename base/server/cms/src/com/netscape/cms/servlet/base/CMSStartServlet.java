@@ -190,7 +190,7 @@ public class CMSStartServlet extends HttpServlet {
      */
     public void destroy() {
         logger.debug("CMSStartServlet.destroy(): shutdown server");
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         engine.shutdown();
     }
 }

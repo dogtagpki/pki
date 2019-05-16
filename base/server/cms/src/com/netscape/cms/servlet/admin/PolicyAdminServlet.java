@@ -127,7 +127,7 @@ public class PolicyAdminServlet extends AdminServlet {
         //            ====================================================
         //            krapolicy              kra/krapolicy
         //
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         if (authority != null)
             mAuthority = (IAuthority) engine.getSubsystem(authority);
         if (mAuthority != null)
@@ -843,7 +843,7 @@ public class PolicyAdminServlet extends AdminServlet {
         String user = combo.substring(0, semicolon);
         String pw = combo.substring(semicolon + 1);
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         engine.putPasswordCache(user, pw);
     }
 

@@ -80,7 +80,7 @@ public class PluginRegistry implements IPluginRegistry {
         mConfig = config;
         mOwner = owner;
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         mFileConfig = engine.createFileConfigStore(
                     mConfig.getString(PROP_FILE));
 

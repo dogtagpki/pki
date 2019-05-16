@@ -126,7 +126,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
     }
 
     private static void queryKRAInfo(KRAConnectorInfo connInfo) {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             KRAInfo kraInfo = getKRAInfoClient(connInfo).getInfo();
 
@@ -174,7 +174,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
      */
     private static KRAInfoClient getKRAInfoClient(KRAConnectorInfo connInfo)
             throws MalformedURLException, URISyntaxException, EBaseException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         ClientConfig config = new ClientConfig();
         int port = Integer.parseInt(connInfo.getPort());
         config.setServerURL("https", connInfo.getHost(), port);

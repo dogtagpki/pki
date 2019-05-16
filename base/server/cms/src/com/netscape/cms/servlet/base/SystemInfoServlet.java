@@ -143,7 +143,7 @@ public class SystemInfoServlet extends HttpServlet {
     private void general(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         response.getWriter().println("<HTML>");
         response.getWriter().println("<H1>");
         response.getWriter().println("<a href=" + request.getServletPath() + ">");
