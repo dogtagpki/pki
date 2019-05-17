@@ -2913,7 +2913,6 @@ public class CryptoUtil {
             pk = wrapper.unwrapPrivate(wrappedData,
                     keyType, pubKey);
         }
-System.out.println("CryptoUtil: unwrap: unwrap succeeded!");
         return pk;
     }
 
