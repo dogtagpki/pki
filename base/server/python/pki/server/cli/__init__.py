@@ -64,6 +64,7 @@ class PKIServerCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.StartCLI())
         self.add_module(pki.server.cli.StopCLI())
         self.add_module(pki.server.cli.RestartCLI())
+        self.add_module(pki.server.cli.RunCLI())
 
         self.add_module(pki.server.cli.http.HTTPCLI())
         self.add_module(pki.server.cli.listener.ListenerCLI())
@@ -482,3 +483,70 @@ class RestartCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance.restart()
+
+
+class RunCLI(pki.cli.CLI):
+
+    def __init__(self):
+        super(RunCLI, self).__init__('run', 'Run PKI server in foreground')
+
+    def print_help(self):
+        print('Usage: pki-server run [OPTIONS] [<instance ID>]')
+        print()
+        print('      --as-current-user         Run as current user.')
+        print('      --jdb                     Run with Java Debugger.')
+        print('  -v, --verbose                 Run in verbose mode.')
+        print('      --debug                   Run in debug mode.')
+        print('      --help                    Show help message.')
+        print()
+
+    def execute(self, argv):
+
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'v', [
+                'as-current-user', 'jdb',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: %s' % e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        as_current_user = False
+        jdb = False
+
+        for o, _ in opts:
+            if o == '--as-current-user':
+                as_current_user = True
+
+            elif o == '--jdb':
+                jdb = True
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                print('ERROR: Unknown option: %s' % o)
+                self.print_help()
+                sys.exit(1)
+
+        if len(args) > 0:
+            instance_name = args[0]
+
+        instance = pki.server.PKIServerFactory.create(instance_name)
+
+        if not instance.is_valid():
+            print('ERROR: Invalid instance: %s' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        instance.run(jdb=jdb, as_current_user=as_current_user)

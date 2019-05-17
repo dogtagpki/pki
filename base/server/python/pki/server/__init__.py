@@ -247,6 +247,56 @@ class PKIServer(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
+    def run(self, jdb=False, as_current_user=False):
+
+        java_home = self.config['JAVA_HOME']
+        java_opts = self.config['JAVA_OPTS']
+
+        classpath = [
+            Tomcat.SHARE_DIR + '/bin/bootstrap.jar',
+            Tomcat.SHARE_DIR + '/bin/tomcat-juli.jar',
+            '/usr/lib/java/commons-daemon.jar'
+        ]
+
+        cmd = []
+
+        # by default run PKI server as systemd user
+        if not as_current_user:
+
+            current_user = pwd.getpwuid(os.getuid()).pw_name
+
+            # switch to systemd user if different from current user
+            if current_user != self.user:
+                cmd.extend(['sudo', '-u', self.user])
+
+        if jdb:
+            cmd.extend(['jdb'])
+        else:
+            cmd.extend([java_home + '/bin/java'])
+
+        cmd.extend([
+            '-classpath', os.pathsep.join(classpath),
+            '-Dcatalina.base=' + self.base_dir,
+            '-Dcatalina.home=' + Tomcat.SHARE_DIR,
+            '-Djava.endorsed.dirs=',
+            '-Djava.io.tmpdir=' + self.temp_dir,
+            '-Djava.util.logging.config.file=' + self.logging_properties,
+            '-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager'
+        ])
+
+        if java_opts:
+            cmd.extend(java_opts.split())
+
+        cmd.extend(['org.apache.catalina.startup.Bootstrap', 'start'])
+
+        logger.debug('Command: %s', ' '.join(cmd))
+
+        try:
+            subprocess.check_call(cmd)
+
+        except KeyboardInterrupt:
+            logger.debug('Server stopped')
+
     def makedirs(self, path, force=False):
         pki.util.makedirs(
             path, uid=self.uid, gid=self.gid, force=force)
