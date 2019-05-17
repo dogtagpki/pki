@@ -266,8 +266,6 @@ class PKIConfigParser:
     def init_config(self):
         self.deployer.nss_db_type = self.get_nss_db_type()
         java_home = self._getenv('JAVA_HOME').strip()
-        resteasy_lib = self._getenv('RESTEASY_LIB').strip()
-        jni_jar_dir = self._getenv('JNI_JAR_DIR').strip()
 
         default_instance_name = 'pki-tomcat'
         default_http_port = '8080'
@@ -286,8 +284,6 @@ class PKIConfigParser:
             'pki_subsystem_type': self.deployer.subsystem_name.lower(),
             'nss_default_db_type': self.deployer.nss_db_type,
             'java_home': java_home,
-            'resteasy_lib': resteasy_lib,
-            'jni_jar_dir': jni_jar_dir,
             'home_dir': os.path.expanduser("~"),
             'pki_hostname': self.deployer.hostname})
 
@@ -946,8 +942,6 @@ class PKIConfigParser:
                     "<!--"
             self.mdict['PKI_TMPDIR_SLOT'] = \
                 self.mdict['pki_tomcat_tmpdir_path']
-            self.mdict['PKI_RESTEASY_LIB_SLOT'] = \
-                self.mdict['resteasy_lib']
             self.mdict['PKI_RANDOM_NUMBER_SLOT'] = \
                 self.mdict['pki_one_time_pin']
             self.mdict['PKI_SECURE_PORT_SLOT'] = \
