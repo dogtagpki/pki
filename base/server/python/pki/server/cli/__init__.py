@@ -143,7 +143,7 @@ class PKIServerCLI(pki.cli.CLI):
 class CreateCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(CreateCLI, self).__init__('create', 'Create instance')
+        super(CreateCLI, self).__init__('create', 'Create PKI server')
 
     def print_help(self):
         print('Usage: pki-server create [OPTIONS] [<instance ID>]')
@@ -203,7 +203,7 @@ class CreateCLI(pki.cli.CLI):
 class RemoveCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(RemoveCLI, self).__init__('remove', 'Remove instance')
+        super(RemoveCLI, self).__init__('remove', 'Remove PKI server')
 
     def print_help(self):
         print('Usage: pki-server remove [OPTIONS] [<instance ID>]')
@@ -263,7 +263,7 @@ class RemoveCLI(pki.cli.CLI):
 class StatusCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(StatusCLI, self).__init__('status', 'Display instance status')
+        super(StatusCLI, self).__init__('status', 'Display PKI service status')
 
     def print_help(self):
         print('Usage: pki-server status [OPTIONS] [<instance ID>]')
@@ -317,7 +317,7 @@ class StatusCLI(pki.cli.CLI):
 class StartCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(StartCLI, self).__init__('start', 'Start instance')
+        super(StartCLI, self).__init__('start', 'Start PKI service')
 
     def print_help(self):
         print('Usage: pki-server start [OPTIONS] [<instance ID>]')
@@ -375,7 +375,7 @@ class StartCLI(pki.cli.CLI):
 class StopCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(StopCLI, self).__init__('stop', 'Stop instance')
+        super(StopCLI, self).__init__('stop', 'Stop PKI service')
 
     def print_help(self):
         print('Usage: pki-server stop [OPTIONS] [<instance ID>]')
@@ -433,7 +433,7 @@ class StopCLI(pki.cli.CLI):
 class RestartCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(RestartCLI, self).__init__('restart', 'Restart instance')
+        super(RestartCLI, self).__init__('restart', 'Restart PKI service')
 
     def print_help(self):
         print('Usage: pki-server restart [OPTIONS] [<instance ID>]')

@@ -285,7 +285,7 @@ class PKIServer(object):
         server_xml = os.path.join(Tomcat.CONF_DIR, 'server.xml')
         self.copy(server_xml, self.server_xml, force=force)
 
-        tomcat_conf = os.path.join(Tomcat.CONF_DIR, 'tomcat_conf')
+        tomcat_conf = os.path.join(Tomcat.CONF_DIR, 'tomcat.conf')
         self.copy(tomcat_conf, self.tomcat_conf, force=force)
 
         tomcat_users_xml = os.path.join(Tomcat.CONF_DIR, 'tomcat-users.xml')
