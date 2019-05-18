@@ -67,9 +67,9 @@ public class WrappingParams {
             // New clients set this correctly.
             // We'll assume the old DES3 wrapping here.
             encrypt = EncryptionAlgorithm.DES_CBC_PAD;
-        } else if (encryptOID.equals(CryptoUtil.KW_DES_CBC_PAD.toString())) {
+        } else if (encryptOID.equals(KeyWrapAlgorithm.DES_CBC_PAD_OID.toString())) {
             encrypt = EncryptionAlgorithm.DES3_CBC_PAD;
-        } else if (encryptOID.equals(CryptoUtil.KW_AES_CBC_PAD.toString())) {
+        } else if (encryptOID.equals(KeyWrapAlgorithm.AES_CBC_PAD_OID.toString())) {
             encrypt = EncryptionAlgorithm.AES_128_CBC_PAD;
         } else {
             encrypt = EncryptionAlgorithm.fromOID(new OBJECT_IDENTIFIER(encryptOID));
