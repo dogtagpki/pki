@@ -19,6 +19,7 @@
 package org.dogtagpki.server.kra;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
@@ -43,6 +44,20 @@ public class KRAEngine extends CMSEngine {
 
             si = dynSubsystems.get(SelfTestSubsystem.ID);
             si.enabled = false;
+        }
+    }
+
+    public void startupSubsystems() throws EBaseException {
+
+        super.startupSubsystems();
+
+        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) getSubsystem(IKeyRecoveryAuthority.ID);
+        if (!isPreOpMode()) {
+            logger.debug("CMSEngine: checking request serial number ranges for the KRA");
+            kra.getRequestQueue().getRequestRepository().checkRanges();
+
+            logger.debug("CMSEngine: checking key serial number ranges");
+            kra.getKeyRepository().checkRanges();
         }
     }
 }

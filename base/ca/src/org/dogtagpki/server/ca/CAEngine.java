@@ -95,4 +95,19 @@ public class CAEngine extends CMSEngine {
             return null;
         }
     }
+
+    public void startupSubsystems() throws EBaseException {
+
+        super.startupSubsystems();
+
+        // check serial number ranges
+        ICertificateAuthority ca = (ICertificateAuthority) getSubsystem(ICertificateAuthority.ID);
+        if (!isPreOpMode()) {
+            logger.debug("CMSEngine: checking request serial number ranges for the CA");
+            ca.getRequestQueue().getRequestRepository().checkRanges();
+
+            logger.debug("CMSEngine: checking certificate serial number ranges");
+            ca.getCertificateRepository().checkRanges();
+        }
+    }
 }

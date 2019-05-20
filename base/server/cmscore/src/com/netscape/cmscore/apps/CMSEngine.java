@@ -64,7 +64,6 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
 import com.netscape.certsrv.logging.ILogEvent;
@@ -1126,12 +1125,8 @@ public class CMSEngine implements ISubsystem {
         system.init(this, cs);
     }
 
-    /**
-     * Starts up all subsystems. subsystems must be initialized.
-     *
-     * @exception EBaseException if any subsystem fails to startup.
-     */
-    public void startup() throws EBaseException {
+    public void startupSubsystems() throws EBaseException {
+
         startupSubsystems(staticSubsystems);
         startupSubsystems(dynSubsystems);
         startupSubsystems(finalSubsystems);
@@ -1144,30 +1139,16 @@ public class CMSEngine implements ISubsystem {
         if (!mWarning.toString().equals("")) {
             logger.warn(Constants.SERVER_STARTUP_WARNING_MESSAGE + mWarning);
         }
+    }
 
-        // check serial number ranges if a CA/KRA
-        ICertificateAuthority ca = (ICertificateAuthority) getSubsystem(ICertificateAuthority.ID);
-        if ((ca != null) && !isPreOpMode()) {
-            logger.debug("CMSEngine: checking request serial number ranges for the CA");
-            ca.getRequestQueue().getRequestRepository().checkRanges();
+    public void startup() throws EBaseException {
 
-            logger.debug("CMSEngine: checking certificate serial number ranges");
-            ca.getCertificateRepository().checkRanges();
-        }
+        startupSubsystems();
 
-        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) getSubsystem(IKeyRecoveryAuthority.ID);
-        if ((kra != null) && !isPreOpMode()) {
-            logger.debug("CMSEngine: checking request serial number ranges for the KRA");
-            kra.getRequestQueue().getRequestRepository().checkRanges();
-
-            logger.debug("CMSEngine: checking key serial number ranges");
-            kra.getKeyRepository().checkRanges();
-        }
+        isStarted = true;
 
         String type = mConfig.get("cs.type");
         logger.info(type + " subsystem started");
-
-        isStarted = true;
     }
 
     public boolean isInRunningState() {
