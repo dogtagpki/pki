@@ -412,7 +412,7 @@ public class DBSubsystem implements IDBSubsystem {
             if (attr == null) {
                 throw new Exception("Missing Attribute" + PROP_NEXT_RANGE + "in Entry " + dn);
             }
-            nextRange = (String) attr.getStringValues().nextElement();
+            nextRange = attr.getStringValues().nextElement();
 
             BigInteger nextRangeNo = new BigInteger(nextRange);
             BigInteger incrementNo = new BigInteger(h.get(PROP_INCREMENT));
@@ -832,7 +832,7 @@ public class DBSubsystem implements IDBSubsystem {
             if (entry != null) {
                 LDAPAttribute attr =  entry.getAttribute(attrName);
                 if (attr != null) {
-                    attrValue = (String) attr.getStringValues().nextElement();
+                    attrValue = attr.getStringValues().nextElement();
                 } else {
                     attrValue = defaultValue;
                 }

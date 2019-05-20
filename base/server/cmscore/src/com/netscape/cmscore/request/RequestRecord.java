@@ -403,7 +403,7 @@ class RequestStateMapper
         if (attr == null)
             throw new EBaseException("schema violation");
 
-        String value = (String) attr.getStringValues().nextElement();
+        String value = attr.getStringValues().nextElement();
 
         parent.set(name, RequestStatus.fromString(value));
     }
@@ -458,7 +458,7 @@ class RequestIdMapper
         if (attr == null)
             throw new EBaseException("schema violation");
 
-        String value = (String) attr.getStringValues().nextElement();
+        String value = attr.getStringValues().nextElement();
 
         parent.set(name, new RequestId(
                 BigIntegerMapper.BigIntegerFromDB(value).toString()));

@@ -118,7 +118,7 @@ public class RevocationInfoMapper implements IDBAttrMapper {
 
             if (attr == null)
                 return;
-            String value = (String) attr.getStringValues().nextElement();
+            String value = attr.getStringValues().nextElement();
             int i = value.indexOf(';'); // look for 1st ";"
             String str = null;
             CRLExtensions exts = new CRLExtensions();

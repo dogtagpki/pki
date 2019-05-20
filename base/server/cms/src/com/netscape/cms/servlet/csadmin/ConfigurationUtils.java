@@ -1495,7 +1495,7 @@ public class ConfigurationUtils {
                     LDAPAttribute attr = task.getAttribute("nsTaskExitCode");
                     if (attr != null) {
                         taskComplete = true;
-                        String val = (String) attr.getStringValues().nextElement();
+                        String val = attr.getStringValues().nextElement();
                         if (val.compareTo("0") != 0) {
                             logger.debug("Error in populating indexes: nsTaskExitCode=" + val);
                         }
@@ -3733,7 +3733,7 @@ public class ConfigurationUtils {
                 attrs, false);
         if (res != null) {
             while (res.hasMoreElements()) {
-                String uid = (String) res.next().getAttribute("uid").getStringValues().nextElement();
+                String uid = res.next().getAttribute("uid").getStringValues().nextElement();
                 IUser user = system.getUser(uid);
                 logger.debug("removeOldDUsers: Removing seeAlso from " + uid);
                 system.removeCertSubjectDN(user);

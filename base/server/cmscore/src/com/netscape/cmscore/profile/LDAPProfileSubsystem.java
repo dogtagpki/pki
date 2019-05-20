@@ -195,8 +195,7 @@ public class LDAPProfileSubsystem
             }
         }
 
-        String classId = (String)
-            ldapProfile.getAttribute("classId").getStringValues().nextElement();
+        String classId = ldapProfile.getAttribute("classId").getStringValues().nextElement();
 
         InputStream data = new ByteArrayInputStream(
                 ldapProfile.getAttribute("certProfileConfig").getByteValueArray()[0]);

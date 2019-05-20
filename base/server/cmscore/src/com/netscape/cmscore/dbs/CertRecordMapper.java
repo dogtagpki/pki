@@ -77,7 +77,7 @@ public class CertRecordMapper implements IDBAttrMapper {
 
             if (attr == null)
                 return;
-            String serialno = (String) attr.getStringValues().nextElement();
+            String serialno = attr.getStringValues().nextElement();
             ICertRecord rec = mDB.readCertificateRecord(
                     new BigInteger(serialno));
 

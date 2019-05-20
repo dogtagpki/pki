@@ -3443,12 +3443,11 @@ public class CertificateAuthority
             return;
         }
 
-        AuthorityID aid = new AuthorityID((String)
-            aidAttr.getStringValues().nextElement());
+        AuthorityID aid = new AuthorityID(aidAttr.getStringValues().nextElement());
 
         X500Name dn = null;
         try {
-            dn = new X500Name((String) dnAttr.getStringValues().nextElement());
+            dn = new X500Name(dnAttr.getStringValues().nextElement());
         } catch (IOException e) {
             logger.warn("Malformed authority object; invalid authorityDN: " + entry.getDN() + ": " + e.getMessage(), e);
         }
@@ -3456,7 +3455,7 @@ public class CertificateAuthority
         String desc = null;
         LDAPAttribute descAttr = entry.getAttribute("description");
         if (descAttr != null)
-            desc = (String) descAttr.getStringValues().nextElement();
+            desc = descAttr.getStringValues().nextElement();
 
         /* Determine if it is the host authority's entry, by
          * comparing DNs.  DNs must be serialised in case different
@@ -3506,14 +3505,14 @@ public class CertificateAuthority
         X500Name parentDN = null;
         if (parentDNAttr != null) {
             try {
-                parentDN = new X500Name((String) parentDNAttr.getStringValues().nextElement());
+                parentDN = new X500Name(parentDNAttr.getStringValues().nextElement());
             } catch (IOException e) {
                 logger.warn("Malformed authority object; invalid authorityParentDN: " + entry.getDN() + ": " + e.getMessage(), e);
                 return;
             }
         }
 
-        String keyNick = (String) nickAttr.getStringValues().nextElement();
+        String keyNick = nickAttr.getStringValues().nextElement();
 
         Collection<String> keyHosts;
         if (keyHostsAttr == null) {
@@ -3526,8 +3525,7 @@ public class CertificateAuthority
 
         AuthorityID parentAID = null;
         if (parentAIDAttr != null)
-            parentAID = new AuthorityID((String)
-                parentAIDAttr.getStringValues().nextElement());
+            parentAID = new AuthorityID(parentAIDAttr.getStringValues().nextElement());
 
         BigInteger serial = null;
         if (serialAttr != null)
@@ -3536,8 +3534,7 @@ public class CertificateAuthority
         boolean enabled = true;
         LDAPAttribute enabledAttr = entry.getAttribute("authorityEnabled");
         if (enabledAttr != null) {
-            String enabledString = (String)
-                enabledAttr.getStringValues().nextElement();
+            String enabledString = enabledAttr.getStringValues().nextElement();
             enabled = enabledString.equalsIgnoreCase("TRUE");
         }
 

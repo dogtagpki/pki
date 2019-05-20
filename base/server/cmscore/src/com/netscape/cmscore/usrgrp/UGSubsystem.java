@@ -459,11 +459,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         if (uid == null) {
             throw new EUsrGrpException("No Attribute UID in LDAP Entry " + entry.getDN());
         }
-        IUser id = createUser(this, (String) uid.getStringValues().nextElement());
+        IUser id = createUser(this, uid.getStringValues().nextElement());
         LDAPAttribute cnAttr = entry.getAttribute("cn");
 
         if (cnAttr != null) {
-            String cn = (String) cnAttr.getStringValues().nextElement();
+            String cn = cnAttr.getStringValues().nextElement();
 
             if (cn != null) {
                 id.setFullName(cn);
@@ -518,11 +518,11 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         if (uid == null) {
             throw new EUsrGrpException("No Attribute UID in LDAP Entry " + entry.getDN());
         }
-        IUser id = createUser(this, (String) uid.getStringValues().nextElement());
+        IUser id = createUser(this, uid.getStringValues().nextElement());
         LDAPAttribute cnAttr = entry.getAttribute("cn");
 
         if (cnAttr != null) {
-            String cn = (String) cnAttr.getStringValues().nextElement();
+            String cn = cnAttr.getStringValues().nextElement();
 
             if (cn != null) {
                 id.setFullName(cn);
@@ -541,7 +541,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         /*
          LDAPAttribute certdnAttr = entry.getAttribute(LDAP_ATTR_CERTDN);
          if (certdnAttr != null) {
-         String cdn = (String)certdnAttr.getStringValues().nextElement();
+         String cdn = certdnAttr.getStringValues().nextElement();
          if (cdn != null) {
          id.setCertDN(cdn);
          }
@@ -568,7 +568,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         LDAPAttribute pwdAttr = entry.getAttribute("userpassword");
 
         if (pwdAttr != null) {
-            String pwd = (String) pwdAttr.getStringValues().nextElement();
+            String pwd = pwdAttr.getStringValues().nextElement();
 
             if (pwd != null) {
                 id.setPassword(pwd);
@@ -1452,7 +1452,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
         if (cn == null) {
             throw new EUsrGrpException("Cannot build group. No Attribute cn in LDAP Entry " + entry.getDN());
         }
-        String groupName = (String) cn.getStringValues().nextElement();
+        String groupName = cn.getStringValues().nextElement();
         IGroup grp = createGroup(this, groupName);
 
         LDAPAttribute grpDesc = entry.getAttribute("description");

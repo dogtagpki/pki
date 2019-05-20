@@ -1058,7 +1058,7 @@ public class KeyCertUtil {
         if (serialNo == null) {
             throw new LDAPException("No value for attribute serial number in LDAP entry " + entry.getDN());
         }
-        String serialnoStr = (String) serialNo.getStringValues().nextElement();
+        String serialnoStr = serialNo.getStringValues().nextElement();
 
         serialno = BigIntegerMapper.BigIntegerFromDB(serialnoStr);
         LDAPAttribute attr = new LDAPAttribute("serialno");

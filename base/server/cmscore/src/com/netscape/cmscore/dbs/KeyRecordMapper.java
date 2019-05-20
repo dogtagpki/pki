@@ -89,7 +89,7 @@ public class KeyRecordMapper implements IDBAttrMapper {
 
             if (attr == null)
                 return;
-            String serialno = (String) attr.getStringValues().nextElement();
+            String serialno = attr.getStringValues().nextElement();
             IKeyRecord rec = mDB.readKeyRecord(new
                     BigInteger(serialno));
 

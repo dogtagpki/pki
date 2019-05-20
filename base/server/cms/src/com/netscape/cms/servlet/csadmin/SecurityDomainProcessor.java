@@ -175,7 +175,7 @@ public class SecurityDomainProcessor extends CAProcessor {
             conn = connFactory.getConn();
 
             // get the security domain name
-            String name = (String) conn.read(dn).getAttribute("name").getStringValues().nextElement();
+            String name = conn.read(dn).getAttribute("name").getStringValues().nextElement();
             logger.debug("SecurityDomainProcessor: name: " + name);
 
             DomainInfo domain = new DomainInfo();
@@ -208,7 +208,7 @@ public class SecurityDomainProcessor extends CAProcessor {
                     while (attrsInSet.hasMoreElements()) {
                         LDAPAttribute nextAttr = attrsInSet.nextElement();
                         String attrName = nextAttr.getName();
-                        String attrValue = (String) nextAttr.getStringValues().nextElement();
+                        String attrValue = nextAttr.getStringValues().nextElement();
                         logger.debug("SecurityDomainProcessor:    - " + attrName+": " + attrValue);
 
                         if ("Host".equalsIgnoreCase(attrName)) {

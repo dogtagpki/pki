@@ -20,13 +20,13 @@ package com.netscape.cmscore.dbs;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.apps.CMS;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 
 /**
  * A class represents ann attribute mapper that maps
@@ -79,8 +79,7 @@ public class LongMapper implements IDBAttrMapper {
 
         if (attr == null)
             return;
-        parent.set(name, LongFromDB(
-                (String) attr.getStringValues().nextElement()));
+        parent.set(name, LongFromDB(attr.getStringValues().nextElement()));
     }
 
     /**
