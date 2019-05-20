@@ -104,6 +104,7 @@ class PKIServer(object):
         self.user = user
         self.group = group
 
+        self.config = {}
         self.passwords = {}
 
     def __repr__(self):
@@ -463,7 +464,22 @@ class PKIServer(object):
 
         logger.info('Loading instance: %s', self.name)
 
+        self.load_config()
         self.load_passwords()
+
+    def load_config(self):
+
+        self.config.clear()
+
+        if os.path.exists(self.service_conf):
+
+            logger.info('Loading service config: %s', self.service_conf)
+            pki.util.load_properties(self.service_conf, self.config)
+
+            # strip quotes
+            for name, value in self.config.items():
+                if value.startswith('"') and value.endswith('"'):
+                    self.config[name] = value[1:-1]
 
     def load_passwords(self):
 
