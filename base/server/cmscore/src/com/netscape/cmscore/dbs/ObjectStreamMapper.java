@@ -114,7 +114,7 @@ public class ObjectStreamMapper implements IDBAttrMapper {
                 return;
             }
             ByteArrayInputStream bis = new ByteArrayInputStream(
-                    (byte[]) attr.getByteValues().nextElement());
+                    attr.getByteValues().nextElement());
             ObjectInputStream is = new ObjectInputStream(bis);
 
             parent.set(name, is.readObject());
