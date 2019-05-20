@@ -224,12 +224,10 @@ public class DBSSession implements IDBSSession {
 
                 mDBSystem.getRegistry().mapObject(null,
                         mod.getName(), mod.getValue(), attrs);
-                Enumeration<?> e0 = attrs.getAttributes();
+                Enumeration<LDAPAttribute> e0 = attrs.getAttributes();
 
                 while (e0.hasMoreElements()) {
-                    ldapMods.add(toLdapModOp(mod.getOp()),
-                            (LDAPAttribute)
-                            e0.nextElement());
+                    ldapMods.add(toLdapModOp(mod.getOp()), e0.nextElement());
                 }
             }
 
