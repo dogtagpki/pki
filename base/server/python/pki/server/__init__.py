@@ -1026,6 +1026,10 @@ class PKIInstance(PKIServer):
         return os.path.join(PKIServer.LOG_DIR, self.name)
 
     @property
+    def service_conf(self):
+        return os.path.join(SYSCONFIG_DIR, self.name)
+
+    @property
     def server_cert_nick_conf(self):
         return os.path.join(self.conf_dir, 'serverCertNick.conf')
 
