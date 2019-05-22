@@ -24,7 +24,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.MessageDigest;
@@ -228,7 +227,7 @@ public class CertificateAuthority
 
     private static final Map<AuthorityID, ICertificateAuthority> caMap =
         Collections.synchronizedSortedMap(new TreeMap<AuthorityID, ICertificateAuthority>());
-    private static final Map<AuthorityID, Thread> keyRetrieverThreads =
+    static final Map<AuthorityID, Thread> keyRetrieverThreads =
         Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
     protected CertificateAuthority hostCA = null;
     protected AuthorityID authorityID = null;
@@ -238,7 +237,7 @@ public class CertificateAuthority
     protected Collection<String> authorityKeyHosts = null;
     protected boolean authorityEnabled = true;
     private boolean hasKeys = false;
-    private ECAException signingUnitException = null;
+    ECAException signingUnitException = null;
 
     protected ISubsystem mOwner = null;
     protected IConfigStore mConfig = null;
@@ -554,7 +553,7 @@ public class CertificateAuthority
                     } else if (!keyRetrieverThreads.containsKey(authorityID)) {
                         logger.info("CertificateAuthority: starting KeyRetrieverRunner thread");
                         Thread t = new Thread(
-                            new KeyRetrieverRunner(authorityID, mNickname, authorityKeyHosts),
+                            new KeyRetrieverRunner(this, authorityID, mNickname, authorityKeyHosts),
                             "KeyRetrieverRunner-" + authorityID);
                         t.start();
                         keyRetrieverThreads.put(authorityID, t);
@@ -1687,7 +1686,7 @@ public class CertificateAuthority
     /**
      * init CA signing unit & cert chain.
      */
-    private synchronized void initSigUnit() throws EBaseException {
+    synchronized void initSigUnit() throws EBaseException {
 
         logger.debug("CertificateAuthority: initializing signing unit for " + mName);
 
@@ -3165,7 +3164,7 @@ public class CertificateAuthority
     /**
      * Add this instance to the authorityKeyHosts
      */
-    private void addInstanceToAuthorityKeyHosts() throws ELdapException {
+    void addInstanceToAuthorityKeyHosts() throws ELdapException {
         CMSEngine engine = CMS.getCMSEngine();
         String thisClone = engine.getEEHost() + ":" + engine.getEESSLPort();
         if (authorityKeyHosts.contains(thisClone)) {
@@ -3600,184 +3599,6 @@ public class CertificateAuthority
             }
         } else if (!wasMonitored && isMonitored) {
             readAuthority(entry);
-        }
-    }
-
-    private class KeyRetrieverRunner implements Runnable {
-        private AuthorityID aid;
-        private String nickname;
-        private Collection<String> hosts;
-
-        public KeyRetrieverRunner(
-                AuthorityID aid, String nickname, Collection<String> hosts) {
-            this.aid = aid;
-            this.nickname = nickname;
-            this.hosts = hosts;
-        }
-
-        public void run() {
-            try {
-                long d = 10000;  // initial delay of 10 seconds
-                while (!_run()) {
-                    logger.debug("Retrying in " + d / 1000 + " seconds");
-                    try {
-                        Thread.sleep(d);
-                    } catch (InterruptedException e) {
-                        break;
-                    }
-                    d += d / 2;  // back off
-                }
-            } finally {
-                // remove self from tracker
-                keyRetrieverThreads.remove(aid);
-            }
-        }
-
-        /**
-         * Main routine of key retrieval and key import.
-         *
-         * @return false if retrieval should be retried, or true if
-         *         the process is "done".  Note that a result of true
-         *         does not necessarily imply that the process fully
-         *         completed.  See comments at sites of 'return true;'
-         *         below.
-         */
-        private boolean _run() {
-            String KR_CLASS_KEY = "features.authority.keyRetrieverClass";
-            String KR_CONFIG_KEY = "features.authority.keyRetrieverConfig";
-
-            CMSEngine engine = CMS.getCMSEngine();
-            String className = null;
-            try {
-                className = engine.getConfigStore().getString(KR_CLASS_KEY);
-            } catch (EBaseException e) {
-                logger.warn("Unable to read key retriever class from CS.cfg: " + e.getMessage(), e);
-                return false;
-            }
-
-            IConfigStore krConfig = engine.getConfigStore().getSubStore(KR_CONFIG_KEY);
-
-            KeyRetriever kr = null;
-            try {
-                Class<? extends KeyRetriever> cls =
-                    Class.forName(className).asSubclass(KeyRetriever.class);
-
-                // If there is an accessible constructor that takes
-                // an IConfigStore, invoke that; otherwise invoke
-                // the nullary constructor.
-                try {
-                    kr = cls.getDeclaredConstructor(IConfigStore.class)
-                        .newInstance(krConfig);
-                } catch (NoSuchMethodException | SecurityException
-                        | IllegalAccessException e) {
-                    kr = cls.newInstance();
-                }
-            } catch (ClassNotFoundException e) {
-                logger.warn("Could not find class: " + className, e);
-                return false;
-            } catch (ClassCastException e) {
-                logger.warn("Class is not an instance of KeyRetriever: " + className, e);
-                return false;
-            } catch (InstantiationException | IllegalAccessException
-                    | IllegalArgumentException | InvocationTargetException e) {
-                logger.warn("Could not instantiate class: " + className, e);
-                return false;
-            }
-
-            KeyRetriever.Result krr = null;
-            try {
-                krr = kr.retrieveKey(nickname, hosts);
-            } catch (Throwable e) {
-                logger.warn("Caught exception during execution of KeyRetriever.retrieveKey", e);
-                return false;
-            }
-
-            if (krr == null) {
-                logger.warn("KeyRetriever did not return a result.");
-                return false;
-            }
-
-            logger.debug("Importing key and cert");
-            byte[] certBytes = krr.getCertificate();
-            byte[] paoData = krr.getPKIArchiveOptions();
-            try {
-                CryptoManager manager = CryptoManager.getInstance();
-                CryptoToken token = manager.getInternalKeyStorageToken();
-
-                X509Certificate cert = manager.importCACertPackage(certBytes);
-                PublicKey pubkey = cert.getPublicKey();
-                token.getCryptoStore().deleteCert(cert);
-
-                PrivateKey unwrappingKey = hostCA.mSigningUnit.getPrivateKey();
-
-                CryptoUtil.importPKIArchiveOptions(
-                    token, unwrappingKey, pubkey, paoData);
-
-                cert = manager.importUserCACertPackage(certBytes, nickname);
-            } catch (Throwable e) {
-                logger.warn("Caught exception during cert/key import", e);
-                return false;
-            }
-
-            logger.debug("Reinitialising SigningUnit");
-
-            /* While we were retrieving the key and cert, the
-             * CertificateAuthority instance in the caMap might
-             * have been replaced, so look it up afresh.
-             */
-            CertificateAuthority ca = (CertificateAuthority) getCA(aid);
-            if (ca == null) {
-                /* We got the key, but the authority has been
-                 * deleted.  Do not retry.
-                 */
-                logger.debug("Authority was deleted; returning.");
-                return true;
-            }
-
-            boolean initSigUnitSucceeded = false;
-            try {
-                // re-init signing unit, but avoid triggering
-                // key replication if initialisation fails again
-                // for some reason
-                //
-                logger.info("CertificateAuthority: reinitializing signing unit in KeyRetrieverRunner");
-                ca.initSigUnit();
-                initSigUnitSucceeded = true;
-
-            } catch (CAMissingCertException e) {
-                logger.warn("CertificateAuthority: CA signing cert not (yet) present in NSS database");
-                signingUnitException = e;
-
-            } catch (CAMissingKeyException e) {
-                logger.warn("CertificateAuthority: CA signing key not (yet) present in NSS database");
-                signingUnitException = e;
-
-            } catch (Throwable e) {
-                logger.warn("Caught exception during SigningUnit re-init", e);
-                return false;
-            }
-
-            if (!initSigUnitSucceeded) {
-                logger.warn("Failed to re-init SigningUnit");
-                return false;
-            }
-
-            logger.debug("Adding self to authorityKeyHosts attribute");
-            try {
-                ca.addInstanceToAuthorityKeyHosts();
-            } catch (Throwable e) {
-                /* We retrieved key, imported it, and successfully
-                 * re-inited the signing unit.  The only thing that
-                 * failed was adding this host to the list of hosts
-                 * that possess the key.  This is unlikely, and the
-                 * key is available elsewhere, so no need to retry.
-                 */
-                logger.warn("Failed to add self to authorityKeyHosts", e);
-                return true;
-            }
-
-            /* All good! */
-            return true;
         }
     }
 
