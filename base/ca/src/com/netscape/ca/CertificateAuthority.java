@@ -194,11 +194,7 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.controls.LDAPEntryChangeControl;
-import netscape.ldap.controls.LDAPPersistSearchControl;
-import netscape.ldap.util.DN;
 
 
 /**
@@ -223,7 +219,7 @@ public class CertificateAuthority
     /* The static conn factory is initialised by the host authority's
      * 'init' method, before any lightweight CAs are instantiated
      */
-    private static ILdapConnFactory dbFactory = new LdapBoundConnFactory("CertificateAuthority");
+    static ILdapConnFactory dbFactory = new LdapBoundConnFactory("CertificateAuthority");
 
     private static final Map<AuthorityID, ICertificateAuthority> caMap =
         Collections.synchronizedSortedMap(new TreeMap<AuthorityID, ICertificateAuthority>());
@@ -341,15 +337,15 @@ public class CertificateAuthority
     private int mMaxNonces = 100;
 
     /* Variables to manage loading and tracking of lightweight CAs */
-    private static boolean stopped = false;
+    static boolean stopped = false;
     private static boolean foundHostAuthority = false;
-    private AsyncLoader lwcaLoader = new AsyncLoader(10 /*10s timeout*/);
+    AsyncLoader lwcaLoader = new AsyncLoader(10 /*10s timeout*/);
 
     /* Maps and sets of entryUSNs and nsUniqueIds for avoiding race
      * conditions and unnecessary reloads related to replication */
     private static TreeMap<AuthorityID,BigInteger> entryUSNs = new TreeMap<>();
     private static TreeMap<AuthorityID,String> nsUniqueIds = new TreeMap<>();
-    private static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
+    static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
     /**
      * Constructs a CA subsystem.
@@ -633,7 +629,7 @@ public class CertificateAuthority
             initCRL();
 
             if (isHostAuthority() && haveLightweightCAsContainer()) {
-                new Thread(new AuthorityMonitor(), "authorityMonitor").start();
+                new Thread(new AuthorityMonitor(this), "AuthorityMonitor").start();
                 try {
                     // block until the expected number of authorities
                     // have been loaded (based on numSubordinates of
@@ -808,7 +804,7 @@ public class CertificateAuthority
         }
     }
 
-    private String authorityBaseDN() {
+    String authorityBaseDN() {
         return "ou=authorities,ou=" + getId()
             + "," + getDBSubsystem().getBaseDN();
     }
@@ -3240,7 +3236,7 @@ public class CertificateAuthority
 
     /** Delete keys and certs of this authority from NSSDB.
      */
-    private void deleteAuthorityNSSDB() throws ECAException {
+    void deleteAuthorityNSSDB() throws ECAException {
         if (isHostAuthority()) {
             String msg = "Attempt to delete host authority signing key; not proceeding";
             log(ILogger.LL_WARN, msg);
@@ -3293,184 +3289,7 @@ public class CertificateAuthority
         }
     }
 
-    class AuthorityMonitor implements Runnable {
-
-        public void run() {
-            int op = LDAPPersistSearchControl.ADD
-                | LDAPPersistSearchControl.MODIFY
-                | LDAPPersistSearchControl.DELETE
-                | LDAPPersistSearchControl.MODDN;
-            LDAPPersistSearchControl persistCtrl =
-                new LDAPPersistSearchControl(op, false, true, true);
-
-            String lwcaContainerDNString = authorityBaseDN();
-            DN lwcaContainerDN = new DN(lwcaContainerDNString);
-
-            logger.debug("authorityMonitor: starting.");
-
-            while (!stopped) {
-                LDAPConnection conn = null;
-                try {
-                    conn = dbFactory.getConn();
-                    LDAPSearchConstraints cons = conn.getSearchConstraints();
-                    cons.setServerControls(persistCtrl);
-                    cons.setBatchSize(1);
-                    cons.setServerTimeLimit(0 /* seconds */);
-                    String[] attrs = {"*", "entryUSN", "nsUniqueId", "numSubordinates"};
-                    LDAPSearchResults results = conn.search(
-                        lwcaContainerDNString, LDAPConnection.SCOPE_SUB,
-                        "(objectclass=*)", attrs, false, cons);
-
-                    /* Wait until the last possible moment before taking
-                     * the load lock so that we can continue to service
-                     * requests while LDAP is down.
-                     */
-                    lwcaLoader.startLoading();
-
-                    while (!stopped && results.hasMoreElements()) {
-                        LDAPEntry entry = results.next();
-                        DN entryDN = new DN(entry.getDN());
-
-                        if (entryDN.countRDNs() == lwcaContainerDN.countRDNs()) {
-                            /* This must be the base entry of the search, i.e. the
-                             * LWCA container.  Read numSubordinates to get the
-                             * expected number of LWCA entries to read.
-                             *
-                             * numSubordinates is not reliable; it may be too high
-                             * due to objects we cannot see (e.g. replication
-                             * conflict entries).  In that case AsyncLoader has a
-                             * watchdog timer to interrupt waiting threads after it
-                             * times out.
-                             */
-                            lwcaLoader.setNumItems(new Integer(
-                                entry.getAttribute("numSubordinates")
-                                    .getStringValueArray()[0]));
-                            continue;
-                        }
-
-                        if (entryDN.countRDNs() > lwcaContainerDN.countRDNs() + 1) {
-                            /* This entry is unexpectedly deep.  We ignore it.
-                             * numSubordinates only counts immediate subordinates
-                             * (https://tools.ietf.org/html/draft-boreham-numsubordinates-01)
-                             * so don't increment() the AsyncLoader.
-                             */
-                            continue;
-                        }
-
-                        /* This entry is at the expected depth.  Is it a LWCA entry? */
-                        String[] objectClasses =
-                            entry.getAttribute("objectClass").getStringValueArray();
-                        if (!Arrays.asList(objectClasses).contains("authority")) {
-                            /* It is not a LWCA entry; ignore it.  But it does
-                             * contribute to numSubordinates so increment the loader. */
-                            lwcaLoader.increment();
-                            continue;
-                        }
-
-                        LDAPEntryChangeControl changeControl = (LDAPEntryChangeControl)
-                            LDAPUtil.getControl(
-                                LDAPEntryChangeControl.class, results.getResponseControls());
-                        logger.debug("authorityMonitor: Processed change controls.");
-                        if (changeControl != null) {
-                            int changeType = changeControl.getChangeType();
-                            switch (changeType) {
-                            case LDAPPersistSearchControl.ADD:
-                                logger.debug("authorityMonitor: ADD");
-                                readAuthority(entry);
-                                break;
-                            case LDAPPersistSearchControl.DELETE:
-                                logger.debug("authorityMonitor: DELETE");
-                                handleDELETE(entry);
-                                break;
-                            case LDAPPersistSearchControl.MODIFY:
-                                logger.debug("authorityMonitor: MODIFY");
-                                // TODO how do we handle authorityID change?
-                                readAuthority(entry);
-                                break;
-                            case LDAPPersistSearchControl.MODDN:
-                                logger.debug("authorityMonitor: MODDN");
-                                handleMODDN(new DN(changeControl.getPreviousDN()), entry);
-                                break;
-                            default:
-                                logger.debug("authorityMonitor: unknown change type: " + changeType);
-                                break;
-                            }
-                        } else {
-                            logger.debug("authorityMonitor: immediate result");
-                            readAuthority(entry);
-                            lwcaLoader.increment();
-                        }
-                    }
-                } catch (ELdapException e) {
-                    logger.warn("authorityMonitor: Failed to get LDAPConnection: " + e.getMessage(), e);
-                    logger.warn("authorityMonitor: Retrying in 1 second.");
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                    }
-                } catch (LDAPException e) {
-                    logger.warn("authorityMonitor: Failed to execute LDAP search for lightweight CAs: " + e, e);
-                } finally {
-                    try {
-                        dbFactory.returnConn(conn);
-                    } catch (Exception e) {
-                        logger.warn("authorityMonitor: Error releasing the LDAPConnection" + e.getMessage(), e);
-                    }
-                }
-            }
-            logger.debug("authorityMonitor: stopping.");
-        }
-
-        private synchronized void handleMODDN(DN oldDN, LDAPEntry entry) {
-            DN authorityBase = new DN(authorityBaseDN());
-
-            boolean wasMonitored = oldDN.isDescendantOf(authorityBase);
-            boolean isMonitored = (new DN(entry.getDN())).isDescendantOf(authorityBase);
-            if (wasMonitored && !isMonitored) {
-                LDAPAttribute attr = entry.getAttribute("authorityID");
-                if (attr != null) {
-                    AuthorityID aid = new AuthorityID(attr.getStringValueArray()[0]);
-                    forgetAuthority(aid);
-                }
-            } else if (!wasMonitored && isMonitored) {
-                readAuthority(entry);
-            }
-        }
-
-        private synchronized void handleDELETE(LDAPEntry entry) {
-            LDAPAttribute attr = entry.getAttribute("nsUniqueId");
-            String nsUniqueId = null;
-            if (attr != null)
-                nsUniqueId = attr.getStringValueArray()[0];
-
-            if (deletedNsUniqueIds.remove(nsUniqueId)) {
-                logger.debug("handleDELETE: delete was already effected");
-                return;
-            }
-
-            AuthorityID aid = null;
-            attr = entry.getAttribute("authorityID");
-            if (attr != null) {
-                aid = new AuthorityID(attr.getStringValueArray()[0]);
-                CertificateAuthority ca = (CertificateAuthority) getCA(aid);
-                if (ca == null)
-                    return;  // shouldn't happen
-
-                try {
-                    ca.deleteAuthorityNSSDB();
-                } catch (ECAException e) {
-                    // log and carry on
-                    logger.warn(
-                        "Caught exception attempting to delete NSSDB material "
-                        + "for authority '" + aid + "': " + e.getMessage(), e);
-                }
-                forgetAuthority(aid);
-            }
-        }
-    }
-
-    private synchronized void readAuthority(LDAPEntry entry) {
+    synchronized void readAuthority(LDAPEntry entry) {
         String nsUniqueId =
             entry.getAttribute("nsUniqueId").getStringValueArray()[0];
         if (deletedNsUniqueIds.contains(nsUniqueId)) {
@@ -3599,7 +3418,7 @@ public class CertificateAuthority
         }
     }
 
-    private void forgetAuthority(AuthorityID aid) {
+    void forgetAuthority(AuthorityID aid) {
         caMap.remove(aid);
         entryUSNs.remove(aid);
         nsUniqueIds.remove(aid);
