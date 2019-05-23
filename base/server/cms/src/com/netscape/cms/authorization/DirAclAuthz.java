@@ -140,7 +140,7 @@ public class DirAclAuthz extends AAclAuthz
         }
 
         mLdapConnFactory = new LdapBoundConnFactory("DirAclAuthz");
-        mLdapConnFactory.init(cs, ldapConfig);
+        mLdapConnFactory.init(cs, ldapConfig, engine.getPasswordStore());
 
         // retrieve aclResources from the LDAP server and load
         // into memory

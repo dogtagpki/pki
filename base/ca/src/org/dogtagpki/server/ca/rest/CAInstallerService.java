@@ -171,6 +171,7 @@ public class CAInstallerService extends SystemConfigService {
             throws EBaseException, ELdapException {
 
         CMSEngine engine = CMS.getCMSEngine();
+
         IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
         IConfigStore profileCfg = cs.getSubStore("profile");
         String profileIds = profileCfg.getString("list", "");
@@ -178,7 +179,7 @@ public class CAInstallerService extends SystemConfigService {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
-        dbFactory.init(cs, dbCfg);
+        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         while (st.hasMoreTokens()) {
             String profileId = st.nextToken();
@@ -245,11 +246,13 @@ public class CAInstallerService extends SystemConfigService {
             throw new PKIException("signing certificate serial number not specified in configuration request");
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
+
         LDAPConnection conn = null;
         try {
             IConfigStore dbCfg = cs.getSubStore("internaldb");
             LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
-            dbFactory.init(cs, dbCfg);
+            dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
             conn = dbFactory.getConn();
 

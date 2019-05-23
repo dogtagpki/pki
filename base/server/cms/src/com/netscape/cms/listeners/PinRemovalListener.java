@@ -105,7 +105,8 @@ public class PinRemovalListener implements IRequestListener {
 
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
         mConnFactory = new LdapBoundConnFactory("PinRemovalListener");
-        mConnFactory.init(cs, mLdapConfig);
+        mConnFactory.init(cs, mLdapConfig, engine.getPasswordStore());
+
         mRemovePinLdapConnection = mConnFactory.getConn();
 
         mEnabled = mConfig.getBoolean(PROP_ENABLED, false);

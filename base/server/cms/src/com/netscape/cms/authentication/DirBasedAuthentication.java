@@ -298,7 +298,7 @@ public abstract class DirBasedAuthentication
             logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
 
             LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
-            connFactory.init(cs, mLdapConfig);
+            connFactory.init(cs, mLdapConfig, engine.getPasswordStore());
             mConnFactory = connFactory;
 
         } else {
@@ -416,7 +416,7 @@ public abstract class DirBasedAuthentication
                     logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
 
                     LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
-                    connFactory.init(cs, mLdapConfig);
+                    connFactory.init(cs, mLdapConfig, engine.getPasswordStore());
                     mConnFactory = connFactory;
 
                 } else {

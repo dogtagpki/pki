@@ -107,7 +107,7 @@ public class LDAPProfileSubsystem
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         dbFactory = new LdapBoundConnFactory("LDAPProfileSubsystem");
-        dbFactory.init(cs, dbCfg);
+        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         mConfig = config;
         mOwner = owner;

@@ -662,7 +662,7 @@ public class DBSubsystem implements IDBSubsystem {
         }
 
         try {
-            mLdapConnFactory.init(cs, tmpConfig);
+            mLdapConnFactory.init(cs, tmpConfig, engine.getPasswordStore());
 
         } catch (EPropertyNotDefined e) {
             if (engine.isPreOpMode()) {

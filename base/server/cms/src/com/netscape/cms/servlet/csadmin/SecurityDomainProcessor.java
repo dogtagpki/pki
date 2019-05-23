@@ -171,7 +171,8 @@ public class SecurityDomainProcessor extends CAProcessor {
 
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
             connFactory = new LdapBoundConnFactory("SecurityDomainProcessor");
-            connFactory.init(cs, ldapConfig);
+            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
+
             conn = connFactory.getConn();
 
             // get the security domain name

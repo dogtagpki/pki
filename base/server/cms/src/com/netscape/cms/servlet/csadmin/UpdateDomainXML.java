@@ -91,7 +91,7 @@ public class UpdateDomainXML extends CMSServlet {
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(cs, ldapConfig);
+            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
 
             conn = connFactory.getConn();
             conn.delete(dn);
@@ -129,7 +129,7 @@ public class UpdateDomainXML extends CMSServlet {
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(cs, ldapConfig);
+            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
 
             conn = connFactory.getConn();
             conn.modify(dn, mod);
@@ -168,7 +168,7 @@ public class UpdateDomainXML extends CMSServlet {
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(cs, ldapConfig);
+            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
 
             conn = connFactory.getConn();
             conn.add(entry);

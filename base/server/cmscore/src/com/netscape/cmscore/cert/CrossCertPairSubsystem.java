@@ -130,9 +130,9 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
             mLdapConnFactory = new LdapBoundConnFactory("CrossCertPairSubsystem");
 
-            if (mLdapConnFactory != null)
-                mLdapConnFactory.init(cs, ldapConfig);
-            else {
+            if (mLdapConnFactory != null) {
+                mLdapConnFactory.init(cs, ldapConfig, engine.getPasswordStore());
+            } else {
                 log(ILogger.LL_MISCONF,
                         CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR",
                                 PROP_LDAP));

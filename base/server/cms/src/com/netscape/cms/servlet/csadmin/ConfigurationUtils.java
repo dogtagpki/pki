@@ -1329,7 +1329,7 @@ public class ConfigurationUtils {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(cs, dbCfg);
+        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
         try {
@@ -1357,7 +1357,7 @@ public class ConfigurationUtils {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(cs, dbCfg);
+        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
 
@@ -1852,7 +1852,7 @@ public class ConfigurationUtils {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(cs, dbCfg);
+        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
 
@@ -1874,7 +1874,7 @@ public class ConfigurationUtils {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(cs, dbCfg);
+        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
 
@@ -3132,7 +3132,7 @@ public class ConfigurationUtils {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(cs, dbCfg);
+        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
         LDAPEntry entry = null;
@@ -3734,7 +3734,7 @@ public class ConfigurationUtils {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(cs, dbCfg);
+        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
 
@@ -3806,7 +3806,7 @@ public class ConfigurationUtils {
         // update global next range entries
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(cs, dbCfg);
+        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
 

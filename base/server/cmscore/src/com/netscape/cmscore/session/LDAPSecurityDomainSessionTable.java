@@ -58,7 +58,7 @@ public class LDAPSecurityDomainSessionTable
 
         IConfigStore internaldb = cs.getSubStore("internaldb");
         mLdapConnFactory = new LdapBoundConnFactory("LDAPSecurityDomainSessionTable");
-        mLdapConnFactory.init(cs, internaldb);
+        mLdapConnFactory.init(cs, internaldb, engine.getPasswordStore());
     }
 
     public int addEntry(String sessionId, String ip,

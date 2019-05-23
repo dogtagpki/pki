@@ -233,7 +233,7 @@ public class SharedSecret extends DirBasedAuthentication
         }
 
         LdapBoundConnFactory connFactory = new LdapBoundConnFactory("SharedSecret");
-        connFactory.init(cs, shrTokLdapConfigStore);
+        connFactory.init(cs, shrTokLdapConfigStore, engine.getPasswordStore());
 
         shrTokLdapFactory = connFactory;
     }

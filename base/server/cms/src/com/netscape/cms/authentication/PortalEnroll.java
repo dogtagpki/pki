@@ -158,7 +158,8 @@ public class PortalEnroll extends DirBasedAuthentication {
 
         /* Get connect parameter */
         mLdapFactory = new LdapBoundConnFactory("PortalEnroll");
-        mLdapFactory.init(cs, mLdapConfig);
+        mLdapFactory.init(cs, mLdapConfig, engine.getPasswordStore());
+
         mLdapConn = mLdapFactory.getConn();
 
         logger.info("PortalEnroll: " + CMS.getLogMessage("CMS_AUTH_PORTAL_INIT"));

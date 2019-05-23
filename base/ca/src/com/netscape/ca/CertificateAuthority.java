@@ -509,7 +509,7 @@ public class CertificateAuthority
             mConfig = config;
 
             if (isHostAuthority()) {
-                dbFactory.init(cs, dbCfg);
+                dbFactory.init(cs, dbCfg, engine.getPasswordStore());
             }
 
             // init cert & crl database

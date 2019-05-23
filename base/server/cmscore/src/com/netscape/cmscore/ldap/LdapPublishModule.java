@@ -130,7 +130,7 @@ public class LdapPublishModule implements ILdapPublishModule {
 
         IConfigStore ldapCfg = mConfig.getSubStore("ldap");
         mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
-        mLdapConnFactory.init(cs, ldapCfg);
+        mLdapConnFactory.init(cs, ldapCfg, engine.getPasswordStore());
 
         // initMappers(config);
         initHandlers();
@@ -151,7 +151,7 @@ public class LdapPublishModule implements ILdapPublishModule {
 
         IConfigStore ldapCfg = mConfig.getSubStore("ldap");
         mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
-        mLdapConnFactory.init(cs, ldapCfg);
+        mLdapConnFactory.init(cs, ldapCfg, engine.getPasswordStore());
 
         initMappers(config);
         initHandlers();

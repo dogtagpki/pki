@@ -22,8 +22,6 @@ import java.util.Hashtable;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
@@ -47,6 +45,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
     private boolean mInited = false;
 
+    IPasswordStore passwordStore;
     private static Hashtable<String, String> passwords = new Hashtable<String, String>();
 
     /**
@@ -59,8 +58,6 @@ public class LdapAuthInfo implements ILdapAuthInfo {
         String pwd = null;
         logger.debug("LdapAuthInfo: getPasswordFromStore: try to get it from password store");
 
-        CMSEngine engine = CMS.getCMSEngine();
-
         // hey - should use password store interface to allow different implementations
         // but the problem is, other parts of the system just go directly to the file
         // so calling CMS.getPasswordStore() will give you an outdated one
@@ -69,15 +66,14 @@ public class LdapAuthInfo implements ILdapAuthInfo {
                         String pwdFile = mainConfig.getString("passwordFile");
                         FileConfigStore pstore = new FileConfigStore(pwdFile);
         */
-        IPasswordStore pwdStore = engine.getPasswordStore();
         logger.debug("LdapAuthInfo: getPasswordFromStore: about to get from passwored store: " + prompt);
 
         // support publishing dirsrv with different pwd than internaldb
 
         // Finally, interactively obtain the password from the user
-        if (pwdStore != null) {
+        if (passwordStore != null) {
             logger.debug("LdapAuthInfo: getPasswordFromStore: password store available");
-            pwd = pwdStore.getPassword(prompt, 0);
+            pwd = passwordStore.getPassword(prompt, 0);
             //            pwd = pstore.getString(prompt);
             if (pwd == null) {
                 logger.debug("LdapAuthInfo: getPasswordFromStore: password for " + prompt +
@@ -85,7 +81,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
                 //               pwd = pstore.getString("internaldb");
 
-                pwd = pwdStore.getPassword("internaldb", 0); // last resort
+                pwd = passwordStore.getPassword("internaldb", 0); // last resort
             } else
                 logger.debug("LdapAuthInfo: getPasswordFromStore: password found for prompt in password store");
         } else
@@ -292,23 +288,19 @@ public class LdapAuthInfo implements ILdapAuthInfo {
         return mType;
     }
 
-    /**
-     * add password
-     */
-    public void addPassword(String prompt, String pw) {
-        try {
-            passwords.put(prompt, pw);
-        } catch (Exception e) {
-        }
+    public IPasswordStore getPasswordStore() {
+        return passwordStore;
     }
 
-    /**
-     * remove password
-     */
+    public void setPasswordStore(IPasswordStore passwordStore) {
+        this.passwordStore = passwordStore;
+    }
+
+    public void addPassword(String prompt, String pw) {
+        passwords.put(prompt, pw);
+    }
+
     public void removePassword(String prompt) {
-        try {
-            passwords.remove(prompt);
-        } catch (Exception e) {
-        }
+        passwords.remove(prompt);
     }
 }

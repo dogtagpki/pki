@@ -147,7 +147,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             mBaseDN = ldapConfig.getString(PROP_BASEDN, null);
 
             mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
-            mLdapConnFactory.init(cs, ldapConfig);
+            mLdapConnFactory.init(cs, ldapConfig, engine.getPasswordStore());
 
         } catch (EBaseException e) {
             logger.error("UGSubsystem: initialization failed: " + e.getMessage(), e);

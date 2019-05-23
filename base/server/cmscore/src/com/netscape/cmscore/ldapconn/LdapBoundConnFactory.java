@@ -22,6 +22,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -54,8 +55,10 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
     protected int mMinConns = 5;
     protected int mMaxConns = 1000;
     protected int mMaxResults = 0;
+
     protected LdapConnInfo mConnInfo = null;
     protected LdapAuthInfo mAuthInfo = null;
+    IPasswordStore passwordStore;
 
     public static final String PROP_MINCONNS = "minConns";
     public static final String PROP_MAXCONNS = "maxConns";
@@ -167,13 +170,28 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         this.mAuthInfo = authInfo;
     }
 
-    public void init(IConfigStore config) throws ELdapException {
+    public void init(
+            IConfigStore config,
+            IPasswordStore passwordStore
+            ) throws ELdapException {
 
         logger.debug("LdapBoundConnFactory: initialization");
 
         this.config = config;
+        this.passwordStore = passwordStore;
 
         init();
+    }
+
+    public void init(
+            IConfigStore config,
+            IConfigStore dbConfig,
+            IPasswordStore passwordStore
+            ) throws EBaseException, ELdapException {
+
+        this.passwordStore = passwordStore;
+
+        init(config, dbConfig);
     }
 
     public void init(IConfigStore config, IConfigStore dbConfig) throws EBaseException, ELdapException {
@@ -191,6 +209,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
 
         IConfigStore authConfig = dbConfig.getSubStore(PROP_LDAPAUTHINFO);
         this.mAuthInfo = new LdapAuthInfo();
+        this.mAuthInfo.setPasswordStore(passwordStore);
         this.mAuthInfo.init(
                 authConfig,
                 this.mConnInfo.getHost(),
@@ -595,6 +614,14 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      */
     public LdapAuthInfo getAuthInfo() {
         return mAuthInfo;
+    }
+
+    public IPasswordStore getPasswordStore() {
+        return passwordStore;
+    }
+
+    public void setPasswordStore(IPasswordStore passwordStore) {
+        this.passwordStore = passwordStore;
     }
 
     /**
