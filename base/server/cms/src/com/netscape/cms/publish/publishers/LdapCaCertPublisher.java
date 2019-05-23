@@ -40,7 +40,6 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 
@@ -185,12 +184,15 @@ public class LdapCaCertPublisher
                 int portVal = Integer.parseInt(port);
                 int version = Integer.parseInt(mConfig.getString("version", "2"));
                 String cert_nick = mConfig.getString("clientCertNickname", null);
-                LDAPSSLSocketFactoryExt sslSocket;
+
+                PKISocketFactory sslSocket;
                 if (cert_nick != null) {
                     sslSocket = new PKISocketFactory(cert_nick);
                 } else {
                     sslSocket = new PKISocketFactory(true);
                 }
+                sslSocket.init();
+
                 String mgr_dn = mConfig.getString("bindDN", null);
                 String mgr_pwd = mConfig.getString("bindPWD", null);
 

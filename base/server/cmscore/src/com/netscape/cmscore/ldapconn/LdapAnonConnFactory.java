@@ -23,10 +23,10 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 
-import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSocketFactory;
+import netscape.ldap.LDAPv2;
 
 /**
  * Factory for getting LDAP Connections to a LDAP server
@@ -187,8 +187,11 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
                 int increment = Math.min(mMinConns - mNumConns, mMaxConns - mTotal);
                 logger.debug("LdapAnonConnFactory: increasing minimum connections by " + increment);
 
+                PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
+                socketFactory.init();
+
                 for (int i = increment - 1; i >= 0; i--) {
-                    mConns[i] = new AnonConnection(mConnInfo);
+                    mConns[i] = new AnonConnection(socketFactory, mConnInfo);
                 }
 
                 mTotal += increment;
@@ -310,7 +313,11 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
             conn = null;
             try {
-                conn = new AnonConnection(mConnInfo);
+                PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
+                socketFactory.init();
+
+                conn = new AnonConnection(socketFactory, mConnInfo);
+
             } catch (LDAPException e) {
                 String message = "Unable to reestablish LDAP connection: " + e.getMessage();
                 logger.error("LdapAnonConnFactory: " + message, e);
@@ -443,9 +450,11 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
          */
         private static final long serialVersionUID = 4813780131074412404L;
 
-        public AnonConnection(LdapConnInfo connInfo)
+        public AnonConnection(
+                LDAPSocketFactory socketFactory,
+                LdapConnInfo connInfo)
                 throws LDAPException {
-            super(connInfo);
+            super(socketFactory, connInfo);
         }
 
         public AnonConnection(String host, int port, int version,

@@ -48,13 +48,12 @@ public class LdapBoundConnection extends LDAPConnection {
      * connection with Ldap basic bind dn & pw authentication.
      */
     public LdapBoundConnection(
-            LdapConnInfo connInfo, LdapAuthInfo authInfo)
+            LDAPSocketFactory socketFactory,
+            LdapConnInfo connInfo,
+            LdapAuthInfo authInfo)
             throws LDAPException {
-        // this LONG line to satisfy super being the first call. (yuk)
-        super(
-                authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH ?
-                        new PKISocketFactory(authInfo.getParms()[0]) :
-                        new PKISocketFactory(connInfo.getSecure()));
+
+        super(socketFactory);
 
         // Set option to automatically follow referrals.
         // Use the same credentials to follow referrals; this is the easiest

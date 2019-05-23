@@ -23,10 +23,10 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.ILdapBoundConnFactory;
 
-import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSocketFactory;
+import netscape.ldap.LDAPv2;
 
 /**
  * Factory for getting LDAP Connections to a LDAP server with the same
@@ -219,7 +219,16 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
     protected void makeConnection(boolean errorIfDown) throws ELdapException {
         logger.debug("LdapBoundConnFactory: makeConnection(" + errorIfDown + ")");
         try {
-            mMasterConn = new BoundConnection(mConnInfo, mAuthInfo);
+            PKISocketFactory socketFactory;
+            if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
+                socketFactory = new PKISocketFactory(mAuthInfo.getParms()[0]);
+            } else {
+                socketFactory = new PKISocketFactory(mConnInfo.getSecure());
+            }
+            socketFactory.init();
+
+            mMasterConn = new BoundConnection(socketFactory, mConnInfo, mAuthInfo);
+
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
@@ -246,7 +255,16 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         logger.debug("LdapBoundConnFactory: makeNewConnection(" + errorIfDown + ")");
         LdapBoundConnection conn = null;
         try {
-            conn = new BoundConnection(mConnInfo, mAuthInfo);
+            PKISocketFactory socketFactory;
+            if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
+                socketFactory = new PKISocketFactory(mAuthInfo.getParms()[0]);
+            } else {
+                socketFactory = new PKISocketFactory(mConnInfo.getSecure());
+            }
+            socketFactory.init();
+
+            conn = new BoundConnection(socketFactory, mConnInfo, mAuthInfo);
+
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
@@ -544,9 +562,12 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
          */
         private static final long serialVersionUID = 1353616391879078337L;
 
-        public BoundConnection(LdapConnInfo connInfo, LdapAuthInfo authInfo)
+        public BoundConnection(
+                LDAPSocketFactory socketFactory,
+                LdapConnInfo connInfo,
+                LdapAuthInfo authInfo)
                 throws LDAPException {
-            super(connInfo, authInfo);
+            super(socketFactory, connInfo, authInfo);
         }
 
         public BoundConnection(String host, int port, int version,

@@ -720,7 +720,11 @@ public class PublisherAdminServlet extends AdminServlet {
                             ldap.getSubStore(
                                     ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(
                                     ILdapAuthInfo.PROP_CLIENTCERTNICKNAME);
-                    conn = new LDAPConnection(new PKISocketFactory(certNickName));
+
+                    PKISocketFactory socketFactory = new PKISocketFactory(certNickName);
+                    socketFactory.init();
+
+                    conn = new LDAPConnection(socketFactory);
                     logger.debug("Publishing Test certNickName=" + certNickName);
                     params.put(Constants.PR_CONN_INITED,
                             "Create ssl LDAPConnection with certificate: " +
@@ -776,7 +780,10 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
             } else {
                 try {
-                    conn = new LDAPConnection(new PKISocketFactory(secure));
+                    PKISocketFactory socketFactory = new PKISocketFactory(secure);
+                    socketFactory.init();
+
+                    conn = new LDAPConnection(socketFactory);
                     if (secure) {
                         params.put(Constants.PR_CONN_INITED,
                                 "Create ssl LDAPConnection" +

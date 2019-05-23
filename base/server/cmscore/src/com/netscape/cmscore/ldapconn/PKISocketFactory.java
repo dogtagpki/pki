@@ -53,18 +53,15 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     PKIClientSocketListener sockListener = null;
 
     public PKISocketFactory() {
-        init();
     }
 
     public PKISocketFactory(boolean secure) {
         this.secure = secure;
-        init();
     }
 
     public PKISocketFactory(String certNickname) {
         this.secure = true;
         mClientAuthCertNickname = certNickname;
-        init();
     }
 
     public void init() {

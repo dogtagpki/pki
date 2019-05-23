@@ -392,7 +392,10 @@ public class CMSEngine implements ISubsystem {
         String host = info.getHost();
         int port = info.getPort();
 
-        LDAPConnection conn = new LDAPConnection(new PKISocketFactory(info.getSecure()));
+        PKISocketFactory socketFactory = new PKISocketFactory(info.getSecure());
+        socketFactory.init();
+
+        LDAPConnection conn = new LDAPConnection(socketFactory);
 
         try {
             logger.info("CMSEngine: verifying connection to " + host + ":" + port + " as " + binddn);
