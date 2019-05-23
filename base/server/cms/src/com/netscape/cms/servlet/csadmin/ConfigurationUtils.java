@@ -130,7 +130,6 @@ import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.key.KeyData;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -1329,8 +1328,9 @@ public class ConfigurationUtils {
         IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
+
         LDAPConnection conn = dbFactory.getConn();
         try {
             importLDIFS("preop.internaldb.usn.ldif", conn);
@@ -1355,8 +1355,9 @@ public class ConfigurationUtils {
         boolean reindexData = cs.getBoolean("preop.database.reindexData", false);
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
+
         LDAPConnection conn = dbFactory.getConn();
 
         try {
@@ -1849,8 +1850,9 @@ public class ConfigurationUtils {
         IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
+
         LDAPConnection conn = dbFactory.getConn();
 
         try {
@@ -1870,8 +1872,9 @@ public class ConfigurationUtils {
         IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
+
         LDAPConnection conn = dbFactory.getConn();
 
         try {
@@ -3125,9 +3128,11 @@ public class ConfigurationUtils {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
+
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
+
         LDAPConnection conn = dbFactory.getConn();
         LDAPEntry entry = null;
         LDAPAttributeSet attrs = null;
@@ -3718,13 +3723,17 @@ public class ConfigurationUtils {
     }
 
     public static void removeOldDBUsers(String subjectDN) throws EBaseException, LDAPException {
+
         CMSEngine engine = CMS.getCMSEngine();
+
         IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IConfigStore cs = engine.getConfigStore();
         String userbasedn = "ou=people, " + cs.getString("internaldb.basedn");
+
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
+
         LDAPConnection conn = dbFactory.getConn();
 
         String filter = "(&(seeAlso=" + LDAPUtil.escapeFilter(subjectDN) + ")(!(uid=" + DBUSER + ")))";
@@ -3793,8 +3802,9 @@ public class ConfigurationUtils {
 
         // update global next range entries
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
         dbFactory.init(dbCfg);
+
         LDAPConnection conn = dbFactory.getConn();
 
         String serialdn = "";

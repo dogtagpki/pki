@@ -38,7 +38,6 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
@@ -83,7 +82,7 @@ public class UpdateDomainXML extends CMSServlet {
     private String remove_from_ldap(String dn) {
         logger.debug("UpdateDomainXML: delete_from_ldap: starting dn: " + dn);
         String status = SUCCESS;
-        ILdapConnFactory connFactory = null;
+        LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -118,7 +117,7 @@ public class UpdateDomainXML extends CMSServlet {
     private String modify_ldap(String dn, LDAPModification mod) {
         logger.debug("UpdateDomainXML: modify_ldap: starting dn: " + dn);
         String status = SUCCESS;
-        ILdapConnFactory connFactory = null;
+        LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -154,7 +153,7 @@ public class UpdateDomainXML extends CMSServlet {
     private String add_to_ldap(LDAPEntry entry, String dn) {
         logger.debug("UpdateDomainXML: add_to_ldap: starting");
         String status = SUCCESS;
-        ILdapConnFactory connFactory = null;
+        LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();

@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -49,7 +48,7 @@ public class LDAPSecurityDomainSessionTable
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPSecurityDomainSessionTable.class);
 
     private long m_timeToLive;
-    private ILdapConnFactory mLdapConnFactory = null;
+    private LdapBoundConnFactory mLdapConnFactory;
 
     public LDAPSecurityDomainSessionTable(long timeToLive) throws ELdapException, EBaseException {
         m_timeToLive = timeToLive;

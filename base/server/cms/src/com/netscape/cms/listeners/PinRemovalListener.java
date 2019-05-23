@@ -20,7 +20,6 @@ package com.netscape.cms.listeners;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
@@ -59,7 +58,7 @@ public class PinRemovalListener implements IRequestListener {
 
     private IConfigStore mConfig = null;
     private IConfigStore mLdapConfig = null;
-    private ILdapConnFactory mConnFactory = null;
+    private LdapBoundConnFactory mConnFactory;
     private LDAPConnection mRemovePinLdapConnection = null;
 
     public PinRemovalListener() {

@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -83,12 +82,12 @@ public class ReplicationUtil {
 
         try {
             logger.info("ReplicationUtil: connecting to master");
-            ILdapConnFactory masterFactory = new LdapBoundConnFactory("ConfigurationUtils");
+            LdapBoundConnFactory masterFactory = new LdapBoundConnFactory("ConfigurationUtils");
             masterFactory.init(masterCfg);
             masterConn = masterFactory.getConn();
 
             logger.info("ReplicationUtil: connecting to replica");
-            ILdapConnFactory replicaFactory = new LdapBoundConnFactory("ConfigurationUtils");
+            LdapBoundConnFactory replicaFactory = new LdapBoundConnFactory("ConfigurationUtils");
             replicaFactory.init(replicaCfg);
             replicaConn = replicaFactory.getConn();
 

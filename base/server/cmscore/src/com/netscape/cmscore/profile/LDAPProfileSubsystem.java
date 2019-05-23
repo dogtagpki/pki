@@ -32,7 +32,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileSubsystem;
@@ -68,7 +67,7 @@ public class LDAPProfileSubsystem
     private String profileContainerDNString;
     private DN profileContainerDN;
 
-    private ILdapConnFactory dbFactory;
+    private LdapBoundConnFactory dbFactory;
 
     private boolean stopped = false;
     private Thread monitor;

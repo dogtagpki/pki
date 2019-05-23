@@ -34,7 +34,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
@@ -80,7 +79,7 @@ public class PortalEnroll extends DirBasedAuthentication {
     private String mObjectClass = null;
     private String mBindDN = null;
     private String mBaseDN = null;
-    private ILdapConnFactory mLdapFactory = null;
+    private LdapBoundConnFactory mLdapFactory;
     private LDAPConnection mLdapConn = null;
 
     // contains all nested superiors' required attrs in the form of a

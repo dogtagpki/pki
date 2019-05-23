@@ -121,7 +121,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
 import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
@@ -219,7 +218,7 @@ public class CertificateAuthority
     /* The static conn factory is initialised by the host authority's
      * 'init' method, before any lightweight CAs are instantiated
      */
-    static ILdapConnFactory dbFactory = new LdapBoundConnFactory("CertificateAuthority");
+    static LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CertificateAuthority");
 
     private static final Map<AuthorityID, ICertificateAuthority> caMap =
         Collections.synchronizedSortedMap(new TreeMap<AuthorityID, ICertificateAuthority>());

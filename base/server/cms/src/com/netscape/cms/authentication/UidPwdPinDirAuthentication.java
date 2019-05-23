@@ -34,7 +34,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
@@ -137,7 +136,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
     protected MessageDigest mMD5Digest = null;
     protected MessageDigest mSHA256Digest = null;
 
-    private ILdapConnFactory removePinLdapFactory = null;
+    private LdapBoundConnFactory removePinLdapFactory;
     private LDAPConnection removePinLdapConnection = null;
     private IConfigStore removePinLdapConfigStore = null;
 

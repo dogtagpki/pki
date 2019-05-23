@@ -44,7 +44,6 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -143,7 +142,7 @@ public class SharedSecret extends DirBasedAuthentication
 
     //protected boolean mRemoveShrTok = DEF_REMOVE_SharedToken;
     protected String mShrTokAttr = DEF_SharedToken_ATTR;
-    private ILdapConnFactory shrTokLdapFactory = null;
+    private LdapBoundConnFactory shrTokLdapFactory;
     private IConfigStore shrTokLdapConfigStore = null;
 
     private PrivateKey issuanceProtPrivKey = null;
@@ -229,13 +228,11 @@ public class SharedSecret extends DirBasedAuthentication
             logger.error(msg);
             throw new EBaseException(msg);
         }
-        shrTokLdapFactory = new LdapBoundConnFactory("SharedSecret");
-        if (shrTokLdapFactory == null) {
-            msg = method + "CMS.getLdapBoundConnFactory returned null for SharedSecret";
-            logger.error(msg);
-            throw new EBaseException(msg);
-        }
-        shrTokLdapFactory.init(shrTokLdapConfigStore);
+
+        LdapBoundConnFactory connFactory = new LdapBoundConnFactory("SharedSecret");
+        connFactory.init(shrTokLdapConfigStore);
+
+        shrTokLdapFactory = connFactory;
     }
 
     /**

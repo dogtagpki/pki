@@ -177,7 +177,7 @@ public class CAInstallerService extends SystemConfigService {
         StringTokenizer st = new StringTokenizer(profileIds, ",");
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        ILdapConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
         dbFactory.init(dbCfg);
 
         while (st.hasMoreTokens()) {
@@ -248,8 +248,9 @@ public class CAInstallerService extends SystemConfigService {
         LDAPConnection conn = null;
         try {
             IConfigStore dbCfg = cs.getSubStore("internaldb");
-            ILdapConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
+            LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
             dbFactory.init(dbCfg);
+
             conn = dbFactory.getConn();
 
             String basedn = dbCfg.getString("basedn", "");

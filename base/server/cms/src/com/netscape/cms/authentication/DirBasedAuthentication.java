@@ -287,15 +287,20 @@ public abstract class DirBasedAuthentication
         }
         mBoundConnEnable = mLdapConfig.getBoolean(PROP_LDAP_BOUND_CONN, false);
         logger.debug(method +" mBoundConnEnable =" + (mBoundConnEnable ? "true" : "false"));
+
         if (mBoundConnEnable) {
             mTag = mLdapConfig.getString(PROP_LDAP_BOUND_TAG);
             logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
-            mConnFactory = new LdapBoundConnFactory(mTag);
+
+            LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
+            connFactory.init(mLdapConfig);
+            mConnFactory = connFactory;
+
         } else {
-            mConnFactory = new LdapAnonConnFactory("DirBasedAuthentication");
+            LdapAnonConnFactory connFactory = new LdapAnonConnFactory("DirBasedAuthentication");
+            connFactory.init(mLdapConfig);
+            mConnFactory = connFactory;
         }
-        if (mConnFactory != null) // else can try again later when needed
-            mConnFactory.init(mLdapConfig);
 
         /* initialize dn pattern */
         String pattern = mConfig.getString(PROP_DNPATTERN, null);
@@ -395,15 +400,22 @@ public abstract class DirBasedAuthentication
         try {
             if (mConnFactory == null) {
                 logger.debug(method + " mConnFactory null, getting conn factory");
+
                 if (mBoundConnEnable) {
                     mTag = mLdapConfig.getString(PROP_LDAP_BOUND_TAG);
                     logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
-                    mConnFactory = new LdapBoundConnFactory(mTag);
+
+                    LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
+                    connFactory.init(mLdapConfig);
+                    mConnFactory = connFactory;
+
                 } else {
-                    mConnFactory = new LdapAnonConnFactory("DirBasedAuthentication");
+                    LdapAnonConnFactory connFactory = new LdapAnonConnFactory("DirBasedAuthentication");
+                    connFactory.init(mLdapConfig);
+                    mConnFactory = connFactory;
                 }
+
                 if (mConnFactory != null) {
-                    mConnFactory.init(mLdapConfig);
                     logger.debug(method + " mConnFactory gotten, calling getConn");
                     conn = mConnFactory.getConn();
                 }

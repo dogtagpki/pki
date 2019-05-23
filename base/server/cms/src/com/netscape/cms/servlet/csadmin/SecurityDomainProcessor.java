@@ -41,7 +41,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
@@ -157,7 +156,8 @@ public class SecurityDomainProcessor extends CAProcessor {
     public DomainInfo getDomainInfo() throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        ILdapConnFactory connFactory = null;
+
+        LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
 
         try {
