@@ -155,10 +155,16 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         int maxConns = config.getInteger(PROP_MAXCONNS, mMaxConns);
         int maxResults = config.getInteger(PROP_MAXRESULTS, mMaxResults);
 
-        LdapConnInfo connInfo = new LdapConnInfo(config.getSubStore(PROP_LDAPCONNINFO));
+        IConfigStore connConfig = config.getSubStore(PROP_LDAPCONNINFO);
+        LdapConnInfo connInfo = new LdapConnInfo(connConfig);
 
-        LdapAuthInfo authInfo = new LdapAuthInfo(config.getSubStore(PROP_LDAPAUTHINFO),
-                connInfo.getHost(), connInfo.getPort(), connInfo.getSecure());
+        IConfigStore authConfig = config.getSubStore(PROP_LDAPAUTHINFO);
+        LdapAuthInfo authInfo = new LdapAuthInfo();
+        authInfo.init(
+                authConfig,
+                connInfo.getHost(),
+                connInfo.getPort(),
+                connInfo.getSecure());
 
         mErrorIfDown = config.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
 

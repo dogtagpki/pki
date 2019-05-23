@@ -49,22 +49,6 @@ public class LdapAuthInfo implements ILdapAuthInfo {
     public LdapAuthInfo() {
     }
 
-    /**
-     * constructs ldap auth info directly from config store.
-     */
-    public LdapAuthInfo(IConfigStore config) throws EBaseException {
-        init(config);
-    }
-
-    /**
-     * constructs ldap auth info directly from config store, and verifies
-     * the password by attempting to connect to the server.
-     */
-    public LdapAuthInfo(IConfigStore config, String host, int port, boolean secure)
-            throws EBaseException {
-        init(config, host, port, secure);
-    }
-
     public String getPasswordFromStore(String prompt) throws EBaseException {
         String pwd = null;
         logger.debug("LdapAuthInfo: getPasswordFromStore: try to get it from password store");

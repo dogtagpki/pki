@@ -77,12 +77,16 @@ public class LdapConnModule implements ILdapConnModule {
         // support publishing dirsrv with different pwd than internaldb
         IConfigStore ldap = mConfig.getSubStore("ldap");
 
-        IConfigStore ldapconn = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPCONNINFO);
-        IConfigStore authinfo = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO);
-        LdapConnInfo connInfo = new LdapConnInfo(ldapconn);
-        LdapAuthInfo authInfo =
-                new LdapAuthInfo(authinfo, ldapconn.getString("host"),
-                        ldapconn.getInteger("port"), connInfo.getSecure());
+        IConfigStore connConfig = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPCONNINFO);
+        LdapConnInfo connInfo = new LdapConnInfo(connConfig);
+
+        IConfigStore authConfig = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO);
+        LdapAuthInfo authInfo = new LdapAuthInfo();
+        authInfo.init(
+                authConfig,
+                connConfig.getString("host"),
+                connConfig.getInteger("port"),
+                connInfo.getSecure());
 
         int minConns = mConfig.getInteger(LdapBoundConnFactory.PROP_MINCONNS, 3);
         int maxConns = mConfig.getInteger(LdapBoundConnFactory.PROP_MAXCONNS, 15);
