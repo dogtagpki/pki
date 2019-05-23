@@ -36,8 +36,14 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapAuthInfo.class);
 
+    IConfigStore config;
+    String host;
+    int port;
+    boolean secure;
+
     protected int mType = -1;
     protected String[] mParms = null;
+    String nickname;
 
     private boolean mInited = false;
 
@@ -107,11 +113,18 @@ public class LdapAuthInfo implements ILdapAuthInfo {
             throws EBaseException {
 
         logger.debug("LdapAuthInfo: init()");
+
         if (mInited) {
             logger.debug("LdapAuthInfo: already initialized");
             return; // XXX throw exception here ?
         }
+
         logger.debug("LdapAuthInfo: init begins");
+
+        this.config = config;
+        this.host = host;
+        this.port = port;
+        this.secure = secure;
 
         String authTypeStr = config.getString(PROP_LDAPAUTHTYPE);
 
@@ -180,14 +193,22 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
         } else if (authTypeStr.equals(LDAP_SSLCLIENTAUTH_STR)) {
             mType = LDAP_AUTHTYPE_SSLCLIENTAUTH;
-            mParms = new String[1];
-            mParms[0] = config.getString(PROP_CLIENTCERTNICKNAME, null);
+
         } else {
             throw new IllegalArgumentException(
                     "Unknown Ldap authentication type " + authTypeStr);
         }
         mInited = true;
         logger.debug("LdapAuthInfo: init ends");
+    }
+
+    public String getClientCertNickname() throws EBaseException {
+
+        if (nickname == null) {
+            nickname = config.getString(PROP_CLIENTCERTNICKNAME);
+        }
+
+        return nickname;
     }
 
     public void reset() {

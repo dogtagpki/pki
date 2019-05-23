@@ -243,13 +243,16 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         try {
             PKISocketFactory socketFactory;
             if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-                socketFactory = new PKISocketFactory(mAuthInfo.getParms()[0]);
+                socketFactory = new PKISocketFactory(mAuthInfo.getClientCertNickname());
             } else {
                 socketFactory = new PKISocketFactory(mConnInfo.getSecure());
             }
             socketFactory.init(cs);
 
             mMasterConn = new BoundConnection(socketFactory, mConnInfo, mAuthInfo);
+
+        } catch (EBaseException e) {
+            throw new ELdapException("Unable to create socket factory: " + e.getMessage(), e);
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
@@ -284,13 +287,16 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         try {
             PKISocketFactory socketFactory;
             if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-                socketFactory = new PKISocketFactory(mAuthInfo.getParms()[0]);
+                socketFactory = new PKISocketFactory(mAuthInfo.getClientCertNickname());
             } else {
                 socketFactory = new PKISocketFactory(mConnInfo.getSecure());
             }
             socketFactory.init(cs);
 
             conn = new BoundConnection(socketFactory, mConnInfo, mAuthInfo);
+
+        } catch (EBaseException e) {
+            throw new ELdapException("Unable to create socket factory: " + e.getMessage(), e);
 
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
