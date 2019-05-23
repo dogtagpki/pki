@@ -158,7 +158,7 @@ public class LdapPublishModule implements ILdapPublishModule {
      * publishing directory.
      * Use ILdapConnFactory.returnConn() to return the connection.
      *
-     * @see com.netscape.certsrv.ldap.ILdapBoundConnFactory
+     * @see com.netscape.certsrv.ldap.LdapBoundConnFactory
      * @see com.netscape.certsrv.ldap.ILdapConnFactory
      */
     public ILdapConnFactory getLdapConnFactory() {

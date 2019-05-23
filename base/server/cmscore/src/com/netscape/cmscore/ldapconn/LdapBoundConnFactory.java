@@ -21,7 +21,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.ldap.ILdapBoundConnFactory;
+import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -33,10 +33,19 @@ import netscape.ldap.LDAPv2;
 /**
  * Factory for getting LDAP Connections to a LDAP server with the same
  * LDAP authentication.
+ *
+ * Maintains a pool of connections to the LDAP server.
+ * CMS requests are processed on a multi threaded basis.
+ * A pool of connections then must be be maintained so this
+ * access to the Ldap server can be easily managed. The min and
+ * max size of this connection pool should be configurable. Once
+ * the maximum limit of connections is exceeded, the factory
+ * should provide proper synchronization to resolve contention issues.
+ *
  * XXX not sure how useful this is given that LDAPConnection itself can
  * be shared by multiple threads and cloned.
  */
-public class LdapBoundConnFactory implements ILdapBoundConnFactory {
+public class LdapBoundConnFactory implements ILdapConnFactory {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapBoundConnFactory.class);
 

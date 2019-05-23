@@ -21,7 +21,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapBoundConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.logging.ILogger;
@@ -78,17 +77,15 @@ public class LdapConnModule implements ILdapConnModule {
         // support publishing dirsrv with different pwd than internaldb
         IConfigStore ldap = mConfig.getSubStore("ldap");
 
-        IConfigStore ldapconn = ldap.getSubStore(
-                         ILdapBoundConnFactory.PROP_LDAPCONNINFO);
-        IConfigStore authinfo = ldap.getSubStore(
-                         ILdapBoundConnFactory.PROP_LDAPAUTHINFO);
+        IConfigStore ldapconn = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPCONNINFO);
+        IConfigStore authinfo = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO);
         LdapConnInfo connInfo = new LdapConnInfo(ldapconn);
         LdapAuthInfo authInfo =
                 new LdapAuthInfo(authinfo, ldapconn.getString("host"),
                         ldapconn.getInteger("port"), connInfo.getSecure());
 
-        int minConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MINCONNS, 3);
-        int maxConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MAXCONNS, 15);
+        int minConns = mConfig.getInteger(LdapBoundConnFactory.PROP_MINCONNS, 3);
+        int maxConns = mConfig.getInteger(LdapBoundConnFactory.PROP_MAXCONNS, 15);
         // must get authInfo from the config, don't default to internaldb!!!
 
         logger.debug("Creating LdapBoundConnFactory for LdapConnModule.");
@@ -110,7 +107,7 @@ public class LdapConnModule implements ILdapConnModule {
      * publishing directory.
      * Use ILdapConnFactory.returnConn() to return the connection.
      *
-     * @see com.netscape.certsrv.ldap.ILdapBoundConnFactory
+     * @see com.netscape.certsrv.ldap.LdapBoundConnFactory
      * @see com.netscape.certsrv.ldap.ILdapConnFactory
      */
     public ILdapConnFactory getLdapConnFactory() {

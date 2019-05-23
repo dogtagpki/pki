@@ -42,7 +42,6 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
-import com.netscape.certsrv.ldap.ILdapBoundConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnInfo;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.EMapperNotFound;
@@ -63,6 +62,7 @@ import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
@@ -471,11 +471,11 @@ public class PublisherAdminServlet extends AdminServlet {
                 String value = ldap.getString(name, "");
 
                 if (value == null || value.equals("")) {
-                    if (name.equals(ILdapBoundConnFactory.PROP_LDAPCONNINFO + "." + ILdapConnInfo.PROP_HOST)) {
+                    if (name.equals(LdapBoundConnFactory.PROP_LDAPCONNINFO + "." + ILdapConnInfo.PROP_HOST)) {
                         value = mConfig.getString(ConfigConstants.PR_MACHINE_NAME, null);
-                    } else if (name.equals(ILdapBoundConnFactory.PROP_LDAPCONNINFO + "." + ILdapConnInfo.PROP_PORT)) {
+                    } else if (name.equals(LdapBoundConnFactory.PROP_LDAPCONNINFO + "." + ILdapConnInfo.PROP_PORT)) {
                         value = ILdapConnInfo.PROP_PORT_DEFAULT;
-                    } else if (name.equals(ILdapBoundConnFactory.PROP_LDAPAUTHINFO + "." + ILdapAuthInfo.PROP_BINDDN)) {
+                    } else if (name.equals(LdapBoundConnFactory.PROP_LDAPAUTHINFO + "." + ILdapAuthInfo.PROP_BINDDN)) {
                         value = ILdapAuthInfo.PROP_BINDDN_DEFAULT;
                     }
                 }
@@ -701,17 +701,16 @@ public class PublisherAdminServlet extends AdminServlet {
                             " to a LDAP directory. The connection status is" +
                             " as follows:\n \n");
             LDAPConnection conn = null;
-            LdapConnInfo connInfo = new LdapConnInfo(ldap.getSubStore(
-                            ILdapBoundConnFactory.PROP_LDAPCONNINFO));
+            LdapConnInfo connInfo = new LdapConnInfo(
+                    ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPCONNINFO));
             //LdapAuthInfo authInfo =
-            //new LdapAuthInfo(ldap.getSubStore(
-            //			   ILdapBoundConnFactory.PROP_LDAPAUTHINFO));
+            //new LdapAuthInfo(ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO));
             String host = connInfo.getHost();
             int port = connInfo.getPort();
             boolean secure = connInfo.getSecure();
             //int authType = authInfo.getAuthType();
-            String authType = ldap.getSubStore(
-                    ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(ILdapAuthInfo.PROP_LDAPAUTHTYPE);
+            String authType = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO).
+                    getString(ILdapAuthInfo.PROP_LDAPAUTHTYPE);
             int version = connInfo.getVersion();
             String bindAs = null;
             String certNickName = null;
@@ -721,7 +720,7 @@ public class PublisherAdminServlet extends AdminServlet {
                     //certNickName = authInfo.getParms()[0];
                     certNickName =
                             ldap.getSubStore(
-                                    ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(
+                                    LdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(
                                     ILdapAuthInfo.PROP_CLIENTCERTNICKNAME);
 
                     PKISocketFactory socketFactory = new PKISocketFactory(certNickName);
@@ -845,8 +844,8 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
                 try {
                     //bindAs = authInfo.getParms()[0];
-                    bindAs = ldap.getSubStore(
-                                ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(ILdapAuthInfo.PROP_BINDDN);
+                    bindAs = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO).
+                            getString(ILdapAuthInfo.PROP_BINDDN);
                     conn.authenticate(version, bindAs, pwd);
                     params.put(Constants.PR_AUTH_OK,
                             "Authentication: Basic authentication" +
