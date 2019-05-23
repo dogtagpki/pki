@@ -19,6 +19,8 @@ package com.netscape.cmscore.ldapconn;
 
 import java.util.Properties;
 
+import com.netscape.certsrv.base.EBaseException;
+
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPRebind;
@@ -51,7 +53,7 @@ public class LdapBoundConnection extends LDAPConnection {
             LDAPSocketFactory socketFactory,
             LdapConnInfo connInfo,
             LdapAuthInfo authInfo)
-            throws LDAPException {
+            throws EBaseException, LDAPException {
 
         super(socketFactory);
 
@@ -74,7 +76,11 @@ public class LdapBoundConnection extends LDAPConnection {
                             return authInfo.getParms()[0];
                         }
                         public String getPassword() {
-                            return authInfo.getParms()[1];
+                            try {
+                                return authInfo.getBindPassword();
+                            } catch (EBaseException e) {
+                                throw new RuntimeException("Unable to get bind password: " + e.getMessage(), e);
+                            }
                         }
                     };
                 }
@@ -90,7 +96,7 @@ public class LdapBoundConnection extends LDAPConnection {
                             connInfo.getHost() + ":" + connInfo.getPort());
         } else { // basic auth
             String binddn = authInfo.getParms()[0];
-            String bindpw = authInfo.getParms()[1];
+            String bindpw = authInfo.getBindPassword();
 
             super.connect(connInfo.getVersion(),
                     connInfo.getHost(), connInfo.getPort(), binddn, bindpw);

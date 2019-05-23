@@ -599,7 +599,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
                 LDAPSocketFactory socketFactory,
                 LdapConnInfo connInfo,
                 LdapAuthInfo authInfo)
-                throws LDAPException {
+                throws EBaseException, LDAPException {
             super(socketFactory, connInfo, authInfo);
         }
 

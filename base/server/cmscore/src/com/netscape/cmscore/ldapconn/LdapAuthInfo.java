@@ -129,67 +129,9 @@ public class LdapAuthInfo implements ILdapAuthInfo {
         String authTypeStr = config.getString(PROP_LDAPAUTHTYPE);
 
         if (authTypeStr.equals(LDAP_BASICAUTH_STR)) {
-            // is the password found in memory?
-            boolean inMem = false;
             mType = LDAP_AUTHTYPE_BASICAUTH;
             mParms = new String[2];
             mParms[0] = config.getString(PROP_BINDDN);
-
-            // Passwords should only be written to the file for testing,
-            // never in production
-            mParms[1] = config.getString(PROP_BINDPW, null);
-
-            // Next, see if this password has been requested before
-            String prompt = config.getString(PROP_BINDPW_PROMPT, null);
-
-            if (prompt == null) {
-                prompt = "LDAP Authentication";
-                logger.debug("LdapAuthInfo: init: prompt is null, change to " + prompt);
-            } else
-                logger.debug("LdapAuthInfo: init: prompt is " + prompt);
-
-            if (mParms[1] == null) {
-                logger.debug("LdapAuthInfo: init: try getting from memory cache");
-                mParms[1] = passwords.get(prompt);
-                if (mParms[1] != null) {
-                    inMem = true;
-                    logger.debug("LdapAuthInfo: init: got password from memory");
-                } else
-                    logger.debug("LdapAuthInfo: init: password not in memory");
-            } else
-                logger.debug("LdapAuthInfo: init: found password from config");
-
-            if (mParms[1] == null) {
-                mParms[1] = getPasswordFromStore(prompt);
-            } else {
-                logger.debug("LdapAuthInfo: init: password found for prompt.");
-            }
-
-            // verify the password
-            if ((mParms[1] != null) && (!mParms[1].equals("")) && (host == null ||
-                    authInfoOK(host, port, secure, mParms[0], mParms[1]))) {
-                // The password is OK or uncheckable
-                logger.debug("LdapAuthInfo: password ok: store in memory cache");
-                passwords.put(prompt, mParms[1]);
-            } else {
-                if (mParms[1] == null)
-                    logger.debug("LdapAuthInfo: password not found");
-                else {
-                    logger.debug("LdapAuthInfo: password does not work");
-                    /* what do you know?  Our IPasswordStore does not have a remove function.
-                                    pstore.remove("internaldb");
-                    */
-                    if (inMem) {
-                        // this is for the case when admin changes pwd
-                        // from console
-                        mParms[1] = getPasswordFromStore(prompt);
-                        if (authInfoOK(host, port, secure, mParms[0], mParms[1])) {
-                            logger.debug("LdapAuthInfo: password ok: store in memory cache");
-                            passwords.put(prompt, mParms[1]);
-                        }
-                    }
-                }
-            }
 
         } else if (authTypeStr.equals(LDAP_SSLCLIENTAUTH_STR)) {
             mType = LDAP_AUTHTYPE_SSLCLIENTAUTH;
@@ -200,6 +142,72 @@ public class LdapAuthInfo implements ILdapAuthInfo {
         }
         mInited = true;
         logger.debug("LdapAuthInfo: init ends");
+    }
+
+    public String getBindPassword() throws EBaseException {
+
+        // is the password found in memory?
+        boolean inMem = false;
+
+        // Passwords should only be written to the file for testing,
+        // never in production
+        String bindPassword = config.getString(PROP_BINDPW, null);
+
+        // Next, see if this password has been requested before
+        String prompt = config.getString(PROP_BINDPW_PROMPT, null);
+
+        if (prompt == null) {
+            prompt = "LDAP Authentication";
+            logger.debug("LdapAuthInfo: init: prompt is null, change to " + prompt);
+        } else {
+            logger.debug("LdapAuthInfo: init: prompt is " + prompt);
+        }
+
+        if (bindPassword == null) {
+            logger.debug("LdapAuthInfo: init: try getting from memory cache");
+            bindPassword = passwords.get(prompt);
+            if (bindPassword != null) {
+                inMem = true;
+                logger.debug("LdapAuthInfo: init: got password from memory");
+            } else
+                logger.debug("LdapAuthInfo: init: password not in memory");
+        } else
+            logger.debug("LdapAuthInfo: init: found password from config");
+
+        if (bindPassword == null) {
+            bindPassword = getPasswordFromStore(prompt);
+        } else {
+            logger.debug("LdapAuthInfo: init: password found for prompt.");
+        }
+
+        // verify the password
+        if (bindPassword != null && !bindPassword.equals("") && (host == null ||
+                authInfoOK(host, port, secure, mParms[0], bindPassword))) {
+            // The password is OK or uncheckable
+            logger.debug("LdapAuthInfo: password ok: store in memory cache");
+            passwords.put(prompt, bindPassword);
+
+        } else {
+            if (bindPassword == null) {
+                logger.debug("LdapAuthInfo: password not found");
+            } else {
+                logger.debug("LdapAuthInfo: password does not work");
+                /* what do you know?  Our IPasswordStore does not have a remove function.
+                                pstore.remove("internaldb");
+                */
+                if (inMem) {
+                    // this is for the case when admin changes pwd
+                    // from console
+                    bindPassword = getPasswordFromStore(prompt);
+                    if (authInfoOK(host, port, secure, mParms[0], bindPassword)) {
+                        logger.debug("LdapAuthInfo: password ok: store in memory cache");
+                        passwords.put(prompt, bindPassword);
+                    }
+                }
+            }
+        }
+
+        return bindPassword;
     }
 
     public String getClientCertNickname() throws EBaseException {
