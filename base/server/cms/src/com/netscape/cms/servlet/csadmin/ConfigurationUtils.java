@@ -1329,7 +1329,7 @@ public class ConfigurationUtils {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(dbCfg);
+        dbFactory.init(cs, dbCfg);
 
         LDAPConnection conn = dbFactory.getConn();
         try {
@@ -1346,6 +1346,7 @@ public class ConfigurationUtils {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
+
         String baseDN = cs.getString("internaldb.basedn");
         String database = cs.getString("internaldb.database", "");
         String select = cs.getString("preop.subsystem.select", "");
@@ -1356,7 +1357,7 @@ public class ConfigurationUtils {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(dbCfg);
+        dbFactory.init(cs, dbCfg);
 
         LDAPConnection conn = dbFactory.getConn();
 
@@ -1851,7 +1852,7 @@ public class ConfigurationUtils {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(dbCfg);
+        dbFactory.init(cs, dbCfg);
 
         LDAPConnection conn = dbFactory.getConn();
 
@@ -1873,7 +1874,7 @@ public class ConfigurationUtils {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(dbCfg);
+        dbFactory.init(cs, dbCfg);
 
         LDAPConnection conn = dbFactory.getConn();
 
@@ -3131,7 +3132,7 @@ public class ConfigurationUtils {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(dbCfg);
+        dbFactory.init(cs, dbCfg);
 
         LDAPConnection conn = dbFactory.getConn();
         LDAPEntry entry = null;
@@ -3728,11 +3729,12 @@ public class ConfigurationUtils {
 
         IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
         IConfigStore cs = engine.getConfigStore();
+
         String userbasedn = "ou=people, " + cs.getString("internaldb.basedn");
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(dbCfg);
+        dbFactory.init(cs, dbCfg);
 
         LDAPConnection conn = dbFactory.getConn();
 
@@ -3788,6 +3790,7 @@ public class ConfigurationUtils {
     }
 
     public static void updateNextRanges() throws EBaseException, LDAPException {
+
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
@@ -3803,7 +3806,7 @@ public class ConfigurationUtils {
         // update global next range entries
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
-        dbFactory.init(dbCfg);
+        dbFactory.init(cs, dbCfg);
 
         LDAPConnection conn = dbFactory.getConn();
 

@@ -222,6 +222,9 @@ public class SharedSecret extends DirBasedAuthentication
         String method = "SharedSecret.initLdapConn";
         String msg = "";
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         shrTokLdapConfigStore = config.getSubStore("ldap");
         if (shrTokLdapConfigStore == null) {
             msg = method + "config substore ldap null";
@@ -230,7 +233,7 @@ public class SharedSecret extends DirBasedAuthentication
         }
 
         LdapBoundConnFactory connFactory = new LdapBoundConnFactory("SharedSecret");
-        connFactory.init(shrTokLdapConfigStore);
+        connFactory.init(cs, shrTokLdapConfigStore);
 
         shrTokLdapFactory = connFactory;
     }

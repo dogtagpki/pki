@@ -83,12 +83,12 @@ public class ReplicationUtil {
         try {
             logger.info("ReplicationUtil: connecting to master");
             LdapBoundConnFactory masterFactory = new LdapBoundConnFactory("ConfigurationUtils");
-            masterFactory.init(masterCfg);
+            masterFactory.init(cs, masterCfg);
             masterConn = masterFactory.getConn();
 
             logger.info("ReplicationUtil: connecting to replica");
             LdapBoundConnFactory replicaFactory = new LdapBoundConnFactory("ConfigurationUtils");
-            replicaFactory.init(replicaCfg);
+            replicaFactory.init(cs, replicaCfg);
             replicaConn = replicaFactory.getConn();
 
             String replicadn = "cn=replica,cn=\"" + suffix + "\",cn=mapping tree,cn=config";

@@ -41,6 +41,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -150,6 +151,10 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
     public void init(String name, String implName, IConfigStore config)
             throws EBaseException {
         super.init(name, implName, config);
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         mRemovePin =
                 config.getBoolean(PROP_REMOVE_PIN, DEF_REMOVE_PIN);
         mPinAttr =
@@ -161,7 +166,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         if (mRemovePin) {
             removePinLdapConfigStore = config.getSubStore("ldap");
             removePinLdapFactory = new LdapBoundConnFactory("UidPwdPinDirAuthentication");
-            removePinLdapFactory.init(removePinLdapConfigStore);
+            removePinLdapFactory.init(cs, removePinLdapConfigStore);
             removePinLdapConnection = removePinLdapFactory.getConn();
         }
 

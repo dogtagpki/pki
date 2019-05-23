@@ -44,6 +44,7 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -136,6 +137,9 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
 
         super.init(owner, config);
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         // initialize LDAP connection factory
         try {
             IConfigStore ldapConfig = config.getSubStore("ldap");
@@ -143,7 +147,7 @@ public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
             mBaseDN = ldapConfig.getString(PROP_BASEDN, null);
 
             mLdapConnFactory = new LdapBoundConnFactory("UGSubsystem");
-            mLdapConnFactory.init(ldapConfig);
+            mLdapConnFactory.init(cs, ldapConfig);
 
         } catch (EBaseException e) {
             logger.error("UGSubsystem: initialization failed: " + e.getMessage(), e);

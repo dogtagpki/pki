@@ -24,6 +24,8 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -93,13 +95,17 @@ public class PinRemovalListener implements IRequestListener {
 
     public void init(String name, String ImplName, IConfigStore config)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         mName = name;
         mImplName = ImplName;
         mConfig = config;
 
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
         mConnFactory = new LdapBoundConnFactory("PinRemovalListener");
-        mConnFactory.init(mLdapConfig);
+        mConnFactory.init(cs, mLdapConfig);
         mRemovePinLdapConnection = mConnFactory.getConn();
 
         mEnabled = mConfig.getBoolean(PROP_ENABLED, false);

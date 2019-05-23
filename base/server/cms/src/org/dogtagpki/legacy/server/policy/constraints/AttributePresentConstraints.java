@@ -34,6 +34,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -241,6 +242,10 @@ public class AttributePresentConstraints extends APolicyRule
 
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         mConfig = config;
 
         mParamValue = new Hashtable<String, Object>();
@@ -262,7 +267,7 @@ public class AttributePresentConstraints extends APolicyRule
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
 
         mConnFactory = new LdapBoundConnFactory("AttributePresentConstraints");
-        mConnFactory.init(mLdapConfig);
+        mConnFactory.init(cs, mLdapConfig);
 
         mCheckAttrLdapConnection = mConnFactory.getConn();
     }

@@ -22,8 +22,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -50,6 +48,8 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapBoundConnFactory.class);
 
     protected String id;
+
+    IConfigStore config;
 
     protected int mMinConns = 5;
     protected int mMaxConns = 1000;
@@ -117,19 +117,23 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      *            the maximum number of clones of this connection or separate connections one wants to allow.
      * @param serverInfo server connection info - host, port, etc.
      */
-    public LdapBoundConnFactory(String id, int minConns, int maxConns,
-            LdapConnInfo connInfo, LdapAuthInfo authInfo) throws ELdapException {
+    public LdapBoundConnFactory(
+            String id,
+            int minConns,
+            int maxConns,
+            LdapConnInfo connInfo,
+            LdapAuthInfo authInfo
+            ) throws ELdapException {
 
         logger.debug("Creating LdapBoundConnFactory(" + id + ")");
 
         this.id = id;
+        this.config = config;
 
         this.mMinConns = minConns;
         this.mMaxConns = maxConns;
         this.mConnInfo = connInfo;
         this.mAuthInfo = authInfo;
-
-        init();
     }
 
     /**
@@ -141,58 +145,62 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      * @param maxResults max number of results to return per query
      * @param serverInfo server connection info - host, port, etc.
      */
-    public LdapBoundConnFactory(String id, int minConns, int maxConns,
-            int maxResults, LdapConnInfo connInfo, LdapAuthInfo authInfo)
-            throws ELdapException {
+    public LdapBoundConnFactory(
+            String id,
+            int minConns,
+            int maxConns,
+            int maxResults,
+            LdapConnInfo connInfo,
+            LdapAuthInfo authInfo
+            ) throws ELdapException {
 
         logger.debug("Creating LdapBoundConnFactory(" + id + ")");
 
         this.id = id;
+        this.config = config;
 
         this.mMinConns = minConns;
         this.mMaxConns = maxConns;
         this.mMaxResults = maxResults;
+
         this.mConnInfo = connInfo;
         this.mAuthInfo = authInfo;
+    }
+
+    public void init(IConfigStore config) throws ELdapException {
+
+        logger.debug("LdapBoundConnFactory: initialization");
+
+        this.config = config;
 
         init();
     }
 
-
-
-    /**
-     * Constructor for initialize
-     */
-    public void init(IConfigStore config)
-            throws ELdapException, EBaseException {
+    public void init(IConfigStore config, IConfigStore dbConfig) throws EBaseException, ELdapException {
 
         logger.debug("LdapBoundConnFactory: initialization");
 
-        int minConns = config.getInteger(PROP_MINCONNS, mMinConns);
-        int maxConns = config.getInteger(PROP_MAXCONNS, mMaxConns);
-        int maxResults = config.getInteger(PROP_MAXRESULTS, mMaxResults);
+        this.config = config;
 
-        IConfigStore connConfig = config.getSubStore(PROP_LDAPCONNINFO);
-        LdapConnInfo connInfo = new LdapConnInfo(connConfig);
+        this.mMinConns = dbConfig.getInteger(PROP_MINCONNS, mMinConns);
+        this.mMaxConns = dbConfig.getInteger(PROP_MAXCONNS, mMaxConns);
+        this.mMaxResults = dbConfig.getInteger(PROP_MAXRESULTS, mMaxResults);
 
-        IConfigStore authConfig = config.getSubStore(PROP_LDAPAUTHINFO);
-        LdapAuthInfo authInfo = new LdapAuthInfo();
-        authInfo.init(
+        IConfigStore connConfig = dbConfig.getSubStore(PROP_LDAPCONNINFO);
+        this.mConnInfo = new LdapConnInfo(connConfig);
+
+        IConfigStore authConfig = dbConfig.getSubStore(PROP_LDAPAUTHINFO);
+        this.mAuthInfo = new LdapAuthInfo();
+        this.mAuthInfo.init(
                 authConfig,
-                connInfo.getHost(),
-                connInfo.getPort(),
-                connInfo.getSecure());
+                this.mConnInfo.getHost(),
+                this.mConnInfo.getPort(),
+                this.mConnInfo.getSecure());
 
-        mErrorIfDown = config.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
+        mErrorIfDown = dbConfig.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
 
-        doCloning = config.getBoolean("doCloning", true);
+        doCloning = dbConfig.getBoolean("doCloning", true);
         logger.debug("LdapBoundConnFactory: doCloning: " + doCloning);
-
-        this.mMinConns = minConns;
-        this.mMaxConns = maxConns;
-        this.mMaxResults = maxResults;
-        this.mConnInfo = connInfo;
-        this.mAuthInfo = authInfo;
 
         init();
     }
@@ -246,9 +254,6 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
 
         logger.debug("LdapBoundConnFactory: makeConnection(" + errorIfDown + ")");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
-
         try {
             PKISocketFactory socketFactory;
             if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
@@ -256,7 +261,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
             } else {
                 socketFactory = new PKISocketFactory(mConnInfo.getSecure());
             }
-            socketFactory.init(cs);
+            socketFactory.init(config);
 
             mMasterConn = new BoundConnection(socketFactory, mConnInfo, mAuthInfo);
 
@@ -289,9 +294,6 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
 
         logger.debug("LdapBoundConnFactory: makeNewConnection(" + errorIfDown + ")");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
-
         LdapBoundConnection conn = null;
         try {
             PKISocketFactory socketFactory;
@@ -300,7 +302,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
             } else {
                 socketFactory = new PKISocketFactory(mConnInfo.getSecure());
             }
-            socketFactory.init(cs);
+            socketFactory.init(config);
 
             conn = new BoundConnection(socketFactory, mConnInfo, mAuthInfo);
 

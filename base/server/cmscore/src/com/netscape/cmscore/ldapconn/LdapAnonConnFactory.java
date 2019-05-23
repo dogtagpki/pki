@@ -22,8 +22,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -40,6 +38,8 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapAnonConnFactory.class);
 
     protected String id;
+
+    IConfigStore config;
 
     protected int mMinConns = 5;
     protected int mMaxConns = 1000;
@@ -87,8 +87,12 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      *            the maximum number of clones of this connection one wants to allow.
      * @param serverInfo server connection info - host, port, etc.
      */
-    public LdapAnonConnFactory(String id, int minConns, int maxConns,
-            LdapConnInfo connInfo) throws ELdapException {
+    public LdapAnonConnFactory(
+            String id,
+            int minConns,
+            int maxConns,
+            LdapConnInfo connInfo
+            ) throws ELdapException {
 
         logger.debug("Creating LdapAnonConnFactory(" + id + ")");
 
@@ -97,8 +101,6 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         this.mMinConns = minConns;
         this.mMaxConns = maxConns;
         this.mConnInfo = connInfo;
-
-        init();
     }
 
     /**
@@ -110,17 +112,22 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * @param maxResults max number of results to return per query
      * @param serverInfo server connection info - host, port, etc.
      */
-    public LdapAnonConnFactory(String id, int minConns, int maxConns,
-            int maxResults, LdapConnInfo connInfo) throws ELdapException {
+    public LdapAnonConnFactory(
+            String id,
+            int minConns,
+            int maxConns,
+            int maxResults,
+            LdapConnInfo connInfo
+            ) throws ELdapException {
+
         logger.debug("Creating LdapAnonConnFactory(" + id + ")");
+
         this.id = id;
 
         this.mMinConns = minConns;
         this.mMaxConns = maxConns;
         this.mMaxResults = maxResults;
         this.mConnInfo = connInfo;
-
-        init();
     }
 
 
@@ -136,25 +143,28 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         return mMaxConns;
     }
 
-    /**
-     * init routine to be called when initialize from config store.
-     */
-    public void init(IConfigStore config) throws EBaseException, ELdapException {
+    public void init(IConfigStore config) throws ELdapException {
 
         logger.debug("LdapAnonConnFactory: initialization");
 
-        int minConns = config.getInteger(PROP_MINCONNS, mMinConns);
-        int maxConns = config.getInteger(PROP_MAXCONNS, mMaxConns);
-        int maxResults = config.getInteger(PROP_MAXRESULTS, mMaxResults);
+        this.config = config;
 
-        LdapConnInfo connInfo = new LdapConnInfo(config.getSubStore(PROP_LDAPCONNINFO));
+        init();
+    }
 
-        mErrorIfDown = config.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
+    public void init(IConfigStore config, IConfigStore dbConfig) throws EBaseException, ELdapException {
 
-        this.mMinConns = minConns;
-        this.mMaxConns = maxConns;
-        this.mMaxResults = maxResults;
-        this.mConnInfo = connInfo;
+        logger.debug("LdapAnonConnFactory: initialization");
+
+        this.config = config;
+
+        this.mMinConns = dbConfig.getInteger(PROP_MINCONNS, mMinConns);
+        this.mMaxConns = dbConfig.getInteger(PROP_MAXCONNS, mMaxConns);
+        this.mMaxResults = dbConfig.getInteger(PROP_MAXRESULTS, mMaxResults);
+
+        this.mConnInfo = new LdapConnInfo(dbConfig.getSubStore(PROP_LDAPCONNINFO));
+
+        mErrorIfDown = dbConfig.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
 
         init();
     }
@@ -199,16 +209,13 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      */
     protected void makeMinimum(boolean errorIfDown) throws ELdapException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
-
         try {
             if (mNumConns < mMinConns && mTotal < mMaxConns) {
                 int increment = Math.min(mMinConns - mNumConns, mMaxConns - mTotal);
                 logger.debug("LdapAnonConnFactory: increasing minimum connections by " + increment);
 
                 PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
-                socketFactory.init(cs);
+                socketFactory.init(config);
 
                 for (int i = increment - 1; i >= 0; i--) {
                     mConns[i] = new AnonConnection(socketFactory, mConnInfo);
@@ -297,9 +304,6 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
         logger.debug("LdapAnonConnFactory: getting a connection");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
-
         if (mNumConns == 0)
             makeMinimum(true);
 
@@ -337,7 +341,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
             conn = null;
             try {
                 PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
-                socketFactory.init(cs);
+                socketFactory.init(config);
 
                 conn = new AnonConnection(socketFactory, mConnInfo);
 

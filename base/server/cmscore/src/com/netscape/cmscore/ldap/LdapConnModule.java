@@ -25,6 +25,8 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -65,7 +67,11 @@ public class LdapConnModule implements ILdapConnModule {
             logger.debug("LdapConnModule: already initialized. return.");
             return;
         }
+
         logger.debug("LdapConnModule: init begins");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         mPubProcessor = p;
         mConfig = config;
@@ -93,8 +99,8 @@ public class LdapConnModule implements ILdapConnModule {
         // must get authInfo from the config, don't default to internaldb!!!
 
         logger.debug("Creating LdapBoundConnFactory for LdapConnModule.");
-        mLdapConnFactory =
-                new LdapBoundConnFactory("LDAPConnModule", minConns, maxConns, connInfo, authInfo);
+        mLdapConnFactory = new LdapBoundConnFactory("LDAPConnModule", minConns, maxConns, connInfo, authInfo);
+        mLdapConnFactory.init(cs);
 
         mInited = true;
 

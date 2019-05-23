@@ -114,6 +114,8 @@ public class DirAclAuthz extends AAclAuthz
         super.init(name, implName, config);
 
         CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         searchBase = config.getString(PROP_SEARCHBASE, null);
 
         // initialize LDAP connection factory
@@ -138,7 +140,7 @@ public class DirAclAuthz extends AAclAuthz
         }
 
         mLdapConnFactory = new LdapBoundConnFactory("DirAclAuthz");
-        mLdapConnFactory.init(ldapConfig);
+        mLdapConnFactory.init(cs, ldapConfig);
 
         // retrieve aclResources from the LDAP server and load
         // into memory

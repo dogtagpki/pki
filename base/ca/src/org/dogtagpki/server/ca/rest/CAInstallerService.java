@@ -178,7 +178,7 @@ public class CAInstallerService extends SystemConfigService {
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
-        dbFactory.init(dbCfg);
+        dbFactory.init(cs, dbCfg);
 
         while (st.hasMoreTokens()) {
             String profileId = st.nextToken();
@@ -249,7 +249,7 @@ public class CAInstallerService extends SystemConfigService {
         try {
             IConfigStore dbCfg = cs.getSubStore("internaldb");
             LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
-            dbFactory.init(dbCfg);
+            dbFactory.init(cs, dbCfg);
 
             conn = dbFactory.getConn();
 

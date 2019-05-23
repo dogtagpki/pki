@@ -50,6 +50,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
@@ -120,11 +121,16 @@ public class LdapPublishModule implements ILdapPublishModule {
         if (mInited)
             return;
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         mAuthority = authority;
         mPubProcessor = p;
         mConfig = config;
+
+        IConfigStore ldapCfg = mConfig.getSubStore("ldap");
         mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
-        mLdapConnFactory.init(mConfig.getSubStore("ldap"));
+        mLdapConnFactory.init(cs, ldapCfg);
 
         // initMappers(config);
         initHandlers();
@@ -137,10 +143,15 @@ public class LdapPublishModule implements ILdapPublishModule {
         if (mInited)
             return;
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         mAuthority = authority;
         mConfig = config;
+
+        IConfigStore ldapCfg = mConfig.getSubStore("ldap");
         mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
-        mLdapConnFactory.init(mConfig.getSubStore("ldap"));
+        mLdapConnFactory.init(cs, ldapCfg);
 
         initMappers(config);
         initHandlers();

@@ -52,11 +52,13 @@ public class LDAPSecurityDomainSessionTable
 
     public LDAPSecurityDomainSessionTable(long timeToLive) throws ELdapException, EBaseException {
         m_timeToLive = timeToLive;
+
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
+
         IConfigStore internaldb = cs.getSubStore("internaldb");
         mLdapConnFactory = new LdapBoundConnFactory("LDAPSecurityDomainSessionTable");
-        mLdapConnFactory.init(internaldb);
+        mLdapConnFactory.init(cs, internaldb);
     }
 
     public int addEntry(String sessionId, String ip,

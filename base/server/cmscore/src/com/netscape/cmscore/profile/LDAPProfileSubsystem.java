@@ -104,9 +104,10 @@ public class LDAPProfileSubsystem
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
+
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         dbFactory = new LdapBoundConnFactory("LDAPProfileSubsystem");
-        dbFactory.init(dbCfg);
+        dbFactory.init(cs, dbCfg);
 
         mConfig = config;
         mOwner = owner;

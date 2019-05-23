@@ -35,6 +35,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -136,6 +137,9 @@ public class PortalEnroll extends DirBasedAuthentication {
             throws EBaseException {
         super.init(name, implName, config);
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         /* Get Bind DN for directory server */
         mConfig = mLdapConfig.getSubStore(PROP_LDAPAUTH);
         mBindDN = mConfig.getString(PROP_BINDDN);
@@ -154,7 +158,7 @@ public class PortalEnroll extends DirBasedAuthentication {
 
         /* Get connect parameter */
         mLdapFactory = new LdapBoundConnFactory("PortalEnroll");
-        mLdapFactory.init(mLdapConfig);
+        mLdapFactory.init(cs, mLdapConfig);
         mLdapConn = mLdapFactory.getConn();
 
         logger.info("PortalEnroll: " + CMS.getLogMessage("CMS_AUTH_PORTAL_INIT"));

@@ -86,6 +86,8 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         /* internal database directory used */
         DBSubsystem dbs = (DBSubsystem) DBSubsystem.getInstance();
         LdapConnInfo ldapinfo = dbs.getLdapConnInfo();
@@ -95,6 +97,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         }
 
         mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo);
+        mAnonConnFactory.init(cs);
 
         log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_AUTH_INIT_AUTH", mName));
     }

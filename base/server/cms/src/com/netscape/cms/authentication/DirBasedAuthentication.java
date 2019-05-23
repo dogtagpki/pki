@@ -48,6 +48,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
@@ -259,10 +260,14 @@ public abstract class DirBasedAuthentication
 
     public void init(String name, String implName, IConfigStore config, boolean needBaseDN)
             throws EBaseException {
+
         mName = name;
         mImplName = implName;
         mConfig = config;
         String method = "DirBasedAuthentication: init: ";
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         /* initialize ldap server configuration */
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
@@ -293,12 +298,12 @@ public abstract class DirBasedAuthentication
             logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
 
             LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
-            connFactory.init(mLdapConfig);
+            connFactory.init(cs, mLdapConfig);
             mConnFactory = connFactory;
 
         } else {
             LdapAnonConnFactory connFactory = new LdapAnonConnFactory("DirBasedAuthentication");
-            connFactory.init(mLdapConfig);
+            connFactory.init(cs, mLdapConfig);
             mConnFactory = connFactory;
         }
 
@@ -391,12 +396,17 @@ public abstract class DirBasedAuthentication
      */
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
+
         String userdn = null;
         LDAPConnection conn = null;
         AuthToken authToken = new AuthToken(this);
         String method = "DirBasedAuthentication: authenticate:";
 
         logger.debug(method + " begins...mBoundConnEnable=" + mBoundConnEnable);
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         try {
             if (mConnFactory == null) {
                 logger.debug(method + " mConnFactory null, getting conn factory");
@@ -406,12 +416,12 @@ public abstract class DirBasedAuthentication
                     logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
 
                     LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
-                    connFactory.init(mLdapConfig);
+                    connFactory.init(cs, mLdapConfig);
                     mConnFactory = connFactory;
 
                 } else {
                     LdapAnonConnFactory connFactory = new LdapAnonConnFactory("DirBasedAuthentication");
-                    connFactory.init(mLdapConfig);
+                    connFactory.init(cs, mLdapConfig);
                     mConnFactory = connFactory;
                 }
 

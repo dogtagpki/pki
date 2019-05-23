@@ -501,13 +501,15 @@ public class CertificateAuthority
         logger.info("CertificateAuthority: initialization");
 
         CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+        IConfigStore dbCfg = cs.getSubStore("internaldb");
 
         try {
             mOwner = owner;
             mConfig = config;
 
             if (isHostAuthority()) {
-                dbFactory.init(engine.getConfigStore().getSubStore("internaldb"));
+                dbFactory.init(cs, dbCfg);
             }
 
             // init cert & crl database

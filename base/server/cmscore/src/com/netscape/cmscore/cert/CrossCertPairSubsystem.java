@@ -106,6 +106,8 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         logger.debug("CrossCertPairSubsystem: initializing");
 
         CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         try {
             mConfig = config;
             mLogger = Logger.getLogger();
@@ -129,7 +131,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             mLdapConnFactory = new LdapBoundConnFactory("CrossCertPairSubsystem");
 
             if (mLdapConnFactory != null)
-                mLdapConnFactory.init(ldapConfig);
+                mLdapConnFactory.init(cs, ldapConfig);
             else {
                 log(ILogger.LL_MISCONF,
                         CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR",

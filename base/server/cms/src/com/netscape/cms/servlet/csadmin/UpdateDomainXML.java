@@ -84,15 +84,18 @@ public class UpdateDomainXML extends CMSServlet {
         String status = SUCCESS;
         LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
+
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(ldapConfig);
+            connFactory.init(cs, ldapConfig);
+
             conn = connFactory.getConn();
             conn.delete(dn);
+
         } catch (LDAPException e) {
             int resultCode = e.getLDAPResultCode();
             if (resultCode != LDAPException.NO_SUCH_OBJECT) {
@@ -119,15 +122,18 @@ public class UpdateDomainXML extends CMSServlet {
         String status = SUCCESS;
         LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
+
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(ldapConfig);
+            connFactory.init(cs, ldapConfig);
+
             conn = connFactory.getConn();
             conn.modify(dn, mod);
+
         } catch (LDAPException e) {
             int resultCode = e.getLDAPResultCode();
             if ((resultCode != LDAPException.NO_SUCH_OBJECT) &&
@@ -155,15 +161,18 @@ public class UpdateDomainXML extends CMSServlet {
         String status = SUCCESS;
         LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
+
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(ldapConfig);
+            connFactory.init(cs, ldapConfig);
+
             conn = connFactory.getConn();
             conn.add(entry);
+
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
                 logger.warn("UpdateDomainXML: Entry already exists");

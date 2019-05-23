@@ -531,6 +531,8 @@ public class DBSubsystem implements IDBSubsystem {
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         mDBConfig = config;
         mRepos = new Hashtable[IDBSubsystem.NUM_REPOS];
 
@@ -660,7 +662,7 @@ public class DBSubsystem implements IDBSubsystem {
         }
 
         try {
-            mLdapConnFactory.init(tmpConfig);
+            mLdapConnFactory.init(cs, tmpConfig);
 
         } catch (EPropertyNotDefined e) {
             if (engine.isPreOpMode()) {
