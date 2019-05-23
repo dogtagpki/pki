@@ -31,8 +31,6 @@ import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
@@ -64,10 +62,8 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         mClientAuthCertNickname = certNickname;
     }
 
-    public void init() {
-        CMSEngine engine = CMS.getCMSEngine();
+    public void init(IConfigStore cs) {
         try {
-            IConfigStore cs = engine.getConfigStore();
             keepAlive = cs.getBoolean("tcp.keepAlive", true);
             logger.debug("TCP Keep-Alive: " + keepAlive);
             sockListener = new PKIClientSocketListener();

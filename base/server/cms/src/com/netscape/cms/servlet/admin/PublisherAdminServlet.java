@@ -623,7 +623,10 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         logger.debug("PublisherAdmineServlet: in testSetLDAPDest");
+
         CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         //Save New Settings to the config file
         IConfigStore config = mAuth.getConfigStore();
         IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
@@ -722,7 +725,7 @@ public class PublisherAdminServlet extends AdminServlet {
                                     ILdapAuthInfo.PROP_CLIENTCERTNICKNAME);
 
                     PKISocketFactory socketFactory = new PKISocketFactory(certNickName);
-                    socketFactory.init();
+                    socketFactory.init(cs);
 
                     conn = new LDAPConnection(socketFactory);
                     logger.debug("Publishing Test certNickName=" + certNickName);
@@ -781,7 +784,7 @@ public class PublisherAdminServlet extends AdminServlet {
             } else {
                 try {
                     PKISocketFactory socketFactory = new PKISocketFactory(secure);
-                    socketFactory.init();
+                    socketFactory.init(cs);
 
                     conn = new LDAPConnection(socketFactory);
                     if (secure) {

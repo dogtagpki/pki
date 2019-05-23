@@ -22,6 +22,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -182,13 +184,17 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * make the mininum configured connections
      */
     protected void makeMinimum(boolean errorIfDown) throws ELdapException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         try {
             if (mNumConns < mMinConns && mTotal < mMaxConns) {
                 int increment = Math.min(mMinConns - mNumConns, mMaxConns - mTotal);
                 logger.debug("LdapAnonConnFactory: increasing minimum connections by " + increment);
 
                 PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
-                socketFactory.init();
+                socketFactory.init(cs);
 
                 for (int i = increment - 1; i >= 0; i--) {
                     mConns[i] = new AnonConnection(socketFactory, mConnInfo);
@@ -277,6 +283,9 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
         logger.debug("LdapAnonConnFactory: getting a connection");
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         if (mNumConns == 0)
             makeMinimum(true);
 
@@ -314,7 +323,7 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
             conn = null;
             try {
                 PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
-                socketFactory.init();
+                socketFactory.init(cs);
 
                 conn = new AnonConnection(socketFactory, mConnInfo);
 

@@ -22,6 +22,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.ldap.ILdapBoundConnFactory;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -217,7 +219,12 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      * @exception ELdapException if any error occurs.
      */
     protected void makeConnection(boolean errorIfDown) throws ELdapException {
+
         logger.debug("LdapBoundConnFactory: makeConnection(" + errorIfDown + ")");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         try {
             PKISocketFactory socketFactory;
             if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
@@ -225,7 +232,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
             } else {
                 socketFactory = new PKISocketFactory(mConnInfo.getSecure());
             }
-            socketFactory.init();
+            socketFactory.init(cs);
 
             mMasterConn = new BoundConnection(socketFactory, mConnInfo, mAuthInfo);
 
@@ -252,7 +259,12 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      * @exception ELdapException if any error occurs.
      */
     private LdapBoundConnection makeNewConnection(boolean errorIfDown) throws ELdapException {
+
         logger.debug("LdapBoundConnFactory: makeNewConnection(" + errorIfDown + ")");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         LdapBoundConnection conn = null;
         try {
             PKISocketFactory socketFactory;
@@ -261,7 +273,7 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
             } else {
                 socketFactory = new PKISocketFactory(mConnInfo.getSecure());
             }
-            socketFactory.init();
+            socketFactory.init(cs);
 
             conn = new BoundConnection(socketFactory, mConnInfo, mAuthInfo);
 

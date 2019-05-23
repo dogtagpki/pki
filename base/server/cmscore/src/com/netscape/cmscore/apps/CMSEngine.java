@@ -393,7 +393,7 @@ public class CMSEngine implements ISubsystem {
         int port = info.getPort();
 
         PKISocketFactory socketFactory = new PKISocketFactory(info.getSecure());
-        socketFactory.init();
+        socketFactory.init(mConfig);
 
         LDAPConnection conn = new LDAPConnection(socketFactory);
 
