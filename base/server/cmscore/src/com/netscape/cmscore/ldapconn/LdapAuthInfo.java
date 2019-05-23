@@ -42,7 +42,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
     boolean secure;
 
     protected int mType = -1;
-    protected String[] mParms = null;
+    String bindDN;
     String nickname;
 
     private boolean mInited = false;
@@ -130,8 +130,6 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
         if (authTypeStr.equals(LDAP_BASICAUTH_STR)) {
             mType = LDAP_AUTHTYPE_BASICAUTH;
-            mParms = new String[2];
-            mParms[0] = config.getString(PROP_BINDDN);
 
         } else if (authTypeStr.equals(LDAP_SSLCLIENTAUTH_STR)) {
             mType = LDAP_AUTHTYPE_SSLCLIENTAUTH;
@@ -142,6 +140,15 @@ public class LdapAuthInfo implements ILdapAuthInfo {
         }
         mInited = true;
         logger.debug("LdapAuthInfo: init ends");
+    }
+
+    public String getBindDN() throws EBaseException {
+
+        if (bindDN == null) {
+            bindDN = config.getString(PROP_BINDDN);
+        }
+
+        return bindDN;
     }
 
     public String getBindPassword() throws EBaseException {
@@ -182,7 +189,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
         // verify the password
         if (bindPassword != null && !bindPassword.equals("") && (host == null ||
-                authInfoOK(host, port, secure, mParms[0], bindPassword))) {
+                authInfoOK(host, port, secure, bindDN, bindPassword))) {
             // The password is OK or uncheckable
             logger.debug("LdapAuthInfo: password ok: store in memory cache");
             passwords.put(prompt, bindPassword);
@@ -199,7 +206,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
                     // this is for the case when admin changes pwd
                     // from console
                     bindPassword = getPasswordFromStore(prompt);
-                    if (authInfoOK(host, port, secure, mParms[0], bindPassword)) {
+                    if (authInfoOK(host, port, secure, bindDN, bindPassword)) {
                         logger.debug("LdapAuthInfo: password ok: store in memory cache");
                         passwords.put(prompt, bindPassword);
                     }
@@ -283,15 +290,6 @@ public class LdapAuthInfo implements ILdapAuthInfo {
      */
     public int getAuthType() {
         return mType;
-    }
-
-    /**
-     * get params for authentication
-     *
-     * @return array of parameters for this authentication.
-     */
-    public String[] getParms() {
-        return mParms.clone();
     }
 
     /**

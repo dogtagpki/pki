@@ -73,7 +73,11 @@ public class LdapBoundConnection extends LDAPConnection {
                 public LDAPRebindAuth getRebindAuthentication(String host, int port) {
                     return new LDAPRebindAuth() {
                         public String getDN() {
-                            return authInfo.getParms()[0];
+                            try {
+                                return authInfo.getBindDN();
+                            } catch (EBaseException e) {
+                                throw new RuntimeException("Unable to get bind DN: " + e.getMessage(), e);
+                            }
                         }
                         public String getPassword() {
                             try {
@@ -95,7 +99,7 @@ public class LdapBoundConnection extends LDAPConnection {
             logger.debug("Established LDAP connection with SSL client auth to " +
                             connInfo.getHost() + ":" + connInfo.getPort());
         } else { // basic auth
-            String binddn = authInfo.getParms()[0];
+            String binddn = authInfo.getBindDN();
             String bindpw = authInfo.getBindPassword();
 
             super.connect(connInfo.getVersion(),
