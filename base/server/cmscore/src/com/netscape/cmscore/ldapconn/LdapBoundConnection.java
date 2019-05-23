@@ -66,9 +66,19 @@ public class LdapBoundConnection extends LDAPConnection {
         setOption(LDAPv2.REFERRALS,Boolean.valueOf(followReferrals));
         if (followReferrals &&
                 authInfo.getAuthType() != LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-            LDAPRebind rebindInfo =
-                    new ARebindInfo(authInfo.getParms()[0],
-                            authInfo.getParms()[1]);
+
+            LDAPRebind rebindInfo = new LDAPRebind() {
+                public LDAPRebindAuth getRebindAuthentication(String host, int port) {
+                    return new LDAPRebindAuth() {
+                        public String getDN() {
+                            return authInfo.getParms()[0];
+                        }
+                        public String getPassword() {
+                            return authInfo.getParms()[1];
+                        }
+                    };
+                }
+            };
 
             setOption(LDAPv2.REFERRALS_REBIND_PROC, rebindInfo);
         }
@@ -180,17 +190,5 @@ public class LdapBoundConnection extends LDAPConnection {
             String dn, String pw) throws LDAPException {
         throw new RuntimeException(
                 "this LdapBoundConnection is already connected: conn(version,h,p)");
-    }
-}
-
-class ARebindInfo implements LDAPRebind {
-    private LDAPRebindAuth mRebindAuthInfo = null;
-
-    public ARebindInfo(String binddn, String pw) {
-        mRebindAuthInfo = new LDAPRebindAuth(binddn, pw);
-    }
-
-    public LDAPRebindAuth getRebindAuthentication(String host, int port) {
-        return mRebindAuthInfo;
     }
 }
