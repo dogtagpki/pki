@@ -119,9 +119,17 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
      */
     public LdapBoundConnFactory(String id, int minConns, int maxConns,
             LdapConnInfo connInfo, LdapAuthInfo authInfo) throws ELdapException {
+
         logger.debug("Creating LdapBoundConnFactory(" + id + ")");
+
         this.id = id;
-        init(minConns, maxConns, mMaxResults, connInfo, authInfo);
+
+        this.mMinConns = minConns;
+        this.mMaxConns = maxConns;
+        this.mConnInfo = connInfo;
+        this.mAuthInfo = authInfo;
+
+        init();
     }
 
     /**
@@ -136,9 +144,18 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
     public LdapBoundConnFactory(String id, int minConns, int maxConns,
             int maxResults, LdapConnInfo connInfo, LdapAuthInfo authInfo)
             throws ELdapException {
+
         logger.debug("Creating LdapBoundConnFactory(" + id + ")");
+
         this.id = id;
-        init(minConns, maxConns, maxResults, connInfo, authInfo);
+
+        this.mMinConns = minConns;
+        this.mMaxConns = maxConns;
+        this.mMaxResults = maxResults;
+        this.mConnInfo = connInfo;
+        this.mAuthInfo = authInfo;
+
+        init();
     }
 
 
@@ -171,46 +188,38 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         doCloning = config.getBoolean("doCloning", true);
         logger.debug("LdapBoundConnFactory: doCloning: " + doCloning);
 
-        init(minConns, maxConns, maxResults, connInfo, authInfo);
+        this.mMinConns = minConns;
+        this.mMaxConns = maxConns;
+        this.mMaxResults = maxResults;
+        this.mConnInfo = connInfo;
+        this.mAuthInfo = authInfo;
+
+        init();
     }
 
     /**
      * initialize parameters obtained from either constructor or
      * config store
-     *
-     * @param minConns minimum number of connection handls to have available.
-     * @param maxConns maximum total number of connections to ever have.
-     * @param connInfo ldap connection info.
-     * @param authInfo ldap authentication info.
-     * @exception ELdapException if any error occurs.
      */
-    private void init(int minConns, int maxConns, int maxResults,
-            LdapConnInfo connInfo, LdapAuthInfo authInfo)
-            throws ELdapException {
+    private void init() throws ELdapException {
 
-        if (minConns <= 0)
-            throw new ELdapException("Invalid minimum number of connections: " + minConns);
+        if (mMinConns <= 0)
+            throw new ELdapException("Invalid minimum number of connections: " + mMinConns);
 
-        if (maxConns <= 0)
-            throw new ELdapException("Invalid maximum number of connections: " + maxConns);
+        if (mMaxConns <= 0)
+            throw new ELdapException("Invalid maximum number of connections: " + mMaxConns);
 
-        if (minConns > maxConns)
-            throw new ELdapException("Minimum number of connections is bigger than maximum: " + minConns + " > " + maxConns);
+        if (mMinConns > mMaxConns)
+            throw new ELdapException("Minimum number of connections is bigger than maximum: " + mMinConns + " > " + mMaxConns);
 
-        if (maxResults < 0)
-            throw new ELdapException("Invalid maximum number of results: " + maxResults);
+        if (mMaxResults < 0)
+            throw new ELdapException("Invalid maximum number of results: " + mMaxResults);
 
-        if (connInfo == null)
+        if (mConnInfo == null)
             throw new IllegalArgumentException("Missing connection info");
 
-        if (authInfo == null)
+        if (mAuthInfo == null)
             throw new IllegalArgumentException("Missing authentication info");
-
-        mMinConns = minConns;
-        mMaxConns = maxConns;
-        mMaxResults = maxResults;
-        mConnInfo = connInfo;
-        mAuthInfo = authInfo;
 
         mConns = new BoundConnection[mMaxConns];
 
