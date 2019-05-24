@@ -30,6 +30,7 @@ class AuthPluginCLI(pki.cli.CLI):
         self.add_module(AuthPluginShowCLI(self))
         self.add_module(AuthPluginFindCLI(self))
         self.add_module(AuthPluginRegisterCLI(self))
+        self.add_module(AuthPluginDeregisterCLI(self))
 
     @staticmethod
     def print_plugin(args, default=False):
@@ -101,7 +102,7 @@ class AuthPluginRegisterCLI(pki.cli.CLI):
             sys.exit(1)
 
         if not plugin_type:
-            print("ERROR: Plugin type rquired")
+            print("ERROR: Plugin type required")
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
@@ -114,15 +115,79 @@ class AuthPluginRegisterCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.parent.name
         subsystem = instance.get_subsystem(subsystem_name)
 
-        subsystem.config['auths.impl.{}.class'.format(type)] = plugin_class
+        subsystem.config['auths.impl.{}.class'.format(plugin_type)] = plugin_class
         subsystem.save()
         print("Auth plugin registered.")
+
+
+class AuthPluginDeregisterCLI(pki.cli.CLI):
+    def __init__(self, parent):
+        super(AuthPluginDeregisterCLI, self).__init__(
+            'deregister', 'Deregister auth plugin'
+        )
+
+        self.parent = parent
+
+    def print_help(self):
+        print("Usages: pki-server %s-auth-plugin-deregister <plugin_type>" % self.parent.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, args = getopt.gnu_getopt(argv, 'i:', [
+                'instance=', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        plugin_type = ''
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+            else:
+                print('ERROR: unknown option ' + o)
+                self.print_help()
+                sys.exit(1)
+        plugin_type = args[0].strip()
+        if not plugin_type:
+            print("ERROR: Plugin type required")
+            sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem_name = self.parent.parent.parent.name
+        subsystem = instance.get_subsystem(subsystem_name)
+        deleted = False
+        for key, value in subsystem.config.items():
+            if key.lower().startswith('auths.impl.{}'.format(plugin_type.lower())):
+                del subsystem.config[key]
+                deleted = True
+                subsystem.save()
+                print("Auth plugin {} deregistered.".format(plugin_type))
+
+        if not deleted:
+            print("ERROR: Auth plugin not found.")
 
 
 class AuthPluginAddCLI(pki.cli.CLI):
     def __init__(self, parent):
         super(AuthPluginAddCLI, self).__init__(
-            'add', 'Add auth plugin'
+            'add', 'Add auth plugin instance'
         )
 
         self.parent = parent
@@ -419,7 +484,7 @@ class AuthPluginAddCLI(pki.cli.CLI):
 class AuthPluginDelCLI(pki.cli.CLI):
     def __init__(self, parent):
         super(AuthPluginDelCLI, self).__init__(
-            'del', 'Delete added plugins'
+            'del', 'Delete auth plugin instance'
         )
         self.parent = parent
 
@@ -481,7 +546,7 @@ class AuthPluginDelCLI(pki.cli.CLI):
 class AuthPluginFindCLI(pki.cli.CLI):
     def __init__(self, parent):
         super(AuthPluginFindCLI, self).__init__(
-            'find', 'Find added plugins'
+            'find', 'Find added plugin instances'
         )
         self.parent = parent
 
@@ -546,7 +611,7 @@ class AuthPluginFindCLI(pki.cli.CLI):
                     if not key.startswith('auths.impl._'):
                         plugin_conf[key] = value
             AuthPluginCLI.print_plugin(plugin_conf, default=True)
-        print("  Configured Plugins")
+        print("  Configured Plugin instances.")
         print("  ==================")
         for key, value in subsystem.config.items():
             if key.startswith("auths.instance"):
@@ -557,7 +622,7 @@ class AuthPluginFindCLI(pki.cli.CLI):
 class AuthPluginShowCLI(pki.cli.CLI):
     def __init__(self, parent):
         super(AuthPluginShowCLI, self).__init__(
-            'show', 'Display plugin configuration')
+            'show', 'Display plugin instance configuration')
         self.parent = parent
 
     def print_help(self):
@@ -619,26 +684,20 @@ class AuthPluginShowCLI(pki.cli.CLI):
                   % (subsystem_name.upper(), instance_name))
             sys.exit(1)
         plugin_conf = {}
-        default_plugin = None
         for key, value in subsystem.config.items():
-            if key.startswith('auths.instance'):
+            if key.lower().startswith('auths.instance.{}'.format(plugin_id.lower())):
                 plugin_conf[key] = value
-            if value.lower() == plugin_id.lower():
-                default_plugin = key.split(".")[2]
 
-        if default_plugin:
-            print("  ")
-            print("   Plugin attributes \t\t\t Plugin Values")
-            print("   ================= \t\t\t =============")
-            # print("    {:<25} \t {}".format("plugin.type", default_plugin))
+        print("  ")
+        print("   Plugin attributes \t\t\t Plugin Values")
+        print("   ================= \t\t\t =============")
+        print("    {:<25} \t\t {}".format("Instance Name", plugin_id))
 
-            for key, value in plugin_conf.items():
-                if default_plugin in key:
-                    print("    {:<30} \t {val}".format(".".join(key.split(".")[3:]), val=value))
+        for key, value in plugin_conf.items():
+            print("    {:<30} \t {val}".format(".".join(key.split(".")[3:]), val=value))
 
         if store:
             with open(file_name, 'w') as conf_file:
                 for key, value in plugin_conf.items():
-                    if default_plugin in key:
-                        conf_file.write("{}={}\n".format(key, value))
+                    conf_file.write("{}={}\n".format(key, value))
             print("Plugin stored in {}.\n".format(file_name))
