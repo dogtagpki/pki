@@ -73,7 +73,7 @@ public class KRAInstallerService extends SystemConfigService {
             // need to push connector information to the CA
             if (!request.getStandAlone() && !ca_host.equals("")) {
                 configureKRAConnector();
-                Configurator.setupClientAuthUser();
+                configurator.setupClientAuthUser();
             }
 
         } catch (Exception e) {
@@ -83,7 +83,7 @@ public class KRAInstallerService extends SystemConfigService {
 
         try {
              if (!request.isClone()) {
-                 Configurator.updateNextRanges();
+                 configurator.updateNextRanges();
              }
 
         } catch (Exception e) {

@@ -95,7 +95,7 @@ public class OCSPInstallerService extends SystemConfigService {
                     if (!request.isClone())
                         updateOCSPConfiguration();
 
-                    Configurator.setupClientAuthUser();
+                    configurator.setupClientAuthUser();
                 }
             }
 

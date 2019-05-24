@@ -217,7 +217,7 @@ public class Configurator {
         return connection.post(path, content);
     }
 
-    public static String getCertChain(String host, int port, String serverPath)
+    public String getCertChain(String host, int port, String serverPath)
             throws Exception {
 
         String url = "https://" + host + ":" + port + serverPath;
@@ -248,7 +248,7 @@ public class Configurator {
         return parser.getValue("ChainBase64");
     }
 
-    public static void importCertChain(String certchain, String tag)
+    public void importCertChain(String certchain, String tag)
             throws Exception {
 
         logger.debug("Configurator: Importing cert chain for " + tag);
@@ -296,7 +296,7 @@ public class Configurator {
         CryptoUtil.importCertificateChain(bytes);
     }
 
-    public static String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
+    public String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -341,7 +341,7 @@ public class Configurator {
         }
     }
 
-    public static String getOldCookie(String sdhost, int sdport, String user, String passwd) throws Exception {
+    public String getOldCookie(String sdhost, int sdport, String user, String passwd) throws Exception {
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
@@ -361,7 +361,7 @@ public class Configurator {
         return getContentValue(body, "header.session_id");
     }
 
-    public static String getContentValue(String body, String header) {
+    public String getContentValue(String body, String header) {
 
         logger.debug("Configurator: searching for " + header);
 
@@ -385,7 +385,7 @@ public class Configurator {
         return null;
     }
 
-    public static String getDomainXML(String hostname, int https_admin_port, boolean https)
+    public String getDomainXML(String hostname, int https_admin_port, boolean https)
             throws Exception {
 
         logger.debug("Configurator: getting domain info");
@@ -415,7 +415,7 @@ public class Configurator {
         return null;
     }
 
-    public static void getSecurityDomainPorts(String domainXML, String host, int port) throws SAXException,
+    public void getSecurityDomainPorts(String domainXML, String host, int port) throws SAXException,
             IOException, ParserConfigurationException {
         ByteArrayInputStream bis = new ByteArrayInputStream(domainXML.getBytes());
 
@@ -447,7 +447,7 @@ public class Configurator {
         }
     }
 
-    public static Vector<String> getUrlListFromSecurityDomain(IConfigStore config,
+    public Vector<String> getUrlListFromSecurityDomain(IConfigStore config,
             String type, String portType)
             throws Exception {
         Vector<String> v = new Vector<String>();
@@ -497,7 +497,7 @@ public class Configurator {
         return v;
     }
 
-    public static boolean isValidCloneURI(String domainXML, String cloneHost, int clonePort) throws EPropertyNotFound,
+    public boolean isValidCloneURI(String domainXML, String cloneHost, int clonePort) throws EPropertyNotFound,
             EBaseException, SAXException, IOException, ParserConfigurationException {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -526,7 +526,7 @@ public class Configurator {
         return false;
     }
 
-    public static void getConfigEntriesFromMaster()
+    public void getConfigEntriesFromMaster()
             throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -619,7 +619,7 @@ public class Configurator {
 
     }
 
-    public static void updateNumberRange(String hostname, int eePort, int adminPort, boolean https,
+    public void updateNumberRange(String hostname, int eePort, int adminPort, boolean https,
             MultivaluedMap<String, String> content, String type) throws Exception {
 
         logger.debug("updateNumberRange start host=" + hostname + " adminPort=" + adminPort + " eePort=" + eePort);
@@ -690,7 +690,7 @@ public class Configurator {
         }
     }
 
-    public static boolean updateConfigEntries(String hostname, int port, boolean https,
+    public boolean updateConfigEntries(String hostname, int port, boolean https,
             String servlet, MultivaluedMap<String, String> content, IConfigStore config)
             throws Exception {
         logger.debug("updateConfigEntries start");
@@ -827,7 +827,7 @@ public class Configurator {
         return false;
     }
 
-    public static void restoreCertsFromP12(String p12File, String p12Pass) throws Exception {
+    public void restoreCertsFromP12(String p12File, String p12Pass) throws Exception {
 
         // TODO: The PKCS #12 file is already imported in security_database.py.
         // This method should be removed.
@@ -964,7 +964,7 @@ public class Configurator {
         }
     }
 
-    public static void verifySystemCertificates() throws Exception {
+    public void verifySystemCertificates() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -1002,7 +1002,7 @@ public class Configurator {
         }
     }
 
-    public static void importKeyCert(
+    public void importKeyCert(
             Password password,
             Vector<Vector<Object>> pkeyinfo_collection,
             Vector<Vector<Object>> cert_collection
@@ -1129,7 +1129,7 @@ public class Configurator {
     /* We need to import the audit signing cert and CA signing cert to the soft token in order to
      * correctly set the trust permissions.
      */
-    public static void importAndSetCertPermissionsFromHSM() throws EBaseException, NotInitializedException,
+    public void importAndSetCertPermissionsFromHSM() throws EBaseException, NotInitializedException,
             IOException, CertificateEncodingException, NicknameConflictException, UserCertConflictException,
             NoSuchItemOnTokenException, TokenException {
 
@@ -1166,7 +1166,7 @@ public class Configurator {
         }
     }
 
-    private static boolean importRequired(ArrayList<String> masterList, String nickname) {
+    private boolean importRequired(ArrayList<String> masterList, String nickname) {
         if (masterList.contains(nickname))
             return true;
         try {
@@ -1188,7 +1188,7 @@ public class Configurator {
         return false;
     }
 
-    public static X509Certificate getX509CertFromToken(byte[] cert)
+    public X509Certificate getX509CertFromToken(byte[] cert)
             throws IOException, CertificateException, NotInitializedException {
 
         X509CertImpl impl = new X509CertImpl(cert);
@@ -1206,7 +1206,7 @@ public class Configurator {
         return null;
     }
 
-    public static boolean isCASigningCert(String name) throws EBaseException {
+    public boolean isCASigningCert(String name) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -1224,7 +1224,7 @@ public class Configurator {
     }
 
 
-    public static boolean isAuditSigningCert(String name) throws EPropertyNotFound, EBaseException {
+    public boolean isAuditSigningCert(String name) throws EPropertyNotFound, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -1234,7 +1234,7 @@ public class Configurator {
         return false;
     }
 
-    public static void deleteExistingCerts() throws NotInitializedException, EBaseException, TokenException {
+    public void deleteExistingCerts() throws NotInitializedException, EBaseException, TokenException {
 
         logger.debug("Deleting existing certificates:");
 
@@ -1273,7 +1273,7 @@ public class Configurator {
         }
     }
 
-    public static ArrayList<String> getMasterCertKeyList() throws EBaseException {
+    public ArrayList<String> getMasterCertKeyList() throws EBaseException {
         ArrayList<String> list = new ArrayList<String>();
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -1299,7 +1299,7 @@ public class Configurator {
         return list;
     }
 
-    public static byte[] getX509Cert(String nickname, Vector<Vector<Object>> cert_collection)
+    public byte[] getX509Cert(String nickname, Vector<Vector<Object>> cert_collection)
             throws CertificateException {
         for (int i = 0; i < cert_collection.size(); i++) {
             Vector<Object> v = cert_collection.elementAt(i);
@@ -1313,7 +1313,7 @@ public class Configurator {
         return null;
     }
 
-    public static void releaseConnection(LDAPConnection conn) {
+    public void releaseConnection(LDAPConnection conn) {
         try {
             if (conn != null)
                 conn.disconnect();
@@ -1322,7 +1322,7 @@ public class Configurator {
         }
     }
 
-    public static void enableUSNPlugin() throws IOException, EBaseException {
+    public void enableUSNPlugin() throws IOException, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -1342,7 +1342,7 @@ public class Configurator {
         }
     }
 
-    public static void populateDB() throws IOException, EBaseException {
+    public void populateDB() throws IOException, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -1462,7 +1462,7 @@ public class Configurator {
         }
     }
 
-    private static void populateIndexes(LDAPConnection conn) throws EPropertyNotFound, IOException, EBaseException {
+    private void populateIndexes(LDAPConnection conn) throws EPropertyNotFound, IOException, EBaseException {
         logger.debug("populateIndexes(): start");
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -1479,7 +1479,7 @@ public class Configurator {
         }
     }
 
-    private static void wait_for_task(LDAPConnection conn, String wait_dn) {
+    private void wait_for_task(LDAPConnection conn, String wait_dn) {
         LDAPEntry task = null;
         boolean taskComplete = false;
         logger.debug("Checking wait_dn " + wait_dn);
@@ -1509,7 +1509,7 @@ public class Configurator {
         } while (!taskComplete);
     }
 
-    private static void createBaseEntry(String baseDN, LDAPConnection conn) throws EBaseException {
+    private void createBaseEntry(String baseDN, LDAPConnection conn) throws EBaseException {
         try {
             logger.debug("Creating base DN: " + baseDN);
             String dns3[] = LDAPDN.explodeDN(baseDN, false);
@@ -1534,7 +1534,7 @@ public class Configurator {
         }
     }
 
-    private static void createDatabaseMappingEntry(String baseDN, String database, LDAPConnection conn, String mappingDN)
+    private void createDatabaseMappingEntry(String baseDN, String database, LDAPConnection conn, String mappingDN)
             throws EBaseException {
         try {
             LDAPAttributeSet attrs = new LDAPAttributeSet();
@@ -1551,7 +1551,7 @@ public class Configurator {
         }
     }
 
-    private static void createDatabaseEntry(String baseDN, String database, LDAPConnection conn, String databaseDN)
+    private void createDatabaseEntry(String baseDN, String database, LDAPConnection conn, String databaseDN)
             throws EBaseException {
         try {
             LDAPAttributeSet attrs = new LDAPAttributeSet();
@@ -1567,7 +1567,7 @@ public class Configurator {
         }
     }
 
-    private static void confirmNoConflictingMappingsForDB(String baseDN, String database, LDAPConnection conn)
+    private void confirmNoConflictingMappingsForDB(String baseDN, String database, LDAPConnection conn)
             throws EBaseException {
         try {
             logger.debug("confirmMappings: Checking other subtrees using database " + database + ".");
@@ -1597,7 +1597,7 @@ public class Configurator {
         }
     }
 
-    private static LDAPEntry getDatabaseEntry(String database, boolean remove, LDAPConnection conn, String databaseDN)
+    private LDAPEntry getDatabaseEntry(String database, boolean remove, LDAPConnection conn, String databaseDN)
             throws EBaseException {
         LDAPEntry databaseEntry = null;
         try {
@@ -1621,7 +1621,7 @@ public class Configurator {
         return databaseEntry;
     }
 
-    private static LDAPEntry getMappingEntry(String baseDN, boolean remove, LDAPConnection conn, String mappingDN)
+    private LDAPEntry getMappingEntry(String baseDN, boolean remove, LDAPConnection conn, String mappingDN)
             throws EBaseException {
         LDAPEntry mappingEntry = null;
         try {
@@ -1645,7 +1645,7 @@ public class Configurator {
         return mappingEntry;
     }
 
-    private static LDAPEntry getBaseEntry(String baseDN, boolean remove, LDAPConnection conn) throws EBaseException {
+    private LDAPEntry getBaseEntry(String baseDN, boolean remove, LDAPConnection conn) throws EBaseException {
         LDAPEntry baseEntry = null;
         try {
             logger.debug("getBaseDNEntry: Checking subtree " + baseDN + ".");
@@ -1668,7 +1668,7 @@ public class Configurator {
         return baseEntry;
     }
 
-    private static void checkParentExists(String baseDN, LDAPConnection conn) throws EBaseException {
+    private void checkParentExists(String baseDN, LDAPConnection conn) throws EBaseException {
         String[] dns = LDAPDN.explodeDN(baseDN, false);
         if (dns.length == 1) {
             logger.error("checkParentExists: no parent in baseDN: " + baseDN);
@@ -1690,12 +1690,12 @@ public class Configurator {
         }
     }
 
-    public static void importLDIFS(String param, LDAPConnection conn) throws EPropertyNotFound, IOException,
+    public void importLDIFS(String param, LDAPConnection conn) throws EPropertyNotFound, IOException,
             EBaseException {
         importLDIFS(param, conn, true);
     }
 
-    public static void importLDIFS(String param, LDAPConnection conn, boolean suppressErrors) throws IOException,
+    public void importLDIFS(String param, LDAPConnection conn, boolean suppressErrors) throws IOException,
             EPropertyNotFound,
             EBaseException {
 
@@ -1787,7 +1787,7 @@ public class Configurator {
         }
     }
 
-    public static void deleteSubtree(LDAPConnection conn, String dn) throws EBaseException {
+    public void deleteSubtree(LDAPConnection conn, String dn) throws EBaseException {
         String[] excludedDNs = {};
         try {
             LDAPSearchResults res = conn.search(
@@ -1805,7 +1805,7 @@ public class Configurator {
         }
     }
 
-    public static void deleteEntries(LDAPSearchResults res, LDAPConnection conn, String[] excludedDNs)
+    public void deleteEntries(LDAPSearchResults res, LDAPConnection conn, String[] excludedDNs)
             throws LDAPException {
         while (res.hasMoreElements()) {
             LDAPEntry entry = res.next();
@@ -1819,7 +1819,7 @@ public class Configurator {
         }
     }
 
-    public static void deleteEntry(LDAPConnection conn, String dn, String[] excludedDNs) throws LDAPException {
+    public void deleteEntry(LDAPConnection conn, String dn, String[] excludedDNs) throws LDAPException {
         for (String excludedDN : excludedDNs) {
             if (!LDAPDN.equals(dn, excludedDN))
                 continue;
@@ -1831,7 +1831,7 @@ public class Configurator {
         conn.delete(dn);
     }
 
-    public static boolean deleteDir(File dir) {
+    public boolean deleteDir(File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
             for (int i = 0; i < children.length; i++) {
@@ -1844,7 +1844,7 @@ public class Configurator {
         return dir.delete();
     }
 
-    public static void populateDBManager() throws Exception {
+    public void populateDBManager() throws Exception {
         logger.debug("populateDBManager(): start");
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -1866,7 +1866,7 @@ public class Configurator {
         }
     }
 
-    public static void populateVLVIndexes() throws Exception {
+    public void populateVLVIndexes() throws Exception {
         logger.debug("populateVLVIndexes(): start");
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -1896,7 +1896,7 @@ public class Configurator {
         }
     }
 
-    public static KeyPair loadKeyPair(String nickname, String token) throws Exception {
+    public KeyPair loadKeyPair(String nickname, String token) throws Exception {
 
         logger.debug("Configurator: loadKeyPair(" + nickname + ", " + token + ")");
 
@@ -1918,7 +1918,7 @@ public class Configurator {
         return new KeyPair(publicKey, privateKey);
     }
 
-    public static void storeKeyPair(IConfigStore config, String tag, KeyPair pair)
+    public void storeKeyPair(IConfigStore config, String tag, KeyPair pair)
             throws TokenException, EBaseException {
 
         logger.debug("Configurator: storeKeyPair(" + tag + ")");
@@ -1953,7 +1953,7 @@ public class Configurator {
         setSigningAlgorithm(tag, keyAlgo, config);
     }
 
-    public static KeyPair createECCKeyPair(CryptoToken token, String curveName, IConfigStore config, String ct)
+    public KeyPair createECCKeyPair(CryptoToken token, String curveName, IConfigStore config, String ct)
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
             NotInitializedException, EPropertyNotFound, EBaseException {
 
@@ -2019,7 +2019,7 @@ public class Configurator {
         return pair;
     }
 
-    public static KeyPair createRSAKeyPair(CryptoToken token, int keysize, IConfigStore config, String ct)
+    public KeyPair createRSAKeyPair(CryptoToken token, int keysize, IConfigStore config, String ct)
             throws Exception {
 
         logger.debug("Configurator.createRSAKeyPair(" + token + ")");
@@ -2043,7 +2043,7 @@ public class Configurator {
         return pair;
     }
 
-    public static void setSigningAlgorithm(String ct, String keyAlgo, IConfigStore config) throws EPropertyNotFound,
+    public void setSigningAlgorithm(String ct, String keyAlgo, IConfigStore config) throws EPropertyNotFound,
             EBaseException {
         String systemType = config.getString("cs.type");
         if (systemType.equalsIgnoreCase("CA")) {
@@ -2064,7 +2064,7 @@ public class Configurator {
         }
     }
 
-    public static int getSubsystemCount(String hostname, int https_admin_port,
+    public int getSubsystemCount(String hostname, int https_admin_port,
             boolean https, String type) throws Exception {
         logger.debug("getSubsystemCount start");
         String c = getDomainXML(hostname, https_admin_port, true);
@@ -2100,7 +2100,7 @@ public class Configurator {
         return -1;
     }
 
-    public static void configCert(
+    public void configCert(
             ConfigurationRequest request,
             HttpServletResponse response,
             Context context,
@@ -2199,7 +2199,7 @@ public class Configurator {
         config.commit(false);
     }
 
-    private static X509CertImpl configRemoteCert(
+    private X509CertImpl configRemoteCert(
             ConfigurationRequest request,
             HttpServletResponse response,
             Context context,
@@ -2334,7 +2334,7 @@ public class Configurator {
         return cert;
     }
 
-    private static X509CertImpl configLocalCert(
+    private X509CertImpl configLocalCert(
             Context context,
             Cert certObj,
             IConfigStore config,
@@ -2381,7 +2381,7 @@ public class Configurator {
         return cert;
     }
 
-    public static void updateConfig(IConfigStore config, Cert cert)
+    public void updateConfig(IConfigStore config, Cert cert)
             throws EBaseException, IOException {
 
         String certTag = cert.getCertTag();
@@ -2442,7 +2442,7 @@ public class Configurator {
         logger.debug("updateConfig() done");
     }
 
-    public static String getNickname(IConfigStore config, String certTag) throws EBaseException {
+    public String getNickname(IConfigStore config, String certTag) throws EBaseException {
         String instanceID = config.getString("instanceId", "");
 
         String nickname = certTag + "Cert cert-" + instanceID;
@@ -2458,7 +2458,7 @@ public class Configurator {
         return nickname;
     }
 
-    public static int getPortFromSecurityDomain(String domainXML, String host, int port, String csType,
+    public int getPortFromSecurityDomain(String domainXML, String host, int port, String csType,
             String givenTag, String wantedTag) throws SAXException, IOException, ParserConfigurationException {
 
         logger.debug("Configurator: Searching for " + wantedTag + " in " + csType + " hosts");
@@ -2499,7 +2499,7 @@ public class Configurator {
         return 0;
     }
 
-    public static void updateCloneConfig() throws EBaseException, IOException {
+    public void updateCloneConfig() throws EBaseException, IOException {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.getConfigStore();
@@ -2540,7 +2540,7 @@ public class Configurator {
         config.putString("log.instance.SignedAudit.signedAuditCertNickname", nickname);
     }
 
-    public static byte[] loadCertRequest(IConfigStore config, String subsystem, String tag) throws Exception {
+    public byte[] loadCertRequest(IConfigStore config, String subsystem, String tag) throws Exception {
 
         logger.debug("Configurator.loadCertRequest(" + tag + ")");
 
@@ -2549,7 +2549,7 @@ public class Configurator {
         return CryptoUtil.base64Decode(certreq);
     }
 
-    public static void generateCertRequest(IConfigStore config, String certTag, Cert cert) throws Exception {
+    public void generateCertRequest(IConfigStore config, String certTag, Cert cert) throws Exception {
 
         logger.debug("generateCertRequest: getting public key for certificate " + certTag);
 
@@ -2614,7 +2614,7 @@ public class Configurator {
      * createBasicCAExtensions creates the basic Extensions needed for a CSR to a
      * CA signing certificate
      */
-    private static void createBasicCAExtensions(IConfigStore config, Extensions exts) throws Exception {
+    private void createBasicCAExtensions(IConfigStore config, Extensions exts) throws Exception {
         logger.debug("Configurator: createBasicCAExtensions: begins");
 
         // create BasicConstraintsExtension
@@ -2645,7 +2645,7 @@ public class Configurator {
         */
     }
 
-    private static void createGenericExtensions(IConfigStore config, String tag, Extensions exts) throws Exception {
+    private void createGenericExtensions(IConfigStore config, String tag, Extensions exts) throws Exception {
         logger.debug("Configurator: createGenericExtensions: begins");
         // if specified, add a generic extension
         try {
@@ -2677,7 +2677,7 @@ public class Configurator {
         }
     }
 
-    public static X509Key getECCX509Key(IConfigStore config, String certTag) throws EPropertyNotFound, EBaseException,
+    public X509Key getECCX509Key(IConfigStore config, String certTag) throws EPropertyNotFound, EBaseException,
             InvalidKeyException {
         X509Key pubk = null;
         String pubKeyEncoded = config.getString(PCERT_PREFIX + certTag + ".pubkey.encoded");
@@ -2685,7 +2685,7 @@ public class Configurator {
         return pubk;
     }
 
-    public static X509Key getRSAX509Key(IConfigStore config, String certTag) throws EPropertyNotFound, EBaseException,
+    public X509Key getRSAX509Key(IConfigStore config, String certTag) throws EPropertyNotFound, EBaseException,
             InvalidKeyException {
         X509Key pubk = null;
 
@@ -2697,7 +2697,7 @@ public class Configurator {
         return pubk;
     }
 
-    public static void createCertRecord(IConfigStore cs, Cert cert) throws Exception {
+    public void createCertRecord(IConfigStore cs, Cert cert) throws Exception {
 
         String tag = cert.getCertTag();
         logger.debug("Configurator.createCertRecord(" + tag + ")");
@@ -2756,7 +2756,7 @@ public class Configurator {
         cr.addCertificateRecord(record);
     }
 
-    public static void handleCert(Cert cert) throws Exception {
+    public void handleCert(Cert cert) throws Exception {
 
         String certTag = cert.getCertTag();
         logger.debug("Configurator.handleCert(" + certTag + ")");
@@ -2786,7 +2786,7 @@ public class Configurator {
         }
     }
 
-    public static void importCert(
+    public void importCert(
             String subsystem,
             String tag,
             String tokenname,
@@ -2825,7 +2825,7 @@ public class Configurator {
         } // user certs will have u,u,u by default
     }
 
-    public static void backupKeys(String pwd, String fname) throws Exception {
+    public void backupKeys(String pwd, String fname) throws Exception {
 
         logger.debug("backupKeys(): start");
 
@@ -2898,7 +2898,7 @@ public class Configurator {
         }
     }
 
-    public static void createAdminCertificate(String certRequest, String certRequestType, String subject)
+    public void createAdminCertificate(String certRequest, String certRequestType, String subject)
             throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -2939,7 +2939,7 @@ public class Configurator {
         cs.putString("preop.admincert.serialno.0", impl.getSerialNumber().toString(16));
     }
 
-    public static void createPKCS7(X509CertImpl cert) throws IOException {
+    public void createPKCS7(X509CertImpl cert) throws IOException {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -2964,7 +2964,7 @@ public class Configurator {
         cs.putString("preop.admincert.pkcs7", CryptoUtil.normalizeCertStr(p7Str));
     }
 
-    public static void createAdmin(String uid, String email, String name, String pwd) throws IOException,
+    public void createAdmin(String uid, String email, String name, String pwd) throws IOException,
             EBaseException, LDAPException {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -3059,7 +3059,7 @@ public class Configurator {
         }
     }
 
-    public static String submitAdminCertRequest(String ca_hostname, int ca_port, String profileId,
+    public String submitAdminCertRequest(String ca_hostname, int ca_port, String profileId,
             String certRequestType, String certRequest, String subjectDN) throws Exception {
 
         logger.debug("Configurator: submitAdminCertRequest()");
@@ -3124,7 +3124,7 @@ public class Configurator {
         }
     }
 
-    public static void createSecurityDomain() throws EBaseException, LDAPException, NumberFormatException, IOException,
+    public void createSecurityDomain() throws EBaseException, LDAPException, NumberFormatException, IOException,
             SAXException, ParserConfigurationException {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -3194,7 +3194,7 @@ public class Configurator {
         // String c = getDomainXML(CMS.getEESSLHost(), Integer.parseInt(CMS.getAdminPort()), true);
     }
 
-    public static void updateSecurityDomain() throws Exception {
+    public void updateSecurityDomain() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -3252,7 +3252,7 @@ public class Configurator {
         String c = getDomainXML(sd_host, sd_admin_port, true);
     }
 
-    public static boolean isSDHostDomainMaster(IConfigStore config) throws Exception {
+    public boolean isSDHostDomainMaster(IConfigStore config) throws Exception {
         String dm = "false";
 
         String hostname = config.getString("securitydomain.host");
@@ -3281,7 +3281,7 @@ public class Configurator {
         return dm.equalsIgnoreCase("true");
     }
 
-    public static void updateDomainXML(String hostname, int port, boolean https,
+    public void updateDomainXML(String hostname, int port, boolean https,
             String servlet, MultivaluedMap<String, String> content, boolean useClientAuth)
             throws Exception {
 
@@ -3336,7 +3336,7 @@ public class Configurator {
         }
     }
 
-    public static void setupClientAuthUser() throws Exception {
+    public void setupClientAuthUser() throws Exception {
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String host = cs.getString("preop.ca.hostname", "");
@@ -3390,7 +3390,7 @@ public class Configurator {
 
     }
 
-    public static String getSubsystemCert(String host, int port, boolean https)
+    public String getSubsystemCert(String host, int port, boolean https)
             throws Exception {
 
         logger.debug("getSubsystemCert() start");
@@ -3413,7 +3413,7 @@ public class Configurator {
         return null;
     }
 
-    public static String getTransportCert(URI secdomainURI, URI kraUri)
+    public String getTransportCert(URI secdomainURI, URI kraUri)
             throws Exception {
         logger.debug("getTransportCert() start");
         CMSEngine engine = CMS.getCMSEngine();
@@ -3447,7 +3447,7 @@ public class Configurator {
         return null;
     }
 
-    public static void getSharedSecret(String tksHost, int tksPort, boolean importKey) throws EPropertyNotFound,
+    public void getSharedSecret(String tksHost, int tksPort, boolean importKey) throws EPropertyNotFound,
             EBaseException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NotInitializedException, TokenException, ObjectNotFoundException,
             IOException {
@@ -3529,7 +3529,7 @@ public class Configurator {
         cs.commit(false);
     }
 
-    public static void setupDBUser() throws CertificateException, LDAPException, EBaseException,
+    public void setupDBUser() throws CertificateException, LDAPException, EBaseException,
             NotInitializedException, ObjectNotFoundException, TokenException, IOException {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -3609,7 +3609,7 @@ public class Configurator {
         }
     }
 
-    public static void addProfilesToTPSUser(String adminID) throws EUsrGrpException, LDAPException {
+    public void addProfilesToTPSUser(String adminID) throws EUsrGrpException, LDAPException {
 
         logger.debug("Adding all profiles to TPS admin user");
 
@@ -3624,7 +3624,7 @@ public class Configurator {
         system.modifyUser(user);
     }
 
-    public static void registerUser(URI secdomainURI, URI targetURI, String targetType) throws Exception {
+    public void registerUser(URI secdomainURI, URI targetURI, String targetType) throws Exception {
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String csType = cs.getString("cs.type");
@@ -3677,7 +3677,7 @@ public class Configurator {
         }
     }
 
-    public static void exportTransportCert(URI secdomainURI, URI targetURI, String transportCert) throws Exception {
+    public void exportTransportCert(URI secdomainURI, URI targetURI, String transportCert) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -3723,7 +3723,7 @@ public class Configurator {
         }
     }
 
-    public static void removeOldDBUsers(String subjectDN) throws EBaseException, LDAPException {
+    public void removeOldDBUsers(String subjectDN) throws EBaseException, LDAPException {
 
         CMSEngine engine = CMS.getCMSEngine();
 
@@ -3752,7 +3752,7 @@ public class Configurator {
         }
     }
 
-    public static String getSubsystemCert() throws EBaseException, NotInitializedException, ObjectNotFoundException,
+    public String getSubsystemCert() throws EBaseException, NotInitializedException, ObjectNotFoundException,
             TokenException, CertificateEncodingException, IOException {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -3779,7 +3779,7 @@ public class Configurator {
         return s;
     }
 
-    public static void updateAuthdbInfo(String basedn, String host, String port, String secureConn) {
+    public void updateAuthdbInfo(String basedn, String host, String port, String secureConn) {
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
 
@@ -3789,7 +3789,7 @@ public class Configurator {
         cs.putString("auths.instance.ldap1.ldap.ldapconn.secureConn", secureConn);
     }
 
-    public static void updateNextRanges() throws EBaseException, LDAPException {
+    public void updateNextRanges() throws EBaseException, LDAPException {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -3835,7 +3835,7 @@ public class Configurator {
      *
      * @throws EBaseException
      */
-    public static void removePreopConfigEntries() throws EBaseException {
+    public void removePreopConfigEntries() throws EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         String type = cs.getString("cs.type");
