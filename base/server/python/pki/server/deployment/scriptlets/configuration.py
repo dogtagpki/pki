@@ -645,10 +645,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             len(deployer.instance.tomcat_instance_subsystems())
 
         if tomcat_instance_subsystems == 1:
-            deployer.systemd.start()
+            instance.start()
 
         elif tomcat_instance_subsystems > 1:
-            deployer.systemd.restart()
+            instance.restart()
 
         # Configure status request timeout.  This is used for each
         # status request in wait_for_startup
@@ -767,7 +767,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # If temp SSL server cert was created and there's a new perm cert,
         # replace it with the perm cert.
         if create_temp_sslserver_cert and sslserver and sslserver['data']:
-            deployer.systemd.stop()
+            instance.stop()
 
             # Remove temp SSL server cert.
             self.remove_temp_sslserver_cert(instance, sslserver)
@@ -783,11 +783,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 self.import_perm_sslserver_cert(deployer, instance, sslserver)
 
-            deployer.systemd.start()
+            instance.start()
 
         elif config.str2bool(deployer.mdict['pki_restart_configured_instance']):
             # Optionally, programmatically 'restart' the configured PKI instance
-            deployer.systemd.restart()
+            instance.restart()
 
         # wait for startup
         status = None
