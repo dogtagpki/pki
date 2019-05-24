@@ -34,7 +34,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.ConfigurationRequest;
-import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
@@ -95,7 +95,7 @@ public class OCSPInstallerService extends SystemConfigService {
                     if (!request.isClone())
                         updateOCSPConfiguration();
 
-                    ConfigurationUtils.setupClientAuthUser();
+                    Configurator.setupClientAuthUser();
                 }
             }
 
@@ -152,8 +152,8 @@ public class OCSPInstallerService extends SystemConfigService {
         // database
         ICRLIssuingPointRecord rec = defStore.createCRLIssuingPointRecord(
                 leafCert.getSubjectDN().getName(),
-                ConfigurationUtils.BIG_ZERO,
-                ConfigurationUtils.MINUS_ONE, null, null);
+                Configurator.BIG_ZERO,
+                Configurator.MINUS_ONE, null, null);
 
         rec.set(ICRLIssuingPointRecord.ATTR_CA_CERT, leafCert.getEncoded());
         defStore.addCRLIssuingPoint(leafCert.getSubjectDN().getName(), rec);
@@ -182,7 +182,7 @@ public class OCSPInstallerService extends SystemConfigService {
         content.putSingle("ocsp_host", ocspHost);
         content.putSingle("ocsp_port", ocspPort + "");
 
-        String c = ConfigurationUtils.post(caHost, caPort, true, "/ca/ee/ca/updateOCSPConfig", content, null, null);
+        String c = Configurator.post(caHost, caPort, true, "/ca/ee/ca/updateOCSPConfig", content, null, null);
         if (c == null || c.equals("")) {
             logger.error("OCSPInstallerService: Unable to update OCSP configuration: No response from CA");
             throw new IOException("Unable to update OCSP configuration: No response from CA");
@@ -194,12 +194,12 @@ public class OCSPInstallerService extends SystemConfigService {
         String status = parser.getValue("Status");
         logger.debug("OCSPInstallerService: status: " + status);
 
-        if (status.equals(ConfigurationUtils.SUCCESS)) {
+        if (status.equals(Configurator.SUCCESS)) {
             logger.debug("OCSPInstallerService: Successfully updated OCSP configuration in CA");
 
-        } else if (status.equals(ConfigurationUtils.AUTH_FAILURE)) {
+        } else if (status.equals(Configurator.AUTH_FAILURE)) {
             logger.error("OCSPInstallerService: Unable to update OCSP configuration: Authentication failure");
-            throw new EAuthException(ConfigurationUtils.AUTH_FAILURE);
+            throw new EAuthException(Configurator.AUTH_FAILURE);
 
         } else {
             String error = parser.getValue("Error");

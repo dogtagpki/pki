@@ -39,7 +39,7 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -220,7 +220,7 @@ public class TokenAuthentication implements IAuthManager,
     private String sendAuthRequest(String authHost, int authPort, String authUrl, MultivaluedMap<String, String> content)
             throws Exception {
 
-        return ConfigurationUtils.post(authHost, authPort, true, authUrl, content, null, null);
+        return Configurator.post(authHost, authPort, true, authUrl, content, null, null);
     }
 
     /**

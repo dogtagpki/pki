@@ -82,12 +82,12 @@ public class ReplicationUtil {
 
         try {
             logger.info("ReplicationUtil: connecting to master");
-            LdapBoundConnFactory masterFactory = new LdapBoundConnFactory("ConfigurationUtils");
+            LdapBoundConnFactory masterFactory = new LdapBoundConnFactory("ReplicationUtil");
             masterFactory.init(cs, masterCfg, engine.getPasswordStore());
             masterConn = masterFactory.getConn();
 
             logger.info("ReplicationUtil: connecting to replica");
-            LdapBoundConnFactory replicaFactory = new LdapBoundConnFactory("ConfigurationUtils");
+            LdapBoundConnFactory replicaFactory = new LdapBoundConnFactory("ReplicationUtil");
             replicaFactory.init(cs, replicaCfg, engine.getPasswordStore());
             replicaConn = replicaFactory.getConn();
 

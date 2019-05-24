@@ -30,7 +30,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.ConfigurationRequest;
-import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
@@ -73,7 +73,7 @@ public class KRAInstallerService extends SystemConfigService {
             // need to push connector information to the CA
             if (!request.getStandAlone() && !ca_host.equals("")) {
                 configureKRAConnector();
-                ConfigurationUtils.setupClientAuthUser();
+                Configurator.setupClientAuthUser();
             }
 
         } catch (Exception e) {
@@ -83,7 +83,7 @@ public class KRAInstallerService extends SystemConfigService {
 
         try {
              if (!request.isClone()) {
-                 ConfigurationUtils.updateNextRanges();
+                 Configurator.updateNextRanges();
              }
 
         } catch (Exception e) {
@@ -126,7 +126,7 @@ public class KRAInstallerService extends SystemConfigService {
         content.putSingle("ca.connector.KRA.transportCert", transportCert);
         content.putSingle("sessionID", sessionId);
 
-        String c = ConfigurationUtils.post(caHost, caPort, true, "/ca/admin/ca/updateConnector", content, null, null);
+        String c = Configurator.post(caHost, caPort, true, "/ca/admin/ca/updateConnector", content, null, null);
         if (c == null || c.equals("")) {
             logger.error("KRAInstallerService: Unable to configure KRA connector: No response from CA");
             throw new IOException("Unable to configure KRA connector: No response from CA");
@@ -138,12 +138,12 @@ public class KRAInstallerService extends SystemConfigService {
         String status = parser.getValue("Status");
         logger.debug("KRAInstallerService: status: " + status);
 
-        if (status.equals(ConfigurationUtils.SUCCESS)) {
+        if (status.equals(Configurator.SUCCESS)) {
             logger.debug("KRAInstallerService: Successfully configured KRA connector in CA");
 
-        } else if (status.equals(ConfigurationUtils.AUTH_FAILURE)) {
+        } else if (status.equals(Configurator.AUTH_FAILURE)) {
             logger.error("KRAInstallerService: Unable to configure KRA connector: Authentication failure");
-            throw new EAuthException(ConfigurationUtils.AUTH_FAILURE);
+            throw new EAuthException(Configurator.AUTH_FAILURE);
 
         } else {
             String error = parser.getValue("Error");

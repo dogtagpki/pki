@@ -30,7 +30,7 @@ import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.SystemCertData;
-import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
@@ -63,7 +63,7 @@ public class TPSInstallerService extends SystemConfigService  {
     @Override
     public AdminSetupResponse setupAdmin(AdminSetupRequest request) throws Exception {
         AdminSetupResponse response = super.setupAdmin(request);
-        ConfigurationUtils.addProfilesToTPSUser(request.getAdminUID());
+        Configurator.addProfilesToTPSUser(request.getAdminUID());
         return response;
     }
 
@@ -92,7 +92,7 @@ public class TPSInstallerService extends SystemConfigService  {
         configureKRAConnector(request, nickname);
 
         //AuthDBPanel
-        ConfigurationUtils.updateAuthdbInfo(request.getAuthdbBaseDN(),
+        Configurator.updateAuthdbInfo(request.getAuthdbBaseDN(),
                 request.getAuthdbHost(), request.getAuthdbPort(),
                 request.getAuthdbSecureConn());
     }
@@ -141,7 +141,7 @@ public class TPSInstallerService extends SystemConfigService  {
 
         try {
             logger.info("TPSInstallerService: Registering TPS to CA: " + caURI);
-            ConfigurationUtils.registerUser(secdomainURI, caURI, "ca");
+            Configurator.registerUser(secdomainURI, caURI, "ca");
 
         } catch (Exception e) {
             String message = "Unable to register TPS to CA: " + e.getMessage();
@@ -151,7 +151,7 @@ public class TPSInstallerService extends SystemConfigService  {
 
         try {
             logger.info("TPSInstallerService: Registering TPS to TKS: " + tksURI);
-            ConfigurationUtils.registerUser(secdomainURI, tksURI, "tks");
+            Configurator.registerUser(secdomainURI, tksURI, "tks");
 
         } catch (Exception e) {
             String message = "Unable to register TPS to TKS: " + e.getMessage();
@@ -163,7 +163,7 @@ public class TPSInstallerService extends SystemConfigService  {
 
             try {
                 logger.info("TPSInstallerService: Registering TPS to KRA: " + kraURI);
-                ConfigurationUtils.registerUser(secdomainURI, kraURI, "kra");
+                Configurator.registerUser(secdomainURI, kraURI, "kra");
 
             } catch (Exception e) {
                 String message = "Unable to register TPS to KRA: " + e.getMessage();
@@ -174,7 +174,7 @@ public class TPSInstallerService extends SystemConfigService  {
             String transportCert;
             try {
                 logger.info("TPSInstallerService: Retrieving transport cert from KRA");
-                transportCert = ConfigurationUtils.getTransportCert(secdomainURI, kraURI);
+                transportCert = Configurator.getTransportCert(secdomainURI, kraURI);
 
             } catch (Exception e) {
                 String message = "Unable to retrieve transport cert from KRA: " + e.getMessage();
@@ -184,7 +184,7 @@ public class TPSInstallerService extends SystemConfigService  {
 
             try {
                 logger.info("TPSInstallerService: Importing transport cert into TKS");
-                ConfigurationUtils.exportTransportCert(secdomainURI, tksURI, transportCert);
+                Configurator.exportTransportCert(secdomainURI, tksURI, transportCert);
 
             } catch (Exception e) {
                 String message = "Unable to import transport cert into TKS: " + e.getMessage();
@@ -203,7 +203,7 @@ public class TPSInstallerService extends SystemConfigService  {
             }
 
             logger.info("TPSInstallerService: Generating shared secret in TKS");
-            ConfigurationUtils.getSharedSecret(
+            Configurator.getSharedSecret(
                     tksURI.getHost(),
                     tksURI.getPort(),
                     doImport);

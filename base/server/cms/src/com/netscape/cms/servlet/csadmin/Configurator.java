@@ -169,9 +169,9 @@ import netscape.ldap.LDAPSearchResults;
  * @author alee
  *
  */
-public class ConfigurationUtils {
+public class Configurator {
 
-    public final static Logger logger = LoggerFactory.getLogger(ConfigurationUtils.class);
+    public final static Logger logger = LoggerFactory.getLogger(Configurator.class);
 
     private static final String PCERT_PREFIX = "preop.cert.";
     public static String SUCCESS = "0";
@@ -193,9 +193,9 @@ public class ConfigurationUtils {
         config.setServerURL(protocol + "://" + hostname + ":" + port);
         config.setCertNickname(clientnickname);
 
-        logger.info("ConfigurationUtils: GET " + config.getServerURL() + path);
+        logger.info("Configurator: GET " + config.getServerURL() + path);
         PKIConnection connection = new PKIConnection(config);
-        if (certApprovalCallback == null) certApprovalCallback = ConfigurationUtils.certApprovalCallback;
+        if (certApprovalCallback == null) certApprovalCallback = Configurator.certApprovalCallback;
         connection.setCallback(certApprovalCallback);
         return connection.get(path, String.class);
     }
@@ -210,9 +210,9 @@ public class ConfigurationUtils {
         config.setServerURL(protocol + "://" + hostname + ":" + port);
         config.setCertNickname(clientnickname);
 
-        logger.info("ConfigurationUtils: POST " + config.getServerURL() + path);
+        logger.info("Configurator: POST " + config.getServerURL() + path);
         PKIConnection connection = new PKIConnection(config);
-        if (certApprovalCallback == null) certApprovalCallback = ConfigurationUtils.certApprovalCallback;
+        if (certApprovalCallback == null) certApprovalCallback = Configurator.certApprovalCallback;
         connection.setCallback(certApprovalCallback);
         return connection.post(path, content);
     }
@@ -221,7 +221,7 @@ public class ConfigurationUtils {
             throws Exception {
 
         String url = "https://" + host + ":" + port + serverPath;
-        logger.debug("ConfigurationUtils: Getting cert chain from " + url);
+        logger.debug("Configurator: Getting cert chain from " + url);
 
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
         // Ignore untrusted/unknown issuer to get cert chain.
@@ -241,7 +241,7 @@ public class ConfigurationUtils {
             parser = new XMLObject(bis);
         } catch (SAXException e) {
             logger.error("Response: " + c);
-            logger.error("ConfigurationUtils: Unable to parse XML response: " + e, e);
+            logger.error("Configurator: Unable to parse XML response: " + e, e);
             throw e;
         }
 
@@ -251,7 +251,7 @@ public class ConfigurationUtils {
     public static void importCertChain(String certchain, String tag)
             throws Exception {
 
-        logger.debug("ConfigurationUtils: Importing cert chain for " + tag);
+        logger.debug("Configurator: Importing cert chain for " + tag);
 
         if (certchain == null || certchain.length() <= 0) {
             throw new IOException("Missing cert chain");
@@ -270,14 +270,14 @@ public class ConfigurationUtils {
         int size;
 
         if (b_certchain == null) {
-            logger.debug("ConfigurationUtils: no certificate chain");
+            logger.debug("Configurator: no certificate chain");
 
             size = 0;
 
         } else {
-            logger.debug("ConfigurationUtils: certificate chain:");
+            logger.debug("Configurator: certificate chain:");
             for (java.security.cert.X509Certificate cert : b_certchain) {
-                logger.debug("ConfigurationUtils: - " + cert.getSubjectDN());
+                logger.debug("Configurator: - " + cert.getSubjectDN());
             }
 
             size = b_certchain.length;
@@ -356,14 +356,14 @@ public class ConfigurationUtils {
 
         String body = post(sdhost, sdport, true, "/ca/admin/ca/getCookie",
                 content, null, null);
-        logger.debug("ConfigurationUtils: response: " + body);
+        logger.debug("Configurator: response: " + body);
 
         return getContentValue(body, "header.session_id");
     }
 
     public static String getContentValue(String body, String header) {
 
-        logger.debug("ConfigurationUtils: searching for " + header);
+        logger.debug("Configurator: searching for " + header);
 
         StringTokenizer st = new StringTokenizer(body, "\n");
 
@@ -388,7 +388,7 @@ public class ConfigurationUtils {
     public static String getDomainXML(String hostname, int https_admin_port, boolean https)
             throws Exception {
 
-        logger.debug("ConfigurationUtils: getting domain info");
+        logger.debug("Configurator: getting domain info");
 
         String c = get(hostname, https_admin_port, https, "/ca/admin/ca/getDomainXML", null, null);
 
@@ -399,11 +399,11 @@ public class ConfigurationUtils {
 
             parser = new XMLObject(bis);
             String status = parser.getValue("Status");
-            logger.debug("ConfigurationUtils: status: " + status);
+            logger.debug("Configurator: status: " + status);
 
             if (status.equals(SUCCESS)) {
                 String domainInfo = parser.getValue("DomainInfo");
-                logger.debug("ConfigurationUtils: domain info: " + domainInfo);
+                logger.debug("Configurator: domain info: " + domainInfo);
                 return domainInfo;
 
             } else {
@@ -987,7 +987,7 @@ public class ConfigurationUtils {
             if (!CryptoUtil.isInternalToken(tokenname))
                 nickname = tokenname + ":" + nickname;
 
-            logger.debug("ConfigurationUtils.verifySystemCertificates(): checking certificate " + nickname);
+            logger.debug("Configurator.verifySystemCertificates(): checking certificate " + nickname);
 
             // TODO : remove this when we eliminate the extraneous nicknames
             // needed for self tests
@@ -1008,7 +1008,7 @@ public class ConfigurationUtils {
             Vector<Vector<Object>> cert_collection
             ) throws Exception {
 
-        logger.debug("ConfigurationUtils.importKeyCert()");
+        logger.debug("Configurator.importKeyCert()");
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken token = cm.getInternalKeyStorageToken();
         CryptoStore store = token.getCryptoStore();
@@ -1328,7 +1328,7 @@ public class ConfigurationUtils {
         IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
@@ -1356,7 +1356,7 @@ public class ConfigurationUtils {
         boolean reindexData = cs.getBoolean("preop.database.reindexData", false);
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
@@ -1851,7 +1851,7 @@ public class ConfigurationUtils {
         IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
@@ -1873,7 +1873,7 @@ public class ConfigurationUtils {
         IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
@@ -1898,7 +1898,7 @@ public class ConfigurationUtils {
 
     public static KeyPair loadKeyPair(String nickname, String token) throws Exception {
 
-        logger.debug("ConfigurationUtils: loadKeyPair(" + nickname + ", " + token + ")");
+        logger.debug("Configurator: loadKeyPair(" + nickname + ", " + token + ")");
 
         CryptoManager cm = CryptoManager.getInstance();
 
@@ -1906,13 +1906,13 @@ public class ConfigurationUtils {
             nickname = token + ":" + nickname;
         }
 
-        logger.debug("ConfigurationUtils: loading cert: " + nickname);
+        logger.debug("Configurator: loading cert: " + nickname);
         X509Certificate cert = cm.findCertByNickname(nickname);
 
-        logger.debug("ConfigurationUtils: loading public key");
+        logger.debug("Configurator: loading public key");
         PublicKey publicKey = cert.getPublicKey();
 
-        logger.debug("ConfigurationUtils: loading private key");
+        logger.debug("Configurator: loading private key");
         PrivateKey privateKey = cm.findPrivKeyByCert(cert);
 
         return new KeyPair(publicKey, privateKey);
@@ -1921,7 +1921,7 @@ public class ConfigurationUtils {
     public static void storeKeyPair(IConfigStore config, String tag, KeyPair pair)
             throws TokenException, EBaseException {
 
-        logger.debug("ConfigurationUtils: storeKeyPair(" + tag + ")");
+        logger.debug("Configurator: storeKeyPair(" + tag + ")");
 
         PublicKey publicKey = pair.getPublic();
 
@@ -1939,7 +1939,7 @@ public class ConfigurationUtils {
 
         } else { // ECC
 
-            logger.debug("ConfigurationUtils: Public key class: " + publicKey.getClass().getName());
+            logger.debug("Configurator: Public key class: " + publicKey.getClass().getName());
             byte encoded[] = publicKey.getEncoded();
             config.putString(PCERT_PREFIX + tag + ".pubkey.encoded", CryptoUtil.byte2string(encoded));
         }
@@ -1957,7 +1957,7 @@ public class ConfigurationUtils {
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
             NotInitializedException, EPropertyNotFound, EBaseException {
 
-        logger.debug("ConfigurationUtils.createECCKeyPair(" + token + ", " + curveName + ")");
+        logger.debug("Configurator.createECCKeyPair(" + token + ", " + curveName + ")");
 
         KeyPair pair = null;
         /*
@@ -1991,13 +1991,13 @@ public class ConfigurationUtils {
 
         do {
             if (ct.equals("sslserver") && sslType.equalsIgnoreCase("ECDH")) {
-                logger.debug("ConfigurationUtils: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set "
+                logger.debug("Configurator: createECCKeypair: sslserver cert for ECDH. Make sure server.xml is set "
                         +
                         "properly with -TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
                 pair = CryptoUtil.generateECCKeyPair(token, curveName, null, ECDH_usages_mask);
             } else {
                 if (ct.equals("sslserver")) {
-                    logger.debug("ConfigurationUtils: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set "
+                    logger.debug("Configurator: createECCKeypair: sslserver cert for ECDHE. Make sure server.xml is set "
                             +
                             "properly with +TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA");
                 }
@@ -2022,7 +2022,7 @@ public class ConfigurationUtils {
     public static KeyPair createRSAKeyPair(CryptoToken token, int keysize, IConfigStore config, String ct)
             throws Exception {
 
-        logger.debug("ConfigurationUtils.createRSAKeyPair(" + token + ")");
+        logger.debug("Configurator.createRSAKeyPair(" + token + ")");
 
         KeyPair pair = null;
         do {
@@ -2266,7 +2266,7 @@ public class ConfigurationUtils {
             try {
                 if (sign_clone_sslserver_cert_using_master) {
 
-                    logger.debug("ConfigurationUtils: For this Cloned CA, always use its Master CA to generate " +
+                    logger.debug("Configurator: For this Cloned CA, always use its Master CA to generate " +
                             "the 'sslserver' certificate to avoid any changes which may have been " +
                             "made to the X500Name directory string encoding order.");
                     ca_hostname = config.getString("preop.master.hostname", "");
@@ -2283,7 +2283,7 @@ public class ConfigurationUtils {
 
             String sslserver_extension = "";
             Boolean injectSAN = config.getBoolean("service.injectSAN", false);
-            logger.debug("ConfigurationUtils: injectSAN: " + injectSAN);
+            logger.debug("Configurator: injectSAN: " + injectSAN);
 
             if (certTag.equals("sslserver") && injectSAN == true) {
                 sslserver_extension = CertUtil.buildSANSSLserverURLExtension(config);
@@ -2328,7 +2328,7 @@ public class ConfigurationUtils {
             // external certs already imported in configuration.py
 
         } else {
-            logger.warn("ConfigurationUtils: no preop.ca.type is provided");
+            logger.warn("Configurator: no preop.ca.type is provided");
         }
 
         return cert;
@@ -2390,9 +2390,9 @@ public class ConfigurationUtils {
 
         String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
 
-        logger.debug("ConfigurationUtils: updateConfig() for certTag " + certTag);
+        logger.debug("Configurator: updateConfig() for certTag " + certTag);
         if (certTag.equals("signing") || certTag.equals("ocsp_signing")) {
-            logger.debug("ConfigurationUtils: setting signing nickname=" + nickname);
+            logger.debug("Configurator: setting signing nickname=" + nickname);
             config.putString(subsystem + "." + certTag + "." + ISigningUnit.PROP_CA_CERT_NICKNAME, nickname);
             config.putString(subsystem + "." + certTag + ".certnickname", nickname);
         }
@@ -2461,7 +2461,7 @@ public class ConfigurationUtils {
     public static int getPortFromSecurityDomain(String domainXML, String host, int port, String csType,
             String givenTag, String wantedTag) throws SAXException, IOException, ParserConfigurationException {
 
-        logger.debug("ConfigurationUtils: Searching for " + wantedTag + " in " + csType + " hosts");
+        logger.debug("Configurator: Searching for " + wantedTag + " in " + csType + " hosts");
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
@@ -2479,10 +2479,10 @@ public class ConfigurationUtils {
             Node node = nodeList.item(i);
 
             String v_host = parser.getValuesFromContainer(node, "Host").elementAt(0);
-            logger.debug("ConfigurationUtils: host: " + v_host);
+            logger.debug("Configurator: host: " + v_host);
 
             String v_given_port = parser.getValuesFromContainer(node, givenTag).elementAt(0);
-            logger.debug("ConfigurationUtils: " + givenTag + " port: " + v_given_port);
+            logger.debug("Configurator: " + givenTag + " port: " + v_given_port);
 
             if (!(v_host.equals(host) && v_given_port.equals(port + "")))
                 continue;
@@ -2490,12 +2490,12 @@ public class ConfigurationUtils {
             // v_host == host || v_given_port != port
 
             String wanted_port = parser.getValuesFromContainer(node, wantedTag).elementAt(0);
-            logger.debug("ConfigurationUtils: " + wantedTag + " port found: " + wanted_port);
+            logger.debug("Configurator: " + wantedTag + " port found: " + wanted_port);
 
             return Integer.parseInt(wanted_port);
         }
 
-        logger.warn("ConfigurationUtils: " + wantedTag + " port not found");
+        logger.warn("Configurator: " + wantedTag + " port not found");
         return 0;
     }
 
@@ -2512,7 +2512,7 @@ public class ConfigurationUtils {
 
             if (!CryptoUtil.isInternalToken(token)) {
 
-                logger.debug("ConfigurationUtils: updating configuration for KRA clone with hardware token");
+                logger.debug("Configurator: updating configuration for KRA clone with hardware token");
 
                 String subsystem = config.getString(PCERT_PREFIX + "storage.subsystem");
                 String storageNickname = getNickname(config, "storage");
@@ -2542,7 +2542,7 @@ public class ConfigurationUtils {
 
     public static byte[] loadCertRequest(IConfigStore config, String subsystem, String tag) throws Exception {
 
-        logger.debug("ConfigurationUtils.loadCertRequest(" + tag + ")");
+        logger.debug("Configurator.loadCertRequest(" + tag + ")");
 
         // the CSR must exist in the second step of external CA scenario
         String certreq = config.getString(subsystem + "." + tag + ".certreq");
@@ -2615,7 +2615,7 @@ public class ConfigurationUtils {
      * CA signing certificate
      */
     private static void createBasicCAExtensions(IConfigStore config, Extensions exts) throws Exception {
-        logger.debug("ConfigurationUtils: createBasicCAExtensions: begins");
+        logger.debug("Configurator: createBasicCAExtensions: begins");
 
         // create BasicConstraintsExtension
         BasicConstraintsExtension bcExt = new BasicConstraintsExtension(true, -1);
@@ -2646,14 +2646,14 @@ public class ConfigurationUtils {
     }
 
     private static void createGenericExtensions(IConfigStore config, String tag, Extensions exts) throws Exception {
-        logger.debug("ConfigurationUtils: createGenericExtensions: begins");
+        logger.debug("Configurator: createGenericExtensions: begins");
         // if specified, add a generic extension
         try {
             String oidString = config.getString(PCERT_PREFIX + tag + ".ext.oid");
             String dataString = config.getString(PCERT_PREFIX + tag + ".ext.data");
 
             if (oidString != null && dataString != null) {
-                logger.debug("ConfigurationUtils: createGenericExtensions: adding generic extension for " + tag);
+                logger.debug("Configurator: createGenericExtensions: adding generic extension for " + tag);
                 boolean critical = config.getBoolean(PCERT_PREFIX + tag + ".ext.critical");
                 ObjectIdentifier oid = new ObjectIdentifier(oidString);
 
@@ -2665,14 +2665,14 @@ public class ConfigurationUtils {
                 out.close();
 
                 exts.add(genExt);
-                logger.debug("ConfigurationUtils: createGenericExtensions: generic extension added: " + oidString);
+                logger.debug("Configurator: createGenericExtensions: generic extension added: " + oidString);
             }
 
         } catch (EPropertyNotFound e) {
             // generic extension not specified, ignore
 
         } catch (EBaseException e) {
-            logger.error("ConfigurationUtils: createGenericExtensions: Unable to add generic extension: " + e);
+            logger.error("Configurator: createGenericExtensions: Unable to add generic extension: " + e);
             throw new BadRequestException("Unable to add generic certificate extension: " + e, e);
         }
     }
@@ -2700,7 +2700,7 @@ public class ConfigurationUtils {
     public static void createCertRecord(IConfigStore cs, Cert cert) throws Exception {
 
         String tag = cert.getCertTag();
-        logger.debug("ConfigurationUtils.createCertRecord(" + tag + ")");
+        logger.debug("Configurator.createCertRecord(" + tag + ")");
 
         CMSEngine engine = CMS.getCMSEngine();
 
@@ -2715,7 +2715,7 @@ public class ConfigurationUtils {
         X509Key x509key = pkcs10.getSubjectPublicKeyInfo();
 
         // loading cert profile
-        String profileName = cs.getString(ConfigurationUtils.PCERT_PREFIX + tag + ".profile");
+        String profileName = cs.getString(Configurator.PCERT_PREFIX + tag + ".profile");
         logger.debug("SystemConfigService: profile: " + profileName);
 
         String instanceRoot = cs.getString("instanceRoot");
@@ -2759,7 +2759,7 @@ public class ConfigurationUtils {
     public static void handleCert(Cert cert) throws Exception {
 
         String certTag = cert.getCertTag();
-        logger.debug("ConfigurationUtils.handleCert(" + certTag + ")");
+        logger.debug("Configurator.handleCert(" + certTag + ")");
 
         String subsystem = cert.getSubsystem();
         String nickname = cert.getNickname();
@@ -2771,7 +2771,7 @@ public class ConfigurationUtils {
         if (!enable)
             return;
 
-        logger.debug("ConfigurationUtils: cert type: " + cert.getType());
+        logger.debug("Configurator: cert type: " + cert.getType());
 
         String tokenname = config.getString("preop.module.token", "");
 
@@ -2794,10 +2794,10 @@ public class ConfigurationUtils {
             X509CertImpl impl
             ) throws Exception {
 
-        logger.debug("ConfigurationUtils.importCert(" + tag + ")");
+        logger.debug("Configurator.importCert(" + tag + ")");
 
         if (tag.equals("sslserver")) {
-            logger.info("ConfigurationUtils: temporary SSL server cert will be replaced on restart");
+            logger.info("Configurator: temporary SSL server cert will be replaced on restart");
             return;
         }
 
@@ -2809,11 +2809,11 @@ public class ConfigurationUtils {
         X509Certificate cert = CertUtil.findCertificate(fullNickname);
 
         if (cert != null) {
-            logger.debug("ConfigurationUtils: deleting existing " + tag + " cert");
+            logger.debug("Configurator: deleting existing " + tag + " cert");
             CertUtil.deleteCert(tokenname, cert);
         }
 
-        logger.debug("ConfigurationUtils: importing " + tag + " cert");
+        logger.debug("Configurator: importing " + tag + " cert");
         cert = CryptoUtil.importUserCertificate(impl.getEncoded(), nickname);
 
         if (tag.equals("signing") && subsystem.equals("ca")) { // set trust flags to CT,C,C
@@ -2985,7 +2985,7 @@ public class ConfigurationUtils {
             system.addUser(user);
 
         } catch (ConflictingOperationException e) {
-            logger.warn("ConfigurationUtils: createAdmin: addUser " + e);
+            logger.warn("Configurator: createAdmin: addUser " + e);
             // ignore
         }
 
@@ -3003,7 +3003,7 @@ public class ConfigurationUtils {
         if (select.equals("new")) {
             group = system.getGroupFromName("Security Domain Administrators");
             if (group != null && !group.isMember(uid)) {
-                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("Configurator: createAdmin:  add user '" + uid
                         + "' to group 'Security Domain Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3011,7 +3011,7 @@ public class ConfigurationUtils {
 
             group = system.getGroupFromName("Enterprise CA Administrators");
             if (group != null && !group.isMember(uid)) {
-                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("Configurator: createAdmin:  add user '" + uid
                         + "' to group 'Enterprise CA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3019,7 +3019,7 @@ public class ConfigurationUtils {
 
             group = system.getGroupFromName("Enterprise KRA Administrators");
             if (group != null && !group.isMember(uid)) {
-                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("Configurator: createAdmin:  add user '" + uid
                         + "' to group 'Enterprise KRA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3027,7 +3027,7 @@ public class ConfigurationUtils {
 
             group = system.getGroupFromName("Enterprise RA Administrators");
             if (group != null && !group.isMember(uid)) {
-                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("Configurator: createAdmin:  add user '" + uid
                         + "' to group 'Enterprise RA Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3035,7 +3035,7 @@ public class ConfigurationUtils {
 
             group = system.getGroupFromName("Enterprise TKS Administrators");
             if (group != null && !group.isMember(uid)) {
-                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("Configurator: createAdmin:  add user '" + uid
                         + "' to group 'Enterprise TKS Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3043,7 +3043,7 @@ public class ConfigurationUtils {
 
             group = system.getGroupFromName("Enterprise OCSP Administrators");
             if (group != null && !group.isMember(uid)) {
-                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("Configurator: createAdmin:  add user '" + uid
                         + "' to group 'Enterprise OCSP Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3051,7 +3051,7 @@ public class ConfigurationUtils {
 
             group = system.getGroupFromName("Enterprise TPS Administrators");
             if (group != null && !group.isMember(uid)) {
-                logger.debug("ConfigurationUtils: createAdmin:  add user '" + uid
+                logger.debug("Configurator: createAdmin:  add user '" + uid
                         + "' to group 'Enterprise TPS Administrators'");
                 group.addMemberName(uid);
                 system.modifyGroup(group);
@@ -3062,7 +3062,7 @@ public class ConfigurationUtils {
     public static String submitAdminCertRequest(String ca_hostname, int ca_port, String profileId,
             String certRequestType, String certRequest, String subjectDN) throws Exception {
 
-        logger.debug("ConfigurationUtils: submitAdminCertRequest()");
+        logger.debug("Configurator: submitAdminCertRequest()");
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = engine.getConfigStore();
@@ -3131,7 +3131,7 @@ public class ConfigurationUtils {
         IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
@@ -3285,7 +3285,7 @@ public class ConfigurationUtils {
             String servlet, MultivaluedMap<String, String> content, boolean useClientAuth)
             throws Exception {
 
-        logger.debug("ConfigurationUtils: updateDomainXML start hostname=" + hostname + " port=" + port);
+        logger.debug("Configurator: updateDomainXML start hostname=" + hostname + " port=" + port);
 
         CMSEngine engine = CMS.getCMSEngine();
         String c = null;
@@ -3314,7 +3314,7 @@ public class ConfigurationUtils {
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
             XMLObject obj = new XMLObject(bis);
             String status = obj.getValue("Status");
-            logger.debug("ConfigurationUtils: updateDomainXML: status=" + status);
+            logger.debug("Configurator: updateDomainXML: status=" + status);
 
             if (status.equals(SUCCESS)) {
                 return;
@@ -3471,7 +3471,7 @@ public class ConfigurationUtils {
 
         PKIClient client = new PKIClient(config, null);
 
-        logger.debug("In ConfigurationUtils.getSharedSecret! importKey: " + importKey);
+        logger.debug("In Configurator.getSharedSecret! importKey: " + importKey);
 
         // Ignore the "UNTRUSTED_ISSUER" and "CA_CERT_INVALID" validity status
         // during PKI instance creation since we are using an untrusted temporary CA cert.
@@ -3733,7 +3733,7 @@ public class ConfigurationUtils {
         String userbasedn = "ou=people, " + cs.getString("internaldb.basedn");
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
@@ -3766,12 +3766,12 @@ public class ConfigurationUtils {
             nickname = tokenname + ":" + nickname;
         }
 
-        logger.debug("ConfigurationUtils: getSubsystemCert: nickname=" + nickname);
+        logger.debug("Configurator: getSubsystemCert: nickname=" + nickname);
 
         CryptoManager cm = CryptoManager.getInstance();
         org.mozilla.jss.crypto.X509Certificate cert = cm.findCertByNickname(nickname);
         if (cert == null) {
-            logger.warn("ConfigurationUtils: getSubsystemCert: subsystem cert is null");
+            logger.warn("Configurator: getSubsystemCert: subsystem cert is null");
             return null;
         }
         byte[] bytes = cert.getEncoded();
@@ -3805,7 +3805,7 @@ public class ConfigurationUtils {
 
         // update global next range entries
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("ConfigurationUtils");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();

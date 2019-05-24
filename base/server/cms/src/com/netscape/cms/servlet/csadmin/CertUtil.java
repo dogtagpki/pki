@@ -84,7 +84,7 @@ public class CertUtil {
 
         logger.debug("CertUtil: content: " + content);
 
-        String c = ConfigurationUtils.post(hostname, port, true, "/ca/ee/ca/profileSubmit", content, null, null);
+        String c = Configurator.post(hostname, port, true, "/ca/ee/ca/profileSubmit", content, null, null);
 
         if (c != null) {
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());

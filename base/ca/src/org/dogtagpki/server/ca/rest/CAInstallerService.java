@@ -36,7 +36,7 @@ import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.system.ConfigurationRequest;
-import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
@@ -68,7 +68,7 @@ public class CAInstallerService extends SystemConfigService {
 
         try {
             if (!request.isClone()) {
-                ConfigurationUtils.updateNextRanges();
+                Configurator.updateNextRanges();
             }
 
         } catch (Exception e) {
@@ -77,7 +77,7 @@ public class CAInstallerService extends SystemConfigService {
         }
 
         try {
-            if (request.isClone() && ConfigurationUtils.isSDHostDomainMaster(cs)) {
+            if (request.isClone() && Configurator.isSDHostDomainMaster(cs)) {
                 // cloning a domain master CA, the clone is also master of its domain
                 cs.putString("securitydomain.host", engine.getEEHost());
                 cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
