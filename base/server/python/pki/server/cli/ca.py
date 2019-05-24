@@ -20,6 +20,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
+
 import getopt
 import io
 import os
@@ -31,6 +32,7 @@ import pki.cli
 import pki.server.cli.audit
 import pki.server.cli.config
 import pki.server.cli.db
+import pki.server.cli.plugin
 
 
 class CACLI(pki.cli.CLI):
@@ -44,6 +46,7 @@ class CACLI(pki.cli.CLI):
         self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
+        self.add_module(pki.server.cli.plugin.AuthPlugin(self))
 
 
 class CACertCLI(pki.cli.CLI):
