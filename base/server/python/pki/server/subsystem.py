@@ -26,6 +26,7 @@ import io
 import logging
 import operator
 import os
+import pwd
 import re
 import shutil
 import subprocess
@@ -819,6 +820,57 @@ class PKISubsystem(object):
 
         """
         self.config.update(new_config)
+
+    def run(self, args, as_current_user=False):
+
+        java_home = self.instance.config['JAVA_HOME']
+        java_opts = self.instance.config['JAVA_OPTS']
+
+        classpath = [
+            pki.server.Tomcat.SHARE_DIR + '/bin/tomcat-juli.jar',
+            '/usr/share/java/tomcat-servlet-api.jar',
+            pki.server.PKIServer.SHARE_DIR + '/' +
+            self.name + '/webapps/' + self.name + '/WEB-INF/lib/*',
+            self.instance.common_lib_dir + '/*',
+            pki.server.PKIServer.SHARE_DIR + '/lib/*'
+        ]
+
+        cmd = []
+
+        # by default run command as systemd user
+        if not as_current_user:
+
+            # switch to systemd user if different from current user
+            username = pwd.getpwuid(os.getuid()).pw_name
+            if username != self.instance.user:
+                cmd.extend(['sudo', '-u', self.instance.user])
+
+        cmd.extend([
+            java_home + '/bin/java',
+            '-classpath', os.pathsep.join(classpath),
+            '-Djavax.sql.DataSource.Factory=org.apache.commons.dbcp.BasicDataSourceFactory',
+            '-Dcatalina.base=' + self.instance.base_dir,
+            '-Dcatalina.home=' + pki.server.Tomcat.SHARE_DIR,
+            '-Djava.endorsed.dirs=',
+            '-Djava.io.tmpdir=' + self.instance.temp_dir,
+            '-Djava.util.logging.config.file=' + self.instance.logging_properties,
+            '-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager'
+        ])
+
+        if java_opts:
+            cmd.extend(java_opts.split(' '))
+
+        cmd.extend(['org.dogtagpki.server.cli.PKIServerCLI'])
+
+        cmd.extend(args)
+
+        logger.info('Command: %s', ' '.join(cmd))
+
+        try:
+            subprocess.check_call(cmd)
+
+        except KeyboardInterrupt:
+            logger.debug('Server stopped')
 
 
 class CASubsystem(PKISubsystem):
