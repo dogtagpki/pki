@@ -3835,64 +3835,90 @@ public class Configurator {
      *
      * @throws EBaseException
      */
-    public void removePreopConfigEntries() throws EBaseException {
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+    public void finalizeConfiguration(IConfigStore cs) throws EBaseException {
+
         String type = cs.getString("cs.type");
         String list = cs.getString("preop.cert.list", "");
         StringTokenizer st = new StringTokenizer(list, ",");
 
         while (st.hasMoreTokens()) {
+
             String ss = st.nextToken();
-            if (ss.equals("sslserver"))
+            if (ss.equals("sslserver")) {
                 continue;
-            cs.putString("cloning." + ss + ".nickname", cs.getString("preop.cert." + ss + ".nickname", ""));
-            cs.putString("cloning." + ss + ".dn", cs.getString("preop.cert." + ss + ".dn", ""));
-            cs.putString("cloning." + ss + ".keytype", cs.getString("preop.cert." + ss + ".keytype", ""));
-            cs.putString("cloning." + ss + ".keyalgorithm", cs.getString("preop.cert." + ss + ".keyalgorithm", ""));
-            cs.putString("cloning." + ss + ".privkey.id", cs.getString("preop.cert." + ss + ".privkey.id", ""));
-            cs.putString("cloning." + ss + ".pubkey.exponent",
-                    cs.getString("preop.cert." + ss + ".pubkey.exponent", ""));
-            cs.putString("cloning." + ss + ".pubkey.modulus",
-                    cs.getString("preop.cert." + ss + ".pubkey.modulus", ""));
-            cs.putString("cloning." + ss + ".pubkey.encoded",
-                    cs.getString("preop.cert." + ss + ".pubkey.encoded", ""));
+            }
+
+            String nickname = cs.getString("preop.cert." + ss + ".nickname", "");
+            cs.putString("cloning." + ss + ".nickname", nickname);
+
+            String dn = cs.getString("preop.cert." + ss + ".dn", "");
+            cs.putString("cloning." + ss + ".dn", dn);
+
+            String keyType = cs.getString("preop.cert." + ss + ".keytype", "");
+            cs.putString("cloning." + ss + ".keytype", keyType);
+
+            String keyAlgorithm = cs.getString("preop.cert." + ss + ".keyalgorithm", "");
+            cs.putString("cloning." + ss + ".keyalgorithm", keyAlgorithm);
+
+            String privateKeyID = cs.getString("preop.cert." + ss + ".privkey.id", "");
+            cs.putString("cloning." + ss + ".privkey.id", privateKeyID);
+
+            String publicKeyExponent = cs.getString("preop.cert." + ss + ".pubkey.exponent", "");
+            cs.putString("cloning." + ss + ".pubkey.exponent", publicKeyExponent);
+
+            String publicKeyModulus = cs.getString("preop.cert." + ss + ".pubkey.modulus", "");
+            cs.putString("cloning." + ss + ".pubkey.modulus", publicKeyModulus);
+
+            String publicKeyEncoded = cs.getString("preop.cert." + ss + ".pubkey.encoded", "");
+            cs.putString("cloning." + ss + ".pubkey.encoded", publicKeyEncoded);
         }
-        cs.putString("cloning.module.token", cs.getString("preop.module.token", ""));
+
+        String tokens = cs.getString("preop.module.token", "");
+        cs.putString("cloning.module.token", tokens);
         cs.putString("cloning.list", list);
 
         // more cloning variables needed for non-ca clones
 
         if (!type.equals("CA")) {
+
             String val = cs.getString("preop.ca.hostname", "");
-            if (val.length() > 0)
+            if (val.length() > 0) {
                 cs.putString("cloning.ca.hostname", val);
+            }
 
             val = cs.getString("preop.ca.httpport", "");
-            if (val.length() != 0)
+            if (val.length() != 0) {
                 cs.putString("cloning.ca.httpport", val);
+            }
 
             val = cs.getString("preop.ca.httpsport", "");
-            if (val.length() != 0)
+            if (val.length() != 0) {
                 cs.putString("cloning.ca.httpsport", val);
+            }
 
             val = cs.getString("preop.ca.list", "");
-            if (val.length() != 0)
+            if (val.length() != 0) {
                 cs.putString("cloning.ca.list", val);
+            }
 
             val = cs.getString("preop.ca.pkcs7", "");
-            if (val.length() != 0)
+            if (val.length() != 0) {
                 cs.putString("cloning.ca.pkcs7", val);
+            }
 
             val = cs.getString("preop.ca.type", "");
-            if (val.length() != 0)
+            if (val.length() != 0) {
                 cs.putString("cloning.ca.type", val);
+            }
         }
 
         // save EC type for sslserver cert (if present)
-        cs.putString("jss.ssl.sslserver.ectype", cs.getString("preop.cert.sslserver.ec.type", "ECDHE"));
+        String ecType = cs.getString("preop.cert.sslserver.ec.type", "ECDHE");
+        cs.putString("jss.ssl.sslserver.ectype", ecType);
 
         cs.removeSubStore("preop");
+        cs.putInteger("cs.state", 1);
+
         cs.commit(false);
     }
 }
