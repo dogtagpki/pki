@@ -699,10 +699,38 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Configuring certificates')
         response = client.configureCerts(request)
 
+        try:
+            certs = response['systemCerts']
+        except KeyError:
+            # no system certs created
+            logger.debug('No new system certificates generated')
+            certs = []
+
+        if not isinstance(certs, list):
+            certs = [certs]
+
+        sslserver = subsystem.get_subsystem_cert('sslserver')
+
+        for cdata in certs:
+
+            if cdata['tag'] == 'sslserver':
+                sslserver['data'] = cdata['cert']
+                sslserver['request'] = cdata['request']
+
+            logger.debug('%s cert: %s', cdata['tag'], cdata['cert'])
+            logger.debug('%s request: %s', cdata['tag'], cdata['request'])
+
         if not clone:
-            logger.info('Setting up admin')
+
+            logger.info('Setting up admin user')
+
             admin_setup_request = deployer.config_client.create_admin_setup_request()
             admin_setup_response = client.setupAdmin(admin_setup_request)
+
+            if external or standalone \
+                    or not config.str2bool(deployer.mdict['pki_import_admin_cert']):
+                admin_cert = admin_setup_response['adminCert']['cert']
+                deployer.config_client.process_admin_cert(admin_cert)
 
         if config.str2bool(deployer.mdict['pki_backup_keys']):
 
@@ -734,35 +762,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         open(restart_server, 'a').close()
         os.chown(restart_server, instance.uid, instance.gid)
         os.chmod(restart_server, 0o660)
-
-        try:
-            certs = response['systemCerts']
-        except KeyError:
-            # no system certs created
-            logger.debug('No new system certificates generated')
-            certs = []
-
-        if not isinstance(certs, list):
-            certs = [certs]
-
-        sslserver = subsystem.get_subsystem_cert('sslserver')
-
-        for cdata in certs:
-
-            if cdata['tag'] == 'sslserver':
-                sslserver['data'] = cdata['cert']
-                sslserver['request'] = cdata['request']
-
-            logger.debug('%s cert: %s', cdata['tag'], cdata['cert'])
-            logger.debug('%s request: %s', cdata['tag'], cdata['request'])
-
-        # Cloned PKI subsystems do not return an Admin Certificate
-        if not clone:
-
-            if external or standalone \
-                    or not config.str2bool(deployer.mdict['pki_import_admin_cert']):
-                admin_cert = admin_setup_response['adminCert']['cert']
-                deployer.config_client.process_admin_cert(admin_cert)
 
         # If temp SSL server cert was created and there's a new perm cert,
         # replace it with the perm cert.
