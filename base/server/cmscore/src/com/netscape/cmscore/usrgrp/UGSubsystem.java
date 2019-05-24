@@ -40,7 +40,6 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
 import com.netscape.cmscore.apps.CMS;
@@ -69,12 +68,14 @@ import netscape.ldap.LDAPv2;
  * @author cfu
  * @version $Revision$, $Date$
  */
-public final class UGSubsystem extends BaseSubsystem implements IUGSubsystem {
+public final class UGSubsystem extends BaseSubsystem implements ISubsystem, IUsrGrp {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UGSubsystem.class);
 
     private static final long serialVersionUID = 8080165044652629774L;
     public static final String ID = "usrgrp";
+    public static final String SUPER_CERT_ADMINS = "Administrators";
+
     private String mId = ID;
 
     protected static final String OBJECTCLASS_ATTR = "objectclass";

@@ -37,11 +37,11 @@ import com.netscape.certsrv.system.TPSConnectorCollection;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.certsrv.system.TPSConnectorResource;
 import com.netscape.certsrv.tps.cert.TPSCertResource;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class TPSConnectorService extends PKIService implements TPSConnectorResource {
@@ -53,7 +53,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     CMSEngine engine = CMS.getCMSEngine();
     IConfigStore cs = engine.getConfigStore();
 
-    public IUGSubsystem userGroupManager = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+    public UGSubsystem userGroupManager = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
     @Override
     public Response findConnectors(Integer start, Integer size) {

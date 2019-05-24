@@ -64,7 +64,6 @@ import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSGateway;
@@ -79,6 +78,7 @@ import com.netscape.cms.servlet.processors.PKIProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * Submit a Certificate Enrollment request
@@ -1504,7 +1504,7 @@ public class EnrollServlet extends CMSServlet {
             throws EBaseException {
         String userid = cmsReq.getHttpParams().getValueAsString("uid");
         CMSEngine engine = CMS.getCMSEngine();
-        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
         IUser adminuser = ug.createUser(userid);
 

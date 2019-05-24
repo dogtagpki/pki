@@ -65,10 +65,10 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -635,7 +635,7 @@ public class CertUtil {
             logger.warn("Unable to retrieve server configuration: " + e, e);
         }
 
-        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         String id = "user" + num;
 
         try {

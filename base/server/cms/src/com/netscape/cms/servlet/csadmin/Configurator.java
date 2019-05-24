@@ -143,11 +143,11 @@ import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
@@ -2968,7 +2968,7 @@ public class Configurator {
             EBaseException, LDAPException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         IConfigStore config = engine.getConfigStore();
         String groupNames = config.getString("preop.admin.group", "Certificate Manager Agents,Administrators");
 
@@ -3343,7 +3343,7 @@ public class Configurator {
         int port = cs.getInteger("preop.ca.httpsadminport", -1);
 
         // retrieve CA subsystem certificate from the CA
-        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         String id = "";
 
         String b64 = getSubsystemCert(host, port, true);
@@ -3533,7 +3533,7 @@ public class Configurator {
             NotInitializedException, ObjectNotFoundException, TokenException, IOException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
         // checking existing user
         IUser user = system.getUser(DBUSER);
@@ -3614,7 +3614,7 @@ public class Configurator {
         logger.debug("Adding all profiles to TPS admin user");
 
         CMSEngine engine = CMS.getCMSEngine();
-        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         IUser user = system.getUser(adminID);
 
         List<String> profiles = new ArrayList<String>();
@@ -3727,7 +3727,7 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         IConfigStore cs = engine.getConfigStore();
 
         String userbasedn = "ou=people, " + cs.getString("internaldb.basedn");

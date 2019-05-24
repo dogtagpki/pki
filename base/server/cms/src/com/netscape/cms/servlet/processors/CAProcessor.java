@@ -63,7 +63,6 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSGateway;
@@ -71,6 +70,7 @@ import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 public class CAProcessor extends Processor {
 
@@ -130,7 +130,7 @@ public class CAProcessor extends Processor {
     CMSEngine engine = CMS.getCMSEngine();
     protected ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
     protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
-    protected IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+    protected UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
     protected ICertUserLocator ul = ug.getCertUserLocator();
     protected IRequestQueue queue;
     protected IProfileSubsystem ps;

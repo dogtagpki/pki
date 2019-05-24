@@ -26,9 +26,9 @@ import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * @author Endi S. Dewata
@@ -65,7 +65,7 @@ public class Auditor implements IAuditor {
         Enumeration<IGroup> groups;
 
         try {
-            IUGSubsystem userGroupSubsystem = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+            UGSubsystem userGroupSubsystem = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
             groups = userGroupSubsystem.findGroups("*");
 
         } catch (Exception e) {

@@ -59,12 +59,12 @@ import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IGroupConstants;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * A class representing an administration servlet for
@@ -93,7 +93,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
     private final static String BACK_SLASH = "\\";
 
-    private IUGSubsystem mMgr = null;
+    private UGSubsystem mMgr = null;
 
     private static String[] mMultiRoleGroupEnforceList = null;
     private final static String MULTI_ROLE_ENABLE = "multiroles.enable";
@@ -114,7 +114,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         CMSEngine engine = CMS.getCMSEngine();
-        mMgr = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        mMgr = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
     }
 
     /**

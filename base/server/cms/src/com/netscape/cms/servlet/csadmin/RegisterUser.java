@@ -39,7 +39,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -47,6 +46,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -151,7 +151,7 @@ public class RegisterUser extends CMSServlet {
                              "+state;;1" +
                              "+userType;;<null>+email;;<null>+password;;<null>+phone;;<null>";
 
-        IUGSubsystem ugsys = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem ugsys = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
         IUser user = null;
         boolean foundByCert = false;

@@ -80,7 +80,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
@@ -90,6 +89,7 @@ import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.request.RequestSubsystem;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -687,7 +687,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // see if we have the uid already
         if (!mConfig.getBoolean("keySplitting")) {
             // check if the uid is in the specified group
-            IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+            UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
             if (!ug.isMemberOf(uid, mConfig.getString("recoveryAgentGroup"))) {
                 // invalid group
                 throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_NOT_EXIST"));
@@ -914,7 +914,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         IRequest r = null;
 
         // check if the uid is in the specified group
-        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         if (!ug.isMemberOf(agentID, mConfig.getString("recoveryAgentGroup"))) {
             // invalid group
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_NOT_EXIST"));

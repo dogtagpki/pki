@@ -53,7 +53,6 @@ import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.KeyBackupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Cert;
@@ -822,7 +821,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 request.getAdminName(), request.getAdminPassword());
 
         CMSEngine engine = CMS.getCMSEngine();
-        engine.reinit(IUGSubsystem.ID);
+        engine.reinit(UGSubsystem.ID);
     }
 
     public void updateAdminUserCert(AdminSetupRequest request, X509CertImpl adminCert) throws Exception {
@@ -830,7 +829,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         X509CertImpl[] adminCerts = new X509CertImpl[] { adminCert };
 
         CMSEngine engine = CMS.getCMSEngine();
-        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         IUser user = ug.getUser(request.getAdminUID());
         user.setX509Certificates(adminCerts);
         ug.addUserCert(user);

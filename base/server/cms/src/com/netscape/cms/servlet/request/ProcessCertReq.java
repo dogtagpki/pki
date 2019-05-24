@@ -74,7 +74,6 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.cert.ImportCertsTemplateFiller;
@@ -85,6 +84,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * Agent operations on Certificate requests. This servlet is used
@@ -1573,7 +1573,7 @@ public class ProcessCertReq extends CMSServlet {
         header.addStringValue(GRANT_PRIVILEGE, privilege);
 
         CMSEngine engine = CMS.getCMSEngine();
-        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         IUser user = ug.createUser(uid);
 
         user.setFullName(uid);

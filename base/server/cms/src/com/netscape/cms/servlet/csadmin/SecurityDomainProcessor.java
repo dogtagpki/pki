@@ -48,12 +48,12 @@ import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 
 import netscape.ldap.LDAPAttribute;
@@ -93,7 +93,7 @@ public class SecurityDomainProcessor extends CAProcessor {
 
         subsystem = subsystem.toUpperCase();
         CMSEngine engine = CMS.getCMSEngine();
-        IUGSubsystem ugSubsystem = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem ugSubsystem = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
         String group = getEnterpriseGroupName(subsystem);
         logger.debug("SecurityDomainProcessor: group: " + group);

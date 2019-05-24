@@ -46,10 +46,10 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * @author Endi S. Dewata
@@ -66,7 +66,7 @@ public class GroupMemberProcessor extends Processor {
     public static String[] multiRoleGroupEnforceList;
 
     CMSEngine engine = CMS.getCMSEngine();
-    public IUGSubsystem userGroupManager = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+    public UGSubsystem userGroupManager = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
     protected UriInfo uriInfo;
 

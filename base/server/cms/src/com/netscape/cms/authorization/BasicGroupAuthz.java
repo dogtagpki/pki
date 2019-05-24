@@ -36,9 +36,9 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
 
@@ -104,7 +104,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IUGSubsystem ug = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         IGroup group = ug.getGroupFromName(groupName);
         if (!group.isMember(user)) {
             logger.error("BasicGroupAuthz: access denied. User: " + user + " is not a member of group: " + groupName);

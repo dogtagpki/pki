@@ -84,7 +84,6 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
@@ -108,6 +107,7 @@ import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.CommandQueue;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -252,7 +252,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     protected String mOutputTemplatePath = null;
     CMSEngine engine = CMS.getCMSEngine();
-    private IUGSubsystem mUG = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+    private UGSubsystem mUG = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
     public CMSServlet() {
     }

@@ -65,7 +65,6 @@ import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
@@ -73,6 +72,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * @author Endi S. Dewata
@@ -85,7 +85,7 @@ public class UserService extends SubsystemService implements UserResource {
     public final static String SYSTEM_USER = "$System$";
 
     CMSEngine engine = CMS.getCMSEngine();
-    public IUGSubsystem userGroupManager = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+    public UGSubsystem userGroupManager = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
     public UserData createUserData(IUser user) throws Exception {
 

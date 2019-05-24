@@ -42,10 +42,10 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * Certificate server agent authentication.
@@ -71,7 +71,7 @@ public class AgentCertAuthentication implements IAuthManager,
     private String mImplName = null;
     private IConfigStore mConfig = null;
 
-    private IUGSubsystem mUGSub = null;
+    private UGSubsystem mUGSub = null;
     private ICertUserLocator mCULocator = null;
 
     public AgentCertAuthentication() {
@@ -93,7 +93,7 @@ public class AgentCertAuthentication implements IAuthManager,
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();
-        mUGSub = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        mUGSub = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         mCULocator = mUGSub.getCertUserLocator();
     }
 
@@ -218,7 +218,7 @@ public class AgentCertAuthentication implements IAuthManager,
 
         if (!groupname.equals("")) {
             logger.debug("check if " + user.getUserID() + " is  in group " + groupname);
-            IUGSubsystem uggroup = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+            UGSubsystem uggroup = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
             if (!uggroup.isMemberOf(user, groupname)) {
                 logger.error(user.getUserID() + " is not in this group " + groupname);
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHORIZATION_ERROR"));

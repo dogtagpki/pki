@@ -39,12 +39,12 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * This updater class will create the new user to the subsystem group and
@@ -129,7 +129,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         } catch (Exception e) {
         }
 
-        IUGSubsystem system = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
         String requestor_name = "subsystem";
         try {

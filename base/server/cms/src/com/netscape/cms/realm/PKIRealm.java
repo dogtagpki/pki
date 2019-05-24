@@ -20,13 +20,13 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  *  PKI Realm
@@ -168,7 +168,7 @@ public class PKIRealm extends RealmBase {
 
     protected IUser getUser(String username) throws EUsrGrpException {
         CMSEngine engine = CMS.getCMSEngine();
-        IUGSubsystem ugSub = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem ugSub = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         IUser user = ugSub.getUser(username);
         logger.info("User DN: " + user.getUserDN());
         return user;
@@ -179,7 +179,7 @@ public class PKIRealm extends RealmBase {
         List<String> roles = new ArrayList<String>();
 
         CMSEngine engine = CMS.getCMSEngine();
-        IUGSubsystem ugSub = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        UGSubsystem ugSub = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         Enumeration<IGroup> groups = ugSub.findGroupsByUser(user.getUserDN(), null);
 
         logger.info("Roles:");

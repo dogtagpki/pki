@@ -25,10 +25,10 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * A class represents a group acls evaluator.
@@ -41,7 +41,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupAccessEvaluator.class);
 
     private String mType = "group";
-    private IUGSubsystem mUG = null;
+    private UGSubsystem mUG = null;
     private String mDescription = "group membership evaluator";
 
     /**
@@ -50,7 +50,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
     public GroupAccessEvaluator() {
 
         CMSEngine engine = CMS.getCMSEngine();
-        mUG = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        mUG = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
         if (mUG == null) {
             logger.warn("GroupAccessEvaluator: " + CMS.getLogMessage("EVALUTOR_UG_NULL"));

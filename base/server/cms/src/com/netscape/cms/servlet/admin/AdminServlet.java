@@ -57,7 +57,6 @@ import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -65,6 +64,7 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.Auditor;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * A class represents an administration servlet that
@@ -104,7 +104,7 @@ public class AdminServlet extends HttpServlet {
 
     protected Logger mLogger = Logger.getLogger();
     protected Auditor auditor = Auditor.getAuditor();
-    private IUGSubsystem mUG = null;
+    private UGSubsystem mUG = null;
     protected IConfigStore mConfig = null;
     protected IAuthzSubsystem mAuthz = null;
 
@@ -146,7 +146,7 @@ public class AdminServlet extends HttpServlet {
         super.init(sc);
 
         CMSEngine engine = CMS.getCMSEngine();
-        mUG = (IUGSubsystem) engine.getSubsystem(IUGSubsystem.ID);
+        mUG = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         mConfig = engine.getConfigStore();
 
         String srcType = AUTHZ_SRC_LDAP;
