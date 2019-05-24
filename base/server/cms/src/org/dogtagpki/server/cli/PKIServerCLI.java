@@ -33,6 +33,12 @@ public class PKIServerCLI extends CLI {
     public PKIServerCLI() throws Exception {
         super("pki-server", "PKI server management commands");
 
+        addModule(new CACLI(this));
+        addModule(new KRACLI(this));
+        addModule(new OCSPCLI(this));
+        addModule(new TKSCLI(this));
+        addModule(new TPSCLI(this));
+
         createOptions();
     }
 
