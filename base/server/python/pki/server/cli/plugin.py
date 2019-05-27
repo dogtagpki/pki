@@ -37,15 +37,59 @@ class AuthPluginCLI(pki.cli.CLI):
         if default:
             print("  Default Plugins list")
             print("  ====================")
-            print("    Plugin id \t\t\t Plugin Class")
-            print("    --------- \t\t\t ------------")
             for key, val in args.items():
                 if key.startswith("auths.impl"):
-                    print("    {:<20} \t {val}".format(key.split('.')[2], val=val))
-            print()
-        for key, val in args.items():
+                    print("   Plugin ID: {}".format(key.split('.')[2]))
+                    print("   Plugin Class: {}".format(val))
+                    print()
+        keys = args.keys()
+        for key in keys:
             if not key.startswith("auths.impl"):
-                print("  {:<60} {}".format(key, val))
+                nest_keys = args[key]
+                print("    Instance Name: {}".format(key.split(".")[-1]))
+                if nest_keys.get('pluginName', None):
+                    print("    Plugin Name: {}".format(nest_keys['pluginName']))
+                if nest_keys.get('agentGroup', None):
+                    print("    Plugin Group: {}".format(nest_keys['agentGroup']))
+                if nest_keys.get('authAttributes', None):
+                    print("    Authentication Attributes: {}".format(nest_keys['authAttributes']))
+                if nest_keys.get('deferOnFailure', None):
+                    print("    Defer On Failure: {}".format(nest_keys['deferOnFailure']))
+                if nest_keys.get('fileName', None):
+                    print("    File name: {}".format(nest_keys['fileName']))
+                if nest_keys.get('keyAttributes', None):
+                    print("    Key Attributes: {}".format(nest_keys['keyAttributes']))
+                if nest_keys.get('dnpattern', None):
+                    print("    DN Pattern: {}".format(nest_keys['dnpattern']))
+                if nest_keys.get('bindDN', None):
+                    print("    Bind DN: {}".format(nest_keys['bindDN']))
+                if nest_keys.get('bindPWPrompt', None):
+                    print("    Bind PW Prompt: {}".format(nest_keys['bindPWPrompt']))
+                if nest_keys.get('clientcertNickname', None):
+                    print("    Client Cert Nick name: {}".format(nest_keys['clientcertNickname']))
+                if nest_keys.get('host', None):
+                    print("    Hostname: {}".format(nest_keys['host']))
+                if nest_keys.get('port', None):
+                    print("    Port: {}".format(nest_keys['port']))
+                if nest_keys.get('secureConn', None):
+                    print("    Secure Connection: {}".format(nest_keys['secureConn']))
+                if nest_keys.get('version', None):
+                    print("    Version: {}".format(nest_keys['version']))
+                if nest_keys.get('maxConn', None):
+                    print("    Max Connections: {}".format(nest_keys['maxConn']))
+                if nest_keys.get('minConn', None):
+                    print("    Min Connections: {}".format(nest_keys['minConn']))
+                if nest_keys.get('basedn', None):
+                    print("    Base DN: {}".format(nest_keys['basedn']))
+                if nest_keys.get('authType', None):
+                    print("    Auth Type: {}".format(nest_keys['authType']))
+                if nest_keys.get('ldapByteAttributes', None):
+                    print("    LDAP Bytes Attributes: {}".format(nest_keys['ldapByteAttributes']))
+                if nest_keys.get('ldapStringAttributes', None):
+                    print("    LDAP String Attributes: {}".format(nest_keys['ldapStringAttributes']))
+                if nest_keys.get('shrTokAttr', None):
+                    print("    Shared Token Attribute: {}".format(nest_keys['shrTokAttr']))
+                print()
 
 
 class AuthPluginRegisterCLI(pki.cli.CLI):
@@ -607,15 +651,22 @@ class AuthPluginFindCLI(pki.cli.CLI):
         print(" ==================")
         if show_default:
             for key, value in subsystem.config.items():
-                if key.startswith('auths.impl'):
-                    if not key.startswith('auths.impl._'):
-                        plugin_conf[key] = value
+                if key.startswith('auths.impl') and not key.startswith('auths.impl._'):
+                    plugin_conf[key] = value
             AuthPluginCLI.print_plugin(plugin_conf, default=True)
         print("  Configured Plugin instances.")
-        print("  ==================")
-        for key, value in subsystem.config.items():
-            if key.startswith("auths.instance"):
-                plugin_conf[key] = value
+        print("  ============================")
+        instances = []
+        new_config = {}
+        for i in subsystem.config.keys():
+            if i.startswith('auths.instance.'):
+                instances.append(i.split(".")[2].strip())
+        for instance in instances:
+            plugin_conf['auths.instance.{}'.format(instance)] = {}
+            for key, value in subsystem.config.items():
+                if key.startswith("auths.instance.{}".format(instance)):
+                    plugin_conf['auths.instance.{}'.format(instance)][key.split(".")[-1]] = value
+
         AuthPluginCLI.print_plugin(plugin_conf)
 
 
@@ -684,20 +735,22 @@ class AuthPluginShowCLI(pki.cli.CLI):
                   % (subsystem_name.upper(), instance_name))
             sys.exit(1)
         plugin_conf = {}
-        for key, value in subsystem.config.items():
-            if key.lower().startswith('auths.instance.{}'.format(plugin_id.lower())):
-                plugin_conf[key] = value
+        instances = []
+        for i in subsystem.config.keys():
+            if i.lower().startswith('auths.instance.{}'.format(plugin_id.lower())):
+                instances.append(i.split(".")[2].strip())
+        for instance in instances:
+            plugin_conf['auths.instance.{}'.format(instance)] = {}
+            for key, value in subsystem.config.items():
+                if key.startswith("auths.instance.{}".format(instance)):
+                    plugin_conf['auths.instance.{}'.format(instance)][key.split(".")[-1]] = value
 
-        print("  ")
-        print("   Plugin attributes \t\t\t Plugin Values")
-        print("   ================= \t\t\t =============")
-        print("    {:<25} \t\t {}".format("Instance Name", plugin_id))
-
-        for key, value in plugin_conf.items():
-            print("    {:<30} \t {val}".format(".".join(key.split(".")[3:]), val=value))
+        AuthPluginCLI.print_plugin(plugin_conf)
 
         if store:
             with open(file_name, 'w') as conf_file:
                 for key, value in plugin_conf.items():
-                    conf_file.write("{}={}\n".format(key, value))
-            print("Plugin stored in {}.\n".format(file_name))
+                    if isinstance(value, dict):
+                        for k, v in value.items():
+                            conf_file.write("{}.{}={}\n".format(key, k, v))
+            print("    Plugin stored in {}.\n".format(file_name))
