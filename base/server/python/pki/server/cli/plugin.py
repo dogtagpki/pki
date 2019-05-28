@@ -86,7 +86,8 @@ class AuthPluginCLI(pki.cli.CLI):
                 if nest_keys.get('ldapByteAttributes', None):
                     print("    LDAP Bytes Attributes: {}".format(nest_keys['ldapByteAttributes']))
                 if nest_keys.get('ldapStringAttributes', None):
-                    print("    LDAP String Attributes: {}".format(nest_keys['ldapStringAttributes']))
+                    print("    LDAP String Attributes: {}".format(
+                        nest_keys['ldapStringAttributes']))
                 if nest_keys.get('shrTokAttr', None):
                     print("    Shared Token Attribute: {}".format(nest_keys['shrTokAttr']))
                 print()
@@ -101,7 +102,8 @@ class AuthPluginRegisterCLI(pki.cli.CLI):
         self.parent = parent
 
     def print_help(self):
-        print("Usages: pki-server %s-auth-plugin-register [OPTIONS]" % self.parent.parent.parent.name)
+        print("Usages: pki-server %s-auth-plugin-register [OPTIONS]"
+              % self.parent.parent.parent.name)
         print()
         print('  -t, --type                         Plugin type')
         print('  -c, --class                        Plugin class name')
@@ -173,7 +175,8 @@ class AuthPluginDeregisterCLI(pki.cli.CLI):
         self.parent = parent
 
     def print_help(self):
-        print("Usages: pki-server %s-auth-plugin-deregister <plugin_type>" % self.parent.parent.parent.name)
+        print("Usages: pki-server %s-auth-plugin-deregister <plugin_type>"
+              % self.parent.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --help                         Show help message.')
@@ -217,7 +220,7 @@ class AuthPluginDeregisterCLI(pki.cli.CLI):
         subsystem_name = self.parent.parent.parent.name
         subsystem = instance.get_subsystem(subsystem_name)
         deleted = False
-        for key, value in subsystem.config.items():
+        for key in list(subsystem.config.keys()):
             if key.lower().startswith('auths.impl.{}'.format(plugin_type.lower())):
                 del subsystem.config[key]
                 deleted = True
@@ -258,10 +261,12 @@ class AuthPluginAddCLI(pki.cli.CLI):
         print('      --maxConn <conn_no>                    LDAP Max connections')
         print()
         print('   Attributes for sharedToken and UidPwdDirPinAuth.')
-        print('      --bindDN <bind_dn>                     LDAP Bind DN. (default cn=Directory manager)')
+        print('      --bindDN <bind_dn>                     LDAP Bind DN. (default '
+              'cn=Directory manager)')
         print('      --password <password>                  LDAP Password.')
         print('      --pass-file <file>                     Password File.')
-        print('      --authType <basicAuth|sslClientAuth>   Authentication Type. (default basicAuth)')
+        print('      --authType <basicAuth|sslClientAuth>   Authentication Type. '
+              '(default basicAuth)')
         print('      --clientCertNick <cert_nick>           LDAP Auth Client Cert Nick name.')
         print('      --attr <attribute>                     Set Attribute.')
         print()
@@ -279,7 +284,8 @@ class AuthPluginAddCLI(pki.cli.CLI):
                 'instance=', 'file=', 'host=', 'port=', 'pluginName=', 'removePin=', 'dnPattern=',
                 'stringAttributes=', 'byteAttributes=', 'secureConn=', 'connVersion=', 'bindDN=',
                 'password=', 'pass-file=', 'clientCertNick=', 'authType=', 'minConn=', 'maxConn=',
-                'pluginType=', 'ldapAttrName=', 'ldapAttrDesc=', 'attr=', 'ldapBaseDN=', 'verbose', 'help'])
+                'pluginType=', 'ldapAttrName=', 'ldapAttrDesc=', 'attr=', 'ldapBaseDN=', 'verbose',
+                'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -287,7 +293,6 @@ class AuthPluginAddCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
-        file_name = ''
         host = ''
         port = ''
         plugin_name = ''
@@ -299,7 +304,6 @@ class AuthPluginAddCLI(pki.cli.CLI):
         conn_version = 3
         bind_dn = ''
         password = ''
-        pass_file = ''
         client_cert_nick = ''
         auth_type = ''
         min_conn = ''
@@ -482,7 +486,8 @@ class AuthPluginAddCLI(pki.cli.CLI):
                 if not client_cert_nick:
                     configure_plugin[plugin_base + 'ldap.ldapauth.clientcertNickname'] = ''
                 else:
-                    configure_plugin[plugin_base + 'ldap.ldapauth.clientcertNickname'] = client_cert_nick
+                    configure_plugin[plugin_base +
+                                     'ldap.ldapauth.clientcertNickname'] = client_cert_nick
 
                 if not auth_type:
                     configure_plugin[plugin_base + 'ldap.ldapauth.authType'] = 'basicAuth'
@@ -492,7 +497,8 @@ class AuthPluginAddCLI(pki.cli.CLI):
                 if not password:
                     configure_plugin[plugin_base + 'ldap.ldapauth.bindPWPrompt'] = ''
                 else:
-                    configure_plugin[plugin_base + 'ldap.ldapauth.bindPWPrompt'] = 'Rule {}'.format(plugin_name)
+                    configure_plugin[plugin_base +
+                                     'ldap.ldapauth.bindPWPrompt'] = 'Rule {}'.format(plugin_name)
 
             if plugin_type.lower() == "sharedtoken":
                 if not bind_dn:
@@ -533,7 +539,8 @@ class AuthPluginDelCLI(pki.cli.CLI):
         self.parent = parent
 
     def print_help(self):
-        print("Usages: pki-server %s-auth-plugin-del <plugin_name>" % self.parent.parent.parent.name)
+        print("Usages: pki-server %s-auth-plugin-del <plugin_name>"
+              % self.parent.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --help                         Show help message.')
@@ -580,9 +587,9 @@ class AuthPluginDelCLI(pki.cli.CLI):
                   % (subsystem_name.upper(), instance_name))
             sys.exit(1)
 
-        for key, val in subsystem.config.items():
+        for key in list(subsystem.config.keys()):
             if key.lower().startswith("auths.instance.{}.".format(plugin_id.lower())):
-                del subsystem.config[key]
+                subsystem.config.pop(key)
         subsystem.save()
         print("Plugin {} removed from instance {}".format(plugin_id, instance_name))
 
@@ -657,7 +664,6 @@ class AuthPluginFindCLI(pki.cli.CLI):
         print("  Configured Plugin instances.")
         print("  ============================")
         instances = []
-        new_config = {}
         for i in subsystem.config.keys():
             if i.startswith('auths.instance.'):
                 instances.append(i.split(".")[2].strip())
