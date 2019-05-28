@@ -41,7 +41,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.xerces.parsers.DOMParser;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -50,8 +49,6 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import com.netscape.certsrv.authentication.ISharedToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -170,21 +167,9 @@ public class CMSEngine implements ISubsystem {
     // final static subsystems - must be singletons.
     public Map<String, SubsystemInfo> finalSubsystems = new LinkedHashMap<>();
 
-    private static final int IP = 0;
-    private static final int PORT = 1;
-    @SuppressWarnings("unused")
-    private static final int HOST = 2;
-    private static final int AGENT = 0;
-    private static final int ADMIN = 1;
-    private static final int EE_SSL = 2;
-    private static final int EE_NON_SSL = 3;
-    private static final int EE_CLIENT_AUTH_SSL = 4;
-    private static String info[][] = { { null, null, null },//agent
-            { null, null, null },//admin
-            { null, null, null },//sslEE
-            { null, null, null },//non_sslEE
-            { null, null, null } //ssl_clientauth_EE
-    };
+    public String hostname;
+    public String unsecurePort;
+    public String securePort;
 
     private static final int PW_OK =0;
     //private static final int PW_BAD_SETUP = 1;
@@ -519,107 +504,18 @@ public class CMSEngine implements ISubsystem {
         serverStatus = "running";
     }
 
-    /**
-     * Parse server.xml to get the ports and IPs
-     * @throws EBaseException
-     */
     private void parseServerXML() throws EBaseException {
         try {
             String instanceRoot = mConfig.getString("instanceRoot");
             String path = instanceRoot + File.separator + "conf" + File.separator + SERVER_XML;
-            DOMParser parser = new DOMParser();
-            parser.parse(path);
-            NodeList nodes = parser.getDocument().getElementsByTagName("Connector");
-            String parentName = "";
-            String name = "";
-            String port = "";
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Element n = (Element) nodes.item(i);
 
-                parentName = "";
-                Element p = (Element) n.getParentNode();
-                if (p != null) {
-                    parentName = p.getAttribute("name");
-                }
-                name = n.getAttribute("name");
-                port = n.getAttribute("port");
-
-                // The "server.xml" file is parsed from top-to-bottom, and
-                // supports BOTH "Port Separation" (the new default method)
-                // as well as "Shared Ports" (the old legacy method).  Since
-                // both methods must be supported, the file structure MUST
-                // conform to ONE AND ONLY ONE of the following formats:
-                //
-                // Port Separation:
-                //
-                //  <Catalina>
-                //     ...
-                //     <!-- Port Separation:  Unsecure Port -->
-                //     <Connector name="Unsecure" . . .
-                //     ...
-                //     <!-- Port Separation:  Agent Secure Port -->
-                //     <Connector name="Agent" . . .
-                //     ...
-                //     <!-- Port Separation:  Admin Secure Port -->
-                //     <Connector name="Admin" . . .
-                //     ...
-                //     <!-- Port Separation:  EE Secure Port -->
-                //     <Connector name="EE" . . .
-                //     ...
-                //  </Catalina>
-                //
-                //
-                // Shared Ports:
-                //
-                //  <Catalina>
-                //     ...
-                //     <!-- Shared Ports:  Unsecure Port -->
-                //     <Connector name="Unsecure" . . .
-                //     ...
-                //     <!-- Shared Ports:  Agent, EE, and Admin Secure Port -->
-                //     <Connector name="Secure" . . .
-                //     ...
-                //     <!--
-                //     <Connector name="Unused" . . .
-                //     -->
-                //     ...
-                //     <!--
-                //     <Connector name="Unused" . . .
-                //     -->
-                //     ...
-                //  </Catalina>
-                //
-                if (parentName.equals("Catalina")) {
-                    if (name.equals("Unsecure")) {
-                        // Port Separation:  Unsecure Port
-                        //                   OR
-                        // Shared Ports:     Unsecure Port
-                        info[EE_NON_SSL][PORT] = port;
-                    } else if (name.equals("Agent")) {
-                        // Port Separation:  Agent Secure Port
-                        info[AGENT][PORT] = port;
-                    } else if (name.equals("Admin")) {
-                        // Port Separation:  Admin Secure Port
-                        info[ADMIN][PORT] = port;
-                    } else if (name.equals("EE")) {
-                        // Port Separation:  EE Secure Port
-                        info[EE_SSL][PORT] = port;
-                    } else if (name.equals("EEClientAuth")) {
-                        // Port Separation: EE Client Auth Secure Port
-                        info[EE_CLIENT_AUTH_SSL][PORT] = port;
-                    } else if (name.equals("Secure")) {
-                        // Shared Ports:  Agent, EE, and Admin Secure Port
-                        info[AGENT][PORT] = port;
-                        info[ADMIN][PORT] = port;
-                        info[EE_SSL][PORT] = port;
-                        info[EE_CLIENT_AUTH_SSL][PORT] = port;
-                    }
-                }
-            }
+            ServerXml serverXml = ServerXml.load(path);
+            unsecurePort = serverXml.getUnsecurePort();
+            securePort = serverXml.getSecurePort();
 
         } catch (Exception e) {
-            logger.error("CMSEngine: parseServerXML exception: " + e.getMessage(), e);
-            throw new EBaseException("CMSEngine: Cannot parse the configuration file. " + e.getMessage(), e);
+            logger.error("CMSEngine: Unable to parse server.xml: " + e.getMessage(), e);
+            throw new EBaseException("CMSEngine: Unable to parse server.xml: " + e.getMessage(), e);
         }
     }
 
@@ -627,15 +523,12 @@ public class CMSEngine implements ISubsystem {
         try {
             String port = mConfig.getString("proxy.securePort", "");
             if (!port.equals("")) {
-                info[EE_SSL][PORT] = port;
-                info[ADMIN][PORT] = port;
-                info[AGENT][PORT] = port;
-                info[EE_CLIENT_AUTH_SSL][PORT] = port;
+                securePort = port;
             }
 
             port = mConfig.getString("proxy.unsecurePort", "");
             if (!port.equals("")) {
-                info[EE_NON_SSL][PORT] = port;
+                unsecurePort = port;
             }
         } catch (EBaseException e) {
             logger.error("CMSEngine: fixProxyPorts exception: " + e.getMessage(), e);
@@ -703,11 +596,11 @@ public class CMSEngine implements ISubsystem {
     }
 
     public String getEENonSSLIP() {
-        return info[EE_NON_SSL][IP];
+        return hostname;
     }
 
     public String getEENonSSLPort() {
-        return info[EE_NON_SSL][PORT];
+        return unsecurePort;
     }
 
     public String getEESSLHost() {
@@ -720,15 +613,15 @@ public class CMSEngine implements ISubsystem {
     }
 
     public String getEESSLIP() {
-        return info[EE_SSL][IP];
+        return hostname;
     }
 
     public String getEESSLPort() {
-        return info[EE_SSL][PORT];
+        return securePort;
     }
 
     public String getEEClientAuthSSLPort() {
-        return info[EE_CLIENT_AUTH_SSL][PORT];
+        return securePort;
     }
 
     public String getAgentHost() {
@@ -741,11 +634,11 @@ public class CMSEngine implements ISubsystem {
     }
 
     public String getAgentIP() {
-        return info[AGENT][IP];
+        return hostname;
     }
 
     public String getAgentPort() {
-        return info[AGENT][PORT];
+        return securePort;
     }
 
     public String getAdminHost() {
@@ -758,11 +651,11 @@ public class CMSEngine implements ISubsystem {
     }
 
     public String getAdminIP() {
-        return info[ADMIN][IP];
+        return hostname;
     }
 
     public String getAdminPort() {
-        return info[ADMIN][PORT];
+        return securePort;
     }
 
     public Collection<ISubsystem> getSubsystems() {
