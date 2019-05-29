@@ -19,11 +19,16 @@ package org.dogtagpki.server.ocsp;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.cert.CertificateEncodingException;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
+import com.netscape.certsrv.ocsp.IDefStore;
+import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
@@ -33,6 +38,46 @@ import com.netscape.cmsutil.xml.XMLObject;
 public class OCSPConfigurator extends Configurator {
 
     private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
+
+    public void importCACert() throws IOException, EBaseException, CertificateEncodingException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+
+        // get certificate chain from CA
+        String b64 = cs.getString("preop.ca.pkcs7", "");
+        if (b64.equals("")) {
+            throw new IOException("Failed to get certificate chain");
+        }
+
+        // this could be a chain
+        java.security.cert.X509Certificate[] certs = org.mozilla.jss.netscape.security.util.Cert.mapCertFromPKCS7(b64);
+        if (certs == null || certs.length == 0) {
+            return;
+        }
+
+        java.security.cert.X509Certificate leafCert;
+        if (certs[0].getSubjectDN().getName().equals(certs[0].getIssuerDN().getName())) {
+            leafCert = certs[certs.length - 1];
+        } else {
+            leafCert = certs[0];
+        }
+
+        IOCSPAuthority ocsp = (IOCSPAuthority) engine.getSubsystem(IOCSPAuthority.ID);
+        IDefStore defStore = ocsp.getDefaultStore();
+
+        // (1) need to normalize (sort) the chain
+        // (2) store certificate (and certificate chain) into
+        // database
+        ICRLIssuingPointRecord rec = defStore.createCRLIssuingPointRecord(
+                leafCert.getSubjectDN().getName(),
+                Configurator.BIG_ZERO,
+                Configurator.MINUS_ONE, null, null);
+
+        rec.set(ICRLIssuingPointRecord.ATTR_CA_CERT, leafCert.getEncoded());
+        defStore.addCRLIssuingPoint(leafCert.getSubjectDN().getName(), rec);
+
+        logger.debug("OCSPConfigurator: Added CA certificate.");
+    }
 
     public void updateOCSPConfiguration() throws Exception {
 
