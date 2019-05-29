@@ -17,17 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ocsp.rest;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
-
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
 
 import org.dogtagpki.server.ocsp.OCSPConfigurator;
 import org.dogtagpki.server.rest.SystemConfigService;
 
-import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
@@ -39,7 +34,6 @@ import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
-import com.netscape.cmsutil.xml.XMLObject;
 import com.netscape.ocsp.OCSPAuthority;
 
 /**
@@ -95,7 +89,7 @@ public class OCSPInstallerService extends SystemConfigService {
                     // Next we need to treat the publishing of clones as a group ,
                     // and fail over amongst them.
                     if (!request.isClone())
-                        updateOCSPConfiguration();
+                        ocspConfigurator.updateOCSPConfiguration();
 
                     configurator.setupClientAuthUser();
                 }
@@ -152,52 +146,5 @@ public class OCSPInstallerService extends SystemConfigService {
         defStore.addCRLIssuingPoint(leafCert.getSubjectDN().getName(), rec);
 
         logger.debug("OCSPInstallerService: Added CA certificate.");
-    }
-
-    public void updateOCSPConfiguration() throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.getConfigStore();
-
-        String caHost = config.getString("preop.ca.hostname", "");
-        int caPort = config.getInteger("preop.ca.httpsport", -1);
-
-        logger.debug("OCSPInstallerService: "
-                + "Updating OCSP configuration in CA at https://" + caHost + ":" + caPort);
-
-        String ocspHost = engine.getAgentHost();
-        int ocspPort = Integer.parseInt(engine.getAgentPort());
-        String sessionId = engine.getConfigSDSessionId();
-
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionId);
-        content.putSingle("ocsp_host", ocspHost);
-        content.putSingle("ocsp_port", ocspPort + "");
-
-        String c = Configurator.post(caHost, caPort, true, "/ca/ee/ca/updateOCSPConfig", content, null, null);
-        if (c == null || c.equals("")) {
-            logger.error("OCSPInstallerService: Unable to update OCSP configuration: No response from CA");
-            throw new IOException("Unable to update OCSP configuration: No response from CA");
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-        XMLObject parser = new XMLObject(bis);
-
-        String status = parser.getValue("Status");
-        logger.debug("OCSPInstallerService: status: " + status);
-
-        if (status.equals(Configurator.SUCCESS)) {
-            logger.debug("OCSPInstallerService: Successfully updated OCSP configuration in CA");
-
-        } else if (status.equals(Configurator.AUTH_FAILURE)) {
-            logger.error("OCSPInstallerService: Unable to update OCSP configuration: Authentication failure");
-            throw new EAuthException(Configurator.AUTH_FAILURE);
-
-        } else {
-            String error = parser.getValue("Error");
-            logger.error("OCSPInstallerService: Unable to update OCSP configuration: " + error);
-            throw new IOException(error);
-        }
     }
 }
