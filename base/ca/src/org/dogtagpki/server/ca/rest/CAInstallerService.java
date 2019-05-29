@@ -23,7 +23,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.StringTokenizer;
 
-import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.ca.CAConfigurator;
 import org.dogtagpki.server.rest.SystemConfigService;
 
@@ -48,8 +47,6 @@ import com.netscape.cmscore.profile.LDAPProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
 
 /**
  * @author alee
@@ -59,7 +56,10 @@ public class CAInstallerService extends SystemConfigService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAInstallerService.class);
 
+    public CAConfigurator caConfigurator;
+
     public CAInstallerService() throws Exception {
+        caConfigurator = (CAConfigurator) configurator;
     }
 
     public Configurator createConfigurator() {
@@ -116,7 +116,7 @@ public class CAInstallerService extends SystemConfigService {
 
             try {
                 String serialNumber = request.getSigningCertSerialNumber();
-                deleteSigningRecord(serialNumber);
+                caConfigurator.deleteSigningRecord(serialNumber);
             } catch (Exception e) {
                 logger.error("Unable to delete signing cert record: " + e.getMessage(), e);
                 throw new PKIException("Unable to delete signing cert record: " + e.getMessage(), e);
@@ -243,36 +243,6 @@ public class CAInstallerService extends SystemConfigService {
         }
 
         configStore.commit(false /* no backup */);
-    }
-
-    private void deleteSigningRecord(String serialNumber) throws EBaseException, LDAPException {
-
-        if (StringUtils.isEmpty(serialNumber)) {
-            throw new PKIException("signing certificate serial number not specified in configuration request");
-        }
-
-        CMSEngine engine = CMS.getCMSEngine();
-
-        LDAPConnection conn = null;
-        try {
-            IConfigStore dbCfg = cs.getSubStore("internaldb");
-            LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
-            dbFactory.init(cs, dbCfg, engine.getPasswordStore());
-
-            conn = dbFactory.getConn();
-
-            String basedn = dbCfg.getString("basedn", "");
-            String dn = "cn=" + serialNumber + ",ou=certificateRepository,ou=ca," + basedn;
-
-            conn.delete(dn);
-        } finally {
-            try {
-                if (conn != null)
-                    conn.disconnect();
-            } catch (LDAPException e) {
-                logger.warn("Unable to release connection: " + e.getMessage(), e);
-            }
-        }
     }
 
     private void configureStartingCRLNumber(ConfigurationRequest data) {

@@ -17,8 +17,48 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.cms.servlet.csadmin.Configurator;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
 
 public class CAConfigurator extends Configurator {
 
+    public void deleteSigningRecord(String serialNumber) throws EBaseException, LDAPException {
+
+        if (StringUtils.isEmpty(serialNumber)) {
+            throw new PKIException("Missing signing certificate serial number");
+        }
+
+        CMSEngine engine = CMS.getCMSEngine();
+
+        LDAPConnection conn = null;
+        try {
+            IConfigStore dbCfg = cs.getSubStore("internaldb");
+            LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
+            dbFactory.init(cs, dbCfg, engine.getPasswordStore());
+
+            conn = dbFactory.getConn();
+
+            String basedn = dbCfg.getString("basedn", "");
+            String dn = "cn=" + serialNumber + ",ou=certificateRepository,ou=ca," + basedn;
+
+            conn.delete(dn);
+
+        } finally {
+            try {
+                if (conn != null) conn.disconnect();
+            } catch (LDAPException e) {
+                logger.warn("Unable to release connection: " + e.getMessage(), e);
+            }
+        }
+    }
 }
