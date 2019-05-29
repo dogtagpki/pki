@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -31,6 +34,29 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 
 public class CAConfigurator extends Configurator {
+
+    public void disableCRLCachingAndGenerationForClone(String cloneUri) throws MalformedURLException {
+
+        logger.debug("CAInstallerService: disabling CRL caching and generation for clone");
+
+        //Now add some well know entries that we need to disable CRL functionality.
+        //With well known values to disable and well known master CRL ID.
+
+        cs.putInteger("ca.certStatusUpdateInterval", 0);
+        cs.putBoolean("ca.listenToCloneModifications", false);
+        cs.putBoolean("ca.crl.MasterCRL.enableCRLCache", false);
+        cs.putBoolean("ca.crl.MasterCRL.enableCRLUpdates", false);
+
+        URL url = new URL(cloneUri);
+        String masterHost = url.getHost();
+        int masterPort = url.getPort();
+
+        logger.debug("CAInstallerService: master host: " + masterHost);
+        logger.debug("CAInstallerService: master port: " + masterPort);
+
+        cs.putString("master.ca.agent.host", masterHost);
+        cs.putInteger("master.ca.agent.port", masterPort);
+    }
 
     public void configureStartingCRLNumber(String startingCrlNumber) {
         logger.debug("CAConfigurator: configuring starting CRL number");

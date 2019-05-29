@@ -19,8 +19,6 @@ package org.dogtagpki.server.ca.rest;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.StringTokenizer;
 
 import org.dogtagpki.server.ca.CAConfigurator;
@@ -93,7 +91,7 @@ public class CAInstallerService extends SystemConfigService {
             }
 
             if (request.isClone()) {
-                disableCRLCachingAndGenerationForClone(request);
+                caConfigurator.disableCRLCachingAndGenerationForClone(request.getCloneUri());
             }
 
             caConfigurator.configureStartingCRLNumber(request.getStartingCRLNumber());
@@ -243,36 +241,5 @@ public class CAInstallerService extends SystemConfigService {
         }
 
         configStore.commit(false /* no backup */);
-    }
-
-    private void disableCRLCachingAndGenerationForClone(ConfigurationRequest data) throws MalformedURLException {
-
-        logger.debug("CAInstallerService: disabling CRL caching and generation for clone");
-
-        if (!data.isClone())
-            return;
-
-        //Now add some well know entries that we need to disable CRL functionality.
-        //With well known values to disable and well known master CRL ID.
-
-        cs.putInteger("ca.certStatusUpdateInterval", 0);
-        cs.putBoolean("ca.listenToCloneModifications", false);
-        cs.putBoolean("ca.crl.MasterCRL.enableCRLCache", false);
-        cs.putBoolean("ca.crl.MasterCRL.enableCRLUpdates", false);
-
-        String cloneUri = data.getCloneUri();
-        URL url = null;
-
-        url = new URL(cloneUri);
-
-        String masterHost = url.getHost();
-        int masterPort = url.getPort();
-
-        logger.debug("CAInstallerService: master host: " + masterHost);
-        logger.debug("CAInstallerService: master port: " + masterPort);
-
-        cs.putString("master.ca.agent.host", masterHost);
-        cs.putInteger("master.ca.agent.port", masterPort);
-
     }
 }
