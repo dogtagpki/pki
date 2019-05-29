@@ -50,9 +50,10 @@ public class OCSPInstallerService extends SystemConfigService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPInstallerService.class);
 
-    private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
+    public OCSPConfigurator ocspConfigurator;
 
     public OCSPInstallerService() throws Exception {
+        ocspConfigurator = (OCSPConfigurator) configurator;
     }
 
     public Configurator createConfigurator() {
@@ -101,7 +102,7 @@ public class OCSPInstallerService extends SystemConfigService {
             }
 
             if (request.isClone()) {
-                configureCloneRefresh(request);
+                ocspConfigurator.configureCloneRefresh(request);
             }
 
         } catch (Exception e) {
@@ -110,15 +111,6 @@ public class OCSPInstallerService extends SystemConfigService {
         }
 
         super.finalizeConfiguration(request);
-    }
-
-    private void configureCloneRefresh(ConfigurationRequest request) {
-        if (request == null || !request.isClone())
-            return;
-
-        //Set well know default value for OCSP clone
-        cs.putInteger("ocsp.store.defStore.refreshInSec", DEF_REFRESH_IN_SECS_FOR_CLONE);
-
     }
 
     public void importCACert() throws IOException, EBaseException, CertificateEncodingException {

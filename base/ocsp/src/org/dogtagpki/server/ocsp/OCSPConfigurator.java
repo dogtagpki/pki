@@ -17,8 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ocsp;
 
+import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 
 public class OCSPConfigurator extends Configurator {
 
+    private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
+
+    public void configureCloneRefresh(ConfigurationRequest request) {
+        //Set well know default value for OCSP clone
+        cs.putInteger("ocsp.store.defStore.refreshInSec", DEF_REFRESH_IN_SECS_FOR_CLONE);
+    }
 }
