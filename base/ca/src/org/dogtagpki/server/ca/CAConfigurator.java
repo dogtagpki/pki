@@ -32,6 +32,11 @@ import netscape.ldap.LDAPException;
 
 public class CAConfigurator extends Configurator {
 
+    public void configureStartingCRLNumber(String startingCrlNumber) {
+        logger.debug("CAConfigurator: configuring starting CRL number");
+        cs.putString("ca.crl.MasterCRL.startingCrlNumber", startingCrlNumber);
+    }
+
     public void deleteSigningRecord(String serialNumber) throws EBaseException, LDAPException {
 
         if (StringUtils.isEmpty(serialNumber)) {

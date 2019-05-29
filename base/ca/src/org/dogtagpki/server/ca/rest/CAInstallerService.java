@@ -96,7 +96,7 @@ public class CAInstallerService extends SystemConfigService {
                 disableCRLCachingAndGenerationForClone(request);
             }
 
-            configureStartingCRLNumber(request);
+            caConfigurator.configureStartingCRLNumber(request.getStartingCRLNumber());
 
         } catch (Exception e) {
             logger.error("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
@@ -245,11 +245,6 @@ public class CAInstallerService extends SystemConfigService {
         configStore.commit(false /* no backup */);
     }
 
-    private void configureStartingCRLNumber(ConfigurationRequest data) {
-        logger.debug("CAInstallerService: configuring starting CRL number");
-        cs.putString("ca.crl.MasterCRL.startingCrlNumber", data.getStartingCRLNumber());
-
-    }
     private void disableCRLCachingAndGenerationForClone(ConfigurationRequest data) throws MalformedURLException {
 
         logger.debug("CAInstallerService: disabling CRL caching and generation for clone");
