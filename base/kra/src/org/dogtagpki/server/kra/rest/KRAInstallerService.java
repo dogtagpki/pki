@@ -23,6 +23,7 @@ import java.io.IOException;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.dogtagpki.server.kra.KRAConfigurator;
 import org.dogtagpki.server.rest.SystemConfigService;
 
 import com.netscape.certsrv.authentication.EAuthException;
@@ -46,7 +47,11 @@ public class KRAInstallerService extends SystemConfigService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAInstallerService.class);
 
-    public KRAInstallerService() throws EBaseException {
+    public KRAInstallerService() throws Exception {
+    }
+
+    public Configurator createConfigurator() {
+        return new KRAConfigurator();
     }
 
     @Override

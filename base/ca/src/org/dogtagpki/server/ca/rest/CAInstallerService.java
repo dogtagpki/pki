@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.server.ca.CAConfigurator;
 import org.dogtagpki.server.rest.SystemConfigService;
 
 import com.netscape.ca.CertificateAuthority;
@@ -36,6 +37,7 @@ import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.system.ConfigurationRequest;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
@@ -57,7 +59,11 @@ public class CAInstallerService extends SystemConfigService {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAInstallerService.class);
 
-    public CAInstallerService() throws EBaseException {
+    public CAInstallerService() throws Exception {
+    }
+
+    public Configurator createConfigurator() {
+        return new CAConfigurator();
     }
 
     @Override

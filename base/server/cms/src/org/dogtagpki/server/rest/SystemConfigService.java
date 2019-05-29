@@ -81,7 +81,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public static final String ECC_INTERNAL_ADMIN_CERT_PROFILE = "caECAdminCert";
     public static final String RSA_INTERNAL_ADMIN_CERT_PROFILE = "caAdminCert";
 
-    public Configurator configurator = new Configurator();
+    public Configurator configurator;
 
     public IConfigStore cs;
     public String csType;
@@ -90,9 +90,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public boolean isMasterCA = false;
     public String instanceRoot;
 
-    public SystemConfigService() throws EBaseException {
+    public SystemConfigService() throws Exception {
+
         CMSEngine engine = CMS.getCMSEngine();
         cs = engine.getConfigStore();
+
         csType = cs.getString("cs.type");
         csSubsystem = csType.toLowerCase();
         csState = cs.getString("cs.state");
@@ -101,6 +103,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             isMasterCA = true;
         }
         instanceRoot = cs.getString("instanceRoot");
+
+        configurator = createConfigurator();
+        configurator.setConfigStore(cs);
+        configurator.loadServerXml();
+    }
+
+    public Configurator createConfigurator() {
+        return new Configurator();
     }
 
     /* (non-Javadoc)

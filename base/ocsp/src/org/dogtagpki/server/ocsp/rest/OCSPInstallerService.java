@@ -24,6 +24,7 @@ import java.security.cert.CertificateEncodingException;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.dogtagpki.server.ocsp.OCSPConfigurator;
 import org.dogtagpki.server.rest.SystemConfigService;
 
 import com.netscape.certsrv.authentication.EAuthException;
@@ -52,7 +53,11 @@ public class OCSPInstallerService extends SystemConfigService {
 
     private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
 
-    public OCSPInstallerService() throws EBaseException {
+    public OCSPInstallerService() throws Exception {
+    }
+
+    public Configurator createConfigurator() {
+        return new OCSPConfigurator();
     }
 
     @Override

@@ -146,6 +146,7 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -183,6 +184,9 @@ public class Configurator {
 
     public static ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
 
+    protected IConfigStore cs;
+    protected ServerXml serverXml;
+
     public static String get(String hostname, int port, boolean secure,
             String path, String clientnickname,
             SSLCertificateApprovalCallback certApprovalCallback)
@@ -215,6 +219,17 @@ public class Configurator {
         if (certApprovalCallback == null) certApprovalCallback = Configurator.certApprovalCallback;
         connection.setCallback(certApprovalCallback);
         return connection.post(path, content);
+    }
+
+    public void setConfigStore(IConfigStore cs) {
+        this.cs = cs;
+    }
+
+    public void loadServerXml() throws Exception {
+        String catalinaBase = cs.getString("instanceRoot");
+        String filename = catalinaBase + File.separator + "conf" + File.separator + "server.xml";
+
+        serverXml = ServerXml.load(filename);
     }
 
     public String getCertChain(String host, int port, String serverPath)

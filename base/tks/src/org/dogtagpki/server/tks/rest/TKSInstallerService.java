@@ -18,9 +18,11 @@
 package org.dogtagpki.server.tks.rest;
 
 import org.dogtagpki.server.rest.SystemConfigService;
+import org.dogtagpki.server.tks.TKSConfigurator;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.system.ConfigurationRequest;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
@@ -33,7 +35,11 @@ import com.netscape.tks.TKSAuthority;
  */
 public class TKSInstallerService extends SystemConfigService {
 
-    public TKSInstallerService() throws EBaseException {
+    public TKSInstallerService() throws Exception {
+    }
+
+    public Configurator createConfigurator() {
+        return new TKSConfigurator();
     }
 
     @Override
