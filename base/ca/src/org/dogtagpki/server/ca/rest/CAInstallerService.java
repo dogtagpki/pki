@@ -81,13 +81,7 @@ public class CAInstallerService extends SystemConfigService {
 
         try {
             if (request.isClone() && configurator.isSDHostDomainMaster()) {
-                // cloning a domain master CA, the clone is also master of its domain
-                cs.putString("securitydomain.host", engine.getEEHost());
-                cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
-                cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
-                cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
-                cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
-                cs.putString("securitydomain.select", "new");
+                caConfigurator.updateSecurityDomainClone();
             }
 
             if (request.isClone()) {

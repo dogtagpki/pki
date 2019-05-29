@@ -35,6 +35,19 @@ import netscape.ldap.LDAPException;
 
 public class CAConfigurator extends Configurator {
 
+    public void updateSecurityDomainClone() throws Exception {
+
+        CMSEngine engine = CMS.getCMSEngine();
+
+        // cloning a domain master CA, the clone is also master of its domain
+        cs.putString("securitydomain.host", engine.getEEHost());
+        cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
+        cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
+        cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
+        cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
+        cs.putString("securitydomain.select", "new");
+    }
+
     public void disableCRLCachingAndGenerationForClone(String cloneUri) throws MalformedURLException {
 
         logger.debug("CAInstallerService: disabling CRL caching and generation for clone");
