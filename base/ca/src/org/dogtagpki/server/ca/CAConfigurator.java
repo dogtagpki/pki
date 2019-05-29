@@ -63,7 +63,7 @@ public class CAConfigurator extends Configurator {
         StringTokenizer st = new StringTokenizer(profileIds, ",");
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
+        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAConfigurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
         while (st.hasMoreTokens()) {
@@ -140,7 +140,7 @@ public class CAConfigurator extends Configurator {
 
     public void disableCRLCachingAndGenerationForClone(String cloneUri) throws MalformedURLException {
 
-        logger.debug("CAInstallerService: disabling CRL caching and generation for clone");
+        logger.debug("CAConfigurator: disabling CRL caching and generation for clone");
 
         //Now add some well know entries that we need to disable CRL functionality.
         //With well known values to disable and well known master CRL ID.
@@ -154,8 +154,8 @@ public class CAConfigurator extends Configurator {
         String masterHost = url.getHost();
         int masterPort = url.getPort();
 
-        logger.debug("CAInstallerService: master host: " + masterHost);
-        logger.debug("CAInstallerService: master port: " + masterPort);
+        logger.debug("CAConfigurator: master host: " + masterHost);
+        logger.debug("CAConfigurator: master port: " + masterPort);
 
         cs.putString("master.ca.agent.host", masterHost);
         cs.putInteger("master.ca.agent.port", masterPort);
@@ -177,7 +177,7 @@ public class CAConfigurator extends Configurator {
         LDAPConnection conn = null;
         try {
             IConfigStore dbCfg = cs.getSubStore("internaldb");
-            LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
+            LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAConfigurator");
             dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
             conn = dbFactory.getConn();

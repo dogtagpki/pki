@@ -112,10 +112,11 @@ public class CMSEngine implements ISubsystem {
 
     private static final String ID = "MAIN";
 
-    private static final String PROP_SUBSYSTEM = "subsystem";
-    private static final String PROP_ID = "id";
-    private static final String PROP_CLASS = "class";
-    private static final String PROP_ENABLED = "enabled";
+    public static final String PROP_SUBSYSTEM = "subsystem";
+    public static final String PROP_ID = "id";
+    public static final String PROP_CLASS = "class";
+    public static final String PROP_ENABLED = "enabled";
+
     private static final String SERVER_XML = "server.xml";
 
     // used for testing HSM issues
@@ -777,24 +778,6 @@ public class CMSEngine implements ISubsystem {
             // in pre-op mode to prevent errors.
             SubsystemInfo si = staticSubsystems.get(UGSubsystem.ID);
             si.enabled = false;
-        }
-    }
-
-    /**
-     * Set whether the given subsystem is enabled.
-     *
-     * @param id The subsystem ID.
-     * @param enabled Whether the subsystem is enabled
-     */
-    public void setSubsystemEnabled(String id, boolean enabled)
-            throws EBaseException {
-        IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
-        for (String ssName : getDynSubsystemNames()) {
-            IConfigStore config = ssconfig.getSubStore(ssName);
-            if (id.equalsIgnoreCase(config.getString(PROP_ID))) {
-                config.putBoolean(PROP_ENABLED, enabled);
-                break;
-            }
         }
     }
 

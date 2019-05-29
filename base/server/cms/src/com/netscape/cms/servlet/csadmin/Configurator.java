@@ -43,6 +43,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -3871,5 +3872,40 @@ public class Configurator {
         cs.putInteger("cs.state", 1);
 
         cs.commit(false);
+    }
+
+    /**
+     * Set whether the given subsystem is enabled.
+     *
+     * @param id The subsystem ID.
+     * @param enabled Whether the subsystem is enabled
+     */
+    public void setSubsystemEnabled(String id, boolean enabled) throws EBaseException {
+
+        IConfigStore ssconfig = cs.getSubStore(CMSEngine.PROP_SUBSYSTEM);
+
+        for (String ssName : getDynSubsystemNames()) {
+            IConfigStore config = ssconfig.getSubStore(ssName);
+
+            if (id.equalsIgnoreCase(config.getString(CMSEngine.PROP_ID))) {
+                config.putBoolean(CMSEngine.PROP_ENABLED, enabled);
+                break;
+            }
+        }
+    }
+
+    public ArrayList<String> getDynSubsystemNames() throws EBaseException {
+
+        IConfigStore subsystems = cs.getSubStore(CMSEngine.PROP_SUBSYSTEM);
+
+        Enumeration<String> names = subsystems.getSubStoreNames();
+
+        ArrayList<String> list = new ArrayList<String>();
+
+        while (names.hasMoreElements()) {
+            list.add(names.nextElement());
+        }
+
+        return list;
     }
 }

@@ -54,8 +54,6 @@ public class CAInstallerService extends SystemConfigService {
     @Override
     public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
-
         try {
             if (!request.isClone()) {
                 configurator.updateNextRanges();
@@ -83,7 +81,7 @@ public class CAInstallerService extends SystemConfigService {
         }
 
         try {
-            engine.setSubsystemEnabled("profile", true);
+            caConfigurator.setSubsystemEnabled("profile", true);
         } catch (Exception e) {
             logger.error("Unable to enable profile subsystem: " + e.getMessage(), e);
             throw new PKIException("Unable to enable profile subsystem: " + e.getMessage(), e);
