@@ -31,7 +31,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -123,8 +123,6 @@ public class CMSEngine implements ISubsystem {
     public static final String PROP_SIGNED_AUDIT_CERT_NICKNAME =
                               "log.instance.SignedAudit.signedAuditCertNickname";
 
-    public static final Map<String, ISubsystem> subsystems = new HashMap<>();
-
     public String name;
     public String instanceDir; /* path to instance <server-root>/cert-<instance-name> */
     private String instanceId;
@@ -159,14 +157,12 @@ public class CMSEngine implements ISubsystem {
 
     private RequestSubsystem requestSubsystem = new RequestSubsystem();
 
-    // static subsystems - must be singletons
-    public Map<String, SubsystemInfo> staticSubsystems = new LinkedHashMap<>();
+    public Collection<String> staticSubsystems = new LinkedHashSet<>();
+    public Collection<String> dynSubsystems = new LinkedHashSet<>();
+    public Collection<String> finalSubsystems = new LinkedHashSet<>();
 
-    // dynamic subsystems are loaded at init time, not necessarily singletons.
-    public Map<String, SubsystemInfo> dynSubsystems = new LinkedHashMap<>();
-
-    // final static subsystems - must be singletons.
-    public Map<String, SubsystemInfo> finalSubsystems = new LinkedHashMap<>();
+    public final Map<String, SubsystemInfo> subsystemInfos = new HashMap<>();
+    public final Map<String, ISubsystem> subsystems = new HashMap<>();
 
     public String hostname;
     public String unsecurePort;
@@ -659,12 +655,24 @@ public class CMSEngine implements ISubsystem {
         return securePort;
     }
 
+    public SubsystemInfo addSubsystem(String id, ISubsystem instance) {
+        SubsystemInfo si = new SubsystemInfo(id);
+        subsystems.put(id, instance);
+        subsystemInfos.put(id, si);
+        return si;
+    }
+
     public Collection<ISubsystem> getSubsystems() {
         return subsystems.values();
     }
 
     public ISubsystem getSubsystem(String name) {
         return subsystems.get(name);
+    }
+
+    public void setSubsystemEnabled(String id, boolean enabled) {
+        SubsystemInfo si = subsystemInfos.get(id);
+        si.enabled = enabled;
     }
 
     protected void initSubsystems() throws EBaseException {
@@ -685,9 +693,10 @@ public class CMSEngine implements ISubsystem {
         initSubsystems(finalSubsystems);
     }
 
-    private void initSubsystems(Map<String, SubsystemInfo> subsystems)
+    private void initSubsystems(Collection<String> ids)
             throws EBaseException {
-        for (SubsystemInfo si : subsystems.values()) {
+        for (String id : ids) {
+            SubsystemInfo si = subsystemInfos.get(id);
             initSubsystem(si);
         }
     }
@@ -709,30 +718,43 @@ public class CMSEngine implements ISubsystem {
         logger.debug("CMSEngine: loading static subsystems");
 
         staticSubsystems.clear();
+        dynSubsystems.clear();
+        finalSubsystems.clear();
 
-        staticSubsystems.put(Debug.ID,
-                new SubsystemInfo(Debug.ID, Debug.getInstance()));
-        staticSubsystems.put(LogSubsystem.ID,
-                new SubsystemInfo(LogSubsystem.ID, LogSubsystem.getInstance()));
-        staticSubsystems.put(JssSubsystem.ID,
-                new SubsystemInfo(JssSubsystem.ID, JssSubsystem.getInstance()));
-        staticSubsystems.put(DBSubsystem.ID,
-                new SubsystemInfo(DBSubsystem.ID, DBSubsystem.getInstance()));
-        staticSubsystems.put(UGSubsystem.ID,
-                new SubsystemInfo(UGSubsystem.ID, UGSubsystem.getInstance()));
-        staticSubsystems.put(PluginRegistry.ID,
-                new SubsystemInfo(PluginRegistry.ID, new PluginRegistry()));
-        staticSubsystems.put(OidLoaderSubsystem.ID,
-                new SubsystemInfo(OidLoaderSubsystem.ID, OidLoaderSubsystem.getInstance()));
-        staticSubsystems.put(X500NameSubsystem.ID,
-                new SubsystemInfo(X500NameSubsystem.ID, X500NameSubsystem.getInstance()));
+        subsystemInfos.clear();
+        subsystems.clear();
+
+        staticSubsystems.add(Debug.ID);
+        addSubsystem(Debug.ID, Debug.getInstance());
+
+        staticSubsystems.add(LogSubsystem.ID);
+        addSubsystem(LogSubsystem.ID, LogSubsystem.getInstance());
+
+        staticSubsystems.add(JssSubsystem.ID);
+        addSubsystem(JssSubsystem.ID, JssSubsystem.getInstance());
+
+        staticSubsystems.add(DBSubsystem.ID);
+        addSubsystem(DBSubsystem.ID, DBSubsystem.getInstance());
+
+        staticSubsystems.add(UGSubsystem.ID);
+        addSubsystem(UGSubsystem.ID, UGSubsystem.getInstance());
+
+        staticSubsystems.add(PluginRegistry.ID);
+        addSubsystem(PluginRegistry.ID, new PluginRegistry());
+
+        staticSubsystems.add(OidLoaderSubsystem.ID);
+        addSubsystem(OidLoaderSubsystem.ID, OidLoaderSubsystem.getInstance());
+
+        staticSubsystems.add(X500NameSubsystem.ID);
+        addSubsystem(X500NameSubsystem.ID, X500NameSubsystem.getInstance());
+
         // skip TP subsystem;
         // problem in needing dbsubsystem in constructor. and it's not used.
-        staticSubsystems.put(RequestSubsystem.ID, new SubsystemInfo(RequestSubsystem.ID, requestSubsystem));
+
+        staticSubsystems.add(RequestSubsystem.ID);
+        addSubsystem(RequestSubsystem.ID, requestSubsystem);
 
         logger.debug("CMSEngine: loading dyn subsystems");
-
-        dynSubsystems.clear();
 
         ArrayList<String> ssNames = getDynSubsystemNames();
         IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
@@ -758,20 +780,25 @@ public class CMSEngine implements ISubsystem {
                         CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()), e);
             }
 
-            dynSubsystems.put(id, new SubsystemInfo(id, ss, enabled, true));
+            dynSubsystems.add(id);
+
+            SubsystemInfo si = addSubsystem(id, ss);
+            si.setEnabled(enabled);
+            si.setUpdateIdOnInit(true);
+
             logger.debug("CMSEngine: loaded dyn subsystem " + id);
         }
 
         logger.debug("CMSEngine: loading final subsystems");
 
-        finalSubsystems.clear();
+        finalSubsystems.add(AuthSubsystem.ID);
+        addSubsystem(AuthSubsystem.ID, AuthSubsystem.getInstance());
 
-        finalSubsystems.put(AuthSubsystem.ID,
-                new SubsystemInfo(AuthSubsystem.ID, AuthSubsystem.getInstance()));
-        finalSubsystems.put(AuthzSubsystem.ID,
-                new SubsystemInfo(AuthzSubsystem.ID, AuthzSubsystem.getInstance()));
-        finalSubsystems.put(JobsScheduler.ID,
-                new SubsystemInfo(JobsScheduler.ID, JobsScheduler.getInstance()));
+        finalSubsystems.add(AuthzSubsystem.ID);
+        addSubsystem(AuthzSubsystem.ID, AuthzSubsystem.getInstance());
+
+        finalSubsystems.add(JobsScheduler.ID);
+        addSubsystem(JobsScheduler.ID, JobsScheduler.getInstance());
 
         if (isPreOpMode()) {
             // Disable some subsystems before database initialization
@@ -781,11 +808,6 @@ public class CMSEngine implements ISubsystem {
         }
     }
 
-    public void setSubsystemEnabled(String id, boolean enabled) {
-        SubsystemInfo si = dynSubsystems.get(id);
-        si.enabled = enabled;
-    }
-
     /**
      * initialize a subsystem
      */
@@ -793,10 +815,9 @@ public class CMSEngine implements ISubsystem {
             throws EBaseException {
 
         String id = ssinfo.id;
-        ISubsystem ss = ssinfo.instance;
-
         logger.debug("CMSEngine: initSubsystem(" + id + ")");
-        subsystems.put(id, ss);
+
+        ISubsystem ss = subsystems.get(id);
 
         if (ssinfo.updateIdOnInit) {
             ss.setId(id);
@@ -1117,13 +1138,15 @@ public class CMSEngine implements ISubsystem {
         return tokenClass;
     }
 
-    private void startupSubsystems(Map<String, SubsystemInfo> subsystems)
+    private void startupSubsystems(Collection<String> ids)
             throws EBaseException {
 
-        for (SubsystemInfo si : subsystems.values()) {
-            logger.debug("CMSEngine: starting " + si.id);
-            si.instance.startup();
-            logger.debug("CMSEngine: " + si.id + " started");
+        for (String id : ids) {
+            ISubsystem subsystem = subsystems.get(id);
+
+            logger.debug("CMSEngine: starting " + id);
+            subsystem.startup();
+            logger.debug("CMSEngine: " + id + " started");
         }
     }
 
@@ -1332,15 +1355,18 @@ public class CMSEngine implements ISubsystem {
         }
     }
 
-    private void shutdownSubsystems(Map<String, SubsystemInfo> subsystems) {
+    private void shutdownSubsystems(Collection<String> ids) {
         // reverse list of subsystems
-        List<SubsystemInfo> list = new ArrayList<>(subsystems.values());
+        List<String> list = new ArrayList<>();
+        list.addAll(ids);
         Collections.reverse(list);
 
-        for (SubsystemInfo si : list) {
-            logger.debug("CMSEngine: stopping " + si.id);
-            si.instance.shutdown();
-            logger.debug("CMSEngine: " + si.id + " stopped");
+        for (String id : list) {
+            ISubsystem subsystem = subsystems.get(id);
+
+            logger.debug("CMSEngine: stopping " + id);
+            subsystem.shutdown();
+            logger.debug("CMSEngine: " + id + " stopped");
         }
     }
 

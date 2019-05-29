@@ -17,23 +17,43 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.apps;
 
-import com.netscape.certsrv.base.ISubsystem;
-
 public class SubsystemInfo {
 
     public String id;
-    public ISubsystem instance;
     public boolean enabled;
     public boolean updateIdOnInit;
 
-    public SubsystemInfo(String id, ISubsystem instance) {
-        this(id, instance, true, false);
+    public SubsystemInfo(String id) {
+        this(id, true, false);
     }
 
-    public SubsystemInfo(String id, ISubsystem instance, boolean enabled, boolean updateIdOnInit) {
+    public SubsystemInfo(String id, boolean enabled, boolean updateIdOnInit) {
         this.id = id;
-        this.instance = instance;
         this.enabled = enabled;
+        this.updateIdOnInit = updateIdOnInit;
+    }
+
+    public String getID() {
+        return id;
+    }
+
+    public void setID(String id) {
+        this.id = id;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isUpdateIdOnInit() {
+        return updateIdOnInit;
+    }
+
+    public void setUpdateIdOnInit(boolean updateIdOnInit) {
         this.updateIdOnInit = updateIdOnInit;
     }
 }
