@@ -274,8 +274,6 @@ public class Configurator {
 
         certchain = CryptoUtil.normalizeCertStr(certchain);
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
         cs.putString("preop." + tag + ".pkcs7", certchain);
 
         // separate individual certs in chain for display
@@ -312,9 +310,6 @@ public class Configurator {
     }
 
     public String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         String csType = cs.getString("cs.type");
 
@@ -358,7 +353,6 @@ public class Configurator {
 
     public String getOldCookie(String sdhost, int sdport, String user, String passwd) throws Exception {
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         String subca_url = "https://" + engine.getEEHost() + ":"
                 + engine.getAdminPort() + "/ca/admin/console/config/wizard" +
@@ -434,9 +428,6 @@ public class Configurator {
             IOException, ParserConfigurationException {
         ByteArrayInputStream bis = new ByteArrayInputStream(domainXML.getBytes());
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
-
         XMLObject parser = new XMLObject(bis);
         Document doc = parser.getDocument();
         NodeList nodeList = doc.getElementsByTagName("CA");
@@ -462,13 +453,13 @@ public class Configurator {
         }
     }
 
-    public Vector<String> getUrlListFromSecurityDomain(IConfigStore config,
+    public Vector<String> getUrlListFromSecurityDomain(
             String type, String portType)
             throws Exception {
         Vector<String> v = new Vector<String>();
 
-        String hostname = config.getString("securitydomain.host");
-        int httpsadminport = config.getInteger("securitydomain.httpsadminport");
+        String hostname = cs.getString("securitydomain.host");
+        int httpsadminport = cs.getInteger("securitydomain.httpsadminport");
 
         logger.debug("getUrlListFromSecurityDomain(): Getting domain.xml from CA...");
         String c = getDomainXML(hostname, httpsadminport, true);
@@ -489,7 +480,7 @@ public class Configurator {
         NodeList nodeList = doc.getElementsByTagName(type);
 
         // save domain name in cfg
-        config.putString("securitydomain.name", parser.getValue("Name"));
+        cs.putString("securitydomain.name", parser.getValue("Name"));
 
         int len = nodeList.getLength();
 
@@ -515,8 +506,6 @@ public class Configurator {
     public boolean isValidCloneURI(String domainXML, String cloneHost, int clonePort) throws EPropertyNotFound,
             EBaseException, SAXException, IOException, ParserConfigurationException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
         String csType = cs.getString("cs.type");
         ByteArrayInputStream bis = new ByteArrayInputStream(domainXML.getBytes());
 
@@ -545,17 +534,16 @@ public class Configurator {
             throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.getConfigStore();
         String cstype = "";
 
-        cstype = config.getString("cs.type", "");
+        cstype = cs.getString("cs.type", "");
 
         cstype = cstype.toLowerCase();
 
         String session_id = engine.getConfigSDSessionId();
-        String master_hostname = config.getString("preop.master.hostname", "");
-        int master_port = config.getInteger("preop.master.httpsadminport", -1);
-        int master_ee_port = config.getInteger("preop.master.httpsport", -1);
+        String master_hostname = cs.getString("preop.master.hostname", "");
+        int master_port = cs.getInteger("preop.master.httpsadminport", -1);
+        int master_ee_port = cs.getInteger("preop.master.httpsport", -1);
 
         if (cstype.equals("ca") || cstype.equals("kra")) {
             MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
@@ -579,7 +567,7 @@ public class Configurator {
 
         String list = "";
 
-        list = config.getString("preop.cert.list", "");
+        list = cs.getString("preop.cert.list", "");
 
         StringBuffer c1 = new StringBuffer();
         StringBuffer s1 = new StringBuffer();
@@ -624,13 +612,13 @@ public class Configurator {
         content.putSingle("sessionID", session_id);
 
         boolean success = updateConfigEntries(master_hostname, master_port, true,
-                "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content, config);
+                "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content);
         if (!success) {
             throw new IOException("Failed to get configuration entries from the master");
         }
-        config.putString("preop.clone.configuration", "true");
+        cs.putString("preop.clone.configuration", "true");
 
-        config.commit(false);
+        cs.commit(false);
 
     }
 
@@ -639,9 +627,6 @@ public class Configurator {
 
         logger.debug("updateNumberRange start host=" + hostname + " adminPort=" + adminPort + " eePort=" + eePort);
         logger.debug("updateNumberRange content: " + content);
-
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         String cstype = cs.getString("cs.type", "");
         cstype = cstype.toLowerCase();
@@ -706,7 +691,7 @@ public class Configurator {
     }
 
     public boolean updateConfigEntries(String hostname, int port, boolean https,
-            String servlet, MultivaluedMap<String, String> content, IConfigStore config)
+            String servlet, MultivaluedMap<String, String> content)
             throws Exception {
         logger.debug("updateConfigEntries start");
         CMSEngine engine = CMS.getCMSEngine();
@@ -725,7 +710,7 @@ public class Configurator {
             if (status.equals(SUCCESS)) {
                 String cstype = "";
 
-                cstype = config.getString("cs.type", "");
+                cstype = cs.getString("cs.type", "");
 
                 logger.debug("Master's configuration:");
                 Document doc = parser.getDocument();
@@ -754,77 +739,77 @@ public class Configurator {
                     }
 
                     if (name.equals("internaldb.basedn")) {
-                        config.putString(name, v);
-                        config.putString("preop.internaldb.master.basedn", v);
+                        cs.putString(name, v);
+                        cs.putString("preop.internaldb.master.basedn", v);
 
                     } else if (name.startsWith("internaldb")) {
-                        config.putString(name.replaceFirst("internaldb", "preop.internaldb.master"), v);
+                        cs.putString(name.replaceFirst("internaldb", "preop.internaldb.master"), v);
 
                     } else if (name.equals("instanceId")) {
-                        config.putString("preop.master.instanceId", v);
+                        cs.putString("preop.master.instanceId", v);
 
                     } else if (name.equals("cloning.signing.nickname")) {
-                        config.putString("preop.master.signing.nickname", v);
-                        config.putString("preop.cert.signing.nickname", v);
+                        cs.putString("preop.master.signing.nickname", v);
+                        cs.putString("preop.cert.signing.nickname", v);
 
                     } else if (name.equals("cloning.ocsp_signing.nickname")) {
-                        config.putString("preop.master.ocsp_signing.nickname", v);
-                        config.putString("preop.cert.ocsp_signing.nickname", v);
+                        cs.putString("preop.master.ocsp_signing.nickname", v);
+                        cs.putString("preop.cert.ocsp_signing.nickname", v);
 
                     } else if (name.equals("cloning.subsystem.nickname")) {
-                        config.putString("preop.master.subsystem.nickname", v);
-                        config.putString("preop.cert.subsystem.nickname", v);
+                        cs.putString("preop.master.subsystem.nickname", v);
+                        cs.putString("preop.cert.subsystem.nickname", v);
 
                     } else if (name.equals("cloning.transport.nickname")) {
-                        config.putString("preop.master.transport.nickname", v);
-                        config.putString("kra.transportUnit.nickName", v);
-                        config.putString("preop.cert.transport.nickname", v);
+                        cs.putString("preop.master.transport.nickname", v);
+                        cs.putString("kra.transportUnit.nickName", v);
+                        cs.putString("preop.cert.transport.nickname", v);
 
                     } else if (name.equals("cloning.storage.nickname")) {
-                        config.putString("preop.master.storage.nickname", v);
-                        config.putString("kra.storageUnit.nickName", v);
-                        config.putString("preop.cert.storage.nickname", v);
+                        cs.putString("preop.master.storage.nickname", v);
+                        cs.putString("kra.storageUnit.nickName", v);
+                        cs.putString("preop.cert.storage.nickname", v);
 
                     } else if (name.equals("cloning.audit_signing.nickname")) {
-                        config.putString("preop.master.audit_signing.nickname", v);
-                        config.putString("preop.cert.audit_signing.nickname", v);
-                        config.putString(name, v);
+                        cs.putString("preop.master.audit_signing.nickname", v);
+                        cs.putString("preop.cert.audit_signing.nickname", v);
+                        cs.putString(name, v);
 
                     } else if (name.startsWith("cloning.ca")) {
-                        config.putString(name.replaceFirst("cloning", "preop"), v);
+                        cs.putString(name.replaceFirst("cloning", "preop"), v);
 
                     } else if (name.equals("cloning.signing.keyalgorithm")) {
-                        config.putString(name.replaceFirst("cloning", "preop.cert"), v);
+                        cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
                         if (cstype.equals("CA")) {
-                            config.putString("ca.crl.MasterCRL.signingAlgorithm", v);
-                            config.putString("ca.signing.defaultSigningAlgorithm", v);
+                            cs.putString("ca.crl.MasterCRL.signingAlgorithm", v);
+                            cs.putString("ca.signing.defaultSigningAlgorithm", v);
                         } else if (cstype.equals("OCSP")) {
-                            config.putString("ocsp.signing.defaultSigningAlgorithm", v);
+                            cs.putString("ocsp.signing.defaultSigningAlgorithm", v);
                         }
                     } else if (name.equals("cloning.transport.keyalgorithm")) {
-                        config.putString(name.replaceFirst("cloning", "preop.cert"), v);
-                        config.putString("kra.transportUnit.signingAlgorithm", v);
+                        cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
+                        cs.putString("kra.transportUnit.signingAlgorithm", v);
 
                     } else if (name.equals("cloning.ocsp_signing.keyalgorithm")) {
-                        config.putString(name.replaceFirst("cloning", "preop.cert"), v);
+                        cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
                         if (cstype.equals("CA")) {
-                            config.putString("ca.ocsp_signing.defaultSigningAlgorithm", v);
+                            cs.putString("ca.ocsp_signing.defaultSigningAlgorithm", v);
                         }
 
                     } else if (name.startsWith("cloning")) {
-                        config.putString(name.replaceFirst("cloning", "preop.cert"), v);
+                        cs.putString(name.replaceFirst("cloning", "preop.cert"), v);
 
                     } else {
-                        config.putString(name, v);
+                        cs.putString(name, v);
                     }
                 }
 
                 // set master ldap password (if it exists) temporarily in password store
                 // in case it is needed for replication.  Not stored in password.conf.
 
-                String master_pwd = config.getString("preop.internaldb.master.ldapauth.password", "");
+                String master_pwd = cs.getString("preop.internaldb.master.ldapauth.password", "");
                 if (!master_pwd.equals("")) {
-                    config.putString("preop.internaldb.master.ldapauth.bindPWPrompt", "master_internaldb");
+                    cs.putString("preop.internaldb.master.ldapauth.bindPWPrompt", "master_internaldb");
                     IPasswordStore psStore = engine.getPasswordStore();
                     psStore.putPassword("master_internaldb", master_pwd);
                     psStore.commit();
@@ -980,9 +965,6 @@ public class Configurator {
     }
 
     public void verifySystemCertificates() throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         CryptoManager cm = CryptoManager.getInstance();
         String certList = cs.getString("preop.cert.list");
@@ -1149,8 +1131,6 @@ public class Configurator {
             NoSuchItemOnTokenException, TokenException {
 
         CryptoManager cm = CryptoManager.getInstance();
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         // nickname has no token prepended to it, so no need to strip
         String nickname = cs.getString("preop.master.audit_signing.nickname");
@@ -1223,8 +1203,6 @@ public class Configurator {
 
     public boolean isCASigningCert(String name) throws EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
         try {
             String nickname = cs.getString("preop.master.signing.nickname");
             logger.debug("Property preop.master.signing.nickname: " + nickname);
@@ -1241,11 +1219,10 @@ public class Configurator {
 
     public boolean isAuditSigningCert(String name) throws EPropertyNotFound, EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
         String nickname = cs.getString("preop.master.audit_signing.nickname");
         if (nickname.equals(name))
             return true;
+
         return false;
     }
 
@@ -1257,8 +1234,6 @@ public class Configurator {
         CryptoToken ct = cm.getInternalKeyStorageToken();
         CryptoStore store = ct.getCryptoStore();
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
         String list = cs.getString("preop.cert.list", "");
         StringTokenizer st = new StringTokenizer(list, ",");
 
@@ -1291,8 +1266,6 @@ public class Configurator {
     public ArrayList<String> getMasterCertKeyList() throws EBaseException {
         ArrayList<String> list = new ArrayList<String>();
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
         String certList = cs.getString("preop.cert.list", "");
         StringTokenizer st = new StringTokenizer(certList, ",");
 
@@ -1340,7 +1313,6 @@ public class Configurator {
     public void enableUSNPlugin() throws IOException, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
@@ -1360,7 +1332,6 @@ public class Configurator {
     public void populateDB() throws IOException, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         String baseDN = cs.getString("internaldb.basedn");
         String database = cs.getString("internaldb.database", "");
@@ -1479,9 +1450,6 @@ public class Configurator {
 
     private void populateIndexes(LDAPConnection conn) throws EPropertyNotFound, IOException, EBaseException {
         logger.debug("populateIndexes(): start");
-
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         importLDIFS("preop.internaldb.index_task_ldif", conn, false);
 
@@ -1714,9 +1682,6 @@ public class Configurator {
             EPropertyNotFound,
             EBaseException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
-
         logger.debug("importLDIFS: param=" + param);
         String v = cs.getString(param);
 
@@ -1863,7 +1828,6 @@ public class Configurator {
         logger.debug("populateDBManager(): start");
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
@@ -1885,7 +1849,6 @@ public class Configurator {
         logger.debug("populateVLVIndexes(): start");
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
@@ -1933,7 +1896,7 @@ public class Configurator {
         return new KeyPair(publicKey, privateKey);
     }
 
-    public void storeKeyPair(IConfigStore config, String tag, KeyPair pair)
+    public void storeKeyPair(String tag, KeyPair pair)
             throws TokenException, EBaseException {
 
         logger.debug("Configurator: storeKeyPair(" + tag + ")");
@@ -1945,30 +1908,30 @@ public class Configurator {
             RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
 
             byte modulus[] = rsaPublicKey.getModulus().toByteArray();
-            config.putString(PCERT_PREFIX + tag + ".pubkey.modulus",
+            cs.putString(PCERT_PREFIX + tag + ".pubkey.modulus",
                     CryptoUtil.byte2string(modulus));
 
             byte exponent[] = rsaPublicKey.getPublicExponent().toByteArray();
-            config.putString(PCERT_PREFIX + tag + ".pubkey.exponent",
+            cs.putString(PCERT_PREFIX + tag + ".pubkey.exponent",
                     CryptoUtil.byte2string(exponent));
 
         } else { // ECC
 
             logger.debug("Configurator: Public key class: " + publicKey.getClass().getName());
             byte encoded[] = publicKey.getEncoded();
-            config.putString(PCERT_PREFIX + tag + ".pubkey.encoded", CryptoUtil.byte2string(encoded));
+            cs.putString(PCERT_PREFIX + tag + ".pubkey.encoded", CryptoUtil.byte2string(encoded));
         }
 
         PrivateKey privateKey = (PrivateKey) pair.getPrivate();
         byte id[] = privateKey.getUniqueID();
         String kid = CryptoUtil.encodeKeyID(id);
-        config.putString(PCERT_PREFIX + tag + ".privkey.id", kid);
+        cs.putString(PCERT_PREFIX + tag + ".privkey.id", kid);
 
-        String keyAlgo = config.getString(PCERT_PREFIX + tag + ".signingalgorithm");
-        setSigningAlgorithm(tag, keyAlgo, config);
+        String keyAlgo = cs.getString(PCERT_PREFIX + tag + ".signingalgorithm");
+        setSigningAlgorithm(tag, keyAlgo);
     }
 
-    public KeyPair createECCKeyPair(CryptoToken token, String curveName, IConfigStore config, String ct)
+    public KeyPair createECCKeyPair(CryptoToken token, String curveName, String ct)
             throws NoSuchAlgorithmException, NoSuchTokenException, TokenException,
             NotInitializedException, EPropertyNotFound, EBaseException {
 
@@ -1989,7 +1952,7 @@ public class Configurator {
          */
         String sslType = "ECDHE";
         try {
-            sslType = config.getString(PCERT_PREFIX + ct + "ec.type", "ECDHE");
+            sslType = cs.getString(PCERT_PREFIX + ct + "ec.type", "ECDHE");
         } catch (Exception e) {
         }
 
@@ -2034,7 +1997,7 @@ public class Configurator {
         return pair;
     }
 
-    public KeyPair createRSAKeyPair(CryptoToken token, int keysize, IConfigStore config, String ct)
+    public KeyPair createRSAKeyPair(CryptoToken token, int keysize, String ct)
             throws Exception {
 
         logger.debug("Configurator.createRSAKeyPair(" + token + ")");
@@ -2058,23 +2021,23 @@ public class Configurator {
         return pair;
     }
 
-    public void setSigningAlgorithm(String ct, String keyAlgo, IConfigStore config) throws EPropertyNotFound,
+    public void setSigningAlgorithm(String ct, String keyAlgo) throws EPropertyNotFound,
             EBaseException {
-        String systemType = config.getString("cs.type");
+        String systemType = cs.getString("cs.type");
         if (systemType.equalsIgnoreCase("CA")) {
             if (ct.equals("signing")) {
-                config.putString("ca.signing.defaultSigningAlgorithm", keyAlgo);
-                config.putString("ca.crl.MasterCRL.signingAlgorithm", keyAlgo);
+                cs.putString("ca.signing.defaultSigningAlgorithm", keyAlgo);
+                cs.putString("ca.crl.MasterCRL.signingAlgorithm", keyAlgo);
             } else if (ct.equals("ocsp_signing")) {
-                config.putString("ca.ocsp_signing.defaultSigningAlgorithm", keyAlgo);
+                cs.putString("ca.ocsp_signing.defaultSigningAlgorithm", keyAlgo);
             }
         } else if (systemType.equalsIgnoreCase("OCSP")) {
             if (ct.equals("signing")) {
-                config.putString("ocsp.signing.defaultSigningAlgorithm", keyAlgo);
+                cs.putString("ocsp.signing.defaultSigningAlgorithm", keyAlgo);
             }
         } else if (systemType.equalsIgnoreCase("KRA") || systemType.equalsIgnoreCase("DRM")) {
             if (ct.equals("transport")) {
-                config.putString("kra.transportUnit.signingAlgorithm", keyAlgo);
+                cs.putString("kra.transportUnit.signingAlgorithm", keyAlgo);
             }
         }
     }
@@ -2121,15 +2084,13 @@ public class Configurator {
             Context context,
             Cert certObj) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.getConfigStore();
         String caType = certObj.getType();
         logger.debug("configCert: caType is " + caType);
         X509CertImpl cert = null;
         String certTag = certObj.getCertTag();
 
-        String selection = config.getString("preop.subsystem.select");
-        String csType = config.getString("cs.type");
+        String selection = cs.getString("preop.subsystem.select");
+        String csType = cs.getString("cs.type");
         String preop_ca_type = null;
         String preop_cert_signing_type = null;
         String preop_cert_signing_profile = null;
@@ -2140,19 +2101,19 @@ public class Configurator {
 
         if (selection.equals("clone") && csType.equals("CA") && certTag.equals("sslserver")) {
             // retrieve and store original 'CS.cfg' entries
-            preop_ca_type = config.getString("preop.ca.type", "");
-            preop_cert_signing_type = config.getString("preop.cert.signing.type", "");
-            preop_cert_signing_profile = config.getString("preop.cert.signing.profile", "");
-            preop_cert_sslserver_type = config.getString("preop.cert.sslserver.type", "");
-            preop_cert_sslserver_profile = config.getString("preop.cert.sslserver.profile", "");
+            preop_ca_type = cs.getString("preop.ca.type", "");
+            preop_cert_signing_type = cs.getString("preop.cert.signing.type", "");
+            preop_cert_signing_profile = cs.getString("preop.cert.signing.profile", "");
+            preop_cert_sslserver_type = cs.getString("preop.cert.sslserver.type", "");
+            preop_cert_sslserver_profile = cs.getString("preop.cert.sslserver.profile", "");
 
             // add/modify 'CS.cfg' entries
-            config.putString("preop.ca.type", "sdca");
-            config.putString("preop.cert.signing.type", "remote");
-            config.putString("preop.cert.signing.profile", "caInstallCACert");
-            config.putString("preop.cert.sslserver.type", "remote");
+            cs.putString("preop.ca.type", "sdca");
+            cs.putString("preop.cert.signing.type", "remote");
+            cs.putString("preop.cert.signing.profile", "caInstallCACert");
+            cs.putString("preop.cert.sslserver.type", "remote");
 
-            config.putString("preop.cert.sslserver.profile",
+            cs.putString("preop.cert.sslserver.profile",
                    request.getSystemCertProfileID("sslserver", "caInternalAuthServerCert"));
 
             // store original caType
@@ -2169,7 +2130,7 @@ public class Configurator {
             sign_clone_sslserver_cert_using_master = true;
         }
 
-        updateConfig(config, certObj);
+        updateConfig(certObj);
 
         if (caType.equals("remote")) {
 
@@ -2178,7 +2139,6 @@ public class Configurator {
                     response,
                     context,
                     certObj,
-                    config,
                     cert,
                     certTag,
                     preop_ca_type,
@@ -2191,7 +2151,7 @@ public class Configurator {
 
         } else { // not remote CA, ie, self-signed or local
 
-            cert = configLocalCert(context, certObj, config, caType, cert, certTag);
+            cert = configLocalCert(context, certObj, caType, cert, certTag);
 
             if (cert != null) {
                 if (certTag.equals("subsystem")) {
@@ -2207,11 +2167,11 @@ public class Configurator {
             String certs = CryptoUtil.base64Encode(certb);
 
             certObj.setCert(certb);
-            String subsystem = config.getString(
+            String subsystem = cs.getString(
                     PCERT_PREFIX + certTag + ".subsystem");
-            config.putString(subsystem + "." + certTag + ".cert", certs);
+            cs.putString(subsystem + "." + certTag + ".cert", certs);
         }
-        config.commit(false);
+        cs.commit(false);
     }
 
     private X509CertImpl configRemoteCert(
@@ -2219,7 +2179,6 @@ public class Configurator {
             HttpServletResponse response,
             Context context,
             Cert certObj,
-            IConfigStore config,
             X509CertImpl cert,
             String certTag,
             String preop_ca_type,
@@ -2233,28 +2192,28 @@ public class Configurator {
 
         String caType;
         CMSEngine engine = CMS.getCMSEngine();
-        String v = config.getString("preop.ca.type", "");
+        String v = cs.getString("preop.ca.type", "");
 
         logger.debug("configCert: remote CA");
         logger.debug("confgCert: tag: " + certTag);
-        PKCS10 pkcs10 = CertUtil.getPKCS10(config, PCERT_PREFIX, certObj, context);
+        PKCS10 pkcs10 = CertUtil.getPKCS10(cs, PCERT_PREFIX, certObj, context);
         byte[] binRequest = pkcs10.toByteArray();
         String b64Request = CryptoUtil.base64Encode(binRequest);
         certObj.setRequest(binRequest);
 
-        String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
-        config.putString(subsystem + "." + certTag + ".certreq", b64Request);
+        String subsystem = cs.getString(PCERT_PREFIX + certTag + ".subsystem");
+        cs.putString(subsystem + "." + certTag + ".certreq", b64Request);
 
-        String profileId = config.getString(PCERT_PREFIX + certTag + ".profile");
+        String profileId = cs.getString(PCERT_PREFIX + certTag + ".profile");
         String session_id = engine.getConfigSDSessionId();
-        String sysType = config.getString("cs.type", "");
-        String machineName = config.getString("machineName", "");
-        String securePort = config.getString("service.securePort", "");
+        String sysType = cs.getString("cs.type", "");
+        String machineName = cs.getString("machineName", "");
+        String securePort = cs.getString("service.securePort", "");
 
         if (certTag.equals("subsystem")) {
 
-            String sd_hostname = config.getString("securitydomain.host", "");
-            int sd_ee_port = config.getInteger("securitydomain.httpseeport", -1);
+            String sd_hostname = cs.getString("securitydomain.host", "");
+            int sd_ee_port = cs.getInteger("securitydomain.httpseeport", -1);
 
             MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
@@ -2284,24 +2243,24 @@ public class Configurator {
                     logger.debug("Configurator: For this Cloned CA, always use its Master CA to generate " +
                             "the 'sslserver' certificate to avoid any changes which may have been " +
                             "made to the X500Name directory string encoding order.");
-                    ca_hostname = config.getString("preop.master.hostname", "");
-                    ca_port = config.getInteger("preop.master.httpsport", -1);
+                    ca_hostname = cs.getString("preop.master.hostname", "");
+                    ca_port = cs.getInteger("preop.master.httpsport", -1);
 
                 } else {
 
-                    ca_hostname = config.getString("preop.ca.hostname", "");
-                    ca_port = config.getInteger("preop.ca.httpsport", -1);
+                    ca_hostname = cs.getString("preop.ca.hostname", "");
+                    ca_port = cs.getInteger("preop.ca.httpsport", -1);
                 }
 
             } catch (Exception ee) {
             }
 
             String sslserver_extension = "";
-            Boolean injectSAN = config.getBoolean("service.injectSAN", false);
+            Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
             logger.debug("Configurator: injectSAN: " + injectSAN);
 
             if (certTag.equals("sslserver") && injectSAN == true) {
-                sslserver_extension = CertUtil.buildSANSSLserverURLExtension(config);
+                sslserver_extension = CertUtil.buildSANSSLserverURLExtension(cs);
             }
 
             MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
@@ -2325,11 +2284,11 @@ public class Configurator {
 
             if (sign_clone_sslserver_cert_using_master) {
                 // restore original 'CS.cfg' entries
-                config.putString("preop.ca.type", preop_ca_type);
-                config.putString("preop.cert.signing.type", preop_cert_signing_type);
-                config.putString("preop.cert.signing.profile", preop_cert_signing_profile);
-                config.putString("preop.cert.sslserver.type", preop_cert_sslserver_type);
-                config.putString("preop.cert.sslserver.profile", preop_cert_sslserver_profile);
+                cs.putString("preop.ca.type", preop_ca_type);
+                cs.putString("preop.cert.signing.type", preop_cert_signing_type);
+                cs.putString("preop.cert.signing.profile", preop_cert_signing_profile);
+                cs.putString("preop.cert.sslserver.type", preop_cert_sslserver_type);
+                cs.putString("preop.cert.sslserver.profile", preop_cert_sslserver_profile);
 
                 // restore original 'caType'
                 caType = original_caType;
@@ -2352,7 +2311,6 @@ public class Configurator {
     private X509CertImpl configLocalCert(
             Context context,
             Cert certObj,
-            IConfigStore config,
             String caType,
             X509CertImpl cert,
             String certTag)
@@ -2367,26 +2325,26 @@ public class Configurator {
             throw new IOException("The value for " + s + " should be remote");
         }
 
-        String pubKeyType = config.getString(PCERT_PREFIX + certTag + ".keytype");
+        String pubKeyType = cs.getString(PCERT_PREFIX + certTag + ".keytype");
 
         if (pubKeyType.equals("rsa")) {
 
-            String pubKeyModulus = config.getString(PCERT_PREFIX + certTag + ".pubkey.modulus");
-            String pubKeyPublicExponent = config.getString(PCERT_PREFIX + certTag + ".pubkey.exponent");
+            String pubKeyModulus = cs.getString(PCERT_PREFIX + certTag + ".pubkey.modulus");
+            String pubKeyPublicExponent = cs.getString(PCERT_PREFIX + certTag + ".pubkey.exponent");
 
             X509Key x509key = CryptoUtil.getPublicX509Key(
                     CryptoUtil.string2byte(pubKeyModulus),
                     CryptoUtil.string2byte(pubKeyPublicExponent));
 
-            cert = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, caType);
+            cert = CertUtil.createLocalCert(cs, x509key, PCERT_PREFIX, certTag, caType);
 
         } else if (pubKeyType.equals("ecc")) {
 
-            String pubKeyEncoded = config.getString(PCERT_PREFIX + certTag + ".pubkey.encoded");
+            String pubKeyEncoded = cs.getString(PCERT_PREFIX + certTag + ".pubkey.encoded");
 
             X509Key x509key = CryptoUtil.getPublicX509ECCKey(
                     CryptoUtil.string2byte(pubKeyEncoded));
-            cert = CertUtil.createLocalCert(config, x509key, PCERT_PREFIX, certTag, caType);
+            cert = CertUtil.createLocalCert(cs, x509key, PCERT_PREFIX, certTag, caType);
 
         } else {
             // invalid key type
@@ -2396,74 +2354,74 @@ public class Configurator {
         return cert;
     }
 
-    public void updateConfig(IConfigStore config, Cert cert)
+    public void updateConfig(Cert cert)
             throws EBaseException, IOException {
 
         String certTag = cert.getCertTag();
         String token = cert.getTokenname();
         String nickname = cert.getNickname();
 
-        String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
+        String subsystem = cs.getString(PCERT_PREFIX + certTag + ".subsystem");
 
         logger.debug("Configurator: updateConfig() for certTag " + certTag);
         if (certTag.equals("signing") || certTag.equals("ocsp_signing")) {
             logger.debug("Configurator: setting signing nickname=" + nickname);
-            config.putString(subsystem + "." + certTag + "." + ISigningUnit.PROP_CA_CERT_NICKNAME, nickname);
-            config.putString(subsystem + "." + certTag + ".certnickname", nickname);
+            cs.putString(subsystem + "." + certTag + "." + ISigningUnit.PROP_CA_CERT_NICKNAME, nickname);
+            cs.putString(subsystem + "." + certTag + ".certnickname", nickname);
         }
 
         // if KRA, hardware token needs param "kra.storageUnit.hardware" in CS.cfg
-        String cstype = config.getString("cs.type", null);
+        String cstype = cs.getString("cs.type", null);
         cstype = cstype.toLowerCase();
         if (cstype.equals("kra")) {
             if (!CryptoUtil.isInternalToken(token)) {
                 if (certTag.equals("storage")) {
-                    config.putString(subsystem + ".storageUnit.hardware", token);
-                    config.putString(subsystem + ".storageUnit.nickName", token + ":" + nickname);
+                    cs.putString(subsystem + ".storageUnit.hardware", token);
+                    cs.putString(subsystem + ".storageUnit.nickName", token + ":" + nickname);
                 } else if (certTag.equals("transport")) {
-                    config.putString(subsystem + ".transportUnit.nickName", token + ":" + nickname);
+                    cs.putString(subsystem + ".transportUnit.nickName", token + ":" + nickname);
                 }
             } else { // software token
                 if (certTag.equals("storage")) {
-                    config.putString(subsystem + ".storageUnit.nickName", nickname);
+                    cs.putString(subsystem + ".storageUnit.nickName", nickname);
                 } else if (certTag.equals("transport")) {
-                    config.putString(subsystem + ".transportUnit.nickName", nickname);
+                    cs.putString(subsystem + ".transportUnit.nickName", nickname);
                 }
             }
         }
 
-        config.putString(subsystem + "." + certTag + ".nickname", nickname);
-        config.putString(subsystem + "." + certTag + ".tokenname", StringUtils.defaultString(token));
+        cs.putString(subsystem + "." + certTag + ".nickname", nickname);
+        cs.putString(subsystem + "." + certTag + ".tokenname", StringUtils.defaultString(token));
 
         if (certTag.equals("audit_signing")) {
             if (!CryptoUtil.isInternalToken(token)) {
-                config.putString("log.instance.SignedAudit.signedAuditCertNickname",
+                cs.putString("log.instance.SignedAudit.signedAuditCertNickname",
                         token + ":" + nickname);
             } else {
-                config.putString("log.instance.SignedAudit.signedAuditCertNickname",
+                cs.putString("log.instance.SignedAudit.signedAuditCertNickname",
                         nickname);
             }
         }
 
         // for system certs verification
         if (!CryptoUtil.isInternalToken(token)) {
-            config.putString(subsystem + ".cert." + certTag + ".nickname",
+            cs.putString(subsystem + ".cert." + certTag + ".nickname",
                     token + ":" + nickname);
         } else {
-            config.putString(subsystem + ".cert." + certTag + ".nickname", nickname);
+            cs.putString(subsystem + ".cert." + certTag + ".nickname", nickname);
         }
 
-        config.commit(false);
+        cs.commit(false);
         logger.debug("updateConfig() done");
     }
 
-    public String getNickname(IConfigStore config, String certTag) throws EBaseException {
-        String instanceID = config.getString("instanceId", "");
+    public String getNickname(String certTag) throws EBaseException {
+        String instanceID = cs.getString("instanceId", "");
 
         String nickname = certTag + "Cert cert-" + instanceID;
         String preferredNickname = null;
         try {
-            preferredNickname = config.getString(PCERT_PREFIX + certTag + ".nickname", null);
+            preferredNickname = cs.getString(PCERT_PREFIX + certTag + ".nickname", null);
         } catch (EBaseException e) {
         }
 
@@ -2478,8 +2436,6 @@ public class Configurator {
 
         logger.debug("Configurator: Searching for " + wantedTag + " in " + csType + " hosts");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
         ByteArrayInputStream bis = new ByteArrayInputStream(domainXML.getBytes());
         XMLObject parser = new XMLObject(bis);
         Document doc = parser.getDocument();
@@ -2516,28 +2472,26 @@ public class Configurator {
 
     public void updateCloneConfig() throws EBaseException, IOException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.getConfigStore();
-        String cstype = config.getString("cs.type", null);
+        String cstype = cs.getString("cs.type", null);
         cstype = cstype.toLowerCase();
 
         if (cstype.equals("kra")) {
 
-            String token = config.getString("preop.module.token");
+            String token = cs.getString("preop.module.token");
 
             if (!CryptoUtil.isInternalToken(token)) {
 
                 logger.debug("Configurator: updating configuration for KRA clone with hardware token");
 
-                String subsystem = config.getString(PCERT_PREFIX + "storage.subsystem");
-                String storageNickname = getNickname(config, "storage");
-                String transportNickname = getNickname(config, "transport");
+                String subsystem = cs.getString(PCERT_PREFIX + "storage.subsystem");
+                String storageNickname = getNickname("storage");
+                String transportNickname = getNickname("transport");
 
-                config.putString(subsystem + ".storageUnit.hardware", token);
-                config.putString(subsystem + ".storageUnit.nickName", token + ":" + storageNickname);
-                config.putString(subsystem + ".transportUnit.nickName", token + ":" + transportNickname);
+                cs.putString(subsystem + ".storageUnit.hardware", token);
+                cs.putString(subsystem + ".storageUnit.nickName", token + ":" + storageNickname);
+                cs.putString(subsystem + ".transportUnit.nickName", token + ":" + transportNickname);
 
-                config.commit(false);
+                cs.commit(false);
 
             } else { // software token
                 // parameters already set
@@ -2545,38 +2499,38 @@ public class Configurator {
         }
 
         // audit signing cert
-        String nickname = config.getString(cstype + ".audit_signing.nickname", "");
-        String token = config.getString(cstype + ".audit_signing.tokenname", "");
+        String nickname = cs.getString(cstype + ".audit_signing.nickname", "");
+        String token = cs.getString(cstype + ".audit_signing.tokenname", "");
 
         if (!CryptoUtil.isInternalToken(token)) {
             nickname = token + ":" + nickname;
         }
 
-        config.putString("log.instance.SignedAudit.signedAuditCertNickname", nickname);
+        cs.putString("log.instance.SignedAudit.signedAuditCertNickname", nickname);
     }
 
-    public byte[] loadCertRequest(IConfigStore config, String subsystem, String tag) throws Exception {
+    public byte[] loadCertRequest(String subsystem, String tag) throws Exception {
 
         logger.debug("Configurator.loadCertRequest(" + tag + ")");
 
         // the CSR must exist in the second step of external CA scenario
-        String certreq = config.getString(subsystem + "." + tag + ".certreq");
+        String certreq = cs.getString(subsystem + "." + tag + ".certreq");
         return CryptoUtil.base64Decode(certreq);
     }
 
-    public void generateCertRequest(IConfigStore config, String certTag, Cert cert) throws Exception {
+    public void generateCertRequest(String certTag, Cert cert) throws Exception {
 
         logger.debug("generateCertRequest: getting public key for certificate " + certTag);
 
-        String pubKeyType = config.getString(PCERT_PREFIX + certTag + ".keytype");
-        String algorithm = config.getString(PCERT_PREFIX + certTag + ".keyalgorithm");
+        String pubKeyType = cs.getString(PCERT_PREFIX + certTag + ".keytype");
+        String algorithm = cs.getString(PCERT_PREFIX + certTag + ".keyalgorithm");
 
         X509Key pubk;
         if (pubKeyType.equals("rsa")) {
-            pubk = getRSAX509Key(config, certTag);
+            pubk = getRSAX509Key(certTag);
 
         } else if (pubKeyType.equals("ecc")) {
-            pubk = getECCX509Key(config, certTag);
+            pubk = getECCX509Key(certTag);
 
         } else {
             logger.error("generateCertRequest: Unsupported public key type: " + pubKeyType);
@@ -2586,7 +2540,7 @@ public class Configurator {
         // public key cannot be null here
 
         logger.debug("generateCertRequest: getting private key for certificate " + certTag);
-        String privKeyID = config.getString(PCERT_PREFIX + certTag + ".privkey.id");
+        String privKeyID = cs.getString(PCERT_PREFIX + certTag + ".privkey.id");
 
         logger.debug("generateCertRequest: private key ID: " + privKeyID);
         byte[] keyIDb = CryptoUtil.decodeKeyID(privKeyID);
@@ -2598,18 +2552,18 @@ public class Configurator {
         }
 
         // construct cert request
-        String caDN = config.getString(PCERT_PREFIX + certTag + ".dn");
+        String caDN = cs.getString(PCERT_PREFIX + certTag + ".dn");
 
         cert.setDN(caDN);
 
         Extensions exts = new Extensions();
         if (certTag.equals("signing")) {
             logger.debug("generateCertRequest: generating basic CA extensions");
-            createBasicCAExtensions(config, exts);
+            createBasicCAExtensions(exts);
         }
 
         logger.debug("generateCertRequest: generating generic extensions");
-        createGenericExtensions(config, certTag, exts);
+        createGenericExtensions(certTag, exts);
 
         logger.debug("generateCertRequest: generating PKCS #10 request");
         PKCS10 certReq = CryptoUtil.createCertificationRequest(caDN, pubk, privk, algorithm, exts);
@@ -2618,9 +2572,9 @@ public class Configurator {
         byte[] certReqb = certReq.toByteArray();
         String certReqs = CryptoUtil.base64Encode(certReqb);
 
-        String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
-        config.putString(subsystem + "." + certTag + ".certreq", certReqs);
-        config.commit(false);
+        String subsystem = cs.getString(PCERT_PREFIX + certTag + ".subsystem");
+        cs.putString(subsystem + "." + certTag + ".certreq", certReqs);
+        cs.commit(false);
 
         cert.setRequest(certReqb);
     }
@@ -2629,7 +2583,7 @@ public class Configurator {
      * createBasicCAExtensions creates the basic Extensions needed for a CSR to a
      * CA signing certificate
      */
-    private void createBasicCAExtensions(IConfigStore config, Extensions exts) throws Exception {
+    private void createBasicCAExtensions(Extensions exts) throws Exception {
         logger.debug("Configurator: createBasicCAExtensions: begins");
 
         // create BasicConstraintsExtension
@@ -2660,16 +2614,16 @@ public class Configurator {
         */
     }
 
-    private void createGenericExtensions(IConfigStore config, String tag, Extensions exts) throws Exception {
+    private void createGenericExtensions(String tag, Extensions exts) throws Exception {
         logger.debug("Configurator: createGenericExtensions: begins");
         // if specified, add a generic extension
         try {
-            String oidString = config.getString(PCERT_PREFIX + tag + ".ext.oid");
-            String dataString = config.getString(PCERT_PREFIX + tag + ".ext.data");
+            String oidString = cs.getString(PCERT_PREFIX + tag + ".ext.oid");
+            String dataString = cs.getString(PCERT_PREFIX + tag + ".ext.data");
 
             if (oidString != null && dataString != null) {
                 logger.debug("Configurator: createGenericExtensions: adding generic extension for " + tag);
-                boolean critical = config.getBoolean(PCERT_PREFIX + tag + ".ext.critical");
+                boolean critical = cs.getBoolean(PCERT_PREFIX + tag + ".ext.critical");
                 ObjectIdentifier oid = new ObjectIdentifier(oidString);
 
                 byte data[] = CryptoUtil.hexString2Bytes(dataString);
@@ -2692,27 +2646,27 @@ public class Configurator {
         }
     }
 
-    public X509Key getECCX509Key(IConfigStore config, String certTag) throws EPropertyNotFound, EBaseException,
+    public X509Key getECCX509Key(String certTag) throws EPropertyNotFound, EBaseException,
             InvalidKeyException {
         X509Key pubk = null;
-        String pubKeyEncoded = config.getString(PCERT_PREFIX + certTag + ".pubkey.encoded");
+        String pubKeyEncoded = cs.getString(PCERT_PREFIX + certTag + ".pubkey.encoded");
         pubk = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
         return pubk;
     }
 
-    public X509Key getRSAX509Key(IConfigStore config, String certTag) throws EPropertyNotFound, EBaseException,
+    public X509Key getRSAX509Key(String certTag) throws EPropertyNotFound, EBaseException,
             InvalidKeyException {
         X509Key pubk = null;
 
-        String pubKeyModulus = config.getString(PCERT_PREFIX + certTag + ".pubkey.modulus");
-        String pubKeyPublicExponent = config.getString(PCERT_PREFIX + certTag + ".pubkey.exponent");
+        String pubKeyModulus = cs.getString(PCERT_PREFIX + certTag + ".pubkey.modulus");
+        String pubKeyPublicExponent = cs.getString(PCERT_PREFIX + certTag + ".pubkey.exponent");
         pubk = CryptoUtil.getPublicX509Key(
                 CryptoUtil.string2byte(pubKeyModulus),
                 CryptoUtil.string2byte(pubKeyPublicExponent));
         return pubk;
     }
 
-    public void createCertRecord(IConfigStore cs, Cert cert) throws Exception {
+    public void createCertRecord(Cert cert) throws Exception {
 
         String tag = cert.getCertTag();
         logger.debug("Configurator.createCertRecord(" + tag + ")");
@@ -2779,16 +2733,13 @@ public class Configurator {
         String subsystem = cert.getSubsystem();
         String nickname = cert.getNickname();
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.getConfigStore();
-
-        boolean enable = config.getBoolean(PCERT_PREFIX + certTag + ".enable", true);
+        boolean enable = cs.getBoolean(PCERT_PREFIX + certTag + ".enable", true);
         if (!enable)
             return;
 
         logger.debug("Configurator: cert type: " + cert.getType());
 
-        String tokenname = config.getString("preop.module.token", "");
+        String tokenname = cs.getString("preop.module.token", "");
 
         byte[] certb = cert.getCert();
         X509CertImpl impl = new X509CertImpl(certb);
@@ -2797,7 +2748,7 @@ public class Configurator {
 
         //update requests in request queue for local certs to allow renewal
         if ((cert.getType().equals("local")) || (cert.getType().equals("selfsign"))) {
-            CertUtil.updateLocalRequest(config, certTag, cert.getRequest(), "pkcs10", null);
+            CertUtil.updateLocalRequest(cs, certTag, cert.getRequest(), "pkcs10", null);
         }
     }
 
@@ -2844,8 +2795,6 @@ public class Configurator {
 
         logger.debug("backupKeys(): start");
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
         String certlist = cs.getString("preop.cert.list");
 
         StringTokenizer st = new StringTokenizer(certlist, ",");
@@ -2917,7 +2866,6 @@ public class Configurator {
             throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         byte[] binRequest = Utils.base64decode(certRequest);
         X509Key x509key;
@@ -2957,7 +2905,7 @@ public class Configurator {
     public void createPKCS7(X509CertImpl cert) throws IOException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         CertificateChain cachain = ca.getCACertChain();
         java.security.cert.X509Certificate[] cacerts = cachain.getChain();
@@ -2984,8 +2932,8 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
-        IConfigStore config = engine.getConfigStore();
-        String groupNames = config.getString("preop.admin.group", "Certificate Manager Agents,Administrators");
+
+        String groupNames = cs.getString("preop.admin.group", "Certificate Manager Agents,Administrators");
 
         IUser user = null;
 
@@ -3014,7 +2962,7 @@ public class Configurator {
             }
         }
 
-        String select = config.getString("securitydomain.select", "");
+        String select = cs.getString("securitydomain.select", "");
         if (select.equals("new")) {
             group = system.getGroupFromName("Security Domain Administrators");
             if (group != null && !group.isMember(uid)) {
@@ -3080,10 +3028,9 @@ public class Configurator {
         logger.debug("Configurator: submitAdminCertRequest()");
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.getConfigStore();
 
         if (profileId == null) {
-            profileId = config.getString("preop.admincert.profile", "caAdminCert");
+            profileId = cs.getString("preop.admincert.profile", "caAdminCert");
         }
 
         String session_id = engine.getConfigSDSessionId();
@@ -3114,7 +3061,6 @@ public class Configurator {
                 throw new IOException("Unable to generate admin certificate: " + error);
             }
 
-            IConfigStore cs = engine.getConfigStore();
             String id = parser.getValue("Id");
 
             cs.putString("preop.admincert.requestId.0", id);
@@ -3143,7 +3089,6 @@ public class Configurator {
             SAXException, ParserConfigurationException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
@@ -3212,7 +3157,6 @@ public class Configurator {
     public void updateSecurityDomain() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         int sd_agent_port = cs.getInteger("securitydomain.httpsagentport");
         int sd_admin_port = cs.getInteger("securitydomain.httpsadminport");
@@ -3223,7 +3167,7 @@ public class Configurator {
 
         boolean cloneMaster = false;
 
-        if (select.equals("clone") && type.equalsIgnoreCase("CA") && isSDHostDomainMaster(cs)) {
+        if (select.equals("clone") && type.equalsIgnoreCase("CA") && isSDHostDomainMaster()) {
             cloneMaster = true;
             logger.debug("Cloning a domain master");
         }
@@ -3267,11 +3211,12 @@ public class Configurator {
         String c = getDomainXML(sd_host, sd_admin_port, true);
     }
 
-    public boolean isSDHostDomainMaster(IConfigStore config) throws Exception {
+    public boolean isSDHostDomainMaster() throws Exception {
+
         String dm = "false";
 
-        String hostname = config.getString("securitydomain.host");
-        int httpsadminport = config.getInteger("securitydomain.httpsadminport");
+        String hostname = cs.getString("securitydomain.host");
+        int httpsadminport = cs.getInteger("securitydomain.httpsadminport");
 
         logger.debug("isSDHostDomainMaster(): Getting domain.xml from CA...");
         String c = getDomainXML(hostname, httpsadminport, true);
@@ -3302,10 +3247,8 @@ public class Configurator {
 
         logger.debug("Configurator: updateDomainXML start hostname=" + hostname + " port=" + port);
 
-        CMSEngine engine = CMS.getCMSEngine();
         String c = null;
         if (useClientAuth) {
-            IConfigStore cs = engine.getConfigStore();
             String nickname = cs.getString("preop.cert.subsystem.nickname", "");
             String tokenname = cs.getString("preop.module.token", "");
 
@@ -3353,7 +3296,7 @@ public class Configurator {
 
     public void setupClientAuthUser() throws Exception {
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+
         String host = cs.getString("preop.ca.hostname", "");
         int port = cs.getInteger("preop.ca.httpsadminport", -1);
 
@@ -3468,7 +3411,7 @@ public class Configurator {
             IOException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+
         String host = cs.getString("service.machineName");
         String port = cs.getString("service.securePort");
         String dbDir = cs.getString("instanceRoot") + "/alias";
@@ -3594,7 +3537,6 @@ public class Configurator {
         removeOldDBUsers(certs[0].getSubjectDN().toString());
 
         // workaround for ticket #1595
-        IConfigStore cs = engine.getConfigStore();
         String csType = cs.getString("cs.type").toUpperCase();
 
         Collection<String> groupNames = new ArrayList<String>();
@@ -3641,7 +3583,7 @@ public class Configurator {
 
     public void registerUser(URI secdomainURI, URI targetURI, String targetType) throws Exception {
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+
         String csType = cs.getString("cs.type");
         String uid = csType.toUpperCase() + "-" + cs.getString("machineName", "")
                 + "-" + cs.getString("service.securePort", "");
@@ -3695,7 +3637,7 @@ public class Configurator {
     public void exportTransportCert(URI secdomainURI, URI targetURI, String transportCert) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+
         String name = "transportCert-" + cs.getString("machineName", "")
                 + "-" + cs.getString("service.securePort", "");
         String sessionId = engine.getConfigSDSessionId();
@@ -3743,7 +3685,6 @@ public class Configurator {
         CMSEngine engine = CMS.getCMSEngine();
 
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
-        IConfigStore cs = engine.getConfigStore();
 
         String userbasedn = "ou=people, " + cs.getString("internaldb.basedn");
 
@@ -3770,8 +3711,6 @@ public class Configurator {
     public String getSubsystemCert() throws EBaseException, NotInitializedException, ObjectNotFoundException,
             TokenException, CertificateEncodingException, IOException {
 
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
         String subsystem = cs.getString(PCERT_PREFIX + "subsystem.subsystem");
 
         String nickname = cs.getString(subsystem + ".subsystem.nickname");
@@ -3795,8 +3734,6 @@ public class Configurator {
     }
 
     public void updateAuthdbInfo(String basedn, String host, String port, String secureConn) {
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         cs.putString("auths.instance.ldap1.ldap.basedn", basedn);
         cs.putString("auths.instance.ldap1.ldap.ldapconn.host", host);
@@ -3807,7 +3744,6 @@ public class Configurator {
     public void updateNextRanges() throws EBaseException, LDAPException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
 
         String endRequestNumStr = cs.getString("dbs.endRequestNumber", "");
         String endSerialNumStr = cs.getString("dbs.endSerialNumber", "");
@@ -3850,7 +3786,7 @@ public class Configurator {
      *
      * @throws EBaseException
      */
-    public void finalizeConfiguration(IConfigStore cs) throws EBaseException {
+    public void finalizeConfiguration() throws EBaseException {
 
         String type = cs.getString("cs.type");
         String list = cs.getString("preop.cert.list", "");
