@@ -30,14 +30,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
-import java.util.Vector;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.lang.StringUtils;
@@ -57,16 +54,9 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.ITimeSource;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.ConsoleError;
-import com.netscape.certsrv.logging.ELogException;
-import com.netscape.certsrv.logging.ILogEvent;
-import com.netscape.certsrv.logging.ILogEventListener;
-import com.netscape.certsrv.logging.ILogQueue;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
@@ -74,7 +64,6 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.authentication.VerifiedCerts;
@@ -144,11 +133,8 @@ public class CMSEngine implements ISubsystem {
     private ISubsystem mOwner;
     private long mStartupTime = 0;
     private boolean isStarted = false;
-    private StringBuffer mWarning = new StringBuffer();
     private ITimeSource mTimeSource = null;
     private IPasswordStore mPasswordStore = null;
-    private WarningListener mWarningListener = null;
-    private ILogQueue mQueue = null;
     private ISecurityDomainSessionTable mSecurityDomainSessionTable = null;
     private String mConfigSDSessionId = null;
     private Timer mSDTimer = null;
@@ -680,15 +666,6 @@ public class CMSEngine implements ISubsystem {
         subsystems.put(ID, this);
 
         initSubsystems(staticSubsystems);
-
-        // Once the log subsystem is initialized, we
-        // want to register a listener to catch
-        // all the warning message so that we can
-        // display them in the console.
-        mQueue = Logger.getLogger().getLogQueue();
-        mWarningListener = new WarningListener(mWarning);
-        mQueue.addLogEventListener(mWarningListener);
-
         initSubsystems(dynSubsystems);
         initSubsystems(finalSubsystems);
     }
@@ -1036,11 +1013,6 @@ public class CMSEngine implements ISubsystem {
         // global admin servlet. (anywhere else more fit for this ?)
 
         mStartupTime = System.currentTimeMillis();
-
-        mQueue.removeLogEventListener(mWarningListener);
-        if (!mWarning.toString().equals("")) {
-            logger.warn(Constants.SERVER_STARTUP_WARNING_MESSAGE + mWarning);
-        }
     }
 
     public void startup() throws EBaseException {
@@ -1612,83 +1584,5 @@ public class CMSEngine implements ISubsystem {
                 logger.warn("debugSleep: sleep out:" + e.toString());
             }
         }
-    }
-}
-
-class WarningListener implements ILogEventListener {
-    private StringBuffer mSB = null;
-
-    public WarningListener(StringBuffer sb) {
-        mSB = sb;
-    }
-
-    public void log(ILogEvent event) throws ELogException {
-        String str = event.toString();
-
-        // start.cc and restart.cc does not like carriage
-        // return. They are the programs that pass the
-        // log messages to the console
-        str = str.replace('\n', ' ');
-        if (event.getLevel() == ILogger.LL_FAILURE) {
-            mSB.append("FAILURE: " + str + "|");
-        }
-        if (event.getLevel() == ILogger.LL_WARN) {
-            mSB.append("WARNING: " + str + "|");
-        }
-    }
-
-    public void flush() {
-    }
-
-    public void shutdown() {
-    }
-
-    public IConfigStore getConfigStore() {
-        return null;
-    }
-
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
-    }
-
-    public void startup() {
-    }
-
-    /**
-     * Retrieve last "maxLine" number of system log with log lever >"level"
-     * and from source "source". If the parameter is omitted. All entries
-     * are sent back.
-     */
-    public synchronized NameValuePairs retrieveLogContent(Hashtable<String, String> req) throws ServletException,
-            IOException, EBaseException {
-        return null;
-    }
-
-    /**
-     * Retrieve log file list.
-     */
-    public synchronized NameValuePairs retrieveLogList(Hashtable<String, String> req) throws ServletException,
-            IOException, EBaseException {
-        return null;
-    }
-
-    public String getImplName() {
-        return "ConsoleLog";
-    }
-
-    public String getDescription() {
-        return "ConsoleLog";
-    }
-
-    public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
-
-        return v;
-    }
-
-    public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
-
-        return v;
     }
 }
