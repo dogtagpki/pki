@@ -61,7 +61,6 @@ import com.netscape.cms.servlet.csadmin.ReplicationUtil;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -954,8 +953,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         // Enable subsystems after database initialization.
         CMSEngine engine = CMS.getCMSEngine();
 
-        SubsystemInfo si = engine.staticSubsystems.get(UGSubsystem.ID);
-        si.enabled = true;
+        engine.setSubsystemEnabled(UGSubsystem.ID, true);
 
         engine.reinit(DBSubsystem.ID);
         engine.reinit(UGSubsystem.ID);

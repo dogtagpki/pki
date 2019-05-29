@@ -35,7 +35,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
@@ -53,14 +52,9 @@ public class CAEngine extends CMSEngine {
             // Disable some subsystems before database initialization
             // in pre-op mode to prevent misleading exceptions.
 
-            SubsystemInfo si = dynSubsystems.get(CertificateAuthority.ID);
-            si.enabled = false;
-
-            si = dynSubsystems.get(CrossCertPairSubsystem.ID);
-            si.enabled = false;
-
-            si = dynSubsystems.get(SelfTestSubsystem.ID);
-            si.enabled = false;
+            setSubsystemEnabled(CertificateAuthority.ID, false);
+            setSubsystemEnabled(CrossCertPairSubsystem.ID, false);
+            setSubsystemEnabled(SelfTestSubsystem.ID, false);
         }
     }
 

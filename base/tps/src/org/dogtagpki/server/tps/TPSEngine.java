@@ -20,7 +20,6 @@ package org.dogtagpki.server.tps;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 public class TPSEngine extends CMSEngine {
@@ -37,8 +36,7 @@ public class TPSEngine extends CMSEngine {
             // Disable some subsystems before database initialization
             // in pre-op mode to prevent misleading exceptions.
 
-            SubsystemInfo si = dynSubsystems.get(SelfTestSubsystem.ID);
-            si.enabled = false;
+            setSubsystemEnabled(SelfTestSubsystem.ID, false);
         }
     }
 }

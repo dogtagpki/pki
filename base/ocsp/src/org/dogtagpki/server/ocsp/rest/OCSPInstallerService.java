@@ -38,7 +38,6 @@ import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 import com.netscape.ocsp.OCSPAuthority;
@@ -68,11 +67,8 @@ public class OCSPInstallerService extends SystemConfigService {
         // Enable subsystems after database initialization.
         CMSEngine engine = CMS.getCMSEngine();
 
-        SubsystemInfo si = engine.dynSubsystems.get(OCSPAuthority.ID);
-        si.enabled = true;
-
-        si = engine.dynSubsystems.get(SelfTestSubsystem.ID);
-        si.enabled = true;
+        engine.setSubsystemEnabled(OCSPAuthority.ID, true);
+        engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
     }
 
     @Override

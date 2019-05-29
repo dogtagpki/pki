@@ -776,9 +776,14 @@ public class CMSEngine implements ISubsystem {
         if (isPreOpMode()) {
             // Disable some subsystems before database initialization
             // in pre-op mode to prevent errors.
-            SubsystemInfo si = staticSubsystems.get(UGSubsystem.ID);
-            si.enabled = false;
+
+            setSubsystemEnabled(UGSubsystem.ID, false);
         }
+    }
+
+    public void setSubsystemEnabled(String id, boolean enabled) {
+        SubsystemInfo si = dynSubsystems.get(id);
+        si.enabled = enabled;
     }
 
     /**

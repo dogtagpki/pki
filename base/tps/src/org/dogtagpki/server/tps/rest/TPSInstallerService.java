@@ -34,7 +34,6 @@ import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -61,8 +60,7 @@ public class TPSInstallerService extends SystemConfigService  {
         // Enable subsystems after database initialization.
         CMSEngine engine = CMS.getCMSEngine();
 
-        SubsystemInfo si = engine.dynSubsystems.get(SelfTestSubsystem.ID);
-        si.enabled = true;
+        engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
     }
 
     @Override

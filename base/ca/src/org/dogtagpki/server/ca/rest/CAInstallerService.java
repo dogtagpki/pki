@@ -28,7 +28,6 @@ import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
@@ -128,14 +127,9 @@ public class CAInstallerService extends SystemConfigService {
         // Enable subsystems after database initialization.
         CMSEngine engine = CMS.getCMSEngine();
 
-        SubsystemInfo si = engine.dynSubsystems.get(CertificateAuthority.ID);
-        si.enabled = true;
-
-        si = engine.dynSubsystems.get(CrossCertPairSubsystem.ID);
-        si.enabled = true;
-
-        si = engine.dynSubsystems.get(SelfTestSubsystem.ID);
-        si.enabled = true;
+        engine.setSubsystemEnabled(CertificateAuthority.ID, true);
+        engine.setSubsystemEnabled(CrossCertPairSubsystem.ID, true);
+        engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
 
         engine.reinit(CertificateAuthority.ID);
     }
