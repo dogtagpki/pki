@@ -17,34 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.ca.rest;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.StringTokenizer;
-
 import org.dogtagpki.server.ca.CAConfigurator;
 import org.dogtagpki.server.rest.SystemConfigService;
 
 import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.profile.IProfileSubsystem;
-import com.netscape.certsrv.registry.IPluginInfo;
-import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.SubsystemInfo;
-import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
-import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
-
-import netscape.ldap.LDAPAttribute;
 
 /**
  * @author alee
@@ -128,7 +115,7 @@ public class CAInstallerService extends SystemConfigService {
         if (!data.isClone()
                 && engine.getSubsystem(IProfileSubsystem.ID) instanceof LDAPProfileSubsystem) {
             try {
-                importProfiles("/usr/share/pki");
+                caConfigurator.importProfiles("/usr/share/pki");
             } catch (Exception e) {
                 logger.error("Unable to import profiles: " + e.getMessage(), e);
                 throw new PKIException("Unable to import profiles: " + e.getMessage(), e);
@@ -153,87 +140,5 @@ public class CAInstallerService extends SystemConfigService {
         si.enabled = true;
 
         engine.reinit(CertificateAuthority.ID);
-    }
-
-    /**
-     * Import profiles from the filesystem into the database.
-     *
-     * @param configRoot Where to look for the profile files. For a
-     *            fresh installation this should be
-     *            "/usr/share/pki". For existing installations it
-     *            should be CMS.getConfigStore().getString("instanceRoot").
-     *
-     */
-    public void importProfiles(String configRoot)
-            throws EBaseException, ELdapException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-
-        IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
-        IConfigStore profileCfg = cs.getSubStore("profile");
-        String profileIds = profileCfg.getString("list", "");
-        StringTokenizer st = new StringTokenizer(profileIds, ",");
-
-        IConfigStore dbCfg = cs.getSubStore("internaldb");
-        LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAInstallerService");
-        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
-
-        while (st.hasMoreTokens()) {
-            String profileId = st.nextToken();
-            IConfigStore profileSubCfg = profileCfg.getSubStore(profileId);
-            String classId = profileSubCfg.getString("class_id", "");
-            try {
-                IPluginInfo info = registry.getPluginInfo("profile", classId);
-                if (info == null) {
-                    throw new EBaseException("No plugins for type : profile, with id " + classId);
-                }
-
-                String profilePath = configRoot + "/ca/profiles/ca/" + profileId + ".cfg";
-                logger.info("Importing profile '" + profileId + "' from " + profilePath);
-                importProfile(dbFactory, classId, profileId, profilePath);
-
-            } catch (EBaseException e) {
-                logger.warn("Unable to import profile '" + profileId + "': " + e.getMessage());
-                logger.warn("Continuing with profile import procedure");
-            }
-        }
-    }
-
-    /**
-     * Import one profile from the filesystem into the database.
-     *
-     * @param dbFactory LDAP connection factory.
-     * @param classId The profile class of the profile to import.
-     * @param profileId The ID of the profile to import.
-     * @param profilePath Path to the on-disk profile configuration.
-     */
-    public void importProfile(
-            ILdapConnFactory dbFactory, String classId,
-            String profileId, String profilePath)
-            throws EBaseException {
-
-        String basedn = cs.getString("internaldb.basedn", "");
-
-        String dn = "cn=" + profileId + ",ou=certificateProfiles,ou=ca," + basedn;
-
-        String[] objectClasses = { "top", "certProfile" };
-        LDAPAttribute[] createAttrs = {
-                new LDAPAttribute("objectclass", objectClasses),
-                new LDAPAttribute("cn", profileId),
-                new LDAPAttribute("classId", classId)
-        };
-
-        IConfigStore configStore = new LDAPConfigStore(
-                dbFactory, dn, createAttrs, "certProfileConfig");
-
-        try {
-            FileInputStream input = new FileInputStream(profilePath);
-            configStore.load(input);
-        } catch (IOException e) {
-            logger.error("Unable to load data for profile " + profileId + ": " + e.getMessage(), e);
-            throw new EBaseException("Unable to load data for profile " + profileId + ": " + e.getMessage(), e);
-        }
-
-        configStore.commit(false /* no backup */);
     }
 }
