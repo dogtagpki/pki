@@ -665,14 +665,8 @@ public class DBSubsystem implements IDBSubsystem {
             mLdapConnFactory.init(cs, tmpConfig, engine.getPasswordStore());
 
         } catch (EPropertyNotDefined e) {
-            if (engine.isPreOpMode()) {
-                logger.warn("DBSubsystem: initialization failed: " + e.getMessage(), e);
-                logger.warn("DBSubsystem: Swallow exception in pre-op mode");
-                return;
-            } else {
-                logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
-                throw e;
-            }
+            logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);
+            throw e;
 
         } catch (ELdapServerDownException e) {
             logger.error("DBSubsystem: initialization failed: " + e.getMessage(), e);

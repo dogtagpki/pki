@@ -210,6 +210,7 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         IConfigStore authConfig = dbConfig.getSubStore(PROP_LDAPAUTHINFO);
         this.mAuthInfo = new LdapAuthInfo();
         this.mAuthInfo.setPasswordStore(passwordStore);
+
         this.mAuthInfo.init(
                 authConfig,
                 this.mConnInfo.getHost(),
@@ -248,17 +249,17 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         if (mAuthInfo == null)
             throw new IllegalArgumentException("Missing authentication info");
 
-        mConns = new BoundConnection[mMaxConns];
-
-        // Create connection handle and make initial connection
-        makeConnection(mErrorIfDown);
-
         logger.debug("LdapBoundConnFactory: mininum: " + mMinConns);
         logger.debug("LdapBoundConnFactory: maximum: " + mMaxConns);
         logger.debug("LdapBoundConnFactory: host: " + mConnInfo.getHost());
         logger.debug("LdapBoundConnFactory: port: " + mConnInfo.getPort());
         logger.debug("LdapBoundConnFactory: secure: " + mConnInfo.getSecure());
         logger.debug("LdapBoundConnFactory: authentication: " + mAuthInfo.getAuthType());
+
+        mConns = new BoundConnection[mMaxConns];
+
+        // Create connection handle and make initial connection
+        makeConnection(mErrorIfDown);
 
         // initalize minimum number of connection handles available.
         makeMinimum();

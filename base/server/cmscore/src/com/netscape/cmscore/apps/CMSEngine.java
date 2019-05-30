@@ -997,7 +997,7 @@ public class CMSEngine implements ISubsystem {
 
     public void reinit(String id) throws EBaseException {
 
-        logger.info("SystemConfigService: reinitializing " + id + " subsystem");
+        logger.info("CMSEngine: reinitializing " + id + " subsystem");
 
         ISubsystem system = getSubsystem(id);
         IConfigStore cs = mConfig.getSubStore(id);

@@ -63,7 +63,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
-import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -945,7 +944,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         engine.setSubsystemEnabled(UGSubsystem.ID, true);
 
-        engine.reinit(DBSubsystem.ID);
         engine.reinit(UGSubsystem.ID);
         engine.reinit(AuthSubsystem.ID);
         engine.reinit(AuthzSubsystem.ID);
