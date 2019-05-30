@@ -49,19 +49,26 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
 
-        subsystem = instance.get_subsystem(
-            deployer.mdict['pki_subsystem'].lower())
-
         logger.info('Creating password config: %s', deployer.mdict['pki_shared_password_conf'])
+
+        # store internal token password
+        self_signed_token = deployer.mdict['pki_self_signed_token']
+        if not pki.nssdb.normalize_token(self_signed_token):
+            self_signed_token = pki.nssdb.INTERNAL_TOKEN_NAME
+
+        instance.passwords[self_signed_token] = deployer.mdict['pki_server_database_password']
+
         if config.str2bool(deployer.mdict['pki_hsm_enable']):
-            deployer.password.create_hsm_password_conf(
-                deployer.mdict['pki_shared_password_conf'],
-                deployer.mdict['pki_server_database_password'],
-                deployer.mdict['pki_token_password'])
-        else:
-            deployer.password.create_password_conf(
-                deployer.mdict['pki_shared_password_conf'],
-                deployer.mdict['pki_server_database_password'])
+
+            # store HSM password
+            hsm_token = deployer.mdict['pki_token_name']
+            instance.passwords['hardware-%s' % hsm_token] = deployer.mdict['pki_token_password']
+
+        # store internal database password
+        instance.passwords['internaldb'] = deployer.mdict['pki_ds_password']
+        instance.store_passwords()
+
+        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
 
         # Since 'certutil' does NOT strip the 'token=' portion of
         # the 'token=password' entries, create a temporary server 'pfile'

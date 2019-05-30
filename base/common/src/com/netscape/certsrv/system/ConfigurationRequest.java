@@ -106,9 +106,6 @@ public class ConfigurationRequest {
     protected String bindDN;
 
     @XmlElement
-    protected String bindpwd;
-
-    @XmlElement
     protected String database;
 
     @XmlElement(defaultValue = "false")
@@ -406,20 +403,6 @@ public class ConfigurationRequest {
      */
     public void setBindDN(String bindDN) {
         this.bindDN = bindDN;
-    }
-
-    /**
-     * @return the bindpwd
-     */
-    public String getBindpwd() {
-        return bindpwd;
-    }
-
-    /**
-     * @param bindpwd the bindpwd to set
-     */
-    public void setBindpwd(String bindpwd) {
-        this.bindpwd = bindpwd;
     }
 
     /**

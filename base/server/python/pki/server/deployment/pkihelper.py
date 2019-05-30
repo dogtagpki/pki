@@ -1899,32 +1899,6 @@ class Password:
                 raise
         return
 
-    def create_hsm_password_conf(self, path, pin, hsm_pin,
-                                 overwrite_flag=False, critical_failure=True):
-
-        logger.info('Storing HSM password in %s', path)
-
-        try:
-            if os.path.exists(path):
-                if not overwrite_flag:
-                    return
-
-            token = self.mdict['pki_self_signed_token']
-            if not pki.nssdb.normalize_token(token):
-                token = pki.nssdb.INTERNAL_TOKEN_NAME
-
-            with open(path, 'w') as fd:
-                fd.write(token + '=' + str(pin) + '\n')
-                fd.write("hardware-" +
-                         self.mdict['pki_token_name'] +
-                         "=" + str(hsm_pin))
-
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        return
-
     def create_client_pkcs12_password_conf(self, path, overwrite_flag=False,
                                            critical_failure=True):
 
@@ -3740,7 +3714,6 @@ class ConfigClient:
         data.baseDN = self.mdict['pki_ds_base_dn']
         data.bindDN = self.mdict['pki_ds_bind_dn']
         data.database = self.mdict['pki_ds_database']
-        data.bindpwd = self.mdict['pki_ds_password']
         if config.str2bool(self.mdict['pki_ds_create_new_db']):
             data.createNewDB = "true"
         else:

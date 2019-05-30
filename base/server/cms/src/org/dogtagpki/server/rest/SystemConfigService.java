@@ -919,7 +919,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             IPasswordStore psStore = engine.getPasswordStore();
-            psStore.putPassword("internaldb", data.getBindpwd());
             if (StringUtils.isEmpty(psStore.getPassword("replicationdb", 0))) {
                 psStore.putPassword("replicationdb", replicationPassword);
             }
@@ -1362,11 +1361,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         String database = data.getDatabase();
         if (database == null || database.length() == 0) {
-            throw new BadRequestException("Internal database database name not provided");
-        }
-
-        String bindpwd = data.getBindpwd();
-        if (bindpwd == null || bindpwd.length() == 0) {
             throw new BadRequestException("Internal database database name not provided");
         }
 

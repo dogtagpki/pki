@@ -45,6 +45,8 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
@@ -61,9 +63,6 @@ import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * @author alee
@@ -253,7 +252,6 @@ public class ConfigurationTest {
         data.setBaseDN("o=testca2");
         data.setBindDN("cn=Directory Manager");
         data.setDatabase("o=testca2");
-        data.setBindpwd("redhat123");
         data.setRemoveData("true");
         data.setSecureConn("false");
 
@@ -339,7 +337,6 @@ public class ConfigurationTest {
         data.setBaseDN("o=testsubca");
         data.setBindDN("cn=Directory Manager");
         data.setDatabase("o=testsubca");
-        data.setBindpwd("redhat123");
         data.setRemoveData("true");
         data.setSecureConn("false");
 
@@ -425,7 +422,6 @@ public class ConfigurationTest {
         data.setBaseDN("o=testexternalca");
         data.setBindDN("cn=Directory Manager");
         data.setDatabase("o=testexternalca");
-        data.setBindpwd("redhat123");
         data.setRemoveData("true");
         data.setSecureConn("false");
 
@@ -511,7 +507,6 @@ public class ConfigurationTest {
         data.setBaseDN("o=testexternalca");
         data.setBindDN("cn=Directory Manager");
         data.setDatabase("o=testexternalca");
-        data.setBindpwd("redhat123");
         data.setRemoveData("true");
         data.setSecureConn("false");
 
@@ -610,7 +605,6 @@ public class ConfigurationTest {
         data.setBaseDN("o=testca2");
         data.setBindDN("cn=Directory Manager");
         data.setDatabase("o=testca2");
-        data.setBindpwd("redhat123");
         data.setRemoveData("true");
         data.setSecureConn("false");
 
@@ -651,7 +645,6 @@ public class ConfigurationTest {
         data.setBaseDN("o=testkra22");
         data.setBindDN("cn=Directory Manager");
         data.setDatabase("o=testkra");
-        data.setBindpwd("redhat123");
         data.setRemoveData("true");
         data.setSecureConn("false");
 
@@ -738,7 +731,6 @@ public class ConfigurationTest {
         data.setBaseDN("o=testocsp22");
         data.setBindDN("cn=Directory Manager");
         data.setDatabase("o=testocsp22");
-        data.setBindpwd("redhat123");
         data.setRemoveData("true");
         data.setSecureConn("false");
 
@@ -814,7 +806,6 @@ public class ConfigurationTest {
         data.setBaseDN("o=testtks22");
         data.setBindDN("cn=Directory Manager");
         data.setDatabase("o=testtks22");
-        data.setBindpwd("redhat123");
         data.setRemoveData("true");
         data.setSecureConn("false");
 
