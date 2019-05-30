@@ -562,8 +562,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
 
-        subsystem = instance.get_subsystem(
-            deployer.mdict['pki_subsystem'].lower())
+        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+
+        # configure internal database
+        subsystem.config['internaldb.ldapconn.host'] = deployer.mdict['pki_ds_hostname']
+
+        if config.str2bool(deployer.mdict['pki_ds_secure_connection']):
+            subsystem.config['internaldb.ldapconn.secureConn'] = 'true'
+            subsystem.config['internaldb.ldapconn.port'] = deployer.mdict['pki_ds_ldaps_port']
+        else:
+            subsystem.config['internaldb.ldapconn.secureConn'] = 'false'
+            subsystem.config['internaldb.ldapconn.port'] = deployer.mdict['pki_ds_ldap_port']
+
+        subsystem.config['internaldb.ldapauth.bindDN'] = deployer.mdict['pki_ds_bind_dn']
+        subsystem.config['internaldb.basedn'] = deployer.mdict['pki_ds_base_dn']
+        subsystem.config['internaldb.database'] = deployer.mdict['pki_ds_database']
 
         ocsp_uri = deployer.mdict.get('pki_default_ocsp_uri')
         if ocsp_uri:

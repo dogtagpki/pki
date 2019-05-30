@@ -843,13 +843,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         ug.addUserCert(user);
     }
 
-    public void configureDatabase(ConfigurationRequest data) {
-        cs.putString("internaldb.ldapconn.host", data.getDsHost());
-        cs.putString("internaldb.ldapconn.port", data.getDsPort());
-        cs.putString("internaldb.database", data.getDatabase());
-        cs.putString("internaldb.basedn", data.getBaseDN());
-        cs.putString("internaldb.ldapauth.bindDN", data.getBindDN());
-        cs.putBoolean("internaldb.ldapconn.secureConn", data.getSecureConn().equals("true"));
+    public void configureDatabase(ConfigurationRequest data) throws EBaseException {
         cs.putString("preop.database.removeData", data.getRemoveData());
         cs.putBoolean("preop.database.createNewDB", data.getCreateNewDB());
         cs.putBoolean("preop.database.setupReplication", data.getSetupReplication());
@@ -859,6 +853,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
+
+        boolean secureConn = cs.getBoolean("internaldb.ldapconn.secureConn");
+        String dsPort = cs.getString("internaldb.ldapconn.port");
+        String baseDN = cs.getString("internaldb.basedn");
 
         if (data.isClone() && data.getSetupReplication()) {
             String masterhost = "";
@@ -873,11 +871,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             } catch (Exception e) {
             }
 
-            if (masterhost.equals(realhostname) && masterport.equals(data.getDsPort())) {
+            if (masterhost.equals(realhostname) && masterport.equals(dsPort)) {
                 throw new BadRequestException("Master and clone must not share the same internal database");
             }
 
-            if (!masterbasedn.equals(data.getBaseDN())) {
+            if (!masterbasedn.equals(baseDN)) {
                 throw new BadRequestException("Master and clone should have the same base DN");
             }
 
@@ -890,12 +888,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             String cloneReplicationPort = data.getCloneReplicationPort();
             if ((cloneReplicationPort == null) || (cloneReplicationPort.length() == 0)) {
-                cloneReplicationPort = data.getDsPort();
+                cloneReplicationPort = dsPort;
             }
             cs.putString("internaldb.ldapconn.cloneReplicationPort", cloneReplicationPort);
 
             String replicationSecurity = data.getReplicationSecurity();
-            if ((cloneReplicationPort == data.getDsPort()) && (data.getSecureConn().equals("true"))) {
+            if (cloneReplicationPort == dsPort && secureConn) {
                 replicationSecurity = "SSL";
             } else if (replicationSecurity == null) {
                 replicationSecurity = "None";
@@ -1336,32 +1334,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         } else {
             data.setClone("false");
-        }
-
-        String dsHost = data.getDsHost();
-        if (dsHost == null || dsHost.length() == 0) {
-            throw new BadRequestException("Internal database host not provided");
-        }
-
-        try {
-            Integer.parseInt(data.getDsPort());  // check for errors
-        } catch (NumberFormatException e) {
-            throw new BadRequestException("Internal database port is invalid: " + data.getDsPort(), e);
-        }
-
-        String basedn = data.getBaseDN();
-        if (basedn == null || basedn.length() == 0) {
-            throw new BadRequestException("Internal database basedn not provided");
-        }
-
-        String binddn = data.getBindDN();
-        if (binddn == null || binddn.length() == 0) {
-            throw new BadRequestException("Internal database basedn not provided");
-        }
-
-        String database = data.getDatabase();
-        if (database == null || database.length() == 0) {
-            throw new BadRequestException("Internal database database name not provided");
         }
 
         String masterReplicationPort = data.getMasterReplicationPort();

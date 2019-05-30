@@ -123,15 +123,19 @@ public class TPSInstallerService extends SystemConfigService  {
     }
 
     @Override
-    public void configureDatabase(ConfigurationRequest request) {
+    public void configureDatabase(ConfigurationRequest request) throws EBaseException {
 
         super.configureDatabase(request);
 
-        cs.putString("tokendb.activityBaseDN", "ou=Activities," + request.getBaseDN());
-        cs.putString("tokendb.baseDN", "ou=Tokens," + request.getBaseDN());
-        cs.putString("tokendb.certBaseDN", "ou=Certificates," + request.getBaseDN());
-        cs.putString("tokendb.userBaseDN", request.getBaseDN());
-        cs.putString("tokendb.hostport", request.getDsHost() + ":" + request.getDsPort());
+        String dsHost = cs.getString("internaldb.ldapconn.host");
+        String dsPort = cs.getString("internaldb.ldapconn.port");
+        String baseDN = cs.getString("internaldb.basedn");
+
+        cs.putString("tokendb.activityBaseDN", "ou=Activities," + baseDN);
+        cs.putString("tokendb.baseDN", "ou=Tokens," + baseDN);
+        cs.putString("tokendb.certBaseDN", "ou=Certificates," + baseDN);
+        cs.putString("tokendb.userBaseDN", baseDN);
+        cs.putString("tokendb.hostport", dsHost + ":" + dsPort);
     }
 
     @Override

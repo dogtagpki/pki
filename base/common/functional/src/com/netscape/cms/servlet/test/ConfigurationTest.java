@@ -247,13 +247,7 @@ public class ConfigurationTest {
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test ca subsystem");
 
-        data.setDsHost(host);
-        data.setDsPort("7389");
-        data.setBaseDN("o=testca2");
-        data.setBindDN("cn=Directory Manager");
-        data.setDatabase("o=testca2");
         data.setRemoveData("true");
-        data.setSecureConn("false");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -332,13 +326,7 @@ public class ConfigurationTest {
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test subca subsystem");
 
-        data.setDsHost(host);
-        data.setDsPort("7389");
-        data.setBaseDN("o=testsubca");
-        data.setBindDN("cn=Directory Manager");
-        data.setDatabase("o=testsubca");
         data.setRemoveData("true");
-        data.setSecureConn("false");
 
         data.setIssuingCA("https://" + host + ":9224");
 
@@ -417,13 +405,7 @@ public class ConfigurationTest {
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test external ca subsystem");
 
-        data.setDsHost(host);
-        data.setDsPort("7389");
-        data.setBaseDN("o=testexternalca");
-        data.setBindDN("cn=Directory Manager");
-        data.setDatabase("o=testexternalca");
         data.setRemoveData("true");
-        data.setSecureConn("false");
 
         data.setIssuingCA("External CA");
 
@@ -502,13 +484,7 @@ public class ConfigurationTest {
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test external ca subsystem");
 
-        data.setDsHost(host);
-        data.setDsPort("7389");
-        data.setBaseDN("o=testexternalca");
-        data.setBindDN("cn=Directory Manager");
-        data.setDatabase("o=testexternalca");
         data.setRemoveData("true");
-        data.setSecureConn("false");
 
         data.setIssuingCA("External CA");
 
@@ -600,13 +576,7 @@ public class ConfigurationTest {
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test clone ca subsystem");
 
-        data.setDsHost(host);
-        data.setDsPort("7494");
-        data.setBaseDN("o=testca2");
-        data.setBindDN("cn=Directory Manager");
-        data.setDatabase("o=testca2");
         data.setRemoveData("true");
-        data.setSecureConn("false");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -640,13 +610,7 @@ public class ConfigurationTest {
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test kra subsystem");
 
-        data.setDsHost(host);
-        data.setDsPort("7389");
-        data.setBaseDN("o=testkra22");
-        data.setBindDN("cn=Directory Manager");
-        data.setDatabase("o=testkra");
         data.setRemoveData("true");
-        data.setSecureConn("false");
 
         data.setIssuingCA("https://" + host + ":9224");
 
@@ -726,13 +690,7 @@ public class ConfigurationTest {
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test ocsp subsystem");
 
-        data.setDsHost(host);
-        data.setDsPort("7389");
-        data.setBaseDN("o=testocsp22");
-        data.setBindDN("cn=Directory Manager");
-        data.setDatabase("o=testocsp22");
         data.setRemoveData("true");
-        data.setSecureConn("false");
 
         data.setIssuingCA("https://" + host + ":9224");
 
@@ -801,13 +759,7 @@ public class ConfigurationTest {
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test tks subsystem");
 
-        data.setDsHost(host);
-        data.setDsPort("7389");
-        data.setBaseDN("o=testtks22");
-        data.setBindDN("cn=Directory Manager");
-        data.setDatabase("o=testtks22");
         data.setRemoveData("true");
-        data.setSecureConn("false");
 
         data.setIssuingCA("https://" + host + ":9224");
 

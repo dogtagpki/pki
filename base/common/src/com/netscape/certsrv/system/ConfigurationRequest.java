@@ -91,25 +91,8 @@ public class ConfigurationRequest {
     protected String hierarchy;
 
     @XmlElement
-    protected String dsHost;
-
-    @XmlElement
-    protected String dsPort;
-
-    @XmlElement
-    protected String baseDN;
-
-    @XmlElement
     protected String createNewDB;
 
-    @XmlElement
-    protected String bindDN;
-
-    @XmlElement
-    protected String database;
-
-    @XmlElement(defaultValue = "false")
-    protected String secureConn;
 
     @XmlElement
     protected String removeData;
@@ -350,76 +333,6 @@ public class ConfigurationRequest {
     }
 
     /**
-     * @return the dsHost
-     */
-    public String getDsHost() {
-        return dsHost;
-    }
-
-    /**
-     * @param dsHost the dsHost to set
-     */
-    public void setDsHost(String dsHost) {
-        this.dsHost = dsHost;
-    }
-
-    /**
-     * @return the dsPort
-     */
-    public String getDsPort() {
-        return dsPort;
-    }
-
-    /**
-     * @param dsPort the dsPort to set
-     */
-    public void setDsPort(String dsPort) {
-        this.dsPort = dsPort;
-    }
-
-    /**
-     * @return the baseDN
-     */
-    public String getBaseDN() {
-        return baseDN;
-    }
-
-    /**
-     * @param baseDN the baseDN to set
-     */
-    public void setBaseDN(String baseDN) {
-        this.baseDN = baseDN;
-    }
-
-    /**
-     * @return the bindDN
-     */
-    public String getBindDN() {
-        return bindDN;
-    }
-
-    /**
-     * @param bindDN the bindDN to set
-     */
-    public void setBindDN(String bindDN) {
-        this.bindDN = bindDN;
-    }
-
-    /**
-     * @return the secureConn
-     */
-    public String getSecureConn() {
-        return secureConn;
-    }
-
-    /**
-     * @param secureConn the secureConn to set
-     */
-    public void setSecureConn(String secureConn) {
-        this.secureConn = secureConn;
-    }
-
-    /**
      * @return the removeData
      */
     public String getRemoveData() {
@@ -505,20 +418,6 @@ public class ConfigurationRequest {
 
     public void setReindexData(String reindexData) {
         this.reindexData = reindexData;
-    }
-
-    /**
-     * @return the database
-     */
-    public String getDatabase() {
-        return database;
-    }
-
-    /**
-     * @param database the database to set
-     */
-    public void setDatabase(String database) {
-        this.database = database;
     }
 
     /**
@@ -816,13 +715,6 @@ public class ConfigurationRequest {
                ", p12File=" + p12File +
                ", p12Password=XXXX" +
                ", hierarchy=" + hierarchy +
-               ", dsHost=" + dsHost +
-               ", dsPort=" + dsPort +
-               ", baseDN=" + baseDN +
-               ", bindDN=" + bindDN +
-               ", bindpwd=XXXX" +
-               ", database=" + database +
-               ", secureConn=" + secureConn +
                ", removeData=" + removeData +
                ", replicateSchema=" + replicateSchema +
                ", masterReplicationPort=" + masterReplicationPort +

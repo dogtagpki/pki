@@ -3704,24 +3704,17 @@ class ConfigClient:
                 self.mdict['pki_subordinate_security_domain_name'])
 
     def set_database_parameters(self, data):
-        data.dsHost = self.mdict['pki_ds_hostname']
-        if config.str2bool(self.mdict['pki_ds_secure_connection']):
-            data.secureConn = "true"
-            data.dsPort = self.mdict['pki_ds_ldaps_port']
-        else:
-            data.secureConn = "false"
-            data.dsPort = self.mdict['pki_ds_ldap_port']
-        data.baseDN = self.mdict['pki_ds_base_dn']
-        data.bindDN = self.mdict['pki_ds_bind_dn']
-        data.database = self.mdict['pki_ds_database']
+
         if config.str2bool(self.mdict['pki_ds_create_new_db']):
             data.createNewDB = "true"
         else:
             data.createNewDB = "false"
+
         if config.str2bool(self.mdict['pki_ds_remove_data']):
             data.removeData = "true"
         else:
             data.removeData = "false"
+
         if config.str2bool(self.mdict['pki_share_db']):
             data.sharedDB = "true"
             data.sharedDBUserDN = self.mdict['pki_share_dbuser_dn']

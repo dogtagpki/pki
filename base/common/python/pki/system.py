@@ -218,7 +218,6 @@ class ConfigurationRequest(object):
     def __init__(self):
         self.token = None
         self.isClone = "false"
-        self.secureConn = "off"
         self.generateServerCert = "true"
 
 
