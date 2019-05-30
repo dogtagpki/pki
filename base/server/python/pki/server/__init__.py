@@ -471,10 +471,10 @@ class PKIServer(object):
 
         self.config.clear()
 
-        if os.path.exists(self.service_conf):
+        if os.path.exists(self.tomcat_conf):
 
-            logger.info('Loading service config: %s', self.service_conf)
-            pki.util.load_properties(self.service_conf, self.config)
+            logger.info('Loading Tomcat config: %s', self.tomcat_conf)
+            pki.util.load_properties(self.tomcat_conf, self.config)
 
             # strip quotes
             for name, value in self.config.items():
