@@ -143,8 +143,13 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
+        org.mozilla.jss.crypto.X509Certificate cert = ca.getCaX509Cert();
+        if (cert == null)
+            throw new ResourceNotFoundException(
+                "Certificate for CA \"" + aidString + "\" not available");
+
         try {
-            return Response.ok(ca.getCaX509Cert().getEncoded()).build();
+            return Response.ok(cert.getEncoded()).build();
         } catch (CertificateEncodingException e) {
             // this really is a 500 Internal Server Error
             throw new PKIException("Error encoding certificate: " + e);
@@ -170,9 +175,14 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
+        org.mozilla.jss.netscape.security.x509.CertificateChain chain = ca.getCACertChain();
+        if (chain == null)
+            throw new ResourceNotFoundException(
+                "Certificate chain for CA \"" + aidString + "\" not available");
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            ca.getCACertChain().encode(out);
+            chain.encode(out);
         } catch (IOException e) {
             throw new PKIException("Error encoding certificate chain: " + e);
         }
