@@ -578,6 +578,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.config['internaldb.basedn'] = deployer.mdict['pki_ds_base_dn']
         subsystem.config['internaldb.database'] = deployer.mdict['pki_ds_database']
 
+        if config.str2bool(deployer.mdict['pki_share_db']):
+            subsystem.config['preop.internaldb.dbuser'] = deployer.mdict['pki_share_dbuser_dn']
+
         if config.str2bool(deployer.mdict['pki_ds_create_new_db']):
             subsystem.config['preop.database.createNewDB'] = 'true'
         else:
@@ -772,8 +775,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Setting up security domain')
         client.setupSecurityDomain(request)
 
-        logger.info('Setting up database user')
-        client.setupDatabaseUser(request)
+        if not config.str2bool(deployer.mdict['pki_share_db']):
+            logger.info('Setting up database user')
+            client.setupDatabaseUser(request)
 
         logger.info('Finalizing %s configuration', subsystem.type)
         client.finalizeConfiguration(request)

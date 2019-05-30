@@ -3381,8 +3381,6 @@ class ConfigClient:
             pass
 
         # database
-        self.set_database_parameters(data)
-
         data.replicationPassword = self.mdict['pki_replication_password']
 
         # Issuing CA Information
@@ -3702,14 +3700,6 @@ class ConfigClient:
             data.securityDomainType = "newsubdomain"
             data.subordinateSecurityDomainName = (
                 self.mdict['pki_subordinate_security_domain_name'])
-
-    def set_database_parameters(self, data):
-
-        if config.str2bool(self.mdict['pki_share_db']):
-            data.sharedDB = "true"
-            data.sharedDBUserDN = self.mdict['pki_share_dbuser_dn']
-        else:
-            data.sharedDB = "false"
 
     def set_backup_parameters(self, data):
         data.backupFile = self.mdict['pki_backup_keys_p12']

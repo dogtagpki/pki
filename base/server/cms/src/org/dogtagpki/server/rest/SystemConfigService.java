@@ -340,7 +340,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            if (!request.getSharedDB()) configurator.setupDBUser();
+            configurator.setupDBUser();
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
@@ -923,9 +923,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             configurator.populateDB();
 
             cs.putString("preop.internaldb.replicationpwd", replicationPassword);
-            if (data.getSharedDB()) {
-                cs.putString("preop.internaldb.dbuser", data.getSharedDBUserDN());
-            }
             cs.commit(false);
 
             if (data.isClone() && setupReplication) {
@@ -1362,16 +1359,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (data.getGenerateServerCert() == null) {
             data.setGenerateServerCert("true");
-        }
-
-        if (! data.getGenerateSubsystemCert()) {
-            // No subsystem cert to be generated.  All interactions use a shared subsystem cert.
-            if (data.getSharedDB() && StringUtils.isEmpty(data.getSharedDBUserDN())) {
-                throw new BadRequestException("Shared db user DN not provided");
-            }
-        } else {
-            // if the subsystem cert is not shared, we do not need to worry about sharing the db
-            data.setSharedDB("false");
         }
 
         if (csType.equals("TPS")) {

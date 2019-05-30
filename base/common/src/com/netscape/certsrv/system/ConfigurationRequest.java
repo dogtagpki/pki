@@ -156,14 +156,8 @@ public class ConfigurationRequest {
     @XmlElement(defaultValue="true")
     protected String generateSubsystemCert;
 
-    @XmlElement(defaultValue="false")
-    protected String sharedDB;
-
     @XmlElement
     protected String subordinateSecurityDomainName;
-
-    @XmlElement
-    protected String sharedDBUserDN;
 
     @XmlElement
     protected String startingCRLNumber;
@@ -572,22 +566,6 @@ public class ConfigurationRequest {
         this.generateSubsystemCert = generateSubsystemCert;
     }
 
-    public boolean getSharedDB() {
-        return sharedDB != null && sharedDB.equalsIgnoreCase("true");
-    }
-
-    public void setSharedDB(String sharedDB) {
-        this.sharedDB = sharedDB;
-    }
-
-    public String getSharedDBUserDN() {
-        return sharedDBUserDN;
-    }
-
-    public void setSharedDBUserDN(String sharedDBUserDN) {
-        this.sharedDBUserDN = sharedDBUserDN;
-    }
-
     public String getSubordinateSecurityDomainName() {
         return subordinateSecurityDomainName;
     }
@@ -672,8 +650,6 @@ public class ConfigurationRequest {
                ", enableServerSideKeyGen=" + enableServerSideKeyGen +
                ", importSharedSecret=" + importSharedSecret +
                ", generateSubsystemCert=" + generateSubsystemCert +
-               ", sharedDB=" +  sharedDB +
-               ", sharedDBUserDN=" + sharedDBUserDN +
                ", subordinateSecurityDomainName=" + subordinateSecurityDomainName +
                ", startingCrlNumber=" + startingCRLNumber +
                ", createSigningCertRecord=" + createSigningCertRecord +
