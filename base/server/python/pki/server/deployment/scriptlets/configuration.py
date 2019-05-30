@@ -578,6 +578,21 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         subsystem.config['internaldb.basedn'] = deployer.mdict['pki_ds_base_dn']
         subsystem.config['internaldb.database'] = deployer.mdict['pki_ds_database']
 
+        if config.str2bool(deployer.mdict['pki_ds_create_new_db']):
+            subsystem.config['preop.database.createNewDB'] = 'true'
+        else:
+            subsystem.config['preop.database.createNewDB'] = 'false'
+
+        if config.str2bool(deployer.mdict['pki_ds_remove_data']):
+            subsystem.config['preop.database.removeData'] = 'true'
+        else:
+            subsystem.config['preop.database.removeData'] = 'false'
+
+        # configure cloning
+        subsystem.config['preop.database.setupReplication'] = \
+            deployer.mdict['pki_clone_setup_replication']
+        subsystem.config['preop.database.reindexData'] = deployer.mdict['pki_clone_reindex_data']
+
         ocsp_uri = deployer.mdict.get('pki_default_ocsp_uri')
         if ocsp_uri:
             subsystem.config['ca.defaultOcspUri'] = ocsp_uri

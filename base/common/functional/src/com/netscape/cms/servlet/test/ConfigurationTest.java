@@ -247,8 +247,6 @@ public class ConfigurationTest {
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test ca subsystem");
 
-        data.setRemoveData("true");
-
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert1 = new SystemCertData();
@@ -325,8 +323,6 @@ public class ConfigurationTest {
         data.setHierarchy("join");
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test subca subsystem");
-
-        data.setRemoveData("true");
 
         data.setIssuingCA("https://" + host + ":9224");
 
@@ -405,8 +401,6 @@ public class ConfigurationTest {
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test external ca subsystem");
 
-        data.setRemoveData("true");
-
         data.setIssuingCA("External CA");
 
         // create system certs
@@ -483,8 +477,6 @@ public class ConfigurationTest {
         data.setHierarchy("join");
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test external ca subsystem");
-
-        data.setRemoveData("true");
 
         data.setIssuingCA("External CA");
 
@@ -576,8 +568,6 @@ public class ConfigurationTest {
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test clone ca subsystem");
 
-        data.setRemoveData("true");
-
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
         SystemCertData cert3 = new SystemCertData();
@@ -609,8 +599,6 @@ public class ConfigurationTest {
         data.setClone("false");
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test kra subsystem");
-
-        data.setRemoveData("true");
 
         data.setIssuingCA("https://" + host + ":9224");
 
@@ -690,8 +678,6 @@ public class ConfigurationTest {
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test ocsp subsystem");
 
-        data.setRemoveData("true");
-
         data.setIssuingCA("https://" + host + ":9224");
 
         // create system certs
@@ -758,8 +744,6 @@ public class ConfigurationTest {
         data.setClone("false");
         data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test tks subsystem");
-
-        data.setRemoveData("true");
 
         data.setIssuingCA("https://" + host + ":9224");
 

@@ -844,10 +844,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     public void configureDatabase(ConfigurationRequest data) throws EBaseException {
-        cs.putString("preop.database.removeData", data.getRemoveData());
-        cs.putBoolean("preop.database.createNewDB", data.getCreateNewDB());
-        cs.putBoolean("preop.database.setupReplication", data.getSetupReplication());
-        cs.putBoolean("preop.database.reindexData", data.getReindexData());
     }
 
     public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
@@ -857,8 +853,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         boolean secureConn = cs.getBoolean("internaldb.ldapconn.secureConn");
         String dsPort = cs.getString("internaldb.ldapconn.port");
         String baseDN = cs.getString("internaldb.basedn");
+        boolean setupReplication = cs.getBoolean("preop.database.setupReplication", true);
 
-        if (data.isClone() && data.getSetupReplication()) {
+        if (data.isClone() && setupReplication) {
             String masterhost = "";
             String masterport = "";
             String masterbasedn = "";
@@ -926,13 +923,12 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             configurator.populateDB();
 
             cs.putString("preop.internaldb.replicationpwd", replicationPassword);
-            cs.putString("preop.database.removeData", "false");
             if (data.getSharedDB()) {
                 cs.putString("preop.internaldb.dbuser", data.getSharedDBUserDN());
             }
             cs.commit(false);
 
-            if (data.isClone() && data.getSetupReplication()) {
+            if (data.isClone() && setupReplication) {
                 ReplicationUtil.setupReplication();
             }
 

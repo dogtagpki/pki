@@ -91,13 +91,6 @@ public class ConfigurationRequest {
     protected String hierarchy;
 
     @XmlElement
-    protected String createNewDB;
-
-
-    @XmlElement
-    protected String removeData;
-
-    @XmlElement
     protected String masterReplicationPort;
 
     @XmlElement
@@ -111,12 +104,6 @@ public class ConfigurationRequest {
 
     @XmlElement
     protected String replicationPassword;
-
-    @XmlElement
-    protected String setupReplication;
-
-    @XmlElement
-    protected String reindexData;
 
     @XmlElement
     protected Boolean systemCertsImported;
@@ -333,20 +320,6 @@ public class ConfigurationRequest {
     }
 
     /**
-     * @return the removeData
-     */
-    public String getRemoveData() {
-        return removeData;
-    }
-
-    /**
-     * @param removeData the removeData to set
-     */
-    public void setRemoveData(String removeData) {
-        this.removeData = removeData;
-    }
-
-    /**
      * @return the masterReplicationPort
      */
     public String getMasterReplicationPort() {
@@ -394,30 +367,6 @@ public class ConfigurationRequest {
 
     public void setReplicationPassword(String replicationPassword) {
         this.replicationPassword = replicationPassword;
-    }
-
-    public boolean getSetupReplication() {
-        // default to true
-        if (setupReplication == null) {
-            return true;
-        }
-        return setupReplication.equalsIgnoreCase("true");
-    }
-
-    public void setSetupReplication(String setupReplication) {
-        this.setupReplication = setupReplication;
-    }
-
-    public boolean getReindexData() {
-        // default to false
-        if (reindexData == null) {
-            return false;
-        }
-        return reindexData.equalsIgnoreCase("true");
-    }
-
-    public void setReindexData(String reindexData) {
-        this.reindexData = reindexData;
     }
 
     /**
@@ -639,18 +588,6 @@ public class ConfigurationRequest {
         this.sharedDBUserDN = sharedDBUserDN;
     }
 
-    public boolean getCreateNewDB() {
-        // default to true
-        if (createNewDB == null) {
-            return true;
-        }
-        return createNewDB.equalsIgnoreCase("true");
-    }
-
-    public void setCreateNewDB(String createNewDB) {
-        this.createNewDB = createNewDB;
-    }
-
     public String getSubordinateSecurityDomainName() {
         return subordinateSecurityDomainName;
     }
@@ -715,7 +652,6 @@ public class ConfigurationRequest {
                ", p12File=" + p12File +
                ", p12Password=XXXX" +
                ", hierarchy=" + hierarchy +
-               ", removeData=" + removeData +
                ", replicateSchema=" + replicateSchema +
                ", masterReplicationPort=" + masterReplicationPort +
                ", cloneReplicationPort=" + cloneReplicationPort +
@@ -738,10 +674,7 @@ public class ConfigurationRequest {
                ", generateSubsystemCert=" + generateSubsystemCert +
                ", sharedDB=" +  sharedDB +
                ", sharedDBUserDN=" + sharedDBUserDN +
-               ", createNewDB=" + createNewDB +
-               ", setupReplication=" + setupReplication +
                ", subordinateSecurityDomainName=" + subordinateSecurityDomainName +
-               ", reindexData=" + reindexData +
                ", startingCrlNumber=" + startingCRLNumber +
                ", createSigningCertRecord=" + createSigningCertRecord +
                ", signingCertSerialNumber=" + signingCertSerialNumber +
