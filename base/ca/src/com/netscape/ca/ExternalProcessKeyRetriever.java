@@ -60,7 +60,8 @@ public class ExternalProcessKeyRetriever implements KeyRetriever {
             String host = hostPort.split(":")[0];
             command.push(host);
             logger.debug("About to execute command: " + command);
-            ProcessBuilder pb = new ProcessBuilder(command);
+            ProcessBuilder pb = new ProcessBuilder(command)
+                .redirectError(ProcessBuilder.Redirect.INHERIT);
             try {
                 Process p = pb.start();
                 int exitValue = p.waitFor();
