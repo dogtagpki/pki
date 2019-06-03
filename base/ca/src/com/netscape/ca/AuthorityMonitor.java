@@ -39,6 +39,7 @@ public class AuthorityMonitor implements Runnable {
     public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthorityMonitor.class);
 
     private CertificateAuthority certificateAuthority;
+    private boolean running = true;
 
     /**
      * @param certificateAuthority
@@ -179,7 +180,11 @@ public class AuthorityMonitor implements Runnable {
 
             } catch (LDAPException e) {
 
-                logger.warn("AuthorityMonitor: Failed to execute LDAP search for lightweight CAs: " + e, e);
+                if (running) {
+                    logger.warn("AuthorityMonitor: Failed to execute LDAP search for lightweight CAs: " + e, e);
+                } else {
+                    logger.info("AuthorityMonitor: Shutting down: " + e.getMessage());
+                }
 
             } finally {
                 try {
@@ -246,5 +251,9 @@ public class AuthorityMonitor implements Runnable {
 
             this.certificateAuthority.forgetAuthority(aid);
         }
+    }
+
+    public void shutdown() {
+        running = false;
     }
 }

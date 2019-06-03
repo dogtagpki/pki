@@ -302,6 +302,8 @@ public class CertificateAuthority
     protected static final String PROP_REPOS_DN = "RepositoryDN";
     protected static final String PROP_REPLICAID_DN = "dbs.replicadn";
 
+    protected AuthorityMonitor authorityMonitor;
+
     // for the notification listeners
 
     /**
@@ -630,7 +632,10 @@ public class CertificateAuthority
             initCRL();
 
             if (isHostAuthority() && haveLightweightCAsContainer()) {
-                new Thread(new AuthorityMonitor(this), "AuthorityMonitor").start();
+
+                authorityMonitor = new AuthorityMonitor(this);
+                new Thread(authorityMonitor, "AuthorityMonitor").start();
+
                 try {
                     // block until the expected number of authorities
                     // have been loaded (based on numSubordinates of
@@ -1009,6 +1014,8 @@ public class CertificateAuthority
         // lightweight authorities don't own these resources
         if (!isHostAuthority())
             return;
+
+        authorityMonitor.shutdown();
 
         Enumeration<ICRLIssuingPoint> enums = mCRLIssuePoints.elements();
         while (enums.hasMoreElements()) {
