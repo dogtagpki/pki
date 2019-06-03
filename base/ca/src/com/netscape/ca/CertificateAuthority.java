@@ -1046,7 +1046,7 @@ public class CertificateAuthority
          */
         stopped = true;
         try {
-            dbFactory.reset();
+            dbFactory.shutdown();
         } catch (ELdapException e) {
             logger.warn("CertificateAuthority.shutdown: failed to reset "
                     + "dbFactory: " + e);

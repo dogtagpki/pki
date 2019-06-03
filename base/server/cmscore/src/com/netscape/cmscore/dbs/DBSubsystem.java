@@ -907,7 +907,7 @@ public class DBSubsystem implements IDBSubsystem {
     public void shutdown() {
         try {
             if (mLdapConnFactory != null) {
-                mLdapConnFactory.reset();
+                mLdapConnFactory.shutdown();
             }
         } catch (ELdapException e) {
 

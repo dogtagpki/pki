@@ -603,6 +603,29 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         }
     }
 
+    public synchronized void shutdown() throws ELdapException {
+
+        logger.debug("Destroying LdapBoundConnFactory(" + id + ")");
+
+        for (int i = 0; i < mNumConns; i++) {
+            mConns[i].close();
+            mConns[i] = null;
+        }
+
+        if (mMasterConn != null) {
+            logger.debug("LdapBoundConnFactory: disconnecting master connection");
+            mMasterConn.close();
+            mMasterConn = null;
+        }
+
+        mTotal = 0;
+        mNumConns = 0;
+
+        if (mAuthInfo != null) {
+            mAuthInfo.reset();
+        }
+    }
+
     /**
      * return ldap connection info
      */
