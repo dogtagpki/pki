@@ -38,6 +38,10 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 public class OCSPConfigurator extends Configurator {
 
+    public OCSPConfigurator(CMSEngine engine) {
+        super(engine);
+    }
+
     private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
 
     @Override

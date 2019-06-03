@@ -33,6 +33,10 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 public class KRAConfigurator extends Configurator {
 
+    public KRAConfigurator(CMSEngine engine) {
+        super(engine);
+    }
+
     @Override
     public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 

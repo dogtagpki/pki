@@ -22,8 +22,13 @@ import java.net.URI;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class TPSConfigurator extends Configurator {
+
+    public TPSConfigurator(CMSEngine engine) {
+        super(engine);
+    }
 
     @Override
     public void finalizeConfiguration(ConfigurationRequest request) throws Exception {

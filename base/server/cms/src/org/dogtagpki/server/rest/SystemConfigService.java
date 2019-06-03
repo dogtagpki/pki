@@ -96,19 +96,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         csType = cs.getString("cs.type");
         csSubsystem = csType.toLowerCase();
         csState = cs.getString("cs.state");
+
         String domainType = cs.getString("securitydomain.select", "existingdomain");
         if (csType.equals("CA") && domainType.equals("new")) {
             isMasterCA = true;
         }
+
         instanceRoot = cs.getString("instanceRoot");
 
-        configurator = createConfigurator();
-        configurator.setConfigStore(cs);
-        configurator.loadServerXml();
-    }
-
-    public Configurator createConfigurator() {
-        return new Configurator();
+        configurator = engine.createConfigurator();
     }
 
     /* (non-Javadoc)

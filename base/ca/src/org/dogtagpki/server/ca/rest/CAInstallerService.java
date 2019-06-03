@@ -25,7 +25,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.system.ConfigurationRequest;
-import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
@@ -44,10 +43,6 @@ public class CAInstallerService extends SystemConfigService {
 
     public CAInstallerService() throws Exception {
         caConfigurator = (CAConfigurator) configurator;
-    }
-
-    public Configurator createConfigurator() {
-        return new CAConfigurator();
     }
 
     @Override

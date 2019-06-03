@@ -19,14 +19,19 @@
 package org.dogtagpki.server.ocsp;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.ocsp.OCSPAuthority;
 
 public class OCSPEngine extends CMSEngine {
 
-    public OCSPEngine() {
+    public OCSPEngine() throws Exception {
         super("OCSP");
+    }
+
+    public Configurator createConfigurator() throws Exception {
+        return new OCSPConfigurator(this);
     }
 
     protected void loadSubsystems() throws EBaseException {

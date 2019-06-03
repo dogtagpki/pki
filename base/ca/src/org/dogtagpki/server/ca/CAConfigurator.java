@@ -45,6 +45,10 @@ import netscape.ldap.LDAPException;
 
 public class CAConfigurator extends Configurator {
 
+    public CAConfigurator(CMSEngine engine) {
+        super(engine);
+    }
+
     /**
      * Import profiles from the filesystem into the database.
      *

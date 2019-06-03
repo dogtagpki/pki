@@ -22,7 +22,6 @@ import org.dogtagpki.server.rest.SystemConfigService;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.system.ConfigurationRequest;
-import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
@@ -40,10 +39,6 @@ public class OCSPInstallerService extends SystemConfigService {
 
     public OCSPInstallerService() throws Exception {
         ocspConfigurator = (OCSPConfigurator) configurator;
-    }
-
-    public Configurator createConfigurator() {
-        return new OCSPConfigurator();
     }
 
     @Override

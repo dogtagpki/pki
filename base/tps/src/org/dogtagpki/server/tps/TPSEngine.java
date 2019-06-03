@@ -19,13 +19,18 @@
 package org.dogtagpki.server.tps;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 public class TPSEngine extends CMSEngine {
 
-    public TPSEngine() {
+    public TPSEngine() throws Exception {
         super("TPS");
+    }
+
+    public Configurator createConfigurator() throws Exception {
+        return new TPSConfigurator(this);
     }
 
     protected void loadSubsystems() throws EBaseException {

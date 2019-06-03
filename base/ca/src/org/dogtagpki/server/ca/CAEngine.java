@@ -34,14 +34,19 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 public class CAEngine extends CMSEngine {
 
-    public CAEngine() {
+    public CAEngine() throws Exception {
         super("CA");
+    }
+
+    public Configurator createConfigurator() throws Exception {
+        return new CAConfigurator(this);
     }
 
     protected void loadSubsystems() throws EBaseException {

@@ -18,7 +18,6 @@
 package org.dogtagpki.server.tps.rest;
 
 import org.dogtagpki.server.rest.SystemConfigService;
-import org.dogtagpki.server.tps.TPSConfigurator;
 import org.dogtagpki.server.tps.installer.TPSInstaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.SystemCertData;
-import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
@@ -43,10 +41,6 @@ public class TPSInstallerService extends SystemConfigService  {
     public final static Logger logger = LoggerFactory.getLogger(TPSInstallerService.class);
 
     public TPSInstallerService() throws Exception {
-    }
-
-    public Configurator createConfigurator() {
-        return new TPSConfigurator();
     }
 
     @Override

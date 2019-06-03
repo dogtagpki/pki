@@ -1015,7 +1015,10 @@ public class CertificateAuthority
         if (!isHostAuthority())
             return;
 
-        authorityMonitor.shutdown();
+        if (authorityMonitor != null) {
+            authorityMonitor.shutdown();
+        }
+
         lwcaLoader.shutdown();
 
         Enumeration<ICRLIssuingPoint> enums = mCRLIssuePoints.elements();

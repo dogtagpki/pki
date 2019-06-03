@@ -185,8 +185,15 @@ public class Configurator {
 
     public static ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
 
+    protected CMSEngine engine;
     protected IConfigStore cs;
     protected ServerXml serverXml;
+
+    public Configurator(CMSEngine engine) {
+        this.engine = engine;
+        this.cs = engine.getConfigStore();
+        this.serverXml = engine.getServerXml();
+    }
 
     public static String get(String hostname, int port, boolean secure,
             String path, String clientnickname,
@@ -226,11 +233,8 @@ public class Configurator {
         this.cs = cs;
     }
 
-    public void loadServerXml() throws Exception {
-        String catalinaBase = cs.getString("instanceRoot");
-        String filename = catalinaBase + File.separator + "conf" + File.separator + "server.xml";
-
-        serverXml = ServerXml.load(filename);
+    public void setServerXml(ServerXml serverXml) throws Exception {
+        this.serverXml = serverXml;
     }
 
     public String getCertChain(String host, int port, String serverPath)

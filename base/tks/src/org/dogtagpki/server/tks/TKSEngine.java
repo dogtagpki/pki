@@ -19,14 +19,19 @@
 package org.dogtagpki.server.tks;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.tks.TKSAuthority;
 
 public class TKSEngine extends CMSEngine {
 
-    public TKSEngine() {
+    public TKSEngine() throws Exception {
         super("TKS");
+    }
+
+    public Configurator createConfigurator() throws Exception {
+        return new TKSConfigurator(this);
     }
 
     protected void loadSubsystems() throws EBaseException {

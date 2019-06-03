@@ -64,6 +64,7 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.authentication.VerifiedCerts;
@@ -119,7 +120,9 @@ public class CMSEngine implements ISubsystem {
 
     private CryptoManager mManager = null;
 
-    private IConfigStore mConfig = null;
+    protected IConfigStore mConfig;
+    protected ServerXml serverXml;
+
     private boolean mExcludedLdapAttrsEnabled = false;
     // AutoSD : AutoShutdown
     private String mAutoSD_CrumbFile = null;
@@ -487,12 +490,16 @@ public class CMSEngine implements ISubsystem {
         serverStatus = "running";
     }
 
+    public Configurator createConfigurator() throws Exception {
+        return new Configurator(this);
+    }
+
     private void parseServerXML() throws EBaseException {
         try {
             String instanceRoot = mConfig.getString("instanceRoot");
             String path = instanceRoot + File.separator + "conf" + File.separator + SERVER_XML;
 
-            ServerXml serverXml = ServerXml.load(path);
+            serverXml = ServerXml.load(path);
             unsecurePort = serverXml.getUnsecurePort();
             securePort = serverXml.getSecurePort();
 
@@ -1347,6 +1354,10 @@ public class CMSEngine implements ISubsystem {
      */
     public IConfigStore getConfigStore() {
         return mConfig;
+    }
+
+    public ServerXml getServerXml() {
+        return serverXml;
     }
 
     /**

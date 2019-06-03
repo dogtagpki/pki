@@ -20,14 +20,19 @@ package org.dogtagpki.server.kra;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.kra.KeyRecoveryAuthority;
 
 public class KRAEngine extends CMSEngine {
 
-    public KRAEngine() {
+    public KRAEngine() throws Exception {
         super("KRA");
+    }
+
+    public Configurator createConfigurator() throws Exception {
+        return new KRAConfigurator(this);
     }
 
     protected void loadSubsystems() throws EBaseException {
