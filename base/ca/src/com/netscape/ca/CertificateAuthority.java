@@ -1016,6 +1016,7 @@ public class CertificateAuthority
             return;
 
         authorityMonitor.shutdown();
+        lwcaLoader.shutdown();
 
         Enumeration<ICRLIssuingPoint> enums = mCRLIssuePoints.elements();
         while (enums.hasMoreElements()) {

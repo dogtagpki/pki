@@ -170,4 +170,8 @@ public class AsyncLoader {
             forceUnlock();
         }
     }
+
+    public void shutdown() {
+        timer.cancel();
+    }
 }
