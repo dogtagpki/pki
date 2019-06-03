@@ -677,7 +677,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                             String noticenumbers = substore1.getString(CONFIG_USERNOTICE_NUMBERS);
                             String explicitText = substore1.getString(CONFIG_USERNOTICE_TEXT);
                             org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(orgName,
-                                    noticenumbers, explicitText);
+                                    explicitText, noticenumbers);
                             if (qualifierInfo != null)
                                 policyQualifiers.add(qualifierInfo);
                         }
