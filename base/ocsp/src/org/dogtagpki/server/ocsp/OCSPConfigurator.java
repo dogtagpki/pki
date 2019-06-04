@@ -26,6 +26,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
@@ -38,6 +39,50 @@ import com.netscape.cmsutil.xml.XMLObject;
 public class OCSPConfigurator extends Configurator {
 
     private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
+
+    @Override
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
+
+        try {
+            String ca_host = cs.getString("preop.ca.hostname", "");
+
+            // import the CA certificate into the OCSP
+            // configure the CRL Publishing to OCSP in CA
+            if (!ca_host.equals("")) {
+                CMSEngine engine = CMS.getCMSEngine();
+                engine.reinit(IOCSPAuthority.ID);
+
+                if (!request.isClone()) {
+                    importCACert();
+                } else {
+                    logger.debug("OCSPInstallerService: Skipping importCACertToOCSP for clone.");
+                }
+
+                if (!request.getStandAlone()) {
+
+                    // For now don't register publishing with the CA for a clone.
+                    // Preserves existing functionality
+                    // Next we need to treat the publishing of clones as a group ,
+                    // and fail over amongst them.
+                    if (!request.isClone()) {
+                        updateOCSPConfiguration();
+                    }
+
+                    setupClientAuthUser();
+                }
+            }
+
+            if (request.isClone()) {
+                configureCloneRefresh(request);
+            }
+
+        } catch (Exception e) {
+            logger.error("OCSPInstallerService: " + e.getMessage(), e);
+            throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
+        }
+
+        super.finalizeConfiguration(request);
+    }
 
     public void importCACert() throws IOException, EBaseException, CertificateEncodingException {
 

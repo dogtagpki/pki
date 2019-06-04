@@ -21,8 +21,6 @@ import org.dogtagpki.server.ocsp.OCSPConfigurator;
 import org.dogtagpki.server.rest.SystemConfigService;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
@@ -58,47 +56,5 @@ public class OCSPInstallerService extends SystemConfigService {
 
         engine.setSubsystemEnabled(OCSPAuthority.ID, true);
         engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
-    }
-
-    @Override
-    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
-
-        try {
-            String ca_host = cs.getString("preop.ca.hostname", "");
-
-            // import the CA certificate into the OCSP
-            // configure the CRL Publishing to OCSP in CA
-            if (!ca_host.equals("")) {
-                CMSEngine engine = CMS.getCMSEngine();
-                engine.reinit(IOCSPAuthority.ID);
-
-                if (!request.isClone())
-                    ocspConfigurator.importCACert();
-                else
-                    logger.debug("OCSPInstallerService: Skipping importCACertToOCSP for clone.");
-
-                if (!request.getStandAlone()) {
-
-                    // For now don't register publishing with the CA for a clone.
-                    // Preserves existing functionality
-                    // Next we need to treat the publishing of clones as a group ,
-                    // and fail over amongst them.
-                    if (!request.isClone())
-                        ocspConfigurator.updateOCSPConfiguration();
-
-                    configurator.setupClientAuthUser();
-                }
-            }
-
-            if (request.isClone()) {
-                ocspConfigurator.configureCloneRefresh(request);
-            }
-
-        } catch (Exception e) {
-            logger.error("OCSPInstallerService: " + e.getMessage(), e);
-            throw new PKIException("Errors in configuring CA publishing to OCSP: " + e);
-        }
-
-        super.finalizeConfiguration(request);
     }
 }
