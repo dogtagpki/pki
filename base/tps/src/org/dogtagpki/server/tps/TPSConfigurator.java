@@ -17,8 +17,97 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps;
 
+import java.net.URI;
+
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 
 public class TPSConfigurator extends Configurator {
 
+    @Override
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
+
+        URI secdomainURI = new URI(request.getSecurityDomainUri());
+        URI caURI = request.getCaUri();
+        URI tksURI = request.getTksUri();
+        URI kraURI = request.getKraUri();
+
+        try {
+            logger.info("TPSInstallerService: Registering TPS to CA: " + caURI);
+            registerUser(secdomainURI, caURI, "ca");
+
+        } catch (Exception e) {
+            String message = "Unable to register TPS to CA: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
+        }
+
+        try {
+            logger.info("TPSInstallerService: Registering TPS to TKS: " + tksURI);
+            registerUser(secdomainURI, tksURI, "tks");
+
+        } catch (Exception e) {
+            String message = "Unable to register TPS to TKS: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
+        }
+
+        if (request.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
+
+            try {
+                logger.info("TPSInstallerService: Registering TPS to KRA: " + kraURI);
+                registerUser(secdomainURI, kraURI, "kra");
+
+            } catch (Exception e) {
+                String message = "Unable to register TPS to KRA: " + e.getMessage();
+                logger.error(message, e);
+                throw new PKIException(message, e);
+            }
+
+            String transportCert;
+            try {
+                logger.info("TPSInstallerService: Retrieving transport cert from KRA");
+                transportCert = getTransportCert(secdomainURI, kraURI);
+
+            } catch (Exception e) {
+                String message = "Unable to retrieve transport cert from KRA: " + e.getMessage();
+                logger.error(message, e);
+                throw new PKIException(message, e);
+            }
+
+            try {
+                logger.info("TPSInstallerService: Importing transport cert into TKS");
+                exportTransportCert(secdomainURI, tksURI, transportCert);
+
+            } catch (Exception e) {
+                String message = "Unable to import transport cert into TKS: " + e.getMessage();
+                logger.error(message, e);
+                throw new PKIException(message, e);
+            }
+        }
+
+        try {
+            String doImportStr = request.getImportSharedSecret();
+            logger.debug("TPSInstallerService: importSharedSecret:" + doImportStr);
+
+            boolean doImport = false;
+            if ("true".equalsIgnoreCase(doImportStr)) {
+                doImport = true;
+            }
+
+            logger.info("TPSInstallerService: Generating shared secret in TKS");
+            getSharedSecret(
+                    tksURI.getHost(),
+                    tksURI.getPort(),
+                    doImport);
+
+        } catch (Exception e) {
+            String message = "Unable to generate shared secret in TKS: " + e.getMessage();
+            logger.error(message, e);
+            throw new PKIException(message, e);
+        }
+
+        super.finalizeConfiguration(request);
+    }
 }
