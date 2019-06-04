@@ -24,12 +24,44 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class KRAConfigurator extends Configurator {
+
+    @Override
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
+
+        try {
+            String ca_host = cs.getString("preop.ca.hostname", "");
+
+            // need to push connector information to the CA
+            if (!request.getStandAlone() && !ca_host.equals("")) {
+                configureKRAConnector();
+                setupClientAuthUser();
+            }
+
+        } catch (Exception e) {
+            logger.error("Unable to configure KRA connector in CA: " + e.getMessage(), e);
+            throw new PKIException("Unable to configure KRA connector in CA: " + e.getMessage(), e);
+        }
+
+        try {
+             if (!request.isClone()) {
+                 updateNextRanges();
+             }
+
+        } catch (Exception e) {
+            logger.error("Unable to update next serial number ranges: " + e.getMessage(), e);
+            throw new PKIException("Unable to update next serial number ranges: " + e.getMessage(), e);
+        }
+
+        super.finalizeConfiguration(request);
+    }
 
     public void configureKRAConnector() throws Exception {
 

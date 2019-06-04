@@ -21,7 +21,6 @@ import org.dogtagpki.server.kra.KRAConfigurator;
 import org.dogtagpki.server.rest.SystemConfigService;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
@@ -57,35 +56,5 @@ public class KRAInstallerService extends SystemConfigService {
 
         engine.setSubsystemEnabled(KeyRecoveryAuthority.ID, true);
         engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
-    }
-
-    @Override
-    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
-
-        try {
-            String ca_host = cs.getString("preop.ca.hostname", "");
-
-            // need to push connector information to the CA
-            if (!request.getStandAlone() && !ca_host.equals("")) {
-                kraConfigurator.configureKRAConnector();
-                configurator.setupClientAuthUser();
-            }
-
-        } catch (Exception e) {
-            logger.error("KRAInstallerService: " + e.getMessage(), e);
-            throw new PKIException("Errors in pushing KRA connector information to the CA: " + e);
-        }
-
-        try {
-             if (!request.isClone()) {
-                 configurator.updateNextRanges();
-             }
-
-        } catch (Exception e) {
-            logger.error("KRAInstallerService: " + e.getMessage(), e);
-            throw new PKIException("Errors in updating next serial number ranges in DB: " + e);
-        }
-
-        super.finalizeConfiguration(request);
     }
 }
