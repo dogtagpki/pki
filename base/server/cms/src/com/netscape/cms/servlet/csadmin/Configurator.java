@@ -3787,7 +3787,7 @@ public class Configurator {
      *
      * @throws EBaseException
      */
-    public void finalizeConfiguration() throws EBaseException {
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
         String type = cs.getString("cs.type");
         String list = cs.getString("preop.cert.list", "");

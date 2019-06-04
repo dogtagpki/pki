@@ -51,58 +51,6 @@ public class CAInstallerService extends SystemConfigService {
     }
 
     @Override
-    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
-
-        try {
-            if (!request.isClone()) {
-                configurator.updateNextRanges();
-            }
-
-        } catch (Exception e) {
-            logger.error("Unable to update next serial number ranges: " + e.getMessage(), e);
-            throw new PKIException("Unable to update next serial number ranges: " + e.getMessage(), e);
-        }
-
-        try {
-            if (request.isClone() && configurator.isSDHostDomainMaster()) {
-                caConfigurator.updateSecurityDomainClone();
-            }
-
-            if (request.isClone()) {
-                caConfigurator.disableCRLCachingAndGenerationForClone(request.getCloneUri());
-            }
-
-            caConfigurator.configureStartingCRLNumber(request.getStartingCRLNumber());
-
-        } catch (Exception e) {
-            logger.error("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
-            throw new PKIException("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
-        }
-
-        try {
-            caConfigurator.setSubsystemEnabled("profile", true);
-        } catch (Exception e) {
-            logger.error("Unable to enable profile subsystem: " + e.getMessage(), e);
-            throw new PKIException("Unable to enable profile subsystem: " + e.getMessage(), e);
-        }
-
-        if (! request.createSigningCertRecord()) {
-            // This is the migration case.  In this case, we will delete the
-            // record that was created during the install process.
-
-            try {
-                String serialNumber = request.getSigningCertSerialNumber();
-                caConfigurator.deleteSigningRecord(serialNumber);
-            } catch (Exception e) {
-                logger.error("Unable to delete signing cert record: " + e.getMessage(), e);
-                throw new PKIException("Unable to delete signing cert record: " + e.getMessage(), e);
-            }
-        }
-
-        super.finalizeConfiguration(request);
-    }
-
-    @Override
     public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
 
         super.initializeDatabase(data);

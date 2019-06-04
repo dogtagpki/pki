@@ -32,6 +32,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -123,6 +124,58 @@ public class CAConfigurator extends Configurator {
         }
 
         configStore.commit(false /* no backup */);
+    }
+
+    @Override
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
+
+        try {
+            if (!request.isClone()) {
+                updateNextRanges();
+            }
+
+        } catch (Exception e) {
+            logger.error("Unable to update next serial number ranges: " + e.getMessage(), e);
+            throw new PKIException("Unable to update next serial number ranges: " + e.getMessage(), e);
+        }
+
+        try {
+            if (request.isClone() && isSDHostDomainMaster()) {
+                updateSecurityDomainClone();
+            }
+
+            if (request.isClone()) {
+                disableCRLCachingAndGenerationForClone(request.getCloneUri());
+            }
+
+            configureStartingCRLNumber(request.getStartingCRLNumber());
+
+        } catch (Exception e) {
+            logger.error("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
+            throw new PKIException("Unable to determine if security domain host is a master CA: " + e.getMessage(), e);
+        }
+
+        try {
+            setSubsystemEnabled("profile", true);
+        } catch (Exception e) {
+            logger.error("Unable to enable profile subsystem: " + e.getMessage(), e);
+            throw new PKIException("Unable to enable profile subsystem: " + e.getMessage(), e);
+        }
+
+        if (! request.createSigningCertRecord()) {
+            // This is the migration case.  In this case, we will delete the
+            // record that was created during the install process.
+
+            try {
+                String serialNumber = request.getSigningCertSerialNumber();
+                deleteSigningRecord(serialNumber);
+            } catch (Exception e) {
+                logger.error("Unable to delete signing cert record: " + e.getMessage(), e);
+                throw new PKIException("Unable to delete signing cert record: " + e.getMessage(), e);
+            }
+        }
+
+        super.finalizeConfiguration(request);
     }
 
     public void updateSecurityDomainClone() throws Exception {
