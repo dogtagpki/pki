@@ -1,6 +1,60 @@
-# Python, keep every statement on a single line
-%{!?__python2: %global __python2 /usr/bin/python2}
-%{!?python2_sitelib: %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
+################################################################################
+Name:             pki-core
+################################################################################
+
+%global           vendor dogtag
+%global           brand Dogtag
+
+Summary:          %{brand} Certificate System - PKI Core Components
+URL:              http://www.dogtagpki.org/
+License:          GPLv2
+
+# Optionally fetch the release from the environment variable 'PKI_RELEASE'
+%define use_pki_release %{getenv:USE_PKI_RELEASE}
+%if 0%{?use_pki_release}
+%define pki_release %{getenv:PKI_RELEASE}
+%endif
+
+%if 0%{?rhel}
+Version:                10.5.17
+%define redhat_release  1
+%define redhat_stage    0
+%define default_release %{redhat_release}.%{redhat_stage}
+#%define default_release %{redhat_release}
+%else
+Version:                10.5.17
+%define fedora_release  1
+%define fedora_stage    0
+%define default_release %{fedora_release}.%{fedora_stage}
+%endif
+
+%if 0%{?use_pki_release}
+Release:          %{pki_release}%{?dist}
+%else
+Release:          %{default_release}%{?dist}
+%endif
+
+%if 0%{?rhel}
+# NOTE:  In the future, as a part of its path, this URL will contain a release
+#        directory which consists of the fixed number of the upstream release
+#        upon which this tarball was originally based.
+Source:           https://www.dogtagpki.org/pki/sources/%{name}/%{version}/%{release}/rhel/%{name}-%{version}%{?prerel}.tar.gz
+%else
+Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
+%endif
+
+#Patch0:           pki-core-CA-OCSP-SystemCertsVerification.patch
+
+# Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
+#
+#     NOTE:  For "alpha" releases, will be ".a1", ".a2", etc.
+#            For "beta" releases, will be ".b1", ".b2", etc.
+#
+%define version_phase "%(echo `echo %{version} | awk -F. '{ print $4 }'`)"
+
+################################################################################
+# Python
+################################################################################
 
 %if 0%{?fedora} || 0%{?rhel} > 7
 %global with_python3 1
@@ -19,7 +73,10 @@
 %global package_fedora_packages 1
 %endif
 
+################################################################################
 # Java
+################################################################################
+
 %define java_home /usr/lib/jvm/jre-1.8.0-openjdk
 
 # Tomcat
@@ -31,7 +88,10 @@
 %define with_tomcat8 0
 %endif
 
+################################################################################
 # RESTEasy
+################################################################################
+
 %if 0%{?rhel} && 0%{?rhel} <= 7
 %define jaxrs_api_jar /usr/share/java/resteasy-base/jaxrs-api.jar
 %define resteasy_lib /usr/share/java/resteasy-base
@@ -40,7 +100,10 @@
 %define resteasy_lib /usr/share/java/resteasy
 %endif
 
-# Dogtag
+################################################################################
+# PKI
+################################################################################
+
 %bcond_without    server
 %bcond_without    javadoc
 
@@ -56,38 +119,12 @@
 %define pki_gid 17
 %define pki_homedir /usr/share/pki
 
-# Optionally fetch the release from the environment variable 'PKI_RELEASE'
-%define use_pki_release %{getenv:USE_PKI_RELEASE}
-%if 0%{?use_pki_release}
-%define pki_release %{getenv:PKI_RELEASE}
-%endif
+################################################################################
+# Build Dependencies
+################################################################################
 
-Name:             pki-core
-%if 0%{?rhel}
-Version:                10.5.9
-%define redhat_release  13
-%define redhat_stage    0
-%define default_release %{redhat_release}.%{redhat_stage}
-#%define default_release %{redhat_release}
-%else
-Version:                10.5.14
-%define fedora_release  2
-%define fedora_stage    0
-%define default_release %{fedora_release}.%{fedora_stage}
-%endif
-
-%if 0%{?use_pki_release}
-Release:          %{pki_release}%{?dist}
-%else
-Release:          %{default_release}%{?dist}
-%endif
-
-Summary:          Certificate System - PKI Core Components
-URL:              http://pki.fedoraproject.org/
-License:          GPLv2
-Group:            System Environment/Daemons
-
-BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+# autosetup
+BuildRequires:    git
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    gcc-c++
@@ -197,24 +234,6 @@ BuildRequires:    systemd
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
-%if 0%{?rhel}
-# NOTE:  In the future, as a part of its path, this URL will contain a release
-#        directory which consists of the fixed number of the upstream release
-#        upon which this tarball was originally based.
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/rhel/%{name}-%{version}%{?prerel}.tar.gz
-%else
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
-%endif
-
-#Patch0:           pki-core-CA-OCSP-SystemCertsVerification.patch
-
-# Obtain version phase number (e. g. - used by "alpha", "beta", etc.)
-#
-#     NOTE:  For "alpha" releases, will be ".a1", ".a2", etc.
-#            For "beta" releases, will be ".b1", ".b2", etc.
-#
-%define version_phase "%(echo `echo %{version} | awk -F. '{ print $4 }'`)"
-
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
      . %{_sysconfdir}/selinux/config; \
@@ -299,10 +318,11 @@ least one PKI Theme package:                                           \
 
 %description %{overview}
 
-
+################################################################################
 %package -n       pki-symkey
+################################################################################
+
 Summary:          Symmetric Key JNI Package
-Group:            System Environment/Libraries
 
 Requires:         java-1.8.0-openjdk-headless
 Requires:         jpackage-utils >= 0:1.7.5-10
@@ -342,11 +362,11 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
 
-
+################################################################################
 %package -n       pki-base
-Summary:          Certificate System - PKI Framework
-Group:            System Environment/Base
+################################################################################
 
+Summary:          Certificate System - PKI Framework
 BuildArch:        noarch
 
 Provides:         pki-common = %{version}-%{release}
@@ -371,9 +391,11 @@ Certificate System.
 
 %{overview}
 
+################################################################################
 %package -n       pki-base-java
+################################################################################
+
 Summary:          Certificate System - Java Framework
-Group:            System Environment/Base
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
@@ -430,11 +452,11 @@ This package is a part of the PKI Core used by the Certificate System.
 %{overview}
 
 %if 0%{?with_python3}
-
+################################################################################
 %package -n       pki-base-python3
-Summary:          Certificate System - PKI Framework
-Group:            System Environment/Base
+################################################################################
 
+Summary:          Certificate System - PKI Framework
 BuildArch:        noarch
 
 Requires:         pki-base = %{version}-%{release}
@@ -454,9 +476,11 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %endif  # with_python3 for python3-pki
 
+################################################################################
 %package -n       pki-tools
+################################################################################
+
 Summary:          Certificate System - PKI Tools
-Group:            System Environment/Base
 
 Provides:         pki-native-tools = %{version}-%{release}
 Provides:         pki-java-tools = %{version}-%{release}
@@ -482,13 +506,12 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %{overview}
 
-
 %if %{with server}
-
+################################################################################
 %package -n       pki-server
-Summary:          Certificate System - PKI Server Framework
-Group:            System Environment/Base
+################################################################################
 
+Summary:          Certificate System - PKI Server Framework
 BuildArch:        noarch
 
 Provides:         pki-deploy = %{version}-%{release}
@@ -582,10 +605,11 @@ The package contains scripts to create and remove PKI subsystems.
 
 %{overview}
 
+################################################################################
 %package -n       pki-ca
-Summary:          Certificate System - Certificate Authority
-Group:            System Environment/Daemons
+################################################################################
 
+Summary:          Certificate System - Certificate Authority
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
@@ -608,11 +632,11 @@ provided by the PKI Core used by the Certificate System.
 
 %{overview}
 
-
+################################################################################
 %package -n       pki-kra
-Summary:          Certificate System - Key Recovery Authority
-Group:            System Environment/Daemons
+################################################################################
 
+Summary:          Certificate System - Key Recovery Authority
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
@@ -641,11 +665,11 @@ provided by the PKI Core used by the Certificate System.
 
 %{overview}
 
-
+################################################################################
 %package -n       pki-ocsp
-Summary:          Certificate System - Online Certificate Status Protocol Manager
-Group:            System Environment/Daemons
+################################################################################
 
+Summary:          Certificate System - Online Certificate Status Protocol Manager
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
@@ -685,11 +709,11 @@ provided by the PKI Core used by the Certificate System.
 
 %{overview}
 
-
+################################################################################
 %package -n       pki-tks
-Summary:          Certificate System - Token Key Service
-Group:            System Environment/Daemons
+################################################################################
 
+Summary:          Certificate System - Token Key Service
 BuildArch:        noarch
 
 Requires:         java-1.8.0-openjdk-headless
@@ -725,10 +749,11 @@ provided by the PKI Core used by the Certificate System.
 
 %{overview}
 
-
+################################################################################
 %package -n       pki-tps
+################################################################################
+
 Summary:          Certificate System - Token Processing Service
-Group:            System Environment/Daemons
 
 Provides:         pki-tps-tomcat
 Provides:         pki-tps-client
@@ -779,11 +804,11 @@ smart card.
 
 %{overview}
 
-
+################################################################################
 %package -n       pki-javadoc
-Summary:          Certificate System - PKI Framework Javadocs
-Group:            Documentation
+################################################################################
 
+Summary:          Certificate System - PKI Framework Javadocs
 BuildArch:        noarch
 
 Provides:         pki-util-javadoc = %{version}-%{release}
@@ -804,16 +829,18 @@ This package is a part of the PKI Core used by the Certificate System.
 
 %endif # %{with server}
 
-
+################################################################################
 %prep
+################################################################################
+
 %autosetup -n %{name}-%{version}%{?prerel} -p 1 -S git
 # With "autosetup" it's not necessary to specify the "patchX" macros.
 # See http://rpm.org/user_doc/autosetup.html.
 
-%clean
-%{__rm} -rf %{buildroot}
-
+################################################################################
 %build
+################################################################################
+
 %{__mkdir_p} build
 cd build
 %cmake \
@@ -846,7 +873,9 @@ cd build
 %endif
 	..
 
+################################################################################
 %install
+################################################################################
 
 cd build
 
@@ -1014,12 +1043,12 @@ if (test("/etc/sysconfig/pki/ca") or
     test("/etc/sysconfig/pki/kra") or
     test("/etc/sysconfig/pki/ocsp") or
     test("/etc/sysconfig/pki/tks")) then
-   msg = "Unable to upgrade to Fedora 20.  There are Dogtag 9 instances\n" ..
+   msg = "Unable to upgrade to Fedora 20.  There are PKI 9 instances\n" ..
          "that will no longer work since they require Tomcat 6, and \n" ..
          "Tomcat 6 is no longer available in Fedora 20.\n\n" ..
          "Please follow these instructions to migrate the instances to \n" ..
-         "Dogtag 10:\n\n" ..
-         "http://pki.fedoraproject.org/wiki/Migrating_Dogtag_9_Instances_to_Dogtag_10"
+         "PKI 10:\n\n" ..
+         "https://www.dogtagpki.org/wiki/Migrating_PKI_9_Instances_to_PKI_10"
    error(msg)
 end
 %endif
@@ -1095,19 +1124,21 @@ fi
 
 %endif # %{with server}
 
-
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
+################################################################################
 %files -n pki-symkey
-%defattr(-,root,root,-)
+################################################################################
+
 %doc base/symkey/LICENSE
 %{_jnidir}/symkey.jar
 %{_libdir}/symkey/
 %endif
 
-
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
+################################################################################
 %files -n pki-base
-%defattr(-,root,root,-)
+################################################################################
+
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
 %doc %{_datadir}/doc/pki-base/html
@@ -1128,7 +1159,10 @@ fi
 %endif
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
+################################################################################
 %files -n pki-base-java
+################################################################################
+
 %{_datadir}/pki/examples/java/
 %{_datadir}/pki/lib/
 %dir %{_javadir}/pki
@@ -1139,8 +1173,10 @@ fi
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %if %{with_python3}
+################################################################################
 %files -n pki-base-python3
-%defattr(-,root,root,-)
+################################################################################
+
 %doc base/common/LICENSE
 %doc base/common/LICENSE.LESSER
 %exclude %{python3_sitelib}/pki/server
@@ -1149,8 +1185,10 @@ fi
 %endif
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
+################################################################################
 %files -n pki-tools
-%defattr(-,root,root,-)
+################################################################################
+
 %doc base/native-tools/LICENSE base/native-tools/doc/README
 %{_bindir}/pki
 %{_bindir}/p7tool
@@ -1217,10 +1255,11 @@ fi
 %endif
 
 %if %{with server}
-
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
+################################################################################
 %files -n pki-server
-%defattr(-,root,root,-)
+################################################################################
+
 %doc base/common/THIRD_PARTY_LICENSES
 %doc base/server/LICENSE
 %doc base/server/README
@@ -1266,10 +1305,11 @@ fi
 %{_datadir}/pki/server/
 %endif
 
-
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
+################################################################################
 %files -n pki-ca
-%defattr(-,root,root,-)
+################################################################################
+
 %doc base/ca/LICENSE
 %{_javadir}/pki/pki-ca.jar
 %dir %{_datadir}/pki/ca
@@ -1282,8 +1322,10 @@ fi
 %endif
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
+################################################################################
 %files -n pki-kra
-%defattr(-,root,root,-)
+################################################################################
+
 %doc base/kra/LICENSE
 %{_javadir}/pki/pki-kra.jar
 %dir %{_datadir}/pki/kra
@@ -1293,8 +1335,10 @@ fi
 %endif
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhcs_packages}
+################################################################################
 %files -n pki-ocsp
-%defattr(-,root,root,-)
+################################################################################
+
 %doc base/ocsp/LICENSE
 %{_javadir}/pki/pki-ocsp.jar
 %dir %{_datadir}/pki/ocsp
@@ -1304,8 +1348,10 @@ fi
 %endif
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhcs_packages}
+################################################################################
 %files -n pki-tks
-%defattr(-,root,root,-)
+################################################################################
+
 %doc base/tks/LICENSE
 %{_javadir}/pki/pki-tks.jar
 %dir %{_datadir}/pki/tks
@@ -1315,8 +1361,10 @@ fi
 %endif
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhcs_packages}
+################################################################################
 %files -n pki-tps
-%defattr(-,root,root,-)
+################################################################################
+
 %doc base/tps/LICENSE
 %{_javadir}/pki/pki-tps.jar
 %dir %{_datadir}/pki/tps
@@ -1336,14 +1384,17 @@ fi
 
 %if 0%{?package_fedora_packages} || 0%{?package_rhel_packages}
 %if %{with javadoc}
+################################################################################
 %files -n pki-javadoc
-%defattr(-,root,root,-)
+################################################################################
+
 %{_javadocdir}/pki-%{version}/
 %endif
 %endif
 
 %endif # %{with server}
 
+################################################################################
 %changelog
 * Mon Oct 29 2018 Dogtag Team <pki-devel@redhat.com> 10.5.13-1
 - Require "tomcatjss >= 7.2.4-4" as a build and runtime requirement
