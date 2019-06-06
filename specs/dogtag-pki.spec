@@ -13,13 +13,13 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 %if 0%{?rhel}
-Version:                10.5.9
+Version:                10.5.17
 %define redhat_release  1
 %define redhat_stage    0
 %define default_release %{redhat_release}.%{redhat_stage}
 #%define default_release %{redhat_release}
 %else
-Version:                10.5.14
+Version:                10.5.17
 %define fedora_release  1
 %define fedora_stage    0
 %define default_release %{fedora_release}.%{fedora_stage}
@@ -46,10 +46,10 @@ BuildArch:        noarch
 %endif
 # NOTE:  The following package versions are TLS compliant:
 %if 0%{?rhel}
-%define pki_core_rhel_version      10.5.9
-%define pki_core_rhcs_version      10.5.9
+%define pki_core_rhel_version      10.5.17
+%define pki_core_rhcs_version      10.5.17
 %else
-%define pki_core_fedora_version    10.5.14
+%define pki_core_fedora_version    10.5.17
 %define pki_core_version           %{pki_core_fedora_version}
 %endif
 %define pki_console_version        %{version}

@@ -67,7 +67,7 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %global package_rhel_packages 1
 # Package RHCS-specific RPMS Only
 %global package_rhcs_packages 1
-%define pki_core_rhel_version 10.5.9
+%define pki_core_rhel_version 10.5.17
 %else
 # Fedora always packages all RPMS
 %global package_fedora_packages 1
