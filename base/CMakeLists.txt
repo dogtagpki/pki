@@ -205,9 +205,13 @@ find_file(XERCES_JAR
 )
 
 # The order is important!
+if (APPLICATION_FLAVOR_PKI_CORE OR
+    APPLICATION_FLAVOR_PKI_CONSOLE)
+    add_subdirectory(test)
+endif ()
+
 if (APPLICATION_FLAVOR_PKI_CORE)
 
-    add_subdirectory(test)
     add_subdirectory(symkey)
     add_subdirectory(util)
     add_subdirectory(common)
@@ -245,6 +249,5 @@ if (APPLICATION_FLAVOR_PKI_CORE)
 endif (APPLICATION_FLAVOR_PKI_CORE)
 
 if (APPLICATION_FLAVOR_PKI_CONSOLE)
-    add_subdirectory(test)
     add_subdirectory(console)
 endif (APPLICATION_FLAVOR_PKI_CONSOLE)

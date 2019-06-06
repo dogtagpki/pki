@@ -2,11 +2,12 @@
 Name:             pki
 ################################################################################
 #
-#  This spec file has been copied from pki-core.spec in order to support
-#  COPR autobuild. When modifying the spec files please synchronize them
-#  with the following command:
+#  This spec file is a combination of pki-core.spec and pki-console.spec
+#  for supporting COPR autobuild. When modifying the spec file please
+#  synchronize the changes with the following command:
 #
 #    $ meld pki.spec specs/pki-core.spec
+#    $ meld pki.spec specs/pki-console.spec
 #
 ################################################################################
 
@@ -820,6 +821,35 @@ This package is a part of the PKI Core used by the Certificate System.
 %endif # %{with server}
 
 ################################################################################
+%package -n       pki-console
+################################################################################
+
+Summary:          Certificate System - PKI Console
+BuildArch:        noarch
+
+BuildRequires:    idm-console-framework >= 1.1.17-4
+
+Requires:         idm-console-framework >= 1.1.17-4
+Requires:         java-1.8.0-openjdk
+Requires:         ldapjdk >= 4.19-5
+Requires:         pki-base-java >= %{version}
+Requires:         pki-console-theme >= %{version}
+Requires:         jpackage-utils >= 1.7.5-10
+Requires:         jss >= 4.4.4-3
+
+%description -n   pki-console
+Certificate System (CS) is an enterprise software system designed
+to manage enterprise Public Key Infrastructure (PKI) deployments.
+
+The PKI Console is a java application used to administer CS.
+
+For deployment purposes, a PKI Console requires ONE AND ONLY ONE of the
+following "Mutually-Exclusive" PKI Theme packages:
+
+  * dogtag-pki-console-theme (Dogtag Certificate System deployments)
+  * redhat-pki-console-theme (Red Hat Certificate System deployments)
+
+################################################################################
 %prep
 ################################################################################
 
@@ -838,6 +868,7 @@ cd build
     -DVERSION=%{version}-%{release} \
     -DVAR_INSTALL_DIR:PATH=/var \
     -DBUILD_PKI_CORE:BOOL=ON \
+    -DBUILD_PKI_CONSOLE:BOOL=ON \
     -DJAVA_HOME=%{java_home} \
     -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
     -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
@@ -1395,6 +1426,14 @@ fi
 %endif
 
 %endif # %{with server}
+
+################################################################################
+%files -n pki-console
+################################################################################
+
+%doc base/console/LICENSE
+%{_bindir}/pkiconsole
+%{_javadir}/pki/pki-console.jar
 
 ################################################################################
 %changelog
