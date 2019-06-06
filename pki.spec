@@ -13,8 +13,8 @@ Name:             pki
 %global           vendor dogtag
 %global           brand Dogtag
 
-Summary:          %{brand} Certificate System
-URL:              http://www.dogtagpki.org/
+Summary:          Certificate System
+URL:              https://www.dogtagpki.org/
 License:          GPLv2
 
 Version:          10.5.17
@@ -53,7 +53,7 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 %global package_rhel_packages 1
 # Package RHCS-specific RPMS Only
 %global package_rhcs_packages 1
-%define pki_core_rhel_version 10.5.9
+%define pki_core_rhel_version 10.5.17
 %else
 # Fedora always packages all RPMS
 %global package_fedora_packages 1
@@ -63,7 +63,7 @@ Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{ver
 # Java
 ################################################################################
 
-%define java_home /usr/lib/jvm/jre-1.8.0-openjdk
+%define java_home %{_usr}/lib/jvm/jre-1.8.0-openjdk
 
 # Tomcat
 %if 0%{?fedora} || 0%{?rhel} > 7
@@ -124,7 +124,9 @@ BuildRequires:    apache-commons-io
 BuildRequires:    apache-commons-lang
 BuildRequires:    jakarta-commons-httpclient
 BuildRequires:    slf4j
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no slf4j-jdk14
+%else
 BuildRequires:    slf4j-jdk14
 %endif
 BuildRequires:    nspr-devel
@@ -198,15 +200,15 @@ BuildRequires:    tomcatjss >= 7.2.4-4
 BuildRequires:    systemd-units
 
 %if 0%{?with_python3}
-BuildRequires:  python3-cryptography
-BuildRequires:  python3-devel
-BuildRequires:  python3-lxml
-BuildRequires:  python3-nss
-BuildRequires:  python3-pyldap
-BuildRequires:  python3-requests >= 2.6.0
-BuildRequires:  python3-six
+BuildRequires:    python3-cryptography
+BuildRequires:    python3-devel
+BuildRequires:    python3-lxml
+BuildRequires:    python3-nss
+BuildRequires:    python3-pyldap
+BuildRequires:    python3-requests >= 2.6.0
+BuildRequires:    python3-six
 %endif  # with_python3
-BuildRequires:  python-devel
+BuildRequires:    python-devel
 
 # additional build requirements needed to build native 'tpsclient'
 # REMINDER:  Revisit these once 'tpsclient' is rewritten as a Java app
@@ -392,7 +394,9 @@ Requires:         apache-commons-lang
 Requires:         apache-commons-logging
 Requires:         jakarta-commons-httpclient
 Requires:         slf4j
-%if 0%{?fedora} || 0%{?rhel} > 7
+%if 0%{?rhel} && 0%{?rhel} <= 7
+# no slf4j-jdk14
+%else
 Requires:         slf4j-jdk14
 %endif
 Requires:         javassist
@@ -409,18 +413,18 @@ Requires:         pki-base = %{version}-%{release}
 # 'resteasy-base' is a subset of the complete set of
 # 'resteasy' packages and consists of what is needed to
 # support the PKI Restful interface on certain RHEL platforms
-Requires:    resteasy-base-atom-provider >= 3.0.6-1
-Requires:    resteasy-base-client >= 3.0.6-1
-Requires:    resteasy-base-jaxb-provider >= 3.0.6-1
-Requires:    resteasy-base-jaxrs >= 3.0.6-1
-Requires:    resteasy-base-jaxrs-api >= 3.0.6-1
-Requires:    resteasy-base-jackson-provider >= 3.0.6-1
+Requires:         resteasy-base-atom-provider >= 3.0.6-1
+Requires:         resteasy-base-client >= 3.0.6-1
+Requires:         resteasy-base-jaxb-provider >= 3.0.6-1
+Requires:         resteasy-base-jaxrs >= 3.0.6-1
+Requires:         resteasy-base-jaxrs-api >= 3.0.6-1
+Requires:         resteasy-base-jackson-provider >= 3.0.6-1
 %else
-Requires:    resteasy-atom-provider >= 3.0.17-1
-Requires:    resteasy-client >= 3.0.17-1
-Requires:    resteasy-jaxb-provider >= 3.0.17-1
-Requires:    resteasy-core >= 3.0.17-1
-Requires:    resteasy-jackson-provider >= 3.0.17-1
+Requires:         resteasy-atom-provider >= 3.0.17-1
+Requires:         resteasy-client >= 3.0.17-1
+Requires:         resteasy-jaxb-provider >= 3.0.17-1
+Requires:         resteasy-core >= 3.0.17-1
+Requires:         resteasy-jackson-provider >= 3.0.17-1
 %endif
 
 Requires:         xalan-j2
@@ -832,32 +836,32 @@ cd build
 %cmake \
     --no-warn-unused-cli \
     -DVERSION=%{version}-%{release} \
-	-DVAR_INSTALL_DIR:PATH=/var \
-	-DBUILD_PKI_CORE:BOOL=ON \
-	-DJAVA_HOME=%{java_home} \
-	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
-	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
+    -DVAR_INSTALL_DIR:PATH=/var \
+    -DBUILD_PKI_CORE:BOOL=ON \
+    -DJAVA_HOME=%{java_home} \
+    -DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
+    -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
 %if %{version_phase}
-	-DAPPLICATION_VERSION_PHASE="%{version_phase}" \
+    -DAPPLICATION_VERSION_PHASE="%{version_phase}" \
 %endif
 %if ! %{with_tomcat7}
-	-DWITH_TOMCAT7:BOOL=OFF \
+    -DWITH_TOMCAT7:BOOL=OFF \
 %endif
 %if ! %{with_tomcat8}
-	-DWITH_TOMCAT8:BOOL=OFF \
+    -DWITH_TOMCAT8:BOOL=OFF \
 %endif
-	-DJAXRS_API_JAR=%{jaxrs_api_jar} \
-	-DRESTEASY_LIB=%{resteasy_lib} \
+    -DJAXRS_API_JAR=%{jaxrs_api_jar} \
+    -DRESTEASY_LIB=%{resteasy_lib} \
 %if ! %{with server}
-	-DWITH_SERVER:BOOL=OFF \
+    -DWITH_SERVER:BOOL=OFF \
 %endif
 %if ! %{with server}
-	-DWITH_SERVER:BOOL=OFF \
+    -DWITH_SERVER:BOOL=OFF \
 %endif
 %if ! %{with javadoc}
-	-DWITH_JAVADOC:BOOL=OFF \
+    -DWITH_JAVADOC:BOOL=OFF \
 %endif
-	..
+    ..
 
 ################################################################################
 %install
@@ -977,8 +981,14 @@ fi
 
 %endif
 
-%if 0%{?fedora} || 0%{?rhel} > 7
-# Scanning the python code with pylint.
+%if 0%{?rhel}
+# no pylint
+%else
+
+################################################################################
+echo "Scanning Python code with pylint"
+################################################################################
+
 %{__python2} ../pylint-build-scan.py rpm --prefix %{buildroot}
 if [ $? -ne 0 ]; then
     echo "pylint failed. RC: $?"
@@ -990,6 +1000,10 @@ if [ $? -ne 0 ]; then
     echo "pylint --py3k failed. RC: $?"
     exit 1
 fi
+
+################################################################################
+echo "Scanning Python code with flake8"
+################################################################################
 
 flake8 --config ../tox.ini %{buildroot}
 if [ $? -ne 0 ]; then
@@ -1361,8 +1375,10 @@ fi
 %{_mandir}/man5/pki-tps-connector.5.gz
 %{_mandir}/man5/pki-tps-profile.5.gz
 %{_mandir}/man1/tpsclient.1.gz
+
 # files for native 'tpsclient'
 # REMINDER:  Remove this comment once 'tpsclient' is rewritten as a Java app
+
 %{_bindir}/tpsclient
 %{_libdir}/tps/libtps.so
 %{_libdir}/tps/libtokendb.so
