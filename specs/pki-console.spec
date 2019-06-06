@@ -1,10 +1,22 @@
+################################################################################
+Name:             pki-console
+################################################################################
+
+%global           vendor dogtag
+%global           brand Dogtag
+
+Summary:          Certificate System - PKI Console
+URL:              https://www.dogtagpki.org/
+License:          GPLv2
+
+BuildArch:        noarch
+
 # Optionally fetch the release from the environment variable 'PKI_RELEASE'
 %define use_pki_release %{getenv:USE_PKI_RELEASE}
 %if 0%{?use_pki_release}
 %define pki_release %{getenv:PKI_RELEASE}
 %endif
 
-Name:             pki-console
 %if 0%{?rhel}
 Version:                10.5.17
 %define redhat_release  1
@@ -24,12 +36,19 @@ Release:          %{pki_release}%{?dist}
 Release:          %{default_release}%{?dist}
 %endif
 
-Summary:          Certificate System - PKI Console
-URL:              http://pki.fedoraproject.org/
-License:          GPLv2
-Group:            System Environment/Base
+%if 0%{?rhel}
+# NOTE:  In the future, as a part of its path, this URL will contain a release
+#        directory which consists of the fixed number of the upstream release
+#        upon which this tarball was originally based.
+Source:           https://www.dogtagpki.org/pki/sources/%{name}/%{version}/%{release}/rhel/%{name}-%{version}%{?prerel}.tar.gz
+%else
+Source:           https://github.com/dogtagpki/pki/archive/v%{version}/pki-%{version}.tar.gz
+%endif
 
+################################################################################
 # RESTEasy
+################################################################################
+
 %if 0%{?rhel} && 0%{?rhel} <= 7
 %define jaxrs_api_jar /usr/share/java/resteasy-base/jaxrs-api.jar
 %define resteasy_lib /usr/share/java/resteasy-base
@@ -37,6 +56,10 @@ Group:            System Environment/Base
 %define jaxrs_api_jar /usr/share/java/jboss-jaxrs-2.0-api.jar
 %define resteasy_lib /usr/share/java/resteasy
 %endif
+
+################################################################################
+# PKI
+################################################################################
 
 %bcond_without    javadoc
 
@@ -48,9 +71,12 @@ Group:            System Environment/Base
 %define pki_core_version           %{pki_core_fedora_version}
 %endif
 
-BuildArch:        noarch
+################################################################################
+# Build Dependencies
+################################################################################
 
-BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+# autosetup
+BuildRequires:    git
 
 BuildRequires:    cmake >= 2.8.9-1
 BuildRequires:    idm-console-framework >= 1.1.17-4
@@ -71,15 +97,6 @@ Requires:         pki-console-theme >= %{version}
 Requires:         jpackage-utils >= 1.7.5-10
 Requires:         jss >= 4.4.4-3
 
-%if 0%{?rhel}
-# NOTE:  In the future, as a part of its path, this URL will contain a release
-#        directory which consists of the fixed number of the upstream release
-#        upon which this tarball was originally based.
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/rhel/%{name}-%{version}%{?prerel}.tar.gz
-%else
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{version}/%{release}/%{name}-%{version}%{?prerel}.tar.gz
-%endif
-
 %description
 Certificate System (CS) is an enterprise software system designed
 to manage enterprise Public Key Infrastructure (PKI) deployments.
@@ -92,18 +109,18 @@ following "Mutually-Exclusive" PKI Theme packages:
   * dogtag-pki-console-theme (Dogtag Certificate System deployments)
   * redhat-pki-console-theme (Red Hat Certificate System deployments)
 
-
+################################################################################
 %prep
+################################################################################
 
+%autosetup -n %{name}-%{version}%{?prerel} -p 1 -S git
+# With "autosetup" it's not necessary to specify the "patchX" macros.
+# See http://rpm.org/user_doc/autosetup.html.
 
-%setup -q -n %{name}-%{version}%{?prerel}
-
-
-%clean
-%{__rm} -rf %{buildroot}
-
-
+################################################################################
 %build
+################################################################################
+
 %{__mkdir_p} build
 cd build
 %cmake -DVERSION=%{version}-%{release} \
@@ -118,20 +135,23 @@ cd build
     ..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
-
+################################################################################
 %install
-%{__rm} -rf %{buildroot}
+################################################################################
+
 cd build
 %{__make} install DESTDIR=%{buildroot} INSTALL="install -p"
 
 
+################################################################################
 %files
-%defattr(-,root,root,-)
+################################################################################
+
 %doc base/console/LICENSE
 %{_bindir}/pkiconsole
-%{_javadir}/pki/
+%{_javadir}/pki/pki-console.jar
 
-
+################################################################################
 %changelog
 * Tue Oct 16 2018 Dogtag Team <pki-devel@redhat.com> 10.5.9-1
 - Re-base Dogtag to 10.5.9
