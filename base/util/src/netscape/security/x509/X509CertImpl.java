@@ -183,7 +183,7 @@ public class X509CertImpl extends X509Certificate
             parse(in);
             signedCert = certData;
         } catch (IOException e) {
-            throw new CertificateException("Unable to initialize, " + e);
+            throw new CertificateException("Unable to parse certificate data: " + e.getMessage(), e);
         }
     }
 
@@ -201,7 +201,7 @@ public class X509CertImpl extends X509Certificate
             parse(val);
             signedCert = val.toByteArray();
         } catch (IOException e) {
-            throw new CertificateException("Unable to initialize, " + e);
+            throw new CertificateException("Unable to parse certificate data: " + e.getMessage(), e);
         }
     }
 
@@ -230,7 +230,7 @@ public class X509CertImpl extends X509Certificate
             parse(derVal);
             signedCert = derVal.toByteArray();
         } catch (IOException e) {
-            throw new CertificateException("Unable to initialize, " + e);
+            throw new CertificateException("Unable to parse certificate data: " + e.getMessage(), e);
         }
     }
 
@@ -264,11 +264,11 @@ public class X509CertImpl extends X509Certificate
             throws CertificateEncodingException {
         if (signedCert == null)
             throw new CertificateEncodingException(
-                          "Null certificate to encode");
+                          "Missing certificate to encode");
         try {
             out.write(signedCert);
         } catch (IOException e) {
-            throw new CertificateEncodingException(e.toString());
+            throw new CertificateEncodingException("Unable to encode certificate: " + e.getMessage(), e);
         }
     }
 
@@ -283,7 +283,7 @@ public class X509CertImpl extends X509Certificate
      */
     public void derEncode(OutputStream out) throws IOException {
         if (signedCert == null)
-            throw new IOException("Null certificate to encode");
+            throw new IOException("Missing certificate to encode");
 
         out.write(signedCert);
     }
@@ -299,7 +299,7 @@ public class X509CertImpl extends X509Certificate
     public byte[] getEncoded() throws CertificateEncodingException {
         if (signedCert == null)
             throw new CertificateEncodingException(
-                          "Null certificate to encode");
+                          "Missing certificate to encode");
         byte[] dup = new byte[signedCert.length];
         System.arraycopy(signedCert, 0, dup, 0, dup.length);
         return dup;
@@ -347,7 +347,7 @@ public class X509CertImpl extends X509Certificate
             throws CertificateException, NoSuchAlgorithmException,
             InvalidKeyException, NoSuchProviderException, SignatureException {
         if (signedCert == null) {
-            throw new CertificateEncodingException("Uninitialized certificate");
+            throw new CertificateEncodingException("Missing certificate");
         }
         // Verify the signature ...
         Signature sigVerf = null;
@@ -359,7 +359,7 @@ public class X509CertImpl extends X509Certificate
         sigVerf.update(rawCert, 0, rawCert.length);
 
         if (!sigVerf.verify(signature)) {
-            throw new SignatureException("Signature does not match.");
+            throw new SignatureException("Signature does not match");
         }
     }
 
@@ -408,7 +408,7 @@ public class X509CertImpl extends X509Certificate
         try (DerOutputStream out = new DerOutputStream()){
             if (readOnly)
                 throw new CertificateEncodingException(
-                              "cannot over-write existing certificate");
+                              "Cannot overwrite existing certificate");
             Signature sigEngine = null;
             if (provider == null)
                 sigEngine = Signature.getInstance(algorithm);
@@ -440,7 +440,7 @@ public class X509CertImpl extends X509Certificate
             readOnly = true;
 
         } catch (IOException e) {
-            throw new CertificateEncodingException(e.toString());
+            throw new CertificateEncodingException("Unable to sign certificate: " + e.getMessage(), e);
         }
     }
 
@@ -478,7 +478,7 @@ public class X509CertImpl extends X509Certificate
         try {
             interval = (CertificateValidity) info.get(CertificateValidity.NAME);
         } catch (Exception e) {
-            throw new CertificateNotYetValidException("Incorrect validity period");
+            throw new CertificateNotYetValidException("Incorrect validity period: " + e.getMessage());
         }
         if (interval == null)
             throw new CertificateNotYetValidException("Null validity period");
@@ -508,9 +508,9 @@ public class X509CertImpl extends X509Certificate
                 try {
                     return info.get(attr.getSuffix());
                 } catch (IOException e) {
-                    throw new CertificateParsingException(e.toString());
+                    throw new CertificateParsingException("Unable to get certificate attribute: " + e.getMessage(), e);
                 } catch (CertificateException e) {
-                    throw new CertificateParsingException(e.toString());
+                    throw new CertificateParsingException("Unable to get certificate attribute: " + e.getMessage(), e);
                 }
             } else {
                 return (info);
@@ -539,8 +539,7 @@ public class X509CertImpl extends X509Certificate
             throws CertificateException, IOException {
         // check if immutable
         if (readOnly)
-            throw new CertificateException("cannot over-write existing"
-                                           + " certificate");
+            throw new CertificateException("Cannot overwrite existing certificate");
 
         X509AttributeName attr = new X509AttributeName(name);
         String id = attr.getPrefix();
@@ -580,8 +579,7 @@ public class X509CertImpl extends X509Certificate
             throws CertificateException, IOException {
         // check if immutable
         if (readOnly)
-            throw new CertificateException("cannot over-write existing"
-                                           + " certificate");
+            throw new CertificateException("Cannot overwrite existing certificate");
 
         X509AttributeName attr = new X509AttributeName(name);
         String id = attr.getPrefix();
@@ -1121,8 +1119,7 @@ public class X509CertImpl extends X509Certificate
     private void parse(DerValue val) throws CertificateException, IOException {
         // check if can over write the certificate
         if (readOnly)
-            throw new CertificateParsingException(
-                      "cannot over-write existing certificate");
+            throw new CertificateParsingException("Cannot overwrite existing certificate");
 
         readOnly = true;
         DerValue seq[] = new DerValue[3];
