@@ -3505,52 +3505,6 @@ public class Configurator {
         }
     }
 
-    public void exportTransportCert(URI secdomainURI, URI targetURI, String transportCert) throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
-
-        String name = "transportCert-" + cs.getString("machineName", "")
-                + "-" + cs.getString("service.securePort", "");
-        String sessionId = engine.getConfigSDSessionId();
-
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("name", name);
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionId);
-        content.putSingle("auth_hostname", secdomainURI.getHost());
-        content.putSingle("auth_port", secdomainURI.getPort() + "");
-        content.putSingle("certificate", transportCert);
-
-        String targetURL = "/tks/admin/tks/importTransportCert";
-
-        String response = post(
-                targetURI.getHost(),
-                targetURI.getPort(),
-                true,
-                targetURL,
-                content, null, null);
-
-        if (response == null || response.equals("")) {
-            logger.error("exportTransportCert: response is empty or null.");
-            throw new IOException("The server " + targetURI + " is not available");
-        } else {
-            ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-            XMLObject parser = new XMLObject(bis);
-
-            String status = parser.getValue("Status");
-            logger.debug("exportTransportCert: status=" + status);
-
-            if (status.equals(SUCCESS)) {
-                logger.debug("exportTransportCert: Successfully added transport cert to " + targetURI);
-            } else if (status.equals(AUTH_FAILURE)) {
-                throw new EAuthException(AUTH_FAILURE);
-            } else {
-                String error = parser.getValue("Error");
-                throw new IOException(error);
-            }
-        }
-    }
-
     public void removeOldDBUsers(String subjectDN) throws EBaseException, LDAPException {
 
         CMSEngine engine = CMS.getCMSEngine();

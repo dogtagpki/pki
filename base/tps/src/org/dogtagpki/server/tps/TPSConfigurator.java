@@ -18,6 +18,7 @@
 package org.dogtagpki.server.tps;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URI;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -27,6 +28,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.account.AccountClient;
+import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
@@ -167,6 +169,55 @@ public class TPSConfigurator extends Configurator {
         }
 
         return parser.getValue("TransportCert");
+    }
+
+    public void exportTransportCert(URI secdomainURI, URI targetURI, String transportCert) throws Exception {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        String sessionId = engine.getConfigSDSessionId();
+
+        String securePort = cs.getString("service.securePort", "");
+        String machineName = cs.getString("machineName", "");
+        String name = "transportCert-" + machineName + "-" + securePort;
+
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("name", name);
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", sessionId);
+        content.putSingle("auth_hostname", secdomainURI.getHost());
+        content.putSingle("auth_port", secdomainURI.getPort() + "");
+        content.putSingle("certificate", transportCert);
+
+        String targetURL = "/tks/admin/tks/importTransportCert";
+
+        String response = post(
+                targetURI.getHost(),
+                targetURI.getPort(),
+                true,
+                targetURL,
+                content, null, null);
+
+        if (response == null || response.equals("")) {
+            logger.error("TPSConfigurator: The server " + targetURI + " is not available");
+            throw new IOException("The server " + targetURI + " is not available");
+        }
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
+        XMLObject parser = new XMLObject(bis);
+
+        String status = parser.getValue("Status");
+        logger.debug("TPSConfigurator: status: " + status);
+
+        if (status.equals(AUTH_FAILURE)) {
+            throw new EAuthException(AUTH_FAILURE);
+        }
+
+        if (!status.equals(SUCCESS)) {
+            String error = parser.getValue("Error");
+            throw new IOException(error);
+        }
+
+        logger.debug("TPSConfigurator: Successfully added transport cert to " + targetURI);
     }
 
     public void getSharedSecret(String tksHost, int tksPort, boolean importKey) throws Exception {
