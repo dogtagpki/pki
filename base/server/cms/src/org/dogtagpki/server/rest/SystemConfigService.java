@@ -300,9 +300,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     @Override
-    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
+    public void setupSecurityDomain(ConfigurationRequest request) throws Exception {
 
-        logger.info("SystemConfigService: finalizing configuration");
+        logger.info("SystemConfigService: setting up security domain");
 
         try {
             validatePin(request.getPin());
@@ -311,7 +311,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            configurator.finalizeConfiguration(request);
+            configurator.setupSecurityDomain(
+                    request.getSecurityDomainType(),
+                    request.getSubordinateSecurityDomainName());
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
@@ -348,9 +350,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     @Override
-    public void setupSecurityDomain(ConfigurationRequest request) throws Exception {
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
-        logger.info("SystemConfigService: setting up security domain");
+        logger.info("SystemConfigService: finalizing configuration");
 
         try {
             validatePin(request.getPin());
@@ -359,30 +361,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            CMSEngine engine = CMS.getCMSEngine();
-            String securityDomainType = request.getSecurityDomainType();
-            if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-                logger.debug("Creating new security domain");
-                configurator.createSecurityDomain();
-            } else if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
-                logger.debug("Creating subordinate CA security domain");
-
-                // switch out security domain parameters from issuing CA security domain
-                // to subordinate CA hosted security domain
-                cs.putString("securitydomain.name", request.getSubordinateSecurityDomainName());
-                cs.putString("securitydomain.host", engine.getEENonSSLHost());
-                cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
-                cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
-                cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
-                cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
-                configurator.createSecurityDomain();
-            } else {
-                logger.debug("Updating existing security domain");
-                configurator.updateSecurityDomain();
-            }
-            cs.putString("service.securityDomainPort", engine.getAgentPort());
-            cs.putString("securitydomain.store", "ldap");
-            cs.commit(false);
+            configurator.finalizeConfiguration(request);
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());

@@ -3084,8 +3084,40 @@ public class Configurator {
         }
     }
 
-    public void createSecurityDomain() throws EBaseException, LDAPException, NumberFormatException, IOException,
-            SAXException, ParserConfigurationException {
+    public void setupSecurityDomain(String type, String name) throws Exception {
+
+        CMSEngine engine = CMS.getCMSEngine();
+
+        if (type.equals(ConfigurationRequest.NEW_DOMAIN)) {
+
+            logger.debug("Creating new security domain");
+            createSecurityDomain();
+
+        } else if (type.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
+
+            logger.debug("Creating subordinate CA security domain");
+
+            // switch out security domain parameters from issuing CA security domain
+            // to subordinate CA hosted security domain
+            cs.putString("securitydomain.name", name);
+            cs.putString("securitydomain.host", engine.getEENonSSLHost());
+            cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
+            cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
+            cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
+            cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
+            createSecurityDomain();
+
+        } else {
+            logger.debug("Updating existing security domain");
+            updateSecurityDomain();
+        }
+
+        cs.putString("service.securityDomainPort", engine.getAgentPort());
+        cs.putString("securitydomain.store", "ldap");
+        cs.commit(false);
+    }
+
+    public void createSecurityDomain() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
 
