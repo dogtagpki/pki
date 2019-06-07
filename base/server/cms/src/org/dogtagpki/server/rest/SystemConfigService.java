@@ -271,7 +271,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             AdminSetupResponse response = new AdminSetupResponse();
 
-            createAdminUser(request);
+            configurator.createAdminUser(request);
 
             X509CertImpl cert = configurator.createAdminCertificate(request);
             updateAdminUserCert(request, cert);
@@ -722,15 +722,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.error("Configuration failed: " + e.getMessage(), e);
             throw e;
         }
-    }
-
-    public void createAdminUser(AdminSetupRequest request) throws Exception {
-
-        configurator.createAdmin(request.getAdminUID(), request.getAdminEmail(),
-                request.getAdminName(), request.getAdminPassword());
-
-        CMSEngine engine = CMS.getCMSEngine();
-        engine.reinit(UGSubsystem.ID);
     }
 
     public void updateAdminUserCert(AdminSetupRequest request, X509CertImpl adminCert) throws Exception {

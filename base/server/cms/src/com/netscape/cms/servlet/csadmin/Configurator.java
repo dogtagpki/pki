@@ -3000,8 +3000,12 @@ public class Configurator {
         cs.putString("preop.admincert.pkcs7", CryptoUtil.normalizeCertStr(p7Str));
     }
 
-    public void createAdmin(String uid, String email, String name, String pwd) throws IOException,
-            EBaseException, LDAPException {
+    public void createAdminUser(AdminSetupRequest request) throws Exception {
+
+        String uid = request.getAdminUID();
+        String email = request.getAdminEmail();
+        String name = request.getAdminName();
+        String pwd = request.getAdminPassword();
 
         CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
@@ -3093,6 +3097,8 @@ public class Configurator {
                 system.modifyGroup(group);
             }
         }
+
+        engine.reinit(UGSubsystem.ID);
     }
 
     public String submitAdminCertRequest(String ca_hostname, int ca_port, String profileId,
