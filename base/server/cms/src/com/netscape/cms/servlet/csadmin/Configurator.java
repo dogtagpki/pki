@@ -132,6 +132,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
@@ -168,6 +169,9 @@ import netscape.ldap.LDAPSearchResults;
 public class Configurator {
 
     public final static Logger logger = LoggerFactory.getLogger(Configurator.class);
+
+    public static final String ECC_INTERNAL_ADMIN_CERT_PROFILE = "caECAdminCert";
+    public static final String RSA_INTERNAL_ADMIN_CERT_PROFILE = "caAdminCert";
 
     private static final String PCERT_PREFIX = "preop.cert.";
     public static String SUCCESS = "0";
@@ -2788,6 +2792,76 @@ public class Configurator {
             CryptoUtil.trustAuditSigningCert(cert);
 
         } // user certs will have u,u,u by default
+    }
+
+    public X509CertImpl createAdminCertificate(AdminSetupRequest request) throws Exception {
+
+        if (request.getImportAdminCert().equalsIgnoreCase("true")) {
+
+            String cert = request.getAdminCert();
+            logger.info("Configurator: Importing admin cert: " + cert);
+            // standalone admin cert is already stored into CS.cfg by configuration.py
+
+            String b64 = CryptoUtil.stripCertBrackets(cert.trim());
+            b64 = CryptoUtil.normalizeCertStr(b64);
+            byte[] b = CryptoUtil.base64Decode(b64);
+
+            return new X509CertImpl(b);
+        }
+
+        CMSEngine engine = CMS.getCMSEngine();
+        String adminSubjectDN = request.getAdminSubjectDN();
+        cs.putString("preop.cert.admin.dn", adminSubjectDN);
+
+        String csType = cs.getString("cs.type");
+
+        if (csType.equals("CA")) {
+
+            logger.info("Configurator: Generating admin cert");
+
+            createAdminCertificate(request.getAdminCertRequest(),
+                    request.getAdminCertRequestType(), adminSubjectDN);
+
+            String serialno = cs.getString("preop.admincert.serialno.0");
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+            ICertificateRepository repo = ca.getCertificateRepository();
+
+            return repo.getX509Certificate(new BigInteger(serialno, 16));
+        }
+
+        logger.info("Configurator: Requesting admin cert from CA");
+
+        String type = cs.getString("preop.ca.type", "");
+        String ca_hostname = "";
+        int ca_port = -1;
+
+        if (type.equals("sdca")) {
+            ca_hostname = cs.getString("preop.ca.hostname");
+            ca_port = cs.getInteger("preop.ca.httpsport");
+        } else {
+            ca_hostname = cs.getString("securitydomain.host", "");
+            ca_port = cs.getInteger("securitydomain.httpseeport");
+        }
+
+        String keyType = request.getAdminKeyType();
+        String profileID;
+
+        if ("ecc".equalsIgnoreCase(keyType)) {
+            profileID = ECC_INTERNAL_ADMIN_CERT_PROFILE;
+        } else { // rsa
+            profileID = RSA_INTERNAL_ADMIN_CERT_PROFILE;
+        }
+
+        logger.debug("Configurator: profile: " + profileID);
+
+        String b64 = submitAdminCertRequest(ca_hostname, ca_port,
+                profileID, request.getAdminCertRequestType(),
+                request.getAdminCertRequest(), adminSubjectDN);
+
+        b64 = CryptoUtil.stripCertBrackets(b64.trim());
+        byte[] b = CryptoUtil.base64Decode(b64);
+
+        return new X509CertImpl(b);
     }
 
     public void backupKeys(String pwd, String fname) throws Exception {

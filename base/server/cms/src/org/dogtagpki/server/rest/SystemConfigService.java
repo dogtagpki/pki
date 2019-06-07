@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.rest;
 
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyPair;
@@ -45,7 +44,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
@@ -75,9 +73,6 @@ import com.netscape.cmsutil.password.IPasswordStore;
 public class SystemConfigService extends PKIService implements SystemConfigResource {
 
     public final static Logger logger = LoggerFactory.getLogger(SystemConfigService.class);
-
-    public static final String ECC_INTERNAL_ADMIN_CERT_PROFILE = "caECAdminCert";
-    public static final String RSA_INTERNAL_ADMIN_CERT_PROFILE = "caAdminCert";
 
     public Configurator configurator;
 
@@ -278,7 +273,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             createAdminUser(request);
 
-            X509CertImpl cert = createAdminCert(request);
+            X509CertImpl cert = configurator.createAdminCertificate(request);
             updateAdminUserCert(request, cert);
 
             String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
@@ -727,74 +722,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.error("Configuration failed: " + e.getMessage(), e);
             throw e;
         }
-    }
-
-    public X509CertImpl createAdminCert(AdminSetupRequest data) throws Exception {
-
-        if (data.getImportAdminCert().equalsIgnoreCase("true")) {
-
-            String cert = data.getAdminCert();
-            logger.info("SystemConfigService: Importing admin cert: " + cert);
-            // standalone admin cert is already stored into CS.cfg by configuration.py
-
-            String b64 = CryptoUtil.stripCertBrackets(cert.trim());
-            b64 = CryptoUtil.normalizeCertStr(b64);
-            byte[] b = CryptoUtil.base64Decode(b64);
-
-            return new X509CertImpl(b);
-        }
-
-        CMSEngine engine = CMS.getCMSEngine();
-        String adminSubjectDN = data.getAdminSubjectDN();
-        cs.putString("preop.cert.admin.dn", adminSubjectDN);
-
-        if (csType.equals("CA")) {
-
-            logger.info("SystemConfigService: Generating admin cert");
-
-            configurator.createAdminCertificate(data.getAdminCertRequest(),
-                    data.getAdminCertRequestType(), adminSubjectDN);
-
-            String serialno = cs.getString("preop.admincert.serialno.0");
-            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
-            ICertificateRepository repo = ca.getCertificateRepository();
-
-            return repo.getX509Certificate(new BigInteger(serialno, 16));
-        }
-
-        logger.info("SystemConfigService: Requesting admin cert from CA");
-
-        String type = cs.getString("preop.ca.type", "");
-        String ca_hostname = "";
-        int ca_port = -1;
-
-        if (type.equals("sdca")) {
-            ca_hostname = cs.getString("preop.ca.hostname");
-            ca_port = cs.getInteger("preop.ca.httpsport");
-        } else {
-            ca_hostname = cs.getString("securitydomain.host", "");
-            ca_port = cs.getInteger("securitydomain.httpseeport");
-        }
-
-        String keyType = data.getAdminKeyType();
-        String profileID;
-
-        if ("ecc".equalsIgnoreCase(keyType)) {
-            profileID = ECC_INTERNAL_ADMIN_CERT_PROFILE;
-        } else { // rsa
-            profileID = RSA_INTERNAL_ADMIN_CERT_PROFILE;
-        }
-
-        logger.debug("SystemConfigService: profile: " + profileID);
-
-        String b64 = configurator.submitAdminCertRequest(ca_hostname, ca_port,
-                profileID, data.getAdminCertRequestType(),
-                data.getAdminCertRequest(), adminSubjectDN);
-
-        b64 = CryptoUtil.stripCertBrackets(b64.trim());
-        byte[] b = CryptoUtil.base64Decode(b64);
-
-        return new X509CertImpl(b);
     }
 
     public void createAdminUser(AdminSetupRequest request) throws Exception {
