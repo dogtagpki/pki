@@ -3376,40 +3376,6 @@ public class Configurator {
         return null;
     }
 
-    public String getTransportCert(URI secdomainURI, URI kraUri)
-            throws Exception {
-        logger.debug("getTransportCert() start");
-        CMSEngine engine = CMS.getCMSEngine();
-        String sessionId = engine.getConfigSDSessionId();
-
-        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
-        content.putSingle("xmlOutput", "true");
-        content.putSingle("sessionID", sessionId);
-        content.putSingle("auth_hostname", secdomainURI.getHost());
-        content.putSingle("auth_port", secdomainURI.getPort() + "");
-
-        String c = post(
-                kraUri.getHost(),
-                kraUri.getPort(),
-                true,
-                "/kra/admin/kra/getTransportCert",
-                content, null, null);
-
-        if (c != null) {
-            ByteArrayInputStream bis =
-                    new ByteArrayInputStream(c.getBytes());
-            XMLObject parser = new XMLObject(bis);
-            String status = parser.getValue("Status");
-            if (status.equals(SUCCESS)) {
-                String s = parser.getValue("TransportCert");
-                return s;
-            } else {
-                return null;
-            }
-        }
-        return null;
-    }
-
     public void getSharedSecret(String tksHost, int tksPort, boolean importKey) throws EPropertyNotFound,
             EBaseException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, NotInitializedException, TokenException, ObjectNotFoundException,

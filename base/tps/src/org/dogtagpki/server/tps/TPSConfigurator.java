@@ -17,12 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.tps;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
+
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmsutil.xml.XMLObject;
 
 public class TPSConfigurator extends Configurator {
 
@@ -39,7 +45,7 @@ public class TPSConfigurator extends Configurator {
         URI kraURI = request.getKraUri();
 
         try {
-            logger.info("TPSInstallerService: Registering TPS to CA: " + caURI);
+            logger.info("TPSConfigurator: Registering TPS to CA: " + caURI);
             registerUser(secdomainURI, caURI, "ca");
 
         } catch (Exception e) {
@@ -49,7 +55,7 @@ public class TPSConfigurator extends Configurator {
         }
 
         try {
-            logger.info("TPSInstallerService: Registering TPS to TKS: " + tksURI);
+            logger.info("TPSConfigurator: Registering TPS to TKS: " + tksURI);
             registerUser(secdomainURI, tksURI, "tks");
 
         } catch (Exception e) {
@@ -61,7 +67,7 @@ public class TPSConfigurator extends Configurator {
         if (request.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
 
             try {
-                logger.info("TPSInstallerService: Registering TPS to KRA: " + kraURI);
+                logger.info("TPSConfigurator: Registering TPS to KRA: " + kraURI);
                 registerUser(secdomainURI, kraURI, "kra");
 
             } catch (Exception e) {
@@ -72,7 +78,7 @@ public class TPSConfigurator extends Configurator {
 
             String transportCert;
             try {
-                logger.info("TPSInstallerService: Retrieving transport cert from KRA");
+                logger.info("TPSConfigurator: Retrieving transport cert from KRA");
                 transportCert = getTransportCert(secdomainURI, kraURI);
 
             } catch (Exception e) {
@@ -82,7 +88,7 @@ public class TPSConfigurator extends Configurator {
             }
 
             try {
-                logger.info("TPSInstallerService: Importing transport cert into TKS");
+                logger.info("TPSConfigurator: Importing transport cert into TKS");
                 exportTransportCert(secdomainURI, tksURI, transportCert);
 
             } catch (Exception e) {
@@ -94,14 +100,14 @@ public class TPSConfigurator extends Configurator {
 
         try {
             String doImportStr = request.getImportSharedSecret();
-            logger.debug("TPSInstallerService: importSharedSecret:" + doImportStr);
+            logger.debug("TPSConfigurator: importSharedSecret:" + doImportStr);
 
             boolean doImport = false;
             if ("true".equalsIgnoreCase(doImportStr)) {
                 doImport = true;
             }
 
-            logger.info("TPSInstallerService: Generating shared secret in TKS");
+            logger.info("TPSConfigurator: Generating shared secret in TKS");
             getSharedSecret(
                     tksURI.getHost(),
                     tksURI.getPort(),
@@ -114,5 +120,40 @@ public class TPSConfigurator extends Configurator {
         }
 
         super.finalizeConfiguration(request);
+    }
+
+    public String getTransportCert(URI secdomainURI, URI kraUri) throws Exception {
+
+        logger.debug("TPSConfigurator: getTransportCert() start");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        String sessionId = engine.getConfigSDSessionId();
+
+        MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
+        content.putSingle("xmlOutput", "true");
+        content.putSingle("sessionID", sessionId);
+        content.putSingle("auth_hostname", secdomainURI.getHost());
+        content.putSingle("auth_port", secdomainURI.getPort() + "");
+
+        String c = post(
+                kraUri.getHost(),
+                kraUri.getPort(),
+                true,
+                "/kra/admin/kra/getTransportCert",
+                content, null, null);
+
+        if (c == null) {
+            return null;
+        }
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        XMLObject parser = new XMLObject(bis);
+        String status = parser.getValue("Status");
+
+        if (!status.equals(SUCCESS)) {
+            return null;
+        }
+
+        return parser.getValue("TransportCert");
     }
 }
