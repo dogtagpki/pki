@@ -28,6 +28,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.URI;
+import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -235,6 +236,100 @@ public class Configurator {
         this.serverXml = serverXml;
     }
 
+    public String configureSecurityDomain(ConfigurationRequest request) throws Exception {
+
+        String domainXML = null;
+
+        String securityDomainType = request.getSecurityDomainType();
+        String securityDomainName = request.getSecurityDomainName();
+
+        if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
+            configureNewSecurityDomain(request, securityDomainName);
+
+        } else if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)){
+            logger.debug("Configuring new subordinate root CA");
+            configureNewSecurityDomain(request, request.getSubordinateSecurityDomainName());
+            String securityDomainURL = request.getSecurityDomainUri();
+            domainXML = logIntoSecurityDomain(request, securityDomainURL);
+
+        } else {
+            logger.debug("Joining existing security domain");
+            cs.putString("preop.securitydomain.select", "existing");
+            cs.putString("securitydomain.select", "existing");
+            cs.putString("preop.cert.subsystem.type", "remote");
+            cs.putString("preop.cert.subsystem.profile",
+                    request.getSystemCertProfileID("subsystem", "caInternalAuthSubsystemCert"));
+            String securityDomainURL = request.getSecurityDomainUri();
+            domainXML = logIntoSecurityDomain(request, securityDomainURL);
+        }
+
+        return domainXML;
+    }
+
+    private void configureNewSecurityDomain(ConfigurationRequest request, String securityDomainName) {
+
+        logger.debug("Creating new security domain");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        cs.putString("preop.securitydomain.select", "new");
+        cs.putString("securitydomain.select", "new");
+        cs.putString("preop.securitydomain.name", securityDomainName);
+        cs.putString("securitydomain.name", securityDomainName);
+        cs.putString("securitydomain.host", engine.getEENonSSLHost());
+        cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
+        cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
+        cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
+        cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
+
+        cs.putString("preop.cert.subsystem.type", "local");
+        cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
+    }
+
+    private String logIntoSecurityDomain(ConfigurationRequest request, String securityDomainURL) throws Exception {
+
+        URL secdomainURL;
+        String host;
+        int port;
+
+        try {
+            logger.debug("Resolving security domain URL " + securityDomainURL);
+            secdomainURL = new URL(securityDomainURL);
+            host = secdomainURL.getHost();
+            port = secdomainURL.getPort();
+            cs.putString("securitydomain.host", host);
+            cs.putInteger("securitydomain.httpsadminport",port);
+
+        } catch (Exception e) {
+            logger.error("Failed to resolve security domain URL: " + e.getMessage(), e);
+            throw new PKIException("Failed to resolve security domain URL: " + e, e);
+        }
+
+        if (!request.getSystemCertsImported()) {
+            logger.debug("Getting security domain cert chain");
+            String certchain = getCertChain(host, port, "/ca/admin/ca/getCertChain");
+            importCertChain(certchain, "securitydomain");
+        }
+
+        getInstallToken(request, host, port);
+
+        String domainXML = getDomainXML(host, port);
+
+        /* Sleep for a bit to allow security domain session to replicate
+         * to other clones.  In the future we can use signed tokens
+         * (ticket https://pagure.io/dogtagpki/issue/2831) but we need to
+         * be mindful of working with older versions, too.
+         *
+         * The default sleep time is 5s.
+         */
+        Long d = request.getSecurityDomainPostLoginSleepSeconds();
+        if (null == d || d <= 0)
+            d = new Long(5);
+        logger.debug("Logged into security domain; sleeping for " + d + "s");
+        Thread.sleep(d * 1000);
+
+        return domainXML;
+    }
+
     public String getCertChain(String host, int port, String serverPath)
             throws Exception {
 
@@ -310,6 +405,31 @@ public class Configurator {
 
         byte[] bytes = CryptoUtil.base64Decode(certchain);
         CryptoUtil.importCertificateChain(bytes);
+    }
+
+    private void getInstallToken(ConfigurationRequest request, String host, int port) {
+
+        logger.debug("Getting installation token from security domain");
+
+        String user = request.getSecurityDomainUser();
+        String pass = request.getSecurityDomainPassword();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        String installToken;
+
+        try {
+            installToken = getInstallToken(host, port, user, pass);
+        } catch (Exception e) {
+            logger.error("Unable to get installation token: " + e.getMessage(), e);
+            throw new PKIException("Unable to get installation token: " + e.getMessage(), e);
+        }
+
+        if (installToken == null) {
+            logger.error("Missing installation token");
+            throw new PKIException("Missing installation token");
+        }
+
+        engine.setConfigSDSessionId(installToken);
     }
 
     public String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
@@ -395,6 +515,19 @@ public class Configurator {
             }
         }
         return null;
+    }
+
+    private String getDomainXML(String host, int port) {
+        logger.debug("Getting domain XML");
+        String domainXML = null;
+        try {
+            domainXML = getDomainXML(host, port, true);
+            getSecurityDomainPorts(domainXML, host, port);
+        } catch (Exception e) {
+            logger.error("Failed to obtain security domain decriptor from security domain master: " + e.getMessage(), e);
+            throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e, e);
+        }
+        return domainXML;
     }
 
     public String getDomainXML(String hostname, int https_admin_port, boolean https)
@@ -2688,7 +2821,7 @@ public class Configurator {
 
         // loading cert profile
         String profileName = cs.getString(Configurator.PCERT_PREFIX + tag + ".profile");
-        logger.debug("SystemConfigService: profile: " + profileName);
+        logger.debug("Configurator: profile: " + profileName);
 
         String instanceRoot = cs.getString("instanceRoot");
         String configurationRoot = cs.getString("configurationRoot");
@@ -2714,7 +2847,7 @@ public class Configurator {
         queue.updateRequest(req);
 
         RequestId reqId = req.getRequestId();
-        logger.debug("SystemConfigService: request: " + reqId);
+        logger.debug("Configurator: request: " + reqId);
 
         cs.putString("preop.cert." + tag + ".reqId", reqId.toString());
 

@@ -146,7 +146,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // configure security domain
         logger.debug("=== Security Domain Configuration ===");
-        String domainXML = configureSecurityDomain(data);
+        String domainXML = configurator.configureSecurityDomain(data);
 
         // configure subsystem
         logger.debug("=== Subsystem Configuration ===");
@@ -957,129 +957,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         logger.debug("SystemConfigService: verify certificates");
         configurator.verifySystemCertificates();
-    }
-
-    public String configureSecurityDomain(ConfigurationRequest data) throws Exception {
-
-        String domainXML = null;
-
-        String securityDomainType = data.getSecurityDomainType();
-        String securityDomainName = data.getSecurityDomainName();
-
-        if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-            configureNewSecurityDomain(data, securityDomainName);
-        } else if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)){
-            logger.debug("Configuring new subordinate root CA");
-            configureNewSecurityDomain(data, data.getSubordinateSecurityDomainName());
-            String securityDomainURL = data.getSecurityDomainUri();
-            domainXML = logIntoSecurityDomain(data, securityDomainURL);
-        } else {
-            logger.debug("Joining existing security domain");
-            cs.putString("preop.securitydomain.select", "existing");
-            cs.putString("securitydomain.select", "existing");
-            cs.putString("preop.cert.subsystem.type", "remote");
-            cs.putString("preop.cert.subsystem.profile", data.getSystemCertProfileID("subsystem", "caInternalAuthSubsystemCert"));
-            String securityDomainURL = data.getSecurityDomainUri();
-            domainXML = logIntoSecurityDomain(data, securityDomainURL);
-        }
-        return domainXML;
-    }
-
-    private void configureNewSecurityDomain(ConfigurationRequest data, String securityDomainName) {
-        logger.debug("Creating new security domain");
-        CMSEngine engine = CMS.getCMSEngine();
-        cs.putString("preop.securitydomain.select", "new");
-        cs.putString("securitydomain.select", "new");
-        cs.putString("preop.securitydomain.name", securityDomainName);
-        cs.putString("securitydomain.name", securityDomainName);
-        cs.putString("securitydomain.host", engine.getEENonSSLHost());
-        cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
-        cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
-        cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
-        cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
-
-        cs.putString("preop.cert.subsystem.type", "local");
-        cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
-    }
-
-    private String logIntoSecurityDomain(ConfigurationRequest data, String securityDomainURL) throws Exception {
-        URL secdomainURL;
-        String host;
-        int port;
-        try {
-            logger.debug("Resolving security domain URL " + securityDomainURL);
-            secdomainURL = new URL(securityDomainURL);
-            host = secdomainURL.getHost();
-            port = secdomainURL.getPort();
-            cs.putString("securitydomain.host", host);
-            cs.putInteger("securitydomain.httpsadminport",port);
-        } catch (Exception e) {
-            logger.error("Failed to resolve security domain URL: " + e.getMessage(), e);
-            throw new PKIException("Failed to resolve security domain URL: " + e, e);
-        }
-
-        if (!data.getSystemCertsImported()) {
-            logger.debug("Getting security domain cert chain");
-            String certchain = configurator.getCertChain(host, port, "/ca/admin/ca/getCertChain");
-            configurator.importCertChain(certchain, "securitydomain");
-        }
-
-        getInstallToken(data, host, port);
-
-        String domainXML = getDomainXML(host, port);
-
-        /* Sleep for a bit to allow security domain session to replicate
-         * to other clones.  In the future we can use signed tokens
-         * (ticket https://pagure.io/dogtagpki/issue/2831) but we need to
-         * be mindful of working with older versions, too.
-         *
-         * The default sleep time is 5s.
-         */
-        Long d = data.getSecurityDomainPostLoginSleepSeconds();
-        if (null == d || d <= 0)
-            d = new Long(5);
-        logger.debug("Logged into security domain; sleeping for " + d + "s");
-        Thread.sleep(d * 1000);
-
-        return domainXML;
-    }
-
-    private String getDomainXML(String host, int port) {
-        logger.debug("Getting domain XML");
-        String domainXML = null;
-        try {
-            domainXML = configurator.getDomainXML(host, port, true);
-            configurator.getSecurityDomainPorts(domainXML, host, port);
-        } catch (Exception e) {
-            logger.error("Failed to obtain security domain decriptor from security domain master: " + e.getMessage(), e);
-            throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e, e);
-        }
-        return domainXML;
-    }
-
-    private void getInstallToken(ConfigurationRequest data, String host, int port) {
-
-        logger.debug("Getting installation token from security domain");
-
-        String user = data.getSecurityDomainUser();
-        String pass = data.getSecurityDomainPassword();
-
-        CMSEngine engine = CMS.getCMSEngine();
-        String installToken;
-
-        try {
-            installToken = configurator.getInstallToken(host, port, user, pass);
-        } catch (Exception e) {
-            logger.error("Unable to get installation token: " + e.getMessage(), e);
-            throw new PKIException("Unable to get installation token: " + e.getMessage(), e);
-        }
-
-        if (installToken == null) {
-            logger.error("Missing installation token");
-            throw new PKIException("Missing installation token");
-        }
-
-        engine.setConfigSDSessionId(installToken);
     }
 
     public void configureSubsystem(ConfigurationRequest request,
