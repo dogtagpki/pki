@@ -28,8 +28,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -123,14 +121,12 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.PKIConnection;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -139,8 +135,6 @@ import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
-import com.netscape.certsrv.system.TPSConnectorClient;
-import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
@@ -3374,88 +3368,6 @@ public class Configurator {
         }
 
         return null;
-    }
-
-    public void getSharedSecret(String tksHost, int tksPort, boolean importKey) throws EPropertyNotFound,
-            EBaseException, URISyntaxException, InvalidKeyException, NoSuchAlgorithmException,
-            InvalidAlgorithmParameterException, NotInitializedException, TokenException, ObjectNotFoundException,
-            IOException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-
-        String host = cs.getString("service.machineName");
-        String port = cs.getString("service.securePort");
-        String dbDir = cs.getString("instanceRoot") + "/alias";
-        String dbNick = cs.getString("tps.cert.subsystem.nickname");
-
-        String passwordFile = cs.getString("passwordFile");
-        IConfigStore psStore = engine.createFileConfigStore(passwordFile);
-        String dbPass = psStore.getString("internal");
-
-        ClientConfig config = new ClientConfig();
-        config.setServerURL("https://" + tksHost + ":" + tksPort);
-        config.setNSSDatabase(dbDir);
-        config.setNSSPassword(dbPass);
-        config.setCertNickname(dbNick);
-
-        PKIClient client = new PKIClient(config, null);
-
-        logger.debug("In Configurator.getSharedSecret! importKey: " + importKey);
-
-        // Ignore the "UNTRUSTED_ISSUER" and "CA_CERT_INVALID" validity status
-        // during PKI instance creation since we are using an untrusted temporary CA cert.
-        client.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER);
-        client.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID);
-
-        AccountClient accountClient = new AccountClient(client, "tks");
-        TPSConnectorClient tpsConnectorClient = new TPSConnectorClient(client, "tks");
-
-        accountClient.login();
-        TPSConnectorData data = null;
-        try {
-            data = tpsConnectorClient.getConnector(host, port);
-        } catch (ResourceNotFoundException e) {
-            // no connector exists
-            data = null;
-        }
-
-
-        // The connId or data.getID will be the id of the shared secret
-        KeyData keyData = null;
-        if (data == null) {
-            data = tpsConnectorClient.createConnector(host, port);
-            keyData = tpsConnectorClient.createSharedSecret(data.getID());
-        } else {
-            String connId = data.getID();
-            keyData = tpsConnectorClient.getSharedSecret(connId);
-            if (keyData != null) {
-                keyData = tpsConnectorClient.replaceSharedSecret(connId);
-            } else {
-                keyData = tpsConnectorClient.createSharedSecret(connId);
-            }
-        }
-        accountClient.logout();
-
-        String nick = "TPS-" + host + "-" + port + " sharedSecret";
-
-        if (importKey) {
-            logger.debug("getSharedSecret: About to attempt to import shared secret key.");
-            byte[] sessionKeyData = Utils.base64decode(keyData.getWrappedPrivateData());
-            byte[] sharedSecretData = Utils.base64decode(keyData.getAdditionalWrappedPrivateData());
-
-            try {
-                CryptoUtil.importSharedSecret(sessionKeyData, sharedSecretData, dbNick, nick);
-            } catch (Exception e) {
-                logger.warn("getSharedSecret()): WARNING, Failed to automatically import shared secret. Please follow the manual procedure." + e.toString());
-            }
-            // this is not needed if we are using a shared database with
-            // the tks.
-        }
-
-        // store the new nick in CS.cfg
-
-        cs.putString("conn.tks1.tksSharedSymKeyName", nick);
-        cs.commit(false);
     }
 
     public void setupDatabaseUser() throws Exception {
