@@ -41,13 +41,6 @@ public class ConfigurationRequest {
     public static final String EXISTING_DOMAIN = "existingdomain";
     public static final String NEW_SUBDOMAIN = "newsubdomain";
 
-    // Hard coded values for ECC and RSA internal cert profile names
-    public static final String ECC_INTERNAL_SERVER_CERT_PROFILE = "caECInternalAuthServerCert";
-    public static final String RSA_INTERNAL_SERVER_CERT_PROFILE = "caInternalAuthServerCert";
-
-    public static final String ECC_INTERNAL_SUBSYSTEM_CERT_PROFILE= "caECInternalAuthSubsystemCert";
-    public static final String RSA_INTERNAL_SUBSYSTEM_CERT_PROFILE= "caInternalAuthSubsystemCert";
-
     @XmlElement
     protected String pin;
 
@@ -403,34 +396,6 @@ public class ConfigurationRequest {
 
        return cert.getKeyType();
    }
-
-    public String getSystemCertProfileID(String tag, String defaultName) {
-        String profileName = defaultName;
-        String keyType = getSystemCertKeyType(tag);
-
-        System.out.println("getSystemCertProfileID tag: " + tag + " defaultName: " + defaultName + " keyType: " + keyType);
-        if (keyType == null)
-            return profileName;
-
-        // Hard code for now based on key type.  Method can be changed later to read pkispawn
-        // params sent over in the future.
-        if ("ecc".equalsIgnoreCase(keyType)) {
-            if ("sslserver".equalsIgnoreCase(tag)) {
-                profileName = ECC_INTERNAL_SERVER_CERT_PROFILE;
-            } else if ("subsystem".equalsIgnoreCase(tag)) {
-                profileName = ECC_INTERNAL_SUBSYSTEM_CERT_PROFILE;
-            }
-        } else if ("rsa".equalsIgnoreCase(keyType)) {
-            if ("sslserver".equalsIgnoreCase(tag)) {
-                profileName = RSA_INTERNAL_SERVER_CERT_PROFILE;
-            } else if ("subsystem".equalsIgnoreCase(tag)) {
-                profileName = RSA_INTERNAL_SUBSYSTEM_CERT_PROFILE;
-            }
-        }
-
-        System.out.println("getSystemCertProfileID: returning: " + profileName);
-        return profileName;
-    }
 
    /**
     *

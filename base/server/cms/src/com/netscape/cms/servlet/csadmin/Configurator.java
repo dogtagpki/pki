@@ -171,6 +171,13 @@ public class Configurator {
 
     public final static Logger logger = LoggerFactory.getLogger(Configurator.class);
 
+    // Hard coded values for ECC and RSA internal cert profile names
+    public static final String ECC_INTERNAL_SERVER_CERT_PROFILE = "caECInternalAuthServerCert";
+    public static final String RSA_INTERNAL_SERVER_CERT_PROFILE = "caInternalAuthServerCert";
+
+    public static final String ECC_INTERNAL_SUBSYSTEM_CERT_PROFILE = "caECInternalAuthSubsystemCert";
+    public static final String RSA_INTERNAL_SUBSYSTEM_CERT_PROFILE = "caInternalAuthSubsystemCert";
+
     public static final String ECC_INTERNAL_ADMIN_CERT_PROFILE = "caECAdminCert";
     public static final String RSA_INTERNAL_ADMIN_CERT_PROFILE = "caAdminCert";
 
@@ -257,8 +264,11 @@ public class Configurator {
             cs.putString("preop.securitydomain.select", "existing");
             cs.putString("securitydomain.select", "existing");
             cs.putString("preop.cert.subsystem.type", "remote");
+
+            String keyType = request.getSystemCertKeyType("subsystem");
             cs.putString("preop.cert.subsystem.profile",
-                    request.getSystemCertProfileID("subsystem", "caInternalAuthSubsystemCert"));
+                    getSystemCertProfileID(keyType, "subsystem", "caInternalAuthSubsystemCert"));
+
             String securityDomainURL = request.getSecurityDomainUri();
             domainXML = logIntoSecurityDomain(request, securityDomainURL);
         }
@@ -2249,8 +2259,9 @@ public class Configurator {
             cs.putString("preop.cert.signing.profile", "caInstallCACert");
             cs.putString("preop.cert.sslserver.type", "remote");
 
+            String keyType = request.getSystemCertKeyType("sslserver");
             cs.putString("preop.cert.sslserver.profile",
-                   request.getSystemCertProfileID("sslserver", "caInternalAuthServerCert"));
+                   getSystemCertProfileID(keyType, "sslserver", "caInternalAuthServerCert"));
 
             // store original caType
             original_caType = caType;
@@ -2353,9 +2364,12 @@ public class Configurator {
 
             MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
+
             logger.debug("configRemoteCert: subsystemCert: setting profileId to: " + profileId);
-            String actualProfileId = request.getSystemCertProfileID(certTag, profileId);
+            String keyType = request.getSystemCertKeyType(certTag);
+            String actualProfileId = getSystemCertProfileID(keyType, certTag, profileId);
             logger.debug("configRemoteCert: subsystemCert: calculated profileId: " + actualProfileId);
+
             content.putSingle("profileId", actualProfileId);
             content.putSingle("cert_request_type", "pkcs10");
             content.putSingle("cert_request", b64Request);
@@ -2401,9 +2415,11 @@ public class Configurator {
 
             MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
+
             //Get the correct profile id to send in case it's sslserver type:
             logger.debug("configRemoteCert: tag: " + certTag + " : setting profileId to: " + profileId);
-            String actualProfileId = request.getSystemCertProfileID(certTag, profileId);
+            String keyType = request.getSystemCertKeyType(certTag);
+            String actualProfileId = getSystemCertProfileID(keyType, certTag, profileId);
             logger.debug("configRemoteCert: tag: " + certTag + " calculated profileId: " + actualProfileId);
 
             content.putSingle("profileId", actualProfileId);
@@ -3976,5 +3992,35 @@ public class Configurator {
         }
 
         return list;
+    }
+
+    public String getSystemCertProfileID(String keyType, String tag, String defaultName) {
+
+        String profileName = defaultName;
+
+        logger.debug("Configurator: tag: " + tag + " defaultName: " + defaultName + " keyType: " + keyType);
+        if (keyType == null) {
+            return profileName;
+        }
+
+        // Hard code for now based on key type.  Method can be changed later to read pkispawn
+        // params sent over in the future.
+        if ("ecc".equalsIgnoreCase(keyType)) {
+            if ("sslserver".equalsIgnoreCase(tag)) {
+                profileName = ECC_INTERNAL_SERVER_CERT_PROFILE;
+            } else if ("subsystem".equalsIgnoreCase(tag)) {
+                profileName = ECC_INTERNAL_SUBSYSTEM_CERT_PROFILE;
+            }
+
+        } else if ("rsa".equalsIgnoreCase(keyType)) {
+            if ("sslserver".equalsIgnoreCase(tag)) {
+                profileName = RSA_INTERNAL_SERVER_CERT_PROFILE;
+            } else if ("subsystem".equalsIgnoreCase(tag)) {
+                profileName = RSA_INTERNAL_SUBSYSTEM_CERT_PROFILE;
+            }
+        }
+
+        logger.debug("Configurator: returning: " + profileName);
+        return profileName;
     }
 }
