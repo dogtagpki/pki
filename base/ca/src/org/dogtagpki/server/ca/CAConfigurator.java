@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.StringTokenizer;
 
 import org.apache.commons.lang.StringUtils;
@@ -128,6 +129,12 @@ public class CAConfigurator extends Configurator {
         }
 
         configStore.commit(false /* no backup */);
+    }
+
+    @Override
+    public void getDatabaseGroups(Collection<String> groups) throws Exception {
+        groups.add("Subsystem Group");
+        groups.add("Certificate Manager Agents");
     }
 
     @Override

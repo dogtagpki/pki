@@ -20,6 +20,7 @@ package org.dogtagpki.server.ocsp;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
+import java.util.Collection;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -43,6 +44,11 @@ public class OCSPConfigurator extends Configurator {
     }
 
     private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
+
+    @Override
+    public void getDatabaseGroups(Collection<String> groups) throws Exception {
+        groups.add("Trusted Managers");
+    }
 
     @Override
     public void finalizeConfiguration(ConfigurationRequest request) throws Exception {

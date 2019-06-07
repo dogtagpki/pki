@@ -3492,8 +3492,7 @@ public class Configurator {
         cs.commit(false);
     }
 
-    public void setupDBUser() throws CertificateException, LDAPException, EBaseException,
-            NotInitializedException, ObjectNotFoundException, TokenException, IOException {
+    public void setupDatabaseUser() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
@@ -3503,17 +3502,17 @@ public class Configurator {
 
         if (user != null) {
             // user found
-            logger.warn("setupDBUser(): user already exists: " + DBUSER);
+            logger.warn("Configurator: user already exists: " + DBUSER);
             return;
         }
 
         // user not found
-        logger.debug("setupDBUser(): creating user: " + DBUSER);
+        logger.debug("Configurator: creating user: " + DBUSER);
 
         String b64 = getSubsystemCert();
         if (b64 == null) {
-            logger.error("setupDBUser(): failed to fetch subsystem cert");
-            throw new EBaseException("setupDBUser(): failed to fetch subsystem cert");
+            logger.error("Configurator: failed to fetch subsystem cert");
+            throw new EBaseException("Failed to fetch subsystem cert");
         }
 
         user = system.createUser(DBUSER);
@@ -3529,46 +3528,35 @@ public class Configurator {
         user.setX509Certificates(certs);
 
         system.addUser(user);
-        logger.debug("setupDBUser(): successfully added " + DBUSER);
+        logger.debug("Configurator: successfully added " + DBUSER);
 
         system.addUserCert(user);
-        logger.debug("setupDBUser(): successfully add the user certificate");
+        logger.debug("Configurator: successfully add the user certificate");
 
         // set subject dn
         system.addCertSubjectDN(user);
 
         // remove old db users
-        logger.debug("setupDBUser(): removing seeAlso from old dbusers");
+        logger.debug("Configurator: removing seeAlso from old dbusers");
         removeOldDBUsers(certs[0].getSubjectDN().toString());
 
         // workaround for ticket #1595
-        String csType = cs.getString("cs.type").toUpperCase();
-
         Collection<String> groupNames = new ArrayList<String>();
-
-        if ("CA".equals(csType)) {
-            groupNames.add("Subsystem Group");
-            groupNames.add("Certificate Manager Agents");
-
-        } else if ("KRA".equals(csType)) {
-            groupNames.add("Data Recovery Manager Agents");
-            groupNames.add("Trusted Managers");
-
-        } else if ("OCSP".equals(csType)) {
-            groupNames.add("Trusted Managers");
-
-        } else if ("TKS".equals(csType)) {
-            groupNames.add("Token Key Service Manager Agents");
-        }
+        getDatabaseGroups(groupNames);
 
         for (String groupName : groupNames) {
+
             IGroup group = system.getGroupFromName(groupName);
+
             if (!group.isMember(DBUSER)) {
-                logger.debug("setupDBUser(): adding " + DBUSER + " to the " + groupName + " group.");
+                logger.debug("Configurator: adding " + DBUSER + " to the " + groupName + " group.");
                 group.addMemberName(DBUSER);
                 system.modifyGroup(group);
             }
         }
+    }
+
+    public void getDatabaseGroups(Collection<String> groups) throws Exception {
     }
 
     public void addProfilesToTPSUser(String adminID) throws EUsrGrpException, LDAPException {

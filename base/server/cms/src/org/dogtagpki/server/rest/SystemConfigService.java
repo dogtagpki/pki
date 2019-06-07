@@ -335,7 +335,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            configurator.setupDBUser();
+            configurator.setupDatabaseUser();
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
