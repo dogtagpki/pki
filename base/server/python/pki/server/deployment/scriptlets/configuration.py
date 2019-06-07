@@ -401,15 +401,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if len(deployer.instance.tomcat_instance_subsystems()) > 1:
             return False
 
+        nickname = deployer.mdict['pki_sslserver_nickname']
+        instance.set_sslserver_cert_nickname(nickname)
+
+        tmpdir = tempfile.mkdtemp()
         nssdb = instance.open_nssdb()
 
         try:
-            nickname = deployer.mdict['pki_self_signed_nickname']
-
             logger.info('Checking existing SSL server cert: %s', nickname)
-
-            pem_cert = nssdb.get_cert(
-                nickname=nickname)
+            pem_cert = nssdb.get_cert(nickname=nickname)
 
             if pem_cert:
                 cert = x509.load_pem_x509_certificate(pem_cert, default_backend())
@@ -430,56 +430,42 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             logger.info('Creating temp SSL server cert for %s', deployer.mdict['pki_hostname'])
 
-            instance.set_sslserver_cert_nickname(nickname)
-
             # TODO: replace with pki-server create-cert sslserver --temp
 
-            logger.info('Creating password file: %s', deployer.mdict['pki_shared_pfile'])
-            deployer.password.create_password_conf(
-                deployer.mdict['pki_shared_pfile'],
-                deployer.mdict['pki_server_database_password'], pin_sans_token=True)
-
-            # only create a self signed cert for a new instance
-            #
             # NOTE:  ALWAYS create the temporary sslserver certificate
             #        in the software DB regardless of whether the
             #        instance will utilize 'softokn' or an HSM
-            #
-            # note: in the function below, certutil is used to generate
-            # the request for the self signed cert.  The keys are generated
-            # by NSS, which does not actually use the data in the noise
-            # file, so it does not matter what is in this file.  Certutil
-            # still requires it though, otherwise it waits for keyboard
-            # input
 
-            with open(deployer.mdict['pki_self_signed_noise_file'], 'w') as f:
-                f.write("not_so_random_data")
+            csr_file = os.path.join(tmpdir, 'sslserver.csr')
+            cert_file = os.path.join(tmpdir, 'sslserver.crt')
 
-            deployer.certutil.generate_self_signed_certificate(
-                deployer.mdict['pki_server_database_path'],
-                deployer.mdict['pki_self_signed_token'],
-                deployer.mdict['pki_self_signed_nickname'],
-                deployer.mdict['pki_self_signed_subject'],
-                deployer.mdict['pki_sslserver_key_type'],
-                deployer.mdict['pki_sslserver_key_size'],
-                deployer.mdict['pki_self_signed_serial_number'],
-                deployer.mdict['pki_self_signed_validity_period'],
-                deployer.mdict['pki_self_signed_issuer_name'],
-                deployer.mdict['pki_self_signed_trustargs'],
-                deployer.mdict['pki_self_signed_noise_file'],
-                password_file=deployer.mdict['pki_shared_pfile'])
+            nssdb.create_request(
+                subject_dn=deployer.mdict['pki_self_signed_subject'],
+                request_file=csr_file,
+                token=deployer.mdict['pki_self_signed_token'],
+                key_type=deployer.mdict['pki_sslserver_key_type'],
+                key_size=deployer.mdict['pki_sslserver_key_size']
+            )
 
-            # Delete the temporary 'noise' file
-            deployer.file.delete(
-                deployer.mdict['pki_self_signed_noise_file'])
+            nssdb.create_cert(
+                request_file=csr_file,
+                cert_file=cert_file,
+                serial=deployer.mdict['pki_self_signed_serial_number'],
+                validity=deployer.mdict['pki_self_signed_validity_period']
+            )
 
-            # Always delete the temporary 'pfile'
-            deployer.file.delete(deployer.mdict['pki_shared_pfile'])
+            nssdb.add_cert(
+                nickname=nickname,
+                cert_file=cert_file,
+                token=deployer.mdict['pki_self_signed_token'],
+                trust_attributes=deployer.mdict['pki_self_signed_trustargs']
+            )
 
             return True
 
         finally:
             nssdb.close()
+            shutil.rmtree(tmpdir)
 
     def remove_temp_sslserver_cert(self, instance, sslserver):
 
