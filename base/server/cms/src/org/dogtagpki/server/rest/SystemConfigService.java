@@ -33,8 +33,6 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.netscape.security.util.Utils;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,14 +47,12 @@ import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.KeyBackupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Cert;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -264,16 +260,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             AdminSetupResponse response = new AdminSetupResponse();
 
-            configurator.createAdminUser(request);
-
-            X509CertImpl cert = configurator.createAdminCertificate(request);
-            updateAdminUserCert(request, cert);
-
-            String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
-            logger.debug("SystemConfigService: admin cert: " + b64cert);
-
-            SystemCertData adminCert = response.getAdminCert();
-            adminCert.setCert(b64cert);
+            configurator.setupAdmin(request, response);
 
             return response;
 
@@ -715,17 +702,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.error("Configuration failed: " + e.getMessage(), e);
             throw e;
         }
-    }
-
-    public void updateAdminUserCert(AdminSetupRequest request, X509CertImpl adminCert) throws Exception {
-
-        X509CertImpl[] adminCerts = new X509CertImpl[] { adminCert };
-
-        CMSEngine engine = CMS.getCMSEngine();
-        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
-        IUser user = ug.getUser(request.getAdminUID());
-        user.setX509Certificates(adminCerts);
-        ug.addUserCert(user);
     }
 
     public void configureHierarchy(ConfigurationRequest data) {

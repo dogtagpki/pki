@@ -20,6 +20,8 @@ package org.dogtagpki.server.tps;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -37,14 +39,19 @@ import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyData;
+import com.netscape.certsrv.system.AdminSetupRequest;
+import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
+import com.netscape.certsrv.user.UserResource;
+import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -140,6 +147,24 @@ public class TPSConfigurator extends Configurator {
         CMSEngine engine = CMS.getCMSEngine();
 
         engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
+    }
+
+    @Override
+    public void setupAdmin(AdminSetupRequest request, AdminSetupResponse response) throws Exception {
+
+        logger.debug("Adding all profiles to TPS admin user");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+
+        String adminID = request.getAdminUID();
+        IUser user = system.getUser(adminID);
+
+        List<String> profiles = new ArrayList<String>();
+        profiles.add(UserResource.ALL_PROFILES);
+
+        user.setTpsProfiles(profiles);
+        system.modifyUser(user);
     }
 
     @Override

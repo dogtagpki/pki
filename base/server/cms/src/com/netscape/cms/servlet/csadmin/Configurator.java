@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -135,11 +134,11 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.system.AdminSetupRequest;
+import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
-import com.netscape.certsrv.user.UserResource;
-import com.netscape.certsrv.usrgrp.EUsrGrpException;
+import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
@@ -3198,6 +3197,17 @@ public class Configurator {
         return new X509CertImpl(b);
     }
 
+    public void updateAdminUserCert(AdminSetupRequest request, X509CertImpl adminCert) throws Exception {
+
+        X509CertImpl[] adminCerts = new X509CertImpl[] { adminCert };
+
+        CMSEngine engine = CMS.getCMSEngine();
+        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        IUser user = ug.getUser(request.getAdminUID());
+        user.setX509Certificates(adminCerts);
+        ug.addUserCert(user);
+    }
+
     public void backupKeys(String pwd, String fname) throws Exception {
 
         logger.debug("backupKeys(): start");
@@ -3332,6 +3342,20 @@ public class Configurator {
         byte[] p7Bytes = bos.toByteArray();
         String p7Str = Utils.base64encode(p7Bytes, true);
         cs.putString("preop.admincert.pkcs7", CryptoUtil.normalizeCertStr(p7Str));
+    }
+
+    public void setupAdmin(AdminSetupRequest request, AdminSetupResponse response) throws Exception {
+
+        createAdminUser(request);
+
+        X509CertImpl cert = createAdminCertificate(request);
+        updateAdminUserCert(request, cert);
+
+        String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
+        logger.debug("SystemConfigService: admin cert: " + b64cert);
+
+        SystemCertData adminCert = response.getAdminCert();
+        adminCert.setCert(b64cert);
     }
 
     public void createAdminUser(AdminSetupRequest request) throws Exception {
@@ -3881,21 +3905,6 @@ public class Configurator {
     }
 
     public void getDatabaseGroups(Collection<String> groups) throws Exception {
-    }
-
-    public void addProfilesToTPSUser(String adminID) throws EUsrGrpException, LDAPException {
-
-        logger.debug("Adding all profiles to TPS admin user");
-
-        CMSEngine engine = CMS.getCMSEngine();
-        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
-        IUser user = system.getUser(adminID);
-
-        List<String> profiles = new ArrayList<String>();
-        profiles.add(UserResource.ALL_PROFILES);
-
-        user.setTpsProfiles(profiles);
-        system.modifyUser(user);
     }
 
     public void registerUser(URI secdomainURI, URI targetURI, String targetType) throws Exception {

@@ -21,9 +21,6 @@ import org.dogtagpki.server.rest.SystemConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.system.AdminSetupRequest;
-import com.netscape.certsrv.system.AdminSetupResponse;
-
 /**
  * @author alee
  *
@@ -33,12 +30,5 @@ public class TPSInstallerService extends SystemConfigService  {
     public final static Logger logger = LoggerFactory.getLogger(TPSInstallerService.class);
 
     public TPSInstallerService() throws Exception {
-    }
-
-    @Override
-    public AdminSetupResponse setupAdmin(AdminSetupRequest request) throws Exception {
-        AdminSetupResponse response = super.setupAdmin(request);
-        configurator.addProfilesToTPSUser(request.getAdminUID());
-        return response;
     }
 }
