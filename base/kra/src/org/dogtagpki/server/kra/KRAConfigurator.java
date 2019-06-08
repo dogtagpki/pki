@@ -25,17 +25,32 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
 import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.kra.KeyRecoveryAuthority;
 
 public class KRAConfigurator extends Configurator {
 
     public KRAConfigurator(CMSEngine engine) {
         super(engine);
+    }
+
+    @Override
+    public void initializeDatabase(ConfigurationRequest request) throws EBaseException {
+
+        super.initializeDatabase(request);
+
+        // Enable subsystems after database initialization.
+        CMSEngine engine = CMS.getCMSEngine();
+
+        engine.setSubsystemEnabled(KeyRecoveryAuthority.ID, true);
+        engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
     }
 
     @Override

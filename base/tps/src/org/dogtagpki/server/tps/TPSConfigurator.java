@@ -30,6 +30,7 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.authentication.EAuthException;
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
@@ -43,6 +44,7 @@ import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -111,6 +113,33 @@ public class TPSConfigurator extends Configurator {
         cs.putString("auths.instance.ldap1.ldap.ldapconn.host", host);
         cs.putString("auths.instance.ldap1.ldap.ldapconn.port", port);
         cs.putString("auths.instance.ldap1.ldap.ldapconn.secureConn", secureConn);
+    }
+
+    @Override
+    public void configureDatabase(ConfigurationRequest request) throws EBaseException {
+
+        super.configureDatabase(request);
+
+        String dsHost = cs.getString("internaldb.ldapconn.host");
+        String dsPort = cs.getString("internaldb.ldapconn.port");
+        String baseDN = cs.getString("internaldb.basedn");
+
+        cs.putString("tokendb.activityBaseDN", "ou=Activities," + baseDN);
+        cs.putString("tokendb.baseDN", "ou=Tokens," + baseDN);
+        cs.putString("tokendb.certBaseDN", "ou=Certificates," + baseDN);
+        cs.putString("tokendb.userBaseDN", baseDN);
+        cs.putString("tokendb.hostport", dsHost + ":" + dsPort);
+    }
+
+    @Override
+    public void initializeDatabase(ConfigurationRequest request) throws EBaseException {
+
+        super.initializeDatabase(request);
+
+        // Enable subsystems after database initialization.
+        CMSEngine engine = CMS.getCMSEngine();
+
+        engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
     }
 
     @Override

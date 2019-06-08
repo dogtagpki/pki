@@ -20,13 +20,6 @@ package org.dogtagpki.server.kra.rest;
 import org.dogtagpki.server.kra.KRAConfigurator;
 import org.dogtagpki.server.rest.SystemConfigService;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.system.ConfigurationRequest;
-import com.netscape.cmscore.apps.CMS;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.selftests.SelfTestSubsystem;
-import com.netscape.kra.KeyRecoveryAuthority;
-
 /**
  * @author alee
  *
@@ -39,17 +32,5 @@ public class KRAInstallerService extends SystemConfigService {
 
     public KRAInstallerService() throws Exception {
         kraConfigurator = (KRAConfigurator) configurator;
-    }
-
-    @Override
-    public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
-
-        super.initializeDatabase(data);
-
-        // Enable subsystems after database initialization.
-        CMSEngine engine = CMS.getCMSEngine();
-
-        engine.setSubsystemEnabled(KeyRecoveryAuthority.ID, true);
-        engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
     }
 }

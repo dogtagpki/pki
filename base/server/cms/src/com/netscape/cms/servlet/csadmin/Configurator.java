@@ -34,6 +34,7 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateExpiredException;
@@ -144,7 +145,10 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.ServerXml;
+import com.netscape.cmscore.authentication.AuthSubsystem;
+import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ldap.LDAPUtil;
@@ -1519,6 +1523,113 @@ public class Configurator {
                 return b;
         }
         return null;
+    }
+
+    public void configureDatabase(ConfigurationRequest request) throws EBaseException {
+    }
+
+    public void initializeDatabase(ConfigurationRequest request) throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+
+        boolean secureConn = cs.getBoolean("internaldb.ldapconn.secureConn");
+        String dsPort = cs.getString("internaldb.ldapconn.port");
+        String baseDN = cs.getString("internaldb.basedn");
+        boolean setupReplication = cs.getBoolean("preop.database.setupReplication", true);
+
+        if (request.isClone() && setupReplication) {
+            String masterhost = "";
+            String masterport = "";
+            String masterbasedn = "";
+            String realhostname = "";
+            try {
+                masterhost = cs.getString("preop.internaldb.master.ldapconn.host", "");
+                masterport = cs.getString("preop.internaldb.master.ldapconn.port", "");
+                masterbasedn = cs.getString("preop.internaldb.master.basedn", "");
+                realhostname = cs.getString("machineName", "");
+            } catch (Exception e) {
+            }
+
+            if (masterhost.equals(realhostname) && masterport.equals(dsPort)) {
+                throw new BadRequestException("Master and clone must not share the same internal database");
+            }
+
+            if (!masterbasedn.equals(baseDN)) {
+                throw new BadRequestException("Master and clone should have the same base DN");
+            }
+
+            String masterReplicationPort = request.getMasterReplicationPort();
+            if ((masterReplicationPort != null) && (!masterReplicationPort.equals(""))) {
+                cs.putString("internaldb.ldapconn.masterReplicationPort", masterReplicationPort);
+            } else {
+                cs.putString("internaldb.ldapconn.masterReplicationPort", masterport);
+            }
+
+            String cloneReplicationPort = request.getCloneReplicationPort();
+            if ((cloneReplicationPort == null) || (cloneReplicationPort.length() == 0)) {
+                cloneReplicationPort = dsPort;
+            }
+            cs.putString("internaldb.ldapconn.cloneReplicationPort", cloneReplicationPort);
+
+            String replicationSecurity = request.getReplicationSecurity();
+            if (cloneReplicationPort == dsPort && secureConn) {
+                replicationSecurity = "SSL";
+            } else if (replicationSecurity == null) {
+                replicationSecurity = "None";
+            }
+            cs.putString("internaldb.ldapconn.replicationSecurity", replicationSecurity);
+
+            cs.putString("preop.internaldb.replicateSchema", request.getReplicateSchema());
+        }
+
+        try {
+            /* BZ 430745 create password for replication manager */
+            // use user-provided password if specified
+            String replicationPassword = request.getReplicationPassword();
+
+            if (StringUtils.isEmpty(replicationPassword)) {
+                // generate random password
+
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
+                SecureRandom random = jssSubsystem.getRandomNumberGenerator();
+                replicationPassword = Integer.toString(random.nextInt());
+            }
+
+            IPasswordStore psStore = engine.getPasswordStore();
+            if (StringUtils.isEmpty(psStore.getPassword("replicationdb", 0))) {
+                psStore.putPassword("replicationdb", replicationPassword);
+            }
+            psStore.commit();
+
+            enableUSNPlugin();
+            populateDB();
+
+            cs.putString("preop.internaldb.replicationpwd", replicationPassword);
+            cs.commit(false);
+
+            if (request.isClone() && setupReplication) {
+                ReplicationUtil.setupReplication();
+            }
+
+            populateDBManager();
+            populateVLVIndexes();
+
+        } catch (Exception e) {
+            logger.error("Unable to populate database: " + e.getMessage(), e);
+            throw new PKIException("Unable to populate database: " + e.getMessage(), e);
+        }
+    }
+
+    public void reinitSubsystems() throws EBaseException {
+
+        // Enable subsystems after database initialization.
+        CMSEngine engine = CMS.getCMSEngine();
+
+        engine.setSubsystemEnabled(UGSubsystem.ID, true);
+
+        engine.reinit(UGSubsystem.ID);
+        engine.reinit(AuthSubsystem.ID);
+        engine.reinit(AuthzSubsystem.ID);
     }
 
     public void releaseConnection(LDAPConnection conn) {

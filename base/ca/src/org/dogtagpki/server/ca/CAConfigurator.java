@@ -26,11 +26,13 @@ import java.util.StringTokenizer;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.netscape.ca.CertificateAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.system.ConfigurationRequest;
@@ -38,7 +40,10 @@ import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.LDAPConfigStore;
+import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.profile.LDAPProfileSubsystem;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -48,6 +53,24 @@ public class CAConfigurator extends Configurator {
 
     public CAConfigurator(CMSEngine engine) {
         super(engine);
+    }
+
+    @Override
+    public void initializeDatabase(ConfigurationRequest request) throws EBaseException {
+
+        super.initializeDatabase(request);
+
+        CMSEngine engine = CMS.getCMSEngine();
+
+        if (!request.isClone()
+                && engine.getSubsystem(IProfileSubsystem.ID) instanceof LDAPProfileSubsystem) {
+            try {
+                importProfiles("/usr/share/pki");
+            } catch (Exception e) {
+                logger.error("Unable to import profiles: " + e.getMessage(), e);
+                throw new PKIException("Unable to import profiles: " + e.getMessage(), e);
+            }
+        }
     }
 
     /**
@@ -129,6 +152,21 @@ public class CAConfigurator extends Configurator {
         }
 
         configStore.commit(false /* no backup */);
+    }
+
+    @Override
+    public void reinitSubsystems() throws EBaseException {
+
+        super.reinitSubsystems();
+
+        // Enable subsystems after database initialization.
+        CMSEngine engine = CMS.getCMSEngine();
+
+        engine.setSubsystemEnabled(CertificateAuthority.ID, true);
+        engine.setSubsystemEnabled(CrossCertPairSubsystem.ID, true);
+        engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
+
+        engine.reinit(CertificateAuthority.ID);
     }
 
     @Override

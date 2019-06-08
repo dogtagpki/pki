@@ -35,7 +35,9 @@ import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
+import com.netscape.ocsp.OCSPAuthority;
 
 public class OCSPConfigurator extends Configurator {
 
@@ -44,6 +46,18 @@ public class OCSPConfigurator extends Configurator {
     }
 
     private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
+
+    @Override
+    public void initializeDatabase(ConfigurationRequest request) throws EBaseException {
+
+        super.initializeDatabase(request);
+
+        // Enable subsystems after database initialization.
+        CMSEngine engine = CMS.getCMSEngine();
+
+        engine.setSubsystemEnabled(OCSPAuthority.ID, true);
+        engine.setSubsystemEnabled(SelfTestSubsystem.ID, true);
+    }
 
     @Override
     public void getDatabaseGroups(Collection<String> groups) throws Exception {
