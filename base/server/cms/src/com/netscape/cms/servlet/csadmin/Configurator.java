@@ -676,6 +676,80 @@ public class Configurator {
         return false;
     }
 
+    public void configureSubsystem(ConfigurationRequest request,
+            String token, String domainXML) throws Exception {
+
+        cs.putString("preop.subsystem.name", request.getSubsystemName());
+
+        // is this a clone of another subsystem?
+        if (!request.isClone()) {
+            cs.putString("preop.subsystem.select", "new");
+            cs.putString("subsystem.select", "New");
+
+        } else {
+            cs.putString("preop.subsystem.select", "clone");
+            cs.putString("subsystem.select", "Clone");
+            configureClone(request, token, domainXML);
+        }
+    }
+
+    private void configureClone(ConfigurationRequest data, String token, String domainXML) throws Exception {
+
+        String value = cs.getString("preop.cert.list");
+        String[] certList = value.split(",");
+
+        for (String tag : certList) {
+            if (tag.equals("sslserver")) {
+                cs.putBoolean("preop.cert." + tag + ".enable", true);
+            } else {
+                cs.putBoolean("preop.cert." + tag + ".enable", false);
+            }
+        }
+
+        String cloneUri = data.getCloneUri();
+        URL url = new URL(cloneUri);
+        String masterHost = url.getHost();
+        int masterPort = url.getPort();
+
+        logger.debug("SystemConfigService: validate clone URI: " + url);
+        boolean validCloneUri = isValidCloneURI(domainXML, masterHost, masterPort);
+
+        if (!validCloneUri) {
+            throw new BadRequestException(
+                    "Clone URI does not match available subsystems: " + url);
+        }
+
+        String csType = cs.getString("cs.type");
+        if (csType.equals("CA") && !data.getSystemCertsImported()) {
+            logger.debug("SystemConfigService: import certificate chain from master");
+            int masterAdminPort = getPortFromSecurityDomain(domainXML,
+                    masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
+
+            String certchain = getCertChain(masterHost, masterAdminPort,
+                    "/ca/admin/ca/getCertChain");
+            importCertChain(certchain, "clone");
+        }
+
+        logger.debug("SystemConfigService: get configuration entries from master");
+        getConfigEntriesFromMaster();
+
+        if (CryptoUtil.isInternalToken(token)) {
+            if (!data.getSystemCertsImported()) {
+                logger.debug("SystemConfigService: restore certificates from P12 file");
+                String p12File = data.getP12File();
+                String p12Pass = data.getP12Password();
+                restoreCertsFromP12(p12File, p12Pass);
+            }
+
+        } else {
+            logger.debug("SystemConfigService: import certificates from HSM and set permission");
+            importAndSetCertPermissionsFromHSM();
+        }
+
+        logger.debug("SystemConfigService: verify certificates");
+        verifySystemCertificates();
+    }
+
     public void getConfigEntriesFromMaster()
             throws Exception {
 
@@ -3817,14 +3891,6 @@ public class Configurator {
         byte[] bytes = cert.getEncoded();
         String s = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(bytes));
         return s;
-    }
-
-    public void updateAuthdbInfo(String basedn, String host, String port, String secureConn) {
-
-        cs.putString("auths.instance.ldap1.ldap.basedn", basedn);
-        cs.putString("auths.instance.ldap1.ldap.ldapconn.host", host);
-        cs.putString("auths.instance.ldap1.ldap.ldapconn.port", port);
-        cs.putString("auths.instance.ldap1.ldap.ldapconn.secureConn", secureConn);
     }
 
     public void updateNextRanges() throws EBaseException, LDAPException {

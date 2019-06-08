@@ -24,6 +24,7 @@ import java.net.URI;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.dogtagpki.server.tps.installer.TPSInstaller;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
@@ -36,6 +37,7 @@ import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.system.ConfigurationRequest;
+import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.cms.servlet.csadmin.Configurator;
@@ -48,6 +50,67 @@ public class TPSConfigurator extends Configurator {
 
     public TPSConfigurator(CMSEngine engine) {
         super(engine);
+    }
+
+    @Override
+    public void configureSubsystem(ConfigurationRequest request,
+            String token, String domainXML) throws Exception {
+
+        super.configureSubsystem(request, token, domainXML);
+
+        SystemCertData subsystemCert = request.getSystemCert("subsystem");
+
+        String nickname;
+        if (CryptoUtil.isInternalToken(subsystemCert.getToken())) {
+            nickname = subsystemCert.getNickname();
+        } else {
+            nickname = subsystemCert.getToken() + ":" + subsystemCert.getNickname();
+        }
+
+        // CA Info Panel
+        configureCAConnector(request, nickname);
+
+        // TKS Info Panel
+        configureTKSConnector(request, nickname);
+
+        //DRM Info Panel
+        configureKRAConnector(request, nickname);
+
+        //AuthDBPanel
+        updateAuthdbInfo(request.getAuthdbBaseDN(),
+                request.getAuthdbHost(), request.getAuthdbPort(),
+                request.getAuthdbSecureConn());
+    }
+
+    public void configureCAConnector(ConfigurationRequest request, String nickname) {
+
+        // TODO: get installer from session
+        TPSInstaller installer = new TPSInstaller();
+        installer.configureCAConnector(request.getCaUri(), nickname);
+    }
+
+    public void configureTKSConnector(ConfigurationRequest request, String nickname) {
+
+        // TODO: get installer from session
+        TPSInstaller installer = new TPSInstaller();
+        installer.configureTKSConnector(request.getTksUri(), nickname);
+    }
+
+    public void configureKRAConnector(ConfigurationRequest request, String nickname) {
+
+        boolean keygen = request.getEnableServerSideKeyGen().equalsIgnoreCase("true");
+
+        // TODO: get installer from session
+        TPSInstaller installer = new TPSInstaller();
+        installer.configureKRAConnector(keygen, request.getKraUri(), nickname);
+    }
+
+    public void updateAuthdbInfo(String basedn, String host, String port, String secureConn) {
+
+        cs.putString("auths.instance.ldap1.ldap.basedn", basedn);
+        cs.putString("auths.instance.ldap1.ldap.ldapconn.host", host);
+        cs.putString("auths.instance.ldap1.ldap.ldapconn.port", port);
+        cs.putString("auths.instance.ldap1.ldap.ldapconn.secureConn", secureConn);
     }
 
     @Override

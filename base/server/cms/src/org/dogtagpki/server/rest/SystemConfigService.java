@@ -150,7 +150,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // configure subsystem
         logger.debug("=== Subsystem Configuration ===");
-        configureSubsystem(data, token, domainXML);
+        configurator.configureSubsystem(data, token, domainXML);
 
         // configure hierarchy
         logger.debug("=== Hierarchy Configuration ===");
@@ -900,79 +900,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             } catch (Exception e) {
                 throw new PKIException("Error in obtaining certificate chain from issuing CA: " + e);
             }
-        }
-    }
-
-    private void configureClone(ConfigurationRequest data, String token, String domainXML) throws Exception {
-
-        String value = cs.getString("preop.cert.list");
-        String[] certList = value.split(",");
-
-        for (String tag : certList) {
-            if (tag.equals("sslserver")) {
-                cs.putBoolean("preop.cert." + tag + ".enable", true);
-            } else {
-                cs.putBoolean("preop.cert." + tag + ".enable", false);
-            }
-        }
-
-        String cloneUri = data.getCloneUri();
-        URL url = new URL(cloneUri);
-        String masterHost = url.getHost();
-        int masterPort = url.getPort();
-
-        logger.debug("SystemConfigService: validate clone URI: " + url);
-        boolean validCloneUri = configurator.isValidCloneURI(domainXML, masterHost, masterPort);
-
-        if (!validCloneUri) {
-            throw new BadRequestException(
-                    "Clone URI does not match available subsystems: " + url);
-        }
-
-        if (csType.equals("CA") && !data.getSystemCertsImported()) {
-            logger.debug("SystemConfigService: import certificate chain from master");
-            int masterAdminPort = configurator.getPortFromSecurityDomain(domainXML,
-                    masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
-
-            String certchain = configurator.getCertChain(masterHost, masterAdminPort,
-                    "/ca/admin/ca/getCertChain");
-            configurator.importCertChain(certchain, "clone");
-        }
-
-        logger.debug("SystemConfigService: get configuration entries from master");
-        configurator.getConfigEntriesFromMaster();
-
-        if (CryptoUtil.isInternalToken(token)) {
-            if (!data.getSystemCertsImported()) {
-                logger.debug("SystemConfigService: restore certificates from P12 file");
-                String p12File = data.getP12File();
-                String p12Pass = data.getP12Password();
-                configurator.restoreCertsFromP12(p12File, p12Pass);
-            }
-
-        } else {
-            logger.debug("SystemConfigService: import certificates from HSM and set permission");
-            configurator.importAndSetCertPermissionsFromHSM();
-        }
-
-        logger.debug("SystemConfigService: verify certificates");
-        configurator.verifySystemCertificates();
-    }
-
-    public void configureSubsystem(ConfigurationRequest request,
-            String token, String domainXML) throws Exception {
-
-        cs.putString("preop.subsystem.name", request.getSubsystemName());
-
-        // is this a clone of another subsystem?
-        if (!request.isClone()) {
-            cs.putString("preop.subsystem.select", "new");
-            cs.putString("subsystem.select", "New");
-
-        } else {
-            cs.putString("preop.subsystem.select", "clone");
-            cs.putString("subsystem.select", "Clone");
-            configureClone(request, token, domainXML);
         }
     }
 
