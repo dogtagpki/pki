@@ -57,6 +57,15 @@ logger = logging.getLogger(__name__)
 parser = etree.XMLParser(remove_blank_text=True)
 
 
+def demote(uid, gid):
+
+    def result():
+        os.setgid(gid)
+        os.setuid(uid)
+
+    return result
+
+
 class Tomcat(object):
 
     BASE_DIR = '/var/lib/tomcats'
@@ -266,7 +275,7 @@ class PKIServer(object):
             '/usr/lib/java/commons-daemon.jar'
         ]
 
-        cmd = []
+        preexec_fn = None
 
         # by default run PKI server as systemd user
         if not as_current_user:
@@ -275,8 +284,9 @@ class PKIServer(object):
 
             # switch to systemd user if different from current user
             if current_user != self.user:
-                cmd.extend(['sudo', '-u', self.user])
+                preexec_fn = demote(self.uid, self.gid)
 
+        cmd = []
         if jdb:
             cmd.extend(['jdb'])
         else:
@@ -299,11 +309,11 @@ class PKIServer(object):
 
         logger.debug('Command: %s', ' '.join(cmd))
 
-        try:
-            subprocess.check_call(cmd)
-
-        except KeyboardInterrupt:
-            logger.debug('Server stopped')
+        return subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
+            cmd,
+            preexec_fn=preexec_fn,
+            env=self.config
+        )
 
     def makedirs(self, path, force=False):
         pki.util.makedirs(
