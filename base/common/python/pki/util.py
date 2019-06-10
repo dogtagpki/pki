@@ -45,6 +45,51 @@ DEFAULT_PKI_ENV_LIST = [
 ]
 
 
+def replace_params(line, params=None):
+    """
+    Replace all occurrences of [param] in the line with the value of the
+    parameter.
+    """
+
+    if not params:
+        return line
+
+    # find the first parameter in the line
+    begin = line.find('[')
+
+    # repeat while there are parameters in the line
+    while begin >= 0:
+
+        # find the end of the parameter
+        end = line.find(']', begin + 1)
+
+        # if the end not is found not found, don't do anything
+        if end < 0:
+            return line
+
+        # get parameter name
+        name = line[begin + 1:end]
+
+        try:
+            # get parameter value as string
+            value = str(params[name])
+
+            # replace parameter with value, keep the rest of the line
+            line = line[0:begin] + value + line[end + 1:]
+
+            # calculate the new end position
+            end = begin + len(value) + 1
+
+        except KeyError:
+            # undefined parameter, skip
+            logging.warning('Ignoring [%s] parameter', line[begin:end + 1])
+
+        # find the next parameter in the remainder of the line
+        begin = line.find('[', end + 1)
+
+    return line
+
+
 def makedirs(path, uid=-1, gid=-1, force=False):
 
     logging.debug('Command: mkdir -p %s', path)

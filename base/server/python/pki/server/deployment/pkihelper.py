@@ -54,6 +54,7 @@ from .pkiparser import PKIConfigParser
 
 import pki
 import pki.nssdb
+import pki.util
 
 # special care for SELinux
 import selinux
@@ -1576,50 +1577,6 @@ class File:
                 raise
         return
 
-    def substitute_deployment_params(self, line):
-        """
-        Replace all occurrences of [param] in the line with the value of the
-        deployment parameter.
-        """
-
-        # find the first parameter in the line
-        begin = line.find('[')
-
-        # repeat while there are parameters in the line
-        while begin >= 0:
-
-            # find the end of the parameter
-            end = line.find(']', begin + 1)
-
-            # if the end not is found not found, don't do anything
-            if end < 0:
-                return line
-
-            # get parameter name
-            name = line[begin + 1:end]
-
-            try:
-                # get parameter value as string
-                value = str(self.mdict[name])
-
-                # replace parameter with value, keep the rest of the line
-                line = line[0:begin] + value + line[end + 1:]
-
-                # calculate the new end position
-                end = begin + len(value) + 1
-
-            except KeyError:
-                # undefined parameter, skip
-                logger.debug(
-                    'ignoring slot [%s]',
-                    line[begin:end + 1])
-
-            # find the next parameter in the remainder of the line
-            begin = line.find('[', end + 1)
-
-        # return modified line
-        return line
-
     def copy_with_slot_substitution(
             self, old_name, new_name, uid=None, gid=None,
             perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
@@ -1652,7 +1609,7 @@ class File:
                                     self.mdict[slot])
 
                         # substitute deployment parameters
-                        line = self.substitute_deployment_params(line)
+                        line = pki.util.replace_params(line, self.mdict)
 
                         FILE.write(line)
 
