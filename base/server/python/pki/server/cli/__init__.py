@@ -198,6 +198,8 @@ class CreateCLI(pki.cli.CLI):
             print('ERROR: Instance already exists: %s' % instance_name)
             sys.exit(1)
 
+        logging.info('Creating instance: %s', instance_name)
+
         instance.create(force)
 
 
@@ -258,6 +260,9 @@ class RemoveCLI(pki.cli.CLI):
             print('ERROR: Invalid instance: %s' % instance_name)
             sys.exit(1)
 
+        logging.info('Removing instance: %s', instance_name)
+
+        instance.stop()
         instance.remove(force)
 
 

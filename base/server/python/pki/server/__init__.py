@@ -47,7 +47,8 @@ from pki.keyring import Keyring
 import pki.server.subsystem
 
 SYSCONFIG_DIR = '/etc/sysconfig'
-SYSTEMD_DIR = '/lib/systemd'
+ETC_SYSTEMD_DIR = '/etc/systemd'
+LIB_SYSTEMD_DIR = '/lib/systemd'
 
 SUBSYSTEM_TYPES = ['ca', 'kra', 'ocsp', 'tks', 'tps']
 
@@ -316,9 +317,12 @@ class PKIServer(object):
         pki.util.copy(
             source, dest, uid=self.uid, gid=self.gid, force=force)
 
-    def create(self, force=False):
+    def copyfile(self, source, dest, slots=None, params=None, force=False):
+        pki.util.copyfile(
+            source, dest, slots=slots, params=params,
+            uid=self.uid, gid=self.gid, force=force)
 
-        logger.info('Creating instance: %s', self.service_name)
+    def create(self, force=False):
 
         self.makedirs(self.base_dir, force=force)
 
@@ -495,10 +499,6 @@ class PKIServer(object):
         pki.util.remove(context_xml, force=force)
 
     def remove(self, force=False):
-
-        logger.info('Removing instance: %s', self.name)
-
-        self.stop()
 
         pki.util.remove(self.service_conf, force=force)
         pki.util.rmtree(self.log_dir, force=force)
@@ -1055,6 +1055,10 @@ class ServerConfiguration(object):
 @functools.total_ordering
 class PKIInstance(PKIServer):
 
+    REGISTRY_FILE = PKIServer.SHARE_DIR + '/setup/pkidaemon_registry'
+    UNIT_FILE = LIB_SYSTEMD_DIR + '/system/pki-tomcatd@.service'
+    TARGET_WANTS = ETC_SYSTEMD_DIR + '/system/pki-tomcatd.target.wants'
+
     def __init__(self,
                  name,
                  instance_type='pki-tomcatd',
@@ -1128,6 +1132,33 @@ class PKIInstance(PKIServer):
     def registry_file(self):
         return os.path.join(self.registry_dir, self.name)
 
+    @property
+    def unit_file(self):
+        return PKIInstance.TARGET_WANTS + '/%s.service' % self.service_name
+
+    def create(self, force=False):
+
+        super(PKIInstance, self).create(force=force)
+
+        conf_dir = os.path.join(self.base_dir, 'conf')
+        self.symlink(self.conf_dir, conf_dir, force=force)
+
+        self.makedirs(self.registry_dir, force=force)
+
+        self.copyfile(
+            PKIInstance.REGISTRY_FILE,
+            self.registry_file,
+            params={
+                'PKI_WEB_SERVER_TYPE': 'tomcat',
+                'PKI_USER': self.user,
+                'PKI_GROUP': self.group,
+                'PKI_INSTANCE_NAME': self.name,
+                'PKI_INSTANCE_PATH': self.base_dir,
+                'TOMCAT_PIDFILE': '/var/run/pki/tomcat/' + self.name + '.pid'
+            })
+
+        self.symlink(PKIInstance.UNIT_FILE, self.unit_file, force=force)
+
     def load(self):
 
         super(PKIInstance, self).load()
@@ -1163,6 +1194,17 @@ class PKIInstance(PKIServer):
     def load_external_certs(self, conf_file):
         for external_cert in PKIInstance.read_external_certs(conf_file):
             self.external_certs.append(external_cert)
+
+    def remove(self, force=False):
+
+        pki.util.unlink(self.unit_file, force=force)
+        pki.util.remove(self.registry_file, force=force)
+        pki.util.rmtree(self.registry_dir, force=force)
+
+        conf_dir = os.path.join(self.base_dir, 'conf')
+        pki.util.unlink(conf_dir, force=force)
+
+        super(PKIInstance, self).remove(force=force)
 
     @staticmethod
     def read_external_certs(conf_file):
