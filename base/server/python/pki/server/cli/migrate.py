@@ -116,6 +116,9 @@ class MigrateCLI(pki.cli.CLI):
 
     def migrate_nssdb(self, instance):
 
+        if not os.path.exists(instance.nssdb_dir):
+            return
+
         if self.verbose:
             print('Migrating %s instance to NSS SQL database' % instance.name)
 
@@ -389,8 +392,6 @@ class MigrateCLI(pki.cli.CLI):
         if self.debug:
             print('* updating secure Connector')
 
-        full_name = instance.get_sslserver_cert_nickname()
-
         connectors = server.findall('Service/Connector')
         for connector in connectors:
 
@@ -407,6 +408,8 @@ class MigrateCLI(pki.cli.CLI):
             connector.set('keystoreProvider', 'Mozilla-JSS')
             connector.attrib.pop('keystoreFile', None)
             connector.attrib.pop('keystorePassFile', None)
+
+            full_name = instance.get_sslserver_cert_nickname()
             connector.set('keyAlias', full_name)
 
             connector.set('trustManagerClassName', 'org.dogtagpki.tomcat.PKITrustManager')
@@ -450,8 +453,6 @@ class MigrateCLI(pki.cli.CLI):
         if self.debug:
             print('* adding SSLHostConfig')
 
-        full_name = instance.get_sslserver_cert_nickname()
-
         connectors = server.findall('Service/Connector')
         for connector in connectors:
 
@@ -484,6 +485,8 @@ class MigrateCLI(pki.cli.CLI):
 
             certificate.set('certificateKeystoreType', 'pkcs11')
             certificate.set('certificateKeystoreProvider', 'Mozilla-JSS')
+
+            full_name = instance.get_sslserver_cert_nickname()
             certificate.set('certificateKeyAlias', full_name)
 
     def migrate_subsystems(self, instance, tomcat_version):
