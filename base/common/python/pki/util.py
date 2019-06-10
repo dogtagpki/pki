@@ -24,6 +24,7 @@ Module containing utility functions and classes for the Dogtag python code
 
 
 from __future__ import absolute_import
+import fileinput
 import functools
 import logging
 import os
@@ -152,7 +153,7 @@ def copy(source, dest, uid=-1, gid=-1, force=False):
                 copyfile(sourcefile, targetfile, uid=uid, gid=gid, force=force)
 
 
-def copyfile(source, dest, uid=-1, gid=-1, force=False):
+def copyfile(source, dest, slots=None, params=None, uid=None, gid=None, perms=None, force=False):
     """
     Copy a file or link while preserving its attributes.
     """
@@ -166,30 +167,54 @@ def copyfile(source, dest, uid=-1, gid=-1, force=False):
         if not force:
             return
 
+    # if source is a link, copy the link
     if os.path.islink(source):
         target = os.readlink(source)
         os.symlink(target, dest)
 
         stat = os.lstat(source)
-        if uid == -1:
+        if uid is None:
             uid = stat.st_uid
-        if gid == -1:
+        if gid is None:
             gid = stat.st_gid
 
         os.lchown(dest, uid, gid)
+        return
+
+    # source is a file
+    stat = os.stat(source)
+
+    if not slots and not params:
+        # if no substitution is required, copy the file
+        shutil.copyfile(source, dest)
+        os.utime(dest, (stat.st_atime, stat.st_mtime))
 
     else:
-        shutil.copyfile(source, dest)
+        # otherwise, customize the file
+        if slots is None:
+            slots = {}
+        if params is None:
+            params = {}
 
-        stat = os.stat(source)
-        if uid == -1:
-            uid = stat.st_uid
-        if gid == -1:
-            gid = stat.st_gid
+        with open(dest, 'w') as f:
+            for line in fileinput.FileInput(source):
+                for slot in slots:
+                    if slot != '__name__' and slots[slot] in line:
+                        line = line.replace(slots[slot], params[slot])
+                line = replace_params(line, params)
+                f.write(line)
 
-        os.utime(dest, (stat.st_atime, stat.st_mtime))
-        os.chmod(dest, stat.st_mode)
-        os.chown(dest, uid, gid)
+    if uid is None:
+        uid = stat.st_uid
+    if gid is None:
+        gid = stat.st_gid
+
+    os.chown(dest, uid, gid)
+
+    if perms is None:
+        perms = stat.st_mode
+
+    os.chmod(dest, perms)
 
 
 def copydirs(source, dest, uid=-1, gid=-1, force=False):

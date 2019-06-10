@@ -31,7 +31,6 @@ import errno
 import logging
 import sys
 import os
-import fileinput
 import re
 import requests.exceptions
 import shutil
@@ -1530,53 +1529,6 @@ class File:
                 raise
         return
 
-    def apply_slot_substitution(
-            self, name, uid=None, gid=None,
-            perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
-            acls=None, critical_failure=True):
-        try:
-            if not os.path.exists(name) or not os.path.isfile(name):
-                logger.error(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1, name)
-                raise Exception(log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % name)
-
-            # applying in-place slot substitutions on <name>
-            logger.info(log.PKIHELPER_APPLY_SLOT_SUBSTITUTION_1, name)
-
-            for line in fileinput.FileInput(name, inplace=1):
-                for slot in self.slots:
-                    if slot != '__name__' and self.slots[slot] in line:
-                        line = line.replace(self.slots[slot], self.mdict[slot])
-                print(line, end='')
-
-            if uid is None:
-                uid = self.identity.get_uid()
-            if gid is None:
-                gid = self.identity.get_gid()
-
-            logger.debug('Command: chmod %o %s', perms, name)
-            os.chmod(name, perms)
-
-            logger.debug('Command: chown %s:%s %s', uid, gid, name)
-            os.chown(name, uid, gid)
-
-            # Store record in installation manifest
-            self.deployer.record(
-                name,
-                manifest.RECORD_TYPE_FILE,
-                uid,
-                gid,
-                perms,
-                acls)
-        except (shutil.Error, OSError) as exc:
-            if isinstance(exc, shutil.Error):
-                msg = log.PKI_SHUTIL_ERROR_1
-            else:
-                msg = log.PKI_OSERROR_1
-            logger.error(msg, exc)
-            if critical_failure:
-                raise
-        return
-
     def copy_with_slot_substitution(
             self, old_name, new_name, uid=None, gid=None,
             perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
@@ -1591,47 +1543,31 @@ class File:
                 raise Exception(
                     log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 %
                     old_name)
-            else:
-                if os.path.exists(new_name):
-                    if not overwrite_flag:
-                        logger.error(log.PKI_FILE_ALREADY_EXISTS_1, new_name)
-                        raise Exception(
-                            log.PKI_FILE_ALREADY_EXISTS_1 % new_name)
 
-                with open(new_name, "w") as FILE:
-                    for line in fileinput.FileInput(old_name):
+            if uid is None:
+                uid = self.identity.get_uid()
+            if gid is None:
+                gid = self.identity.get_gid()
 
-                        # substitute registered slots
-                        for slot in self.slots:
-                            if slot != '__name__' and self.slots[slot] in line:
-                                line = line.replace(
-                                    self.slots[slot],
-                                    self.mdict[slot])
+            pki.util.copyfile(
+                old_name,
+                new_name,
+                slots=self.slots,
+                params=self.mdict,
+                uid=uid,
+                gid=gid,
+                perms=perms,
+                force=overwrite_flag)
 
-                        # substitute deployment parameters
-                        line = pki.util.replace_params(line, self.mdict)
+            # Store record in installation manifest
+            self.deployer.record(
+                new_name,
+                manifest.RECORD_TYPE_FILE,
+                uid,
+                gid,
+                perms,
+                acls)
 
-                        FILE.write(line)
-
-                if uid is None:
-                    uid = self.identity.get_uid()
-                if gid is None:
-                    gid = self.identity.get_gid()
-
-                logger.debug('Command: chmod %o %s', perms, new_name)
-                os.chmod(new_name, perms)
-
-                logger.debug('Command: chown %s:%s %s', uid, gid, new_name)
-                os.chown(new_name, uid, gid)
-
-                # Store record in installation manifest
-                self.deployer.record(
-                    new_name,
-                    manifest.RECORD_TYPE_FILE,
-                    uid,
-                    gid,
-                    perms,
-                    acls)
         except (shutil.Error, OSError) as exc:
             if isinstance(exc, shutil.Error):
                 msg = log.PKI_SHUTIL_ERROR_1
@@ -1640,7 +1576,6 @@ class File:
             logger.error(msg, exc)
             if critical_failure:
                 raise
-        return
 
 
 class Symlink:
