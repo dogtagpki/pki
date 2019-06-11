@@ -48,7 +48,7 @@ installation-sanity:
   - ansible-playbook -u fedora --become -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-02" -vv  | sed 's/\\n/\n/g'
 
 installation-sanity-ecc:
-  stage: tier0
+  stage: tier1
   <<: *job_definition
   script:
   - ansible-playbook -u fedora --become --private-key=ssh-priv-key -i $HOSTFILE tests/dogtag/pytest-ansible/installation/main.yml -e 'ansible_python_interpreter="/usr/bin/python3"' --extra-vars "topology=topology-ecc" -vv  | sed 's/\\n/\n/g'
