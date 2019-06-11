@@ -21,6 +21,8 @@
 from __future__ import absolute_import
 import logging
 
+import pki.server
+
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from .. import pkimessages as log
@@ -73,6 +75,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Finalizing subsystem removal')
 
+        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance.load()
+
         # If this is the last remaining PKI instance, ALWAYS remove the
         # link to start configured PKI instances upon system reboot
         if deployer.mdict['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
@@ -81,7 +86,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # Start this Tomcat PKI Process back if there are any subsystems still existing
         if len(deployer.instance.tomcat_instance_subsystems()) >= 1:
-            deployer.systemd.start()
+            instance.start()
+
         logger.info(log.PKIDESTROY_END_MESSAGE_2,
                     deployer.mdict['pki_subsystem'],
                     deployer.mdict['pki_instance_name'])

@@ -24,10 +24,11 @@ import java.util.Arrays;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang.StringUtils;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 
 /**
@@ -37,7 +38,8 @@ import com.netscape.certsrv.common.Constants;
  */
 public class CSCfgDatabase<E extends CSCfgRecord> extends Database<E> {
 
-    public IConfigStore configStore = CMS.getConfigStore();
+    CMSEngine engine = CMS.getCMSEngine();
+    public IConfigStore configStore = engine.getConfigStore();
     public String substoreName;
 
     public CSCfgDatabase(String name, String substoreName) {

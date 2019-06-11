@@ -27,7 +27,6 @@ package com.netscape.cms.selftests.tks;
 import java.util.Arrays;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -38,6 +37,8 @@ import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.symkey.SessionKey;
 
 //////////////////////
@@ -55,6 +56,9 @@ import com.netscape.symkey.SessionKey;
  */
 public class TKSKnownSessionKey
         extends ASelfTest {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TKSKnownSessionKey.class);
+
     // parameter information
     public static final String PROP_TKS_SUB_ID = "TksSubId";
     private String mTksSubId = null;
@@ -94,6 +98,7 @@ public class TKSKnownSessionKey
 
         super.initSelfTest(subsystem, instanceName, parameters);
 
+        CMSEngine engine = CMS.getCMSEngine();
         mTksSubId = getConfigString(PROP_TKS_SUB_ID);
         mToken = getConfigString("token");
         mKeyName = getConfigString("keyName");
@@ -145,13 +150,13 @@ public class TKSKnownSessionKey
         }
 
         String defKeySetMacKey = null;
-        tks = CMS.getSubsystem(mTksSubId);
+        tks = engine.getSubsystem(mTksSubId);
         if (tks != null) {
             tksConfig = tks.getConfigStore();
             if (tksConfig != null) {
                 try {
                     defKeySetMacKey = tksConfig.getString("defKeySet.mac_key");
-                    byte defMacKey[] = com.netscape.cmsutil.util.Utils.SpecialDecode(defKeySetMacKey);
+                    byte defMacKey[] = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(defKeySetMacKey);
                     if (!Arrays.equals(mMacKey, defMacKey)) {
                         defKeySetMacKey = null;
                     }
@@ -161,8 +166,8 @@ public class TKSKnownSessionKey
             }
         }
         if (defKeySetMacKey == null) {
-            CMS.debug("TKSKnownSessionKey: invalid mac key");
-            CMS.debug("TKSKnownSessionKey self test FAILED");
+            logger.error("TKSKnownSessionKey: invalid mac key");
+            logger.error("TKSKnownSessionKey self test FAILED");
             mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(),
                                     CMS.getLogMessage("SELFTESTS_INVALID_VALUES",
                                             getSelfTestName(), mPrefix + "." + "macKey"));
@@ -190,7 +195,7 @@ public class TKSKnownSessionKey
                 String sessionKey = SpecialEncode(mSessionKey);
                 mConfig.putString("sessionKey", sessionKey);
                 try {
-                    CMS.getConfigStore().commit(true);
+                    engine.getConfigStore().commit(true);
                 } catch (EBaseException be) {
                     mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(),
                                             CMS.getLogMessage("SELFTESTS_MISSING_VALUES",
@@ -244,7 +249,7 @@ public class TKSKnownSessionKey
                                                                      EInvalidSelfTestException {
         String stringValue = getConfigString(name);
 
-        byte byteValue[] = com.netscape.cmsutil.util.Utils.SpecialDecode(stringValue);
+        byte byteValue[] = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(stringValue);
         if (byteValue == null) {
             mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(),
                                     CMS.getLogMessage("SELFTESTS_MISSING_NAME",
@@ -319,25 +324,26 @@ public class TKSKnownSessionKey
      * Execute an individual self test.
      * <P>
      *
-     * @param logger specifies logging subsystem
+     * @param listener specifies logging subsystem
      * @exception Exception self test exception
      */
-    public void runSelfTest(ILogEventListener logger) throws Exception {
+    public void runSelfTest(ILogEventListener listener) throws Exception {
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            IConfigStore cs = CMS.getConfigStore();
+            IConfigStore cs = engine.getConfigStore();
             boolean useNewNames = cs.getBoolean("tks.useNewSharedSecretNames", false);
             if (useNewNames) {
                 String tpsList = cs.getString("tps.list", "");
                 if (tpsList.isEmpty()) {
-                    CMS.debug("TKSKnownSessionKey: no shared secrets configured, exiting");
+                    logger.warn("TKSKnownSessionKey: no shared secrets configured, exiting");
                     return;
                 }
 
                 for (String tpsID : tpsList.split(",")) {
                     String sharedSecretName = cs.getString("tps." + tpsID + ".nickname", "");
                     if (!sharedSecretName.isEmpty()) {
-                        CMS.debug("TKSKnownSessionKey: testing with key " + sharedSecretName);
+                        logger.debug("TKSKnownSessionKey: testing with key " + sharedSecretName);
                         generateSessionKey(sharedSecretName);
                     }
                 }
@@ -352,15 +358,15 @@ public class TKSKnownSessionKey
                     "SELFTESTS_TKS_SUCCEEDED",
                     getSelfTestName(),
                     getSelfTestName());
-            mSelfTestSubsystem.log(logger, logMessage);
-            CMS.debug("TKSKnownSessionKey self test SUCCEEDED");
+            mSelfTestSubsystem.log(listener, logMessage);
+            logger.debug("TKSKnownSessionKey self test SUCCEEDED");
 
         } catch (Exception e) {
             String logMessage = CMS.getLogMessage(
                     "SELFTESTS_TKS_FAILED",
                     getSelfTestName(),
                     getSelfTestName());
-            mSelfTestSubsystem.log(logger, logMessage);
+            mSelfTestSubsystem.log(listener, logMessage);
             throw e;
         }
     }
@@ -380,7 +386,7 @@ public class TKSKnownSessionKey
         // Now we just see if we can successfully generate a session key.
         // For FIPS compliance, the routine now returns a wrapped key, which can't be extracted and compared.
         if (sessionKey == null) {
-            CMS.debug("TKSKnownSessionKey: generated no session key");
+            logger.error("TKSKnownSessionKey: generated no session key");
             throw new Exception("No session key generated");
         }
     }

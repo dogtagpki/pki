@@ -30,7 +30,9 @@ import java.util.Map;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.AuthorityData;
 import com.netscape.certsrv.authority.AuthorityResource;
@@ -58,9 +60,8 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.SubsystemService;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.x509.X500Name;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author ftweedal
@@ -71,7 +72,8 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
     ICertificateAuthority hostCA;
 
     public AuthorityService() {
-        hostCA = (ICertificateAuthority) CMS.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        hostCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
     }
 
     @Override
@@ -141,8 +143,13 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
+        org.mozilla.jss.crypto.X509Certificate cert = ca.getCaX509Cert();
+        if (cert == null)
+            throw new ResourceNotFoundException(
+                "Certificate for CA \"" + aidString + "\" not available");
+
         try {
-            return Response.ok(ca.getCaX509Cert().getEncoded()).build();
+            return Response.ok(cert.getEncoded()).build();
         } catch (CertificateEncodingException e) {
             // this really is a 500 Internal Server Error
             throw new PKIException("Error encoding certificate: " + e);
@@ -168,9 +175,14 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
         if (ca == null)
             throw new ResourceNotFoundException("CA \"" + aidString + "\" not found");
 
+        org.mozilla.jss.netscape.security.x509.CertificateChain chain = ca.getCACertChain();
+        if (chain == null)
+            throw new ResourceNotFoundException(
+                "Certificate chain for CA \"" + aidString + "\" not available");
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            ca.getCACertChain().encode(out);
+            chain.encode(out);
         } catch (IOException e) {
             throw new PKIException("Error encoding certificate chain: " + e);
         }

@@ -21,10 +21,10 @@ package com.netscape.cmstools.group;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupMemberData;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**

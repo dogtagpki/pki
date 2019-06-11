@@ -24,14 +24,14 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
 import org.dogtagpki.util.logging.PKILogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-import netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 
 public class PKCS7CertFindCLI extends CLI {
 

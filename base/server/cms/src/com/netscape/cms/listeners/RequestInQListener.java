@@ -20,7 +20,6 @@ package com.netscape.cms.listeners;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -37,6 +36,8 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.profile.input.SubjectNameInput;
 import com.netscape.cms.profile.input.SubmitterInfoInput;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailTemplate;
 
@@ -57,6 +58,9 @@ import com.netscape.cmscore.notification.EmailTemplate;
  *
  */
 public class RequestInQListener implements IRequestListener {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestInQListener.class);
+
     protected static final String PROP_ENABLED = "enabled";
     protected final static String PROP_SENDER_EMAIL = "senderEmail";
     protected final static String PROP_RECVR_EMAIL = "recipientEmail";
@@ -91,6 +95,7 @@ public class RequestInQListener implements IRequestListener {
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
 
+        CMSEngine engine = CMS.getCMSEngine();
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -116,12 +121,12 @@ public class RequestInQListener implements IRequestListener {
         mFormPath = rq.getString(PROP_EMAIL_TEMPLATE);
 
         // make available http host and port for forming url in templates
-        mHttpHost = CMS.getAgentHost();
-        mAgentPort = CMS.getAgentPort();
+        mHttpHost = engine.getAgentHost();
+        mAgentPort = engine.getAgentPort();
         if (mAgentPort == null)
             log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_REQUEST_PORT_NOT_FOUND"));
         else
-            CMS.debug("RequestInQuListener: agentport = " + mAgentPort);
+            logger.debug("RequestInQuListener: agentport = " + mAgentPort);
 
         // register for this event listener
         mSubsystem.registerPendingListener(this);
@@ -140,7 +145,8 @@ public class RequestInQListener implements IRequestListener {
 
         // regardless of type of request...notify for everything
         // no need for email resolver here...
-        IMailNotification mn = CMS.getMailNotification();
+        CMSEngine engine = CMS.getCMSEngine();
+        IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
         mn.setTo(mRecipientEmail);
@@ -155,26 +161,19 @@ public class RequestInQListener implements IRequestListener {
         /*
          * parse and process the template
          */
-        if (template != null) {
-            if (!template.init()) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_TEMPLATE_NOT_INIT"));
-                return;
-            }
-
-            buildContentParams(r);
-            EmailFormProcessor et = new EmailFormProcessor();
-            String c = et.getEmailContent(template.toString(), mContentParams);
-
-            if (template.isHTML()) {
-                mn.setContentType("text/html");
-            }
-            mn.setContent(c);
-        } else {
-            // log and mail
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("LISTENERS_TEMPLATE_NOT_GET"));
-            mn.setContent("Template not retrievable for Request in Queue notification");
+        if (!template.init()) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_TEMPLATE_NOT_INIT"));
+            return;
         }
+
+        buildContentParams(r);
+        EmailFormProcessor et = new EmailFormProcessor();
+        String c = et.getEmailContent(template.toString(), mContentParams);
+
+        if (template.isHTML()) {
+            mn.setContentType("text/html");
+        }
+        mn.setContent(c);
 
         try {
             mn.sendNotification();

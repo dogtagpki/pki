@@ -32,11 +32,14 @@ import org.dogtagpki.tps.main.TPSException;
 import org.dogtagpki.tps.msg.BeginOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.event.TokenPinResetEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class TPSPinResetProcessor extends TPSProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSPinResetProcessor.class);
 
     public TPSPinResetProcessor(TPSSession session) {
         super(session);
@@ -62,10 +65,11 @@ public class TPSPinResetProcessor extends TPSProcessor {
         //ToDo: Implement full pin reset processor, the pin reset portion
         // of an enrollment works fine. We just need to finish this to perform
         // a completely stand alone pin reset of an already enrolled token.
-        CMS.debug(method + ": entering...");
+        logger.debug(method + ": entering...");
 
         String logMsg = null;
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
 
         AppletInfo appletInfo = null;
         TokenRecord tokenRecord = null;
@@ -96,7 +100,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
             tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
-            CMS.debug(logMsg);
+            logger.error(logMsg);
             throw new TPSException(logMsg +
                     TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
@@ -114,13 +118,12 @@ public class TPSPinResetProcessor extends TPSProcessor {
                 FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
                         appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
                         appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
-                TPSSubsystem subsystem =
-                        (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
                 BaseMappingResolver resolverInst =
                         subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
                 tokenType = resolverInst.getResolvedMapping(mappingParams);
                 setSelectedTokenType(tokenType);
-                CMS.debug(method + " resolved tokenType: " + tokenType);
+                logger.debug(method + " resolved tokenType: " + tokenType);
             }
         } catch (TPSException e) {
             logMsg = e.toString();
@@ -140,7 +143,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         TokenStatus status = tokenRecord.getTokenStatus();
 
-        CMS.debug(method + ": Token status: " + status);
+        logger.debug(method + ": Token status: " + status);
 
         if (!status.equals(TokenStatus.ACTIVE)) {
             logMsg = method + "Can not reset the pin of a non active token.";
@@ -153,7 +156,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         boolean pinResetAllowed = tokenPolicy.isAllowedPinReset(tokenRecord.getId());
 
-        CMS.debug(method + ": PinResetPolicy: Pin Reset Allowed:  " + pinResetAllowed);
+        logger.debug(method + ": PinResetPolicy: Pin Reset Allowed:  " + pinResetAllowed);
         logMsg = method + " PinReset Policy forbids pin reset operation.";
         if (pinResetAllowed == false) {
             auditPinResetFailure(session.getIpAddress(), userid, appletInfo, logMsg);
@@ -181,7 +184,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
         try {
             tps.tdb.tdbUpdateTokenEntry(tokenRecord);
             tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg, "success");
-            CMS.debug(method + ": token record updated!");
+            logger.debug(method + ": token record updated!");
         } catch (Exception e) {
             logMsg = logMsg + ":" + e.toString();
             tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
@@ -189,7 +192,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
             throw new TPSException(logMsg);
         }
 
-        CMS.debug(method + ": Token Pin successfully reset!");
+        logger.debug(method + ": Token Pin successfully reset!");
 
     }
 

@@ -24,12 +24,11 @@ import org.dogtagpki.legacy.policy.IExpression;
 import org.dogtagpki.legacy.policy.IPolicyRule;
 import org.dogtagpki.legacy.policy.IPolicySet;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.util.Debug;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Implements a policy set per IPolicySet interface. This class
@@ -39,6 +38,9 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class PolicySet implements IPolicySet {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicySet.class);
+
     private String mName;
     private Vector<String> mRuleNames = new Vector<String>();
     private Vector<IPolicyRule> mRules = new Vector<IPolicyRule>();
@@ -173,9 +175,8 @@ public class PolicySet implements IPolicySet {
             IExpression exp = rule.getPredicate();
 
             try {
-                if (Debug.ON)
-                    Debug.trace("evaluating predicate for rule " + rule.getName());
-                CMS.debug("PolicySet: apply()- evaluating predicate for rule " + rule.getName());
+                logger.debug("evaluating predicate for rule " + rule.getName());
+                logger.debug("PolicySet: apply()- evaluating predicate for rule " + rule.getName());
                 if (exp != null && !exp.evaluate(req))
                     continue;
             } catch (Exception e) {
@@ -186,14 +187,12 @@ public class PolicySet implements IPolicySet {
                 continue;
 
             try {
-                if (Debug.ON)
-                    Debug.trace("Policy " + name + " selected");
-                CMS.debug("Policy " + name + " selected");
+                logger.debug("Policy " + name + " selected");
+                logger.debug("Policy " + name + " selected");
                 PolicyResult result = rule.apply(req);
-                CMS.debug("Policy applied");
+                logger.debug("Policy applied");
 
-                if (Debug.ON)
-                    Debug.trace("Policy " + name + " returned " + result);
+                logger.debug("Policy " + name + " returned " + result);
 
                 if (result == PolicyResult.REJECTED) {
                     // It is hard to find out the owner at the moment unless

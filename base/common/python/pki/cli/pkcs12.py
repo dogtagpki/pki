@@ -50,10 +50,11 @@ class PKCS12ImportCLI(pki.cli.CLI):
         super(PKCS12ImportCLI, self).__init__(
             'import', 'Import PKCS #12 file into NSS database')
 
-    def print_help(self):  # flake8: noqa
+    def print_help(self):
         print('Usage: pki pkcs12-import [OPTIONS]')
         print()
-        print('      --pkcs12-file <path>           PKCS #12 file containing certificates and keys.')
+        print('      --pkcs12-file <path>           PKCS #12 file containing certificates and '
+              'keys.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  containing the PKCS #12 password.')
         print('      --no-trust-flags               Do not include trust flags')
@@ -66,8 +67,6 @@ class PKCS12ImportCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'v', [

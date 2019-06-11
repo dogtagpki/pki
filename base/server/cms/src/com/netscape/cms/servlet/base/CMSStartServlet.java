@@ -31,13 +31,12 @@ import org.dogtagpki.server.PKIServerSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.cms.realm.PKIRealm;
 import com.netscape.cms.tomcat.ProxyRealm;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmsutil.util.Utils;
 
 /**
  * This servlet is started by the web server at startup, and
@@ -73,49 +72,6 @@ public class CMSStartServlet extends HttpServlet {
             // path: <instance>/conf/<subsystem>/CS.cfg
             path = instanceDir + File.separator + "conf" + File.separator +
                     subsystem + File.separator + "CS.cfg";
-        }
-
-        File f = new File(path);
-        String old_path = "";
-        if (!f.exists()) {
-            int index = path.lastIndexOf("CS.cfg");
-            if (index != -1) {
-                old_path = path.substring(0, index) + "CMS.cfg";
-            }
-            File f1 = new File(old_path);
-            if (f1.exists()) {
-                // The following block of code moves "CMS.cfg" to "CS.cfg".
-                try {
-                    if (Utils.isNT()) {
-                        // NT is very picky on the path
-                        Utils.exec("copy " +
-                                    f1.getAbsolutePath().replace('/', '\\') +
-                                    " " +
-                                    f.getAbsolutePath().replace('/', '\\'));
-                    } else {
-                        // Create a copy of the original file which
-                        // preserves the original file permissions.
-                        Utils.exec("cp -p " + f1.getAbsolutePath() + " " +
-                                    f.getAbsolutePath());
-                    }
-
-                    // Remove the original file if and only if
-                    // the backup copy was successful.
-                    if (f.exists()) {
-                        if (!f1.delete()) {
-                            logger.warn("CMSStartServlet: init: Cannot delete file : " + old_path);
-                        }
-
-                        // Make certain that the new file has
-                        // the correct permissions.
-                        if (!Utils.isNT()) {
-                            Utils.exec("chmod 00660 " + f.getAbsolutePath());
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.warn("Unable to rename CMS.cfg to CS.cfg: " + e.getMessage(), e);
-                }
-            }
         }
 
         Class<?> engineClass = CMSEngine.class;
@@ -190,7 +146,7 @@ public class CMSStartServlet extends HttpServlet {
      */
     public void destroy() {
         logger.debug("CMSStartServlet.destroy(): shutdown server");
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
         engine.shutdown();
     }
 }

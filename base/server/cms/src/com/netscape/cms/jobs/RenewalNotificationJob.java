@@ -24,7 +24,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -37,7 +36,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.jobs.IJobsScheduler;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
@@ -45,6 +43,8 @@ import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
@@ -262,8 +262,8 @@ public class RenewalNotificationJob
         mId = id;
         mImplName = implName;
 
-        mCA = (ICertificateAuthority)
-                CMS.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        mCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         if (mCA == null) {
             mSummary = false;
             return;
@@ -287,9 +287,10 @@ public class RenewalNotificationJob
      * responsible parties
      */
     public void run() {
+        CMSEngine engine = CMS.getCMSEngine();
         // for forming renewal URL at template
-        mHttpHost = CMS.getEEHost();
-        mHttpPort = CMS.getEESSLPort();
+        mHttpHost = engine.getEEHost();
+        mHttpPort = engine.getEESSLPort();
 
         // read from the configuration file
         try {
@@ -326,7 +327,7 @@ public class RenewalNotificationJob
             mPreMS = mspredays * msperday;
             mPostMS = mspostdays * msperday;
 
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             DateFormat dateFormat = DateFormat.getDateTimeInstance();
             String nowString = dateFormat.format(now);
 
@@ -425,7 +426,7 @@ public class RenewalNotificationJob
                         cp.process(element);
                     } catch (Exception e) {
                         //Don't abort the entire operation. The error should already be logged
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_FAILED_PROCESS", e.toString()));
+                        logger.warn("RenewalNotificationJob: " + CMS.getLogMessage("JOBS_FAILED_PROCESS", e.toString()), e);
                     }
                 }
 
@@ -460,7 +461,7 @@ public class RenewalNotificationJob
                                         mContentParams);
 
                         if (summaryContent == null) {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_SUMMARY_CONTENT_NULL"));
+                            logger.warn("RenewalNotificationJob: " + CMS.getLogMessage("JOBS_SUMMARY_CONTENT_NULL"));
                             mailSummary(" no summaryContent");
                         } else {
                             mMailHTML = mSummaryHTML;
@@ -468,15 +469,15 @@ public class RenewalNotificationJob
                         }
                     } catch (Exception e) {
                         // log error
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_EXCEPTION_IN_RUN", e.toString()));
+                        logger.warn("RenewalNotificationJob: " + CMS.getLogMessage("JOBS_EXCEPTION_IN_RUN", e.toString()), e);
                     }
                 }
             } catch (EBaseException e) {
                 // log error
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+                logger.warn("RenewalNotificationJob: " + CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
             }
         } catch (EBaseException ex) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("Configuration error:", ex.toString()));
+            logger.warn("RenewalNotificationJob: " + CMS.getLogMessage("Configuration error:", ex.toString()), ex);
         }
     }
 
@@ -532,7 +533,8 @@ public class RenewalNotificationJob
             ICertRecord cr)
             throws IOException, ENotificationException, EBaseException {
 
-        IMailNotification mn = CMS.getMailNotification();
+        CMSEngine engine = CMS.getCMSEngine();
+        IMailNotification mn = engine.getMailNotification();
 
         String rcp = null;
         //		boolean sendFailed = false;
@@ -596,6 +598,9 @@ public class RenewalNotificationJob
 }
 
 class CertRecProcessor implements IElementProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecProcessor.class);
+
     protected RenewalNotificationJob mJob;
     protected String mEmailTemplate;
     protected String mSummaryItemTemplate;
@@ -632,8 +637,7 @@ class CertRecProcessor implements IElementProcessor {
                 if (mJob.mSummary == true)
                     mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                             AJobBase.STATUS_FAILURE);
-                mJob.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("JOBS_GET_CERT_ERROR",
+                logger.warn("CertRecProcessor: " + CMS.getLogMessage("JOBS_GET_CERT_ERROR",
                                 cr.getCertificate().getSerialNumber().toString(16)));
             } else {
                 ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
@@ -651,7 +655,7 @@ class CertRecProcessor implements IElementProcessor {
                 // it is ok not to be able to get the request. The main reason
                 // to get the request is to retrieve the requestor's email.
                 // We can retrieve the email from the CertRecord.
-                CMS.debug("huh RenewalNotificationJob Exception: " + e.toString());
+                logger.warn("huh RenewalNotificationJob Exception: " + e.getMessage(), e);
             }
 
             if (req != null)
@@ -677,9 +681,8 @@ class CertRecProcessor implements IElementProcessor {
             mIC.mNumSuccessful++;
 
         } catch (Exception e) {
-            CMS.debug("RenewalNotificationJob Exception: " + e.toString());
+            logger.warn("RenewalNotificationJob: " + e.getMessage(), e);
             mJob.buildItemParams(IEmailFormProcessor.TOKEN_STATUS, AJobBase.STATUS_FAILURE);
-            mJob.log(ILogger.LL_FAILURE, e.toString(), ILogger.L_MULTILINE);
             if (numFailCounted == false) {
                 mIC.mNumFail++;
             }

@@ -28,7 +28,7 @@ import com.netscape.certsrv.base.ICertPrettyPrint;
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  */
-public class CertPrettyPrint extends netscape.security.util.CertPrettyPrint implements ICertPrettyPrint {
+public class CertPrettyPrint extends org.mozilla.jss.netscape.security.util.CertPrettyPrint implements ICertPrettyPrint {
 
     public CertPrettyPrint(Certificate cert) {
         super(cert);

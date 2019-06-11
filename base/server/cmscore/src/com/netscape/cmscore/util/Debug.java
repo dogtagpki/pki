@@ -17,104 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Hashtable;
-import java.util.StringTokenizer;
-
 import org.dogtagpki.util.logging.PKILogger;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.cmscore.apps.CMS;
 
 public class Debug
         implements ISubsystem {
 
     private static Debug mInstance = new Debug();
 
-    public static final boolean ON = false;
     public static final int OBNOXIOUS = 1;
     public static final int VERBOSE = 5;
     public static final int INFORM = 10;
-
-    // the difference between this and 'ON' is that this is always
-    // guaranteed to log to 'mOut', whereas other parts of the server
-    // may do:
-    //  if (Debug.ON) {
-    //     System.out.println("..");
-    //	}
-    // I want to make sure that any Debug.trace() is not logged to
-    // System.out if the server is running under watchdog
-
-    private static boolean TRACE_ON = false;
-
-    private static int mDebugLevel = VERBOSE;
-
-    private static Hashtable<String, String> mHK = null;
-
-    public static void trace(int level, String t) {
-        if (!TRACE_ON)
-            return;
-
-        if (level <= OBNOXIOUS) {
-            CMS.logger.trace(t);
-
-        } else if (level <= VERBOSE) {
-            CMS.logger.debug(t);
-
-        } else if (level <= INFORM) {
-            CMS.logger.info(t);
-
-        } else {
-            CMS.logger.warn(t);
-        }
-    }
-
-    private static boolean hkdotype(String type) {
-        if (mHK != null && mHK.get(type) != null) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public static void traceHashKey(String type, String key) {
-        if (hkdotype(type)) {
-            trace("GET r=" + type + ",k=" + key);
-        }
-    }
-
-    public static void traceHashKey(String type, String key, String val) {
-        if (hkdotype(type)) {
-            trace("GET r=" + type + ",k=" + key + ",v=" + val);
-        }
-    }
-
-    public static void traceHashKey(String type, String key, String val, String def) {
-        if (hkdotype(type)) {
-            trace("GET r=" + type + ",k=" +
-                     key + ",v=" + val + ",d=" + def);
-        }
-    }
-
-    public static void putHashKey(String type, String key, String value) {
-        if (hkdotype(type)) {
-            trace("PUT r=" + type + ",k=" + key + ",v=" + value);
-        }
-    }
-
-    public static void trace(String t) {
-        trace(VERBOSE, t);
-    }
-
-    public static void print(int level, String t) {
-        trace(level, t);
-    }
-
-    public static void print(String t) {
-        print(VERBOSE, t);
-    }
+    public static final int WARN = 15;
 
     private static char getNybble(byte b) {
         if (b < 10) {
@@ -124,69 +41,22 @@ public class Debug
         }
     }
 
-    /**
-     * If tracing enabled, dump a byte array to debugging printstream
-     * as hex, colon-seperated bytes, 16 bytes to a line
-     */
-    public static void print(byte[] b) {
-        if (!TRACE_ON)
-            return;
+    public static String dump(byte[] b) {
 
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < b.length; i++) {
             sb.append(getNybble((byte) ((b[i] & 0xf0) >> 4)));
             sb.append(getNybble((byte) (b[i] & 0x0f)));
-            sb.append(" ");
 
             if (((i % 16) == 15) && i != b.length) {
-                CMS.logger.debug(sb.toString());
-                sb = new StringBuilder();
+                sb.append('\n');
+            } else {
+                sb.append(" ");
             }
         }
 
-        if (sb.length() > 0) {
-            CMS.logger.debug(sb.toString());
-        }
-    }
-
-    /**
-     * Print the current stack trace to the debug printstream
-     */
-    public static void printStackTrace() {
-        if (!TRACE_ON)
-            return;
-        Exception e = new Exception("Debug");
-
-        printStackTrace(e);
-    }
-
-    /**
-     * Print the stack trace of the named exception
-     * to the debug printstream
-     */
-    public static void printStackTrace(Throwable e) {
-        if (!TRACE_ON)
-            return;
-
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-
-        // If the exception does not have a message, the stack trace will
-        // show the exception class name.
-        //
-        // However, if the exception has a message, the stack trace will
-        // only show the message. To help troubleshooting, the class name
-        // is prepended to the message.
-
-        if (e.getMessage() != null) {
-            pw.print(e.getClass().getName());
-            pw.print(": ");
-        }
-
-        e.printStackTrace(pw);
-
-        CMS.logger.warn(sw.toString());
+        return sb.toString();
     }
 
     /**
@@ -202,7 +72,6 @@ public class Debug
      */
 
     public static void setLevel(int level) {
-        mDebugLevel = level;
 
         PKILogger.Level logLevel;
 
@@ -215,22 +84,14 @@ public class Debug
         } else if (level <= INFORM) {
             logLevel = PKILogger.Level.INFO;
 
-        } else {
+        } else if (level <= WARN) {
             logLevel = PKILogger.Level.WARN;
+
+        } else {
+            logLevel = PKILogger.Level.ERROR;
         }
 
         PKILogger.setLevel(logLevel);
-    }
-
-    public static int getLevel(int level) {
-        return mDebugLevel;
-    }
-
-    /**
-     * Test if debugging is on. Do NOT write to System.out in your debug code
-     */
-    public static boolean on() {
-        return TRACE_ON;
     }
 
     /*  ISubsystem methods: */
@@ -246,53 +107,23 @@ public class Debug
         ID = id;
     }
 
-    private static final String PROP_ENABLED = "enabled";
-    private static final String PROP_FILENAME = "filename";
-    private static final String PROP_HASHKEYS = "hashkeytypes";
     private static final String PROP_LEVEL = "level";
 
     /**
      * Debug subsystem initialization. This subsystem is usually
      * given the following parameters:
-     *
-     * <pre>
-     * debug.enabled   : (true|false) default false
-     * debug.filename  : can be a pathname, or STDOUT
-     * debug.hashkeytypes: comma-separated list of hashkey types
-     *    possible values:  "CS.cfg"
-     * debug.showcaller: (true|false) default false  [show caller method name for Debug.trace()]
-     * </pre>
      */
     public void init(ISubsystem owner, IConfigStore config) {
         mConfig = config;
-        String filename = null;
-        String hashkeytypes = null;
 
         try {
-            TRACE_ON = mConfig.getBoolean(PROP_ENABLED, false);
-            if (TRACE_ON) {
-                filename = mConfig.getString(PROP_FILENAME, null);
-                if (filename == null) {
-                    TRACE_ON = false;
-                }
-                hashkeytypes = mConfig.getString(PROP_HASHKEYS, null);
-            }
-            if (TRACE_ON) {
-                if (hashkeytypes != null) {
-                    StringTokenizer st = new StringTokenizer(hashkeytypes,
-                            ",", false);
-                    mHK = new Hashtable<String, String>();
-                    while (st.hasMoreElements()) {
-                        String hkr = st.nextToken();
-                        mHK.put(hkr, "true");
-                    }
-                }
-            }
-            trace("============================================");
-            trace("=====  DEBUG SUBSYSTEM INITIALIZED   =======");
-            trace("============================================");
-            int level = mConfig.getInteger(PROP_LEVEL, VERBOSE);
+            int level = mConfig.getInteger(PROP_LEVEL, INFORM);
             setLevel(level);
+
+            CMS.logger.debug("============================================");
+            CMS.logger.debug("=====  DEBUG SUBSYSTEM INITIALIZED   =======");
+            CMS.logger.debug("============================================");
+
         } catch (Exception e) {
             // Don't do anything. Logging is not set up yet, and
             // we can't write to STDOUT.

@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldap;
 
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * The object to publish or unpublish: a certificate or a CRL

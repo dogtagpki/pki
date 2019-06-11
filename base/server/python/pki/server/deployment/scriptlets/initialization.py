@@ -118,13 +118,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.configuration_file.verify_ds_secure_connection_data()
 
     def destroy(self, deployer):
+
+        logger.info(log.PKIDESTROY_BEGIN_MESSAGE_2,
+                    deployer.mdict['pki_subsystem'],
+                    deployer.mdict['pki_instance_name'])
+
+        logger.info('Initialization')
+
+        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance.load()
+
         try:
-            logger.info(log.PKIDESTROY_BEGIN_MESSAGE_2,
-                        deployer.mdict['pki_subsystem'],
-                        deployer.mdict['pki_instance_name'])
-
-            logger.info('Initialization')
-
             # verify that this type of "subsystem" currently EXISTS
             # for this "instance"
             deployer.instance.verify_subsystem_exists()
@@ -166,4 +170,4 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         finally:
             # ALWAYS Stop this Tomcat PKI Process
-            deployer.systemd.stop()
+            instance.stop()

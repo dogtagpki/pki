@@ -24,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -34,9 +35,15 @@ import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.primitive.Name;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -52,7 +59,8 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cmscore.util.Debug;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.KeyHashID;
@@ -61,14 +69,6 @@ import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
 import com.netscape.cmsutil.ocsp.ResponderID;
 import com.netscape.cmsutil.ocsp.ResponseData;
-
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
 
 /**
  * A class represents a Certificate Authority that is
@@ -80,6 +80,7 @@ import netscape.security.x509.X509Key;
  */
 public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, IAuthority {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPAuthority.class);
     private static final Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private long mServedTime = 0;
@@ -167,7 +168,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             }
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("OCSPAuthority: " + e.getMessage(), e);
             throw e;
         }
 
@@ -263,10 +264,9 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         }
         mOCSPSigningAlgorithms = AlgorithmId.getSigningAlgorithms(alg);
         if (mOCSPSigningAlgorithms == null) {
-            CMS.debug(
-                    "OCSP - no signing algorithms for " + alg.getName());
+            logger.debug("OCSP - no signing algorithms for " + alg.getName());
         } else {
-            CMS.debug("OCSP First signing algorithm ");
+            logger.debug("OCSP First signing algorithm ");
         }
         return mOCSPSigningAlgorithms;
     }
@@ -287,7 +287,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             // init signing unit
             mSigningUnit = new SigningUnit();
             mSigningUnit.init(this, mConfig.getSubStore(PROP_SIGNING_SUBSTORE));
-            CMS.debug("OCSP signing unit inited");
+            logger.debug("OCSP signing unit inited");
 
             // init cert chain
             CryptoManager manager = CryptoManager.getInstance();
@@ -302,7 +302,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
                 implchain[i] = new X509CertImpl(chain[i].getEncoded());
             }
             mCertChain = new CertificateChain(implchain);
-            CMS.debug("in init - got CA chain from JSS.");
+            logger.debug("in init - got CA chain from JSS.");
 
             // init issuer name - take name from the cert.
 
@@ -310,19 +310,17 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             getOCSPSigningAlgorithms();
             mName = (X500Name) mCert.getSubjectDN();
             mNickname = mSigningUnit.getNickname();
-            CMS.debug("in init - got CA name " + mName);
+            logger.debug("in init - got CA name " + mName);
 
         } catch (NotInitializedException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_SIGNING", e.toString()));
         } catch (CertificateException e) {
-            if (Debug.ON)
-                e.printStackTrace();
+            logger.warn("OCSPAuthority: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()));
         } catch (TokenException e) {
-            if (Debug.ON)
-                e.printStackTrace();
+            logger.warn("OCSPAuthority: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()));
         }
@@ -332,20 +330,21 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * Notifies this subsystem if owner is in running mode.
      */
     public void startup() throws EBaseException {
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             if (mDefStore != null)
                 mDefStore.startup();
 
         } catch (EBaseException e) {
-            CMS.debug(e);
-            if (CMS.isPreOpMode()) {
-                CMS.debug("OCSPAuthority.init(): Swallow exception in pre-op mode");
+            logger.warn("OCSPAuthority: " + e.getMessage(), e);
+            if (engine.isPreOpMode()) {
+                logger.warn("OCSPAuthority.init(): Swallow exception in pre-op mode");
                 return;
             }
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.warn("OCSPAuthority: " + e.getMessage(), e);
         }
     }
 
@@ -354,9 +353,9 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      */
     public OCSPResponse validate(OCSPRequest request)
             throws EBaseException {
-        long startTime = (CMS.getCurrentDate()).getTime();
+        long startTime = new Date().getTime();
         OCSPResponse response = mDefStore.validate(request);
-        long endTime = (CMS.getCurrentDate()).getTime();
+        long endTime = new Date().getTime();
 
         mServedTime = mServedTime + (endTime - startTime);
         return response;
@@ -422,7 +421,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             rd.encode(tmp);
             AlgorithmId.get(algname).encode(tmp);
 
-            CMS.debug("OCSPAuthority: adding signature");
+            logger.debug("OCSPAuthority: adding signature");
             byte[] signature = mSigningUnit.sign(rd_data, algname);
 
             tmp.putBitString(signature);
@@ -543,7 +542,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * NameID rid = new NameID((Name)nameTemplate.decode(
      * new ByteArrayInputStream(name.getEncoded())));
      * ResponseData rd = new ResponseData(rid, new GeneralizedTime(
-     * CMS.getCurrentDate()), res);
+     * new Date()), res);
      *
      * BasicOCSPResponse basicRes = sign(rd);
      *

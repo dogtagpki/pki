@@ -23,7 +23,6 @@ import java.util.Locale;
 
 import org.dogtagpki.server.tps.TPSSubsystem;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogEventListener;
@@ -33,6 +32,8 @@ import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements a self test to check for TPS presence.
@@ -144,7 +145,8 @@ public class TPSPresence extends ASelfTest {
      */
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(tpsSubId);
+        CMSEngine engine = CMS.getCMSEngine();
+        TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(tpsSubId);
         if (tps == null) {
             // log that the TPS is not installed
             String logMessage = CMS.getLogMessage(

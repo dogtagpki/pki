@@ -1,4 +1,4 @@
 RPM Dependency
 ==============
 
-![RPM Dependency](RPM_Dependency.svg)
+![RPM Dependency](images/RPM_Dependency.svg)

@@ -23,7 +23,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -33,6 +32,9 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -40,7 +42,6 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 
@@ -50,6 +51,9 @@ import netscape.ldap.LDAPv2;
  * @version $Revision$, $Date$
  */
 public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapUserCertPublisher.class);
+
     public static final String LDAP_USERCERT_ATTR = "userCertificate;binary";
 
     protected String mCertAttr = LDAP_USERCERT_ATTR;
@@ -126,6 +130,9 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         if (conn == null)
             return;
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         // Bugscape #56124 - support multiple publishing directory
         // see if we should create local connection
         LDAPConnection altConn = null;
@@ -136,24 +143,27 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
                 int portVal = Integer.parseInt(port);
                 int version = Integer.parseInt(mConfig.getString("version", "2"));
                 String cert_nick = mConfig.getString("clientCertNickname", null);
-                LDAPSSLSocketFactoryExt sslSocket;
+
+                PKISocketFactory sslSocket;
                 if (cert_nick != null) {
                     sslSocket = new PKISocketFactory(cert_nick);
                 } else {
                     sslSocket = new PKISocketFactory(true);
                 }
+                sslSocket.init(cs);
+
                 String mgr_dn = mConfig.getString("bindDN", null);
                 String mgr_pwd = mConfig.getString("bindPWD", null);
 
-                altConn = CMS.getBoundConnection("LdapUserCertPublisher", host, portVal,
+                altConn = new LdapBoundConnection(host, portVal,
                         version,
                         sslSocket, mgr_dn, mgr_pwd);
                 conn = altConn;
             }
         } catch (LDAPException e) {
-            CMS.debug("Failed to create alt connection " + e);
+            logger.warn("Failed to create alt connection " + e.getMessage(), e);
         } catch (EBaseException e) {
-            CMS.debug("Failed to create alt connection " + e);
+            logger.warn("Failed to create alt connection " + e.getMessage(), e);
         }
 
         if (!(certObj instanceof X509Certificate))
@@ -192,16 +202,15 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
 
             conn.modify(dn, mod);
 
-            // log a successful message to the "transactions" log
-            mLogger.log(ILogger.EV_AUDIT,
-                         ILogger.S_LDAP,
-                         ILogger.LL_INFO,
-                         AuditFormat.LDAP_PUBLISHED_FORMAT,
-                         new Object[] { "LdapUserCertPublisher",
-                                        cert.getSerialNumber().toString(16),
-                                        cert.getSubjectDN() });
+            logger.info(
+                    AuditFormat.LDAP_PUBLISHED_FORMAT,
+                    "LdapUserCertPublisher",
+                    cert.getSerialNumber().toString(16),
+                    cert.getSubjectDN()
+            );
+
         } catch (CertificateEncodingException e) {
-            CMS.debug("LdapUserCertPublisher: error in publish: " + e.toString());
+            logger.error("LdapUserCertPublisher: error in publish: " + e.getMessage(), e);
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
@@ -242,7 +251,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         }
 
         if (disableUnpublish) {
-            CMS.debug("UserCertPublisher: disable unpublish");
+            logger.debug("UserCertPublisher: disable unpublish");
             return;
         }
 

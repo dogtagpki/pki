@@ -28,19 +28,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.w3c.dom.Node;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class GetTokenInfo extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetTokenInfo.class);
     private static final long serialVersionUID = -8416582986909026263L;
     private final static String SUCCESS = "0";
 
@@ -55,7 +54,7 @@ public class GetTokenInfo extends CMSServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        CMS.debug("GetTokenInfo init");
+        logger.debug("GetTokenInfo init");
     }
 
     /**
@@ -74,13 +73,14 @@ public class GetTokenInfo extends CMSServlet {
         try {
             xmlObj = new XMLObject();
         } catch (Exception e) {
-            CMS.debug("GetTokenInfo process: Exception: " + e.toString());
+            logger.error("GetTokenInfo process: Exception: " + e.getMessage(), e);
             throw new EBaseException(e.toString());
         }
 
         Node root = xmlObj.createRoot("XMLResponse");
 
-        IConfigStore config = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore config = engine.getConfigStore();
 
         String certlist = "";
         try {
@@ -124,7 +124,7 @@ public class GetTokenInfo extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("Failed to send the XML output");
+            logger.warn("Failed to send the XML output: " + e.getMessage(), e);
         }
     }
 

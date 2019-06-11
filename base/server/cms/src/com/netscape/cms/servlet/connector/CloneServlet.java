@@ -31,7 +31,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -54,11 +56,11 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
-
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * Clone servlet - part of the Clone Authority (CLA)
@@ -68,9 +70,9 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class CloneServlet extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CloneServlet.class);
+
     private static final long serialVersionUID = -3474557834182380981L;
     public static final String INFO = "Clone Servlet";
     public final static String PROP_AUTHORITY = "authority";
@@ -85,19 +87,22 @@ public class CloneServlet extends CMSServlet {
 
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
+        CMSEngine engine = CMS.getCMSEngine();
         mConfig = sc;
         String authority = sc.getInitParameter(PROP_AUTHORITY);
 
         if (authority != null)
-            mAuthority = (IAuthority)
-                    CMS.getSubsystem(authority);
+            mAuthority = (IAuthority) engine.getSubsystem(authority);
         mReqEncoder = new HttpRequestEncoder();
-        mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
     }
 
     public void service(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException, IOException {
-        boolean running_state = CMS.isInRunningState();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        boolean running_state = engine.isInRunningState();
 
         if (!running_state)
             throw new IOException(
@@ -106,7 +111,7 @@ public class CloneServlet extends CMSServlet {
         CMSRequest cmsRequest = newCMSRequest();
 
         // set argblock
-        cmsRequest.setHttpParams(CMS.createArgBlock(toHashtable(req)));
+        cmsRequest.setHttpParams(new ArgBlock(toHashtable(req)));
 
         // set http request
         cmsRequest.setHttpReq(req);
@@ -184,7 +189,7 @@ public class CloneServlet extends CMSServlet {
 
         try {
             // cfu +++ authenticate checks both SUBJECT and Signer SUBJECT
-            CMS.debug("CloneServlet: about to authenticate");
+            logger.debug("CloneServlet: about to authenticate");
             token = authenticate(peerCert);
             // cfu maybe don't need CCA_Id, because the above check
             //			was good enough
@@ -233,10 +238,10 @@ public class CloneServlet extends CMSServlet {
 
         try {
             // decode request.
-            CMS.debug("Cloneservlet: before decoding request, encodedreq= " + encodedreq);
+            logger.debug("Cloneservlet: before decoding request, encodedreq= " + encodedreq);
             msg = (IPKIMessage) mReqEncoder.decode(encodedreq);
             // process request
-            CMS.debug("Cloneservlet: decoded request");
+            logger.debug("Cloneservlet: decoded request");
             replymsg = processRequest(CCA_Id, CCAUserId, msg, token);
         } catch (IOException e) {
             e.printStackTrace();
@@ -376,42 +381,36 @@ public class CloneServlet extends CMSServlet {
             if (!thisreq.getRequestStatus().equals(RequestStatus.COMPLETE)) {
                 if (certInfo != null) {
                     for (int i = 0; i < certInfo.length; i++) {
-                        mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.FORMAT,
-                                new Object[] {
-                                        thisreq.getRequestType(),
-                                        thisreq.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        thisreq.getRequestStatus(),
-                                        certInfo[i].get(X509CertInfo.SUBJECT),
-                                        "" }
-                                );
+                                thisreq.getRequestType(),
+                                thisreq.getRequestId(),
+                                initiative,
+                                authMgr,
+                                thisreq.getRequestStatus(),
+                                certInfo[i].get(X509CertInfo.SUBJECT),
+                                ""
+                        );
                     }
                 } else {
-                    mLogger.log(ILogger.EV_AUDIT,
-                            ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
+                    logger.info(
                             AuditFormat.NODNFORMAT,
-                            new Object[] {
-                                    thisreq.getRequestType(),
-                                    thisreq.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    thisreq.getRequestStatus() }
-                            );
+                            thisreq.getRequestType(),
+                            thisreq.getRequestId(),
+                            initiative,
+                            authMgr,
+                            thisreq.getRequestStatus()
+                    );
                 }
             } else {
                 if (thisreq.getRequestType().equals(IRequest.CLA_CERT4CRL_REQUEST)) {
                     Integer result = thisreq.getExtDataInInteger(IRequest.RESULT);
 
                     if (result.equals(IRequest.RES_ERROR)) {
-                        CMS.debug("CloneServlet: error in CLA_CERT4CRL_REQUEST");
+                        logger.debug("CloneServlet: error in CLA_CERT4CRL_REQUEST");
                     } else {
                         // the success.
-                        CMS.debug("CloneServlet: success in CLA_CERT4CRL_REQUEST");
+                        logger.debug("CloneServlet: success in CLA_CERT4CRL_REQUEST");
                     }
                 }
 

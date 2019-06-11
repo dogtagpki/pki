@@ -19,21 +19,24 @@ package com.netscape.cmscore.extensions;
 
 import java.io.IOException;
 
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.Extension;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.extensions.EExtensionsException;
 import com.netscape.certsrv.extensions.ICMSExtension;
-import com.netscape.cmscore.util.Debug;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 public class KeyUsage implements ICMSExtension {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyUsage.class);
+
     private final static String NAME = "KeyUsageExtension";
     private final static ObjectIdentifier OID = PKIXExtensions.KeyUsage_Id;
 
@@ -119,46 +122,36 @@ public class KeyUsage implements ICMSExtension {
         }
         if (i == KeyUsageExtension.NBITS && mSetDefault) {
             // no key usage extension parameters are requested. set default.
-            CMS.debug(
-                    "No Key usage bits requested. Setting default.");
+            logger.debug("No Key usage bits requested. Setting default.");
             bits = DEF_BITS;
         } else {
             bit = KeyUsageExtension.DIGITAL_SIGNATURE_BIT;
             bits[bit] = getBoolean(values[bit]);
-            if (Debug.ON)
-                Debug.trace("Requested key usage bit " + bit + " " + bits[bit]);
+            logger.debug("Requested key usage bit " + bit + " " + bits[bit]);
             bit = KeyUsageExtension.NON_REPUDIATION_BIT;
             bits[bit] = getBoolean(values[bit]);
-            if (Debug.ON)
-                Debug.trace("Requested key usage bit " + bit + " " + bits[bit]);
+            logger.debug("Requested key usage bit " + bit + " " + bits[bit]);
             bit = KeyUsageExtension.KEY_ENCIPHERMENT_BIT;
             bits[bit] = getBoolean(values[bit]);
-            if (Debug.ON)
-                Debug.trace("Requested key usage bit " + bit + " " + bits[bit]);
+            logger.debug("Requested key usage bit " + bit + " " + bits[bit]);
             bit = KeyUsageExtension.DATA_ENCIPHERMENT_BIT;
             bits[bit] = getBoolean(values[bit]);
-            if (Debug.ON)
-                Debug.trace("Requested key usage bit " + bit + " " + bits[bit]);
+            logger.debug("Requested key usage bit " + bit + " " + bits[bit]);
             bit = KeyUsageExtension.KEY_AGREEMENT_BIT;
             bits[bit] = getBoolean(values[bit]);
-            if (Debug.ON)
-                Debug.trace("Requested key usage bit " + bit + " " + bits[bit]);
+            logger.debug("Requested key usage bit " + bit + " " + bits[bit]);
             bit = KeyUsageExtension.KEY_CERTSIGN_BIT;
             bits[bit] = getBoolean(values[bit]);
-            if (Debug.ON)
-                Debug.trace("Requested key usage bit " + bit + " " + bits[bit]);
+            logger.debug("Requested key usage bit " + bit + " " + bits[bit]);
             bit = KeyUsageExtension.CRL_SIGN_BIT;
             bits[bit] = getBoolean(values[bit]);
-            if (Debug.ON)
-                Debug.trace("Requested key usage bit " + bit + " " + bits[bit]);
+            logger.debug("Requested key usage bit " + bit + " " + bits[bit]);
             bit = KeyUsageExtension.ENCIPHER_ONLY_BIT;
             bits[bit] = getBoolean(values[bit]);
-            if (Debug.ON)
-                Debug.trace("Requested key usage bit " + bit + " " + bits[bit]);
+            logger.debug("Requested key usage bit " + bit + " " + bits[bit]);
             bit = KeyUsageExtension.DECIPHER_ONLY_BIT;
             bits[bit] = getBoolean(values[bit]);
-            if (Debug.ON)
-                Debug.trace("Requested key usage bit " + bit + " " + bits[bit]);
+            logger.debug("Requested key usage bit " + bit + " " + bits[bit]);
         }
 
         try {
@@ -200,7 +193,7 @@ public class KeyUsage implements ICMSExtension {
             }
         }
 
-        IArgBlock params = CMS.createArgBlock();
+        ArgBlock params = new ArgBlock();
         boolean[] bits = ext.getBits();
 
         params.set(KeyUsageExtension.DIGITAL_SIGNATURE,

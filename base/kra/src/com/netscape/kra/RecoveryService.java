@@ -40,6 +40,11 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.CertBag;
 import org.mozilla.jss.pkcs12.PFX;
@@ -48,7 +53,6 @@ import org.mozilla.jss.pkcs12.SafeBag;
 import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -64,15 +68,11 @@ import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import netscape.security.util.BigInt;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
 
 /**
  * A class represents recovery request processor. There
@@ -141,9 +141,10 @@ public class RecoveryService implements IService {
         CryptoToken ct = null;
         Boolean allowEncDecrypt_recovery = false;
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             cm = CryptoManager.getInstance();
-            config = CMS.getConfigStore();
+            config = engine.getConfigStore();
             tokName = config.getString("kra.storageUnit.hardware", CryptoUtil.INTERNAL_TOKEN_NAME);
             logger.debug("RecoveryService: serviceRequest: token: " + tokName);
             ct = CryptoUtil.getCryptoToken(tokName);
@@ -157,7 +158,7 @@ public class RecoveryService implements IService {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR" + "cannot get crypto token"));
         }
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("recovery", true /* main action */);
         }
@@ -251,7 +252,7 @@ public class RecoveryService implements IService {
                 }
                 // verifyKeyPair() is RSA-centric
                 if (verifyKeyPair(pubData, privateKeyData) == false) {
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(privateKeyData);
                     mKRA.log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
@@ -277,7 +278,7 @@ public class RecoveryService implements IService {
                 throw e;
             } finally {
                 //We don't need this data any more
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(privateKeyData);
             }
 
@@ -286,7 +287,7 @@ public class RecoveryService implements IService {
             }
         } else {
 
-            if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
+            if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
                 Credential creds[] = (Credential[])
                         params.get(ATTR_AGENT_CREDENTIALS);
                 mKRA.getStorageKeyUnit().login(creds);
@@ -309,7 +310,7 @@ public class RecoveryService implements IService {
                 statsSub.endTiming("unwrap_key");
             }
 
-            if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
+            if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
                 mKRA.getStorageKeyUnit().logout();
             }
         }
@@ -334,18 +335,16 @@ public class RecoveryService implements IService {
                         authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
             }
         }
-        transactionLogger.log(
-                AuditFormat.LEVEL,
+        logger.info(
                 AuditFormat.FORMAT,
-                new Object[] {
-                        IRequest.KEYRECOVERY_REQUEST,
-                        request.getRequestId(),
-                        initiative,
-                        authMgr,
-                        "completed",
-                        ((X509CertImpl) x509cert).getSubjectDN(),
-                        "serial number: 0x" + serialno.toString(16) }
-                );
+                IRequest.KEYRECOVERY_REQUEST,
+                request.getRequestId(),
+                initiative,
+                authMgr,
+                "completed",
+                ((X509CertImpl) x509cert).getSubjectDN(),
+                "serial number: 0x" + serialno.toString(16)
+        );
 
         if (statsSub != null) {
             statsSub.endTiming("recovery");
@@ -410,8 +409,9 @@ public class RecoveryService implements IService {
         logger.debug("RecoverService: recoverKey: key to recover is RSA? "+
             isRSA);
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
+            if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
                 Credential creds[] = (Credential[])
                         request.get(ATTR_AGENT_CREDENTIALS);
 
@@ -438,7 +438,7 @@ public class RecoveryService implements IService {
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
                         "private key unwrapping failure"), e);
             }
-            if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
+            if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
                 mStorageUnit.logout();
             }
             return privKey;
@@ -459,7 +459,10 @@ public class RecoveryService implements IService {
      */
     public void createPFX(IRequest request, Hashtable<String, Object> params,
             PrivateKey priKey, CryptoToken ct) throws EBaseException {
+
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=false");
+
+        CMSEngine engine = CMS.getCMSEngine();
         org.mozilla.jss.util.Password pass = null;
         try {
             // create p12
@@ -498,7 +501,7 @@ public class RecoveryService implements IService {
                     org.mozilla.jss.util.Password(
                             pwdChar);
             {
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureChars(pwdChar);
             }
 
@@ -506,12 +509,11 @@ public class RecoveryService implements IService {
             PasswordConverter passConverter = new
                     PasswordConverter();
 
-            boolean legacyP12 =
-                CMS.getConfigStore().getBoolean("kra.legacyPKCS12", true);
+            boolean legacyP12 = engine.getConfigStore().getBoolean("kra.legacyPKCS12", true);
 
             ASN1Value key;
             if (legacyP12) {
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 SecureRandom ran = jssSubsystem.getRandomNumberGenerator();
                 byte[] salt = new byte[20];
                 ran.nextBytes(salt);
@@ -611,7 +613,8 @@ public class RecoveryService implements IService {
      */
     public synchronized byte[] recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord)
             throws EBaseException {
-        if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
+        CMSEngine engine = CMS.getCMSEngine();
+        if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
             Credential creds[] = (Credential[])
                     request.get(ATTR_AGENT_CREDENTIALS);
 
@@ -624,7 +627,7 @@ public class RecoveryService implements IService {
                      keyRecord.getPrivateKeyData(),
                      keyRecord.getWrappingParams(mKRA.getStorageKeyUnit().getOldWrappingParams()));
 
-             if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
+             if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
                  mStorageUnit.logout();
              }
 
@@ -645,7 +648,10 @@ public class RecoveryService implements IService {
      */
     public void createPFX(IRequest request, Hashtable<String, Object> params,
             byte priData[]) throws EBaseException {
+
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
+
+        CMSEngine engine = CMS.getCMSEngine();
         org.mozilla.jss.util.Password pass = null;
         try {
             // create p12
@@ -681,7 +687,7 @@ public class RecoveryService implements IService {
             pass = new org.mozilla.jss.util.Password(
                     pwdChars);
 
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             jssSubsystem.obscureChars(pwdChars);
 
 
@@ -691,8 +697,7 @@ public class RecoveryService implements IService {
                             priData);
             EncryptedPrivateKeyInfo epki = null;
 
-            boolean legacyP12 =
-                CMS.getConfigStore().getBoolean("kra.legacyPKCS12", true);
+            boolean legacyP12 = engine.getConfigStore().getBoolean("kra.legacyPKCS12", true);
 
             if (legacyP12) {
                 /* legacy mode may be required e.g. when token/HSM

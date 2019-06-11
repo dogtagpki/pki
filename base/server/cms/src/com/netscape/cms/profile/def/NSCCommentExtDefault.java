@@ -20,11 +20,10 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.NSCCommentExtension;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.NSCCommentExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -32,6 +31,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -41,6 +41,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class NSCCommentExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NSCCommentExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "nscCommentCritical";
     public static final String CONFIG_COMMENT = "nscCommentContent";
@@ -142,9 +144,9 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
 
             replaceExtension(ext.getExtensionId().toString(), ext, info);
         } catch (IOException e) {
-            CMS.debug("NSCCommentExtDefault: setValue " + e.toString());
+            logger.warn("NSCCommentExtDefault: setValue " + e.getMessage(), e);
         } catch (EProfileException e) {
-            CMS.debug("NSCCommentExtDefault: setValue " + e.toString());
+            logger.warn("NSCCommentExtDefault: setValue " + e.getMessage(), e);
         }
     }
 
@@ -238,8 +240,7 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
             else
                 ext = new NSCCommentExtension(critical, comment);
         } catch (Exception e) {
-            CMS.debug("NSCCommentExtension: createExtension " +
-                    e.toString());
+            logger.warn("NSCCommentExtension: createExtension " + e.getMessage(), e);
         }
         return ext;
     }

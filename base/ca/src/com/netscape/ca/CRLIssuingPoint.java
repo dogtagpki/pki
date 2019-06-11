@@ -29,7 +29,22 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.BitArray;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLNumberExtension;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
+import org.mozilla.jss.netscape.security.x509.IssuingDistributionPoint;
+import org.mozilla.jss.netscape.security.x509.IssuingDistributionPointExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -42,6 +57,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
@@ -65,25 +81,11 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
-
-import netscape.security.util.BitArray;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLNumberExtension;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.DeltaCRLIndicatorExtension;
-import netscape.security.x509.Extension;
-import netscape.security.x509.FreshestCRLExtension;
-import netscape.security.x509.IssuingDistributionPoint;
-import netscape.security.x509.IssuingDistributionPointExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.RevokedCertificate;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
 
 /**
  * This class encapsulates CRL issuing mechanism. CertificateAuthority
@@ -326,7 +328,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * whether issuing point has been initialized.
      */
-    private int mInitialized = CRL_IP_NOT_INITIALIZED;
+    private CRLIssuingPointStatus mInitialized =
+        CRLIssuingPointStatus.NotInitialized;
 
     /**
      * number of entries in the CRL
@@ -371,9 +374,20 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     public void enableCRLIssuingPoint(boolean enable) {
-        if ((!enable) && (mEnable ^ enable)) {
+        if (!enable && mEnable) {
             clearCRLCache();
             updateCRLCacheRepository();
+        } else if (enable && !mEnable) {
+            // Mark the CRLIP as NotInitialized so that the CRL
+            // entry will be read afresh when it is reinitialised.
+            // This ensures monotonicity of the CRL number, if some
+            // other clone was issuing CRLs in the meantime.
+            //
+            // See also:
+            //   https://pagure.io/dogtagpki/issue/3085
+            //   https://pagure.io/freeipa/issue/7815
+            //
+            mInitialized = CRLIssuingPointStatus.NotInitialized;
         }
         mEnable = enable;
         setAutoUpdates();
@@ -403,8 +417,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         return mCMSCRLExtensions;
     }
 
-    public int isCRLIssuingPointInitialized() {
-        return mInitialized;
+    public boolean isCRLIssuingPointInitialized() {
+        return mInitialized == CRLIssuingPointStatus.Initialized;
     }
 
     public boolean isManualUpdateSet() {
@@ -648,7 +662,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     private Vector<String> getProfileList(String list) {
         Enumeration<String> e = null;
-        IConfigStore pc = CMS.getConfigStore().getSubStore("profile");
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore pc = engine.getConfigStore().getSubStore("profile");
         if (pc != null)
             e = pc.getSubStoreNames();
         if (list == null)
@@ -801,14 +816,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mLastCacheUpdate = System.currentTimeMillis() + mCacheUpdateInterval;
 
         try {
+            logger.info("CRLIssuingPoint: reading CRL issuing point: " + mId);
             crlRecord = mCRLRepository.readCRLIssuingPointRecord(mId);
+
         } catch (EDBNotAvailException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_INST_CRL", e.toString()));
-            mInitialized = CRL_IP_INITIALIZATION_FAILED;
+            mInitialized = CRLIssuingPointStatus.InitializationFailed;
             return;
-        } catch (EBaseException e) {
-            // CRL was never set.
-            // fall to the following..
+
+        } catch (EDBRecordNotFoundException e) {
+            logger.debug("CRLIssuingPoint: CRL issuing point not found: " + mId);
         }
 
         if (crlRecord != null) {
@@ -873,7 +890,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         } catch (OutOfMemoryError e) {
                             clearCRLCache();
                             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_DECODE_CRL", e.toString()));
-                            mInitialized = CRL_IP_INITIALIZATION_FAILED;
+                            mInitialized = CRLIssuingPointStatus.InitializationFailed;
                             return;
                         }
                     }
@@ -903,7 +920,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             } else {
                                 mCRLCacheIsCleared = false;
                             }
-                            mInitialized = CRL_IP_INITIALIZED;
+                            mInitialized = CRLIssuingPointStatus.Initialized;
                         }
                         if (mPublishOnStart) {
                             try {
@@ -928,13 +945,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         if (crlRecord == null) {
             // no crl was ever created, or crl in db is corrupted.
-            // create new one.
+            logger.info("CRLIssuingPoint: creating new CRL issuing point: " + mId);
 
             IConfigStore ipStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE).getSubStore(mId);
-            try {
 
+            try {
                 BigInteger startingCrlNumberBig = ipStore.getBigInteger(PROP_CRL_STARTING_NUMBER, BigInteger.ZERO);
-                logger.debug("startingCrlNumber: " + startingCrlNumberBig);
+                logger.debug("CRLIssuingPoint: startingCrlNumber: " + startingCrlNumberBig);
 
                 // Check for bogus negative value
 
@@ -963,22 +980,25 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mDeltaCRLNumber = mCRLNumber;
                 mNextDeltaCRLNumber = mNextCRLNumber;
                 mLastUpdate = new Date(0L);
+
                 if (crlRecord != null) {
                     // This will trigger updateCRLNow, which will also publish CRL.
                     if ((mDoManualUpdate == false) &&
                             (mEnableCRLCache || mAlwaysUpdate ||
                             (mEnableUpdateFreq && mAutoUpdateInterval > 0))) {
-                        mInitialized = CRL_IP_INITIALIZED;
+                        mInitialized = CRLIssuingPointStatus.Initialized;
                         setManualUpdate(null);
                     }
                 }
+
             } catch (EBaseException ex) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_CREATE_CRL", ex.toString()));
-                mInitialized = CRL_IP_INITIALIZATION_FAILED;
+                mInitialized = CRLIssuingPointStatus.InitializationFailed;
                 return;
             }
         }
-        mInitialized = CRL_IP_INITIALIZED;
+
+        mInitialized = CRLIssuingPointStatus.Initialized;
     }
 
     private Object configMonitor = new Object();
@@ -1494,7 +1514,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 ((mEnableDailyUpdates && mDailyUpdates != null &&
                         mTimeListSize > 0) ||
                         (mEnableUpdateFreq && mAutoUpdateInterval > 0) ||
-                        (mInitialized == CRL_IP_NOT_INITIALIZED) ||
+                        (mInitialized == CRLIssuingPointStatus.NotInitialized) ||
                         mDoLastAutoUpdate || mDoManualUpdate)))) {
             mUpdateThread = new Thread(this, "CRLIssuingPoint-" + mId);
             log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_ISSUING_START_CRL", mId));
@@ -1502,7 +1522,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mUpdateThread.start();
         }
 
-        if ((mInitialized == CRL_IP_INITIALIZED) && (((mNextUpdate != null) ^
+        if (isCRLIssuingPointInitialized() && (((mNextUpdate != null) ^
                 ((mEnableDailyUpdates && mDailyUpdates != null && mTimeListSize > 0) ||
                 (mEnableUpdateFreq && mAutoUpdateInterval > 0))) ||
                 (!mEnableCRLUpdates && mNextUpdate != null))) {
@@ -1773,7 +1793,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         try {
             while (mEnable && ((mEnableCRLCache && mCacheUpdateInterval > 0) ||
-                    (mInitialized == CRL_IP_NOT_INITIALIZED) ||
+                    (mInitialized == CRLIssuingPointStatus.NotInitialized) ||
                     mDoLastAutoUpdate || (mEnableCRLUpdates &&
                     ((mEnableDailyUpdates && mDailyUpdates != null &&
                             mTimeListSize > 0) ||
@@ -1789,11 +1809,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             mTimeListSize > 0) ||
                             (mEnableUpdateFreq && mAutoUpdateInterval > 0));
 
-                    if (mInitialized == CRL_IP_NOT_INITIALIZED)
+                    if (mInitialized == CRLIssuingPointStatus.NotInitialized) {
                         initCRL();
-
-                    if (mInitialized == CRL_IP_INITIALIZED && (!mEnable))
-                        break;
+                    }
 
                     if ((mEnableCRLUpdates && mDoManualUpdate) || mDoLastAutoUpdate) {
                         delay = 0;
@@ -1900,25 +1918,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     /**
      * Updates CRL and publishes it.
-     * If time elapsed since last CRL update is less than
-     * minUpdateInterval silently returns.
-     * Otherwise determines nextUpdate by adding autoUpdateInterval or
-     * minUpdateInterval to the current time. If neither of the
-     * intervals are defined nextUpdate will be null.
-     * Then using specified configuration parameters it formulates new
-     * CRL, signs it, updates CRLIssuingPointRecord in the database
-     * and publishes CRL in the directory.
-     * <P>
      */
     private void updateCRL() throws EBaseException {
-        /*
-        if (mEnableUpdateFreq && mAutoUpdateInterval > 0 &&
-            (System.currentTimeMillis() - mLastUpdate.getTime() <
-                mMinUpdateInterval)) {
-            // log or alternatively throw an Exception
-            return;
-        }
-        */
         if (mDoManualUpdate && mSignatureAlgorithmForManualUpdate != null) {
             updateCRLNow(mSignatureAlgorithmForManualUpdate);
         } else {
@@ -2265,7 +2266,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     } catch (IOException e) {
                     }
                     RevokedCertImpl newRevokedCert = new RevokedCertImpl(serialNumber,
-                            CMS.getCurrentDate(), entryExt);
+                            new Date(), entryExt);
 
                     mUnrevokedCerts.put(serialNumber, newRevokedCert);
                 }
@@ -2341,7 +2342,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 } catch (IOException e) {
                 }
                 RevokedCertImpl newRevokedCert = new RevokedCertImpl(serialNumber,
-                        CMS.getCurrentDate(), entryExt);
+                        new Date(), entryExt);
 
                 mExpiredCerts.put(serialNumber, newRevokedCert);
             }
@@ -2474,8 +2475,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         logger.debug("updateCRLNow: mEnableCRLUpdates =" + mEnableCRLUpdates);
         logger.debug("updateCRLNow: mDoLastAutoUpdate =" + mDoLastAutoUpdate);
 
+        CMSEngine engine = CMS.getCMSEngine();
         if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate))
             return;
+
         logger.debug("Updating CRL");
         transactionLogger.log(AuditFormat.LEVEL,
                     CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATE_STARTED"),
@@ -2494,7 +2497,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if (signingAlgorithm == null || signingAlgorithm.length() == 0)
             signingAlgorithm = mSigningAlgorithm;
         mLastSigningAlgorithm = signingAlgorithm;
-        Date thisUpdate = CMS.getCurrentDate();
+        Date thisUpdate = new Date();
         Date nextUpdate = null;
         Date nextDeltaUpdate = null;
 
@@ -2580,7 +2583,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             clonedExpiredCerts.clear();
             mSchemaCounter = 0;
 
-            IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+            IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
             if (statsSub != null) {
                 statsSub.startTiming("generation");
             }
@@ -3017,7 +3020,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             throws EBaseException {
         SessionContext sc = SessionContext.getContext();
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("crl_publishing");
         }

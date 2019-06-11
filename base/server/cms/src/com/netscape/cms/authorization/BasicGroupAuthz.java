@@ -22,10 +22,10 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.acls.ACL;
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.acls.EACLsException;
 import com.netscape.certsrv.acls.IACL;
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -36,10 +36,13 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BasicGroupAuthz.class);
 
     private static final String GROUP = "group";
 
@@ -100,14 +103,15 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
             throw new EAuthzAccessDenied("No userid provided");
         }
 
-        IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         IGroup group = ug.getGroupFromName(groupName);
         if (!group.isMember(user)) {
-            CMS.debug("BasicGroupAuthz: access denied. User: " + user + " is not a member of group: " + groupName);
+            logger.error("BasicGroupAuthz: access denied. User: " + user + " is not a member of group: " + groupName);
             throw new EAuthzAccessDenied("Access denied");
         }
 
-        CMS.debug("BasicGroupAuthz: authorization passed");
+        logger.debug("BasicGroupAuthz: authorization passed");
 
         // compose AuthzToken
         AuthzToken authzToken = new AuthzToken(this);
@@ -149,7 +153,7 @@ public class BasicGroupAuthz implements IAuthzManager, IExtendedPluginInfo {
     }
 
     @Override
-    public Enumeration<ACL> getACLs() {
+    public Enumeration<IACL> getACLs() {
         // TODO Auto-generated method stub
         return null;
     }

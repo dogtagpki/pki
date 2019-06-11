@@ -21,14 +21,13 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Certificates Template filler.
@@ -62,7 +61,7 @@ class RevocationSuccessTemplateFiller implements ICMSTemplateFiller {
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e)
             throws Exception {
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 
         // set host name and port.
@@ -85,7 +84,7 @@ class RevocationSuccessTemplateFiller implements ICMSTemplateFiller {
 
         // revoked certs.
         for (int i = 0; i < revoked.length; i++) {
-            IArgBlock repeat = CMS.createArgBlock();
+            ArgBlock repeat = new ArgBlock();
 
             repeat.set(SERIAL_NO, revoked[i].getSerialNumber());
             params.addRepeatRecord(repeat);

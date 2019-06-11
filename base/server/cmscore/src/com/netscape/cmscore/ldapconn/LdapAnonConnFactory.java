@@ -26,6 +26,7 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSocketFactory;
+import netscape.ldap.LDAPv2;
 
 /**
  * Factory for getting LDAP Connections to a LDAP server
@@ -38,12 +39,16 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
     protected String id;
 
+    IConfigStore config;
+
     protected int mMinConns = 5;
     protected int mMaxConns = 1000;
+    protected int mMaxResults = 0;
     protected LdapConnInfo mConnInfo = null;
 
     public static final String PROP_MINCONNS = "minConns";
     public static final String PROP_MAXCONNS = "maxConns";
+    public static final String PROP_MAXRESULTS = "maxResults";
     public static final String PROP_LDAPCONNINFO = "ldapconn";
 
     public static final String PROP_ERROR_IF_DOWN = "errorIfDown";
@@ -67,7 +72,9 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
     }
 
     public LdapAnonConnFactory(String id, boolean defErrorIfDown) {
+
         logger.debug("Creating LdapAnonConnFactory(" + id + ")");
+
         this.id = id;
         mDefErrorIfDown = defErrorIfDown;
     }
@@ -80,12 +87,49 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      *            the maximum number of clones of this connection one wants to allow.
      * @param serverInfo server connection info - host, port, etc.
      */
-    public LdapAnonConnFactory(String id, int minConns, int maxConns,
-            LdapConnInfo connInfo) throws ELdapException {
+    public LdapAnonConnFactory(
+            String id,
+            int minConns,
+            int maxConns,
+            LdapConnInfo connInfo
+            ) throws ELdapException {
+
         logger.debug("Creating LdapAnonConnFactory(" + id + ")");
+
         this.id = id;
-        init(minConns, maxConns, connInfo);
+
+        this.mMinConns = minConns;
+        this.mMaxConns = maxConns;
+        this.mConnInfo = connInfo;
     }
+
+    /**
+     * Constructor for LdapAnonConnFactory
+     *
+     * @param minConns minimum number of connections to have available
+     * @param maxConns max number of connections to have available. This is
+     *            the maximum number of clones of this connection one wants to allow.
+     * @param maxResults max number of results to return per query
+     * @param serverInfo server connection info - host, port, etc.
+     */
+    public LdapAnonConnFactory(
+            String id,
+            int minConns,
+            int maxConns,
+            int maxResults,
+            LdapConnInfo connInfo
+            ) throws ELdapException {
+
+        logger.debug("Creating LdapAnonConnFactory(" + id + ")");
+
+        this.id = id;
+
+        this.mMinConns = minConns;
+        this.mMaxConns = maxConns;
+        this.mMaxResults = maxResults;
+        this.mConnInfo = connInfo;
+    }
+
 
     public int totalConn() {
         return mTotal;
@@ -99,46 +143,53 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         return mMaxConns;
     }
 
-    /**
-     * init routine to be called when initialize from config store.
-     */
-    public void init(IConfigStore config) throws EBaseException, ELdapException {
+    public void init(IConfigStore config) throws ELdapException {
 
         logger.debug("LdapAnonConnFactory: initialization");
 
-        int minConns = config.getInteger(PROP_MINCONNS, mMinConns);
-        int maxConns = config.getInteger(PROP_MAXCONNS, mMaxConns);
+        this.config = config;
 
-        LdapConnInfo connInfo = new LdapConnInfo(config.getSubStore(PROP_LDAPCONNINFO));
+        init();
+    }
 
-        mErrorIfDown = config.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
+    public void init(IConfigStore config, IConfigStore dbConfig) throws EBaseException, ELdapException {
 
-        init(minConns, maxConns, connInfo);
+        logger.debug("LdapAnonConnFactory: initialization");
+
+        this.config = config;
+
+        this.mMinConns = dbConfig.getInteger(PROP_MINCONNS, mMinConns);
+        this.mMaxConns = dbConfig.getInteger(PROP_MAXCONNS, mMaxConns);
+        this.mMaxResults = dbConfig.getInteger(PROP_MAXRESULTS, mMaxResults);
+
+        this.mConnInfo = new LdapConnInfo(dbConfig.getSubStore(PROP_LDAPCONNINFO));
+
+        mErrorIfDown = dbConfig.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
+
+        init();
     }
 
     /**
      * initialize routine from parameters.
      */
-    protected void init(int minConns, int maxConns, LdapConnInfo connInfo)
-            throws ELdapException {
+    protected void init() throws ELdapException {
         if (mInited)
             return; // XXX should throw exception here ?
 
-        if (minConns <= 0)
-            throw new ELdapException("Invalid minimum number of connections: " + minConns);
+        if (mMinConns <= 0)
+            throw new ELdapException("Invalid minimum number of connections: " + mMinConns);
 
-        if (maxConns <= 0)
-            throw new ELdapException("Invalid maximum number of connections: " + maxConns);
+        if (mMaxConns <= 0)
+            throw new ELdapException("Invalid maximum number of connections: " + mMaxConns);
 
-        if (minConns > maxConns)
-            throw new ELdapException("Minimum number of connections is bigger than maximum: " + minConns + " > " + maxConns);
+        if (mMinConns > mMaxConns)
+            throw new ELdapException("Minimum number of connections is bigger than maximum: " + mMinConns + " > " + mMaxConns);
 
-        if (connInfo == null)
+        if (mMaxResults < 0)
+            throw new ELdapException("Invalid maximum number of results: " + mMaxResults);
+
+        if (mConnInfo == null)
             throw new IllegalArgumentException("Missing connection info");
-
-        mMinConns = minConns;
-        mMaxConns = maxConns;
-        mConnInfo = connInfo;
 
         mConns = new AnonConnection[mMaxConns];
 
@@ -157,13 +208,17 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
      * make the mininum configured connections
      */
     protected void makeMinimum(boolean errorIfDown) throws ELdapException {
+
         try {
             if (mNumConns < mMinConns && mTotal < mMaxConns) {
                 int increment = Math.min(mMinConns - mNumConns, mMaxConns - mTotal);
                 logger.debug("LdapAnonConnFactory: increasing minimum connections by " + increment);
 
+                PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
+                socketFactory.init(config);
+
                 for (int i = increment - 1; i >= 0; i--) {
-                    mConns[i] = new AnonConnection(mConnInfo);
+                    mConns[i] = new AnonConnection(socketFactory, mConnInfo);
                 }
 
                 mTotal += increment;
@@ -285,7 +340,11 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
 
             conn = null;
             try {
-                conn = new AnonConnection(mConnInfo);
+                PKISocketFactory socketFactory = new PKISocketFactory(mConnInfo.getSecure());
+                socketFactory.init(config);
+
+                conn = new AnonConnection(socketFactory, mConnInfo);
+
             } catch (LDAPException e) {
                 String message = "Unable to reestablish LDAP connection: " + e.getMessage();
                 logger.error("LdapAnonConnFactory: " + message, e);
@@ -294,6 +353,16 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
             }
         }
         //This is the end of the fix for Bugzilla #630176
+
+        try {
+            // Before returning the connection, set the SIZELIMIT option; this
+            // ensures that if the connection is recycled and the previous owner
+            // changed the SIZELIMIT option to a different value, the next owner
+            // always starts with the default.
+            conn.setOption(LDAPv2.SIZELIMIT, mMaxResults);
+        } catch (LDAPException e) {
+            throw new ELdapException("Unable to set LDAP size limit: " + e.getMessage(), e);
+        }
 
         return conn;
     }
@@ -408,9 +477,11 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
          */
         private static final long serialVersionUID = 4813780131074412404L;
 
-        public AnonConnection(LdapConnInfo connInfo)
+        public AnonConnection(
+                LDAPSocketFactory socketFactory,
+                LdapConnInfo connInfo)
                 throws LDAPException {
-            super(connInfo);
+            super(socketFactory, connInfo);
         }
 
         public AnonConnection(String host, int port, int version,

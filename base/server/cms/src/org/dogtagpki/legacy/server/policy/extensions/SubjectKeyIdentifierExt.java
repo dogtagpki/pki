@@ -28,8 +28,14 @@ import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -37,14 +43,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Subject Public Key Extension Policy
@@ -60,6 +59,9 @@ import netscape.security.x509.X509Key;
  */
 public class SubjectKeyIdentifierExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectKeyIdentifierExt.class);
+
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_KEYID_TYPE = "keyIdentifierType";
     protected static final String PROP_REQATTR_NAME = "requestAttrName";
@@ -198,14 +200,12 @@ public class SubjectKeyIdentifierExt extends APolicyRule
             }
             if (subjectKeyIdExt != null) {
                 if (agentApproved(req)) {
-                    CMS.debug(
-                            "SubjectKeyIdentifierExt: agent approved request id " + req.getRequestId() +
+                    logger.debug("SubjectKeyIdentifierExt: agent approved request id " + req.getRequestId() +
                                     " already has subject key id extension with value " +
                                     subjectKeyIdExt);
                     return PolicyResult.ACCEPTED;
                 } else {
-                    CMS.debug(
-                            "SubjectKeyIdentifierExt: request id from user " + req.getRequestId() +
+                    logger.debug("SubjectKeyIdentifierExt: request id from user " + req.getRequestId() +
                                     " had subject key identifier - deleted to be replaced");
                     extensions.delete(SubjectKeyIdentifierExtension.NAME);
                 }
@@ -233,8 +233,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
             }
             extensions.set(
                     SubjectKeyIdentifierExtension.NAME, subjectKeyIdExt);
-            CMS.debug(
-                    "SubjectKeyIdentifierExt: added subject key id ext to request " + req.getRequestId());
+            logger.debug("SubjectKeyIdentifierExt: added subject key id ext to request " + req.getRequestId());
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,

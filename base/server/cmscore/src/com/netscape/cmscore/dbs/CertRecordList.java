@@ -35,6 +35,7 @@ import com.netscape.certsrv.dbs.certdb.ICertRecordList;
  */
 public class CertRecordList implements ICertRecordList {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecordList.class);
     private IDBVirtualList<ICertRecord> mVlist = null;
 
     /**
@@ -95,7 +96,7 @@ public class CertRecordList implements ICertRecordList {
         for (int i = startidx; i <= endidx; i++) {
             ICertRecord element = mVlist.getElementAt(i);
 
-            //  CMS.debug("gerCertRecords[" + i + "] element: " + element);
+            //  logger.debug("gerCertRecords[" + i + "] element: " + element);
             if (element != null) {
                 entries.addElement(element);
             }

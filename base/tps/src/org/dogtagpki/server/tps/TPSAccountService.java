@@ -26,17 +26,21 @@ import org.apache.commons.lang.StringUtils;
 import org.dogtagpki.server.rest.AccountService;
 
 import com.netscape.certsrv.account.AccountInfo;
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
  */
 public class TPSAccountService extends AccountService {
 
-    IConfigStore configStore = CMS.getConfigStore();
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSAccountService.class);
+
+    CMSEngine engine = CMS.getCMSEngine();
+    IConfigStore configStore = engine.getConfigStore();
 
     @Override
     public AccountInfo createAccountInfo() {
@@ -71,7 +75,7 @@ public class TPSAccountService extends AccountService {
             accountInfo.setAttribute("components", StringUtils.join(components, ","));
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("TPSAccountService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
 

@@ -21,6 +21,7 @@ package com.netscape.cmstools.cli;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 
 /**
  * @author Endi S. Dewata

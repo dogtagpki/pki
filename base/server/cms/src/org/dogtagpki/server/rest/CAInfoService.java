@@ -33,7 +33,6 @@ import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
@@ -42,6 +41,8 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Ade Lee
@@ -125,6 +126,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
     }
 
     private static void queryKRAInfo(KRAConnectorInfo connInfo) {
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             KRAInfo kraInfo = getKRAInfoClient(connInfo).getInfo();
 
@@ -145,7 +147,7 @@ public class CAInfoService extends PKIService implements CAInfoResource {
                 // pre-10.4 KRA does not advertise the archival
                 // mechanism; look for the old knob in CA's config
                 // or fall back to the default
-                IConfigStore cs = CMS.getConfigStore();
+                IConfigStore cs = engine.getConfigStore();
                 boolean encrypt_archival;
                 try {
                     encrypt_archival = cs.getBoolean(
@@ -160,12 +162,10 @@ public class CAInfoService extends PKIService implements CAInfoResource {
                 // mark info as authoritative
                 kraInfoAuthoritative = true;
             } else {
-                CMS.debug("Failed to retrieve archive wrapping information from the CA: " + e);
-                CMS.debug(e);
+                logger.warn("Failed to retrieve archive wrapping information from the CA: " + e.getMessage(), e);
             }
         } catch (Throwable e) {
-            CMS.debug("Failed to retrieve archive wrapping information from the CA: " + e);
-            CMS.debug(e);
+            logger.warn("Failed to retrieve archive wrapping information from the CA: " + e.getMessage(), e);
         }
     }
 
@@ -174,11 +174,11 @@ public class CAInfoService extends PKIService implements CAInfoResource {
      */
     private static KRAInfoClient getKRAInfoClient(KRAConnectorInfo connInfo)
             throws MalformedURLException, URISyntaxException, EBaseException {
+        CMSEngine engine = CMS.getCMSEngine();
         ClientConfig config = new ClientConfig();
         int port = Integer.parseInt(connInfo.getPort());
         config.setServerURL("https", connInfo.getHost(), port);
-        config.setNSSDatabase(
-            CMS.getConfigStore().getString("instanceRoot") + "/alias");
+        config.setNSSDatabase(engine.getConfigStore().getString("instanceRoot") + "/alias");
         return new KRAInfoClient(new PKIClient(config), "kra");
     }
 

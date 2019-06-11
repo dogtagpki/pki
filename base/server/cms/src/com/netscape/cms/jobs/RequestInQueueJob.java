@@ -21,7 +21,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -34,6 +33,8 @@ import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 
 /**
@@ -117,11 +118,12 @@ public class RequestInQueueJob extends AJobBase
         mId = id;
         mImplName = implName;
 
+        CMSEngine engine = CMS.getCMSEngine();
+
         // read from the configuration file
         String sub = mConfig.getString(PROP_SUBSYSTEM_ID);
 
-        mSub = (IAuthority)
-                CMS.getSubsystem(sub);
+        mSub = (IAuthority) engine.getSubsystem(sub);
         if (mSub == null) {
             // take this as disable
             mSummary = false;
@@ -162,7 +164,7 @@ public class RequestInQueueJob extends AJobBase
         if (mSummary == false)
             return;
 
-        Date date = CMS.getCurrentDate();
+        Date date = new Date();
         DateFormat dateFormat = DateFormat.getDateTimeInstance();
         String nowString = dateFormat.format(date);
 

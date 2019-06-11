@@ -24,22 +24,23 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.ldap.LDAPDN;
-import netscape.security.x509.AVA;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNameInterface;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.LdapV3DNStrConverter;
-import netscape.security.x509.OIDMap;
-import netscape.security.x509.SubjectAlternativeNameExtension;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.AVA;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.LdapV3DNStrConverter;
+import org.mozilla.jss.netscape.security.x509.OIDMap;
+import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ECompSyntaxErr;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
+
+import netscape.ldap.LDAPDN;
 
 /**
  * class for parsing a DN pattern used to construct a ldap dn from
@@ -104,6 +105,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 class MapAVAPattern {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MapAVAPattern.class);
 
     /* the value type of the dn component */
     public static final String TYPE_REQ = "$req";
@@ -508,8 +511,7 @@ class MapAVAPattern {
                 }
             }
             if (value == null) {
-                CMS.debug(
-                        "MapAVAPattern: attr " + mAttr +
+                logger.warn("MapAVAPattern: attr " + mAttr +
                                 " not formed from: cert subject " +
                                 dn +
                                 "-- no subject component : " + mValue);
@@ -570,16 +572,14 @@ class MapAVAPattern {
                                     }
                                 }
                             } catch (IOException e) {
-                                CMS.debug(
-                                        "MapAVAPattern: Publishing attr not formed from extension." +
-                                                "-- no attr : " + mValue);
+                                logger.warn("MapAVAPattern: Publishing attr not formed from extension." +
+                                                "-- no attr : " + mValue + ": " + e.getMessage(), e);
                             }
                         }
                     }
                 }
             }
-            CMS.debug(
-                    "MapAVAPattern: Publishing:attr not formed from extension " +
+            logger.debug("MapAVAPattern: Publishing:attr not formed from extension " +
                             "-- no attr : " + mValue);
 
             return null;

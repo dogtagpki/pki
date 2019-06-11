@@ -26,7 +26,6 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.ProofOfPossession;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
@@ -42,6 +41,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -51,6 +52,7 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 public abstract class EnrollInput implements IProfileInput {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollInput.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     protected IConfigStore mConfig = null;
@@ -182,38 +184,39 @@ public abstract class EnrollInput implements IProfileInput {
     public void verifyPOP(Locale locale, CertReqMsg certReqMsg)
             throws EProfileException {
         String method = "EnrollInput: verifyPOP: ";
-        CMS.debug("EnrollInput ::in verifyPOP");
+        logger.debug("EnrollInput ::in verifyPOP");
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
         if (!certReqMsg.hasPop()) {
-            CMS.debug(method + "CertReqMsg has not POP, return");
+            logger.debug(method + "CertReqMsg has not POP, return");
             return;
         }
         ProofOfPossession pop = certReqMsg.getPop();
         ProofOfPossession.Type popType = pop.getType();
 
         if (popType != ProofOfPossession.SIGNATURE) {
-            CMS.debug(method + "not POP SIGNATURE, return");
+            logger.debug(method + "not POP SIGNATURE, return");
             return;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            if (CMS.getConfigStore().getBoolean("cms.skipPOPVerify", false)) {
-                CMS.debug(method + "skipPOPVerify on, return");
+            if (engine.getConfigStore().getBoolean("cms.skipPOPVerify", false)) {
+                logger.debug(method + "skipPOPVerify on, return");
                 return;
             }
-            CMS.debug("POP verification begins:");
+            logger.debug("POP verification begins:");
             CryptoManager cm = CryptoManager.getInstance();
 
             CryptoToken verifyToken = null;
-            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+            String tokenName = engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
             if (CryptoUtil.isInternalToken(tokenName)) {
-                CMS.debug(method + "POP verification using internal token");
+                logger.debug(method + "POP verification using internal token");
                 certReqMsg.verify();
             } else {
-                CMS.debug(method + "POP verification using token:" + tokenName);
+                logger.debug(method + "POP verification using token:" + tokenName);
                 verifyToken = CryptoUtil.getCryptoToken(tokenName);
                 certReqMsg.verify(verifyToken);
             }
@@ -227,8 +230,7 @@ public abstract class EnrollInput implements IProfileInput {
             signedAuditLogger.log(auditMessage);
         } catch (Exception e) {
 
-            CMS.debug(method + "Failed POP verify! " + e.toString());
-            CMS.debug(e);
+            logger.error(method + "Failed POP verify! " + e.getMessage(), e);
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(

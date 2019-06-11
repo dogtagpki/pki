@@ -26,7 +26,13 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EFormSubjectDN;
@@ -41,11 +47,10 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -53,11 +58,6 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * Abstract class for directory based authentication managers
@@ -71,6 +71,8 @@ import netscape.security.x509.X509CertInfo;
  */
 public abstract class DirBasedAuthentication
         implements IAuthManager, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DirBasedAuthentication.class);
 
     protected static final String USER_DN = "userDN";
 
@@ -118,9 +120,6 @@ public abstract class DirBasedAuthentication
     protected boolean mBoundConnEnable = false;
     /* factory of anonymous ldap connections */
     protected ILdapConnFactory mConnFactory = null;
-
-    /* the system logger */
-    protected Logger mLogger = Logger.getLogger();
 
     /* the subject DN pattern */
     protected DNPattern mPattern = null;
@@ -261,10 +260,14 @@ public abstract class DirBasedAuthentication
 
     public void init(String name, String implName, IConfigStore config, boolean needBaseDN)
             throws EBaseException {
+
         mName = name;
         mImplName = implName;
         mConfig = config;
         String method = "DirBasedAuthentication: init: ";
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         /* initialize ldap server configuration */
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
@@ -273,31 +276,36 @@ public abstract class DirBasedAuthentication
             if (mBaseDN == null || mBaseDN.trim().equals(""))
                 throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "basedn"));
             mGroupsEnable = mLdapConfig.getBoolean(PROP_GROUPS_ENABLE, false);
-            CMS.debug(method + " mGroupsEnable=" + (mGroupsEnable ? "true" : "false"));
+            logger.debug(method + " mGroupsEnable=" + (mGroupsEnable ? "true" : "false"));
             mGroupsBaseDN = mLdapConfig.getString(PROP_GROUPS_BASEDN, mBaseDN);
-            CMS.debug(method + " mGroupsBaseDN="+ mGroupsBaseDN);
+            logger.debug(method + " mGroupsBaseDN="+ mGroupsBaseDN);
             mGroups= mLdapConfig.getString(PROP_GROUPS, "ou=groups");
-            CMS.debug(method + " mGroups="+ mGroups);
+            logger.debug(method + " mGroups="+ mGroups);
             mGroupObjectClass = mLdapConfig.getString(PROP_GROUP_OBJECT_CLASS, "groupofuniquenames");
-            CMS.debug(method + " mGroupObjectClass="+ mGroupObjectClass);
+            logger.debug(method + " mGroupObjectClass="+ mGroupObjectClass);
             mUserIDName = mLdapConfig.getString(PROP_USERID_NAME, "uid");
-            CMS.debug(method + " mUserIDName="+ mUserIDName);
+            logger.debug(method + " mUserIDName="+ mUserIDName);
             mSearchGroupUserByUserdn = mLdapConfig.getBoolean(PROP_SEARCH_GROUP_USER_BY_USERDN, true);
-            CMS.debug(method + " mSearchGroupUserByUserdn="+ mSearchGroupUserByUserdn);
+            logger.debug(method + " mSearchGroupUserByUserdn="+ mSearchGroupUserByUserdn);
             mGroupUserIDName = mLdapConfig.getString(PROP_GROUP_USERID_NAME, "cn");
-            CMS.debug(method + " mGroupUserIDName="+ mGroupUserIDName);
+            logger.debug(method + " mGroupUserIDName="+ mGroupUserIDName);
         }
         mBoundConnEnable = mLdapConfig.getBoolean(PROP_LDAP_BOUND_CONN, false);
-        CMS.debug(method +" mBoundConnEnable =" + (mBoundConnEnable ? "true" : "false"));
+        logger.debug(method +" mBoundConnEnable =" + (mBoundConnEnable ? "true" : "false"));
+
         if (mBoundConnEnable) {
             mTag = mLdapConfig.getString(PROP_LDAP_BOUND_TAG);
-            CMS.debug(method + " getting ldap bound conn factory using id= " + mTag);
-            mConnFactory = new LdapBoundConnFactory(mTag);
+            logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
+
+            LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
+            connFactory.init(cs, mLdapConfig, engine.getPasswordStore());
+            mConnFactory = connFactory;
+
         } else {
-            mConnFactory = new LdapAnonConnFactory("DirBasedAuthentication");
+            LdapAnonConnFactory connFactory = new LdapAnonConnFactory("DirBasedAuthentication");
+            connFactory.init(cs, mLdapConfig);
+            mConnFactory = connFactory;
         }
-        if (mConnFactory != null) // else can try again later when needed
-            mConnFactory.init(mLdapConfig);
 
         /* initialize dn pattern */
         String pattern = mConfig.getString(PROP_DNPATTERN, null);
@@ -354,7 +362,7 @@ public abstract class DirBasedAuthentication
         System.arraycopy(mLdapByteAttrs, 0, mLdapAttrs,
                 mLdapStringAttrs.length, mLdapByteAttrs.length);
 
-        log(ILogger.LL_INFO, CMS.getLogMessage("CMS_AUTH_INIT_DONE"));
+        logger.info("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_INIT_DONE"));
     }
 
     /**
@@ -388,37 +396,49 @@ public abstract class DirBasedAuthentication
      */
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
+
         String userdn = null;
         LDAPConnection conn = null;
         AuthToken authToken = new AuthToken(this);
         String method = "DirBasedAuthentication: authenticate:";
 
-        CMS.debug(method + " begins...mBoundConnEnable=" + mBoundConnEnable);
+        logger.debug(method + " begins...mBoundConnEnable=" + mBoundConnEnable);
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         try {
             if (mConnFactory == null) {
-                CMS.debug(method + " mConnFactory null, getting conn factory");
+                logger.debug(method + " mConnFactory null, getting conn factory");
+
                 if (mBoundConnEnable) {
                     mTag = mLdapConfig.getString(PROP_LDAP_BOUND_TAG);
-                    CMS.debug(method + " getting ldap bound conn factory using id= " + mTag);
-                    mConnFactory = new LdapBoundConnFactory(mTag);
+                    logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
+
+                    LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
+                    connFactory.init(cs, mLdapConfig, engine.getPasswordStore());
+                    mConnFactory = connFactory;
+
                 } else {
-                    mConnFactory = new LdapAnonConnFactory("DirBasedAuthentication");
+                    LdapAnonConnFactory connFactory = new LdapAnonConnFactory("DirBasedAuthentication");
+                    connFactory.init(cs, mLdapConfig);
+                    mConnFactory = connFactory;
                 }
+
                 if (mConnFactory != null) {
-                    mConnFactory.init(mLdapConfig);
-                    CMS.debug(method + " mConnFactory gotten, calling getConn");
+                    logger.debug(method + " mConnFactory gotten, calling getConn");
                     conn = mConnFactory.getConn();
                 }
             } else {
-                CMS.debug(method + " mConnFactory class name = " + mConnFactory.getClass().getName());
-                CMS.debug(method + " mConnFactory not null, calling getConn");
+                logger.debug(method + " mConnFactory class name = " + mConnFactory.getClass().getName());
+                logger.debug(method + " mConnFactory not null, calling getConn");
                 conn = mConnFactory.getConn();
             }
 
             // authenticate the user and get a user entry.
-            CMS.debug(method + " before authenticate() call");
+            logger.debug(method + " before authenticate() call");
             userdn = authenticate(conn, authCred, authToken);
-            CMS.debug(method + " after authenticate() call");
+            logger.debug(method + " after authenticate() call");
             authToken.set(USER_DN, userdn);
 
             // formulate the cert info.
@@ -505,7 +525,7 @@ public abstract class DirBasedAuthentication
             }
         } catch (ELdapException e) {
             // ignore
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_SHUTDOWN_ERROR", e.toString()));
+            logger.warn("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_SHUTDOWN_ERROR", e.toString()), e);
         }
     }
 
@@ -557,7 +577,7 @@ public abstract class DirBasedAuthentication
                                 attrs, false);
 
                 if (!results.hasMoreElements()) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_NO_ATTR_ERROR"));
+                    logger.error("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_NO_ATTR_ERROR"));
                     throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_LDAPATTRIBUTES_NOT_FOUND"));
                 }
                 entry = results.next();
@@ -583,7 +603,7 @@ public abstract class DirBasedAuthentication
                 EBaseException ex =
                         new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_EMPTY_DN_FORMED", mName));
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_NO_DN_ERROR", ex.toString()));
+                logger.error("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_NO_DN_ERROR", ex.toString()));
                 throw ex;
             }
             X500Name subjectdn = new X500Name(dn);
@@ -593,26 +613,26 @@ public abstract class DirBasedAuthentication
         } catch (LDAPException e) {
             switch (e.getLDAPResultCode()) {
             case LDAPException.SERVER_DOWN:
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_NO_AUTH_ATTR_ERROR"));
+                logger.error("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_NO_AUTH_ATTR_ERROR"));
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
 
             case LDAPException.NO_SUCH_OBJECT:
             case LDAPException.LDAP_PARTIAL_RESULTS:
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_NO_USER_ENTRY_ERROR", userdn));
+                logger.error("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_NO_USER_ENTRY_ERROR", userdn));
 
                 // fall to below.
             default:
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("LDAP_ERROR", e.toString()));
+                logger.error("DirBasedAuthentication: " + CMS.getLogMessage("LDAP_ERROR", e.toString()));
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_OTHER_LDAP_EXCEPTION",
                                 e.errorCodeToString()));
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_CREATE_SUBJECT_ERROR", userdn, e.getMessage()));
+            logger.error("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_CREATE_SUBJECT_ERROR", userdn, e.getMessage()), e);
             throw new EFormSubjectDN(CMS.getUserMessage("CMS_AUTHENTICATION_FORM_SUBJECTDN_ERROR"));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_CREATE_CERTINFO_ERROR", userdn, e.getMessage()));
+            logger.error("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_CREATE_CERTINFO_ERROR", userdn, e.getMessage()));
             throw new EFormSubjectDN(CMS.getUserMessage("CMS_AUTHENTICATION_FORM_SUBJECTDN_ERROR"));
         }
     }
@@ -714,22 +734,8 @@ public abstract class DirBasedAuthentication
 
         String dn = mPattern.formDN(entry);
 
-        CMS.debug("DirBasedAuthentication: formed DN '" + dn + "'");
+        logger.debug("DirBasedAuthentication: formed DN '" + dn + "'");
         return dn;
-    }
-
-    /**
-     * Logs a message for this class in the system log file.
-     *
-     * @param level The log level.
-     * @param msg The message to log.
-     * @see com.netscape.certsrv.logging.ILogger
-     */
-    protected void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
-                level, msg);
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {

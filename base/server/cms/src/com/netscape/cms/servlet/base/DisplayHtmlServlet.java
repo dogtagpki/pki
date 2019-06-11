@@ -25,12 +25,12 @@ import java.io.IOException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This is the servlet that displays the html page for the corresponding input id.
@@ -38,9 +38,9 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class DisplayHtmlServlet extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DisplayHtmlServlet.class);
+
     private static final long serialVersionUID = -4343458180370708327L;
     public final static String PROP_TEMPLATE = "template";
     public final static String PROP_HTML_PATH = "htmlPath";
@@ -61,7 +61,7 @@ public class DisplayHtmlServlet extends CMSServlet {
      * Serves HTTP request.
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("DisplayHtmlServlet about to service ");
+        logger.debug("DisplayHtmlServlet about to service ");
         authenticate(cmsReq);
         try {
             String realpath =

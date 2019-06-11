@@ -25,14 +25,13 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -53,6 +52,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Gets a issued certificate from a request id.
@@ -60,9 +60,8 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
  * @version $Revision$, $Date$
  */
 public class GetCertFromRequest extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetCertFromRequest.class);
     private static final long serialVersionUID = 5310646832256611066L;
     private final static String PROP_IMPORT = "importCert";
     protected static final String GET_CERT_FROM_REQUEST_TEMPLATE = "ImportCert.template";
@@ -195,12 +194,12 @@ public class GetCertFromRequest extends CMSServlet {
                 boolean groupMatched = false;
                 String reqOwner = r.getRequestOwner();
                 if (reqOwner != null) {
-                    CMS.debug("GetCertFromRequest process: req owner=" + reqOwner);
+                    logger.debug("GetCertFromRequest process: req owner=" + reqOwner);
                     if (reqOwner.equals(group))
                         groupMatched = true;
                 }
                 if (groupMatched == false) {
-                    CMS.debug("RA group unmatched");
+                    logger.error("RA group unmatched");
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND", requestId));
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_REQUEST_ID_NOT_FOUND", requestId));

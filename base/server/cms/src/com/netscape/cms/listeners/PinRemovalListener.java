@@ -17,15 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.listeners;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -42,6 +42,9 @@ import netscape.ldap.LDAPv2;
  * @version $Revision$, $Date$
  */
 public class PinRemovalListener implements IRequestListener {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PinRemovalListener.class);
+
     protected static final String PROP_ENABLED = "enabled";
     protected static final String PROP_LDAP = "ldap";
     protected static final String PROP_BASEDN = "ldap.basedn";
@@ -57,7 +60,7 @@ public class PinRemovalListener implements IRequestListener {
 
     private IConfigStore mConfig = null;
     private IConfigStore mLdapConfig = null;
-    private ILdapConnFactory mConnFactory = null;
+    private LdapBoundConnFactory mConnFactory;
     private LDAPConnection mRemovePinLdapConnection = null;
 
     public PinRemovalListener() {
@@ -92,13 +95,18 @@ public class PinRemovalListener implements IRequestListener {
 
     public void init(String name, String ImplName, IConfigStore config)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         mName = name;
         mImplName = ImplName;
         mConfig = config;
 
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
         mConnFactory = new LdapBoundConnFactory("PinRemovalListener");
-        mConnFactory.init(mLdapConfig);
+        mConnFactory.init(cs, mLdapConfig, engine.getPasswordStore());
+
         mRemovePinLdapConnection = mConnFactory.getConn();
 
         mEnabled = mConfig.getBoolean(PROP_ENABLED, false);
@@ -113,9 +121,9 @@ public class PinRemovalListener implements IRequestListener {
 
         String rs = r.getRequestStatus().toString();
 
-        CMS.debug("PinRemovalListener: Request status: " + rs);
+        logger.debug("PinRemovalListener: Request status: " + rs);
         if (!rs.equals("complete")) {
-            CMS.debug("PinRemovalListener: - request not complete - not removing pin");
+            logger.warn("PinRemovalListener: - request not complete - not removing pin");
             return;
         }
         String requestType = r.getRequestType();

@@ -41,13 +41,6 @@ public class ConfigurationRequest {
     public static final String EXISTING_DOMAIN = "existingdomain";
     public static final String NEW_SUBDOMAIN = "newsubdomain";
 
-    // Hard coded values for ECC and RSA internal cert profile names
-    public static final String ECC_INTERNAL_SERVER_CERT_PROFILE = "caECInternalAuthServerCert";
-    public static final String RSA_INTERNAL_SERVER_CERT_PROFILE = "caInternalAuthServerCert";
-
-    public static final String ECC_INTERNAL_SUBSYSTEM_CERT_PROFILE= "caECInternalAuthSubsystemCert";
-    public static final String RSA_INTERNAL_SUBSYSTEM_CERT_PROFILE= "caInternalAuthSubsystemCert";
-
     @XmlElement
     protected String pin;
 
@@ -91,33 +84,6 @@ public class ConfigurationRequest {
     protected String hierarchy;
 
     @XmlElement
-    protected String dsHost;
-
-    @XmlElement
-    protected String dsPort;
-
-    @XmlElement
-    protected String baseDN;
-
-    @XmlElement
-    protected String createNewDB;
-
-    @XmlElement
-    protected String bindDN;
-
-    @XmlElement
-    protected String bindpwd;
-
-    @XmlElement
-    protected String database;
-
-    @XmlElement(defaultValue = "false")
-    protected String secureConn;
-
-    @XmlElement
-    protected String removeData;
-
-    @XmlElement
     protected String masterReplicationPort;
 
     @XmlElement
@@ -131,12 +97,6 @@ public class ConfigurationRequest {
 
     @XmlElement
     protected String replicationPassword;
-
-    @XmlElement
-    protected String setupReplication;
-
-    @XmlElement
-    protected String reindexData;
 
     @XmlElement
     protected Boolean systemCertsImported;
@@ -189,14 +149,8 @@ public class ConfigurationRequest {
     @XmlElement(defaultValue="true")
     protected String generateSubsystemCert;
 
-    @XmlElement(defaultValue="false")
-    protected String sharedDB;
-
     @XmlElement
     protected String subordinateSecurityDomainName;
-
-    @XmlElement
-    protected String sharedDBUserDN;
 
     @XmlElement
     protected String startingCRLNumber;
@@ -353,104 +307,6 @@ public class ConfigurationRequest {
     }
 
     /**
-     * @return the dsHost
-     */
-    public String getDsHost() {
-        return dsHost;
-    }
-
-    /**
-     * @param dsHost the dsHost to set
-     */
-    public void setDsHost(String dsHost) {
-        this.dsHost = dsHost;
-    }
-
-    /**
-     * @return the dsPort
-     */
-    public String getDsPort() {
-        return dsPort;
-    }
-
-    /**
-     * @param dsPort the dsPort to set
-     */
-    public void setDsPort(String dsPort) {
-        this.dsPort = dsPort;
-    }
-
-    /**
-     * @return the baseDN
-     */
-    public String getBaseDN() {
-        return baseDN;
-    }
-
-    /**
-     * @param baseDN the baseDN to set
-     */
-    public void setBaseDN(String baseDN) {
-        this.baseDN = baseDN;
-    }
-
-    /**
-     * @return the bindDN
-     */
-    public String getBindDN() {
-        return bindDN;
-    }
-
-    /**
-     * @param bindDN the bindDN to set
-     */
-    public void setBindDN(String bindDN) {
-        this.bindDN = bindDN;
-    }
-
-    /**
-     * @return the bindpwd
-     */
-    public String getBindpwd() {
-        return bindpwd;
-    }
-
-    /**
-     * @param bindpwd the bindpwd to set
-     */
-    public void setBindpwd(String bindpwd) {
-        this.bindpwd = bindpwd;
-    }
-
-    /**
-     * @return the secureConn
-     */
-    public String getSecureConn() {
-        return secureConn;
-    }
-
-    /**
-     * @param secureConn the secureConn to set
-     */
-    public void setSecureConn(String secureConn) {
-        this.secureConn = secureConn;
-    }
-
-    /**
-     * @return the removeData
-     */
-    public String getRemoveData() {
-        return removeData;
-    }
-
-    /**
-     * @param removeData the removeData to set
-     */
-    public void setRemoveData(String removeData) {
-        this.removeData = removeData;
-    }
-
-    /**
      * @return the masterReplicationPort
      */
     public String getMasterReplicationPort() {
@@ -500,44 +356,6 @@ public class ConfigurationRequest {
         this.replicationPassword = replicationPassword;
     }
 
-    public boolean getSetupReplication() {
-        // default to true
-        if (setupReplication == null) {
-            return true;
-        }
-        return setupReplication.equalsIgnoreCase("true");
-    }
-
-    public void setSetupReplication(String setupReplication) {
-        this.setupReplication = setupReplication;
-    }
-
-    public boolean getReindexData() {
-        // default to false
-        if (reindexData == null) {
-            return false;
-        }
-        return reindexData.equalsIgnoreCase("true");
-    }
-
-    public void setReindexData(String reindexData) {
-        this.reindexData = reindexData;
-    }
-
-    /**
-     * @return the database
-     */
-    public String getDatabase() {
-        return database;
-    }
-
-    /**
-     * @param database the database to set
-     */
-    public void setDatabase(String database) {
-        this.database = database;
-    }
-
     /**
      *
      * @return systemCertsImported
@@ -578,34 +396,6 @@ public class ConfigurationRequest {
 
        return cert.getKeyType();
    }
-
-    public String getSystemCertProfileID(String tag, String defaultName) {
-        String profileName = defaultName;
-        String keyType = getSystemCertKeyType(tag);
-
-        System.out.println("getSystemCertProfileID tag: " + tag + " defaultName: " + defaultName + " keyType: " + keyType);
-        if (keyType == null)
-            return profileName;
-
-        // Hard code for now based on key type.  Method can be changed later to read pkispawn
-        // params sent over in the future.
-        if ("ecc".equalsIgnoreCase(keyType)) {
-            if ("sslserver".equalsIgnoreCase(tag)) {
-                profileName = ECC_INTERNAL_SERVER_CERT_PROFILE;
-            } else if ("subsystem".equalsIgnoreCase(tag)) {
-                profileName = ECC_INTERNAL_SUBSYSTEM_CERT_PROFILE;
-            }
-        } else if ("rsa".equalsIgnoreCase(keyType)) {
-            if ("sslserver".equalsIgnoreCase(tag)) {
-                profileName = RSA_INTERNAL_SERVER_CERT_PROFILE;
-            } else if ("subsystem".equalsIgnoreCase(tag)) {
-                profileName = RSA_INTERNAL_SUBSYSTEM_CERT_PROFILE;
-            }
-        }
-
-        System.out.println("getSystemCertProfileID: returning: " + profileName);
-        return profileName;
-    }
 
    /**
     *
@@ -741,34 +531,6 @@ public class ConfigurationRequest {
         this.generateSubsystemCert = generateSubsystemCert;
     }
 
-    public boolean getSharedDB() {
-        return sharedDB != null && sharedDB.equalsIgnoreCase("true");
-    }
-
-    public void setSharedDB(String sharedDB) {
-        this.sharedDB = sharedDB;
-    }
-
-    public String getSharedDBUserDN() {
-        return sharedDBUserDN;
-    }
-
-    public void setSharedDBUserDN(String sharedDBUserDN) {
-        this.sharedDBUserDN = sharedDBUserDN;
-    }
-
-    public boolean getCreateNewDB() {
-        // default to true
-        if (createNewDB == null) {
-            return true;
-        }
-        return createNewDB.equalsIgnoreCase("true");
-    }
-
-    public void setCreateNewDB(String createNewDB) {
-        this.createNewDB = createNewDB;
-    }
-
     public String getSubordinateSecurityDomainName() {
         return subordinateSecurityDomainName;
     }
@@ -833,14 +595,6 @@ public class ConfigurationRequest {
                ", p12File=" + p12File +
                ", p12Password=XXXX" +
                ", hierarchy=" + hierarchy +
-               ", dsHost=" + dsHost +
-               ", dsPort=" + dsPort +
-               ", baseDN=" + baseDN +
-               ", bindDN=" + bindDN +
-               ", bindpwd=XXXX" +
-               ", database=" + database +
-               ", secureConn=" + secureConn +
-               ", removeData=" + removeData +
                ", replicateSchema=" + replicateSchema +
                ", masterReplicationPort=" + masterReplicationPort +
                ", cloneReplicationPort=" + cloneReplicationPort +
@@ -861,12 +615,7 @@ public class ConfigurationRequest {
                ", enableServerSideKeyGen=" + enableServerSideKeyGen +
                ", importSharedSecret=" + importSharedSecret +
                ", generateSubsystemCert=" + generateSubsystemCert +
-               ", sharedDB=" +  sharedDB +
-               ", sharedDBUserDN=" + sharedDBUserDN +
-               ", createNewDB=" + createNewDB +
-               ", setupReplication=" + setupReplication +
                ", subordinateSecurityDomainName=" + subordinateSecurityDomainName +
-               ", reindexData=" + reindexData +
                ", startingCrlNumber=" + startingCRLNumber +
                ", createSigningCertRecord=" + createSigningCertRecord +
                ", signingCertSerialNumber=" + signingCertSerialNumber +

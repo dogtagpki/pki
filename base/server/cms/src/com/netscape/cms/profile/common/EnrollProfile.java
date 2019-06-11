@@ -53,6 +53,32 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
+import org.mozilla.jss.netscape.security.pkcs.PKCS9Attribute;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
+import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs10.CertificationRequest;
 import org.mozilla.jss.pkcs10.CertificationRequestInfo;
 import org.mozilla.jss.pkix.cmc.DecryptedPOP;
@@ -75,7 +101,6 @@ import org.mozilla.jss.pkix.primitive.Attribute;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -100,36 +125,11 @@ import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.HMACDigest;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS10Attribute;
-import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.pkcs.PKCS9Attribute;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSerialNumber;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extension;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 
 /**
  * This class implements a generic enrollment profile.
@@ -396,13 +396,15 @@ public abstract class EnrollProfile extends BasicProfile
             logger.error(method + "method parameters cannot be null");
             throw new EBaseException(method + msg);
         }
+
+        CMSEngine engine = CMS.getCMSEngine();
         byte[] req_key_data = req.getExtDataInByteArray(IEnrollProfile.REQUEST_KEY);
         if (req_key_data != null) {
             logger.debug(method + "found user public key in request");
 
             // generate a challenge of 64 bytes;
 
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             SecureRandom random = jssSubsystem.getRandomNumberGenerator();
 
             byte[] challenge = new byte[64];
@@ -420,7 +422,7 @@ public abstract class EnrollProfile extends BasicProfile
 
             try {
                 CryptoToken token = null;
-                String tokenName = CMS.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                String tokenName = engine.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                 token = CryptoUtil.getCryptoToken(tokenName);
 
                 byte[] iv = CryptoUtil.getNonceData(EncryptionAlgorithm.AES_128_CBC.getIVLength());
@@ -672,9 +674,11 @@ public abstract class EnrollProfile extends BasicProfile
             throw new Exception(msg);
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
+
         // for CMCUserSignedAuth, the signing user is the subject of
         // the new cert
-        ICertificateAuthority authority = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         try {
             BigInteger serialNo = new BigInteger(certSerial);
             userCert = authority.getCertificateRepository().getX509Certificate(serialNo);
@@ -716,6 +720,8 @@ public abstract class EnrollProfile extends BasicProfile
         String msg = ""; // for capturing debug and throw info
         //logger.debug(method + " Start parseCMC(): " + certreq);
         logger.debug(method + "starts");
+
+        CMSEngine engine = CMS.getCMSEngine();
         String auditMessage = "";
         String auditSubjectID = auditSubjectID();
 
@@ -1028,7 +1034,7 @@ public abstract class EnrollProfile extends BasicProfile
             try {
                 String configName = "cmc.popLinkWitnessRequired";
                 logger.debug(method + "getting :" + configName);
-                popLinkWitnessRequired = CMS.getConfigStore().getBoolean(configName, false);
+                popLinkWitnessRequired = engine.getConfigStore().getBoolean(configName, false);
                 if (popLinkWitnessRequired) {
                     logger.debug(method + "popLinkWitness(V2) required");
                 } else {
@@ -1198,6 +1204,7 @@ public abstract class EnrollProfile extends BasicProfile
             return null;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority authority = (ICertificateAuthority) getAuthority();
         PrivateKey issuanceProtPrivKey = authority.getIssuanceProtPrivKey();
         if (issuanceProtPrivKey != null)
@@ -1210,7 +1217,7 @@ public abstract class EnrollProfile extends BasicProfile
 
         try {
             CryptoToken token = null;
-            String tokenName = CMS.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+            String tokenName = engine.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
             token = CryptoUtil.getKeyStorageToken(tokenName);
 
             SymmetricKey symKey = CryptoUtil.unwrap(
@@ -1397,11 +1404,12 @@ public abstract class EnrollProfile extends BasicProfile
         String configName = "SharedToken";
         char[] sharedSecret = null;
         byte[] sharedSecretBytes = null;
+        CMSEngine engine = CMS.getCMSEngine();
 
         try {
 
             try {
-                IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+                IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
 
                 IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
                 if (sharedTokenAuth == null) {
@@ -1677,6 +1685,7 @@ public abstract class EnrollProfile extends BasicProfile
             return false;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         String ident_string = ident.toString();
         String auditAttemptedCred = null;
 
@@ -1695,7 +1704,7 @@ public abstract class EnrollProfile extends BasicProfile
 
         try {
             String configName = "SharedToken";
-            IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+            IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
 
             IAuthManager sharedTokenAuth = authSS.getAuthManager(configName);
             if (sharedTokenAuth == null) {
@@ -1836,7 +1845,8 @@ public abstract class EnrollProfile extends BasicProfile
             return false;
 
         String configName = "cmc.sharedSecret.class";
-            ISharedToken tokenClass = CMS.getSharedTokenClass(configName);
+        CMSEngine engine = CMS.getCMSEngine();
+        ISharedToken tokenClass = engine.getSharedTokenClass(configName);
         if (tokenClass == null) {
             logger.warn(method + " Failed to retrieve shared secret authentication plugin class");
             return false;
@@ -1874,6 +1884,8 @@ public abstract class EnrollProfile extends BasicProfile
     public void fillTaggedRequest(Locale locale, TaggedRequest tagreq, X509CertInfo info,
             IRequest req)
             throws EProfileException, ECMCPopFailedException, ECMCBadRequestException {
+
+        CMSEngine engine = CMS.getCMSEngine();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1897,12 +1909,12 @@ public abstract class EnrollProfile extends BasicProfile
             CryptoToken savedToken = null;
             try {
                 // for PKCS10, "sigver" would provide the POP
-                sigver = CMS.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
+                sigver = engine.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
                 cm = CryptoManager.getInstance();
                 if (sigver == true) {
                     logger.debug(methodPos + "sigver true, POP is to be verified");
                     String tokenName =
-                        CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                        engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                     savedToken = cm.getThreadToken();
                     signToken = CryptoUtil.getCryptoToken(tokenName);
                     if (!savedToken.getName().equals(signToken.getName())) {
@@ -1956,7 +1968,7 @@ public abstract class EnrollProfile extends BasicProfile
             try {
                 String configName = "cmc.lraPopWitness.verify.allow";
                 logger.debug(methodPos + "getting :" + configName);
-                verifyAllow = CMS.getConfigStore().getBoolean(configName, false);
+                verifyAllow = engine.getConfigStore().getBoolean(configName, false);
                 logger.debug(methodPos + "cmc.lraPopWitness.verify.allow is " + verifyAllow);
             } catch (Exception e) {
                 // unlikely to get here
@@ -2127,8 +2139,10 @@ public abstract class EnrollProfile extends BasicProfile
             IRequest req)
             throws EProfileException, ECMCUnsupportedExtException {
         String method = "EnrollProfile: fillCertReqMsg: ";
+        logger.debug(method + "Start parseCertReqMsg ");
+
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            logger.debug(method + "Start parseCertReqMsg ");
             CertRequest certReq = certReqMsg.getCertReq();
             req.setExtData("bodyPartId", certReq.getCertReqId());
             // handle PKIArchiveOption (key archival)
@@ -2142,7 +2156,7 @@ public abstract class EnrollProfile extends BasicProfile
                     req.setExtData(REQUEST_ARCHIVE_OPTIONS,
                             toByteArray(opt));
                     try {
-                        String transportCert = CMS.getConfigStore().getString("ca.connector.KRA.transportCert", "");
+                        String transportCert = engine.getConfigStore().getString("ca.connector.KRA.transportCert", "");
                         req.setExtData(IEnrollProfile.REQUEST_TRANSPORT_CERT, transportCert);
                     } catch (EBaseException ee) {
                         logger.warn("EnrollProfile: fillCertReqMsg - Exception reading transportCert: " + ee.getMessage(), ee);
@@ -2313,16 +2327,18 @@ public abstract class EnrollProfile extends BasicProfile
         // parse certificate into object
         byte data[] = Utils.base64decode(creq);
         PKCS10 pkcs10 = null;
+
+        CMSEngine engine = CMS.getCMSEngine();
         CryptoManager cm = null;
         CryptoToken savedToken = null;
         boolean sigver = true;
 
         try {
             cm = CryptoManager.getInstance();
-            sigver = CMS.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
+            sigver = engine.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
             if (sigver) {
                 logger.debug("EnrollProfile: parsePKCS10: signature verification enabled");
-                String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                String tokenName = engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                 savedToken = cm.getThreadToken();
                 CryptoToken signToken = CryptoUtil.getCryptoToken(tokenName);
                 logger.debug("EnrollProfile: parsePKCS10 setting thread token");
@@ -2527,9 +2543,9 @@ public abstract class EnrollProfile extends BasicProfile
         if (s == null) {
             return s;
         }
-        s = s.replaceAll(com.netscape.cmsutil.util.Cert.REQUEST_HEADER, "");
+        s = s.replaceAll(org.mozilla.jss.netscape.security.util.Cert.REQUEST_HEADER, "");
         s = s.replaceAll("-----BEGIN NEW CERTIFICATE REQUEST-----", "");
-        s = s.replaceAll(com.netscape.cmsutil.util.Cert.REQUEST_FOOTER, "");
+        s = s.replaceAll(org.mozilla.jss.netscape.security.util.Cert.REQUEST_FOOTER, "");
         s = s.replaceAll("-----END NEW CERTIFICATE REQUEST-----", "");
 
         StringBuffer sb = new StringBuffer();
@@ -2539,11 +2555,11 @@ public abstract class EnrollProfile extends BasicProfile
             String nextLine = st.nextToken();
 
             nextLine = nextLine.trim();
-            if (nextLine.equals(com.netscape.cmsutil.util.Cert.REQUEST_HEADER))
+            if (nextLine.equals(org.mozilla.jss.netscape.security.util.Cert.REQUEST_HEADER))
                 continue;
             if (nextLine.equals("-----BEGIN NEW CERTIFICATE REQUEST-----"))
                 continue;
-            if (nextLine.equals(com.netscape.cmsutil.util.Cert.REQUEST_FOOTER))
+            if (nextLine.equals(org.mozilla.jss.netscape.security.util.Cert.REQUEST_FOOTER))
                 continue;
             if (nextLine.equals("-----END NEW CERTIFICATE REQUEST-----"))
                 continue;
@@ -2765,9 +2781,10 @@ public abstract class EnrollProfile extends BasicProfile
             popFailed(locale, auditSubjectID, auditMessage);
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             CryptoToken verifyToken = null;
-            String tokenName = CMS.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+            String tokenName = engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
             if (CryptoUtil.isInternalToken(tokenName)) {
                 logger.debug(method + "POP verification using internal token");
                 certReqMsg.verify();

@@ -266,8 +266,6 @@ class PKIConfigParser:
     def init_config(self):
         self.deployer.nss_db_type = self.get_nss_db_type()
         java_home = self._getenv('JAVA_HOME').strip()
-        resteasy_lib = self._getenv('RESTEASY_LIB').strip()
-        jni_jar_dir = self._getenv('JNI_JAR_DIR').strip()
 
         default_instance_name = 'pki-tomcat'
         default_http_port = '8080'
@@ -286,8 +284,6 @@ class PKIConfigParser:
             'pki_subsystem_type': self.deployer.subsystem_name.lower(),
             'nss_default_db_type': self.deployer.nss_db_type,
             'java_home': java_home,
-            'resteasy_lib': resteasy_lib,
-            'jni_jar_dir': jni_jar_dir,
             'home_dir': os.path.expanduser("~"),
             'pki_hostname': self.deployer.hostname})
 
@@ -946,8 +942,6 @@ class PKIConfigParser:
                     "<!--"
             self.mdict['PKI_TMPDIR_SLOT'] = \
                 self.mdict['pki_tomcat_tmpdir_path']
-            self.mdict['PKI_RESTEASY_LIB_SLOT'] = \
-                self.mdict['resteasy_lib']
             self.mdict['PKI_RANDOM_NUMBER_SLOT'] = \
                 self.mdict['pki_one_time_pin']
             self.mdict['PKI_SECURE_PORT_SLOT'] = \
@@ -1112,31 +1106,14 @@ class PKIConfigParser:
                 os.path.join(
                     self.mdict['pki_instance_configuration_path'],
                     "password.conf")
-            self.mdict['pki_cert_database'] = \
-                os.path.join(self.mdict['pki_server_database_path'],
-                             "cert8.db")
-            self.mdict['pki_key_database'] = \
-                os.path.join(self.mdict['pki_server_database_path'],
-                             "key3.db")
-            self.mdict['pki_secmod_database'] = \
-                os.path.join(self.mdict['pki_server_database_path'],
-                             "secmod.db")
-            self.mdict['pki_self_signed_nickname'] = \
-                self.mdict['pki_sslserver_nickname']
+
             self.mdict['pki_self_signed_subject'] = \
                 "cn=" + self.mdict['pki_hostname'] + "," + \
                 "o=" + self.mdict['pki_certificate_timestamp']
             self.mdict['pki_self_signed_serial_number'] = 0
             self.mdict['pki_self_signed_validity_period'] = 12
-            self.mdict['pki_self_signed_issuer_name'] = \
-                "cn=" + self.mdict['pki_hostname'] + "," + \
-                "o=" + self.mdict['pki_certificate_timestamp']
             self.mdict['pki_self_signed_trustargs'] = "CTu,CTu,CTu"
-            self.mdict['pki_self_signed_noise_file'] = \
-                os.path.join(
-                    self.mdict['pki_subsystem_configuration_path'],
-                    "noise")
-            self.mdict['pki_self_signed_noise_bytes'] = 1024
+
             # Tomcat NSS security database convenience
             # symbolic links
             self.mdict['pki_subsystem_configuration_password_conf_link'] = \

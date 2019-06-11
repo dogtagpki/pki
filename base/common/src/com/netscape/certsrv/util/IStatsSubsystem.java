@@ -31,6 +31,7 @@ import com.netscape.certsrv.base.ISubsystem;
  * @version $Revision$, $Date$
  */
 public interface IStatsSubsystem extends ISubsystem {
+    public static final String ID = "stats";
     /**
      * Retrieves the start time since startup or
      * clearing of statistics.

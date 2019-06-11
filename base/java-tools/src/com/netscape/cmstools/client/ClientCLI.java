@@ -18,10 +18,10 @@
 
 package com.netscape.cmstools.client;
 
+import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**

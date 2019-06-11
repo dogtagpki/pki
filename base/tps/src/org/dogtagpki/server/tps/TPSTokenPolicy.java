@@ -20,10 +20,11 @@ package org.dogtagpki.server.tps;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.tps.main.TPSException;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /*
  * TPSTokenPolicy - handles token enrollment related policies
@@ -31,6 +32,9 @@ import com.netscape.certsrv.base.IConfigStore;
  * @author cfu
  */
 public class TPSTokenPolicy {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSTokenPolicy.class);
+
     private TPSSubsystem tps;
     private static final String DEFAULT_POLICY_SET_STRING =
             "RE_ENROLL=YES;RENEW=NO;FORCE_FORMAT=NO;PIN_RESET=NO;RESET_PIN_RESET_TO_NO=NO";
@@ -44,7 +48,7 @@ public class TPSTokenPolicy {
     public TPSTokenPolicy (TPSSubsystem tps) throws TPSException {
         if (tps == null) {
             String msg = "TPSTokenPolicy.TPSTokenPolicy: tps cannnot be null";
-            CMS.debug(msg);
+            logger.error(msg);
             throw new TPSException(msg);
         }
         this.tps = tps;
@@ -55,7 +59,8 @@ public class TPSTokenPolicy {
     }
 
     public String getDefaultPolicySetString() {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String configName = "tokendb.defaultPolicy";
         String policySetString;
         try {

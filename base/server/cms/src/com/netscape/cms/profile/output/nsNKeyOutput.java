@@ -19,9 +19,8 @@ package com.netscape.cms.profile.output;
 
 import java.util.Locale;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -31,7 +30,9 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.apps.CMS;
+
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This class implements the output plugin that outputs

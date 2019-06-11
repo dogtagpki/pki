@@ -29,7 +29,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -43,17 +45,15 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import com.netscape.cmsutil.util.Cert;
-
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * A class representing a recoverBySerial servlet.
@@ -62,9 +62,8 @@ import netscape.security.x509.X509CertImpl;
  */
 public class RecoverBySerial extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RecoverBySerial.class);
+
     private static final long serialVersionUID = -4544485601409309840L;
     private final static String INFO = "recoverBySerial";
     private final static String TPL_FILE = "recoverBySerial.template";
@@ -145,11 +144,9 @@ public class RecoverBySerial extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "recover");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn("RecoverBySerial: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn("RecoverBySerial: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -163,15 +160,14 @@ public class RecoverBySerial extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            logger.error("RecoverBySerial: " + CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         cmsReq.setStatus(ICMSRequest.SUCCESS);
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         // set host name and port.
@@ -204,8 +200,7 @@ public class RecoverBySerial extends CMSServlet {
                 mAuthz.checkRealm(realm, authToken, rec.getOwnerName(),
                         mAuthzResourceName, "recover");
             } catch (EAuthzException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn("RecoverBySerial: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
                 cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
                 return;
             }
@@ -274,8 +269,7 @@ public class RecoverBySerial extends CMSServlet {
             resp.setContentType("text/html");
             form.renderOutput(out, argSet);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            logger.error("RecoverBySerial: " + CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
@@ -324,17 +318,13 @@ public class RecoverBySerial extends CMSServlet {
                     new BigInteger(req.getParameter(IN_SERIALNO)).toString(16));
             header.addStringValue("requestID", reqID);
         } catch (EBaseException e) {
-            String error =
-                    "Failed to recover key for key id " +
-                            seq + ".\nException: " + e.toString();
+            String error = "Failed to recover key for key id " + seq + ": " + e.getMessage();
+            logger.warn("RecoverBySerial: " + error, e);
 
-            Logger.getLogger().log(ILogger.EV_SYSTEM,
-                    ILogger.S_KRA, ILogger.LL_FAILURE, error);
             try {
                 ((IKeyRecoveryAuthority) mService).createError(seq, error);
             } catch (EBaseException eb) {
-                Logger.getLogger().log(ILogger.EV_SYSTEM,
-                        ILogger.S_KRA, ILogger.LL_FAILURE, eb.toString());
+                logger.warn("RecoverBySerial: " + eb.getMessage(), e);
             }
         }
         return;
@@ -379,6 +369,7 @@ public class RecoverBySerial extends CMSServlet {
             header.addStringValue(OUT_ERROR, "invalid X.509 certificate");
             return null;
         }
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             Credential creds[] = null;
 
@@ -388,7 +379,7 @@ public class RecoverBySerial extends CMSServlet {
             if (sContext != null) {
                 agent = (String) sContext.get(SessionContext.USER_ID);
             }
-            if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
+            if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
                 if (localAgents == null) {
                     String recoveryID = req.getParameter("recoveryID");
 
@@ -518,16 +509,13 @@ public class RecoverBySerial extends CMSServlet {
                 creds = mService.getDistributedCredentials(theRecoveryID);
             } catch (EBaseException e) {
                 String error =
-                        "Failed to get required approvals for recovery id " +
-                                theRecoveryID + ".\nException: " + e.toString();
+                        "Failed to get required approvals for recovery id " + theRecoveryID + ": " + e.getMessage();
+                logger.warn("WaitApprovalThread: " + error, e);
 
-                Logger.getLogger().log(ILogger.EV_SYSTEM,
-                        ILogger.S_KRA, ILogger.LL_FAILURE, error);
                 try {
                     ((IKeyRecoveryAuthority) mService).createError(theRecoveryID, error);
                 } catch (EBaseException eb) {
-                    Logger.getLogger().log(ILogger.EV_SYSTEM,
-                            ILogger.S_KRA, ILogger.LL_FAILURE, eb.toString());
+                    logger.warn("WaitApprovalThread: " + eb.getMessage(), eb);
                 }
                 return;
             }
@@ -544,16 +532,13 @@ public class RecoverBySerial extends CMSServlet {
                 ((IKeyRecoveryAuthority) mService).createPk12(theRecoveryID, pkcs12);
             } catch (EBaseException e) {
                 String error =
-                        "Failed to recover key for recovery id " +
-                                theRecoveryID + ".\nException: " + e.toString();
+                        "Failed to recover key for recovery id " + theRecoveryID + ": " + e.getMessage();
+                logger.warn("WaitApprovalThread: " + error, e);
 
-                Logger.getLogger().log(ILogger.EV_SYSTEM,
-                        ILogger.S_KRA, ILogger.LL_FAILURE, error);
                 try {
                     ((IKeyRecoveryAuthority) mService).createError(theRecoveryID, error);
                 } catch (EBaseException eb) {
-                    Logger.getLogger().log(ILogger.EV_SYSTEM,
-                            ILogger.S_KRA, ILogger.LL_FAILURE, eb.toString());
+                    logger.warn("WaitApprovalThread: " + eb.getMessage(), eb);
                 }
             }
             return;

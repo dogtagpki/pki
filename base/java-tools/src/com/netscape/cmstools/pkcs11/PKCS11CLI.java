@@ -18,7 +18,8 @@
 
 package com.netscape.cmstools.pkcs11;
 
-import com.netscape.cmstools.cli.CLI;
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.cmstools.cli.MainCLI;
 
 /**

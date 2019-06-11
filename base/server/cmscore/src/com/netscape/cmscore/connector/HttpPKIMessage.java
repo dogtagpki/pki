@@ -28,7 +28,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.connector.IHttpPKIMessage;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cmscore.util.Debug;
 
 /**
  * simple name/value pair message.
@@ -134,17 +133,13 @@ public class HttpPKIMessage implements IHttpPKIMessage {
             throws IOException {
         logger.debug("writeObject");
         out.writeObject(reqType);
-        if (Debug.ON)
-            Debug.trace("read object req type " + reqType);
+        logger.trace("read object req type " + reqType);
         out.writeObject(reqId);
-        if (Debug.ON)
-            Debug.trace("read object req id " + reqId);
+        logger.trace("read object req id " + reqId);
         out.writeObject(reqStatus);
-        if (Debug.ON)
-            Debug.trace("read object req source status " + reqStatus);
+        logger.trace("read object req source status " + reqStatus);
         out.writeObject(reqRealm);
-        if (Debug.ON)
-            Debug.trace("read object req realm " + reqRealm);
+        logger.trace("read object req realm " + reqRealm);
         Enumeration<Object> enum1 = mNameVals.elements();
 
         while (enum1.hasMoreElements()) {
@@ -210,16 +205,13 @@ public class HttpPKIMessage implements IHttpPKIMessage {
                     }
                 }
                 if (iskey) {
-                    if (Debug.ON)
-                        Debug.trace("read key " + keyorval);
+                    logger.trace("read key " + keyorval);
                     iskey = false;
                 } else {
-                    if (Debug.ON)
-                        Debug.trace("read val " + keyorval);
+                    logger.trace("read val " + keyorval);
                     iskey = true;
                 }
-                if (Debug.ON)
-                    Debug.trace("read " + keyorval);
+                logger.trace("read " + keyorval);
                 if (!skipped) {
                     if (keyorval == null)
                         break;
@@ -228,11 +220,9 @@ public class HttpPKIMessage implements IHttpPKIMessage {
             }
         } catch (OptionalDataException e) {
             if (e.eof == true) {
-                if (Debug.ON)
-                    Debug.trace("end of stream");
+                logger.trace("end of stream");
             } else {
-                if (Debug.ON)
-                    Debug.trace(" " + e.length);
+                logger.trace(" " + e.length);
                 throw e;
             }
         }

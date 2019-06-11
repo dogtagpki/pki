@@ -28,7 +28,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -47,6 +46,8 @@ import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -54,6 +55,9 @@ import com.netscape.cmscore.security.JssSubsystem;
  *
  */
 public class CertRequestDAO extends CMSRequestDAO {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRequestDAO.class);
+
     private IRequestQueue queue;
     private ICertificateAuthority ca;
     IProfileSubsystem ps;
@@ -63,13 +67,14 @@ public class CertRequestDAO extends CMSRequestDAO {
 
     public CertRequestDAO() {
         super("ca");
-        ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         queue = ca.getRequestQueue();
         if (ca.noncesEnabled()) {
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             random = jssSubsystem.getRandomNumberGenerator();
         }
-        ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
+        ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
     }
 
     /**
@@ -203,8 +208,7 @@ public class CertRequestDAO extends CMSRequestDAO {
                 CertRequestInfo info = CertRequestInfoFactory.create(req, uriInfo);
                 ret.addEntry(info);
             } catch (NoSuchMethodException e) {
-                CMS.debug("Error in creating certrequestinfo - no such method");
-                e.printStackTrace();
+                logger.warn("Error in creating certrequestinfo - no such method: " + e.getMessage(), e);
             }
         }
 
@@ -231,8 +235,7 @@ public class CertRequestDAO extends CMSRequestDAO {
         try {
             return CertRequestInfoFactory.create(request, uriInfo);
         } catch (NoSuchMethodException e) {
-            CMS.debug("Error in creating certrequestinfo - no such method");
-            e.printStackTrace();
+            logger.warn("Error in creating certrequestinfo - no such method: " + e.getMessage(), e);
         }
         return null;
     }

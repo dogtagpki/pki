@@ -31,8 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
@@ -54,8 +54,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
-
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
@@ -65,9 +64,7 @@ import netscape.security.x509.X509CertImpl;
  */
 public class DoUnrevokeTPS extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DoUnrevokeTPS.class);
     private static final long serialVersionUID = -6245049221697655642L;
 
     @SuppressWarnings("unused")
@@ -145,7 +142,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                 authMgr =
                         authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
             } else {
-                CMS.debug("DoUnrevokeTPS::process() -  authToken is null!");
+                logger.warn("DoUnrevokeTPS::process() -  authToken is null!");
                 return;
             }
             String agentID = authToken.getInString("userid");
@@ -307,16 +304,14 @@ public class DoUnrevokeTPS extends CMSServlet {
 
                 if (result != null && result.equals(IRequest.RES_SUCCESS)) {
                     if (certs[0] != null) {
-                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.DOUNREVOKEFORMAT,
-                                new Object[] {
-                                        unrevReq.getRequestId(),
-                                        initiative,
-                                        "completed",
-                                        certs[0].getSubjectDN(),
-                                        "0x" + serialNumbers[0].toString(16) }
-                                );
+                                unrevReq.getRequestId(),
+                                initiative,
+                                "completed",
+                                certs[0].getSubjectDN(),
+                                "0x" + serialNumbers[0].toString(16)
+                        );
                     }
                 } else {
                     String error = unrevReq.getExtDataInString(IRequest.ERROR);
@@ -325,18 +320,14 @@ public class DoUnrevokeTPS extends CMSServlet {
                         o_status = "status=3";
                         errorString = "error=" + error;
                         if (certs[0] != null) {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.DOUNREVOKEFORMAT,
-                                    new Object[] {
-                                            unrevReq.getRequestId(),
-                                            initiative,
-                                            "completed with error: " +
-                                                    error,
-                                            certs[0].getSubjectDN(),
-                                            "0x" + serialNumbers[0].toString(16) }
-                                    );
+                                    unrevReq.getRequestId(),
+                                    initiative,
+                                    "completed with error: " + error,
+                                    certs[0].getSubjectDN(),
+                                    "0x" + serialNumbers[0].toString(16)
+                            );
                         }
                     }
                 }
@@ -435,32 +426,28 @@ public class DoUnrevokeTPS extends CMSServlet {
                 o_status = "status=2";
                 errorString = "error=" + status.toString();
                 if (certs[0] != null) {
-                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
+                    logger.info(
                             AuditFormat.DOUNREVOKEFORMAT,
-                            new Object[] {
-                                    unrevReq.getRequestId(),
-                                    initiative,
-                                    "pending",
-                                    certs[0].getSubjectDN(),
-                                    "0x" + serialNumbers[0].toString(16) }
-                            );
+                            unrevReq.getRequestId(),
+                            initiative,
+                            "pending",
+                            certs[0].getSubjectDN(),
+                            "0x" + serialNumbers[0].toString(16)
+                    );
                 }
             } else {
                 o_status = "status=2";
                 errorString = "error=Undefined request status";
 
                 if (certs[0] != null) {
-                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
+                    logger.info(
                             AuditFormat.DOUNREVOKEFORMAT,
-                            new Object[] {
-                                    unrevReq.getRequestId(),
-                                    initiative,
-                                    status.toString(),
-                                    certs[0].getSubjectDN(),
-                                    "0x" + serialNumbers[0].toString(16) }
-                            );
+                                unrevReq.getRequestId(),
+                                initiative,
+                                status,
+                                certs[0].getSubjectDN(),
+                                "0x" + serialNumbers[0].toString(16)
+                        );
                 }
             }
 

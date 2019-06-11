@@ -16,7 +16,7 @@
 
 - meta: flush_handlers
 
-- name: Enable OCSP
+- name: Enable OCSP 
   replace: dest=/etc/pki/{{ topology }}-OCSP/server.xml regexp='enableOCSP="false"' replace='enableOCSP="true"'
 
 - name: Picking the password in run-time from password.conf of OCSP.
@@ -26,7 +26,7 @@
   shell: certutil -A -d /etc/pki/{{ topology }}-OCSP/alias -n "ocspSigningCert cert-pki-ca" -t "C,," -i  /tmp/test_dir/ocsp_signing.crt -f /tmp/test_dir/certutil_password
   notify:
     - STARTOCSP
-
+    
 - name: Removing file generated with password
   file:
     path: "{{ item }}"

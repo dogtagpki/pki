@@ -23,14 +23,13 @@ import java.security.interfaces.DSAParams;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.provider.DSAPublicKey;
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.provider.DSAPublicKey;
+import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IEnrollProfile;
@@ -39,6 +38,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -49,6 +49,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  * @version $Revision$, $Date$
  */
 public class UserKeyDefault extends EnrollDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserKeyDefault.class);
 
     public static final String VAL_KEY = "KEY";
     public static final String VAL_LEN = "LEN";
@@ -156,7 +158,7 @@ public class UserKeyDefault extends EnrollDefault {
                     return Integer.toString(getDSAKeyLen(k));
                 }
             } catch (Exception e) {
-                CMS.debug("UserKeyDefault: getValue " + e.toString());
+                logger.error("UserKeyDefault: getValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -200,7 +202,7 @@ public class UserKeyDefault extends EnrollDefault {
             newkey = new X509Key(AlgorithmId.get("RSA"),
                         key.getKey());
         } catch (Exception e) {
-            CMS.debug("UserKeyDefault: getRSAKey " + e.toString());
+            logger.error("UserKeyDefault: getRSAKey " + e.getMessage(), e);
             throw e;
         }
         RSAPublicKey rsaKey = new RSAPublicKey(newkey.getEncoded());
@@ -235,7 +237,7 @@ public class UserKeyDefault extends EnrollDefault {
             }
             info.set(X509CertInfo.KEY, certKey);
         } catch (Exception e) {
-            CMS.debug("UserKeyDefault: populate " + e.toString());
+            logger.warn("UserKeyDefault: populate " + e.getMessage(), e);
         }
     }
 }

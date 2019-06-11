@@ -19,11 +19,10 @@ package com.netscape.cms.profile.def;
 
 import java.util.Locale;
 
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
@@ -32,6 +31,8 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements an enrollment default policy
@@ -41,6 +42,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class SigningAlgDefault extends EnrollDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SigningAlgDefault.class);
 
     public static final String CONFIG_ALGORITHM = "signingAlg";
 
@@ -70,14 +73,15 @@ public class SigningAlgDefault extends EnrollDefault {
     }
 
     public String getSigningAlg() {
+
+        CMSEngine engine = CMS.getCMSEngine();
         String signingAlg = getConfig(CONFIG_ALGORITHM);
         // if specified, use the specified one. Otherwise, pick
         // the best selection for the user
         if (signingAlg == null || signingAlg.equals("") ||
                 signingAlg.equals("-")) {
             // best pick for the user
-            ICertificateAuthority ca = (ICertificateAuthority)
-                    CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             return ca.getDefaultAlgorithm();
         } else {
             return signingAlg;
@@ -86,8 +90,8 @@ public class SigningAlgDefault extends EnrollDefault {
 
     public String getDefSigningAlgorithms() {
         StringBuffer allowed = new StringBuffer();
-        ICertificateAuthority ca = (ICertificateAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         String algos[] = ca.getCASigningAlgorithms();
         for (int i = 0; i < algos.length; i++) {
             if (allowed.length() == 0) {
@@ -123,7 +127,7 @@ public class SigningAlgDefault extends EnrollDefault {
                         new CertificateAlgorithmId(
                                 AlgorithmId.get(value)));
             } catch (Exception e) {
-                CMS.debug("SigningAlgDefault: setValue " + e.toString());
+                logger.error("SigningAlgDefault: setValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -151,7 +155,7 @@ public class SigningAlgDefault extends EnrollDefault {
 
                 return id.toString();
             } catch (Exception e) {
-                CMS.debug("SigningAlgDefault: getValue " + e.toString());
+                logger.warn("SigningAlgDefault: getValue " + e.getMessage(), e);
             }
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -176,7 +180,7 @@ public class SigningAlgDefault extends EnrollDefault {
             info.set(X509CertInfo.ALGORITHM_ID,
                     new CertificateAlgorithmId(AlgorithmId.get(getSigningAlg())));
         } catch (Exception e) {
-            CMS.debug("SigningAlgDefault: populate " + e.toString());
+            logger.warn("SigningAlgDefault: populate " + e.getMessage(), e);
         }
     }
 }

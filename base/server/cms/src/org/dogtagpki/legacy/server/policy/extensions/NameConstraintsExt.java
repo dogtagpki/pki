@@ -27,8 +27,13 @@ import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.GeneralSubtree;
+import org.mozilla.jss.netscape.security.x509.GeneralSubtrees;
+import org.mozilla.jss.netscape.security.x509.NameConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -36,13 +41,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.GeneralSubtree;
-import netscape.security.x509.GeneralSubtrees;
-import netscape.security.x509.NameConstraintsExtension;
-import netscape.security.x509.X509CertInfo;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Name Constraints Extension Policy
@@ -59,6 +58,9 @@ import netscape.security.x509.X509CertInfo;
  */
 public class NameConstraintsExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NameConstraintsExt.class);
+
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_NUM_PERMITTEDSUBTREES = "numPermittedSubtrees";
     protected static final String PROP_NUM_EXCLUDEDSUBTREES = "numExcludedSubtrees";
@@ -145,14 +147,14 @@ public class NameConstraintsExt extends APolicyRule
         if (mNumPermittedSubtrees > 0) {
             mPermittedSubtrees =
                     form_subtrees(PROP_PERMITTEDSUBTREES, mNumPermittedSubtrees);
-            CMS.debug("NameConstraintsExt: formed permitted subtrees");
+            logger.debug("NameConstraintsExt: formed permitted subtrees");
         }
 
         // init excluded subtrees if any.
         if (mNumExcludedSubtrees > 0) {
             mExcludedSubtrees =
                     form_subtrees(PROP_EXCLUDEDSUBTREES, mNumExcludedSubtrees);
-            CMS.debug("NameConstraintsExt: formed excluded subtrees");
+            logger.debug("NameConstraintsExt: formed excluded subtrees");
         }
 
         // create instance of name constraints extension if enabled.
@@ -184,7 +186,7 @@ public class NameConstraintsExt extends APolicyRule
                         new NameConstraintsExtension(mCritical,
                                 psb,
                                 esb);
-                CMS.debug("NameConstraintsExt: formed Name Constraints Extension " +
+                logger.debug("NameConstraintsExt: formed Name Constraints Extension " +
                         mNameConstraintsExtension);
             } catch (IOException e) {
                 throw new EBaseException(
@@ -281,13 +283,11 @@ public class NameConstraintsExt extends APolicyRule
 
             if (nameConstraintsExt != null) {
                 if (agentApproved(req)) {
-                    CMS.debug(
-                            "NameConstraintsExt: request id from agent " + req.getRequestId() +
+                    logger.debug("NameConstraintsExt: request id from agent " + req.getRequestId() +
                                     " already has name constraints - accepted");
                     return PolicyResult.ACCEPTED;
                 } else {
-                    CMS.debug(
-                            "NameConstraintsExt: request id " + req.getRequestId() + " from user " +
+                    logger.debug("NameConstraintsExt: request id " + req.getRequestId() + " from user " +
                                     " already has name constraints - deleted");
                     extensions.delete(NameConstraintsExtension.NAME);
                 }
@@ -301,8 +301,7 @@ public class NameConstraintsExt extends APolicyRule
             }
             extensions.set(
                     NameConstraintsExtension.NAME, mNameConstraintsExtension);
-            CMS.debug(
-                    "NameConstraintsExt: added Name Constraints Extension to request " +
+            logger.debug("NameConstraintsExt: added Name Constraints Extension to request " +
                             req.getRequestId());
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {

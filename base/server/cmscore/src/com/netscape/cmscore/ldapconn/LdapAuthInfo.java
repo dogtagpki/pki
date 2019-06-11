@@ -19,25 +19,33 @@ package com.netscape.cmscore.ldapconn;
 
 import java.util.Hashtable;
 
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPException;
-
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.cmsutil.password.IPasswordStore;
+
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPException;
 
 /**
  * class for reading ldap authentication info from config store
  */
 public class LdapAuthInfo implements ILdapAuthInfo {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapAuthInfo.class);
+
+    IConfigStore config;
+    String host;
+    int port;
+    boolean secure;
+
     protected int mType = -1;
-    protected String[] mParms = null;
+    String bindDN;
+    String nickname;
 
     private boolean mInited = false;
 
+    IPasswordStore passwordStore;
     private static Hashtable<String, String> passwords = new Hashtable<String, String>();
 
     /**
@@ -46,25 +54,9 @@ public class LdapAuthInfo implements ILdapAuthInfo {
     public LdapAuthInfo() {
     }
 
-    /**
-     * constructs ldap auth info directly from config store.
-     */
-    public LdapAuthInfo(IConfigStore config) throws EBaseException {
-        init(config);
-    }
-
-    /**
-     * constructs ldap auth info directly from config store, and verifies
-     * the password by attempting to connect to the server.
-     */
-    public LdapAuthInfo(IConfigStore config, String host, int port, boolean secure)
-            throws EBaseException {
-        init(config, host, port, secure);
-    }
-
     public String getPasswordFromStore(String prompt) throws EBaseException {
         String pwd = null;
-        CMS.debug("LdapAuthInfo: getPasswordFromStore: try to get it from password store");
+        logger.debug("LdapAuthInfo: getPasswordFromStore: try to get it from password store");
 
         // hey - should use password store interface to allow different implementations
         // but the problem is, other parts of the system just go directly to the file
@@ -74,27 +66,26 @@ public class LdapAuthInfo implements ILdapAuthInfo {
                         String pwdFile = mainConfig.getString("passwordFile");
                         FileConfigStore pstore = new FileConfigStore(pwdFile);
         */
-        IPasswordStore pwdStore = CMS.getPasswordStore();
-        CMS.debug("LdapAuthInfo: getPasswordFromStore: about to get from passwored store: " + prompt);
+        logger.debug("LdapAuthInfo: getPasswordFromStore: about to get from passwored store: " + prompt);
 
         // support publishing dirsrv with different pwd than internaldb
 
         // Finally, interactively obtain the password from the user
-        if (pwdStore != null) {
-            CMS.debug("LdapAuthInfo: getPasswordFromStore: password store available");
-            pwd = pwdStore.getPassword(prompt, 0);
+        if (passwordStore != null) {
+            logger.debug("LdapAuthInfo: getPasswordFromStore: password store available");
+            pwd = passwordStore.getPassword(prompt, 0);
             //            pwd = pstore.getString(prompt);
             if (pwd == null) {
-                CMS.debug("LdapAuthInfo: getPasswordFromStore: password for " + prompt +
+                logger.debug("LdapAuthInfo: getPasswordFromStore: password for " + prompt +
                         " not found, trying internaldb");
 
                 //               pwd = pstore.getString("internaldb");
 
-                pwd = pwdStore.getPassword("internaldb", 0); // last resort
+                pwd = passwordStore.getPassword("internaldb", 0); // last resort
             } else
-                CMS.debug("LdapAuthInfo: getPasswordFromStore: password found for prompt in password store");
+                logger.debug("LdapAuthInfo: getPasswordFromStore: password found for prompt in password store");
         } else
-            CMS.debug("LdapAuthInfo: getPasswordFromStore: password store not available: pwdStore is null");
+            logger.debug("LdapAuthInfo: getPasswordFromStore: password store not available: pwdStore is null");
 
         return pwd;
     }
@@ -117,88 +108,118 @@ public class LdapAuthInfo implements ILdapAuthInfo {
     public void init(IConfigStore config, String host, int port, boolean secure)
             throws EBaseException {
 
-        CMS.debug("LdapAuthInfo: init()");
+        logger.debug("LdapAuthInfo: init()");
+
         if (mInited) {
-            CMS.debug("LdapAuthInfo: already initialized");
+            logger.debug("LdapAuthInfo: already initialized");
             return; // XXX throw exception here ?
         }
-        CMS.debug("LdapAuthInfo: init begins");
+
+        logger.debug("LdapAuthInfo: init begins");
+
+        this.config = config;
+        this.host = host;
+        this.port = port;
+        this.secure = secure;
 
         String authTypeStr = config.getString(PROP_LDAPAUTHTYPE);
 
         if (authTypeStr.equals(LDAP_BASICAUTH_STR)) {
-            // is the password found in memory?
-            boolean inMem = false;
             mType = LDAP_AUTHTYPE_BASICAUTH;
-            mParms = new String[2];
-            mParms[0] = config.getString(PROP_BINDDN);
-
-            // Passwords should only be written to the file for testing,
-            // never in production
-            mParms[1] = config.getString(PROP_BINDPW, null);
-
-            // Next, see if this password has been requested before
-            String prompt = config.getString(PROP_BINDPW_PROMPT, null);
-
-            if (prompt == null) {
-                prompt = "LDAP Authentication";
-                CMS.debug("LdapAuthInfo: init: prompt is null, change to " + prompt);
-            } else
-                CMS.debug("LdapAuthInfo: init: prompt is " + prompt);
-
-            if (mParms[1] == null) {
-                CMS.debug("LdapAuthInfo: init: try getting from memory cache");
-                mParms[1] = passwords.get(prompt);
-                if (mParms[1] != null) {
-                    inMem = true;
-                    CMS.debug("LdapAuthInfo: init: got password from memory");
-                } else
-                    CMS.debug("LdapAuthInfo: init: password not in memory");
-            } else
-                CMS.debug("LdapAuthInfo: init: found password from config");
-
-            if (mParms[1] == null) {
-                mParms[1] = getPasswordFromStore(prompt);
-            } else {
-                CMS.debug("LdapAuthInfo: init: password found for prompt.");
-            }
-
-            // verify the password
-            if ((mParms[1] != null) && (!mParms[1].equals("")) && (host == null ||
-                    authInfoOK(host, port, secure, mParms[0], mParms[1]))) {
-                // The password is OK or uncheckable
-                CMS.debug("LdapAuthInfo: password ok: store in memory cache");
-                passwords.put(prompt, mParms[1]);
-            } else {
-                if (mParms[1] == null)
-                    CMS.debug("LdapAuthInfo: password not found");
-                else {
-                    CMS.debug("LdapAuthInfo: password does not work");
-                    /* what do you know?  Our IPasswordStore does not have a remove function.
-                                    pstore.remove("internaldb");
-                    */
-                    if (inMem) {
-                        // this is for the case when admin changes pwd
-                        // from console
-                        mParms[1] = getPasswordFromStore(prompt);
-                        if (authInfoOK(host, port, secure, mParms[0], mParms[1])) {
-                            CMS.debug("LdapAuthInfo: password ok: store in memory cache");
-                            passwords.put(prompt, mParms[1]);
-                        }
-                    }
-                }
-            }
 
         } else if (authTypeStr.equals(LDAP_SSLCLIENTAUTH_STR)) {
             mType = LDAP_AUTHTYPE_SSLCLIENTAUTH;
-            mParms = new String[1];
-            mParms[0] = config.getString(PROP_CLIENTCERTNICKNAME, null);
+
         } else {
             throw new IllegalArgumentException(
                     "Unknown Ldap authentication type " + authTypeStr);
         }
         mInited = true;
-        CMS.debug("LdapAuthInfo: init ends");
+        logger.debug("LdapAuthInfo: init ends");
+    }
+
+    public String getBindDN() throws EBaseException {
+
+        if (bindDN == null) {
+            bindDN = config.getString(PROP_BINDDN);
+        }
+
+        return bindDN;
+    }
+
+    public String getBindPassword() throws EBaseException {
+
+        // is the password found in memory?
+        boolean inMem = false;
+
+        // Passwords should only be written to the file for testing,
+        // never in production
+        String bindPassword = config.getString(PROP_BINDPW, null);
+
+        // Next, see if this password has been requested before
+        String prompt = config.getString(PROP_BINDPW_PROMPT, null);
+
+        if (prompt == null) {
+            prompt = "LDAP Authentication";
+            logger.debug("LdapAuthInfo: init: prompt is null, change to " + prompt);
+        } else {
+            logger.debug("LdapAuthInfo: init: prompt is " + prompt);
+        }
+
+        if (bindPassword == null) {
+            logger.debug("LdapAuthInfo: init: try getting from memory cache");
+            bindPassword = passwords.get(prompt);
+            if (bindPassword != null) {
+                inMem = true;
+                logger.debug("LdapAuthInfo: init: got password from memory");
+            } else
+                logger.debug("LdapAuthInfo: init: password not in memory");
+        } else
+            logger.debug("LdapAuthInfo: init: found password from config");
+
+        if (bindPassword == null) {
+            bindPassword = getPasswordFromStore(prompt);
+        } else {
+            logger.debug("LdapAuthInfo: init: password found for prompt.");
+        }
+
+        // verify the password
+        if (bindPassword != null && !bindPassword.equals("") && (host == null ||
+                authInfoOK(host, port, secure, bindDN, bindPassword))) {
+            // The password is OK or uncheckable
+            logger.debug("LdapAuthInfo: password ok: store in memory cache");
+            passwords.put(prompt, bindPassword);
+
+        } else {
+            if (bindPassword == null) {
+                logger.debug("LdapAuthInfo: password not found");
+            } else {
+                logger.debug("LdapAuthInfo: password does not work");
+                /* what do you know?  Our IPasswordStore does not have a remove function.
+                                pstore.remove("internaldb");
+                */
+                if (inMem) {
+                    // this is for the case when admin changes pwd
+                    // from console
+                    bindPassword = getPasswordFromStore(prompt);
+                    if (authInfoOK(host, port, secure, bindDN, bindPassword)) {
+                        logger.debug("LdapAuthInfo: password ok: store in memory cache");
+                        passwords.put(prompt, bindPassword);
+                    }
+                }
+            }
+        }
+
+        return bindPassword;
+    }
+
+    public String getClientCertNickname() throws EBaseException {
+
+        if (nickname == null) {
+            nickname = config.getString(PROP_CLIENTCERTNICKNAME);
+        }
+
+        return nickname;
     }
 
     public void reset() {
@@ -267,32 +288,19 @@ public class LdapAuthInfo implements ILdapAuthInfo {
         return mType;
     }
 
-    /**
-     * get params for authentication
-     *
-     * @return array of parameters for this authentication.
-     */
-    public String[] getParms() {
-        return mParms.clone();
+    public IPasswordStore getPasswordStore() {
+        return passwordStore;
     }
 
-    /**
-     * add password
-     */
+    public void setPasswordStore(IPasswordStore passwordStore) {
+        this.passwordStore = passwordStore;
+    }
+
     public void addPassword(String prompt, String pw) {
-        try {
-            passwords.put(prompt, pw);
-        } catch (Exception e) {
-        }
+        passwords.put(prompt, pw);
     }
 
-    /**
-     * remove password
-     */
     public void removePassword(String prompt) {
-        try {
-            passwords.remove(prompt);
-        } catch (Exception e) {
-        }
+        passwords.remove(prompt);
     }
 }

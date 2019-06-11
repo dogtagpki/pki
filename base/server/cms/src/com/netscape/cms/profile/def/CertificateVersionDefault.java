@@ -21,10 +21,9 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
 
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -32,6 +31,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -42,6 +42,7 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class CertificateVersionDefault extends EnrollExtDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateVersionDefault.class);
     public static final String CONFIG_VERSION = "certVersionNum";
 
     public static final String VAL_VERSION = "certVersionNum";
@@ -121,9 +122,9 @@ public class CertificateVersionDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
-            CMS.debug("CertificateVersionDefault: setValue " + e.toString());
+            logger.warn("CertificateVersionDefault: setValue " + e.getMessage(), e);
         } catch (CertificateException e) {
-            CMS.debug("CertificateVersionDefault: setValue " + e.toString());
+            logger.warn("CertificateVersionDefault: setValue " + e.getMessage(), e);
         }
     }
 

@@ -43,7 +43,6 @@ import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.TokenException;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -54,6 +53,7 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.FileConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -87,7 +87,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public AuthenticationManager authManager;
     public MappingResolverManager mappingResolverManager;
 
-    public TPSEngine engine;
+    public TPSEngine tpsEngine;
     public TPSTokendb tdb;
 
     public Map<TokenStatus, Collection<TokenStatus>> uiTransitions;
@@ -111,8 +111,9 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         this.owner = owner;
         this.config = config;
 
+        CMSEngine engine = CMS.getCMSEngine();
         IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
 
         String activityDatabaseDN = cs.getString("tokendb.activityBaseDN");
         activityDatabase = new ActivityDatabase(dbSubsystem, activityDatabaseDN);
@@ -139,8 +140,8 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
         tdb = new TPSTokendb(this);
 
-        engine = new TPSEngine();
-        engine.init();
+        tpsEngine = new TPSEngine();
+        tpsEngine.init();
     }
 
     public Map<TokenStatus, Collection<TokenStatus>> loadTokenStateTransitions(IConfigStore cs, String property) throws EBaseException {
@@ -372,7 +373,8 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public org.mozilla.jss.crypto.X509Certificate getSubsystemCert() throws EBaseException, NotInitializedException,
             ObjectNotFoundException, TokenException {
 
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         String nickname = cs.getString("tps.subsystem.nickname", "");
         String tokenname = cs.getString("tps.subsystem.tokenname", "");
         if (!CryptoUtil.isInternalToken(tokenname))
@@ -383,7 +385,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     }
 
     public TPSEngine getEngine() {
-        return engine;
+        return tpsEngine;
     }
 
     public boolean isUITransitionAllowed(TokenRecord tokenRecord, TokenStatus nextState) throws Exception {

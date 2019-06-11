@@ -22,11 +22,11 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.jobs.IJobCron;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * class representing one Job cron information

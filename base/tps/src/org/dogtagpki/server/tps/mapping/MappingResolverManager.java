@@ -20,11 +20,12 @@ package org.dogtagpki.server.tps.mapping;
 
 import java.util.HashMap;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * mappingResolverManager is a class for mapping resolver plugin
@@ -34,6 +35,8 @@ import com.netscape.certsrv.registry.IPluginRegistry;
  */
 public class MappingResolverManager
 {
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MappingResolverManager.class);
+
     private static final String TOKEN_MAPPING_RESOLVER_TYPE = "tpsMappingResolver";
     public static final String PROP_RESOLVER_LIST = "list";
     public static final String PROP_RESOLVER_CLASS_ID = "class_id";
@@ -75,11 +78,12 @@ public class MappingResolverManager
     public void initMappingResolverInstances()
             throws EBaseException {
         String method = "mappingResolverManager.initMappingResolverInstance:";
-        CMS.debug(method + " begins");
-        IConfigStore conf = CMS.getConfigStore();
-        registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        logger.debug(method + " begins");
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore conf = engine.getConfigStore();
+        registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
         if (registry == null) {
-            CMS.debug(method + " registry null");
+            logger.warn(method + " registry null");
             return;
         }
 
@@ -88,7 +92,7 @@ public class MappingResolverManager
 
         for (String prInst : profileList.split(",")) {
             String classID = prConf.getString(prInst + "." + PROP_RESOLVER_CLASS_ID);
-            CMS.debug(method + " initializing classID=" + classID);
+            logger.debug(method + " initializing classID=" + classID);
             IPluginInfo resolverInfo =
                     registry.getPluginInfo(TOKEN_MAPPING_RESOLVER_TYPE, classID);
             String resolverClass = resolverInfo.getClassName();
@@ -97,14 +101,12 @@ public class MappingResolverManager
                 resolver = (BaseMappingResolver)
                         Class.forName(resolverClass).newInstance();
             } catch (Exception e) {
-                // throw Exception
-                CMS.debug(method + " resolver plugin Class.forName " +
-                        resolverClass + " " + e.toString());
+                logger.error(method + " resolver plugin Class.forName " + resolverClass + ": " + e.getMessage(), e);
                 throw new EBaseException(e.toString());
             }
             resolver.init(prInst);
             addResolver(prInst, resolver);
-            CMS.debug(method + " resolver instance added: " + prInst);
+            logger.debug(method + " resolver instance added: " + prInst);
         }
     }
 

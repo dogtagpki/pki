@@ -21,11 +21,10 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -38,6 +37,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.SigningAlgDefault;
 import com.netscape.cms.profile.def.UserSigningAlgDefault;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements the signing algorithm constraint.
@@ -47,6 +47,8 @@ import com.netscape.cms.profile.def.UserSigningAlgDefault;
  * @version $Revision$, $Date$
  */
 public class SigningAlgConstraint extends EnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SigningAlgConstraint.class);
 
     public static final String CONFIG_ALGORITHMS_ALLOWED = "signingAlgsAllowed";
 
@@ -75,9 +77,9 @@ public class SigningAlgConstraint extends EnrollConstraint {
             throws EPropertyException {
 
         if (mConfig.getSubStore("params") == null) {
-            CMS.debug("SigningAlgConstraint: mConfig.getSubStore is null");
+            logger.debug("SigningAlgConstraint: mConfig.getSubStore is null");
         } else {
-            CMS.debug("SigningAlgConstraint: setConfig name=" + name +
+            logger.debug("SigningAlgConstraint: setConfig name=" + name +
                     " value=" + value);
 
             if (name.equals(CONFIG_ALGORITHMS_ALLOWED)) {
@@ -136,7 +138,7 @@ public class SigningAlgConstraint extends EnrollConstraint {
             if (e instanceof ERejectException) {
                 throw (ERejectException) e;
             }
-            CMS.debug("SigningAlgConstraint: " + e.toString());
+            logger.error("SigningAlgConstraint: " + e.getMessage(), e);
             throw new ERejectException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_SIGNING_ALGORITHM_NOT_FOUND"));
         }

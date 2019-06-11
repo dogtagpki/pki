@@ -27,7 +27,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -44,9 +45,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-
-import netscape.security.x509.X500Name;
 
 /**
  * Retrieve archived keys matching given public key material
@@ -56,9 +57,7 @@ import netscape.security.x509.X500Name;
  */
 public class SrchKeyForRecovery extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SrchKeyForRecovery.class);
     private static final long serialVersionUID = 5426987963811540460L;
     private final static String TPL_FILE = "srchKeyForRecovery.template";
     private final static String INFO = "srchKey";
@@ -203,8 +202,8 @@ public class SrchKeyForRecovery extends CMSServlet {
         }
 
         // process query if authentication is successful
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
         EBaseException error = null;
 
@@ -310,10 +309,10 @@ public class SrchKeyForRecovery extends CMSServlet {
             }
 
             if (timeLimit == -1 || timeLimit > mTimeLimits) {
-                CMS.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
+                logger.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
-            CMS.debug("Start searching ... timelimit=" + timeLimit);
+            logger.debug("Start searching ... timelimit=" + timeLimit);
             Enumeration<IKeyRecord> e = mKeyDB.searchKeys(filter, maxResults, timeLimit);
             int count = 0;
 
@@ -328,7 +327,7 @@ public class SrchKeyForRecovery extends CMSServlet {
                     // a LDAPException.SIZE_LIMIT_ExCEEDED
                     // in DSSearchResults.java
                     if (rec != null) {
-                        IArgBlock rarg = CMS.createArgBlock();
+                        ArgBlock rarg = new ArgBlock();
 
                         KeyRecordParser.fillRecordIntoArg(rec, rarg);
                         argSet.addRepeatRecord(rarg);

@@ -26,9 +26,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.w3c.dom.Node;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
@@ -53,12 +56,9 @@ import com.netscape.cms.servlet.cert.RenewalProcessor;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.processors.CAProcessor;
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
-
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * This servlet submits end-user request into the profile framework.
@@ -68,9 +68,8 @@ import netscape.security.x509.X509CertInfo;
  */
 public class ProfileSubmitServlet extends ProfileServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileSubmitServlet.class);
+
     private static final long serialVersionUID = 7557922703180866442L;
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
@@ -122,27 +121,26 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
         try {
             if ((renewal != null) && (renewal.equalsIgnoreCase("true"))) {
-                CMS.debug("ProfileSubmitServlet: isRenewal true");
+                logger.debug("ProfileSubmitServlet: isRenewal true");
                 results = processRenewal(cmsReq);
             } else {
-                CMS.debug("ProfileSubmitServlet: isRenewal false");
+                logger.debug("ProfileSubmitServlet: isRenewal false");
                 results = processEnrollment(cmsReq);
             }
         } catch (BadRequestDataException e) {
-            CMS.debug("ProfileSubmitServlet: bad data provided in processing request: " + e.toString());
+            logger.error("ProfileSubmitServlet: bad data provided in processing request: " + e.getMessage(), e);
             errorExit(response, xmlOutput, e.getMessage(), null);
             return;
         } catch (EAuthzException e) {
-            CMS.debug("ProfileSubmitServlet: authorization error in processing request: " + e.toString());
+            logger.error("ProfileSubmitServlet: authorization error in processing request: " + e.getMessage(), e);
             errorExit(response, xmlOutput, e.getMessage(), null);
             return;
         } catch (EAuthException e) {
-            CMS.debug("ProfileSubmitServlet: authentication error in processing request: " + e.toString());
+            logger.error("ProfileSubmitServlet: authentication error in processing request: " + e.getMessage(), e);
             errorExit(response, xmlOutput, e.getMessage(), null);
             return;
         } catch (Exception e) {
-            CMS.debug(e);
-            CMS.debug("ProfileSubmitServlet: error in processing request: " + e.toString());
+            logger.error("ProfileSubmitServlet: error in processing request: " + e.getMessage(), e);
             errorExit(response, xmlOutput, e.getMessage(), null);
             return;
         }
@@ -187,7 +185,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 args.set(ARG_OUTPUT_LIST, outputlist);
             }
 
-            CMS.debug("ProfileSubmitServlet: done serving");
+            logger.debug("ProfileSubmitServlet: done serving");
 
             ArgList requestlist = new ArgList();
 
@@ -211,16 +209,17 @@ public class ProfileSubmitServlet extends ProfileServlet {
         HttpServletRequest request = cmsReq.getHttpReq();
         Locale locale = getLocale(request);
 
+        CMSEngine engine = CMS.getCMSEngine();
         EnrollmentProcessor processor = new EnrollmentProcessor("caProfileSubmit", locale);
 
         String profileId = processor.getProfileID() == null ? request.getParameter("profileId") : processor.getProfileID();
-        CMS.debug("ProfileSubmitServlet: profile: " + profileId);
+        logger.debug("ProfileSubmitServlet: profile: " + profileId);
 
         IProfileSubsystem ps = processor.getProfileSubsystem();
         IProfile profile = ps.getProfile(profileId);
 
         if (profile == null) {
-            CMS.debug("ProfileSubmitServlet: Profile " + profileId + " not found");
+            logger.error("ProfileSubmitServlet: Profile " + profileId + " not found");
             throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",
                     CMSTemplate.escapeJavaScriptStringHTML(profileId)));
         }
@@ -233,8 +232,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             } catch (IllegalArgumentException e) {
                 throw new BadRequestDataException("invalid AuthorityID: " + aidString, e);
             }
-            ICertificateAuthority ca = (ICertificateAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ca = ca.getCA(aid);
             if (ca == null)
                 throw new CANotFoundException("CA not found: " + aidString);
@@ -252,13 +250,13 @@ public class ProfileSubmitServlet extends ProfileServlet {
         RenewalProcessor processor = new RenewalProcessor("caProfileSubmit", locale);
 
         String profileId = processor.getProfileID() == null ? request.getParameter("profileId") : processor.getProfileID();
-        CMS.debug("ProfileSubmitServlet: profile: " + profileId);
+        logger.debug("ProfileSubmitServlet: profile: " + profileId);
 
         IProfileSubsystem ps = processor.getProfileSubsystem();
         IProfile profile = ps.getProfile(profileId);
 
         if (profile == null) {
-            CMS.debug("ProfileSubmitServlet: Profile " + profileId + " not found");
+            logger.error("ProfileSubmitServlet: Profile " + profileId + " not found");
             throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",
                     CMSTemplate.escapeJavaScriptStringHTML(profileId)));
         }
@@ -302,7 +300,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                             outputValue = profileOutput.getValue(outputName,
                                     locale, req);
                         } catch (EProfileException e) {
-                            CMS.debug("ProfileSubmitServlet: " + e.toString());
+                            logger.warn("ProfileSubmitServlet: " + e.getMessage(), e);
                         }
 
                         outputset.set(ARG_OUTPUT_ID, outputName);
@@ -345,9 +343,9 @@ public class ProfileSubmitServlet extends ProfileServlet {
             xmlOutput = true;
         }
         if (xmlOutput) {
-            CMS.debug("xmlOutput true");
+            logger.debug("xmlOutput true");
         } else {
-            CMS.debug("xmlOutput false");
+            logger.debug("xmlOutput false");
         }
         return xmlOutput;
     }
@@ -360,7 +358,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             Node root = xmlObj.createRoot("XMLResponse");
             xmlObj.addItemToContainer(root, "Status", SUCCESS);
             Node n = xmlObj.createContainer(root, "Requests");
-            CMS.debug("ProfileSubmitServlet xmlOutput: req len = " + reqs.length);
+            logger.debug("ProfileSubmitServlet xmlOutput: req len = " + reqs.length);
 
             for (int i = 0; i < reqs.length; i++) {
                 Node subnode = xmlObj.createContainer(n, "Request");
@@ -372,7 +370,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     subject = certInfo.get(X509CertInfo.SUBJECT).toString();
                     xmlObj.addItemToContainer(subnode, "SubjectDN", subject);
                 } else {
-                    CMS.debug("ProfileSubmitServlet xmlOutput: no certInfo found in request");
+                    logger.warn("ProfileSubmitServlet xmlOutput: no certInfo found in request");
                 }
                 Enumeration<String> outputIds = profile.getProfileOutputIds();
                 if (outputIds != null) {
@@ -405,9 +403,9 @@ public class ProfileSubmitServlet extends ProfileServlet {
                                     }
 
                                 } catch (EProfileException e) {
-                                    CMS.debug("ProfileSubmitServlet xmlOutput: " + e.toString());
+                                    logger.warn("ProfileSubmitServlet xmlOutput: " + e.getMessage(), e);
                                 } catch (Exception e) {
-                                    CMS.debug("ProfileSubmitServlet xmlOutput: " + e.toString());
+                                    logger.warn("ProfileSubmitServlet xmlOutput: " + e.getMessage(), e);
                                 }
                             }
                         }
@@ -418,7 +416,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             byte[] cb = xmlObj.toByteArray();
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("Failed to send the XML output");
+            logger.warn("Failed to send the XML output");
         }
     }
 

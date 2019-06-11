@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.w3c.dom.Node;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -38,14 +37,15 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class UpdateOCSPConfig extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateOCSPConfig.class);
+
     private static final long serialVersionUID = 42812270761684404L;
     private final static String SUCCESS = "0";
     private final static String AUTH_FAILURE = "2";
@@ -60,21 +60,23 @@ public class UpdateOCSPConfig extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
-        CMS.debug("UpdateOCSPConfig: initializing...");
+        logger.debug("UpdateOCSPConfig: initializing...");
         super.init(sc);
-        CMS.debug("UpdateOCSPConfig: done initializing...");
+        logger.debug("UpdateOCSPConfig: done initializing...");
     }
 
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("UpdateOCSPConfig: processing...");
+        logger.debug("UpdateOCSPConfig: processing...");
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMS.debug("UpdateOCSPConfig process: authentication starts");
+        logger.debug("UpdateOCSPConfig process: authentication starts");
+
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
         if (authToken == null) {
-            CMS.debug("UpdateOCSPConfig process: authToken is null");
+            logger.warn("UpdateOCSPConfig process: authToken is null");
             outputError(httpResp, AUTH_FAILURE, "Error: not authenticated",
                         null);
         }
@@ -101,7 +103,7 @@ public class UpdateOCSPConfig extends CMSServlet {
             return;
         }
 
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
         String nickname = "";
 
         // get nickname
@@ -113,7 +115,7 @@ public class UpdateOCSPConfig extends CMSServlet {
         } catch (Exception e) {
         }
 
-        CMS.debug("UpdateOCSPConfig process: nickname=" + nickname);
+        logger.debug("UpdateOCSPConfig process: nickname=" + nickname);
 
         String ocsphost = httpReq.getParameter("ocsp_host");
         String ocspport = httpReq.getParameter("ocsp_port");
@@ -135,7 +137,7 @@ public class UpdateOCSPConfig extends CMSServlet {
             cs.putString(rulePrefix+".type", "crl");
             cs.commit(false);
             // insert info
-            CMS.debug("UpdateOCSPConfig: Sending response");
+            logger.debug("UpdateOCSPConfig: Sending response");
 
             // send success status back to the requestor
             XMLObject xmlObj = new XMLObject();
@@ -146,7 +148,7 @@ public class UpdateOCSPConfig extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("UpdateOCSPConfig: Failed to update OCSP configuration. Exception: " + e.toString());
+            logger.warn("UpdateOCSPConfig: Failed to update OCSP configuration: " + e.getMessage(), e);
             outputError(httpResp, "Error: Failed to update OCSP configuration.");
         }
     }

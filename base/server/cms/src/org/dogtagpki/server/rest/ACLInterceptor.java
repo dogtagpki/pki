@@ -36,7 +36,6 @@ import org.jboss.resteasy.core.ResourceMethodInvoker;
 import org.jboss.resteasy.spi.Failure;
 
 import com.netscape.certsrv.acls.ACLMapping;
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -51,6 +50,8 @@ import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.realm.PKIPrincipal;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
@@ -58,6 +59,7 @@ import com.netscape.cms.realm.PKIPrincipal;
 @Provider
 public class ACLInterceptor implements ContainerRequestFilter {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACLInterceptor.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private final static String LOGGING_ACL_PARSING_ERROR = "internal error: ACL parsing error";
@@ -86,7 +88,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
         // load default mapping
         String defaultMapping = "/usr/share/pki/" + subsystem + "/conf/acl.properties";
-        CMS.debug("ACLInterceptor: loading " + defaultMapping);
+        logger.debug("ACLInterceptor: loading " + defaultMapping);
         try (FileReader in = new FileReader(defaultMapping)) {
             properties.load(in);
         }
@@ -94,9 +96,9 @@ public class ACLInterceptor implements ContainerRequestFilter {
         // load custom mapping
         File customMapping = new File(System.getProperty("catalina.base")
                 + "/" + subsystem + "/conf/acl.properties");
-        CMS.debug("ACLInterceptor: checking " + customMapping);
+        logger.debug("ACLInterceptor: checking " + customMapping);
         if (customMapping.exists()) {
-            CMS.debug("ACLInterceptor: loading " + customMapping);
+            logger.debug("ACLInterceptor: loading " + customMapping);
             try (FileReader in = new FileReader(customMapping)) {
                 properties.load(in);
             }
@@ -111,7 +113,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
         Class<?> clazz = methodInvoker.getResourceClass();
         String auditInfo =  clazz.getSimpleName() + "." + method.getName();
 
-        CMS.debug("ACLInterceptor: " + auditInfo + "()");
+        logger.debug("ACLInterceptor: " + auditInfo + "()");
         String auditSubjectID = ILogger.UNIDENTIFIED;
 
         /*
@@ -127,7 +129,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             aclMapping = clazz.getAnnotation(ACLMapping.class);
         }
         if (aclMapping == null) {
-            CMS.debug("ACLInterceptor.filter: no authorization required");
+            logger.debug("ACLInterceptor.filter: no authorization required");
             authzRequired = false;
         }
 
@@ -136,15 +138,15 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
         // If unauthenticated, reject request.
         if (principal == null && authzRequired) {
-            CMS.debug("ACLInterceptor: No user principal provided.");
+            logger.debug("ACLInterceptor: No user principal provided.");
             // audit comment: no Principal, no one to blame here
             throw new ForbiddenException("No user principal provided.");
         }
         if (principal != null)
-            CMS.debug("ACLInterceptor: principal: " + principal.getName());
+            logger.debug("ACLInterceptor: principal: " + principal.getName());
 
-        IAuthzSubsystem authzSubsystem =
-            (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        CMSEngine engine = CMS.getCMSEngine();
+        IAuthzSubsystem authzSubsystem = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
 
         IAuthToken authToken = null;
         String authzMgrName = null;
@@ -169,12 +171,12 @@ public class ACLInterceptor implements ContainerRequestFilter {
                 }
                 authToken = new ExternalAuthToken((GenericPrincipal) principal);
             }
-            CMS.debug("ACLInterceptor: will use authz manager " + authzMgrName);
+            logger.debug("ACLInterceptor: will use authz manager " + authzMgrName);
         }
 
         // If missing auth token, reject request.
         if (authToken == null && authzRequired) {
-            CMS.debug("ACLInterceptor: No authentication token present.");
+            logger.debug("ACLInterceptor: No authentication token present.");
             // store a message in the signed audit log file
             // although if it didn't pass authentication, it should not have gotten here
             audit(AuthzEvent.createFailureEvent(
@@ -190,7 +192,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
         // If still not available, it's unprotected, allow request.
         if (!authzRequired) {
-            CMS.debug("ACLInterceptor: No ACL mapping; authz not required.");
+            logger.debug("ACLInterceptor: No ACL mapping; authz not required.");
 
             audit(AuthzEvent.createSuccessEvent(
                         auditSubjectID,
@@ -203,7 +205,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
         // we know aclMapping is not null now (!noAuthzRequired); authz game on...
         String name = aclMapping.value();
-        CMS.debug("ACLInterceptor: mapping: " + name);
+        logger.debug("ACLInterceptor: mapping: " + name);
 
         String values[] = null;
         String value = null;
@@ -226,7 +228,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
         // If no property defined, allow request.
         if (value == null) {
-            CMS.debug("ACLInterceptor: No ACL configuration.");
+            logger.debug("ACLInterceptor: No ACL configuration.");
 
             audit(AuthzEvent.createSuccessEvent(
                     auditSubjectID,
@@ -241,7 +243,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
         // If invalid mapping, reject request.
         if (values.length != 2) {
-            CMS.debug("ACLInterceptor: Invalid ACL mapping.");
+            logger.error("ACLInterceptor: Invalid ACL mapping: " + value);
 
             audit(AuthzEvent.createFailureEvent(
                     auditSubjectID,
@@ -252,7 +254,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             throw new ForbiddenException("Invalid ACL mapping.");
         }
 
-        CMS.debug("ACLInterceptor: ACL: " + value);
+        logger.debug("ACLInterceptor: ACL: " + value);
 
         try {
             // Check authorization.
@@ -265,7 +267,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
             // If not authorized, reject request.
             if (authzToken == null) {
                 String info = "No authorization token present.";
-                CMS.debug("ACLInterceptor: " + info);
+                logger.debug("ACLInterceptor: " + info);
 
                 audit(AuthzEvent.createFailureEvent(
                             auditSubjectID,
@@ -276,11 +278,11 @@ public class ACLInterceptor implements ContainerRequestFilter {
                 throw new ForbiddenException("No authorization token present.");
             }
 
-            CMS.debug("ACLInterceptor: access granted");
+            logger.debug("ACLInterceptor: access granted");
 
         } catch (EAuthzAccessDenied e) {
             String info = e.getMessage();
-            CMS.debug("ACLInterceptor: " + info);
+            logger.debug("ACLInterceptor: " + info);
 
             audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
@@ -292,6 +294,7 @@ public class ACLInterceptor implements ContainerRequestFilter {
 
         } catch (EBaseException e) {
             String info = e.getMessage();
+            logger.error("ACLInterceptor: " + info, e);
 
             audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
@@ -299,7 +302,6 @@ public class ACLInterceptor implements ContainerRequestFilter {
                         values[1], // operation
                         info));
 
-            e.printStackTrace();
             throw new Failure(e);
         }
 

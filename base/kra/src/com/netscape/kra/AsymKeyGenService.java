@@ -22,8 +22,8 @@ import java.security.KeyPair;
 
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
@@ -40,9 +40,9 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.KeyRecord;
-
-import netscape.security.util.WrappingParams;
 
 /**
  * Service class to handle asymmetric key generation requests.
@@ -72,7 +72,8 @@ public class AsymKeyGenService implements IService {
 
     @Override
     public boolean serviceRequest(IRequest request) throws EBaseException {
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String clientKeyId = request.getExtDataInString(IRequest.SECURITY_DATA_CLIENT_KEY_ID);
         String algorithm = request.getExtDataInString(IRequest.KEY_GEN_ALGORITHM);
 

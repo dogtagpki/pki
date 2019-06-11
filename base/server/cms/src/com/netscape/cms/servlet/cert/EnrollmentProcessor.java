@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
@@ -46,9 +45,12 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 public class EnrollmentProcessor extends CertProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollmentProcessor.class);
 
     public EnrollmentProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         super(id, locale);
@@ -121,26 +123,26 @@ public class EnrollmentProcessor extends CertProcessor {
         throws EBaseException {
 
         try {
-            if (CMS.debugOn()) {
+            if (logger.isDebugEnabled()) {
                 HashMap<String,String> params = data.toParams();
                 printParameterValues(params);
             }
 
-            CMS.debug("EnrollmentProcessor: isRenewal false");
+            logger.debug("EnrollmentProcessor: isRenewal false");
             startTiming("enrollment");
 
             // if we did not configure profileId in xml file,
             // then accept the user-provided one
             String profileId = (this.profileID == null) ? data.getProfileId() : this.profileID;
-            CMS.debug("EnrollmentProcessor: profileId " + profileId);
+            logger.debug("EnrollmentProcessor: profileId " + profileId);
 
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
-                CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
+                logger.error(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
             }
             if (!ps.isProfileEnable(profileId)) {
-                CMS.debug("EnrollmentProcessor: Profile " + profileId + " not enabled");
+                logger.error("EnrollmentProcessor: Profile " + profileId + " not enabled");
                 throw new BadRequestDataException("Profile " + profileId + " not enabled");
             }
 
@@ -156,12 +158,12 @@ public class EnrollmentProcessor extends CertProcessor {
             if (aid != null)
                 ctx.set(IEnrollProfile.REQUEST_AUTHORITY_ID, aid.toString());
 
-            CMS.debug("EnrollmentProcessor: set Inputs into profile Context");
+            logger.debug("EnrollmentProcessor: set Inputs into profile Context");
             setInputsIntoContext(data, profile, ctx);
 
             IProfileAuthenticator authenticator = profile.getAuthenticator();
             if (authenticator != null) {
-                CMS.debug("EnrollmentProcessor: authenticator " + authenticator.getName() + " found");
+                logger.debug("EnrollmentProcessor: authenticator " + authenticator.getName() + " found");
                 setCredentialsIntoContext(request, credentials, authenticator, ctx);
             }
 
@@ -170,7 +172,7 @@ public class EnrollmentProcessor extends CertProcessor {
             SessionContext context = SessionContext.getContext();
             context.put("profileContext", ctx);
             context.put("sslClientCertProvider", new SSLClientCertProvider(request));
-            CMS.debug("EnrollmentProcessor: set sslClientCertProvider");
+            logger.debug("EnrollmentProcessor: set sslClientCertProvider");
 
             // before creating the request, authenticate the request
             if (authToken == null)
@@ -223,7 +225,7 @@ public class EnrollmentProcessor extends CertProcessor {
             ret.put(ARG_ERROR_REASON, errorReason);
             ret.put(ARG_PROFILE, profile);
 
-            CMS.debug("EnrollmentSubmitter: done serving");
+            logger.debug("EnrollmentSubmitter: done serving");
             endTiming("enrollment");
 
             return ret;

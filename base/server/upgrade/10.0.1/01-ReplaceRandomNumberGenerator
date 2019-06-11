@@ -59,7 +59,7 @@ class ReplaceRandomNumberGenerator(
         document = etree.parse(context_xml, self.parser)
 
         self.add_manager(document)
-        if subsystem.type >= 10:
+        if instance.version >= 10:
             self.update_authenticator(document)
         else:
             self.remove_authenticator(document)

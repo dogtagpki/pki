@@ -25,7 +25,7 @@ javac(pki-server-test-classes
 # TODO: create CMake function to find all JUnit test classes
 add_junit_test(test-pki-server
     CLASSPATH
-        ${SLF4J_API_JAR}
+        ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
         ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${PKI_CMSBUNDLE_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR}
@@ -34,15 +34,15 @@ add_junit_test(test-pki-server
         ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
         ${CMAKE_BINARY_DIR}/test/classes
     TESTS
-        # com.netscape.cmscore.authentication.AuthTokenTest
+        com.netscape.cmscore.authentication.AuthTokenTest
         com.netscape.cmscore.dbs.CertRecordListTest
         com.netscape.cmscore.dbs.DBRegistryTest
-        # com.netscape.cmscore.request.AgentApprovalsTest
+        com.netscape.cmscore.request.AgentApprovalsTest
         com.netscape.cmscore.request.ExtAttrDynMapperTest
         com.netscape.cmscore.request.ExtDataHashtableTest
         com.netscape.cmscore.request.RequestQueueTest
         com.netscape.cmscore.request.RequestRecordTest
-        # com.netscape.cmscore.request.RequestTest
+        com.netscape.cmscore.request.RequestTest
         com.netscape.cmscore.password.PlainPasswordFileTest
     REPORTS_DIR
         reports

@@ -30,13 +30,12 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import netscape.security.extensions.CertInfo;
-import netscape.security.x509.CertificateSerialNumber;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.extensions.CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -56,6 +55,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Certificate Renewal
@@ -63,9 +63,8 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
  * @version $Revision$, $Date$
  */
 public class RenewalServlet extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RenewalServlet.class);
     private static final long serialVersionUID = -3094124661102395244L;
 
     // renewal templates.
@@ -127,7 +126,7 @@ public class RenewalServlet extends CMSServlet {
      */
     protected void process(CMSRequest cmsReq)
             throws EBaseException {
-        long startTime = CMS.getCurrentDate().getTime();
+        long startTime = new Date().getTime();
         IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
 
@@ -289,51 +288,39 @@ public class RenewalServlet extends CMSServlet {
                         wholeMsg.append(msgs.nextElement());
                     }
 
-                    mLogger.log(ILogger.EV_AUDIT,
-                            ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
+                    logger.info(
                             AuditFormat.RENEWALFORMAT,
-                            new Object[] {
-                                    req.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    status.toString(),
-                                    old_cert.getSubjectDN(),
-                                    old_cert.getSerialNumber().toString(16),
-                                    "violation: " +
-                                            wholeMsg.toString() }
-                            // wholeMsg},
-                            // ILogger.L_MULTILINE
-                            );
+                            req.getRequestId(),
+                            initiative,
+                            authMgr,
+                            status,
+                            old_cert.getSubjectDN(),
+                            old_cert.getSerialNumber().toString(16),
+                            "violation: " + wholeMsg
+                    );
                 } else { // no policy violation, from agent
-                    mLogger.log(ILogger.EV_AUDIT,
-                            ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
+                    logger.info(
                             AuditFormat.RENEWALFORMAT,
-                            new Object[] {
-                                    req.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    status.toString(),
-                                    old_cert.getSubjectDN(),
-                                    old_cert.getSerialNumber().toString(16),
-                                    "" }
-                            );
+                            req.getRequestId(),
+                            initiative,
+                            authMgr,
+                            status,
+                            old_cert.getSubjectDN(),
+                            old_cert.getSerialNumber().toString(16),
+                            ""
+                    );
                 }
-            } else { // other imcomplete status
-                mLogger.log(ILogger.EV_AUDIT,
-                        ILogger.S_OTHER,
-                        AuditFormat.LEVEL,
+            } else { // other incomplete status
+                logger.info(
                         AuditFormat.RENEWALFORMAT,
-                        new Object[] {
-                                req.getRequestId(),
-                                initiative,
-                                authMgr,
-                                status.toString(),
-                                old_cert.getSubjectDN(),
-                                old_cert.getSerialNumber().toString(16),
-                                "" }
-                        );
+                        req.getRequestId(),
+                        initiative,
+                        authMgr,
+                        status,
+                        old_cert.getSubjectDN(),
+                        old_cert.getSerialNumber().toString(16),
+                        ""
+                );
             }
             return;
         }
@@ -341,11 +328,9 @@ public class RenewalServlet extends CMSServlet {
         // service error
         Integer result = req.getExtDataInInteger(IRequest.RESULT);
 
-        CMS.debug(
-                "RenewalServlet: Result for request " + req.getRequestId() + " is " + result);
+        logger.debug("RenewalServlet: Result for request " + req.getRequestId() + " is " + result);
         if (result.equals(IRequest.RES_ERROR)) {
-            CMS.debug(
-                    "RenewalServlet: Result for request " + req.getRequestId() + " is error.");
+            logger.debug("RenewalServlet: Result for request " + req.getRequestId() + " is error.");
 
             cmsReq.setStatus(ICMSRequest.ERROR);
             cmsReq.setError(req.getExtDataInString(IRequest.ERROR));
@@ -361,20 +346,16 @@ public class RenewalServlet extends CMSServlet {
                         //"revocation servlet: setting error description "+
                         //err.toString());
                         cmsReq.setErrorDescription(err);
-                        mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.RENEWALFORMAT,
-                                new Object[] {
-                                        req.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        "completed with error: " +
-                                                err,
-                                        old_cert.getSubjectDN(),
-                                        old_cert.getSerialNumber().toString(16),
-                                        "" }
-                                );
+                                req.getRequestId(),
+                                initiative,
+                                authMgr,
+                                "completed with error: " + err,
+                                old_cert.getSubjectDN(),
+                                old_cert.getSerialNumber().toString(16),
+                                ""
+                        );
 
                     }
                 }
@@ -387,21 +368,19 @@ public class RenewalServlet extends CMSServlet {
 
         renewed_cert = certs[0];
         respondSuccess(cmsReq, renewed_cert);
-        long endTime = CMS.getCurrentDate().getTime();
+        long endTime = new Date().getTime();
 
-        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                AuditFormat.LEVEL,
+        logger.info(
                 AuditFormat.RENEWALFORMAT,
-                new Object[] {
-                        req.getRequestId(),
-                        initiative,
-                        authMgr,
-                        "completed",
-                        old_cert.getSubjectDN(),
-                        old_cert.getSerialNumber().toString(16),
-                        "new serial number: 0x" +
-                                renewed_cert.getSerialNumber().toString(16) + " time: " + (endTime - startTime) }
-                );
+                req.getRequestId(),
+                initiative,
+                authMgr,
+                "completed",
+                old_cert.getSubjectDN(),
+                old_cert.getSerialNumber().toString(16),
+                "new serial number: 0x" +
+                        renewed_cert.getSerialNumber().toString(16) + " time: " + (endTime - startTime)
+        );
 
         return;
     }

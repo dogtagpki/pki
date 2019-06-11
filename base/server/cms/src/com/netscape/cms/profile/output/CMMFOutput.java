@@ -22,13 +22,15 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 
 import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkix.cmmf.CertOrEncCert;
 import org.mozilla.jss.pkix.cmmf.CertRepContent;
 import org.mozilla.jss.pkix.cmmf.CertResponse;
 import org.mozilla.jss.pkix.cmmf.CertifiedKeyPair;
 import org.mozilla.jss.pkix.cmmf.PKIStatusInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
@@ -39,11 +41,9 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.X509CertImpl;
 
 /**
  * This class implements the output plugin that outputs
@@ -111,6 +111,9 @@ public class CMMFOutput extends EnrollOutput implements IProfileOutput {
 
     public String getValue(String name, Locale locale, IRequest request)
             throws EProfileException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+
         if (name.equals(VAL_PRETTY_CERT)) {
             X509CertImpl cert = request.getExtDataInCert(
                     EnrollProfile.REQUEST_ISSUED_CERT);
@@ -124,8 +127,7 @@ public class CMMFOutput extends EnrollOutput implements IProfileOutput {
                 if (cert == null)
                     return null;
 
-                ICertificateAuthority ca = (ICertificateAuthority)
-                        CMS.getSubsystem("ca");
+                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 CertificateChain cachain = ca.getCACertChain();
                 X509Certificate[] cacerts = cachain.getChain();
 

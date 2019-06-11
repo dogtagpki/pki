@@ -30,19 +30,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
@@ -51,6 +42,16 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
 
 /**
  * Allow agent to turn on/off authentication managers
@@ -94,8 +95,10 @@ public class RemoteAuthConfig extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
+        CMSEngine engine = CMS.getCMSEngine();
+
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        mFileConfig = CMS.getConfigStore();
+        mFileConfig = engine.getConfigStore();
         mAuthConfig = mFileConfig.getSubStore("auths");
         try {
             mEnableRemoteConfiguration = mAuthConfig.getBoolean(ENABLE_REMOTE_CONFIG, false);
@@ -122,7 +125,7 @@ public class RemoteAuthConfig extends CMSServlet {
             }
         }
 
-        mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
 
         mTemplates.remove(ICMSRequest.SUCCESS);
     }
@@ -146,8 +149,8 @@ public class RemoteAuthConfig extends CMSServlet {
 
         authenticate(cmsReq);
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         String host = req.getParameter("host");

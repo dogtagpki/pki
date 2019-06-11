@@ -36,8 +36,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -67,10 +69,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Revoke a Certificate
@@ -169,8 +169,8 @@ public class DoRevoke extends CMSServlet {
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         try {
@@ -372,8 +372,8 @@ public class DoRevoke extends CMSServlet {
             Locale locale)
             throws EBaseException {
 
-        CMS.debug("DoRevoke: eeSerialNumber: " + eeSerialNumber);
-        long startTime = CMS.getCurrentDate().getTime();
+        logger.debug("DoRevoke: eeSerialNumber: " + eeSerialNumber);
+        long startTime = new Date().getTime();
 
         RevocationProcessor processor =
                 new RevocationProcessor(servletConfig.getServletName(), getLocale(req));
@@ -437,7 +437,7 @@ public class DoRevoke extends CMSServlet {
                         throw new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED"));
                     }
 
-                    IArgBlock rarg = CMS.createArgBlock();
+                    ArgBlock rarg = new ArgBlock();
                     rarg.addStringValue("serialNumber", targetCert.getSerialNumber().toString(16));
 
                     try {
@@ -507,7 +507,7 @@ public class DoRevoke extends CMSServlet {
                         }
 
                         if (addToList) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addStringValue("serialNumber", certs[i].getSerialNumber().toString(16));
 
@@ -532,7 +532,7 @@ public class DoRevoke extends CMSServlet {
                         //  byte[] certBytes = decoder.decodeBuffer(b64eCert);
                         byte[] certBytes = Utils.base64decode(b64eCert);
                         X509CertImpl cert = new X509CertImpl(certBytes);
-                        IArgBlock rarg = CMS.createArgBlock();
+                        ArgBlock rarg = new ArgBlock();
 
                         rarg.addStringValue("serialNumber", cert.getSerialNumber().toString(16));
 
@@ -652,14 +652,14 @@ public class DoRevoke extends CMSServlet {
 
                         if (updateResult != null) {
                             if (updateResult.equals(IRequest.RES_SUCCESS)) {
-                                CMS.debug("DoRevoke: "
+                                logger.debug("DoRevoke: "
                                         + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER", updateStatusStr));
                                 header.addStringValue(updateStatusStr, "yes");
 
                             } else {
                                 String updateErrorStr = crl.getCrlUpdateErrorStr();
 
-                                CMS.debug("DoRevoke: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
+                                logger.debug("DoRevoke: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
                                         updateStatusStr));
                                 header.addStringValue(updateStatusStr, "no");
                                 String error = revReq.getExtDataInString(updateErrorStr);

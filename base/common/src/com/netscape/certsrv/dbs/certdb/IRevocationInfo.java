@@ -19,7 +19,7 @@ package com.netscape.certsrv.dbs.certdb;
 
 import java.util.Date;
 
-import netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
 
 /**
  * A class represents a certificate revocation info. This

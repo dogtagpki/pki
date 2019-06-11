@@ -26,10 +26,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.acls.ACL;
 import com.netscape.certsrv.acls.ACLEntry;
 import com.netscape.certsrv.acls.IACL;
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzManager;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -40,6 +38,8 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.authorization.ACL;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Manage Access Control List configuration
@@ -48,9 +48,8 @@ import com.netscape.certsrv.logging.ILogger;
  */
 public class ACLAdminServlet extends AdminServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ACLAdminServlet.class);
+
     private static final long serialVersionUID = -322237202045924779L;
     private static final String PROP_EVAL = "accessEvaluator";
     private final static String INFO = "ACLAdminServlet";
@@ -220,10 +219,10 @@ public class ACLAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        Enumeration<ACL> res = mAuthzMgr.getACLs();
+        Enumeration<IACL> res = mAuthzMgr.getACLs();
 
         while (res.hasMoreElements()) {
-            ACL acl = res.nextElement();
+            ACL acl = (ACL) res.nextElement();
             String desc = acl.getDescription();
 
             if (desc == null)
@@ -785,7 +784,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 mStore.removeSubStore(id);
             } catch (Exception eeee) {
-                //CMS.debugStackTrace(eeee);
+                //logger.warn("ACLAdminServlet: " + eeee.getMessage(), e);
             }
             // commiting
             try {

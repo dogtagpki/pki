@@ -23,17 +23,17 @@ import javax.ws.rs.core.Response;
 
 import org.dogtagpki.common.KRAInfo;
 import org.dogtagpki.common.KRAInfoResource;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.base.PKIService;
-
-import netscape.security.util.WrappingParams;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Ade Lee
@@ -45,7 +45,8 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
     private IStorageKeyUnit storageUnit;
 
     public KRAInfoService() {
-        kra = (IKeyRecoveryAuthority) CMS.getSubsystem("kra");
+        CMSEngine engine = CMS.getCMSEngine();
+        kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
         storageUnit = kra.getStorageKeyUnit();
     }
 
@@ -65,19 +66,22 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
     }
 
     String getArchivalMechanism() throws EBaseException {
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         boolean encrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
         return encrypt_archival ? KRAInfoResource.ENCRYPT_MECHANISM : KRAInfoResource.KEYWRAP_MECHANISM;
     }
 
     String getRecoveryMechanism() throws EBaseException {
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         boolean encrypt_recovery = cs.getBoolean("kra.allowEncDecrypt.recovery", false);
         return encrypt_recovery ? KRAInfoResource.ENCRYPT_MECHANISM : KRAInfoResource.KEYWRAP_MECHANISM;
     }
 
     String getWrapAlgorithm() throws EBaseException {
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         boolean encrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
         WrappingParams params = null;
         try {
@@ -90,7 +94,8 @@ public class KRAInfoService extends PKIService implements KRAInfoResource {
     }
 
     String getEncryptAlgorithm() throws EBaseException {
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         boolean encrypt_archival = cs.getBoolean("kra.allowEncDecrypt.archival", false);
         WrappingParams params = null;
         try {

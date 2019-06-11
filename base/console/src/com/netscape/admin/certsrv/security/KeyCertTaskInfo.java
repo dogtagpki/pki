@@ -75,27 +75,23 @@ class KeyCertTaskInfo extends Hashtable<String, Object> {
             kComm.setAuth(_consoleInfo.getAuthenticationDN(),
                     _consoleInfo.getAuthenticationPassword());
             kComm.run();
-            if (kComm.getError() instanceof Exception) {
-                if (kComm.getError() instanceof InterruptedIOException) {
-                    throw (new Exception(
-                            resource.getString("KeyCertTaskInfo", "timeoutError")));
-                } else if (kComm.getError() instanceof ConnectException) {
-                    throw (new Exception(
-                            resource.getString("KeyCertTaskInfo", "connectionError")));
-                } else if (kComm.getError() instanceof IOException) {
-                    throw (new Exception(
-                            resource.getString("KeyCertTaskInfo", "ioError")));
-                } else {
-                    throw kComm.getError();
-                }
+
+            if (kComm.getError() instanceof InterruptedIOException) {
+                throw (new Exception(
+                        resource.getString("KeyCertTaskInfo", "timeoutError")));
+            } else if (kComm.getError() instanceof ConnectException) {
+                throw (new Exception(
+                        resource.getString("KeyCertTaskInfo", "connectionError")));
+            } else if (kComm.getError() instanceof IOException) {
+                throw (new Exception(
+                        resource.getString("KeyCertTaskInfo", "ioError")));
+            } else {
+                throw kComm.getError();
             }
+
         } catch (Exception e) {
             throw (new Exception(resource.getString("KeyCertTaskInfo", "serverError")));
         }
-        Debug.println(Comm.getData());
-        _response = new Response(Comm.getData());
-
-        return (_response);
     }
 
     public Response getResponse() {

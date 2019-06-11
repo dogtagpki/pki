@@ -17,17 +17,33 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv;
 
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import com.netscape.admin.certsrv.menu.*;
-import com.netscape.admin.certsrv.config.*;
-import com.netscape.admin.certsrv.ug.*;
-import com.netscape.admin.certsrv.status.*;
-import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.CMSUIFramework;
-import java.util.*;
-import javax.swing.*;
+import java.util.ResourceBundle;
+
+import javax.swing.JOptionPane;
+
+import com.netscape.admin.certsrv.config.ACLImplTab;
+import com.netscape.admin.certsrv.config.ACLPanel;
+import com.netscape.admin.certsrv.config.CACertsTab;
+import com.netscape.admin.certsrv.config.CMSBlankPanel;
+import com.netscape.admin.certsrv.config.CMSLDAPSettingPanel;
+import com.netscape.admin.certsrv.config.CMSSMTPPanel;
+import com.netscape.admin.certsrv.config.CMSSelfTestsPanel;
+import com.netscape.admin.certsrv.config.CMSTabPanel;
+import com.netscape.admin.certsrv.config.LogImplTab;
+import com.netscape.admin.certsrv.config.LogInstanceTab;
+import com.netscape.admin.certsrv.config.UserCertsTab;
+import com.netscape.admin.certsrv.connection.AdminConnection;
+import com.netscape.admin.certsrv.menu.RefreshTabPane;
+import com.netscape.admin.certsrv.status.LogInstancePanel;
+import com.netscape.admin.certsrv.status.StatusPanel;
+import com.netscape.admin.certsrv.ug.CMSUGTabPanel;
+import com.netscape.admin.certsrv.ug.GroupTab;
+import com.netscape.admin.certsrv.ug.UserTab;
+import com.netscape.certsrv.common.DestDef;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.management.client.IPage;
+import com.netscape.management.client.util.Debug;
 
 /**
  * Netscape Certificate Server Kernel UI Loader.
@@ -105,12 +121,6 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
         tabPane.addTab(new CMSLDAPSettingPanel(tabPane));
         tabPane.addTab(new CMSSMTPPanel(tabPane));
         tabPane.addTab(new CMSSelfTestsPanel(tabPane));
-
-        // The log panel would only really be useful if we were able to
-        // enable or disable debug without restarting.  If we can do this,
-        // then we can enable this tab.
-        //
-        // tabPane.addTab(new GeneralLogPanel(tabPane));
 
         root.setCustomPanel(tabPane);
 

@@ -27,7 +27,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -45,6 +44,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Display a Specific Key Archival Request, and initiate
@@ -148,8 +150,8 @@ public class DisplayBySerialForRecovery extends CMSServlet {
         // instead of passing it up back to the servlet
         // framework.
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         BigInteger seqNum = BigInteger.ZERO;
@@ -195,13 +197,15 @@ public class DisplayBySerialForRecovery extends CMSServlet {
             IArgBlock header, String publicKeyData, BigInteger seq,
             HttpServletRequest req, HttpServletResponse resp,
             Locale locale, IAuthToken authToken) throws EAuthzException {
+
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             header.addIntegerValue("noOfRequiredAgents",
                     mService.getNoOfRequiredAgents());
             header.addStringValue(OUT_OP,
                     req.getParameter(OUT_OP));
             header.addStringValue("keySplitting",
-                    CMS.getConfigStore().getString("kra.keySplitting"));
+                    engine.getConfigStore().getString("kra.keySplitting"));
             header.addStringValue(OUT_SERVICE_URL,
                     req.getRequestURI());
             if (publicKeyData != null) {

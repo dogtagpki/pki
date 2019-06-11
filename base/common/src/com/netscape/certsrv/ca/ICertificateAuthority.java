@@ -41,14 +41,14 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.ISigningUnit;
 
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * An interface represents a Certificate Authority that is

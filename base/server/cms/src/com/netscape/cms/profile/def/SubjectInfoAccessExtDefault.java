@@ -22,14 +22,13 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.extensions.AccessDescription;
-import netscape.security.extensions.SubjectInfoAccessExtension;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNameInterface;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.extensions.AccessDescription;
+import org.mozilla.jss.netscape.security.extensions.SubjectInfoAccessExtension;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.profile.EProfileException;
@@ -38,6 +37,8 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements an enrollment default policy
@@ -46,6 +47,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectInfoAccessExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "subjInfoAccessCritical";
     public static final String CONFIG_NUM_ADS = "subjInfoAccessNumADs";
@@ -260,7 +263,7 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
                             try {
                                 ext.addAccessDescription(new ObjectIdentifier(method), gn);
                             } catch (NumberFormatException ee) {
-                                CMS.debug("SubjectInfoAccessExtDefault: " + ee.toString());
+                                logger.error("SubjectInfoAccessExtDefault: " + ee.getMessage(), ee);
                                 throw new EPropertyException(CMS.getUserMessage(
                                         locale, "CMS_PROFILE_DEF_SIA_OID", method));
                             }
@@ -274,11 +277,11 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
 
             replaceExtension(ext.getExtensionId().toString(), ext, info);
         } catch (IOException e) {
-            CMS.debug("SubjectInfoAccessExtDefault: " + e.toString());
+            logger.error("SubjectInfoAccessExtDefault: " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
-            CMS.debug("SubjectInfoAccessExtDefault: " + e.toString());
+            logger.error("SubjectInfoAccessExtDefault: " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -305,7 +308,7 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
                 populate(null, info);
 
             } catch (EProfileException e) {
-                CMS.debug("SubjectInfoAccessExtDefault: getValue " + e.toString());
+                logger.error("SubjectInfoAccessExtDefault: getValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -334,7 +337,7 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
 
             int num = getNumAds();
 
-            CMS.debug("SubjectInfoAccess num=" + num);
+            logger.debug("SubjectInfoAccess num=" + num);
             Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
 
             for (int i = 0; i < num; i++) {
@@ -414,7 +417,7 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
             for (int i = 0; i < num; i++) {
                 String enable = getConfig(CONFIG_AD_ENABLE + i);
                 if (enable != null && enable.equals("true")) {
-                    CMS.debug("SubjectInfoAccess: createExtension i=" + i);
+                    logger.debug("SubjectInfoAccess: createExtension i=" + i);
                     String method = getConfig(CONFIG_AD_METHOD + i);
                     String locationType = getConfig(CONFIG_AD_LOCATIONTYPE + i);
                     if (locationType == null || locationType.length() == 0)
@@ -423,8 +426,9 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
 
                     if (location == null || location.equals("")) {
                         if (method.equals("1.3.6.1.5.5.7.48.1")) {
-                            String hostname = CMS.getEENonSSLHost();
-                            String port = CMS.getEENonSSLPort();
+                            CMSEngine engine = CMS.getCMSEngine();
+                            String hostname = engine.getEENonSSLHost();
+                            String port = engine.getEENonSSLPort();
                             if (hostname != null && port != null)
                                 location = "http://" + hostname + ":" + port + "/ocsp";
                         }
@@ -439,8 +443,7 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
                 }
             }
         } catch (Exception e) {
-            CMS.debug("SubjectInfoAccessExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("SubjectInfoAccessExtDefault: createExtension " + e.getMessage(), e);
         }
 
         return ext;

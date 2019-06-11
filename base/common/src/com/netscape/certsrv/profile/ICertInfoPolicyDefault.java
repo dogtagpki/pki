@@ -17,7 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.IRequest;

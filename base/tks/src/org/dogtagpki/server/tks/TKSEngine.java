@@ -19,15 +19,19 @@
 package org.dogtagpki.server.tks;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.tks.TKSAuthority;
 
 public class TKSEngine extends CMSEngine {
 
-    public TKSEngine() {
+    public TKSEngine() throws Exception {
         super("TKS");
+    }
+
+    public Configurator createConfigurator() throws Exception {
+        return new TKSConfigurator(this);
     }
 
     protected void loadSubsystems() throws EBaseException {
@@ -38,11 +42,8 @@ public class TKSEngine extends CMSEngine {
             // Disable some subsystems before database initialization
             // in pre-op mode to prevent misleading exceptions.
 
-            SubsystemInfo si = dynSubsystems.get(TKSAuthority.ID);
-            si.enabled = false;
-
-            si = dynSubsystems.get(SelfTestSubsystem.ID);
-            si.enabled = false;
+            setSubsystemEnabled(TKSAuthority.ID, false);
+            setSubsystemEnabled(SelfTestSubsystem.ID, false);
         }
     }
 }

@@ -23,6 +23,8 @@ from __future__ import absolute_import
 import logging
 import os
 
+import pki
+
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from .. import pkiscriptlet
@@ -40,6 +42,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Deploying /%s web application', deployer.mdict['pki_subsystem'].lower())
 
+        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance.load()
+
         # Create subsystem webapps folder to store custom webapps:
         # <instance>/<subsystem>/webapps.
         deployer.directory.create(
@@ -50,13 +55,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_tomcat_subsystem_webapps_path'])
 
         # Deploy web application directly from /usr/share/pki.
-        deployer.deploy_webapp(
+        instance.deploy_webapp(
             deployer.mdict['pki_subsystem'].lower(),
-            os.path.join(
-                config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                deployer.mdict['pki_subsystem'].lower(),
-                "webapps",
-                deployer.mdict['pki_subsystem'].lower()),
             os.path.join(
                 config.PKI_DEPLOYMENT_SOURCE_ROOT,
                 deployer.mdict['pki_subsystem'].lower(),

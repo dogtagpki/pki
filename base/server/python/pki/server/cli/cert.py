@@ -22,12 +22,19 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
+from contextlib import contextmanager
 import datetime
 import getopt
 import getpass
 import logging
 import os
+import random
+import subprocess
 import sys
+from tempfile import NamedTemporaryFile
+import time
+
+from six.moves.urllib.parse import quote  # pylint: disable=F0401,E0611
 
 import pki.cert
 import pki.cli
@@ -104,8 +111,6 @@ class CertFindCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
@@ -198,8 +203,6 @@ class CertShowCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -305,8 +308,6 @@ class CertUpdateCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -435,6 +436,7 @@ class CertCreateCLI(pki.cli.CLI):
         # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
+        print('  -p, --port <port number>        Secure port number (default: 8443).')
         print('  -d <database>                   Security database location '
               '(default: ~/.dogtag/nssdb)')
         print('  -c <NSS DB password>            NSS database password')
@@ -445,6 +447,12 @@ class CertCreateCLI(pki.cli.CLI):
         print('      --serial <number>           Provide serial number for the certificate.')
         print('      --output <file>             Provide output file name.')
         print('      --renew                     Renew permanent certificate.')
+        print('  -u <username>                   Username for basic authentication '
+              '(mutually exclusive to -n option).')
+        print('  -w <password>                   Password for basic authentication '
+              '(mutually exclusive to -W option).')
+        print('  -W <passwordfile>               Password file for basic authentication'
+              '(mutually exclusive to -w option).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
@@ -452,12 +460,10 @@ class CertCreateCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
-            opts, args = getopt.gnu_getopt(argv, 'i:d:c:C:n:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:d:c:C:n:u:w:W:p:v', [
                 'instance=', 'temp', 'serial=',
-                'output=', 'renew',
+                'output=', 'renew', 'port=',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -474,6 +480,10 @@ class CertCreateCLI(pki.cli.CLI):
         client_cert = None
         output = None
         renew = False
+        agent_username = None
+        agent_password = None
+        agent_password_file = None
+        port = '8443'
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -489,6 +499,9 @@ class CertCreateCLI(pki.cli.CLI):
                 client_nssdb_pass_file = a
 
             elif o == '-n':
+                if agent_username:
+                    logger.error('-n cannot be used with -u')
+                    sys.exit(1)
                 client_cert = a
 
             elif o == '--temp':
@@ -503,6 +516,34 @@ class CertCreateCLI(pki.cli.CLI):
 
             elif o == '--renew':
                 renew = True
+
+            elif o == '-u':
+                if client_cert:
+                    logger.error('-u cannot be used with -n')
+                    sys.exit(1)
+                agent_username = a
+
+            elif o == '-w':
+                if agent_password_file:
+                    logger.error('-w cannot be used with -W')
+                    sys.exit(1)
+                agent_password = a
+
+            elif o == '-W':
+                if agent_password:
+                    logger.error('-W cannot be used with -w')
+                    sys.exit(1)
+                agent_password_file = a
+
+            elif o in ('-p', '--port'):
+                port = a
+                try:
+                    n = int(port)
+                    if n < 1 or n > 65535:
+                        raise ValueError
+                except ValueError:
+                    logger.error('-p, --port requires a valid port number as integer')
+                    sys.exit(1)
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
@@ -527,10 +568,15 @@ class CertCreateCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
 
+        # Read the password file for password value
+        if agent_password_file:
+            with open(agent_password_file) as f:
+                agent_password = f.read().strip()
+
         if not temp_cert:
-            # For permanent certificate, password of NSS db is required.
-            if not client_nssdb_password and not client_nssdb_pass_file:
-                logger.error('NSS database password is required.')
+            # For permanent certificate, password of either NSS DB OR agent is required.
+            if not client_nssdb_password and not client_nssdb_pass_file and not agent_password:
+                logger.error('NSS database or agent password is required.')
                 self.print_help()
                 sys.exit(1)
 
@@ -546,8 +592,13 @@ class CertCreateCLI(pki.cli.CLI):
         instance.load()
 
         try:
-            instance.cert_create(cert_id, client_cert, client_nssdb, client_nssdb_password,
-                                 client_nssdb_pass_file, serial, temp_cert, renew, output)
+            instance.cert_create(
+                cert_id=cert_id,
+                client_cert=client_cert, client_nssdb=client_nssdb,
+                client_nssdb_pass=client_nssdb_password,
+                client_nssdb_pass_file=client_nssdb_pass_file,
+                serial=serial, temp_cert=temp_cert, renew=renew, output=output,
+                username=agent_username, password=agent_password, secure_port=port)
 
         except server.PKIServerException as e:
             logger.error(str(e))
@@ -573,8 +624,6 @@ class CertImportCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -644,19 +693,25 @@ class CertExportCLI(pki.cli.CLI):
         super(CertExportCLI, self).__init__(
             'export', 'Export system certificate.')
 
-    def print_help(self):  # flake8: noqa
+    def print_help(self):
         print('Usage: pki-server cert-export [OPTIONS] <Cert ID>')
         print()
         print('Specify at least one output file: certificate, CSR, or PKCS #12.')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --cert-file <path>             Output file to store the exported certificate in PEM format.')
-        print('      --csr-file <path>              Output file to store the exported CSR in PEM format.')
-        print('      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
+        print('      --cert-file <path>             Output file to store the exported certificate '
+              'in PEM format.')
+        print('      --csr-file <path>              Output file to store the exported CSR in PEM '
+              'format.')
+        print('      --pkcs12-file <path>           Output file to store the exported certificate '
+              'and key in PKCS #12 format.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
-        print('      --pkcs12-password-file <path>  Input file containing the password for the PKCS #12 file.')
-        print('      --friendly-name <name>         Friendly name for the certificate in PKCS #12 file.')
-        print('      --cert-encryption <algorithm>  Certificate encryption algorithm (default: none).')
+        print('      --pkcs12-password-file <path>  Input file containing the password for the '
+              'PKCS #12 file.')
+        print('      --friendly-name <name>         Friendly name for the certificate in PKCS #12 '
+              'file.')
+        print('      --cert-encryption <algorithm>  Certificate encryption algorithm (default: '
+              'none).')
         print('      --key-encryption <algorithm>   Key encryption algorithm (default: PBES2).')
         print('      --append                       Append into an existing PKCS #12 file.')
         print('      --no-trust-flags               Do not include trust flags')
@@ -676,8 +731,6 @@ class CertExportCLI(pki.cli.CLI):
         print()
 
     def execute(self, argv):
-
-        logging.basicConfig(format='%(levelname)s: %(message)s')
 
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
@@ -902,8 +955,6 @@ class CertRemoveCLI(pki.cli.CLI):
 
     def execute(self, argv):
 
-        logging.basicConfig(format='%(levelname)s: %(message)s')
-
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'remove-key',
@@ -967,30 +1018,39 @@ class CertFixCLI(pki.cli.CLI):
         super(CertFixCLI, self).__init__(
             'fix', 'Fix expired system certificate(s).')
 
-    def print_help(self):  # flake8: noqa
+    PKIDBUSER_LDIF_TEMPLATE = (
+        "dn: {dn}\n"
+        "changetype: modify\n"
+        "add: userCertificate\n"
+        "userCertificate:< file://{der_file}\n"
+    )
+
+    def print_help(self):
         print('Usage: pki-server cert-fix [OPTIONS]')
         # CertID:  subsystem, sslserver, kra_storage, kra_transport, ca_ocsp_signing,
         # ca_audit_signing, kra_audit_signing
         # ca.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
         print()
         print('      --cert <Cert ID>            Fix specified system cert (default: all certs).')
+        print('      --extra-cert <Serial>       Also renew cert with given serial number.')
+        print('      --agent-uid <String>        UID of Dogtag agent user')
+        print('      --ldapi-socket <Path>       Path to DS LDAPI socket')
+        print('      --ldap-url <URL>            LDAP URL (mutually exclusive to --ldapi-socket)')
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('  -d <NSS database>               NSS database location (default: ~/.dogtag/nssdb)')
-        print('  -c <NSS DB password>            NSS database password')
-        print('  -C <path>                       Input file containing the password for the NSS database.')
-        print('  -n <nickname>                   Client certificate nickname')
+        print('  -p, --port <port number>        Secure port number (default: 8443).')
         print('  -v, --verbose                   Run in verbose mode.')
         print('      --debug                     Run in debug mode.')
         print('      --help                      Show help message.')
         print()
 
     def execute(self, argv):
-        logging.basicConfig(format='%(levelname)s: %(message)s')
+        logging.getLogger().setLevel(logging.INFO)
 
         try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:d:c:C:n:v', [
-                'instance=', 'cert=',
-                'verbose', 'debug', 'help'])
+            opts, _ = getopt.gnu_getopt(argv, 'i:p:v', [
+                'instance=', 'cert=', 'extra-cert=', 'agent-uid=',
+                'ldapi-socket=', 'ldap-url=', 'port=', 'verbose', 'debug', 'help',
+            ])
 
         except getopt.GetoptError as e:
             logger.error(e)
@@ -999,11 +1059,12 @@ class CertFixCLI(pki.cli.CLI):
 
         instance_name = 'pki-tomcat'
         all_certs = True
-        client_nssdb = os.getenv('HOME') + '/.dogtag/nssdb'
-        client_nssdb_pass = None
-        client_nssdb_pass_file = None
-        client_cert = None
         fix_certs = []
+        extra_certs = []
+        agent_uid = None
+        ldap_url = None
+        use_ldapi = False
+        port = '8443'
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -1013,21 +1074,43 @@ class CertFixCLI(pki.cli.CLI):
                 all_certs = False
                 fix_certs.append(a)
 
-            elif o == '-d':
-                client_nssdb = a
+            elif o == '--extra-cert':
+                try:
+                    int(a)
+                except ValueError:
+                    logger.error('--extra-cert requires serial number as integer')
+                    sys.exit(1)
+                all_certs = False
+                extra_certs.append(a)
 
-            elif o == '-c':
-                client_nssdb_pass = a
+            elif o == '--agent-uid':
+                agent_uid = a
 
-            elif o == '-C':
-                client_nssdb_pass_file = a
+            elif o == '--ldapi-socket':
+                if ldap_url is not None:
+                    logger.error('--ldapi-socket cannot be used with --ldap-url')
+                    sys.exit(1)
+                use_ldapi = True
+                ldap_url = 'ldapi://{}'.format(quote(a, safe=''))
 
-            elif o == '-n':
-                client_cert = a
+            elif o == '--ldap-url':
+                if use_ldapi:
+                    logger.error('--ldap-url cannot be used with --ldapi-socket')
+                    sys.exit(1)
+                ldap_url = a
+
+            elif o in ('-p', '--port'):
+                port = a
+                try:
+                    n = int(port)
+                    if n < 1 or n > 65535:
+                        raise ValueError
+                except ValueError:
+                    logger.error('-p, --port requires a valid port number as integer')
+                    sys.exit(1)
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
-                logging.getLogger().setLevel(logging.INFO)
 
             elif o == '--debug':
                 self.set_verbose(True)
@@ -1043,20 +1126,14 @@ class CertFixCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        if not client_cert:
-            logger.error('Client nick name is required.')
-            self.print_help()
-            sys.exit(1)
-
-        if not client_nssdb_pass and not client_nssdb_pass_file:
-            logger.error('Client NSS db password is required.')
-            self.print_help()
-            sys.exit(1)
-
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
             logger.error('Invalid instance %s.', instance_name)
+            sys.exit(1)
+
+        if not agent_uid:
+            logger.error('Must specify --agent-uid')
             sys.exit(1)
 
         instance.load()
@@ -1081,7 +1158,19 @@ class CertFixCLI(pki.cli.CLI):
 
                     fix_certs.append(cert['id'])
 
-        logger.info('Fixing the following certs: %s', fix_certs)
+        logger.info('Fixing the following system certs: %s', fix_certs)
+        logger.info('Renewing the following additional certs: %s', extra_certs)
+
+        # Get the CA subsystem and find out Base DN.
+        ca_subsystem = instance.get_subsystem('ca')
+        basedn = ca_subsystem.get_db_config()['internaldb.basedn']
+        dbuser_dn = 'uid=pkidbuser,ou=people,{}'.format(basedn)
+        agent_dn = 'uid={},ou=people,{}'.format(agent_uid, basedn)
+
+        dm_pass = ''
+        if not use_ldapi:
+            # Prompt for DM password
+            dm_pass = getpass.getpass(prompt='Enter Directory Manager password: ')
 
         # 2. Stop the server, if it's up
         logger.info('Stopping the instance to proceed with system cert renewal')
@@ -1115,65 +1204,99 @@ class CertFixCLI(pki.cli.CLI):
 
                     target_subsys.add(subsystem)
 
-            # Convert set to list
-            target_subsys = list(target_subsys)
+            if len(extra_certs) > 0:
+                target_subsys.add(ca_subsystem)
 
-            for subsystem in target_subsys:
-                subsystem.set_startup_test_criticality(False)
-                subsystem.save()
+            # Generate new password for agent account
+            agent_pass = gen_random_password()
 
-            logger.info('Selftests disabled for subsystems: %s', ', '.join(
-                str(x.name) for x in target_subsys))
+            with write_temp_file(agent_pass.encode('utf8')) as agent_pass_file, \
+                    write_temp_file(dm_pass.encode('utf8')) as dm_pass_file, \
+                    ldap_password_authn(
+                        instance, target_subsys, dbuser_dn,
+                        ldap_url, use_ldapi, dm_pass_file), \
+                    suppress_selftest(target_subsys):
 
-            # 4. Bring up the server using a temp SSL cert if the sslcert is expired
-            if 'sslserver' in fix_certs:
-                # 4a. Create temp SSL cert
-                logger.debug('Creating a temp sslserver cert')
-                instance.cert_create(cert_id='sslserver', temp_cert=True)
+                # Verify LDAP connection and DM password
+                cmd = ['ldapsearch'] + \
+                    ldap_conn_args(ldap_url, use_ldapi, dm_pass_file) + \
+                    ['-s', 'base', '-b', basedn, '1.1']
+                try:
+                    subprocess.check_output(cmd)
+                except subprocess.CalledProcessError:
+                    logger.error("Failed to connect/authenticate to LDAP at '%s'", ldap_url)
+                    sys.exit(1)
 
-                # 4b. Delete the existing SSL Cert
-                logger.debug('Removing sslserver cert from instance')
-                instance.cert_del('sslserver')
+                # Reset agent password
+                logger.info('Resetting password for %s', agent_dn)
+                ldappasswd(ldap_url, use_ldapi, dm_pass_file, agent_dn, agent_pass_file)
 
-                # 4d. Import the temp sslcert into the instance
-                logger.debug('Importing temp sslserver cert')
-                instance.cert_import('sslserver')
+                # 4. Bring up the server using a temp SSL cert if the sslcert is expired
+                if 'sslserver' in fix_certs:
+                    # 4a. Create temp SSL cert
+                    logger.info('Creating a temporary sslserver cert')
+                    instance.cert_create(cert_id='sslserver', temp_cert=True)
 
-            # 5. Bring up the server temporarily
-            logger.debug('Starting the instance with temp sslserver cert')
-            instance.start()
+                    # 4b. Delete the existing SSL Cert
+                    logger.debug('Removing sslserver cert from instance')
+                    instance.cert_del('sslserver')
 
-            # 6. Place renewal request for all certs in fix_certs
-            for cert_id in fix_certs:
-                logger.debug('Creating new cert for %s', cert_id)
-                instance.cert_create(cert_id=cert_id,
-                                     client_cert=client_cert,
-                                     client_nssdb=client_nssdb,
-                                     client_nssdb_pass=client_nssdb_pass,
-                                     client_nssdb_pass_file=client_nssdb_pass_file,
-                                     renew=True)
+                    # 4d. Import the temp sslcert into the instance
+                    logger.debug('Importing temp sslserver cert')
+                    instance.cert_import('sslserver')
 
-            # 7. Stop the server
-            logger.debug('Stopping the instance')
-            instance.stop()
+                with start_stop(instance):
+                    # Place renewal request for all certs in fix_certs
+                    for cert_id in fix_certs:
+                        logger.info('Requesting new cert for %s', cert_id)
+                        instance.cert_create(
+                            cert_id=cert_id, renew=True,
+                            username=agent_uid, password=agent_pass, secure_port=port)
+                    for serial in extra_certs:
+                        output = instance.cert_file('{}-renewed'.format(serial))
+                        logger.info(
+                            'Requesting new cert for %s; writing to %s',
+                            serial, output)
+                        try:
+                            instance.cert_create(
+                                serial=serial, renew=True, output=output,
+                                username=agent_uid, password=agent_pass, secure_port=port)
+                        except pki.PKIException as e:
+                            logger.error("Failed to renew certificate %s: %s", serial, e)
 
-            # 8. Delete existing certs and then import the renewed system cert(s)
-            for cert_id in fix_certs:
-                # Delete the existing cert from the instance
-                logger.debug('Removing old %s cert from instance %s', cert_id, instance_name)
-                instance.cert_del(cert_id)
+                # 8. Delete existing certs and then import the renewed system cert(s)
+                for cert_id in fix_certs:
+                    # Delete the existing cert from the instance
+                    logger.debug('Removing old %s cert from instance %s', cert_id, instance_name)
+                    instance.cert_del(cert_id)
 
-                # Import this new cert into the instance
-                logger.debug('Importing new %s cert into instance %s', cert_id, instance_name)
-                instance.cert_import(cert_id)
+                    # Import this new cert into the instance
+                    logger.debug('Importing new %s cert into instance %s', cert_id, instance_name)
+                    instance.cert_import(cert_id)
 
-            # 9. Enable self tests for the subsystems disabled earlier
-            for subsystem in target_subsys:
-                subsystem.set_startup_test_criticality(True)
-                subsystem.save()
+                # If subsystem cert was renewed and server was using
+                # TLS auth, add the cert to pkidbuser entry
+                if dbuser_dn and 'subsystem' in fix_certs:
+                    logger.info('Importing new subsystem cert into %s', dbuser_dn)
+                    with NamedTemporaryFile(mode='w+b') as der_file:
+                        # convert subsystem cert to DER
+                        subprocess.check_call([
+                            'openssl', 'x509',
+                            '-inform', 'PEM', '-outform', 'DER',
+                            '-in', instance.cert_file('subsystem'),
+                            '-out', der_file.name,
+                        ])
 
-            logger.info('Selftests enabled for subsystems: %s', ', '.join(
-                str(x.name) for x in target_subsys))
+                        with write_temp_file(
+                            self.PKIDBUSER_LDIF_TEMPLATE
+                                .format(dn=dbuser_dn, der_file=der_file.name)
+                                .encode('utf-8')
+                        ) as ldif_file:
+                            # ldapmodify
+                            cmd = ['ldapmodify'] + \
+                                ldap_conn_args(ldap_url, use_ldapi, dm_pass_file) + \
+                                ['-f', ldif_file]
+                            subprocess.check_call(cmd)
 
             # 10. Bring up the server
             logger.info('Starting the instance with renewed certs')
@@ -1182,3 +1305,169 @@ class CertFixCLI(pki.cli.CLI):
         except server.PKIServerException as e:
             logger.error(str(e))
             sys.exit(1)
+
+
+@contextmanager
+def suppress_selftest(subsystems):
+    """Suppress selftests in the given subsystems."""
+    for subsystem in subsystems:
+        subsystem.set_startup_test_criticality(False)
+        subsystem.save()
+    logger.info(
+        'Selftests disabled for subsystems: %s',
+        ', '.join(str(x.name) for x in subsystems))
+    try:
+        yield
+    finally:
+        for subsystem in subsystems:
+            subsystem.set_startup_test_criticality(True)
+            subsystem.save()
+        logger.info(
+            'Selftests enabled for subsystems: %s',
+            ', '.join(str(x.name) for x in subsystems))
+
+
+@contextmanager
+def start_stop(instance):
+    """Start the server, run the block, and guarantee stop afterwards."""
+    logger.info('Starting the instance')
+    instance.start()
+    logger.info('Sleeping for 10 seconds to allow server time to start...')
+    time.sleep(10)
+    try:
+        yield
+    finally:
+        logger.info('Stopping the instance')
+        instance.stop()
+
+
+@contextmanager
+def ldap_password_authn(
+        instance, subsystems, bind_dn, ldap_url, use_ldapi, dm_pass_file):
+    """LDAP password authentication context.
+
+    This context manager switches the server to password
+    authentication, runs the block, then restores the original
+    subsystem configuration.
+
+    Specifically:
+
+    - if we are already using BasicAuth, force port 389 and no TLS/STARTTLS
+      but leave everything else alone.
+
+    - if using TLS client cert auth, switch to BasicAuth, using pkidbuser
+      account, and using a randomly generated password.  The DM credential
+      is required to set that password.
+
+    This context manager yields the pkidbuser DN, so that the new
+    subsystem certificate (if it was one of the renewal targets) can
+    be added to the entry.  It is only yielded if the server was
+    already using TLS client cert authn, otherwise the yielded value
+    is ``None``.
+
+    """
+    logger.info('Configuring LDAP password authentication')
+    orig = {}
+    try:
+        password = instance.passwords['internaldb']
+    except KeyError:
+        # generate a new password and write it to file
+        password = gen_random_password()
+        instance.passwords['internaldb'] = password
+        instance.store_passwords()
+        generated_password = True
+    else:
+        generated_password = False
+
+    # We don't perform ldappasswd unless we need to (and only once).
+    ldappasswd_performed = False
+
+    for subsystem in subsystems:
+        cfg = subsystem.get_db_config()
+        orig[subsystem] = cfg.copy()  # copy because dict is mutable
+
+        authtype = cfg['internaldb.ldapauth.authtype']
+        if authtype == 'SslClientAuth':
+            # switch to BasicAuth
+            cfg['internaldb.ldapauth.authtype'] = 'BasicAuth'
+            cfg['internaldb.ldapconn.port'] = '389'
+            cfg['internaldb.ldapconn.secureConn'] = 'false'
+            cfg['internaldb.ldapauth.bindDN'] = bind_dn
+
+            # _now_ we can perform ldappasswd
+            if not ldappasswd_performed:
+                logger.info('Setting pkidbuser password via ldappasswd')
+                with write_temp_file(password.encode('utf8')) as pwdfile:
+                    ldappasswd(ldap_url, use_ldapi, dm_pass_file, bind_dn, pwdfile)
+                ldappasswd_performed = True
+
+        elif authtype == 'BasicAuth':
+            # force port 389, no TLS / STARTTLS.  Leave other settings alone.
+            cfg['internaldb.ldapconn.port'] = '389'
+            cfg['internaldb.ldapconn.secureConn'] = 'false'
+
+        subsystem.set_db_config(cfg)
+        subsystem.save()
+
+    try:
+        yield
+
+    finally:
+        logger.info('Restoring previous LDAP configuration')
+
+        for subsystem, cfg in orig.items():
+            subsystem.set_db_config(cfg)
+            subsystem.save()
+
+        if generated_password:
+            del instance.passwords['internaldb']
+            instance.store_passwords()
+
+
+def ldap_conn_args(ldap_url, use_ldapi, dm_pass_file):
+    """Set ldap connection arguments for user with ldapsearch/ldapmodify/etc.
+
+    If use_ldapi is True, then ldap_url is assumed be to an ldapi URL.
+    If use_ldapi is False, then dm_pass_file is assumed to be the path to
+    a file containing the DM passphrase, and ldap_url may be empty.
+
+    """
+    args = []
+    if use_ldapi:
+        args.extend(['-H', ldap_url, '-Y', 'EXTERNAL'])
+    else:
+        if ldap_url:
+            args.extend(['-H', ldap_url])
+            if not ldap_url.startswith('ldaps'):
+                args.append('-ZZ')  # require STARTTLS
+        args.extend(['-D', 'cn=Directory Manager', '-y', dm_pass_file])
+    return args
+
+
+def ldappasswd(ldap_url, use_ldapi, dm_pass_file, user_dn, pass_file):
+    """
+    Run ldappasswd as Directory Manager.
+
+    Raise CalledProcessError on error.
+
+    """
+    cmd = ['ldappasswd'] + \
+        ldap_conn_args(ldap_url, use_ldapi, dm_pass_file) + \
+        ['-T', pass_file, user_dn]
+    subprocess.check_call(cmd)
+
+
+def gen_random_password():
+    rnd = random.SystemRandom()
+    xs = "abcdefghijklmnopqrstuvwxyz0123456789"
+    return ''.join(rnd.choice(xs) for i in range(32))
+
+
+@contextmanager
+def write_temp_file(data):
+    """Create a temporary file, write data to it, yield the filename."""
+    with NamedTemporaryFile() as f:
+        f.write(data)
+        f.flush()
+        os.fsync(f.fileno())
+        yield f.name

@@ -19,12 +19,11 @@ package com.netscape.cms.profile.def;
 
 import java.util.Locale;
 
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.Extension;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -32,6 +31,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -41,6 +41,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class GenericExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenericExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "genericExtCritical";
     public static final String CONFIG_OID = "genericExtOID";
@@ -100,7 +102,7 @@ public class GenericExtDefault extends EnrollExtDefault {
             X509CertInfo info, String value)
             throws EPropertyException {
         if (info == null) {
-            CMS.debug("GenericExtDefault: setValue() info == null");
+            logger.error("GenericExtDefault: setValue() info == null");
             throw new EPropertyException("GenericExtDefault: setValue() info == null");
         }
 
@@ -141,11 +143,11 @@ public class GenericExtDefault extends EnrollExtDefault {
 
             replaceExtension(ext.getExtensionId().toString(), ext, info);
         } catch (EProfileException e) {
-            CMS.debug("GenericExtDefault: setValue() " + e.toString());
-            throw new EPropertyException("GenericExtDefault:"+ e.toString());
+            logger.error("GenericExtDefault: setValue() " + e.getMessage(), e);
+            throw new EPropertyException("GenericExtDefault: " + e.getMessage(), e);
         } catch (Exception e) {
             // catch all other exceptions
-            CMS.debug("GenericExtDefault: setValue() " + e.toString());
+            logger.warn("GenericExtDefault: setValue() " + e.getMessage(), e);
         }
     }
 
@@ -160,7 +162,7 @@ public class GenericExtDefault extends EnrollExtDefault {
         }
 
         if (info == null) {
-            CMS.debug("GenericExtDefault : getValue(): info == null");
+            logger.error("GenericExtDefault : getValue(): info == null");
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "GenericExtDefault : getValue(): info == null"));
         }
@@ -260,8 +262,7 @@ public class GenericExtDefault extends EnrollExtDefault {
 
             ext = new Extension(oid, critical, out.toByteArray());
         } catch (Exception e) {
-            CMS.debug("GenericExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("GenericExtDefault: createExtension " + e.getMessage(), e);
         }
         return ext;
     }

@@ -23,6 +23,8 @@ from __future__ import absolute_import
 import logging
 import os
 
+import pki
+
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from .. import pkimessages as log
@@ -46,6 +48,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             return
 
         logger.info('Creating new %s instance', deployer.mdict['pki_instance_name'])
+
+        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance.load()
 
         # establish instance logs
         deployer.directory.create(deployer.mdict['pki_instance_log_path'])
@@ -114,7 +119,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.file.copy_with_slot_substitution(
             deployer.mdict['pki_source_tomcat_conf'],
             deployer.mdict['pki_target_tomcat_conf_instance_id'],
-            uid=0, gid=0, overwrite_flag=True)
+            overwrite_flag=True)
 
         logger.info('Creating %s', deployer.mdict['pki_target_tomcat_conf'])
         # create /var/lib/pki/<instance>/conf/tomcat.conf
@@ -124,13 +129,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             overwrite_flag=True)
 
         logger.info('Deploying ROOT web application')
-        deployer.deploy_webapp(
+        instance.deploy_webapp(
             "ROOT",
-            os.path.join(
-                config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                "server",
-                "webapps",
-                "ROOT"),
             os.path.join(
                 deployer.mdict['pki_source_server_path'],
                 "Catalina",
@@ -140,13 +140,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Deploying /pki web application')
         # Deploy pki web application which includes themes,
         # admin templates, and JS libraries
-        deployer.deploy_webapp(
+        instance.deploy_webapp(
             "pki",
-            os.path.join(
-                config.PKI_DEPLOYMENT_SOURCE_ROOT,
-                "server",
-                "webapps",
-                "pki"),
             os.path.join(
                 deployer.mdict['pki_source_server_path'],
                 "Catalina",
@@ -154,26 +149,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 "pki.xml"))
 
         logger.info('Creating %s', deployer.mdict['pki_instance_lib'])
-        # Create Tomcat instance library
-        deployer.directory.create(deployer.mdict['pki_instance_lib'])
-        for name in os.listdir(deployer.mdict['pki_tomcat_lib_path']):
-            deployer.symlink.create(
-                os.path.join(
-                    deployer.mdict['pki_tomcat_lib_path'],
-                    name),
-                os.path.join(
-                    deployer.mdict['pki_instance_lib'],
-                    name))
+        # Link /var/lib/pki/<instance>/lib to /usr/share/pki/server/lib
+        deployer.symlink.create(
+            '/usr/share/pki/server/lib',
+            deployer.mdict['pki_instance_lib'])
 
-        for name in os.listdir('/usr/share/pki/server/lib'):
-            deployer.symlink.create(
-                os.path.join(
-                    '/usr/share/pki/server/lib',
-                    name),
-                os.path.join(
-                    deployer.mdict['pki_instance_lib'],
-                    name))
-
+        logger.info('Creating %s', deployer.mdict['pki_tomcat_common_path'])
         # Link /var/lib/pki/<instance>/common to /usr/share/pki/server/common
         deployer.symlink.create(
             '/usr/share/pki/server/common',

@@ -25,16 +25,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
-
 public class RESTServlet extends HttpServlet {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RESTServlet.class);
 
     private static final long serialVersionUID = -466592331169846158L;
 
     public void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        CMS.debug("RESTServlet: Attempt to access REST services using " + request.getRequestURI());
-        CMS.debug("RESTServlet: sending 501 (not implemented)");
+        logger.debug("RESTServlet: Attempt to access REST services using " + request.getRequestURI());
+        logger.debug("RESTServlet: sending 501 (not implemented)");
 
         String error =
             "The REST services are not available because this server is a legacy \n" +

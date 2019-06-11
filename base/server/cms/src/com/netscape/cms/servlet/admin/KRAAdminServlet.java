@@ -25,7 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
@@ -34,6 +33,8 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class representings an administration servlet for Key
@@ -64,7 +65,8 @@ public class KRAAdminServlet extends AdminServlet {
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mKRA = (IKeyRecoveryAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
+        CMSEngine engine = CMS.getCMSEngine();
+        mKRA = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
     }
 
     /**

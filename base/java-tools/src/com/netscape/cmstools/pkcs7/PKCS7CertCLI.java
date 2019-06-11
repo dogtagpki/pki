@@ -20,8 +20,9 @@ package com.netscape.cmstools.pkcs7;
 
 import java.security.cert.X509Certificate;
 
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.cmstools.cli.CLI;
 
 public class PKCS7CertCLI extends CLI {
 

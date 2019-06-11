@@ -21,13 +21,14 @@
 
 import unittest
 
-from pki.server import PKISubsystem, PKIInstance
+from pki.server import PKIInstance
+from pki.server.subsystem import PKISubsystem
 
 
 class PKIServerTests(unittest.TestCase):
     def test_instance_ordering(self):
         ca = PKIInstance('ca')
-        ca9 = PKIInstance('ca', 9)
+        ca9 = PKIInstance('ca', version=9)
         kra = PKIInstance('kra')
         instances = [kra, ca, ca9]
         self.assertEqual(sorted(instances), [ca9, ca, kra])

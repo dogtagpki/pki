@@ -22,7 +22,6 @@ import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -34,12 +33,17 @@ import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * @author Ade Lee
  */
 public class KRAConnectorProcessor extends CAProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAConnectorProcessor.class);
+
     private boolean connectorExists = false;
 
     // Connector constants
@@ -47,33 +51,36 @@ public class KRAConnectorProcessor extends CAProcessor {
 
     public KRAConnectorProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
         super("kraconnector", locale);
-        ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService caService = (ICAService)ca.getCAService();
         connectorExists = (caService.getKRAConnector() != null)? true:false;
     }
 
     public void removeConnector(String newHost, String newPort) throws EPropertyNotFound, EBaseException {
         if (! connectorExists) {
-            CMS.debug("removeConnector: no KRA connector exists, returning success");
+            logger.debug("removeConnector: no KRA connector exists, returning success");
             return;
         }
 
         if ((newHost == null) || (newPort == null)) {
-            CMS.debug("removeConnector: malformed request.  newHost or newPort is null");
+            logger.error("removeConnector: malformed request.  newHost or newPort is null");
             throw new BadRequestException("Bad Request: KRA Host or Port not defined");
         }
-        IConfigStore cs = CMS.getConfigStore();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         String host = cs.getString(PREFIX + ".host");
         String port = cs.getString(PREFIX + ".port");
 
         if ((host == null) || (port == null)) {
-            CMS.debug("removeConnector: bad connector configuration - host or port are null");
+            logger.error("removeConnector: bad connector configuration - host or port are null");
             throw new PKIException("Bad Connector configuration on this CA");
         }
 
         String hostport = newHost + ":" + newPort;
         if ((host.equals(newHost)) && port.equals(newPort)) {
-            CMS.debug("removeConnector: Removing " + PREFIX + " substore");
+            logger.debug("removeConnector: Removing " + PREFIX + " substore");
             cs.removeSubStore(PREFIX);
             cs.commit(true);
             deleteConnector();
@@ -86,14 +93,14 @@ public class KRAConnectorProcessor extends CAProcessor {
                 }
             }
             if (finalList.size() == hostList.length) {
-                CMS.debug("removeConnector: no connector for " + hostport + " exists. Returning success");
+                logger.debug("removeConnector: no connector for " + hostport + " exists. Returning success");
                 return;
             }
 
-            CMS.debug("removeConnector: Removing " + hostport + " from " + PREFIX);
+            logger.debug("removeConnector: Removing " + hostport + " from " + PREFIX);
 
             if (finalList.size() == 0) {
-                CMS.debug("removeConnector: Removing " + PREFIX + " substore");
+                logger.debug("removeConnector: Removing " + PREFIX + " substore");
                 cs.removeSubStore(PREFIX);
                 cs.commit(true);
                 deleteConnector();
@@ -109,12 +116,13 @@ public class KRAConnectorProcessor extends CAProcessor {
                 replaceConnector();
             }
         } else {
-            CMS.debug("removeConnector: no connector for " + hostport + " exists. Returning success");
+            logger.debug("removeConnector: no connector for " + hostport + " exists. Returning success");
         }
     }
 
     public void stopConnector() {
-        ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService caService = (ICAService)ca.getCAService();
         IConnector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
@@ -123,7 +131,8 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void startConnector() {
-        ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService caService = (ICAService)ca.getCAService();
         IConnector kraConnector = caService.getKRAConnector();
         if (kraConnector != null) {
@@ -135,9 +144,10 @@ public class KRAConnectorProcessor extends CAProcessor {
         // stop the old connector
         stopConnector();
 
-        ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService caService = (ICAService)ca.getCAService();
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
 
         IConnector kraConnector = caService.getConnector(cs.getSubStore(PREFIX));
         caService.setKRAConnector(kraConnector);
@@ -148,19 +158,21 @@ public class KRAConnectorProcessor extends CAProcessor {
     public void deleteConnector() {
         stopConnector();
 
-        ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService caService = (ICAService)ca.getCAService();
         caService.setKRAConnector(null);
     }
 
     public void addConnector(KRAConnectorInfo info) throws EPropertyNotFound, EBaseException {
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         String newHost = info.getHost();
         String newPort = info.getPort();
         String newTransportCert = info.getTransportCert();
 
         if ((newHost == null) || (newPort == null) || (newTransportCert == null)) {
-            CMS.debug("addConnector: malformed request.  newHost, newPort or transport cert is null");
+            logger.error("addConnector: malformed request.  newHost, newPort or transport cert is null");
             throw new BadRequestException("Bad Request: KRA host, port or transport cert not defined");
         }
 
@@ -174,7 +186,7 @@ public class KRAConnectorProcessor extends CAProcessor {
                 // check transport cert
                 String transportCert = cs.getString(PREFIX + ".transportCert");
                 if (!transportCert.equals(newTransportCert)) {
-                    CMS.debug("addConnector: Connector is already defined");
+                    logger.error("addConnector: Connector is already defined");
                     throw new BadRequestException("KRA connector has already been defined for this CA");
                 }
 
@@ -205,11 +217,12 @@ public class KRAConnectorProcessor extends CAProcessor {
     public KRAConnectorInfo getConnectorInfo() throws EPropertyNotFound, EBaseException {
 
         if (!connectorExists) {
-            CMS.debug("getConnectorInfo: no KRA connector exists.");
+            logger.error("getConnectorInfo: no KRA connector exists.");
             throw new ConnectorNotFoundException("No KRAConnector has been configured.");
         }
 
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         KRAConnectorInfo info = new KRAConnectorInfo();
         info.setHost(cs.getString(PREFIX + ".host"));
@@ -224,10 +237,11 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void addHost(String newHost, String newPort) throws EPropertyNotFound, EBaseException {
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         if ((newHost == null) || (newPort == null)) {
-            CMS.debug("addHost: malformed request.  newHost, newPort or transport cert is null");
+            logger.error("addHost: malformed request.  newHost, newPort or transport cert is null");
             throw new BadRequestException("Bad Request: KRA host or port not defined");
         }
 
@@ -252,17 +266,17 @@ public class KRAConnectorProcessor extends CAProcessor {
             String[] hostList = currentHost.trim().split(" ");
             for (String h : hostList) {
                 if (h.equals(hostport)) {
-                    CMS.debug("addHost: connector for " + hostport +
+                    logger.debug("addHost: connector for " + hostport +
                             " is already present.  Returning success");
                     return;
                 }
             }
 
-            CMS.debug("addHostPort: adding " + hostport + " to KRA connector host list");
+            logger.debug("addHostPort: adding " + hostport + " to KRA connector host list");
             cs.putString(PREFIX + ".host", currentHost + " " + hostport);
         } else {
             // host is not a list, turn it into one
-            CMS.debug("addHostPort: adding " + hostport + " to KRA connector");
+            logger.debug("addHostPort: adding " + hostport + " to KRA connector");
             cs.putString(PREFIX + ".host", currentHost + ":" + currentPort + " " + hostport);
         }
         cs.commit(true);

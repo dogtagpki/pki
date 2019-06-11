@@ -27,10 +27,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -40,6 +39,7 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
@@ -50,6 +50,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Display Generic Request detail to the user.
@@ -58,9 +61,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class ProcessReq extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProcessReq.class);
     private static final long serialVersionUID = -6941843162486565610L;
     private final static String SEQNUM = "seqNum";
     private final static String DO_ASSIGN = "doAssign";
@@ -134,8 +135,8 @@ public class ProcessReq extends CMSServlet {
 
         IAuthToken authToken = authenticate(cmsReq);
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         String doAssign = null;
@@ -240,6 +241,7 @@ public class ProcessReq extends CMSServlet {
 
         header.addBigIntegerValue("seqNum", seqNum, 10);
 
+        CMSEngine engine = CMS.getCMSEngine();
         IRequest r = mQueue.findRequest(new RequestId(seqNum));
 
         if (r != null) {
@@ -258,11 +260,11 @@ public class ProcessReq extends CMSServlet {
             }
 
             // add authority names to know what privileges can be requested.
-            if (CMS.getSubsystem("kra") != null)
+            if (engine.getSubsystem(IKeyRecoveryAuthority.ID) != null)
                 header.addStringValue("localkra", "yes");
-            if (CMS.getSubsystem("ca") != null)
+            if (engine.getSubsystem(ICertificateAuthority.ID) != null)
                 header.addStringValue("localca", "yes");
-            if (CMS.getSubsystem("ra") != null)
+            if (engine.getSubsystem(IRegistrationAuthority.ID) != null)
                 header.addStringValue("localra", "yes");
 
             // DONT NEED TO DO THIS FOR DRM
@@ -277,12 +279,10 @@ public class ProcessReq extends CMSServlet {
                     allAlgorithms = mSigningAlgorithms =
                                     ((ICertAuthority) mAuthority).getCASigningAlgorithms();
                     if (allAlgorithms == null) {
-                        CMS.debug(
-                                "ProcessReq: signing algorithms set to All algorithms");
+                        logger.debug("ProcessReq: signing algorithms set to All algorithms");
                         allAlgorithms = AlgorithmId.ALL_SIGNING_ALGORITHMS;
                     } else
-                        CMS.debug(
-                                "ProcessReq: First signing algorithms is " + allAlgorithms[0]);
+                        logger.debug("ProcessReq: First signing algorithms is " + allAlgorithms[0]);
                 }
                 String validAlgorithms = null;
                 StringBuffer sb = new StringBuffer();

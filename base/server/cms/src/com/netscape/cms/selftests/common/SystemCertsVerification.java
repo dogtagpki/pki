@@ -26,7 +26,6 @@ package com.netscape.cms.selftests.common;
 
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogEventListener;
@@ -36,6 +35,7 @@ import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertUtils;
 
 //////////////////////

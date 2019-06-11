@@ -21,7 +21,9 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -31,6 +33,7 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
@@ -38,8 +41,6 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPv3;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
 
 /**
  * Maps a X509 certificate to a LDAP entry by finding an LDAP entry
@@ -48,6 +49,9 @@ import netscape.security.x509.X509CRLImpl;
  * @version $Revision$, $Date$
  */
 public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCertSubjMap.class);
+
     public static final String LDAP_CERTSUBJNAME_ATTR = "certSubjectName";
     protected String mSearchBase = null;
     protected String mCertSubjNameAttr = LDAP_CERTSUBJNAME_ATTR;
@@ -188,14 +192,13 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
             X509Certificate cert = (X509Certificate) obj;
             subjectDN = (X500Name) cert.getSubjectDN();
 
-            CMS.debug("LdapCertSubjMap: cert subject dn:" + subjectDN.toString());
+            logger.debug("LdapCertSubjMap: cert subject dn:" + subjectDN);
         } catch (ClassCastException e) {
             try {
                 X509CRLImpl crl = (X509CRLImpl) obj;
                 subjectDN = (X500Name) crl.getIssuerDN();
 
-                CMS.debug("LdapCertSubjMap: crl issuer dn: " +
-                        subjectDN.toString());
+                logger.debug("LdapCertSubjMap: crl issuer dn: " + subjectDN);
             } catch (ClassCastException ex) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_NOT_SUPPORTED_OBJECT"));
                 return null;
@@ -269,7 +272,7 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
         try {
             X509Certificate cert = (X509Certificate) obj;
             subjectDN = (X500Name) cert.getSubjectDN();
-            CMS.debug("LdapCertSubjMap: cert subject dn:" + subjectDN.toString());
+            logger.debug("LdapCertSubjMap: cert subject dn:" + subjectDN);
         } catch (ClassCastException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_NOT_SUPPORTED_OBJECT"));
             return v;
@@ -288,9 +291,9 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
                 LDAPEntry entry = results.next();
                 String dn = entry.getDN();
                 v.addElement(dn);
-                CMS.debug("LdapCertSubjMap: dn=" + dn);
+                logger.debug("LdapCertSubjMap: dn=" + dn);
             }
-            CMS.debug("LdapCertSubjMap: Number of entries: " + v.size());
+            logger.debug("LdapCertSubjMap: Number of entries: " + v.size());
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is

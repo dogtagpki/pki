@@ -23,9 +23,9 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.profile.ProfileClient;
-import com.netscape.cmstools.cli.CLI;
 
 public class ProfileEditCLI extends CLI {
 

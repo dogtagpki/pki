@@ -26,10 +26,9 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
-
-import com.netscape.cmstools.cli.CLI;
 
 /**
  * @author Ade Lee

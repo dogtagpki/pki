@@ -25,8 +25,11 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.PolicyConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -34,11 +37,7 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.PolicyConstraintsExtension;
-import netscape.security.x509.X509CertInfo;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Policy Constraints Extension Policy
@@ -55,6 +54,9 @@ import netscape.security.x509.X509CertInfo;
  */
 public class PolicyConstraintsExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyConstraintsExt.class);
+
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_REQ_EXPLICIT_POLICY = "reqExplicitPolicy";
     protected static final String PROP_INHIBIT_POLICY_MAPPING = "inhibitPolicyMapping";
@@ -141,8 +143,7 @@ public class PolicyConstraintsExt extends APolicyRule
             mPolicyConstraintsExtension =
                     new PolicyConstraintsExtension(mCritical,
                             mReqExplicitPolicy, mInhibitPolicyMapping);
-            CMS.debug(
-                    "PolicyConstraintsExt: Created Policy Constraints Extension: " +
+            logger.debug("PolicyConstraintsExt: Created Policy Constraints Extension: " +
                             mPolicyConstraintsExtension);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
@@ -229,7 +230,7 @@ public class PolicyConstraintsExt extends APolicyRule
             }
             extensions.set(
                     "PolicyConstriantsExt", mPolicyConstraintsExtension);
-            CMS.debug("PolicyConstraintsExt: added our policy constraints extension");
+            logger.debug("PolicyConstraintsExt: added our policy constraints extension");
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,

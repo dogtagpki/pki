@@ -18,7 +18,8 @@
 
 package com.netscape.cmstools.pkcs7;
 
-import com.netscape.cmstools.cli.CLI;
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.cmstools.cli.MainCLI;
 
 public class PKCS7CLI extends CLI {

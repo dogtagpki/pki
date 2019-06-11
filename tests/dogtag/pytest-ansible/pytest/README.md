@@ -199,7 +199,7 @@ def test_tpsToken_show_01(ansible_module, certnick, expected):
 
 Output
 
-"cmd": "pki -d <path to nssdb> -P http -p 9443 -h localhost -c Secret123 -n 'PKI CA Administrator for Example.Org' ca-cert-show "
+"cmd": "pki -d <path to nssdb> -P http -p 9443 -h localhost -c SECret.123 -n 'PKI CA Administrator for Example.Org' ca-cert-show "
 
 ```
 ### Examples
@@ -235,8 +235,8 @@ Tests look for ansible environment constants file for fetching port if not provi
 ```
 1. Create nssdb in <path to nssdb>.
 2. Import CA Admin Certificate into nssdb.
-pki -d <path to nssdb>-c Secret123 -h <hostname> -p <CA HTTP PORT> client-cert-import "RootCA" --ca-server
-pk12util -i <Subsystem admin p12 file> -d <path to nssdb> -K Secret123 -W Secret123
+pki -d <path to nssdb>-c SECret.123 -h <hostname> -p <CA HTTP PORT> client-cert-import "RootCA" --ca-server
+pk12util -i <Subsystem admin p12 file> -d <path to nssdb> -K SECret.123 -W SECret.123
 ```
 
 ## Running a pytest-ansible test

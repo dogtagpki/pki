@@ -27,19 +27,17 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.w3c.dom.Node;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class CheckIdentity extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CheckIdentity.class);
     private static final long serialVersionUID = 1647682040815275807L;
     private final static String SUCCESS = "0";
 
@@ -55,7 +53,7 @@ public class CheckIdentity extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMS.debug("CheckIdentity init");
+        logger.debug("CheckIdentity init");
     }
 
     /**
@@ -69,7 +67,7 @@ public class CheckIdentity extends CMSServlet {
         try {
             authenticate(cmsReq);
         } catch (Exception e) {
-            CMS.debug("CheckIdentity authentication failed");
+            logger.warn("CheckIdentity authentication failed: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
                             e.toString()));
@@ -89,7 +87,7 @@ public class CheckIdentity extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("Failed to send the XML output");
+            logger.warn("Failed to send the XML output: " + e.getMessage(), e);
         }
     }
 

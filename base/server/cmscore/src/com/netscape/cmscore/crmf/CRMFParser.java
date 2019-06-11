@@ -31,7 +31,7 @@ import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.pkix.primitive.AVA;
 
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 public class CRMFParser {
 

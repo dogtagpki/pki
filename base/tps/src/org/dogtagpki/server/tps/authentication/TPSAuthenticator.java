@@ -19,10 +19,11 @@ package org.dogtagpki.server.tps.authentication;
 
 import java.util.HashMap;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Authentication is a class for an authentication instance
@@ -70,8 +71,8 @@ public class TPSAuthenticator {
             throws EBaseException {
         id = authId;
         // retrieves and set authentication manager
-        IAuthSubsystem authSub =
-                (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        CMSEngine engine = CMS.getCMSEngine();
+        IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         authManager = authSub.getAuthManager(authId);
         uiTitle = new HashMap<String, String>();
         uiDescription = new HashMap<String, String>();

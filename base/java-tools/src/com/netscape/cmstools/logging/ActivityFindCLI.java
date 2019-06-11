@@ -23,11 +23,11 @@ import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.logging.ActivityClient;
 import com.netscape.certsrv.logging.ActivityCollection;
 import com.netscape.certsrv.logging.ActivityData;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**

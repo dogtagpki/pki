@@ -21,31 +21,48 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.ldap.ILdapBoundConnFactory;
+import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSocketFactory;
+import netscape.ldap.LDAPv2;
 
 /**
  * Factory for getting LDAP Connections to a LDAP server with the same
  * LDAP authentication.
+ *
+ * Maintains a pool of connections to the LDAP server.
+ * CMS requests are processed on a multi threaded basis.
+ * A pool of connections then must be be maintained so this
+ * access to the Ldap server can be easily managed. The min and
+ * max size of this connection pool should be configurable. Once
+ * the maximum limit of connections is exceeded, the factory
+ * should provide proper synchronization to resolve contention issues.
+ *
  * XXX not sure how useful this is given that LDAPConnection itself can
  * be shared by multiple threads and cloned.
  */
-public class LdapBoundConnFactory implements ILdapBoundConnFactory {
+public class LdapBoundConnFactory implements ILdapConnFactory {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapBoundConnFactory.class);
 
     protected String id;
 
+    IConfigStore config;
+
     protected int mMinConns = 5;
     protected int mMaxConns = 1000;
+    protected int mMaxResults = 0;
+
     protected LdapConnInfo mConnInfo = null;
     protected LdapAuthInfo mAuthInfo = null;
+    IPasswordStore passwordStore;
 
     public static final String PROP_MINCONNS = "minConns";
     public static final String PROP_MAXCONNS = "maxConns";
+    public static final String PROP_MAXRESULTS = "maxResults";
     public static final String PROP_LDAPCONNINFO = "ldapconn";
     public static final String PROP_LDAPAUTHINFO = "ldapauth";
 
@@ -103,75 +120,134 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      *            the maximum number of clones of this connection or separate connections one wants to allow.
      * @param serverInfo server connection info - host, port, etc.
      */
-    public LdapBoundConnFactory(String id, int minConns, int maxConns,
-            LdapConnInfo connInfo, LdapAuthInfo authInfo) throws ELdapException {
+    public LdapBoundConnFactory(
+            String id,
+            int minConns,
+            int maxConns,
+            LdapConnInfo connInfo,
+            LdapAuthInfo authInfo
+            ) throws ELdapException {
+
         logger.debug("Creating LdapBoundConnFactory(" + id + ")");
+
         this.id = id;
-        init(minConns, maxConns, connInfo, authInfo);
+        this.config = config;
+
+        this.mMinConns = minConns;
+        this.mMaxConns = maxConns;
+        this.mConnInfo = connInfo;
+        this.mAuthInfo = authInfo;
     }
 
     /**
-     * Constructor for initialize
+     * Constructor for LdapBoundConnFactory
+     *
+     * @param minConns minimum number of connections to have available
+     * @param maxConns max number of connections to have available. This is
+     *            the maximum number of clones of this connection or separate connections one wants to allow.
+     * @param maxResults max number of results to return per query
+     * @param serverInfo server connection info - host, port, etc.
      */
-    public void init(IConfigStore config)
-            throws ELdapException, EBaseException {
+    public LdapBoundConnFactory(
+            String id,
+            int minConns,
+            int maxConns,
+            int maxResults,
+            LdapConnInfo connInfo,
+            LdapAuthInfo authInfo
+            ) throws ELdapException {
+
+        logger.debug("Creating LdapBoundConnFactory(" + id + ")");
+
+        this.id = id;
+        this.config = config;
+
+        this.mMinConns = minConns;
+        this.mMaxConns = maxConns;
+        this.mMaxResults = maxResults;
+
+        this.mConnInfo = connInfo;
+        this.mAuthInfo = authInfo;
+    }
+
+    public void init(
+            IConfigStore config,
+            IPasswordStore passwordStore
+            ) throws ELdapException {
 
         logger.debug("LdapBoundConnFactory: initialization");
 
-        int minConns = config.getInteger(PROP_MINCONNS, mMinConns);
-        int maxConns = config.getInteger(PROP_MAXCONNS, mMaxConns);
+        this.config = config;
+        this.passwordStore = passwordStore;
 
-        LdapConnInfo connInfo = new LdapConnInfo(config.getSubStore(PROP_LDAPCONNINFO));
+        init();
+    }
 
-        LdapAuthInfo authInfo = new LdapAuthInfo(config.getSubStore(PROP_LDAPAUTHINFO),
-                connInfo.getHost(), connInfo.getPort(), connInfo.getSecure());
+    public void init(
+            IConfigStore config,
+            IConfigStore dbConfig,
+            IPasswordStore passwordStore
+            ) throws EBaseException, ELdapException {
 
-        mErrorIfDown = config.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
+        this.passwordStore = passwordStore;
 
-        doCloning = config.getBoolean("doCloning", true);
+        init(config, dbConfig);
+    }
+
+    public void init(IConfigStore config, IConfigStore dbConfig) throws EBaseException, ELdapException {
+
+        logger.debug("LdapBoundConnFactory: initialization");
+
+        this.config = config;
+
+        this.mMinConns = dbConfig.getInteger(PROP_MINCONNS, mMinConns);
+        this.mMaxConns = dbConfig.getInteger(PROP_MAXCONNS, mMaxConns);
+        this.mMaxResults = dbConfig.getInteger(PROP_MAXRESULTS, mMaxResults);
+
+        IConfigStore connConfig = dbConfig.getSubStore(PROP_LDAPCONNINFO);
+        this.mConnInfo = new LdapConnInfo(connConfig);
+
+        IConfigStore authConfig = dbConfig.getSubStore(PROP_LDAPAUTHINFO);
+        this.mAuthInfo = new LdapAuthInfo();
+        this.mAuthInfo.setPasswordStore(passwordStore);
+
+        this.mAuthInfo.init(
+                authConfig,
+                this.mConnInfo.getHost(),
+                this.mConnInfo.getPort(),
+                this.mConnInfo.getSecure());
+
+        mErrorIfDown = dbConfig.getBoolean(PROP_ERROR_IF_DOWN, mDefErrorIfDown);
+
+        doCloning = dbConfig.getBoolean("doCloning", true);
         logger.debug("LdapBoundConnFactory: doCloning: " + doCloning);
 
-        init(minConns, maxConns, connInfo, authInfo);
+        init();
     }
 
     /**
      * initialize parameters obtained from either constructor or
      * config store
-     *
-     * @param minConns minimum number of connection handls to have available.
-     * @param maxConns maximum total number of connections to ever have.
-     * @param connInfo ldap connection info.
-     * @param authInfo ldap authentication info.
-     * @exception ELdapException if any error occurs.
      */
-    private void init(int minConns, int maxConns,
-            LdapConnInfo connInfo, LdapAuthInfo authInfo)
-            throws ELdapException {
+    private void init() throws ELdapException {
 
-        if (minConns <= 0)
-            throw new ELdapException("Invalid minimum number of connections: " + minConns);
+        if (mMinConns <= 0)
+            throw new ELdapException("Invalid minimum number of connections: " + mMinConns);
 
-        if (maxConns <= 0)
-            throw new ELdapException("Invalid maximum number of connections: " + maxConns);
+        if (mMaxConns <= 0)
+            throw new ELdapException("Invalid maximum number of connections: " + mMaxConns);
 
-        if (minConns > maxConns)
-            throw new ELdapException("Minimum number of connections is bigger than maximum: " + minConns + " > " + maxConns);
+        if (mMinConns > mMaxConns)
+            throw new ELdapException("Minimum number of connections is bigger than maximum: " + mMinConns + " > " + mMaxConns);
 
-        if (connInfo == null)
+        if (mMaxResults < 0)
+            throw new ELdapException("Invalid maximum number of results: " + mMaxResults);
+
+        if (mConnInfo == null)
             throw new IllegalArgumentException("Missing connection info");
 
-        if (authInfo == null)
+        if (mAuthInfo == null)
             throw new IllegalArgumentException("Missing authentication info");
-
-        mMinConns = minConns;
-        mMaxConns = maxConns;
-        mConnInfo = connInfo;
-        mAuthInfo = authInfo;
-
-        mConns = new BoundConnection[mMaxConns];
-
-        // Create connection handle and make initial connection
-        makeConnection(mErrorIfDown);
 
         logger.debug("LdapBoundConnFactory: mininum: " + mMinConns);
         logger.debug("LdapBoundConnFactory: maximum: " + mMaxConns);
@@ -179,6 +255,11 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         logger.debug("LdapBoundConnFactory: port: " + mConnInfo.getPort());
         logger.debug("LdapBoundConnFactory: secure: " + mConnInfo.getSecure());
         logger.debug("LdapBoundConnFactory: authentication: " + mAuthInfo.getAuthType());
+
+        mConns = new BoundConnection[mMaxConns];
+
+        // Create connection handle and make initial connection
+        makeConnection(mErrorIfDown);
 
         // initalize minimum number of connection handles available.
         makeMinimum();
@@ -190,9 +271,23 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      * @exception ELdapException if any error occurs.
      */
     protected void makeConnection(boolean errorIfDown) throws ELdapException {
+
         logger.debug("LdapBoundConnFactory: makeConnection(" + errorIfDown + ")");
+
         try {
-            mMasterConn = new BoundConnection(mConnInfo, mAuthInfo);
+            PKISocketFactory socketFactory;
+            if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
+                socketFactory = new PKISocketFactory(mAuthInfo.getClientCertNickname());
+            } else {
+                socketFactory = new PKISocketFactory(mConnInfo.getSecure());
+            }
+            socketFactory.init(config);
+
+            mMasterConn = new BoundConnection(socketFactory, mConnInfo, mAuthInfo);
+
+        } catch (EBaseException e) {
+            throw new ELdapException("Unable to create socket factory: " + e.getMessage(), e);
+
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
@@ -216,10 +311,24 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
      * @exception ELdapException if any error occurs.
      */
     private LdapBoundConnection makeNewConnection(boolean errorIfDown) throws ELdapException {
+
         logger.debug("LdapBoundConnFactory: makeNewConnection(" + errorIfDown + ")");
+
         LdapBoundConnection conn = null;
         try {
-            conn = new BoundConnection(mConnInfo, mAuthInfo);
+            PKISocketFactory socketFactory;
+            if (mAuthInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
+                socketFactory = new PKISocketFactory(mAuthInfo.getClientCertNickname());
+            } else {
+                socketFactory = new PKISocketFactory(mConnInfo.getSecure());
+            }
+            socketFactory.init(config);
+
+            conn = new BoundConnection(socketFactory, mConnInfo, mAuthInfo);
+
+        } catch (EBaseException e) {
+            throw new ELdapException("Unable to create socket factory: " + e.getMessage(), e);
+
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
@@ -388,6 +497,16 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         }
         logger.debug("LdapBoundConnFactory: number of connections: " + mNumConns);
 
+        try {
+            // Before returning the connection, set the SIZELIMIT option; this
+            // ensures that if the connection is recycled and the previous owner
+            // changed the SIZELIMIT option to a different value, the next owner
+            // always starts with the default.
+            conn.setOption(LDAPv2.SIZELIMIT, mMaxResults);
+        } catch (LDAPException e) {
+            throw new ELdapException("Unable to set LDAP size limit: " + e.getMessage(), e);
+        }
+
         return conn;
     }
 
@@ -484,6 +603,29 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         }
     }
 
+    public synchronized void shutdown() throws ELdapException {
+
+        logger.debug("Destroying LdapBoundConnFactory(" + id + ")");
+
+        for (int i = 0; i < mNumConns; i++) {
+            mConns[i].close();
+            mConns[i] = null;
+        }
+
+        if (mMasterConn != null) {
+            logger.debug("LdapBoundConnFactory: disconnecting master connection");
+            mMasterConn.close();
+            mMasterConn = null;
+        }
+
+        mTotal = 0;
+        mNumConns = 0;
+
+        if (mAuthInfo != null) {
+            mAuthInfo.reset();
+        }
+    }
+
     /**
      * return ldap connection info
      */
@@ -498,6 +640,14 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
         return mAuthInfo;
     }
 
+    public IPasswordStore getPasswordStore() {
+        return passwordStore;
+    }
+
+    public void setPasswordStore(IPasswordStore passwordStore) {
+        this.passwordStore = passwordStore;
+    }
+
     /**
      * used to keep track of connections from this factory.
      */
@@ -507,9 +657,12 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
          */
         private static final long serialVersionUID = 1353616391879078337L;
 
-        public BoundConnection(LdapConnInfo connInfo, LdapAuthInfo authInfo)
-                throws LDAPException {
-            super(connInfo, authInfo);
+        public BoundConnection(
+                LDAPSocketFactory socketFactory,
+                LdapConnInfo connInfo,
+                LdapAuthInfo authInfo)
+                throws EBaseException, LDAPException {
+            super(socketFactory, connInfo, authInfo);
         }
 
         public BoundConnection(String host, int port, int version,

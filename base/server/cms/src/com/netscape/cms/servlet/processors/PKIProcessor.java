@@ -23,7 +23,12 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -38,12 +43,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
-
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Process Certificate Requests
@@ -52,6 +52,7 @@ import netscape.security.x509.X509CertInfo;
  */
 public class PKIProcessor implements IPKIProcessor {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKIProcessor.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public final static String ADMIN_ENROLL_SERVLET_ID = "caadminEnroll";
@@ -112,7 +113,7 @@ public class PKIProcessor implements IPKIProcessor {
         // CA determines algorithm, version and issuer.
         // take key from keygen, cmc, pkcs10 or crmf.
 
-        CMS.debug("PKIProcessor: fillCertInfoFromAuthToken");
+        logger.debug("PKIProcessor: fillCertInfoFromAuthToken");
         // subject name.
         try {
             String subjectname =
@@ -197,7 +198,7 @@ public class PKIProcessor implements IPKIProcessor {
             X509CertInfo certInfo, IArgBlock httpParams)
             throws EBaseException {
 
-        CMS.debug("PKIProcessor: fillCertInfoFromForm");
+        logger.debug("PKIProcessor: fillCertInfoFromForm");
         // subject name.
         try {
             String subject = httpParams.getValueAsString(PKIProcessor.SUBJECT_NAME, null);
@@ -239,7 +240,7 @@ public class PKIProcessor implements IPKIProcessor {
     public static void fillValidityFromForm(
             X509CertInfo certInfo, IArgBlock httpParams)
             throws EBaseException {
-        CMS.debug("PKIProcessor: fillValidityFromForm!");
+        logger.debug("PKIProcessor: fillValidityFromForm!");
         try {
             String notValidBeforeStr = httpParams.getValueAsString("notValidBefore", null);
             String notValidAfterStr = httpParams.getValueAsString("notValidAfter", null);

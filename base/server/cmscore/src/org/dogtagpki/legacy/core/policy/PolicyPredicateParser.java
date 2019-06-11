@@ -22,8 +22,7 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IExpression;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.cmscore.util.Debug;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Default implementation of predicate parser.
@@ -41,6 +40,9 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class PolicyPredicateParser {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyPredicateParser.class);
+
     public static final int OP_AND = 1;
     public static final int OP_OR = 2;
     public static final int EXPRESSION = 0;
@@ -71,8 +73,7 @@ public class PolicyPredicateParser {
         String token = pt.nextToken();
 
         if (getOP(token) != EXPRESSION) {
-            if (Debug.ON)
-                Debug.trace("Malformed expression: " + predicateExpression);
+            logger.error("Malformed expression: " + predicateExpression);
             throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_BAD_POLICY_EXPRESSION", predicateExpression));
         }
 
@@ -113,8 +114,7 @@ public class PolicyPredicateParser {
             }
         }
         if (malformed) {
-            if (Debug.ON)
-                Debug.trace("Malformed expression: " + predicateExpression);
+            logger.error("Malformed expression: " + predicateExpression);
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_BAD_POLICY_EXPRESSION",
                             predicateExpression));
@@ -261,6 +261,9 @@ public class PolicyPredicateParser {
 }
 
 class PredicateTokenizer {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PredicateTokenizer.class);
+
     String input;
     int currentIndex;
     String nextToken;
@@ -323,8 +326,7 @@ class PredicateTokenizer {
             }
         } else {
             // Cannot happen; Assert here.
-            if (Debug.ON)
-                Debug.trace("Malformed Predicate Expression : No Tokens");
+            logger.error("Malformed Predicate Expression : No Tokens");
             throw new EPolicyException("Malformed Predicate Expression : No Tokens");
         }
 

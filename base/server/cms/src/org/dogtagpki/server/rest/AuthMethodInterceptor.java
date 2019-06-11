@@ -34,11 +34,9 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.catalina.realm.GenericPrincipal;
-
 import org.jboss.resteasy.core.ResourceMethodInvoker;
 import org.jboss.resteasy.spi.Failure;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthMethodMapping;
 import com.netscape.certsrv.authentication.ExternalAuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -50,6 +48,8 @@ import com.netscape.cms.realm.PKIPrincipal;
  */
 @Provider
 public class AuthMethodInterceptor implements ContainerRequestFilter {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthMethodInterceptor.class);
 
     Properties properties;
 
@@ -71,7 +71,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
 
         // load default mapping
         String defaultMapping = "/usr/share/pki/" + subsystem + "/conf/auth-method.properties";
-        CMS.debug("AuthMethodInterceptor: loading " + defaultMapping);
+        logger.debug("AuthMethodInterceptor: loading " + defaultMapping);
         try (FileReader in = new FileReader(defaultMapping)) {
             properties.load(in);
         }
@@ -79,9 +79,9 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
         // load custom mapping
         File customMapping = new File(System.getProperty("catalina.base") +
                 "/" + subsystem + "/conf/auth-method.properties");
-        CMS.debug("AuthMethodInterceptor: checking " + customMapping);
+        logger.debug("AuthMethodInterceptor: checking " + customMapping);
         if (customMapping.exists()) {
-            CMS.debug("AuthMethodInterceptor: loading " + customMapping);
+            logger.debug("AuthMethodInterceptor: loading " + customMapping);
             try (FileReader in = new FileReader(customMapping)) {
                 properties.load(in);
             }
@@ -95,7 +95,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
         Method method = methodInvoker.getMethod();
         Class<?> clazz = methodInvoker.getResourceClass();
 
-        CMS.debug("AuthMethodInterceptor: " + clazz.getSimpleName() + "." + method.getName() + "()");
+        logger.debug("AuthMethodInterceptor: " + clazz.getSimpleName() + "." + method.getName() + "()");
 
         // Get authentication mapping for the method.
         AuthMethodMapping authMapping = method.getAnnotation(AuthMethodMapping.class);
@@ -114,7 +114,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
             name = authMapping.value();
         }
 
-        CMS.debug("AuthMethodInterceptor: mapping: " + name);
+        logger.debug("AuthMethodInterceptor: mapping: " + name);
 
         try {
             loadProperties();
@@ -127,17 +127,17 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
                 }
             }
 
-            CMS.debug("AuthMethodInterceptor: required auth methods: " + authMethods);
+            logger.debug("AuthMethodInterceptor: required auth methods: " + authMethods);
 
             Principal principal = securityContext.getUserPrincipal();
 
             // If unauthenticated, reject request.
             if (principal == null) {
                 if (authMethods.isEmpty() || authMethods.contains("anonymous") || authMethods.contains("*")) {
-                    CMS.debug("AuthMethodInterceptor: anonymous access allowed");
+                    logger.debug("AuthMethodInterceptor: anonymous access allowed");
                     return;
                 }
-                CMS.debug("AuthMethodInterceptor: anonymous access not allowed");
+                logger.error("AuthMethodInterceptor: anonymous access not allowed");
                 throw new ForbiddenException("Anonymous access not allowed.");
             }
 
@@ -149,16 +149,16 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
 
             // If missing auth token, reject request.
             if (authToken == null) {
-                CMS.debug("AuthMethodInterceptor: missing authentication token");
+                logger.error("AuthMethodInterceptor: missing authentication token");
                 throw new ForbiddenException("Missing authentication token.");
             }
 
             String authManager = authToken.getInString(IAuthToken.TOKEN_AUTHMGR_INST_NAME);
 
-            CMS.debug("AuthMethodInterceptor: authentication manager: " + authManager);
+            logger.debug("AuthMethodInterceptor: authentication manager: " + authManager);
 
             if (authManager == null) {
-                CMS.debug("AuthMethodInterceptor: missing authentication manager");
+                logger.error("AuthMethodInterceptor: missing authentication manager");
                 throw new ForbiddenException("Missing authentication manager.");
             }
 
@@ -168,7 +168,7 @@ public class AuthMethodInterceptor implements ContainerRequestFilter {
                 || authMethods.contains(authManager)
                 || authMethods.contains("*")
             ) {
-                CMS.debug("AuthMethodInterceptor: access granted");
+                logger.debug("AuthMethodInterceptor: access granted");
                 return;
             }
 

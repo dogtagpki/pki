@@ -33,7 +33,15 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
+
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -52,15 +60,8 @@ import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.util.DerInputStream;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509ExtensionException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * The ARequestQueue class is an abstract class that implements
@@ -83,6 +84,8 @@ import netscape.security.x509.X509ExtensionException;
  */
 public abstract class ARequestQueue
         implements IRequestQueue {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ARequestQueue.class);
 
     /**
      * global request version for tracking request changes.
@@ -559,7 +562,7 @@ public abstract class ARequestQueue
     public void updateRequest(IRequest r) {
         // defualt is to really update ldap
         String delayLDAPCommit = r.getExtDataInString("delayLDAPCommit");
-        ((Request) r).mModificationTime = CMS.getCurrentDate();
+        ((Request) r).mModificationTime = new Date();
 
         String name = getUserIdentity();
 
@@ -676,7 +679,8 @@ public abstract class ARequestQueue
      * New non-blocking recover method.
      */
     public void recover() {
-        if (CMS.isRunningMode()) {
+        CMSEngine engine = CMS.getCMSEngine();
+        if (engine.isRunningMode()) {
             RecoverThread t = new RecoverThread(this);
 
             t.start();
@@ -773,6 +777,8 @@ public abstract class ARequestQueue
 // version is returned by ARequestQueue (and its derivatives)
 //
 class Request implements IRequest {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Request.class);
 
     private static final long serialVersionUID = -1510479502681392568L;
 
@@ -1134,7 +1140,7 @@ class Request implements IRequest {
             try {
                 return new X509CertImpl(data);
             } catch (CertificateException e) {
-                CMS.debug("ARequestQueue: getExtDataInCert(): "+e.toString());
+                logger.warn("ARequestQueue: getExtDataInCert(): " + e.getMessage(), e);
                 return null;
             }
         }
@@ -1166,7 +1172,7 @@ class Request implements IRequest {
             try {
                 certArray[index] = new X509CertImpl(Utils.base64decode(stringArray[index]));
             } catch (CertificateException e) {
-                CMS.debug("ARequestQueue: getExtDataInCertArray(): "+e.toString());
+                logger.warn("ARequestQueue: getExtDataInCertArray(): " + e.getMessage(), e);
                 return null;
             }
         }
@@ -1190,7 +1196,7 @@ class Request implements IRequest {
             try {
                 return new X509CertInfo(data);
             } catch (CertificateException e) {
-                CMS.debug("ARequestQueue: getExtDataInCertInfo(): "+e.toString());
+                logger.warn("ARequestQueue: getExtDataInCertInfo(): " + e.getMessage(), e);
                 return null;
             }
         }
@@ -1222,7 +1228,7 @@ class Request implements IRequest {
             try {
                 certArray[index] = new X509CertInfo(Utils.base64decode(stringArray[index]));
             } catch (CertificateException e) {
-                CMS.debug("ARequestQueue: getExtDataInCertInfoArray(): "+e.toString());
+                logger.warn("ARequestQueue: getExtDataInCertInfoArray(): " + e.getMessage(), e);
                 return null;
             }
         }
@@ -1340,10 +1346,10 @@ class Request implements IRequest {
         try {
             data.encode(byteStream);
         } catch (CertificateException e) {
-            CMS.debug("ARequestQueue: setExtData(): "+e.toString());
+            logger.warn("ARequestQueue: setExtData(): " + e.getMessage(), e);
             return false;
         } catch (IOException e) {
-            CMS.debug("ARequestQueue: setExtData(): "+e.toString());
+            logger.warn("ARequestQueue: setExtData(): " + e.getMessage(), e);
             return false;
         }
         return setExtData(key, byteStream.toByteArray());
@@ -1456,8 +1462,8 @@ class Request implements IRequest {
     protected String realm;
     protected ExtDataHashtable<Object> mExtData = new ExtDataHashtable<Object>();
 
-    Date mCreationTime = CMS.getCurrentDate();
-    Date mModificationTime = CMS.getCurrentDate();
+    Date mCreationTime = new Date();
+    Date mModificationTime = new Date();
 
     @Override
     public String getRealm() {

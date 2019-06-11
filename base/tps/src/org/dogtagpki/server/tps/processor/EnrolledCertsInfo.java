@@ -26,13 +26,13 @@ import org.dogtagpki.server.tps.dbs.TokenCertStatus;
 import org.dogtagpki.server.tps.main.PKCS11Obj;
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.Util;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 
-import netscape.security.x509.X509CertImpl;
-
 public class EnrolledCertsInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrolledCertsInfo.class);
 
     EnrolledCertsInfo() {
         certificates = new ArrayList<X509CertImpl>();
@@ -139,7 +139,7 @@ public class EnrolledCertsInfo {
 
     public void addOrigin(String origin) {
 
-        CMS.debug("EnrolledCertsInfo.addOrigin: " + origin);
+        logger.debug("EnrolledCertsInfo.addOrigin: " + origin);
         origins.add(origin);
     }
 
@@ -179,7 +179,7 @@ public class EnrolledCertsInfo {
 
     public ArrayList<TPSCertRecord> toTPSCertRecords(String cuid, String uid) {
         ArrayList<TPSCertRecord> certs = new ArrayList<TPSCertRecord>();
-        CMS.debug("EnrolledCertsInfo.toTPSCertRecords: starts");
+        logger.debug("EnrolledCertsInfo.toTPSCertRecords: starts");
         int index = 0;
         for (X509CertImpl cert: certificates) {
             TPSCertRecord certRecord = new TPSCertRecord();
@@ -195,48 +195,48 @@ public class EnrolledCertsInfo {
             String id = hexSerial + "." + uniqueString;
 
             certRecord.setId(id);
-            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: converting cert:"+ certRecord.getId());
+            logger.debug("EnrolledCertsInfo.toTPSCertRecords: converting cert:"+ certRecord.getId());
 
             //token id
             certRecord.setTokenID(cuid);
-            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: cuid =" + cuid);
+            logger.debug("EnrolledCertsInfo.toTPSCertRecords: cuid =" + cuid);
 
             //origin
             if ((!origins.isEmpty()) && index <origins.size() && origins.get(index)!= null) {
                 certRecord.setOrigin(origins.get(index));
-                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: origin =" + origins.get(index));
+                logger.debug("EnrolledCertsInfo.toTPSCertRecords: origin =" + origins.get(index));
             } else {
-                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: origin not found for index:"+ index);
+                logger.warn("EnrolledCertsInfo.toTPSCertRecords: origin not found for index:"+ index);
             }
 
             //user id
             certRecord.setUserID(uid);
-            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: uid =" + uid);
+            logger.debug("EnrolledCertsInfo.toTPSCertRecords: uid =" + uid);
 
             //KeyType
             if ((!ktypes.isEmpty()) && index <ktypes.size() && ktypes.get(index)!= null) {
                 certRecord.setKeyType(ktypes.get(index));
-                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: keyType =" + ktypes.get(index));
+                logger.debug("EnrolledCertsInfo.toTPSCertRecords: keyType =" + ktypes.get(index));
             } else {
-                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: keyType not found for index:"+ index);
+                logger.warn("EnrolledCertsInfo.toTPSCertRecords: keyType not found for index:"+ index);
             }
 
             //token type
             if ((!tokenTypes.isEmpty()) && index <tokenTypes.size() && tokenTypes.get(index)!= null) {
-                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: tokenType=" + tokenTypes.get(index));
+                logger.debug("EnrolledCertsInfo.toTPSCertRecords: tokenType=" + tokenTypes.get(index));
                 certRecord.setType(tokenTypes.get(index));
-                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: tokenType set");
+                logger.debug("EnrolledCertsInfo.toTPSCertRecords: tokenType set");
             } else {
-                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: tokenType not found for index:"+ index);
+                logger.warn("EnrolledCertsInfo.toTPSCertRecords: tokenType not found for index:"+ index);
                 //certRecord.setType("");
             }
 
             //cert status
             if ((!certStatuses.isEmpty()) && index < certStatuses.size() && certStatuses.get(index) != null) {
-                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: cert status=" + certStatuses.get(index));
+                logger.debug("EnrolledCertsInfo.toTPSCertRecords: cert status=" + certStatuses.get(index));
                 certRecord.setStatus(certStatuses.get(index).toString());
             } else {
-                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: certStatus not found for index:" + index
+                logger.warn("EnrolledCertsInfo.toTPSCertRecords: certStatus not found for index:" + index
                         + "; set to default active");
                 certRecord.setStatus(TokenCertStatus.ACTIVE.toString());
             }
@@ -244,29 +244,29 @@ public class EnrolledCertsInfo {
             //Issuer
             String issuedBy = cert.getIssuerDN().toString();
             certRecord.setIssuedBy(issuedBy);
-            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: issuer ="+ issuedBy);
+            logger.debug("EnrolledCertsInfo.toTPSCertRecords: issuer ="+ issuedBy);
 
             //Subject
             String subject = cert.getSubjectDN().toString();
             certRecord.setSubject(subject);
-            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: subject ="+ subject);
+            logger.debug("EnrolledCertsInfo.toTPSCertRecords: subject ="+ subject);
 
             //NotBefore
             certRecord.setValidNotBefore(cert.getNotBefore());
-            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: notBefore ="+ cert.getNotBefore().toString());
+            logger.debug("EnrolledCertsInfo.toTPSCertRecords: notBefore ="+ cert.getNotBefore().toString());
 
             //NotAfter
             certRecord.setValidNotAfter(cert.getNotAfter());
-            CMS.debug("EnrolledCertsInfo.toTPSCertRecords: notAfter ="+ cert.getNotAfter().toString());
+            logger.debug("EnrolledCertsInfo.toTPSCertRecords: notAfter ="+ cert.getNotAfter().toString());
 
             /* certificate
             byte[] certBytes = null;
             try {
                 certBytes = cert.getEncoded();
-                //CMS.debug("EnrolledCertsInfo.toTPSCertRecords: certBytes ="+ CMS.BtoA(certBytes));
-                CMS.debug("EnrolledCertsInfo.toTPSCertRecords: cert encoded");
+                //logger.debug("EnrolledCertsInfo.toTPSCertRecords: certBytes ="+ CMS.BtoA(certBytes));
+                logger.debug("EnrolledCertsInfo.toTPSCertRecords: cert encoded");
             } catch (CertificateEncodingException e) {
-                CMS.debug("EnrolledCertsInfo.toTPSCertRecord: "+ e);
+                logger.warn("EnrolledCertsInfo.toTPSCertRecord: "+ e.getMessage(), e);
                 //TODO: throw
 
             }
@@ -277,15 +277,14 @@ public class EnrolledCertsInfo {
                 String aki = Util.getCertAkiString(cert);
                 certRecord.setCertificate(aki);
             } catch (EBaseException | IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                logger.warn("EnrolledCertsInfo: " + e.getMessage(), e);
             }
 
             certs.add(certRecord);
 
             index++;
         }
-        CMS.debug("EnrolledCertsInfo.toTPSCertRecords: ends");
+        logger.debug("EnrolledCertsInfo.toTPSCertRecords: ends");
         return certs;
     }
 

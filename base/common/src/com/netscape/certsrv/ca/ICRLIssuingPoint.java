@@ -22,10 +22,10 @@ import java.util.Date;
 import java.util.Set;
 import java.util.Vector;
 
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.RevokedCertificate;
-import netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -67,9 +67,8 @@ public interface ICRLIssuingPoint {
     public static final int CRL_UPDATE_STARTED = 1;
     public static final int CRL_PUBLISHING_STARTED = 2;
 
-    public static final int CRL_IP_NOT_INITIALIZED = 0;
-    public static final int CRL_IP_INITIALIZED = 1;
-    public static final int CRL_IP_INITIALIZATION_FAILED = -1;
+    public enum CRLIssuingPointStatus {
+        NotInitialized, Initialized, InitializationFailed };
 
     /**
      * Returns true if CRL issuing point is enabled.
@@ -123,9 +122,10 @@ public interface ICRLIssuingPoint {
     /**
      * Returns CRL issuing point initialization status.
      *
-     * @return status of CRL issuing point initialization
+     * @return true if CRL issuing point hsa been successfully
+     *         initialized, otherwise false.
      */
-    public int isCRLIssuingPointInitialized();
+    public boolean isCRLIssuingPointInitialized();
 
     /**
      * Checks if manual update is set.

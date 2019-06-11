@@ -26,12 +26,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IOCSPService;
@@ -40,6 +38,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Retrieve information about the number of OCSP requests the OCSP
@@ -129,8 +129,8 @@ public class GetOCSPInfo extends CMSServlet {
             return;
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         IOCSPService ca = (IOCSPService) mAuthority;

@@ -33,32 +33,38 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
+import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.password.IPasswordCheck;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
+import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IGroupConstants;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.pkcs.PKCS7;
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * A class representing an administration servlet for
@@ -73,9 +79,8 @@ import netscape.security.x509.X509CertImpl;
  */
 public class UsrGrpAdminServlet extends AdminServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UsrGrpAdminServlet.class);
+
     private static final long serialVersionUID = -4341817607402387714L;
     private final static String INFO = "UsrGrpAdminServlet";
     private final static String RES_CA_GROUP = "certServer.ca.group";
@@ -88,7 +93,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
     private final static String BACK_SLASH = "\\";
 
-    private IUGSubsystem mMgr = null;
+    private UGSubsystem mMgr = null;
 
     private static String[] mMultiRoleGroupEnforceList = null;
     private final static String MULTI_ROLE_ENABLE = "multiroles.enable";
@@ -99,7 +104,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
      */
     public UsrGrpAdminServlet() {
         super();
-        mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        CMSEngine engine = CMS.getCMSEngine();
+        mAuthz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
     }
 
     /**
@@ -107,7 +113,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mMgr = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        mMgr = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
     }
 
     /**
@@ -135,6 +142,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             return;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         Locale clientLocale = super.getLocale(req);
 
         try {
@@ -154,7 +162,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
          AuthToken authToken = (AuthToken) sc.get(SessionContext.AUTH_TOKEN);
 
          AuthzToken authzTok = null;
-         CMS.debug("UserGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CHECK_AUTHZ_SUB"));
+         logger.debug("UserGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CHECK_AUTHZ_SUB"));
          // hardcoded for now .. just testing
          try {
          authzTok = mAuthz.authorize("DirAclAuthz", authToken, RES_GROUP, "read");
@@ -177,19 +185,19 @@ public class UsrGrpAdminServlet extends AdminServlet {
          */
 
         try {
-            ISubsystem subsystem = CMS.getSubsystem("ca");
+            ISubsystem subsystem = engine.getSubsystem(ICertificateAuthority.ID);
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_CA_GROUP;
-            subsystem = CMS.getSubsystem("ra");
+            subsystem = engine.getSubsystem(IRegistrationAuthority.ID);
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_RA_GROUP;
-            subsystem = CMS.getSubsystem("kra");
+            subsystem = engine.getSubsystem(IKeyRecoveryAuthority.ID);
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_KRA_GROUP;
-            subsystem = CMS.getSubsystem("ocsp");
+            subsystem = engine.getSubsystem(IOCSPAuthority.ID);
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_OCSP_GROUP;
-            subsystem = CMS.getSubsystem("tks");
+            subsystem = engine.getSubsystem(ITKSAuthority.ID);
             if (subsystem != null)
                 AUTHZ_RES_NAME = RES_TKS_GROUP;
             if (scope != null) {
@@ -512,7 +520,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 CertPrettyPrint print = new CertPrettyPrint(certs[i]);
 
                 // add base64 encoding
-                String base64 = CMS.getEncodedCert(certs[i]);
+                String base64 = CertUtils.getEncodedCert(certs[i]);
 
                 // pretty print certs
                 params.put(getCertificateString(certs[i]),
@@ -667,6 +675,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = CMS.getCMSEngine();
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -746,7 +755,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String pword = super.getParameter(req, Constants.PR_USER_PASSWORD);
 
             if (pword != null && !pword.equals("")) {
-                IPasswordCheck passwdCheck = CMS.getPasswordChecker();
+                IPasswordCheck passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
 
@@ -832,10 +841,12 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     SessionContext sContext = SessionContext.getContext();
                     String adminId = (String) sContext.get(SessionContext.USER_ID);
 
-                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                            AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
-                            new Object[] { adminId, id, groupName }
-                            );
+                    logger.info(
+                            AuditFormat.ADDUSERGROUPFORMAT,
+                            adminId,
+                            id,
+                            groupName
+                    );
                 }
 
                 NameValuePairs params = new NameValuePairs();
@@ -986,7 +997,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 boolean assending = true;
 
                 // could it be a pkcs7 blob?
-                CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_IS_PK_BLOB"));
+                logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_IS_PK_BLOB"));
                 byte p7Cert[] = Utils.base64decode(certsString);
 
                 try {
@@ -1017,17 +1028,17 @@ public class UsrGrpAdminServlet extends AdminServlet {
                             p7certs[0].getIssuerDN().toString()) &&
                             (p7certs.length == 1)) {
                         certs[0] = p7certs[0];
-                        CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_SINGLE_CERT_IMPORT"));
+                        logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_SINGLE_CERT_IMPORT"));
                     } else if (p7certs[0].getIssuerDN().toString().equals(p7certs[1].getSubjectDN().toString())) {
                         certs[0] = p7certs[0];
-                        CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_ACEND_ORD"));
+                        logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_ACEND_ORD"));
                     } else if (p7certs[1].getIssuerDN().toString().equals(p7certs[0].getSubjectDN().toString())) {
                         assending = false;
-                        CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_DESC_ORD"));
+                        logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_DESC_ORD"));
                         certs[0] = p7certs[p7certs.length - 1];
                     } else {
                         // not a chain, or in random order
-                        CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_BAD_CHAIN"));
+                        logger.error("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_BAD_CHAIN"));
 
                         audit(new ConfigRoleEvent(
                                     auditSubjectID,
@@ -1039,7 +1050,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         return;
                     }
 
-                    CMS.debug("UsrGrpAdminServlet: "
+                    logger.debug("UsrGrpAdminServlet: "
                             + CMS.getLogMessage("ADMIN_SRVLT_CHAIN_STORED_DB", String.valueOf(p7certs.length)));
 
                     int j = 0;
@@ -1055,7 +1066,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     }
                     // store the chain into cert db, except for the user cert
                     for (j = jBegin; j < jEnd; j++) {
-                        CMS.debug("UsrGrpAdminServlet: "
+                        logger.debug("UsrGrpAdminServlet: "
                                 + CMS.getLogMessage("ADMIN_SRVLT_CERT_IN_CHAIN", String.valueOf(j),
                                         String.valueOf(p7certs[j].getSubjectDN())));
                         org.mozilla.jss.crypto.X509Certificate leafCert =
@@ -1067,7 +1078,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         if (leafCert == null) {
                             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NULL"));
                         } else {
-                            CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
+                            logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
                         }
 
                         if (leafCert instanceof InternalCertificate) {
@@ -1114,7 +1125,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
 
             try {
-                CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_BEFORE_VALIDITY"));
+                logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_BEFORE_VALIDITY"));
                 certs[0].checkValidity(); // throw exception if fails
 
                 user.setX509Certificates(certs);
@@ -1942,6 +1953,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
+        CMSEngine engine = CMS.getCMSEngine();
         String auditSubjectID = auditSubjectID();
 
         // ensure that any low-level exceptions are reported
@@ -1991,7 +2003,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String pword = super.getParameter(req, Constants.PR_USER_PASSWORD);
 
             if ((pword != null) && (!pword.equals(""))) {
-                IPasswordCheck passwdCheck = CMS.getPasswordChecker();
+                IPasswordCheck passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
 

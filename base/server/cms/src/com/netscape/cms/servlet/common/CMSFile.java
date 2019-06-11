@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 
 /**
  * CMSFile represents a file from the filesystem cached in memory
@@ -36,8 +34,6 @@ public class CMSFile {
     protected long mLastModified;
     protected byte[] mContent;
     protected long mLastAccess = 0;
-
-    protected Logger mLogger = Logger.getLogger();
 
     protected CMSFile() {
     }
@@ -82,10 +78,6 @@ public class CMSFile {
 
     public synchronized void setLastAccess(long lastAccess) {
         mLastAccess = lastAccess;
-    }
-
-    protected void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level, "CMSgateway:" + msg);
     }
 
     public String toString() {

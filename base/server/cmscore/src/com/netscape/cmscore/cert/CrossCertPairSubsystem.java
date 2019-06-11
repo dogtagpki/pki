@@ -25,7 +25,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -36,6 +35,8 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.publish.IXcertPublisherProcessor;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -66,6 +67,8 @@ import netscape.ldap.LDAPv2;
  * @version $Revision$, $Date$
  */
 public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CrossCertPairSubsystem.class);
 
     public static final String ID = "CrossCertPair";
     public static final String DN_XCERTS = "cn=crossCerts";
@@ -100,13 +103,16 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 
-        CMS.debug("CrossCertPairSubsystem: initializing");
+        logger.debug("CrossCertPairSubsystem: initializing");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         try {
             mConfig = config;
             mLogger = Logger.getLogger();
             synchronized (this) {
-                mCa = (ICertificateAuthority) CMS.getSubsystem("ca");
+                mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 mPublisherProcessor = mCa.getPublisherProcessor();
             }
 
@@ -124,9 +130,9 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
             mLdapConnFactory = new LdapBoundConnFactory("CrossCertPairSubsystem");
 
-            if (mLdapConnFactory != null)
-                mLdapConnFactory.init(ldapConfig);
-            else {
+            if (mLdapConnFactory != null) {
+                mLdapConnFactory.init(cs, ldapConfig, engine.getPasswordStore());
+            } else {
                 log(ILogger.LL_MISCONF,
                         CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR",
                                 PROP_LDAP));
@@ -134,11 +140,11 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             }
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("Unable to initialize CrossCertPairSubsystem: " + e.getMessage(), e);
             throw e;
         }
 
-        CMS.debug("CrossCertPairSubsystem: initialization complete");
+        logger.debug("CrossCertPairSubsystem: initialization complete");
     }
 
     /**
@@ -490,7 +496,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             try {
                 mLdapConnFactory.reset();
             } catch (ELdapException e) {
-                CMS.debug("CrossCertPairSubsystem shutdown exception: " + e.toString());
+                logger.warn("CrossCertPairSubsystem shutdown exception: " + e.getMessage(), e);
             }
         }
     }
@@ -511,6 +517,6 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     }
 
     private static void debug(String msg) {
-        CMS.debug("CrossCertPairSubsystem: " + msg);
+        logger.debug("CrossCertPairSubsystem: " + msg);
     }
 }

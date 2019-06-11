@@ -29,7 +29,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
@@ -47,13 +46,17 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.processors.Processor;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * @author Endi S. Dewata
  */
 public class GroupMemberProcessor extends Processor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupMemberProcessor.class);
 
     public final static int DEFAULT_SIZE = 20;
 
@@ -62,7 +65,8 @@ public class GroupMemberProcessor extends Processor {
 
     public static String[] multiRoleGroupEnforceList;
 
-    public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+    CMSEngine engine = CMS.getCMSEngine();
+    public UGSubsystem userGroupManager = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
     protected UriInfo uriInfo;
 
@@ -149,7 +153,7 @@ public class GroupMemberProcessor extends Processor {
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("GroupMemberProcessor: " + e.getMessage(), e);
             throw new PKIException(getUserMessage("CMS_INTERNAL_ERROR"));
         }
     }
@@ -189,6 +193,7 @@ public class GroupMemberProcessor extends Processor {
 
     public GroupMemberData addGroupMember(GroupMemberData groupMemberData) {
         String groupID = groupMemberData.getGroupID();
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             if (groupID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -205,7 +210,7 @@ public class GroupMemberProcessor extends Processor {
             boolean multiRole = true;
 
             try {
-                IConfigStore config = CMS.getConfigStore();
+                IConfigStore config = engine.getConfigStore();
                 multiRole = config.getBoolean(MULTI_ROLE_ENABLE);
             } catch (Exception e) {
                 // ignore
@@ -235,9 +240,12 @@ public class GroupMemberProcessor extends Processor {
             SessionContext sContext = SessionContext.getContext();
             String adminId = (String) sContext.get(SessionContext.USER_ID);
 
-            logger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                    AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
-                    new Object[] { adminId, memberID, groupID });
+            logger.info(
+                    AuditFormat.ADDUSERGROUPFORMAT,
+                    adminId,
+                    memberID,
+                    groupID
+            );
 
             auditAddGroupMember(groupID, groupMemberData, ILogger.SUCCESS);
 
@@ -263,10 +271,11 @@ public class GroupMemberProcessor extends Processor {
             return true;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         String groupList = null;
         if (multiRoleGroupEnforceList == null) {
             try {
-                IConfigStore config = CMS.getConfigStore();
+                IConfigStore config = engine.getConfigStore();
                 groupList = config.getString(MULTI_ROLE_ENFORCE_GROUP_LIST);
             } catch (Exception e) {
                 // ignore
@@ -358,9 +367,12 @@ public class GroupMemberProcessor extends Processor {
             SessionContext sContext = SessionContext.getContext();
             String adminId = (String) sContext.get(SessionContext.USER_ID);
 
-            logger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                    AuditFormat.LEVEL, AuditFormat.REMOVEUSERGROUPFORMAT,
-                    new Object[] { adminId, memberID, groupID });
+            logger.info(
+                    AuditFormat.REMOVEUSERGROUPFORMAT,
+                    adminId,
+                    memberID,
+                    groupID
+            );
 
             auditDeleteGroupMember(groupID, groupMemberData, ILogger.SUCCESS);
 

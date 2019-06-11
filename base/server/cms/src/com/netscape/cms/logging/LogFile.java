@@ -62,15 +62,17 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.util.Base64OutputStream;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
@@ -80,8 +82,10 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.SystemEvent;
+import com.netscape.certsrv.ocsp.IOCSPAuthority;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.client.JDAPAVA;
 import netscape.ldap.client.JDAPFilter;
@@ -412,7 +416,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
 
             logger.error("LogFile: Disabling subsystem due to signed logging failure");
 
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+            CMSEngine engine = CMS.getCMSEngine();
             engine.disableSubsystem();
         }
     }
@@ -424,6 +428,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      */
     public void init(IConfigStore config) throws IOException,
             EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
         String fileName = null;
         String defaultFileName = null;
         String signedAuditDefaultFileName = "";
@@ -452,28 +458,28 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             // retrieve the subsystem
             String subsystem = "";
 
-            ISubsystem caSubsystem = CMS.getSubsystem("ca");
+            ISubsystem caSubsystem = engine.getSubsystem(ICertificateAuthority.ID);
             if (caSubsystem != null) {
-                subsystem = "ca";
+                subsystem = ICertificateAuthority.ID;
             }
 
-            ISubsystem raSubsystem = CMS.getSubsystem("ra");
+            ISubsystem raSubsystem = engine.getSubsystem(IRegistrationAuthority.ID);
             if (raSubsystem != null) {
-                subsystem = "ra";
+                subsystem = IRegistrationAuthority.ID;
             }
 
-            ISubsystem kraSubsystem = CMS.getSubsystem("kra");
+            ISubsystem kraSubsystem = engine.getSubsystem(IKeyRecoveryAuthority.ID);
             if (kraSubsystem != null) {
-                subsystem = "kra";
+                subsystem = IKeyRecoveryAuthority.ID;
             }
 
-            ISubsystem ocspSubsystem = CMS.getSubsystem("ocsp");
+            ISubsystem ocspSubsystem = engine.getSubsystem(IOCSPAuthority.ID);
             if (ocspSubsystem != null) {
-                subsystem = "ocsp";
+                subsystem = IOCSPAuthority.ID;
             }
 
             // retrieve the instance name
-            String instIDPath = CMS.getInstanceDir();
+            String instIDPath = engine.getInstanceDir();
             int index = instIDPath.lastIndexOf("/");
             String instID = instIDPath.substring(index + 1);
 
@@ -686,7 +692,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * <P>
      *
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_SIGNING used when a signature on the audit log is generated (same as
+     * <li>signed.audit AUDIT_LOG_SIGNING used when a signature on the audit log is generated (same as
      * "flush" time)
      * </ul>
      *
@@ -841,7 +847,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
      * <P>
      *
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUDIT_LOG_SHUTDOWN used at audit function shutdown
+     * <li>signed.audit AUDIT_LOG_SHUTDOWN used at audit function shutdown
      * </ul>
      */
     public synchronized void shutdown() {
@@ -1255,16 +1261,18 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         // Do we care?
         mDate.setTime(ev.getTimeStamp());
 
+        CMSEngine engine = CMS.getCMSEngine();
+
         // XXX
         // This should follow the Common Log Format which still needs
         // some work.
         if (ev.getMultiline() == ILogger.L_MULTILINE) {
-            entry = CMS.getPID() + "." + Thread.currentThread().getName() + " - ["
+            entry = engine.getPID() + "." + Thread.currentThread().getName() + " - ["
                     + mLogDateFormat.format(mDate) + "] [" +
                     ev.getSource().value() + "] [" + Integer.toString(ev.getLevel())
                     + "] " + prepareMultiline(ev.toString());
         } else {
-            entry = CMS.getPID() + "." + Thread.currentThread().getName() + " - ["
+            entry = engine.getPID() + "." + Thread.currentThread().getName() + " - ["
                     + mLogDateFormat.format(mDate) + "] [" +
                     ev.getSource().value() + "] [" + Integer.toString(ev.getLevel())
                     + "] " + ev.toString();

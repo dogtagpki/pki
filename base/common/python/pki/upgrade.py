@@ -257,7 +257,7 @@ class PKIUpgradeScriptlet(object):
             if self.upgrader.silent:
                 print(message)
             else:
-                result = pki.read_text(
+                result = pki.util.read_text(
                     message + ' Continue (Yes/No)',
                     options=['Y', 'N'], default='Y', delimiter='?',
                     case_sensitive=False).lower()
@@ -287,7 +287,7 @@ class PKIUpgradeScriptlet(object):
                 if not os.path.isdir(destpath):
                     if verbose:
                         print('Restoring ' + destpath)
-                    pki.util.copydirs(sourcepath, destpath)
+                    pki.util.copydirs(sourcepath, destpath, force=True)
 
                 for filename in filenames:
                     sourcefile = os.path.join(sourcepath, filename)
@@ -295,7 +295,7 @@ class PKIUpgradeScriptlet(object):
 
                     if verbose:
                         print('Restoring ' + targetfile)
-                    pki.util.copyfile(sourcefile, targetfile)
+                    pki.util.copyfile(sourcefile, targetfile, force=True)
 
         newfiles = backup_dir + '/newfiles'
         if os.path.exists(newfiles):
@@ -341,13 +341,13 @@ class PKIUpgradeScriptlet(object):
             sourceparent = os.path.dirname(path)
             destparent = os.path.dirname(dest)
 
-            pki.util.copydirs(sourceparent, destparent)
+            pki.util.copydirs(sourceparent, destparent, force=True)
 
             if os.path.isfile(path):
                 if verbose:
                     print('Saving ' + path)
                 # do not overwrite initial backup
-                pki.util.copyfile(path, dest, overwrite=False)
+                pki.util.copyfile(path, dest, force=False)
 
             else:
                 for sourcepath, _, filenames in os.walk(path):
@@ -357,7 +357,7 @@ class PKIUpgradeScriptlet(object):
 
                     if verbose:
                         print('Saving ' + sourcepath)
-                    pki.util.copydirs(sourcepath, destpath)
+                    pki.util.copydirs(sourcepath, destpath, force=True)
 
                     for filename in filenames:
                         sourcefile = os.path.join(sourcepath, filename)
@@ -366,8 +366,7 @@ class PKIUpgradeScriptlet(object):
                         if verbose:
                             print('Saving ' + sourcefile)
                         # do not overwrite initial backup
-                        pki.util.copyfile(sourcefile, targetfile,
-                                          overwrite=False)
+                        pki.util.copyfile(sourcefile, targetfile, force=False)
 
         else:
 
@@ -579,7 +578,7 @@ class PKIUpgrader(object):
                 print(message)
 
             else:
-                result = pki.read_text(
+                result = pki.util.read_text(
                     message + ' (Yes/No)',
                     options=['Y', 'N'],
                     default='Y',
@@ -605,7 +604,7 @@ class PKIUpgrader(object):
 
                 print()
 
-                result = pki.read_text(
+                result = pki.util.read_text(
                     'Continue (Yes/No)',
                     options=['Y', 'N'],
                     default='Y',
@@ -645,7 +644,7 @@ class PKIUpgrader(object):
                 print(message)
 
             else:
-                result = pki.read_text(
+                result = pki.util.read_text(
                     message + ' (Yes/No)',
                     options=['Y', 'N'], default='Y',
                     case_sensitive=False).lower()
@@ -669,7 +668,7 @@ class PKIUpgrader(object):
 
                 print()
 
-                result = pki.read_text(
+                result = pki.util.read_text(
                     'Continue (Yes/No)', options=['Y', 'N'],
                     default='Y', delimiter='?', case_sensitive=False).lower()
 

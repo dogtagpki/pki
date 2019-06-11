@@ -30,11 +30,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CertImpl;
-
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -50,6 +48,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -84,6 +85,9 @@ public class ReasonToRevoke extends CMSServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
+        CMSEngine engine = CMS.getCMSEngine();
+
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         if (mAuthority instanceof ICertificateAuthority) {
             mCA = (ICertificateAuthority) mAuthority;
@@ -92,7 +96,7 @@ public class ReasonToRevoke extends CMSServlet {
 
         if (mCA != null && mCA.noncesEnabled()) {
 
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             mRandom = jssSubsystem.getRandomNumberGenerator();
         }
 
@@ -160,8 +164,8 @@ public class ReasonToRevoke extends CMSServlet {
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         try {
@@ -269,7 +273,7 @@ public class ReasonToRevoke extends CMSServlet {
 
                     if (!(rec.getStatus().equals(ICertRecord.STATUS_REVOKED))) {
                         count++;
-                        IArgBlock rarg = CMS.createArgBlock();
+                        ArgBlock rarg = new ArgBlock();
 
                         rarg.addStringValue("serialNumber",
                                 xcert.getSerialNumber().toString(16));

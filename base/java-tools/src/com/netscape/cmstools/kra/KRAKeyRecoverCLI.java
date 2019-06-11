@@ -10,14 +10,14 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.key.KeyRequestResponse;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 public class KRAKeyRecoverCLI extends CLI {
     public KRAKeyCLI keyCLI;

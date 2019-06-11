@@ -19,7 +19,6 @@ package com.netscape.cmscore.dbs;
 
 import java.util.Enumeration;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.EDBException;
@@ -32,8 +31,7 @@ import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -65,7 +63,6 @@ public class DBSSession implements IDBSSession {
 
     private IDBSubsystem mDBSystem = null;
     private LDAPConnection mConn = null;
-    private Logger mLogger = Logger.getLogger();
 
     /**
      * Constructs a database session.
@@ -175,20 +172,17 @@ public class DBSSession implements IDBSSession {
 
             return mDBSystem.getRegistry().createObject(
                     entry.getAttributeSet());
+
         } catch (LDAPException e) {
 
-            /*LogDoc
-             *
-             * @phase local ldap read
-             * @message DBSSession: <exception thrown>
-             */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_INFO, "DBSSession: " + e.toString());
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
-                throw new EDBNotAvailException(
-                        CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
-            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT)
-                throw new EDBRecordNotFoundException(
-                        CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"));
+            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
+                throw new EDBNotAvailException(CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"), e);
+            }
+
+            if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                throw new EDBRecordNotFoundException(CMS.getUserMessage("CMS_DBS_RECORD_NOT_FOUND"), e);
+            }
+
             throw new EDBException("Unable to read LDAP record: " + e.getMessage(), e);
         }
     }
@@ -230,12 +224,10 @@ public class DBSSession implements IDBSSession {
 
                 mDBSystem.getRegistry().mapObject(null,
                         mod.getName(), mod.getValue(), attrs);
-                Enumeration<?> e0 = attrs.getAttributes();
+                Enumeration<LDAPAttribute> e0 = attrs.getAttributes();
 
                 while (e0.hasMoreElements()) {
-                    ldapMods.add(toLdapModOp(mod.getOp()),
-                            (LDAPAttribute)
-                            e0.nextElement());
+                    ldapMods.add(toLdapModOp(mod.getOp()), e0.nextElement());
                 }
             }
 

@@ -19,11 +19,14 @@ import org.dogtagpki.server.rest.SessionContextInterceptor;
 import org.dogtagpki.server.rest.SystemCertService;
 import org.dogtagpki.server.rest.UserService;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class KRAApplication extends Application {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAApplication.class);
 
     private Set<Object> singletons = new LinkedHashSet<Object>();
     private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
@@ -40,14 +43,15 @@ public class KRAApplication extends Application {
         classes.add(KRAInstallerService.class);
 
         // security domain
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         try {
             boolean standalone = cs.getBoolean("kra.standalone", false);
             if (standalone) {
                 classes.add(SecurityDomainService.class);
             }
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("KRAApplication: " + e.getMessage(), e);
             throw new RuntimeException(e);
         }
 

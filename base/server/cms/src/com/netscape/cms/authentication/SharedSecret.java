@@ -27,9 +27,11 @@ import org.mozilla.jss.crypto.IVParameterSpec;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.pkix.cmc.PKIData;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.IAuthCredentials;
@@ -42,19 +44,16 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerValue;
 
 /**
  * SharedSecret provides methods to retrieve shared secrets between users and
@@ -67,6 +66,9 @@ import netscape.security.util.DerValue;
  */
 public class SharedSecret extends DirBasedAuthentication
         implements ISharedToken {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SharedSecret.class);
+
     /*
      * required credentials to authenticate. Though for this
      * special impl it will be unused.
@@ -140,7 +142,7 @@ public class SharedSecret extends DirBasedAuthentication
 
     //protected boolean mRemoveShrTok = DEF_REMOVE_SharedToken;
     protected String mShrTokAttr = DEF_SharedToken_ATTR;
-    private ILdapConnFactory shrTokLdapFactory = null;
+    private LdapBoundConnFactory shrTokLdapFactory;
     private IConfigStore shrTokLdapConfigStore = null;
 
     private PrivateKey issuanceProtPrivKey = null;
@@ -157,8 +159,10 @@ public class SharedSecret extends DirBasedAuthentication
             throws EBaseException {
         String method = "SharedSecret.init: ";
         String msg = "";
-        CMS.debug(method + " begins.");
+        logger.debug(method + " begins.");
         super.init(name, implName, config);
+
+        CMSEngine engine = CMS.getCMSEngine();
         //TODO later:
         //mRemoveShrTok =
         //        config.getBoolean(PROP_REMOVE_SharedToken, DEF_REMOVE_SharedToken);
@@ -166,7 +170,7 @@ public class SharedSecret extends DirBasedAuthentication
                 config.getString(PROP_SharedToken_ATTR, DEF_SharedToken_ATTR);
         if (mShrTokAttr == null) {
             msg = method + "shrTokAttr null";
-            CMS.debug(msg);
+            logger.error(msg);
             throw new EBaseException(msg);
         }
         if (mShrTokAttr.equals("")) {
@@ -175,39 +179,38 @@ public class SharedSecret extends DirBasedAuthentication
 
         initLdapConn(config);
 
-        ICertificateAuthority authority =
-                (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         issuanceProtPrivKey = authority.getIssuanceProtPrivKey();
         if (issuanceProtPrivKey != null)
-            CMS.debug(method + "got issuanceProtPrivKey");
+            logger.debug(method + "got issuanceProtPrivKey");
         else {
             msg = method + "issuanceProtPrivKey null";
-            CMS.debug(msg);
+            logger.error(msg);
             throw new EBaseException(msg);
         }
         certRepository = authority.getCertificateRepository();
         if (certRepository == null) {
             msg = method + "certRepository null";
-            CMS.debug(msg);
+            logger.error(msg);
             throw new EBaseException(msg);
         }
 
         try {
             String tokenName =
-                    CMS.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
-            CMS.debug(method + "getting token :" + tokenName);
+                    engine.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+            logger.debug(method + "getting token :" + tokenName);
             token = CryptoUtil.getKeyStorageToken(tokenName);
         } catch (Exception e) {
-            CMS.debug(method + e);
+            logger.error(method + e.getMessage(), e);
             throw new EBaseException(e);
         }
         if (token == null) {
             msg = method + "token null";
-            CMS.debug(msg);
+            logger.error(msg);
             throw new EBaseException(msg);
         }
 
-        CMS.debug(method + " ends.");
+        logger.debug(method + " ends.");
     }
 
     /**
@@ -219,19 +222,20 @@ public class SharedSecret extends DirBasedAuthentication
         String method = "SharedSecret.initLdapConn";
         String msg = "";
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         shrTokLdapConfigStore = config.getSubStore("ldap");
         if (shrTokLdapConfigStore == null) {
             msg = method + "config substore ldap null";
-            CMS.debug(msg);
+            logger.error(msg);
             throw new EBaseException(msg);
         }
-        shrTokLdapFactory = new LdapBoundConnFactory("SharedSecret");
-        if (shrTokLdapFactory == null) {
-            msg = method + "CMS.getLdapBoundConnFactory returned null for SharedSecret";
-            CMS.debug(msg);
-            throw new EBaseException(msg);
-        }
-        shrTokLdapFactory.init(shrTokLdapConfigStore);
+
+        LdapBoundConnFactory connFactory = new LdapBoundConnFactory("SharedSecret");
+        connFactory.init(cs, shrTokLdapConfigStore, engine.getPasswordStore());
+
+        shrTokLdapFactory = connFactory;
     }
 
     /**
@@ -249,7 +253,7 @@ public class SharedSecret extends DirBasedAuthentication
             throws EBaseException {
         String method = "SharedSecret.getSharedToken(String identification, IAuthToken authToken): ";
         String msg = "";
-        CMS.debug(method + "begins.");
+        logger.debug(method + "begins.");
 
         if ((identification == null) || (authToken == null)) {
             throw new EBaseException(method + "paramsters identification or authToken cannot be null");
@@ -259,14 +263,14 @@ public class SharedSecret extends DirBasedAuthentication
         LDAPEntry entry = null;
 
         try {
-            CMS.debug(method +
+            logger.debug(method +
                     "searching for identification ="
                     + identification + "; mShrTokAttr =" + mShrTokAttr);
             // get shared token
             shrTokLdapConnection = shrTokLdapFactory.getConn();
             if (shrTokLdapConnection == null) {
                 msg = method + "shrTokLdapConnection is null!!";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new EBaseException(msg);
             }
 
@@ -276,7 +280,7 @@ public class SharedSecret extends DirBasedAuthentication
                     LDAPv2.SCOPE_SUB, "(uid=" + identification + ")", null, false);
             if (res == null) {
                 msg = method + "shrTokLdapConnection.search returns null!!";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new EBaseException(msg);
             }
 
@@ -285,18 +289,18 @@ public class SharedSecret extends DirBasedAuthentication
 
                 userdn = entry.getDN();
             } else {
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_USER_NOT_EXIST", identification));
+                logger.error("SharedSecret: " + CMS.getLogMessage("CMS_AUTH_USER_NOT_EXIST", identification));
                 msg = method + "ldap search result contains nothing";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
             if (userdn == null) {
                 msg = method + "ldap entry found userdn null!!";
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new EBaseException(msg);
             }
 
-            CMS.debug(method + "found user ldap entry: userdn = " + userdn);
+            logger.debug(method + "found user ldap entry: userdn = " + userdn);
             authToken.set(IAuthToken.TOKEN_CERT_SUBJECT, userdn);
 
             res = shrTokLdapConnection.search(userdn, LDAPv2.SCOPE_BASE,
@@ -305,14 +309,14 @@ public class SharedSecret extends DirBasedAuthentication
                 entry = (LDAPEntry) res.nextElement();
             } else {
                 msg = method + "no entry returned for " + identification;
-                CMS.debug(msg);
+                logger.error(msg);
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
 
             LDAPAttribute shrTokAttr = entry.getAttribute(mShrTokAttr);
 
             if (shrTokAttr == null) {
-                CMS.debug(method + "no shared token attribute found");
+                logger.error(method + "no shared token attribute found");
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
 
@@ -320,21 +324,21 @@ public class SharedSecret extends DirBasedAuthentication
             Enumeration<byte[]> shrTokValues = shrTokAttr.getByteValues();
 
             if (!shrTokValues.hasMoreElements()) {
-                CMS.debug(method + "no shared token attribute values found");
+                logger.error(method + "no shared token attribute values found");
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
             byte[] entryShrTok = shrTokValues.nextElement();
             if (entryShrTok == null) {
-                CMS.debug(method + "no shared token value found");
+                logger.error(method + "no shared token value found");
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
-            CMS.debug(method + " got entryShrTok");
+            logger.debug(method + " got entryShrTok");
 
             char[] shrSecret = decryptShrTokData(new String(entryShrTok));
-            CMS.debug(method + "returning");
+            logger.debug(method + "returning");
             return shrSecret;
         } catch (Exception e) {
-            CMS.debug(method + " exception: " + e.toString());
+            logger.error(method + " exception: " + e.toString());
             throw new EBaseException(method + e.toString());
         } finally {
             if (shrTokLdapConnection != null)
@@ -361,10 +365,10 @@ public class SharedSecret extends DirBasedAuthentication
             DerInputStream wrapped_in = wrapped_val.data;
             DerValue wrapped_dSession = wrapped_in.getDerValue();
             byte wrapped_session[] = wrapped_dSession.getOctetString();
-            CMS.debug(method + "wrapped session key retrieved");
+            logger.debug(method + "wrapped session key retrieved");
             DerValue wrapped_dPassphrase = wrapped_in.getDerValue();
             byte wrapped_passphrase[] = wrapped_dPassphrase.getOctetString();
-            CMS.debug(method + "wrapped passphrase retrieved");
+            logger.debug(method + "wrapped passphrase retrieved");
 
             SymmetricKey ver_session = CryptoUtil.unwrap(token, SymmetricKey.AES, 128, SymmetricKey.Usage.UNWRAP,
                     issuanceProtPrivKey, wrapped_session, wrapAlgorithm);
@@ -375,7 +379,7 @@ public class SharedSecret extends DirBasedAuthentication
             char[] ver_spassphraseChars = CryptoUtil.bytesToChars(ver_passphrase);
             return ver_spassphraseChars;
         } catch (Exception e) {
-            CMS.debug(method + e.toString());
+            logger.warn(method + e.getMessage(), e);
             return null;
         } finally {
             CryptoUtil.obscureBytes(ver_passphrase, "random");
@@ -410,33 +414,32 @@ public class SharedSecret extends DirBasedAuthentication
         if (serial == null) {
             throw new EBaseException(method + "paramster serial cannot be null");
         }
-        CMS.debug(method + serial.toString());
+        logger.debug(method + serial.toString());
 
         ICertRecord record = null;
         try {
             record = certRepository.readCertificateRecord(serial);
         } catch (EBaseException ee) {
-            CMS.debug(method + "Exception: " + ee.toString());
-            msg = method + "cert record not found";
-            CMS.debug(msg);
+            msg = method + "cert record not found: " + ee.getMessage();
+            logger.error(msg, ee);
             throw ee;
         }
 
         MetaInfo metaInfo = (MetaInfo) record.get(ICertRecord.ATTR_META_INFO);
         if (metaInfo == null) {
             msg = "cert record metaInfo not found";
-            CMS.debug(method + msg);
+            logger.error(method + msg);
             throw new EBaseException(method + msg);
         }
         String shrTok_s = (String) metaInfo.get(ICertRecord.META_REV_SHRTOK);
         if (shrTok_s == null) {
             msg = "shrTok not found in metaInfo";
-            CMS.debug(method + msg);
+            logger.error(method + msg);
             throw new EBaseException(method + msg);
         }
 
         char[] shrSecret = decryptShrTokData(shrTok_s);
-        CMS.debug(method + "returning");
+        logger.debug(method + "returning");
         return shrSecret;
     }
 

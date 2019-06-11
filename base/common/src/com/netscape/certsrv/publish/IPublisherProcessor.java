@@ -29,7 +29,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.request.IRequest;
 
-import netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 /**
  * Controls the publishing process from the top level. Maintains

@@ -33,13 +33,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigRoleEvent;
@@ -47,6 +45,8 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -59,9 +59,8 @@ import netscape.ldap.LDAPModification;
 
 public class UpdateDomainXML extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDomainXML.class);
+
     private static final long serialVersionUID = 4059169588555717548L;
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
@@ -75,117 +74,129 @@ public class UpdateDomainXML extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
-        CMS.debug("UpdateDomainXML: initializing...");
+        logger.debug("UpdateDomainXML: initializing...");
         super.init(sc);
-        CMS.debug("UpdateDomainXML: done initializing...");
+        logger.debug("UpdateDomainXML: done initializing...");
     }
 
     private String remove_from_ldap(String dn) {
-        CMS.debug("UpdateDomainXML: delete_from_ldap: starting dn: " + dn);
+        logger.debug("UpdateDomainXML: delete_from_ldap: starting dn: " + dn);
         String status = SUCCESS;
-        ILdapConnFactory connFactory = null;
+        LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
-        IConfigStore cs = CMS.getConfigStore();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(ldapConfig);
+            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
+
             conn = connFactory.getConn();
             conn.delete(dn);
+
         } catch (LDAPException e) {
             int resultCode = e.getLDAPResultCode();
             if (resultCode != LDAPException.NO_SUCH_OBJECT) {
                 status = FAILED;
-                CMS.debug("Failed to delete entry" + e.toString());
+                logger.error("Failed to delete entry" + e.getMessage(), e);
             }
         } catch (Exception e) {
-            CMS.debug("Failed to delete entry" + e.toString());
+            logger.warn("Failed to delete entry" + e.getMessage(), e);
         } finally {
             try {
                 if ((conn != null) && (connFactory != null)) {
-                    CMS.debug("Releasing ldap connection");
+                    logger.debug("Releasing ldap connection");
                     connFactory.returnConn(conn);
                 }
             } catch (Exception e) {
-                CMS.debug("Error releasing the ldap connection" + e.toString());
+                logger.warn("Error releasing the ldap connection" + e.getMessage(), e);
             }
         }
         return status;
     }
 
     private String modify_ldap(String dn, LDAPModification mod) {
-        CMS.debug("UpdateDomainXML: modify_ldap: starting dn: " + dn);
+        logger.debug("UpdateDomainXML: modify_ldap: starting dn: " + dn);
         String status = SUCCESS;
-        ILdapConnFactory connFactory = null;
+        LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
-        IConfigStore cs = CMS.getConfigStore();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(ldapConfig);
+            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
+
             conn = connFactory.getConn();
             conn.modify(dn, mod);
+
         } catch (LDAPException e) {
             int resultCode = e.getLDAPResultCode();
             if ((resultCode != LDAPException.NO_SUCH_OBJECT) &&
                 (resultCode != LDAPException.NO_SUCH_ATTRIBUTE)) {
                 status = FAILED;
-                CMS.debug("Failed to modify entry" + e.toString());
+                logger.error("Failed to modify entry" + e.getMessage(), e);
             }
         } catch (Exception e) {
-            CMS.debug("Failed to modify entry" + e.toString());
+            logger.warn("Failed to modify entry" + e.getMessage(), e);
         } finally {
             try {
                 if ((conn != null) && (connFactory != null)) {
-                    CMS.debug("Releasing ldap connection");
+                    logger.debug("Releasing ldap connection");
                     connFactory.returnConn(conn);
                 }
             } catch (Exception e) {
-                CMS.debug("Error releasing the ldap connection" + e.toString());
+                logger.warn("Error releasing the ldap connection" + e.getMessage(), e);
             }
         }
         return status;
     }
 
     private String add_to_ldap(LDAPEntry entry, String dn) {
-        CMS.debug("UpdateDomainXML: add_to_ldap: starting");
+        logger.debug("UpdateDomainXML: add_to_ldap: starting");
         String status = SUCCESS;
-        ILdapConnFactory connFactory = null;
+        LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
-        IConfigStore cs = CMS.getConfigStore();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         try {
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(ldapConfig);
+            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
+
             conn = connFactory.getConn();
             conn.add(entry);
+
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                CMS.debug("UpdateDomainXML: Entry already exists");
+                logger.warn("UpdateDomainXML: Entry already exists");
                 try {
                     conn.delete(dn);
                     conn.add(entry);
                 } catch (LDAPException ee) {
-                    CMS.debug("UpdateDomainXML: Error when replacing existing entry " + ee.toString());
+                    logger.error("UpdateDomainXML: Error when replacing existing entry " + ee.getMessage(), ee);
                     status = FAILED;
                 }
             } else {
-                CMS.debug("UpdateDomainXML: Failed to update ldap domain info. Exception: " + e.toString());
+                logger.error("UpdateDomainXML: Failed to update ldap domain info. Exception: " + e.getMessage(), e);
                 status = FAILED;
             }
         } catch (Exception e) {
-            CMS.debug("Failed to add entry" + e.toString());
+            logger.warn("Failed to add entry" + e.getMessage(), e);
         } finally {
             try {
                 if ((conn != null) && (connFactory != null)) {
-                    CMS.debug("Releasing ldap connection");
+                    logger.debug("Releasing ldap connection");
                     connFactory.returnConn(conn);
                 }
             } catch (Exception e) {
-                CMS.debug("Error releasing the ldap connection" + e.toString());
+                logger.warn("Error releasing the ldap connection" + e.getMessage(), e);
             }
         }
         return status;
@@ -201,14 +212,16 @@ public class UpdateDomainXML extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("UpdateDomainXML: processing...");
+        logger.debug("UpdateDomainXML: processing...");
         String status = SUCCESS;
         String status2 = SUCCESS;
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMS.debug("UpdateDomainXML process: authentication starts");
+        logger.debug("UpdateDomainXML process: authentication starts");
+
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = null;
         try {
             authToken = authenticate(cmsReq);
@@ -221,12 +234,12 @@ public class UpdateDomainXML extends CMSServlet {
             return;
         }
         if (authToken == null) {
-            CMS.debug("UpdateDomainXML process: authToken is null");
+            logger.error("UpdateDomainXML process: authToken is null");
             outputError(httpResp, AUTH_FAILURE, "Error: not authenticated",
                         null);
             return;
         }
-        CMS.debug("UpdateDomainXML process: authentication done");
+        logger.debug("UpdateDomainXML process: authentication done");
 
         AuthzToken authzToken = null;
 
@@ -246,7 +259,7 @@ public class UpdateDomainXML extends CMSServlet {
             return;
         }
         if (authzToken == null) {
-            CMS.debug("UpdateDomainXML process: authorization error");
+            logger.error("UpdateDomainXML process: authorization error");
             outputError(httpResp, "Error: Not authorized");
             return;
         }
@@ -284,7 +297,7 @@ public class UpdateDomainXML extends CMSServlet {
         }
 
         if (!missing.equals("")) {
-            CMS.debug("UpdateDomainXML process: required parameters:" + missing +
+            logger.error("UpdateDomainXML process: required parameters:" + missing +
                       "not provided in request");
             outputError(httpResp, "Error: required parameters: " + missing +
                         "not provided in request");
@@ -304,13 +317,13 @@ public class UpdateDomainXML extends CMSServlet {
         String basedn = null;
         String secstore = null;
 
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
 
         try {
             basedn = cs.getString("internaldb.basedn");
             secstore = cs.getString("securitydomain.store");
         } catch (Exception e) {
-            CMS.debug("Unable to determine security domain name or basedn. Please run the domaininfo migration script");
+            logger.warn("Unable to determine security domain name or basedn. Please run the domaininfo migration script: " + e.getMessage(), e);
         }
 
         if ((basedn != null) && (secstore != null) && (secstore.equals("ldap"))) {
@@ -327,7 +340,7 @@ public class UpdateDomainXML extends CMSServlet {
             }
 
             String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + basedn;
-            CMS.debug("UpdateDomainXML: updating LDAP entry: " + dn);
+            logger.debug("UpdateDomainXML: updating LDAP entry: " + dn);
 
             LDAPAttributeSet attrs = null;
             attrs = new LDAPAttributeSet();
@@ -412,14 +425,14 @@ public class UpdateDomainXML extends CMSServlet {
             }
         } else {
             // update the domain.xml file
-            String path = CMS.getConfigStore().getString("instanceRoot", "")
+            String path = engine.getConfigStore().getString("instanceRoot", "")
                     + "/conf/domain.xml";
 
-            CMS.debug("UpdateDomainXML: got path=" + path);
+            logger.debug("UpdateDomainXML: got path=" + path);
 
             try {
                 // using domain.xml file
-                CMS.debug("UpdateDomainXML: Inserting new domain info");
+                logger.debug("UpdateDomainXML: Inserting new domain info");
                 XMLObject parser = new XMLObject(new FileInputStream(path));
                 Node n = parser.getContainer(list);
                 int count = 0;
@@ -474,7 +487,7 @@ public class UpdateDomainXML extends CMSServlet {
                     }
                 }
 
-                CMS.debug("UpdateDomainXML process: SubsystemCount=" + countS);
+                logger.debug("UpdateDomainXML process: SubsystemCount=" + countS);
                 try {
                     count += Integer.parseInt(countS);
                 } catch (Exception ee) {
@@ -484,13 +497,13 @@ public class UpdateDomainXML extends CMSServlet {
                 parser.addItemToContainer(n, "SubsystemCount", "" + count);
 
                 // recreate domain.xml
-                CMS.debug("UpdateDomainXML: Recreating domain.xml");
+                logger.debug("UpdateDomainXML: Recreating domain.xml");
                 byte[] b = parser.toByteArray();
                 FileOutputStream fos = new FileOutputStream(path);
                 fos.write(b);
                 fos.close();
             } catch (Exception e) {
-                CMS.debug("Failed to update domain.xml file" + e.toString());
+                logger.error("Failed to update domain.xml file" + e.getMessage(), e);
                 status = FAILED;
             }
 
@@ -520,7 +533,7 @@ public class UpdateDomainXML extends CMSServlet {
 
         try {
             // send success status back to the requestor
-            CMS.debug("UpdateDomainXML: Sending response");
+            logger.debug("UpdateDomainXML: Sending response");
             XMLObject xmlObj = new XMLObject();
             Node root = xmlObj.createRoot("XMLResponse");
 
@@ -529,7 +542,7 @@ public class UpdateDomainXML extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("UpdateDomainXML: Failed to send the XML output" + e.toString());
+            logger.warn("UpdateDomainXML: Failed to send the XML output" + e.getMessage(), e);
         }
     }
 

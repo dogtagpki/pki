@@ -21,17 +21,16 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.Extension;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -49,6 +48,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.SubjectNameDefault;
 import com.netscape.cms.profile.def.UserSubjectNameDefault;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements the unique subject name constraint.
@@ -59,6 +60,8 @@ import com.netscape.cms.profile.def.UserSubjectNameDefault;
  * @version $Revision$, $Date$
  */
 public class UniqueSubjectNameConstraint extends EnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UniqueSubjectNameConstraint.class);
 
     public static final String CONFIG_KEY_USAGE_EXTENSION_CHECKING =
             "enableKeyUsageExtensionChecking";
@@ -152,9 +155,10 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
      */
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
-        CMS.debug("UniqueSubjectNameConstraint: validate start");
+        logger.debug("UniqueSubjectNameConstraint: validate start");
         CertificateSubjectName sn = null;
-        IAuthority authority = (IAuthority) CMS.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        IAuthority authority = (IAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
         mKeyUsageExtensionChecking = getConfigBoolean(CONFIG_KEY_USAGE_EXTENSION_CHECKING);
         ICertificateRepository certdb = null;
@@ -183,7 +187,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
             try {
                 sameSubjRecords = certdb.findCertRecords(filter);
             } catch (EBaseException e) {
-                CMS.debug("UniqueSubjectNameConstraint exception: " + e.toString());
+                logger.warn("UniqueSubjectNameConstraint exception: " + e.getMessage(), e);
             }
             while (sameSubjRecords != null && sameSubjRecords.hasMoreElements()) {
                 ICertRecord rec = sameSubjRecords.nextElement();
@@ -227,7 +231,7 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
                                 certsubjectname));
             }
         }
-        CMS.debug("UniqueSubjectNameConstraint: validate end");
+        logger.debug("UniqueSubjectNameConstraint: validate end");
     }
 
     public String getText(Locale locale) {

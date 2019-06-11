@@ -34,8 +34,9 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.EAuthzUnknownRealm;
 import com.netscape.certsrv.base.BadRequestException;
@@ -66,9 +67,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author alee
@@ -107,7 +107,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
 
     public KeyRequestDAO() {
         super("kra");
-        kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
+        CMSEngine engine = CMS.getCMSEngine();
+        kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
         repo = kra.getKeyRepository();
         service = (IKeyService) kra;
     }
@@ -472,6 +473,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
             throw new BadRequestException("Invalid key generation request. Missing client ID");
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         boolean keyExists = doesKeyExist(clientKeyId, "active");
         if (keyExists == true) {
             throw new BadRequestException("Cannot archive already active existing key!");
@@ -498,8 +500,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
             //Validate key size
             if (algName.equalsIgnoreCase(KeyRequestResource.RSA_ALGORITHM)) {
                 int size = Integer.valueOf(keySize);
-                int minSize = Integer.valueOf(CMS.getConfigStore().getInteger("keys.rsa.min.size", 256));
-                int maxSize = Integer.valueOf(CMS.getConfigStore().getInteger("keys.rsa.max.size", 8192));
+                int minSize = Integer.valueOf(engine.getConfigStore().getInteger("keys.rsa.min.size", 256));
+                int maxSize = Integer.valueOf(engine.getConfigStore().getInteger("keys.rsa.max.size", 8192));
                 if (minSize > maxSize) {
                     throw new PKIException("Incorrect size parameters stored in config file.");
                 }
@@ -512,7 +514,7 @@ public class KeyRequestDAO extends CMSRequestDAO {
                 }
             } else if (algName.equalsIgnoreCase(KeyRequestResource.DSA_ALGORITHM)) {
                 // Without the PQGParams, JSS can create DSA keys of size 512, 768, 1024 only.
-                String[] sizes = CMS.getConfigStore().getString("keys.dsa.list", "512,768,1024").split(",");
+                String[] sizes = engine.getConfigStore().getString("keys.dsa.list", "512,768,1024").split(",");
                 if (!Arrays.asList(sizes).contains(String.valueOf(keySize))) {
                     throw new BadRequestException("Invalid key size specified.");
                 }

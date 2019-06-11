@@ -64,5 +64,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/jackson-databind.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jackson-core.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jackson2-provider.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/slf4j/slf4j-simple.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

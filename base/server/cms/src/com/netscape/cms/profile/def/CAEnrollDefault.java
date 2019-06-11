@@ -20,18 +20,17 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 
 /**
  * This class implements an abstract CA specific
@@ -41,6 +40,9 @@ import netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public abstract class CAEnrollDefault extends EnrollDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAEnrollDefault.class);
+
     public CAEnrollDefault() {
     }
 
@@ -52,16 +54,15 @@ public abstract class CAEnrollDefault extends EnrollDefault {
             X509Key key = (X509Key) ckey.get(CertificateX509Key.KEY);
             byte[] hash = CryptoUtil.generateKeyIdentifier(key.getKey());
             if (hash == null) {
-                CMS.debug(method +
-                    "CryptoUtil.generateKeyIdentifier returns null");
+                logger.warn(method + "CryptoUtil.generateKeyIdentifier returns null");
                 return null;
             }
 
             return new KeyIdentifier(hash);
         } catch (IOException e) {
-            CMS.debug(method + e.toString());
+            logger.warn(method + e.getMessage(), e);
         } catch (CertificateException e) {
-            CMS.debug(method + e.toString());
+            logger.warn(method + e.getMessage(), e);
         }
         return null;
     }
@@ -89,8 +90,7 @@ public abstract class CAEnrollDefault extends EnrollDefault {
 
         byte[] hash = CryptoUtil.generateKeyIdentifier(key.getKey());
         if (hash == null) {
-            CMS.debug(method +
-                "CryptoUtil.generateKeyIdentifier returns null");
+            logger.warn(method + "CryptoUtil.generateKeyIdentifier returns null");
             return null;
         }
         return new KeyIdentifier(hash);

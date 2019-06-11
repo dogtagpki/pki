@@ -20,7 +20,7 @@ package com.netscape.cmscore.security;
 import java.io.IOException;
 import java.security.KeyPair;
 
-import netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;

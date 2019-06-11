@@ -26,20 +26,22 @@ import java.util.ResourceBundle;
 
 import javax.ws.rs.core.HttpHeaders;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.Auditor;
 
 public class SubsystemService extends PKIService {
 
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+    CMSEngine engine = CMS.getCMSEngine();
+    protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
     protected Auditor auditor = Auditor.getAuditor();
     protected Logger logger = Logger.getLogger();
 

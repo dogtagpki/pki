@@ -19,11 +19,11 @@ package com.netscape.cms.servlet.common;
 
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * default unexpected error template filler
@@ -45,7 +45,7 @@ public class GenUnexpectedErrorTemplateFiller implements ICMSTemplateFiller {
      */
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 
         // When an exception occurs the exit is non-local which probably

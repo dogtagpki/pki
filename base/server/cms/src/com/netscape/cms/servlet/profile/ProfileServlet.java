@@ -32,7 +32,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
@@ -49,6 +48,8 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.ServletUtils;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This servlet is the base class of all profile servlets.
@@ -57,9 +58,8 @@ import com.netscape.cms.servlet.common.ServletUtils;
  */
 public class ProfileServlet extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileServlet.class);
+
     private static final long serialVersionUID = -7011378748671762375L;
     public final static String ARG_ERROR_CODE = "errorCode";
     public final static String ARG_ERROR_REASON = "errorReason";
@@ -182,7 +182,10 @@ public class ProfileServlet extends CMSServlet {
                     sc.getInitParameter(PROP_TEMPLATE));
         mGetClientCert = sc.getInitParameter(PROP_CLIENTAUTH);
         mAuthMgr = sc.getInitParameter(PROP_AUTHMGR);
-        mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+
+        CMSEngine engine = CMS.getCMSEngine();
+        mAuthz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
+
         mAuthzResourceName = sc.getInitParameter(PROP_RESOURCEID);
         mProfileSubId = sc.getInitParameter(PROP_PROFILE_SUB_ID);
         mId = sc.getInitParameter(PROP_ID);
@@ -253,11 +256,13 @@ public class ProfileServlet extends CMSServlet {
                 response.setContentLength(bos.size());
                 bos.writeTo(response.getOutputStream());
             } catch (Exception e) {
-                CMS.debug("outputTemplate error " + e);
+                logger.warn("outputTemplate error " + e.getMessage(), e);
             }
             return;
         }
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("output_template");
         }
@@ -287,9 +292,11 @@ public class ProfileServlet extends CMSServlet {
                 }
             } while (line != null);
             reader.close();
+
         } catch (IOException e) {
-            CMS.debug(e);
-            throw new EBaseException(e.toString());
+            logger.error("ProfileServlet: " + e.getMessage(), e);
+            throw new EBaseException(e.getMessage(), e);
+
         } finally {
             if (statsSub != null) {
                 statsSub.endTiming("output_template");
@@ -307,7 +314,7 @@ public class ProfileServlet extends CMSServlet {
                 response.setContentLength(bos.size());
                 bos.writeTo(response.getOutputStream());
             } catch (Exception e) {
-                CMS.debug("outputTemplate error " + e);
+                logger.warn("outputTemplate error " + e.getMessage(), e);
             }
             return;
         }
@@ -338,9 +345,11 @@ public class ProfileServlet extends CMSServlet {
                 }
             } while (line != null);
             reader.close();
+
         } catch (IOException e) {
-            CMS.debug(e);
-            throw new EBaseException(e.toString());
+            logger.error("ProfileServlet: " + e.getMessage(), e);
+            throw new EBaseException(e.getMessage(), e);
+
         } finally {
             endTiming("output_template");
         }
@@ -377,7 +386,8 @@ public class ProfileServlet extends CMSServlet {
     }
 
     public void startTiming(String event) {
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming(event, true);
         }
@@ -385,7 +395,8 @@ public class ProfileServlet extends CMSServlet {
     }
 
     public void endTiming(String event) {
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.endTiming(event);
         }

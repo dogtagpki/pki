@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.authentication;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -31,6 +30,8 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -84,15 +85,15 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         mImplName = implName;
         mConfig = config;
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         /* internal database directory used */
         DBSubsystem dbs = (DBSubsystem) DBSubsystem.getInstance();
         LdapConnInfo ldapinfo = dbs.getLdapConnInfo();
-        if (ldapinfo == null && CMS.isPreOpMode()) {
-            logger.warn("PasswdUserDBAuthentication.init(): Abort due to missing LDAP connection info in pre-op mode");
-            return;
-        }
 
         mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo);
+        mAnonConnFactory.init(cs);
 
         log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_AUTH_INIT_AUTH", mName));
     }

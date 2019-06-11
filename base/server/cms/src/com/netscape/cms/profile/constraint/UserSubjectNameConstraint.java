@@ -19,10 +19,9 @@ package com.netscape.cms.profile.constraint;
 
 import java.util.Locale;
 
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -32,6 +31,7 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.UserSubjectNameDefault;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements the user subject name constraint.
@@ -40,6 +40,8 @@ import com.netscape.cms.profile.def.UserSubjectNameDefault;
  * @version $Revision$, $Date$
  */
 public class UserSubjectNameConstraint extends EnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserSubjectNameConstraint.class);
 
     public UserSubjectNameConstraint() {
     }
@@ -64,15 +66,14 @@ public class UserSubjectNameConstraint extends EnrollConstraint {
      */
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
-        CMS.debug("UserSubjectNameConstraint: validate start");
+        logger.debug("UserSubjectNameConstraint: validate start");
         CertificateSubjectName requestSN = null;
 
         try {
             requestSN = request.getExtDataInCertSubjectName(
                                 IEnrollProfile.REQUEST_SUBJECT_NAME);
             info.set(X509CertInfo.SUBJECT, requestSN);
-            CMS.debug("UserSubjectNameConstraint: validate user subject ="+
-                      requestSN.toString());
+            logger.debug("UserSubjectNameConstraint: validate user subject=" + requestSN);
         } catch (Exception e) {
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request),

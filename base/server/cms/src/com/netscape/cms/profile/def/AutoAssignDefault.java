@@ -19,9 +19,8 @@ package com.netscape.cms.profile.def;
 
 import java.util.Locale;
 
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -29,6 +28,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -38,6 +38,7 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class AutoAssignDefault extends EnrollDefault {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AutoAssignDefault.class);
     public static final String CONFIG_ASSIGN_TO = "assignTo";
 
     public AutoAssignDefault() {
@@ -90,7 +91,7 @@ public class AutoAssignDefault extends EnrollDefault {
                     mapPattern(request, getConfig(CONFIG_ASSIGN_TO)));
         } catch (Exception e) {
             // failed to insert subject name
-            CMS.debug("AutoAssignDefault: populate " + e.toString());
+            logger.warn("AutoAssignDefault: populate " + e.getMessage(), e);
         }
     }
 }

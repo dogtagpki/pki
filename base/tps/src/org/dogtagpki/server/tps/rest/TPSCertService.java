@@ -32,21 +32,24 @@ import org.dogtagpki.server.tps.dbs.TPSCertDatabase;
 import org.dogtagpki.server.tps.dbs.TPSCertRecord;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.tps.cert.TPSCertCollection;
 import com.netscape.certsrv.tps.cert.TPSCertData;
 import com.netscape.certsrv.tps.cert.TPSCertResource;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
  */
 public class TPSCertService extends PKIService implements TPSCertResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSCertService.class);
+
     public TPSCertService() {
-        CMS.debug("TPSCertService.<init>()");
+        logger.debug("TPSCertService.<init>()");
     }
 
     public TPSCertData createCertData(TPSCertRecord certRecord) {
@@ -99,7 +102,7 @@ public class TPSCertService extends PKIService implements TPSCertResource {
     @Override
     public Response findCerts(String filter, String tokenID, Integer start, Integer size) {
 
-        CMS.debug("TPSCertService.findCerts(" + filter + ", " + tokenID + ", " + start + ", " + size + ")");
+        logger.debug("TPSCertService.findCerts(" + filter + ", " + tokenID + ", " + start + ", " + size + ")");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -113,8 +116,9 @@ public class TPSCertService extends PKIService implements TPSCertResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
 
             Iterator<TPSCertRecord> activities = database.findRecords(filter, attributes).iterator();
@@ -157,10 +161,11 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
         if (certID == null) throw new BadRequestException("Certificate ID is null.");
 
-        CMS.debug("TPSCertService.getCert(\"" + certID + "\")");
+        logger.debug("TPSCertService.getCert(\"" + certID + "\")");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             TPSCertDatabase database = subsystem.getCertDatabase();
 
             return createOKResponse(createCertData(database.getRecord(certID)));

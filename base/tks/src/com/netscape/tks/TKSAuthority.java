@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.tks;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -29,6 +28,7 @@ import com.netscape.cms.logging.Logger;
 
 public class TKSAuthority implements IAuthority, ISubsystem {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TKSAuthority.class);
     protected Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_TKS);
 
     public static final String ID = "tks";
@@ -77,7 +77,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
     }
 
     public String getNickname() {
-        CMS.debug("Error: TKSAuthority::getNickname - nickname of signing (id) cert");
+        logger.debug("Error: TKSAuthority::getNickname - nickname of signing (id) cert");
         return mNickname;
     }
 
@@ -99,8 +99,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
 
         mConfig = config;
         //mNickname = mConfig.getString(PROP_NICKNAME);
-        CMS.debug("TKS Authority (" +
-                getId() + "): " + "Initialized Request Processor.");
+        logger.debug("TKS Authority (" + getId() + "): " + "Initialized Request Processor.");
 
     }
 

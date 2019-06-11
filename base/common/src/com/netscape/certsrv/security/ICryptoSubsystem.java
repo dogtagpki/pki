@@ -33,9 +33,9 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.NameValuePairs;
 
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * This interface represents the cryptographics subsystem

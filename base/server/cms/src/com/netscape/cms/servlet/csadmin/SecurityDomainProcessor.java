@@ -35,14 +35,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
@@ -50,10 +48,12 @@ import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainHost;
 import com.netscape.certsrv.system.SecurityDomainSubsystem;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.security.JssSubsystem;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
 
 import netscape.ldap.LDAPAttribute;
@@ -68,6 +68,8 @@ import netscape.ldap.LDAPSearchResults;
  */
 public class SecurityDomainProcessor extends CAProcessor {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDomainProcessor.class);
+
     public final static String[] TYPES = { "CA", "KRA", "OCSP", "TKS", "RA", "TPS" };
 
     SecureRandom random = null;
@@ -75,7 +77,8 @@ public class SecurityDomainProcessor extends CAProcessor {
 
     public SecurityDomainProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
         super("securitydomain", locale);
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         random = jssSubsystem.getRandomNumberGenerator();
     }
 
@@ -89,10 +92,11 @@ public class SecurityDomainProcessor extends CAProcessor {
             String subsystem) throws Exception {
 
         subsystem = subsystem.toUpperCase();
-        IUGSubsystem ugSubsystem = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        UGSubsystem ugSubsystem = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
         String group = getEnterpriseGroupName(subsystem);
-        CMS.debug("SecurityDomainProcessor: group: " + group);
+        logger.debug("SecurityDomainProcessor: group: " + group);
 
         if (!ugSubsystem.isMemberOf(user, group)) {
 
@@ -111,7 +115,7 @@ public class SecurityDomainProcessor extends CAProcessor {
         try {
             ip = InetAddress.getByName(host).getHostAddress();
         } catch (Exception e) {
-            CMS.debug("Unable to determine IP address for " + host + ": " + e);
+            logger.warn("Unable to determine IP address for " + host + ": " + e.getMessage(), e);
         }
 
         // generate random session ID
@@ -122,7 +126,7 @@ public class SecurityDomainProcessor extends CAProcessor {
         String auditParams = "operation;;issue_token+token;;" + sessionID + "+ip;;" + ip +
                       "+uid;;" + user + "+groupname;;" + group;
 
-        ISecurityDomainSessionTable ctable = CMS.getSecurityDomainSessionTable();
+        ISecurityDomainSessionTable ctable = engine.getSecurityDomainSessionTable();
         int status = ctable.addEntry(sessionID, ip, user, group);
         String message;
 
@@ -151,26 +155,29 @@ public class SecurityDomainProcessor extends CAProcessor {
 
     public DomainInfo getDomainInfo() throws EBaseException {
 
-        ILdapConnFactory connFactory = null;
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
+        LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
 
         try {
             LDAPSearchConstraints cons = null;
             String[] attrs = null;
 
-            IConfigStore cs = CMS.getConfigStore();
             String basedn = cs.getString("internaldb.basedn");
             String dn = "ou=Security Domain," + basedn;
             String filter = "objectclass=pkiSecurityGroup";
 
             IConfigStore ldapConfig = cs.getSubStore("internaldb");
             connFactory = new LdapBoundConnFactory("SecurityDomainProcessor");
-            connFactory.init(ldapConfig);
+            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
+
             conn = connFactory.getConn();
 
             // get the security domain name
-            String name = (String) conn.read(dn).getAttribute("name").getStringValues().nextElement();
-            CMS.debug("SecurityDomainProcessor: name: "+name);
+            String name = conn.read(dn).getAttribute("name").getStringValues().nextElement();
+            logger.debug("SecurityDomainProcessor: name: " + name);
 
             DomainInfo domain = new DomainInfo();
             domain.setName(name);
@@ -183,7 +190,7 @@ public class SecurityDomainProcessor extends CAProcessor {
                 dn = res.next().getDN();
                 String listName = dn.substring(3, dn.indexOf(","));
                 String subType = listName.substring(0, listName.indexOf("List"));
-                CMS.debug("SecurityDomainProcessor: subtype: "+subType);
+                logger.debug("SecurityDomainProcessor: subtype: " + subType);
 
                 filter = "objectclass=pkiSubsystem";
                 LDAPSearchResults res2 = conn.search(dn, LDAPConnection.SCOPE_ONE, filter,
@@ -191,7 +198,7 @@ public class SecurityDomainProcessor extends CAProcessor {
 
                 while (res2.hasMoreElements()) {
                     LDAPEntry entry = res2.next();
-                    CMS.debug("SecurityDomainProcessor:  - "+entry.getDN());
+                    logger.debug("SecurityDomainProcessor:  - " + entry.getDN());
 
                     SecurityDomainHost host = new SecurityDomainHost();
 
@@ -202,8 +209,8 @@ public class SecurityDomainProcessor extends CAProcessor {
                     while (attrsInSet.hasMoreElements()) {
                         LDAPAttribute nextAttr = attrsInSet.nextElement();
                         String attrName = nextAttr.getName();
-                        String attrValue = (String) nextAttr.getStringValues().nextElement();
-                        CMS.debug("SecurityDomainProcessor:    - "+attrName+": "+attrValue);
+                        String attrValue = nextAttr.getStringValues().nextElement();
+                        logger.debug("SecurityDomainProcessor:    - " + attrName+": " + attrValue);
 
                         if ("Host".equalsIgnoreCase(attrName)) {
                             host.setHostname(attrValue);
@@ -245,12 +252,12 @@ public class SecurityDomainProcessor extends CAProcessor {
             return domain;
 
         } catch (Exception e) {
-            CMS.debug("SecurityDomainProcessor: Failed to read domain info from ldap " + e);
+            logger.error("SecurityDomainProcessor: Failed to read domain info from ldap " + e.getMessage(), e);
             throw new EBaseException(e.getMessage(), e);
 
         } finally {
             if (conn != null && connFactory != null) {
-                CMS.debug("Releasing ldap connection");
+                logger.debug("Releasing ldap connection");
                 connFactory.returnConn(conn);
             }
         }

@@ -22,7 +22,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -33,7 +32,7 @@ import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.jobs.JobPlugin;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.util.Debug;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This is a daemon thread that handles scheduled jobs like cron would
@@ -54,6 +53,8 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class JobsScheduler implements Runnable, IJobsScheduler {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JobsScheduler.class);
 
     protected static final long MINUTE_MILLI = 60000;
     protected static final String DELIM = ",";
@@ -440,8 +441,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
      */
     public String[] getConfigParams(String implName)
             throws EJobsException {
-        if (Debug.ON)
-            Debug.trace("in getCofigParams()");
+        logger.trace("in getCofigParams()");
 
         // is this a registered implname?
         JobPlugin plugin = mJobPlugins.get(implName);
@@ -449,8 +449,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         if (plugin == null) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_JOBS_CLASS_NOT_FOUND", implName));
-            if (Debug.ON)
-                Debug.trace("Job plugin " + implName + " not found.");
+            logger.error("Job plugin " + implName + " not found.");
             throw new EJobsException(CMS.getUserMessage("CMS_JOB_PLUGIN_NOT_FOUND",
                     implName));
         }
@@ -461,31 +460,26 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         // a temporary instance
         String className = plugin.getClassPath();
 
-        if (Debug.ON)
-            Debug.trace("className = " + className);
+        logger.trace("className = " + className);
         try {
             IJob jobInst = (IJob)
                     Class.forName(className).newInstance();
-            if (Debug.ON)
-                Debug.trace("class instantiated");
+            logger.trace("class instantiated");
             return (jobInst.getConfigParams());
         } catch (InstantiationException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
-            if (Debug.ON)
-                Debug.trace("class NOT instantiated: " + e);
+            logger.error("class NOT instantiated: " + e.getMessage(), e);
             throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className));
         } catch (ClassNotFoundException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
-            if (Debug.ON)
-                Debug.trace("class NOT instantiated: " + e);
+            logger.error("class NOT instantiated: " + e.getMessage(), e);
             throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className));
         } catch (IllegalAccessException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
-            if (Debug.ON)
-                Debug.trace("class NOT instantiated: " + e);
+            logger.error("class NOT instantiated: " + e.getMessage(), e);
             throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className));
         }
     }

@@ -17,14 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.evaluators;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents a user acls evaluator.
@@ -33,9 +32,11 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class UserAccessEvaluator implements IAccessEvaluator {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserAccessEvaluator.class);
+
     private String mType = "user";
     private String mDescription = "user equivalence evaluator";
-    private Logger mLogger = Logger.getLogger();
 
     private final static String ANYBODY = "anybody";
     private final static String EVERYBODY = "everybody";
@@ -50,7 +51,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
      * initialization. nothing for now.
      */
     public void init() {
-        CMS.debug("UserAccessEvaluator: init");
+        logger.debug("UserAccessEvaluator: init");
     }
 
     /**
@@ -105,7 +106,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
             uid = authToken.getInString("uid");
 
             if (uid == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UID_IS_NULL"));
+                logger.warn("UserAccessEvaluator: " + CMS.getLogMessage("EVALUTOR_UID_IS_NULL"));
                 return false;
             }
 
@@ -146,12 +147,4 @@ public class UserAccessEvaluator implements IAccessEvaluator {
 
         return false;
     }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_ACLS,
-                level, "UserAccessEvaluator: " + msg);
-    }
-
 }

@@ -1,8 +1,8 @@
 package com.netscape.security.x509;
 
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.AVAValueConverter;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.x509.AVAValueConverter;
 
 public class ConverterTestUtil {
 

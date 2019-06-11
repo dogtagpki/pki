@@ -21,7 +21,6 @@ package org.dogtagpki.server.tps.cms;
 import java.io.ByteArrayInputStream;
 import java.util.Hashtable;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -32,6 +31,8 @@ import com.netscape.cmsutil.xml.XMLObject;
  */
 public abstract class RemoteRequestHandler
 {
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RemoteRequestHandler.class);
+
     private static final String RESPONSE_SEPARATOR = "\\&";
     private static final String NAME_VALUE_EQUAL = "=";
 
@@ -46,21 +47,20 @@ public abstract class RemoteRequestHandler
      */
     protected Hashtable<String, Object> parseResponse(String content)
             throws EBaseException {
-        CMS.debug("RemoteRequestHandler: parseResponse(): begins:");
+        logger.debug("RemoteRequestHandler: parseResponse(): begins:");
         if (content == null) {
             throw new EBaseException("RemoteRequestHandler: parserResponse(): no response content.");
         }
         Hashtable<String, Object> vars = new Hashtable<String, Object>();
         String[] elements = content.split(RESPONSE_SEPARATOR);
-        CMS.debug("RemoteRequestHandler: parseResponse(): # of elements:" +
-            elements.length);
+        logger.debug("RemoteRequestHandler: parseResponse(): # of elements:" + elements.length);
         for (String nvs : elements) {
             String[] nv = nvs.split(NAME_VALUE_EQUAL);
             if (nv.length == 2) {
                 vars.put(nv[0], nv[1]);
             } else {
                 // continue to parse through
-                CMS.debug("RemoteRequestHandler: parseResponse(): content contains element not conforming to <name>=<value>.");
+                logger.debug("RemoteRequestHandler: parseResponse(): content contains element not conforming to <name>=<value>.");
             }
         }
         return vars;
@@ -73,18 +73,18 @@ public abstract class RemoteRequestHandler
      * @return XMLObject the parser
      */
     protected XMLObject getXMLparser(String text) {
-        CMS.debug("RemoteRequestHandler: getXMLparser(): begins");
+        logger.debug("RemoteRequestHandler: getXMLparser(): begins");
         if (text == null) {
             return null;
         }/* else {
-            CMS.debug("RemoteRequestHandler: getXMLparser(): parsing: " + text);
+            logger.debug("RemoteRequestHandler: getXMLparser(): parsing: " + text);
         }*/
         try {
             ByteArrayInputStream bis =
                     new ByteArrayInputStream(text.getBytes());
             return new XMLObject(bis);
         } catch (Exception e) {
-            CMS.debug("RemoteRequestHandler: getXMLparser(): failed: " + e);
+            logger.error("RemoteRequestHandler: getXMLparser(): " + e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }

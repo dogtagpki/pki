@@ -18,10 +18,11 @@
 
 package com.netscape.cmstools.tks;
 
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.certsrv.tks.TKSClient;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 import com.netscape.cmstools.group.GroupCLI;
 import com.netscape.cmstools.logging.AuditCLI;

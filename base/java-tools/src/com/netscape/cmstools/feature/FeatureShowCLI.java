@@ -20,10 +20,10 @@ package com.netscape.cmstools.feature;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureClient;
-import com.netscape.cmstools.cli.CLI;
 
 public class FeatureShowCLI extends CLI {
 

@@ -26,11 +26,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.OCSPRemoveCARequestEvent;
@@ -42,6 +40,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Configure the CA to no longer respond to OCSP requests for a CA
@@ -50,9 +50,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class RemoveCAServlet extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RemoveCAServlet.class);
     private static final long serialVersionUID = -4519898238552366358L;
     private final static String TPL_FILE = "removeCA.template";
     private String mFormPath = null;
@@ -126,15 +124,15 @@ public class RemoveCAServlet extends CMSServlet {
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         if (auditSubjectID.equals(ILogger.NONROLEUSER) ||
                 auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
             String uid = authToken.getInString(IAuthToken.USER_ID);
             if (uid != null) {
-                CMS.debug("RemoveCAServlet: auditSubjectID set to " + uid);
+                logger.debug("RemoveCAServlet: auditSubjectID set to " + uid);
                 auditSubjectID = uid;
             }
         }
@@ -164,11 +162,11 @@ public class RemoveCAServlet extends CMSServlet {
                     auditSubjectID,
                     caID));
 
-            CMS.debug("RemoveCAServlet::process: Error deleting CRL IssuingPoint: " + caID);
+            logger.error("RemoveCAServlet:Error deleting CRL IssuingPoint: " + caID + ": " + e.getMessage(), e);
             throw new EBaseException(e.toString());
         }
 
-        CMS.debug("RemoveCAServlet::process: CRL IssuingPoint for CA successfully removed: " + caID);
+        logger.debug("RemoveCAServlet::process: CRL IssuingPoint for CA successfully removed: " + caID);
 
         audit(OCSPRemoveCARequestProcessedEvent.createSuccessEvent(
                 auditSubjectID,

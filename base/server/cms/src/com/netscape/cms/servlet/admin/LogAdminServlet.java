@@ -28,7 +28,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -45,6 +44,8 @@ import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogPlugin;
 import com.netscape.certsrv.logging.event.ConfigSignedAuditEvent;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class representings an administration servlet for logging
@@ -56,9 +57,8 @@ import com.netscape.certsrv.logging.event.ConfigSignedAuditEvent;
  */
 public class LogAdminServlet extends AdminServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogAdminServlet.class);
+
     private static final long serialVersionUID = -99699953656847603L;
 
     private final static String INFO = "LogAdminServlet";
@@ -91,7 +91,8 @@ public class LogAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mSys = (ILogSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_LOG);
+        CMSEngine engine = CMS.getCMSEngine();
+        mSys = (ILogSubsystem) engine.getSubsystem(ILogSubsystem.ID);
     }
 
     /**
@@ -332,11 +333,12 @@ public class LogAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
+        CMSEngine engine = CMS.getCMSEngine();
         Enumeration<String> e = mSys.getLogInsts().keys();
 
         for (; e.hasMoreElements();) {
             String name = e.nextElement();
-            ILogEventListener value = ((ILogSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_LOG)).getLogInstance(name);
+            ILogEventListener value = ((ILogSubsystem) engine.getSubsystem(ILogSubsystem.ID)).getLogInstance(name);
 
             if (value == null)
                 continue;
@@ -2203,12 +2205,7 @@ public class LogAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        String value = "false";
-
-        value = mConfig.getString(Constants.PR_DEBUG_LOG_ENABLE, "false");
-        params.put(Constants.PR_DEBUG_LOG_ENABLE, value);
-
-        value = mConfig.getString(Constants.PR_DEBUG_LOG_LEVEL, "0");
+        String value = mConfig.getString(Constants.PR_DEBUG_LOG_LEVEL, "10"); // default: INFORM
         params.put(Constants.PR_DEBUG_LOG_LEVEL, value);
 
         sendResponse(SUCCESS, null, params, resp);
@@ -2225,19 +2222,12 @@ public class LogAdminServlet extends AdminServlet {
             String key = enum1.nextElement();
             String value = req.getParameter(key);
 
-            if (key.equals(Constants.PR_DEBUG_LOG_ENABLE)) {
-                if (value.equals("true") || value.equals("false")) {
-                    mConfig.putString(Constants.PR_DEBUG_LOG_ENABLE, value);
-                } else {
-                    CMS.debug("setGeneralConfig: Invalid value for " + Constants.PR_DEBUG_LOG_ENABLE + ": " + value);
-                    throw new EBaseException("Invalid value for " + Constants.PR_DEBUG_LOG_ENABLE);
-                }
-            } else if (key.equals(Constants.PR_DEBUG_LOG_LEVEL)) {
+            if (key.equals(Constants.PR_DEBUG_LOG_LEVEL)) {
                 try {
                     Integer.parseInt(value); // check for errors
                     mConfig.putString(Constants.PR_DEBUG_LOG_LEVEL, value);
                 } catch (NumberFormatException e) {
-                    CMS.debug("setGeneralConfig: Invalid value for " + Constants.PR_DEBUG_LOG_LEVEL + ": " + value);
+                    logger.error("setGeneralConfig: Invalid value for " + Constants.PR_DEBUG_LOG_LEVEL + ": " + value + ": " + e.getMessage(), e);
                     throw new EBaseException("Invalid value for " + Constants.PR_DEBUG_LOG_LEVEL);
                 }
             }

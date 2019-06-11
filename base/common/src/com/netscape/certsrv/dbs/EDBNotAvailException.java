@@ -24,9 +24,6 @@ package com.netscape.certsrv.dbs;
  */
 public class EDBNotAvailException extends EDBException {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 8516095366048215233L;
 
     /**
@@ -38,7 +35,7 @@ public class EDBNotAvailException extends EDBException {
         super(errorString);
     }
 
-    public EDBNotAvailException(String errorString, Exception e) {
-        super(errorString, e);
+    public EDBNotAvailException(String errorString, Throwable cause) {
+        super(errorString, cause);
     }
 }

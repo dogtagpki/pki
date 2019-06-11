@@ -18,12 +18,12 @@
 
 package com.netscape.cmstools.logging;
 
+import org.dogtagpki.cli.CLI;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.logging.ActivityClient;
 import com.netscape.certsrv.logging.ActivityData;
-import com.netscape.cmstools.cli.CLI;
 
 /**
  * @author Endi S. Dewata

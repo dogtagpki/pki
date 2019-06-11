@@ -17,10 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
-import netscape.ldap.LDAPConnection;
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+
+import netscape.ldap.LDAPConnection;
 
 /**
  * Maintains a pool of connections to the LDAP server.
@@ -38,7 +38,7 @@ public interface ILdapConnFactory {
      * @exception EBaseException On configuration error.
      * @exception ELdapException On all other errors.
      */
-    public void init(IConfigStore config)
+    public void init(IConfigStore config, IConfigStore dbConfig)
             throws EBaseException, ELdapException;
 
     /**

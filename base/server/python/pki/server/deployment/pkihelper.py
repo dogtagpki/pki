@@ -54,6 +54,7 @@ from .pkiparser import PKIConfigParser
 
 import pki
 import pki.nssdb
+import pki.util
 
 # special care for SELinux
 import selinux
@@ -1576,50 +1577,6 @@ class File:
                 raise
         return
 
-    def substitute_deployment_params(self, line):
-        """
-        Replace all occurrences of [param] in the line with the value of the
-        deployment parameter.
-        """
-
-        # find the first parameter in the line
-        begin = line.find('[')
-
-        # repeat while there are parameters in the line
-        while begin >= 0:
-
-            # find the end of the parameter
-            end = line.find(']', begin + 1)
-
-            # if the end not is found not found, don't do anything
-            if end < 0:
-                return line
-
-            # get parameter name
-            name = line[begin + 1:end]
-
-            try:
-                # get parameter value as string
-                value = str(self.mdict[name])
-
-                # replace parameter with value, keep the rest of the line
-                line = line[0:begin] + value + line[end + 1:]
-
-                # calculate the new end position
-                end = begin + len(value) + 1
-
-            except KeyError:
-                # undefined parameter, skip
-                logger.debug(
-                    'ignoring slot [%s]',
-                    line[begin:end + 1])
-
-            # find the next parameter in the remainder of the line
-            begin = line.find('[', end + 1)
-
-        # return modified line
-        return line
-
     def copy_with_slot_substitution(
             self, old_name, new_name, uid=None, gid=None,
             perms=config.PKI_DEPLOYMENT_DEFAULT_FILE_PERMISSIONS,
@@ -1652,7 +1609,7 @@ class File:
                                     self.mdict[slot])
 
                         # substitute deployment parameters
-                        line = self.substitute_deployment_params(line)
+                        line = pki.util.replace_params(line, self.mdict)
 
                         FILE.write(line)
 
@@ -1892,32 +1849,6 @@ class Password:
 
             with open(path, 'w') as fd:
                 fd.write(token + '=' + str(pin))
-
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        return
-
-    def create_hsm_password_conf(self, path, pin, hsm_pin,
-                                 overwrite_flag=False, critical_failure=True):
-
-        logger.info('Storing HSM password in %s', path)
-
-        try:
-            if os.path.exists(path):
-                if not overwrite_flag:
-                    return
-
-            token = self.mdict['pki_self_signed_token']
-            if not pki.nssdb.normalize_token(token):
-                token = pki.nssdb.INTERNAL_TOKEN_NAME
-
-            with open(path, 'w') as fd:
-                fd.write(token + '=' + str(pin) + '\n')
-                fd.write("hardware-" +
-                         self.mdict['pki_token_name'] +
-                         "=" + str(hsm_pin))
 
         except OSError as exc:
             logger.error(log.PKI_OSERROR_1, exc)
@@ -2175,134 +2106,6 @@ class Certutil:
             if critical_failure:
                 raise
         return True
-
-    def generate_self_signed_certificate(self, path, token, nickname, subject,
-                                         key_type, key_size, serial_number,
-                                         validity_period, issuer_name,
-                                         trustargs, noise_file,
-                                         password_file=None,
-                                         critical_failure=True):
-
-        logger.info('Generating self-signed certificate %s', nickname)
-
-        try:
-            # Compose this "certutil" command
-            command = ["certutil", "-S"]
-            #   Provide a path to the NSS security databases
-            if path:
-                command.extend(["-d", path])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_PATH)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_PATH)
-
-            #   Specify the 'token'
-            if token:
-                command.extend(["-h", token])
-
-            #   Specify the nickname of this self-signed certificate
-            if nickname:
-                command.extend(["-n", nickname])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_NICKNAME)
-            #   Specify the subject name (RFC1485)
-            if subject:
-                command.extend(["-s", subject])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_SUBJECT)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_SUBJECT)
-            #   Specify the key type
-            if key_type:
-                if key_type == "ecc":
-                    command.extend(["-k", "ec"])
-                    #   Specify the curve name
-                    if key_size:
-                        command.extend(["-q", key_size])
-                    else:
-                        logger.error(log.PKIHELPER_CERTUTIL_MISSING_CURVE_NAME)
-                        raise Exception(
-                            log.PKIHELPER_CERTUTIL_MISSING_CURVE_NAME)
-                else:
-                    command.extend(["-k", key_type])
-                    #   Specify the key size
-                    if key_size:
-                        command.extend(["-g", key_size])
-                    else:
-                        logger.error(log.PKIHELPER_CERTUTIL_MISSING_KEY_SIZE)
-                        raise Exception(
-                            log.PKIHELPER_CERTUTIL_MISSING_KEY_SIZE)
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_KEY_TYPE)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_KEY_TYPE)
-            #   Specify the serial number
-            if serial_number is not None:
-                command.extend(["-m", str(serial_number)])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_SERIAL_NUMBER)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_SERIAL_NUMBER)
-            #   Specify the months valid
-            if validity_period is not None:
-                command.extend(["-v", str(validity_period)])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_VALIDITY_PERIOD)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_VALIDITY_PERIOD)
-            #   Specify the nickname of the issuer certificate
-            if issuer_name:
-                command.extend(["-c", issuer_name])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_ISSUER_NAME)
-            #   Specify the certificate trust attributes
-            if trustargs:
-                command.extend(["-t", trustargs])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_TRUSTARGS)
-            #   Specify a noise file to be used for key generation
-            if noise_file:
-                command.extend(["-z", noise_file])
-            else:
-                logger.error(log.PKIHELPER_CERTUTIL_MISSING_NOISE_FILE)
-                raise Exception(log.PKIHELPER_CERTUTIL_MISSING_NOISE_FILE)
-            #   OPTIONALLY specify a password file
-            if password_file is not None:
-                command.extend(["-f", password_file])
-            #   ALWAYS self-sign this certificate
-            command.append("-x")
-
-            if not os.path.exists(path):
-                logger.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1, path)
-                raise Exception(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % path)
-            if not os.path.exists(noise_file):
-                logger.error(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
-                    noise_file)
-                raise Exception(
-                    log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1 % noise_file)
-            if password_file is not None:
-                if not os.path.exists(password_file) or\
-                   not os.path.isfile(password_file):
-                    logger.error(
-                        log.PKI_FILE_MISSING_OR_NOT_A_FILE_1,
-                        password_file)
-                    raise Exception(
-                        log.PKI_FILE_MISSING_OR_NOT_A_FILE_1 % password_file)
-
-            logger.debug('Command: %s', ' '.join(command))
-            subprocess.check_output(command, stderr=subprocess.STDOUT)
-
-        except subprocess.CalledProcessError as exc:
-            logger.error(
-                log.PKI_SUBPROCESS_ERROR_2, exc,
-                "Output (incl. stderr):\n" + exc.output.decode('utf-8'))
-            if critical_failure:
-                raise
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        return
 
     def import_cert(self, nickname, trust, input_file, password_file,
                     path=None, token=None, critical_failure=True):
@@ -3285,134 +3088,6 @@ class Systemd(object):
                 raise
         return
 
-    def start(self, critical_failure=True, reload_daemon=True):
-        """PKI Deployment execution management 'start' method.
-
-           Executes a 'systemd start <service>' system command.
-
-        Args:
-          critical_failure (boolean, optional):  Raise exception on failures;
-                                                 defaults to 'True'.
-          reload_daemon (boolean, optional):     Perform a reload of the
-                                                 'systemd' daemon prior to
-                                                 starting;
-                                                 defaults to 'True'.
-
-        Attributes:
-
-        Returns:
-
-        Raises:
-          subprocess.CalledProcessError:  If 'critical_failure' is 'True'.
-
-        Examples:
-
-        """
-
-        logger.info('Starting %s instance', self.mdict['pki_instance_name'])
-
-        try:
-            # Execute the "systemd daemon-reload" management lifecycle command
-            if reload_daemon:
-                self.daemon_reload(critical_failure)
-
-            command = ["systemctl", "start", self.service_name]
-
-            # Display this "systemd" execution managment command
-            logger.debug('Command: %s', ' '.join(command))
-
-            # Execute this "systemd" execution management command
-            subprocess.check_call(command)
-
-        except subprocess.CalledProcessError as exc:
-            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
-            if critical_failure:
-                raise
-        return
-
-    def stop(self, critical_failure=True):
-        """PKI Deployment execution management 'stop' method.
-
-        Executes a 'systemd stop <service>' system command.
-
-        Args:
-          critical_failure (boolean, optional):  Raise exception on failures;
-                                                 defaults to 'True'.
-
-        Attributes:
-
-        Returns:
-
-        Raises:
-          subprocess.CalledProcessError:  If 'critical_failure' is 'True'.
-
-        Examples:
-
-        """
-
-        logger.info('Stopping %s instance', self.mdict['pki_instance_name'])
-
-        try:
-            command = ["systemctl", "stop", self.service_name]
-
-            # Display this "systemd" execution managment command
-            logger.debug('Command: %s', ' '.join(command))
-
-            # Execute this "systemd" execution management command
-            subprocess.check_call(command)
-
-        except subprocess.CalledProcessError as exc:
-            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
-            if critical_failure:
-                raise
-        return
-
-    def restart(self, critical_failure=True, reload_daemon=True):
-        """PKI Deployment execution management 'restart' method.
-
-        Executes a 'systemd restart <service>' system command.
-
-        Args:
-          critical_failure (boolean, optional):  Raise exception on failures;
-                                                 defaults to 'True'.
-          reload_daemon (boolean, optional):     Perform a reload of the
-                                                 'systemd' daemon prior to
-                                                 restarting;
-                                                 defaults to 'True'.
-
-        Attributes:
-
-        Returns:
-
-        Raises:
-          subprocess.CalledProcessError:  If 'critical_failure' is 'True'.
-
-        Examples:
-
-        """
-
-        logger.info('Restarting %s instance', self.mdict['pki_instance_name'])
-
-        try:
-            # Compose this "systemd" execution management command
-            # Execute the "systemd daemon-reload" management lifecycle command
-            if reload_daemon:
-                self.daemon_reload(critical_failure)
-
-            command = ["systemctl", "restart", self.service_name]
-
-            # Display this "systemd" execution managment command
-            logger.debug('Command: %s', ' '.join(command))
-
-            # Execute this "systemd" execution management command
-            subprocess.check_call(command)
-
-        except subprocess.CalledProcessError as exc:
-            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
-            if critical_failure:
-                raise
-        return
-
 
 class ConfigClient:
     """PKI Deployment Configuration Client"""
@@ -3535,8 +3210,6 @@ class ConfigClient:
             pass
 
         # database
-        self.set_database_parameters(data)
-
         data.replicationPassword = self.mdict['pki_replication_password']
 
         # Issuing CA Information
@@ -3856,32 +3529,6 @@ class ConfigClient:
             data.securityDomainType = "newsubdomain"
             data.subordinateSecurityDomainName = (
                 self.mdict['pki_subordinate_security_domain_name'])
-
-    def set_database_parameters(self, data):
-        data.dsHost = self.mdict['pki_ds_hostname']
-        if config.str2bool(self.mdict['pki_ds_secure_connection']):
-            data.secureConn = "true"
-            data.dsPort = self.mdict['pki_ds_ldaps_port']
-        else:
-            data.secureConn = "false"
-            data.dsPort = self.mdict['pki_ds_ldap_port']
-        data.baseDN = self.mdict['pki_ds_base_dn']
-        data.bindDN = self.mdict['pki_ds_bind_dn']
-        data.database = self.mdict['pki_ds_database']
-        data.bindpwd = self.mdict['pki_ds_password']
-        if config.str2bool(self.mdict['pki_ds_create_new_db']):
-            data.createNewDB = "true"
-        else:
-            data.createNewDB = "false"
-        if config.str2bool(self.mdict['pki_ds_remove_data']):
-            data.removeData = "true"
-        else:
-            data.removeData = "false"
-        if config.str2bool(self.mdict['pki_share_db']):
-            data.sharedDB = "true"
-            data.sharedDBUserDN = self.mdict['pki_share_dbuser_dn']
-        else:
-            data.sharedDB = "false"
 
     def set_backup_parameters(self, data):
         data.backupFile = self.mdict['pki_backup_keys_p12']

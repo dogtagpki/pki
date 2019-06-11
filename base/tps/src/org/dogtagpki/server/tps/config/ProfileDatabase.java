@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.dbs.CSCfgDatabase;
 
@@ -32,6 +31,8 @@ import com.netscape.cmscore.dbs.CSCfgDatabase;
  * @author Endi S. Dewata
  */
 public class ProfileDatabase extends CSCfgDatabase<ProfileRecord> {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileDatabase.class);
 
     public ProfileDatabase() {
         super("Profile", "Profiles");
@@ -78,7 +79,7 @@ public class ProfileDatabase extends CSCfgDatabase<ProfileRecord> {
     @Override
     public void addRecord(String profileID, ProfileRecord profileRecord) throws Exception {
 
-        CMS.debug("ProfileDatabase.addRecord(\"" + profileID + "\")");
+        logger.debug("ProfileDatabase.addRecord(\"" + profileID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
@@ -102,7 +103,7 @@ public class ProfileDatabase extends CSCfgDatabase<ProfileRecord> {
     @Override
     public void updateRecord(String profileID, ProfileRecord profileRecord) throws Exception {
 
-        CMS.debug("ProfileDatabase.updateRecord(\"" + profileID + "\")");
+        logger.debug("ProfileDatabase.updateRecord(\"" + profileID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
@@ -125,7 +126,7 @@ public class ProfileDatabase extends CSCfgDatabase<ProfileRecord> {
     @Override
     public void removeRecord(String profileID) throws Exception {
 
-        CMS.debug("ProfileDatabase.removeRecord(\"" + profileID + "\")");
+        logger.debug("ProfileDatabase.removeRecord(\"" + profileID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 

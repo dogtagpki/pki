@@ -23,10 +23,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Files to be processed and returned to the requested parties. It

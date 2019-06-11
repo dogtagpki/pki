@@ -34,7 +34,6 @@ import org.dogtagpki.server.tps.config.AuthenticatorDatabase;
 import org.dogtagpki.server.tps.config.AuthenticatorRecord;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
@@ -45,14 +44,18 @@ import com.netscape.certsrv.tps.authenticator.AuthenticatorCollection;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorData;
 import com.netscape.certsrv.tps.authenticator.AuthenticatorResource;
 import com.netscape.cms.servlet.base.SubsystemService;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
  */
 public class AuthenticatorService extends SubsystemService implements AuthenticatorResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthenticatorService.class);
+
     public AuthenticatorService() {
-        CMS.debug("AuthenticatorService.<init>()");
+        logger.debug("AuthenticatorService.<init>()");
     }
 
     public AuthenticatorData createAuthenticatorData(AuthenticatorRecord authenticatorRecord)
@@ -86,7 +89,7 @@ public class AuthenticatorService extends SubsystemService implements Authentica
     @Override
     public Response findAuthenticators(String filter, Integer start, Integer size) {
 
-        CMS.debug("AuthenticatorService.findAuthenticators()");
+        logger.debug("AuthenticatorService.findAuthenticators()");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -95,8 +98,9 @@ public class AuthenticatorService extends SubsystemService implements Authentica
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             Iterator<AuthenticatorRecord> authenticators = database.findRecords(filter).iterator();
@@ -131,11 +135,11 @@ public class AuthenticatorService extends SubsystemService implements Authentica
             return createOKResponse(response);
 
         } catch (PKIException e) {
-            CMS.debug("AuthenticatorService: " + e);
+            logger.error("AuthenticatorService: " + e.getMessage(), e);
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("AuthenticatorService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -146,20 +150,21 @@ public class AuthenticatorService extends SubsystemService implements Authentica
         if (authenticatorID == null)
             throw new BadRequestException("Authenticator ID is null.");
 
-        CMS.debug("AuthenticatorService.getAuthenticator(\"" + authenticatorID + "\")");
+        logger.debug("AuthenticatorService.getAuthenticator(\"" + authenticatorID + "\")");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             return createOKResponse(createAuthenticatorData(database.getRecord(authenticatorID)));
 
         } catch (PKIException e) {
-            CMS.debug("AuthenticatorService: " + e);
+            logger.error("AuthenticatorService: " + e.getMessage(), e);
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("AuthenticatorService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -174,10 +179,11 @@ public class AuthenticatorService extends SubsystemService implements Authentica
             throw new BadRequestException("Authenticator data is null.");
         }
 
-        CMS.debug("AuthenticatorService.addAuthenticator(\"" + authenticatorData.getID() + "\")");
+        logger.debug("AuthenticatorService.addAuthenticator(\"" + authenticatorData.getID() + "\")");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             String status = authenticatorData.getStatus();
@@ -202,14 +208,14 @@ public class AuthenticatorService extends SubsystemService implements Authentica
             return createCreatedResponse(authenticatorData, authenticatorData.getLink().getHref());
 
         } catch (PKIException e) {
-            CMS.debug("AuthenticatorService: " + e);
+            logger.error("AuthenticatorService: " + e.getMessage(), e);
             auditTPSAuthenticatorChange(ILogger.FAILURE, method,
                     authenticatorData.getID(), authenticatorData.getProperties(), e.toString());
 
             throw e;
 
         } catch (Exception e) {
-            CMS.debug("AuthenticatorService: " + e);
+            logger.error("AuthenticatorService: " + e.getMessage(), e);
             auditTPSAuthenticatorChange(ILogger.FAILURE, method,
                     authenticatorData.getID(), authenticatorData.getProperties(), e.toString());
             throw new PKIException(e);
@@ -231,10 +237,11 @@ public class AuthenticatorService extends SubsystemService implements Authentica
             throw new BadRequestException("Authenticator data is null.");
         }
 
-        CMS.debug("AuthenticatorService.updateAuthenticator(\"" + authenticatorID + "\")");
+        logger.debug("AuthenticatorService.updateAuthenticator(\"" + authenticatorID + "\")");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             AuthenticatorRecord record = database.getRecord(authenticatorID);
@@ -288,13 +295,13 @@ public class AuthenticatorService extends SubsystemService implements Authentica
             return createOKResponse(authenticatorData);
 
         } catch (PKIException e) {
-            CMS.debug("AuthenticatorService: " + e);
+            logger.error("AuthenticatorService: " + e.getMessage(), e);
             auditTPSAuthenticatorChange(ILogger.FAILURE, method,
                     authenticatorID, authenticatorData.getProperties(), e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug("AuthenticatorService: " + e);
+            logger.error("AuthenticatorService: " + e.getMessage(), e);
             auditTPSAuthenticatorChange(ILogger.FAILURE, method,
                     authenticatorID, authenticatorData.getProperties(), e.toString());
             throw new PKIException(e);
@@ -319,10 +326,11 @@ public class AuthenticatorService extends SubsystemService implements Authentica
         }
         auditModParams.put("Action", action);
 
-        CMS.debug("AuthenticatorService.changeStatus(\"" + authenticatorID + "\", \"" + action + "\")");
+        logger.debug("AuthenticatorService.changeStatus(\"" + authenticatorID + "\", \"" + action + "\")");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             AuthenticatorRecord record = database.getRecord(authenticatorID);
@@ -406,13 +414,13 @@ public class AuthenticatorService extends SubsystemService implements Authentica
             return createOKResponse(authenticatorData);
 
         } catch (PKIException e) {
-            CMS.debug("AuthenticatorService: " + e);
+            logger.error("AuthenticatorService: " + e.getMessage(), e);
             auditTPSAuthenticatorChange(ILogger.FAILURE, method,
                     authenticatorID, auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug("AuthenticatorService: " + e);
+            logger.error("AuthenticatorService: " + e.getMessage(), e);
             auditTPSAuthenticatorChange(ILogger.FAILURE, method,
                     authenticatorID, auditModParams, e.toString());
             throw new PKIException(e);
@@ -431,10 +439,11 @@ public class AuthenticatorService extends SubsystemService implements Authentica
         }
         auditModParams.put("authenticatorID", authenticatorID);
 
-        CMS.debug("AuthenticatorService.removeAuthenticator(\"" + authenticatorID + "\")");
+        logger.debug("AuthenticatorService.removeAuthenticator(\"" + authenticatorID + "\")");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             AuthenticatorDatabase database = subsystem.getAuthenticatorDatabase();
 
             AuthenticatorRecord record = database.getRecord(authenticatorID);
@@ -455,13 +464,13 @@ public class AuthenticatorService extends SubsystemService implements Authentica
             return createNoContentResponse();
 
         } catch (PKIException e) {
-            CMS.debug("AuthenticatorService: " + e);
+            logger.error("AuthenticatorService: " + e.getMessage(), e);
             auditTPSAuthenticatorChange(ILogger.FAILURE, method,
                     authenticatorID, auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug("AuthenticatorService: " + e);
+            logger.error("AuthenticatorService: " + e.getMessage(), e);
             auditTPSAuthenticatorChange(ILogger.FAILURE, method,
                     authenticatorID, auditModParams, e.toString());
             throw new PKIException(e);

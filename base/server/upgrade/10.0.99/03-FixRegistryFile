@@ -33,7 +33,7 @@ class FixRegistryFile(pki.server.upgrade.PKIServerUpgradeScriptlet):
 
     def upgrade_instance(self, instance):
         registry_file = os.path.join(
-            pki.server.REGISTRY_DIR, 'tomcat', instance.name, instance.name)
+            pki.server.PKIServer.REGISTRY_DIR, 'tomcat', instance.name, instance.name)
         self.backup(registry_file)
 
         with open(registry_file, "r") as registry:

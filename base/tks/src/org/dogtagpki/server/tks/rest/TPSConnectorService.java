@@ -24,8 +24,8 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -37,19 +37,23 @@ import com.netscape.certsrv.system.TPSConnectorCollection;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.certsrv.system.TPSConnectorResource;
 import com.netscape.certsrv.tps.cert.TPSCertResource;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Utils;
 
 public class TPSConnectorService extends PKIService implements TPSConnectorResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSConnectorService.class);
+
     private static final String TPS_LIST = "tps.list";
 
-    IConfigStore cs = CMS.getConfigStore();
+    CMSEngine engine = CMS.getCMSEngine();
+    IConfigStore cs = engine.getConfigStore();
 
-    public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+    public UGSubsystem userGroupManager = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
     @Override
     public Response findConnectors(Integer start, Integer size) {
@@ -180,8 +184,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createCreatedResponse(newData, newData.getLink().getHref());
 
         } catch (EBaseException e) {
-            CMS.debug("Unable to create new TPS Connector: " + e);
-            e.printStackTrace();
+            logger.error("Unable to create new TPS Connector: " + e.getMessage(), e);
             throw new PKIException("Unable to create  new TPS connector: " + e);
         }
     }
@@ -217,8 +220,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createOKResponse(curData);
 
         } catch (EBaseException e) {
-            CMS.debug("Unable to modify TPS Connector: " + e);
-            e.printStackTrace();
+            logger.error("Unable to modify TPS Connector: " + e.getMessage(), e);
             throw new PKIException("Unable to modify TPS Connector: " + e);
         }
     }
@@ -226,7 +228,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     private void saveClientData(TPSConnectorData newData) throws EBaseException {
         String id = newData.getID();
         if (StringUtils.isEmpty(id)) {
-            CMS.debug("saveClientData: Attempt to save tps connection with null or empty id");
+            logger.warn("saveClientData: Attempt to save tps connection with null or empty id");
             return;
         }
         String prefix = "tps." + id + ".";
@@ -286,7 +288,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     @Override
     public Response createSharedSecret(String id) {
 
-        CMS.debug("TPSConnectorService.createSharedSecret.id: " + id);
+        logger.debug("TPSConnectorService.createSharedSecret.id: " + id);
 
         if (id == null)
             throw new BadRequestException("TPS connector ID is null.");
@@ -302,12 +304,12 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             // get user cert
             IUser user = userGroupManager.getUser(userid);
 
-            CMS.debug("TPSConnectorService.createSharedSecret.userid: " + userid);
+            logger.debug("TPSConnectorService.createSharedSecret.userid: " + userid);
             X509Certificate[] certs = user.getX509Certificates();
 
             String nickname = userid + " sharedSecret";
 
-            CMS.debug("TPSConnectorService.createSharedSecret. nickname: " + nickname);
+            logger.debug("TPSConnectorService.createSharedSecret. nickname: " + nickname);
             if (CryptoUtil.sharedSecretExists(nickname)) {
                 throw new BadRequestException("Shared secret already exists");
             }
@@ -336,8 +338,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createOKResponse(keyData);
 
         } catch (Exception  e) {
-            e.printStackTrace();
-            CMS.debug("Error in generating and exporting shared secret: " + e);
+            logger.error("Error in generating and exporting shared secret: " + e.getMessage(), e);
             throw new PKIException("Error in generating and exporting shared secret: " + e, e);
         }
     }
@@ -405,8 +406,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createOKResponse(keyData);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            CMS.debug("Error in replacing shared secret: " + e);
+            logger.error("Error in replacing shared secret: " + e.getMessage(), e);
             throw new PKIException("Error in replacing shared secret: " + e, e);
         }
     }
@@ -441,8 +441,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
         } catch (InvalidKeyException | IllegalStateException | EBaseException
                 | NotInitializedException | TokenException e) {
-            e.printStackTrace();
-            CMS.debug("Error in deleting shared secret: " + e);
+            logger.error("Error in deleting shared secret: " + e.getMessage(), e);
             throw new PKIException("Error in deleting shared secret: " + e);
         }
     }
@@ -453,7 +452,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
         if (id == null)
             throw new BadRequestException("TPS connector ID is null.");
 
-        CMS.debug("TPSConnectorServlet.getSharedSecret: id : " + id);
+        logger.debug("TPSConnectorServlet.getSharedSecret: id : " + id);
         try {
             if (!connectorExists(id)) {
                 throw new ResourceNotFoundException("TPS connection does not exist");
@@ -489,8 +488,7 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createOKResponse(keyData);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            CMS.debug("Error in obtaining shared secret: " + e);
+            logger.error("Error in obtaining shared secret: " + e.getMessage(), e);
             throw new PKIException("Error in obtaining shared secret: " + e, e);
         }
     }
@@ -556,12 +554,10 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             tempKey = kg.generate();
         } catch (NoSuchAlgorithmException | TokenException | IllegalStateException | CharConversionException
                 | NotInitializedException e) {
-            CMS.debug("TPSConnectorService.createDes3SesisonKeyOnInternal: Can't generate temporary session key.");
-
+            logger.error("TPSConnectorService.createDes3SesisonKeyOnInternal: Can't generate temporary session key: " + e.getMessage(), e);
             throw new EBaseException(e);
         }
 
         return tempKey;
     }
-
 }

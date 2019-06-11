@@ -22,7 +22,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthInternalError;
 import com.netscape.certsrv.authentication.EAuthUserError;
@@ -35,8 +34,8 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -56,6 +55,8 @@ import netscape.ldap.LDAPv2;
  * @version $Revision$, $Date$
  */
 public class PortalEnroll extends DirBasedAuthentication {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PortalEnroll.class);
 
     /* configuration parameter keys */
     protected static final String PROP_LDAPAUTH = "ldapauth";
@@ -79,7 +80,7 @@ public class PortalEnroll extends DirBasedAuthentication {
     private String mObjectClass = null;
     private String mBindDN = null;
     private String mBaseDN = null;
-    private ILdapConnFactory mLdapFactory = null;
+    private LdapBoundConnFactory mLdapFactory;
     private LDAPConnection mLdapConn = null;
 
     // contains all nested superiors' required attrs in the form of a
@@ -136,6 +137,9 @@ public class PortalEnroll extends DirBasedAuthentication {
             throws EBaseException {
         super.init(name, implName, config);
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         /* Get Bind DN for directory server */
         mConfig = mLdapConfig.getSubStore(PROP_LDAPAUTH);
         mBindDN = mConfig.getString(PROP_BINDDN);
@@ -154,10 +158,11 @@ public class PortalEnroll extends DirBasedAuthentication {
 
         /* Get connect parameter */
         mLdapFactory = new LdapBoundConnFactory("PortalEnroll");
-        mLdapFactory.init(mLdapConfig);
+        mLdapFactory.init(cs, mLdapConfig, engine.getPasswordStore());
+
         mLdapConn = mLdapFactory.getConn();
 
-        log(ILogger.LL_INFO, CMS.getLogMessage("CMS_AUTH_PORTAL_INIT"));
+        logger.info("PortalEnroll: " + CMS.getLogMessage("CMS_AUTH_PORTAL_INIT"));
     }
 
     /**
@@ -218,40 +223,39 @@ public class PortalEnroll extends DirBasedAuthentication {
             // set uid in the token.
             token.set(CRED_UID, uid);
 
-            log(ILogger.LL_INFO, "portal authentication is done");
+            logger.info("PortalEnroll: portal authentication is done");
 
             return dn;
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("LDAP_ERROR", e.toString()));
+            logger.error("PortalEnroll: " + CMS.getLogMessage("LDAP_ERROR", e.toString()), e);
             throw e;
         } catch (LDAPException e) {
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
             case LDAPException.LDAP_PARTIAL_RESULTS:
-                log(ILogger.LL_SECURITY,
-                        CMS.getLogMessage("CMS_AUTH_ADD_USER_ERROR", conn.getHost(), Integer.toString(conn.getPort())));
+                logger.error("PortalEnroll: " + CMS.getLogMessage("CMS_AUTH_ADD_USER_ERROR", conn.getHost(), Integer.toString(conn.getPort())));
                 throw new EAuthInternalError(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR",
                         "Check Configuration detail."));
 
             case LDAPException.INVALID_CREDENTIALS:
-                log(ILogger.LL_SECURITY,
-                        CMS.getLogMessage("CMS_AUTH_BAD_PASSWORD", uid));
+                logger.error("PortalEnroll: " + CMS.getLogMessage("CMS_AUTH_BAD_PASSWORD", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
 
             case LDAPException.SERVER_DOWN:
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("LDAP_SERVER_DOWN"));
+                logger.error("PortalEnroll: " + CMS.getLogMessage("LDAP_SERVER_DOWN"));
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
 
             default:
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("LDAP_ERROR", e.getMessage()));
+                logger.error("PortalEnroll: " + CMS.getLogMessage("LDAP_ERROR", e.getMessage()));
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_OTHER_LDAP_EXCEPTION",
                                 e.errorCodeToString()));
             }
         } catch (EBaseException e) {
-            if (e.getMessage().equalsIgnoreCase(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND")) == true)
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_MAKE_DN_ERROR", e.toString()));
+            if (e.getMessage().equalsIgnoreCase(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND"))) {
+                logger.error("PortalEnroll: " + CMS.getLogMessage("CMS_AUTH_MAKE_DN_ERROR", e.toString()), e);
+            }
             throw e;
         }
     }
@@ -346,7 +350,7 @@ public class PortalEnroll extends DirBasedAuthentication {
             /* Get the schema from the Directory. Anonymous access okay. */
             dirSchema.fetchSchema(mLdapConn);
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("LDAP_ERROR", e.getMessage()));
+            logger.warn("PortalEnroll: " + CMS.getLogMessage("LDAP_ERROR", e.getMessage()), e);
         }
         // complete mRequiredAttrs, mOptionalAttrs, and mObjClasses
         initLdapAttrs(dirSchema, mObjectClass);
@@ -361,12 +365,12 @@ public class PortalEnroll extends DirBasedAuthentication {
 
         while (objClasses.hasMoreElements()) {
             attrnames = objClasses.nextElement();
-            CMS.debug("PortalEnroll: Required attrs:");
+            logger.debug("PortalEnroll: Required attrs:");
             while (attrnames.hasMoreElements()) {
                 String attrname = attrnames.nextElement();
                 String attrval = null;
 
-                CMS.debug("PortalEnroll: attrname is: " + attrname);
+                logger.debug("PortalEnroll: attrname is: " + attrname);
                 if (attrname.equalsIgnoreCase("objectclass") == true)
                     continue;
                 try {
@@ -376,7 +380,7 @@ public class PortalEnroll extends DirBasedAuthentication {
                         continue;
                 }
 
-                CMS.debug("PortalEnroll: " + attrname + " = " + attrval);
+                logger.debug("PortalEnroll: " + attrname + " = " + attrval);
                 attrs.add(new LDAPAttribute(attrname, attrval));
             }
 
@@ -387,19 +391,19 @@ public class PortalEnroll extends DirBasedAuthentication {
 
         while (objClasses.hasMoreElements()) {
             attrnames = objClasses.nextElement();
-            CMS.debug("PortalEnroll: Optional attrs:");
+            logger.debug("PortalEnroll: Optional attrs:");
             while (attrnames.hasMoreElements()) {
                 String attrname = attrnames.nextElement();
                 String attrval = null;
 
-                CMS.debug("PortalEnroll: attrname is: " + attrname);
+                logger.debug("PortalEnroll: attrname is: " + attrname);
                 try {
                     attrval = argblk.getValueAsString(attrname);
                 } catch (EBaseException e) {
                     if (e.getMessage().equalsIgnoreCase(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND")) == true)
                         continue;
                 }
-                CMS.debug("PortalEnroll: " + attrname + " = " + attrval);
+                logger.debug("PortalEnroll: " + attrname + " = " + attrval);
                 if (attrval != null) {
                     attrs.add(new LDAPAttribute(attrname, attrval));
                 }
@@ -415,13 +419,13 @@ public class PortalEnroll extends DirBasedAuthentication {
             mLdapConn.add(entry);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("LDAP_ERROR", e.getMessage()));
+                logger.warn("PortalEnroll: " + CMS.getLogMessage("LDAP_ERROR", e.getMessage()));
             } else
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("LDAP_ERROR", e.getMessage()));
+                logger.warn("PortalEnroll: " + CMS.getLogMessage("LDAP_ERROR", e.getMessage()), e);
             return null;
         }
 
-        log(ILogger.LL_INFO, CMS.getLogMessage("CMS_AUTH_REGISTRATION_DONE"));
+        logger.info("PortalEnroll: " + CMS.getLogMessage("CMS_AUTH_REGISTRATION_DONE"));
 
         return dn;
     }
@@ -434,7 +438,7 @@ public class PortalEnroll extends DirBasedAuthentication {
      */
     @SuppressWarnings("unchecked")
     public void initLdapAttrs(LDAPSchema dirSchema, String oclass) {
-        CMS.debug("PortalEnroll: in initLdapAttrsAttrs");
+        logger.debug("PortalEnroll: in initLdapAttrsAttrs");
         mObjClasses.addElement(oclass);
         if (oclass.equalsIgnoreCase("top"))
             return;
@@ -451,19 +455,19 @@ public class PortalEnroll extends DirBasedAuthentication {
                 return;
             }
 
-            CMS.debug("PortalEnroll: getting superiors for: " + oclass);
+            logger.debug("PortalEnroll: getting superiors for: " + oclass);
             String superiors[] = objClass.getSuperiors();
 
-            CMS.debug("PortalEnroll: got superiors, superiors.length=" + superiors.length);
+            logger.debug("PortalEnroll: got superiors, superiors.length=" + superiors.length);
             if (superiors.length == 0)
                 return;
             for (int i = 0; i < superiors.length; i++) {
-                CMS.debug("Portalenroll: superior" + i + "=" + superiors[i]);
+                logger.debug("Portalenroll: superior" + i + "=" + superiors[i]);
                 objClass = dirSchema.getObjectClass(superiors[i]);
                 initLdapAttrs(dirSchema, superiors[i]);
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("LDAP_ERROR", e.getMessage()));
+            logger.warn("PortalEnroll: " + CMS.getLogMessage("LDAP_ERROR", e.getMessage()), e);
         }
     }
 }

@@ -21,10 +21,10 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Default error template filler
@@ -32,6 +32,9 @@ import com.netscape.certsrv.base.IArgBlock;
  * @version $Revision$, $Date$
  */
 public class GenErrorTemplateFiller implements ICMSTemplateFiller {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenErrorTemplateFiller.class);
+
     public GenErrorTemplateFiller() {
     }
 
@@ -45,7 +48,7 @@ public class GenErrorTemplateFiller implements ICMSTemplateFiller {
      */
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 
         // request status if any.
@@ -55,8 +58,7 @@ public class GenErrorTemplateFiller implements ICMSTemplateFiller {
             if (sts != null)
                 fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
         } else {
-            CMS.debug("GenErrorTemplateFiller::getTemplateParams() - " +
-                       "cmsReq is null!");
+            logger.warn("GenErrorTemplateFiller::getTemplateParams() - cmsReq is null!");
             return null;
         }
 
@@ -85,7 +87,7 @@ public class GenErrorTemplateFiller implements ICMSTemplateFiller {
             while (num.hasMoreElements()) {
                 String elem = num.nextElement();
                 //System.out.println("Setting description "+elem.toString());
-                IArgBlock argBlock = CMS.createArgBlock();
+                ArgBlock argBlock = new ArgBlock();
 
                 argBlock.set(ICMSTemplateFiller.ERROR_DESCR,
                         elem);

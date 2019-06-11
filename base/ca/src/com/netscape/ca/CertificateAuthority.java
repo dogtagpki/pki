@@ -24,7 +24,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.MessageDigest;
@@ -47,7 +46,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -74,10 +72,26 @@ import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Signer;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.cert.Extension;
 import org.mozilla.jss.pkix.primitive.Name;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.BadRequestDataException;
@@ -107,7 +121,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.dbs.replicadb.IReplicaIDRepository;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.CRLSigningInfoEvent;
 import com.netscape.certsrv.logging.event.CertSigningInfoEvent;
@@ -128,6 +141,7 @@ import com.netscape.certsrv.request.IRequestScheduler;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.security.ISigningUnit;
+import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
@@ -136,6 +150,8 @@ import com.netscape.cms.servlet.cert.EnrollmentProcessor;
 import com.netscape.cms.servlet.cert.RenewalProcessor;
 import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -167,7 +183,6 @@ import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -178,27 +193,7 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.controls.LDAPEntryChangeControl;
-import netscape.ldap.controls.LDAPPersistSearchControl;
-import netscape.ldap.util.DN;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500Signer;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509ExtensionException;
-import netscape.security.x509.X509Key;
 
 
 /**
@@ -210,7 +205,7 @@ import netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class CertificateAuthority
-        implements ICertificateAuthority, ICertAuthority, IOCSPService, Runnable {
+        implements ICertificateAuthority, ICertAuthority, IOCSPService {
 
     public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateAuthority.class);
 
@@ -223,11 +218,11 @@ public class CertificateAuthority
     /* The static conn factory is initialised by the host authority's
      * 'init' method, before any lightweight CAs are instantiated
      */
-    private static ILdapConnFactory dbFactory = new LdapBoundConnFactory("CertificateAuthority");
+    static LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CertificateAuthority");
 
     private static final Map<AuthorityID, ICertificateAuthority> caMap =
         Collections.synchronizedSortedMap(new TreeMap<AuthorityID, ICertificateAuthority>());
-    private static final Map<AuthorityID, Thread> keyRetrieverThreads =
+    static final Map<AuthorityID, Thread> keyRetrieverThreads =
         Collections.synchronizedSortedMap(new TreeMap<AuthorityID, Thread>());
     protected CertificateAuthority hostCA = null;
     protected AuthorityID authorityID = null;
@@ -237,7 +232,7 @@ public class CertificateAuthority
     protected Collection<String> authorityKeyHosts = null;
     protected boolean authorityEnabled = true;
     private boolean hasKeys = false;
-    private ECAException signingUnitException = null;
+    ECAException signingUnitException = null;
 
     protected ISubsystem mOwner = null;
     protected IConfigStore mConfig = null;
@@ -307,6 +302,8 @@ public class CertificateAuthority
     protected static final String PROP_REPOS_DN = "RepositoryDN";
     protected static final String PROP_REPLICAID_DN = "dbs.replicadn";
 
+    protected AuthorityMonitor authorityMonitor;
+
     // for the notification listeners
 
     /**
@@ -340,26 +337,16 @@ public class CertificateAuthority
     private boolean mUseNonces = true;
     private int mMaxNonces = 100;
 
-    /* Variables to manage loading and tracking of lightweight CAs
-     *
-     * The initialLoadDone latch causes the host authority's 'init'
-     * method to block until the monitor thread has finished the
-     * initial loading of lightweight CAs.
-     *
-     * In other words: the "server startup" cannot complete until
-     * all the lightweight CAs that exist at start time are loaded.
-     */
-    private static boolean stopped = false;
+    /* Variables to manage loading and tracking of lightweight CAs */
+    static boolean stopped = false;
     private static boolean foundHostAuthority = false;
-    private static Integer initialNumAuthorities = null;
-    private static int numAuthoritiesLoaded = 0;
-    private static CountDownLatch initialLoadDone = new CountDownLatch(1);
+    AsyncLoader lwcaLoader = new AsyncLoader(10 /*10s timeout*/);
 
     /* Maps and sets of entryUSNs and nsUniqueIds for avoiding race
      * conditions and unnecessary reloads related to replication */
     private static TreeMap<AuthorityID,BigInteger> entryUSNs = new TreeMap<>();
     private static TreeMap<AuthorityID,String> nsUniqueIds = new TreeMap<>();
-    private static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
+    static TreeSet<String> deletedNsUniqueIds = new TreeSet<>();
 
     /**
      * Constructs a CA subsystem.
@@ -513,14 +500,18 @@ public class CertificateAuthority
     public void init(ISubsystem owner, IConfigStore config) throws
             EBaseException {
 
-        logger.debug("CertificateAuthority.init(" + owner.getId() + ", " + config.getName() + ")");
+        logger.info("CertificateAuthority: initialization");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+        IConfigStore dbCfg = cs.getSubStore("internaldb");
 
         try {
             mOwner = owner;
             mConfig = config;
 
             if (isHostAuthority()) {
-                dbFactory.init(CMS.getConfigStore().getSubStore("internaldb"));
+                dbFactory.init(cs, dbCfg, engine.getPasswordStore());
             }
 
             // init cert & crl database
@@ -544,11 +535,12 @@ public class CertificateAuthority
             boolean initSigUnitSucceeded = false;
             try {
                 try {
+                    logger.info("CertificateAuthority: initializing signing unit for CA");
                     initSigUnit();
                     initSigUnitSucceeded = true;
 
                 } catch (CAMissingCertException | CAMissingKeyException e) {
-                    logger.warn("CA signing key and cert not (yet) present in NSSDB");
+                    logger.warn("CertificateAuthority: CA signing key and cert not (yet) present in NSS database");
                     signingUnitException = e;
 
                     if (authorityID == null) {
@@ -558,9 +550,9 @@ public class CertificateAuthority
                         logger.debug("null authorityID -> host authority; not starting KeyRetriever");
 
                     } else if (!keyRetrieverThreads.containsKey(authorityID)) {
-                        logger.debug("Starting KeyRetrieverRunner thread");
+                        logger.info("CertificateAuthority: starting KeyRetrieverRunner thread");
                         Thread t = new Thread(
-                            new KeyRetrieverRunner(authorityID, mNickname, authorityKeyHosts),
+                            new KeyRetrieverRunner(this, authorityID, mNickname, authorityKeyHosts),
                             "KeyRetrieverRunner-" + authorityID);
                         t.start();
                         keyRetrieverThreads.put(authorityID, t);
@@ -574,11 +566,11 @@ public class CertificateAuthority
                 initDefCaAttrs();
 
             } catch (EBaseException e) {
-                if (CMS.isPreOpMode()) {
-                    logger.warn("Exception: " + e.getMessage(), e);
-                    logger.warn("CertificateAuthority.init(): Swallow exception in pre-op mode");
+                if (engine.isPreOpMode()) {
+                    logger.warn("CertificateAuthority: " + e.getMessage(), e);
+                    logger.warn("CertificateAuthority: swallow exception in pre-op mode");
                 } else {
-                    logger.error("Exception: " + e.getMessage(), e);
+                    logger.error("CertificateAuthority: " + e.getMessage(), e);
                     throw e;
                 }
             }
@@ -594,7 +586,7 @@ public class CertificateAuthority
             // init request queue and related modules.
             logger.debug("CertificateAuthority init: initRequestQueue");
             initRequestQueue();
-            if (CMS.isPreOpMode()) {
+            if (engine.isPreOpMode()) {
                 logger.debug("CertificateAuthority.init(): Abort in pre-op mode");
                 return;
             }
@@ -640,12 +632,22 @@ public class CertificateAuthority
             initCRL();
 
             if (isHostAuthority() && haveLightweightCAsContainer()) {
-                new Thread(this, "authorityMonitor").start();
+
+                authorityMonitor = new AuthorityMonitor(this);
+                new Thread(authorityMonitor, "AuthorityMonitor").start();
+
                 try {
-                    initialLoadDone.await();
+                    // block until the expected number of authorities
+                    // have been loaded (based on numSubordinates of
+                    // container entry), or watchdog times it out (in case
+                    // numSubordinates is larger than the number of entries
+                    // we can see, e.g. replication conflict entries).
+                    lwcaLoader.awaitLoadDone();
                 } catch (InterruptedException e) {
                     logger.warn("CertificateAuthority: caught InterruptedException "
                             + "while waiting for initial load of authorities.");
+                    logger.warn("You may have replication conflict entries or "
+                            + "extraneous data under " + authorityBaseDN());
                 }
 
                 if (!foundHostAuthority) {
@@ -661,11 +663,11 @@ public class CertificateAuthority
             if (initSigUnitSucceeded)
                 initIssuanceProtectionCert();
         } catch (EBaseException e) {
-            if (CMS.isPreOpMode()) {
-                logger.warn("Exception: " + e.getMessage(), e);
-                logger.warn("CertificateAuthority: Swallow exception in pre-op mode");
+            if (engine.isPreOpMode()) {
+                logger.warn("CertificateAuthority: " + e.getMessage(), e);
+                logger.warn("CertificateAuthority: swallow exception in pre-op mode");
             } else {
-                logger.error("Exception: " + e.getMessage(), e);
+                logger.error("CertificateAuthority: " + e.getMessage(), e);
                 throw e;
             }
         }
@@ -768,8 +770,9 @@ public class CertificateAuthority
         // e.g. if random serial numbers are enabled.
         //
         logger.debug(
-            "Updating certificate in NSSDB; new serial number: "
+            "CertificateAuthority: Updating certificate in NSSDB; new serial number: "
             + authoritySerial);
+
         try {
             X509Certificate oldCert = mCaX509Cert;
             CryptoManager manager = CryptoManager.getInstance();
@@ -782,11 +785,15 @@ public class CertificateAuthority
             manager.getInternalKeyStorageToken().getCryptoStore()
                 .deleteCert(oldCert);
 
-            // reinit signing unit
+            logger.info("CertificateAuthority: reinitializing signing unit after new certificate");
             initSigUnit();
 
-        } catch (CAMissingCertException | CAMissingKeyException e) {
-            logger.warn("CA signing key and cert not (yet) present in NSSDB: " + e);
+        } catch (CAMissingCertException e) {
+            logger.warn("CertificateAuthority: CA signing cert not (yet) present in NSS database");
+            signingUnitException = e;
+
+        } catch (CAMissingKeyException e) {
+            logger.warn("CertificateAuthority: CA signing key not (yet) present in NSS database");
             signingUnitException = e;
 
         } catch (CertificateException e) {
@@ -803,7 +810,7 @@ public class CertificateAuthority
         }
     }
 
-    private String authorityBaseDN() {
+    String authorityBaseDN() {
         return "ou=authorities,ou=" + getId()
             + "," + getDBSubsystem().getBaseDN();
     }
@@ -984,7 +991,8 @@ public class CertificateAuthority
      * Starts up this subsystem.
      */
     public void startup() throws EBaseException {
-        if (CMS.isPreOpMode()) {
+        CMSEngine engine = CMS.getCMSEngine();
+        if (engine.isPreOpMode()) {
             logger.debug("CertificateAuthority.startup(): Do not start CA in pre-op mode");
             return;
         }
@@ -1006,6 +1014,12 @@ public class CertificateAuthority
         // lightweight authorities don't own these resources
         if (!isHostAuthority())
             return;
+
+        if (authorityMonitor != null) {
+            authorityMonitor.shutdown();
+        }
+
+        lwcaLoader.shutdown();
 
         Enumeration<ICRLIssuingPoint> enums = mCRLIssuePoints.elements();
         while (enums.hasMoreElements()) {
@@ -1035,7 +1049,7 @@ public class CertificateAuthority
          */
         stopped = true;
         try {
-            dbFactory.reset();
+            dbFactory.shutdown();
         } catch (ELdapException e) {
             logger.warn("CertificateAuthority.shutdown: failed to reset "
                     + "dbFactory: " + e);
@@ -1428,10 +1442,12 @@ public class CertificateAuthority
      */
     public X509CRLImpl sign(X509CRLImpl crl, String algname)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
         ensureReady();
         X509CRLImpl signedcrl = null;
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("signing");
         }
@@ -1501,11 +1517,13 @@ public class CertificateAuthority
      */
     public X509CertImpl sign(X509CertInfo certInfo, String algname)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
         ensureReady();
 
         X509CertImpl signedcert = null;
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("signing");
         }
@@ -1676,9 +1694,10 @@ public class CertificateAuthority
     /**
      * init CA signing unit & cert chain.
      */
-    private synchronized void initSigUnit() throws EBaseException {
+    synchronized void initSigUnit() throws EBaseException {
 
-        // init signing unit
+        logger.debug("CertificateAuthority: initializing signing unit for " + mName);
+
         mSigningUnit = new SigningUnit();
         IConfigStore caSigningCfg = mConfig.getSubStore(PROP_SIGNING_SUBSTORE);
 
@@ -2197,6 +2216,7 @@ public class CertificateAuthority
             return;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         mPolicy = new CAPolicy();
         mPolicy.init(this, mConfig.getSubStore(PROP_POLICY));
         logger.debug("CA policy inited");
@@ -2212,8 +2232,8 @@ public class CertificateAuthority
         try {
             int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
-            mRequestQueue =
-                    RequestSubsystem.getInstance().getRequestQueue(
+            RequestSubsystem reqSub = (RequestSubsystem) engine.getSubsystem(RequestSubsystem.ID);
+            mRequestQueue = reqSub.getRequestQueue(
                             getId(), reqdb_inc, mPolicy, mService, mNotify, mPNotify);
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_QUEUE_FAILED", e.toString()));
@@ -2428,6 +2448,7 @@ public class CertificateAuthority
          *    Otherwise, we move forward to generate and sign the
          *    aggregate OCSP response.
          */
+        CMSEngine engine = CMS.getCMSEngine();
         ICertificateAuthority ocspCA = this;
         if (caMap.size() > 0 && tbsReq.getRequestCount() > 0) {
             Request req = tbsReq.getRequestAt(0);
@@ -2448,8 +2469,8 @@ public class CertificateAuthority
         logger.debug("CertificateAuthority: validating OCSP request");
 
         mNumOCSPRequest++;
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
-        long startTime = CMS.getCurrentDate().getTime();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
+        long startTime = new Date().getTime();
 
         try {
             //log(ILogger.LL_INFO, "start OCSP request");
@@ -2462,7 +2483,7 @@ public class CertificateAuthority
                 statsSub.startTiming("lookup");
             }
 
-            long lookupStartTime = CMS.getCurrentDate().getTime();
+            long lookupStartTime = new Date().getTime();
 
             for (int i = 0; i < tbsReq.getRequestCount(); i++) {
                 Request req = tbsReq.getRequestAt(i);
@@ -2470,7 +2491,7 @@ public class CertificateAuthority
                 singleResponses.addElement(sr);
             }
 
-            long lookupEndTime = CMS.getCurrentDate().getTime();
+            long lookupEndTime = new Date().getTime();
             mLookupTime += lookupEndTime - lookupStartTime;
 
             if (statsSub != null) {
@@ -2510,7 +2531,7 @@ public class CertificateAuthority
             }
 
             ResponseData rd = new ResponseData(rid,
-                    new GeneralizedTime(CMS.getCurrentDate()), res, nonce);
+                    new GeneralizedTime(new Date()), res, nonce);
 
             if (statsSub != null) {
                 statsSub.endTiming("build_response");
@@ -2520,11 +2541,11 @@ public class CertificateAuthority
                 statsSub.startTiming("signing");
             }
 
-            long signStartTime = CMS.getCurrentDate().getTime();
+            long signStartTime = new Date().getTime();
 
             BasicOCSPResponse basicRes = sign(rd);
 
-            long signEndTime = CMS.getCurrentDate().getTime();
+            long signEndTime = new Date().getTime();
             mSignTime += signEndTime - signStartTime;
 
             if (statsSub != null) {
@@ -2537,7 +2558,7 @@ public class CertificateAuthority
                             new OCTET_STRING(ASN1Util.encode(basicRes))));
 
             //log(ILogger.LL_INFO, "done OCSP request");
-            long endTime = CMS.getCurrentDate().getTime();
+            long endTime = new Date().getTime();
             mTotalTime += endTime - startTime;
 
             return response;
@@ -2599,7 +2620,7 @@ public class CertificateAuthority
         logger.debug("CertificateAuthority: processing request for cert 0x" + serialNo.toString(16));
 
         CertStatus certStatus = null;
-        GeneralizedTime thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
+        GeneralizedTime thisUpdate = new GeneralizedTime(new Date());
 
         byte[] nameHash = null;
         String digestName = cid.getDigestName();
@@ -2790,6 +2811,7 @@ public class CertificateAuthority
             String subjectDN, String description)
             throws EBaseException {
 
+        CMSEngine engine = CMS.getCMSEngine();
         ensureReady();
 
         // check requested DN
@@ -2817,7 +2839,7 @@ public class CertificateAuthority
             throw new EBaseException("Failed to convert issuer DN to string: " + e);
         }
 
-        String thisClone = CMS.getEEHost() + ":" + CMS.getEESSLPort();
+        String thisClone = engine.getEEHost() + ":" + engine.getEESSLPort();
 
         LDAPAttribute[] attrs = {
             new LDAPAttribute("objectclass", "authority"),
@@ -2867,8 +2889,7 @@ public class CertificateAuthority
             // Sign certificate
             Locale locale = Locale.getDefault();
             String profileId = "caCACert";
-            IProfileSubsystem ps = (IProfileSubsystem)
-                CMS.getSubsystem(IProfileSubsystem.ID);
+            IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
             IProfile profile = ps.getProfile(profileId);
             ArgBlock argBlock = new ArgBlock();
             argBlock.set("cert_request_type", "pkcs10");
@@ -2937,6 +2958,8 @@ public class CertificateAuthority
      */
     public void renewAuthority(HttpServletRequest httpReq)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
         if (
             authorityParentID != null
             && !authorityParentID.equals(authorityID)
@@ -2945,8 +2968,7 @@ public class CertificateAuthority
             issuer.ensureReady();
         }
 
-        IProfileSubsystem ps = (IProfileSubsystem)
-            CMS.getSubsystem(IProfileSubsystem.ID);
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
         IProfile profile = ps.getProfile("caManualRenewal");
         CertEnrollmentRequest req = CertEnrollmentRequestFactory.create(
             new ArgBlock(), profile, httpReq.getLocale());
@@ -3150,8 +3172,9 @@ public class CertificateAuthority
     /**
      * Add this instance to the authorityKeyHosts
      */
-    private void addInstanceToAuthorityKeyHosts() throws ELdapException {
-        String thisClone = CMS.getEEHost() + ":" + CMS.getEESSLPort();
+    void addInstanceToAuthorityKeyHosts() throws ELdapException {
+        CMSEngine engine = CMS.getCMSEngine();
+        String thisClone = engine.getEEHost() + ":" + engine.getEESSLPort();
         if (authorityKeyHosts.contains(thisClone)) {
             // already there; nothing to do
             return;
@@ -3225,7 +3248,7 @@ public class CertificateAuthority
 
     /** Delete keys and certs of this authority from NSSDB.
      */
-    private void deleteAuthorityNSSDB() throws ECAException {
+    void deleteAuthorityNSSDB() throws ECAException {
         if (isHostAuthority()) {
             String msg = "Attempt to delete host authority signing key; not proceeding";
             log(ILogger.LL_WARN, msg);
@@ -3278,124 +3301,7 @@ public class CertificateAuthority
         }
     }
 
-    private void checkInitialLoadDone() {
-        if (initialNumAuthorities != null
-                && numAuthoritiesLoaded >= initialNumAuthorities)
-            initialLoadDone.countDown();
-    }
-
-    public void run() {
-        int op = LDAPPersistSearchControl.ADD
-            | LDAPPersistSearchControl.MODIFY
-            | LDAPPersistSearchControl.DELETE
-            | LDAPPersistSearchControl.MODDN;
-        LDAPPersistSearchControl persistCtrl =
-            new LDAPPersistSearchControl(op, false, true, true);
-
-        logger.debug("authorityMonitor: starting.");
-
-        while (!stopped) {
-            LDAPConnection conn = null;
-            try {
-                conn = dbFactory.getConn();
-                LDAPSearchConstraints cons = conn.getSearchConstraints();
-                cons.setServerControls(persistCtrl);
-                cons.setBatchSize(1);
-                cons.setServerTimeLimit(0 /* seconds */);
-                String[] attrs = {"*", "entryUSN", "nsUniqueId", "numSubordinates"};
-                LDAPSearchResults results = conn.search(
-                    authorityBaseDN(), LDAPConnection.SCOPE_SUB,
-                    "(objectclass=*)", attrs, false, cons);
-                while (!stopped && results.hasMoreElements()) {
-                    LDAPEntry entry = results.next();
-
-                    /* This behaviour requires detailed explanation.
-                     *
-                     * We want to block startup until all the
-                     * lightweight CAs existing at startup time are
-                     * loaded.  To do this, we need to know how many
-                     * authority entries there are.  And we must do
-                     * this atomically - we cannot issue two LDAP
-                     * searches in case things change.
-                     *
-                     * Therefore, we do a subtree search from the
-                     * authority container.  When we find the
-                     * container (objectClass=organizationalUnit),
-                     * we set initialNumAuthorities to the value of
-                     * its numSubordinates attribute.
-                     *
-                     * We increment numAuthoritiesLoaded for each
-                     * authority entry.  When numAuthoritiesLoaded
-                     * equals initialNumAuthorities, we unlock the
-                     * initialLoadDone latch.
-                     */
-                    String[] objectClasses =
-                        entry.getAttribute("objectClass").getStringValueArray();
-                    if (Arrays.asList(objectClasses).contains("organizationalUnit")) {
-                        initialNumAuthorities = new Integer(
-                            entry.getAttribute("numSubordinates")
-                                .getStringValueArray()[0]);
-                        checkInitialLoadDone();
-                        continue;
-                    }
-
-                    LDAPEntryChangeControl changeControl = (LDAPEntryChangeControl)
-                        LDAPUtil.getControl(
-                            LDAPEntryChangeControl.class, results.getResponseControls());
-                    logger.debug("authorityMonitor: Processed change controls.");
-                    if (changeControl != null) {
-                        int changeType = changeControl.getChangeType();
-                        switch (changeType) {
-                        case LDAPPersistSearchControl.ADD:
-                            logger.debug("authorityMonitor: ADD");
-                            readAuthority(entry);
-                            break;
-                        case LDAPPersistSearchControl.DELETE:
-                            logger.debug("authorityMonitor: DELETE");
-                            handleDELETE(entry);
-                            break;
-                        case LDAPPersistSearchControl.MODIFY:
-                            logger.debug("authorityMonitor: MODIFY");
-                            // TODO how do we handle authorityID change?
-                            readAuthority(entry);
-                            break;
-                        case LDAPPersistSearchControl.MODDN:
-                            logger.debug("authorityMonitor: MODDN");
-                            handleMODDN(new DN(changeControl.getPreviousDN()), entry);
-                            break;
-                        default:
-                            logger.debug("authorityMonitor: unknown change type: " + changeType);
-                            break;
-                        }
-                    } else {
-                        logger.debug("authorityMonitor: immediate result");
-                        readAuthority(entry);
-                        numAuthoritiesLoaded += 1;
-                        checkInitialLoadDone();
-                    }
-                }
-            } catch (ELdapException e) {
-                logger.warn("authorityMonitor: Failed to get LDAPConnection: " + e.getMessage(), e);
-                logger.warn("authorityMonitor: Retrying in 1 second.");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                }
-            } catch (LDAPException e) {
-                logger.warn("authorityMonitor: Failed to execute LDAP search for lightweight CAs: " + e, e);
-            } finally {
-                try {
-                    dbFactory.returnConn(conn);
-                } catch (Exception e) {
-                    logger.warn("authorityMonitor: Error releasing the LDAPConnection" + e.getMessage(), e);
-                }
-            }
-        }
-        logger.debug("authorityMonitor: stopping.");
-    }
-
-    private synchronized void readAuthority(LDAPEntry entry) {
+    synchronized void readAuthority(LDAPEntry entry) {
         String nsUniqueId =
             entry.getAttribute("nsUniqueId").getStringValueArray()[0];
         if (deletedNsUniqueIds.contains(nsUniqueId)) {
@@ -3417,12 +3323,11 @@ public class CertificateAuthority
             return;
         }
 
-        AuthorityID aid = new AuthorityID((String)
-            aidAttr.getStringValues().nextElement());
+        AuthorityID aid = new AuthorityID(aidAttr.getStringValues().nextElement());
 
         X500Name dn = null;
         try {
-            dn = new X500Name((String) dnAttr.getStringValues().nextElement());
+            dn = new X500Name(dnAttr.getStringValues().nextElement());
         } catch (IOException e) {
             logger.warn("Malformed authority object; invalid authorityDN: " + entry.getDN() + ": " + e.getMessage(), e);
         }
@@ -3430,7 +3335,7 @@ public class CertificateAuthority
         String desc = null;
         LDAPAttribute descAttr = entry.getAttribute("description");
         if (descAttr != null)
-            desc = (String) descAttr.getStringValues().nextElement();
+            desc = descAttr.getStringValues().nextElement();
 
         /* Determine if it is the host authority's entry, by
          * comparing DNs.  DNs must be serialised in case different
@@ -3480,14 +3385,14 @@ public class CertificateAuthority
         X500Name parentDN = null;
         if (parentDNAttr != null) {
             try {
-                parentDN = new X500Name((String) parentDNAttr.getStringValues().nextElement());
+                parentDN = new X500Name(parentDNAttr.getStringValues().nextElement());
             } catch (IOException e) {
                 logger.warn("Malformed authority object; invalid authorityParentDN: " + entry.getDN() + ": " + e.getMessage(), e);
                 return;
             }
         }
 
-        String keyNick = (String) nickAttr.getStringValues().nextElement();
+        String keyNick = nickAttr.getStringValues().nextElement();
 
         Collection<String> keyHosts;
         if (keyHostsAttr == null) {
@@ -3500,8 +3405,7 @@ public class CertificateAuthority
 
         AuthorityID parentAID = null;
         if (parentAIDAttr != null)
-            parentAID = new AuthorityID((String)
-                parentAIDAttr.getStringValues().nextElement());
+            parentAID = new AuthorityID(parentAIDAttr.getStringValues().nextElement());
 
         BigInteger serial = null;
         if (serialAttr != null)
@@ -3510,8 +3414,7 @@ public class CertificateAuthority
         boolean enabled = true;
         LDAPAttribute enabledAttr = entry.getAttribute("authorityEnabled");
         if (enabledAttr != null) {
-            String enabledString = (String)
-                enabledAttr.getStringValues().nextElement();
+            String enabledString = enabledAttr.getStringValues().nextElement();
             enabled = enabledString.equalsIgnoreCase("TRUE");
         }
 
@@ -3527,229 +3430,9 @@ public class CertificateAuthority
         }
     }
 
-    private synchronized void handleDELETE(LDAPEntry entry) {
-        LDAPAttribute attr = entry.getAttribute("nsUniqueId");
-        String nsUniqueId = null;
-        if (attr != null)
-            nsUniqueId = attr.getStringValueArray()[0];
-
-        if (deletedNsUniqueIds.remove(nsUniqueId)) {
-            logger.debug("handleDELETE: delete was already effected");
-            return;
-        }
-
-        AuthorityID aid = null;
-        attr = entry.getAttribute("authorityID");
-        if (attr != null) {
-            aid = new AuthorityID(attr.getStringValueArray()[0]);
-            CertificateAuthority ca = (CertificateAuthority) getCA(aid);
-            if (ca == null)
-                return;  // shouldn't happen
-
-            try {
-                ca.deleteAuthorityNSSDB();
-            } catch (ECAException e) {
-                // log and carry on
-                logger.warn(
-                    "Caught exception attempting to delete NSSDB material "
-                    + "for authority '" + aid + "': " + e.getMessage(), e);
-            }
-            forgetAuthority(aid);
-        }
-    }
-
-    private void forgetAuthority(AuthorityID aid) {
+    void forgetAuthority(AuthorityID aid) {
         caMap.remove(aid);
         entryUSNs.remove(aid);
         nsUniqueIds.remove(aid);
     }
-
-    private synchronized void handleMODDN(DN oldDN, LDAPEntry entry) {
-        DN authorityBase = new DN(authorityBaseDN());
-
-        boolean wasMonitored = oldDN.isDescendantOf(authorityBase);
-        boolean isMonitored = (new DN(entry.getDN())).isDescendantOf(authorityBase);
-        if (wasMonitored && !isMonitored) {
-            LDAPAttribute attr = entry.getAttribute("authorityID");
-            if (attr != null) {
-                AuthorityID aid = new AuthorityID(attr.getStringValueArray()[0]);
-                forgetAuthority(aid);
-            }
-        } else if (!wasMonitored && isMonitored) {
-            readAuthority(entry);
-        }
-    }
-
-    private class KeyRetrieverRunner implements Runnable {
-        private AuthorityID aid;
-        private String nickname;
-        private Collection<String> hosts;
-
-        public KeyRetrieverRunner(
-                AuthorityID aid, String nickname, Collection<String> hosts) {
-            this.aid = aid;
-            this.nickname = nickname;
-            this.hosts = hosts;
-        }
-
-        public void run() {
-            try {
-                long d = 10000;  // initial delay of 10 seconds
-                while (!_run()) {
-                    logger.debug("Retrying in " + d / 1000 + " seconds");
-                    try {
-                        Thread.sleep(d);
-                    } catch (InterruptedException e) {
-                        break;
-                    }
-                    d += d / 2;  // back off
-                }
-            } finally {
-                // remove self from tracker
-                keyRetrieverThreads.remove(aid);
-            }
-        }
-
-        /**
-         * Main routine of key retrieval and key import.
-         *
-         * @return false if retrieval should be retried, or true if
-         *         the process is "done".  Note that a result of true
-         *         does not necessarily imply that the process fully
-         *         completed.  See comments at sites of 'return true;'
-         *         below.
-         */
-        private boolean _run() {
-            String KR_CLASS_KEY = "features.authority.keyRetrieverClass";
-            String KR_CONFIG_KEY = "features.authority.keyRetrieverConfig";
-
-            String className = null;
-            try {
-                className = CMS.getConfigStore().getString(KR_CLASS_KEY);
-            } catch (EBaseException e) {
-                logger.warn("Unable to read key retriever class from CS.cfg: " + e.getMessage(), e);
-                return false;
-            }
-
-            IConfigStore krConfig = CMS.getConfigStore().getSubStore(KR_CONFIG_KEY);
-
-            KeyRetriever kr = null;
-            try {
-                Class<? extends KeyRetriever> cls =
-                    Class.forName(className).asSubclass(KeyRetriever.class);
-
-                // If there is an accessible constructor that takes
-                // an IConfigStore, invoke that; otherwise invoke
-                // the nullary constructor.
-                try {
-                    kr = cls.getDeclaredConstructor(IConfigStore.class)
-                        .newInstance(krConfig);
-                } catch (NoSuchMethodException | SecurityException
-                        | IllegalAccessException e) {
-                    kr = cls.newInstance();
-                }
-            } catch (ClassNotFoundException e) {
-                logger.warn("Could not find class: " + className, e);
-                return false;
-            } catch (ClassCastException e) {
-                logger.warn("Class is not an instance of KeyRetriever: " + className, e);
-                return false;
-            } catch (InstantiationException | IllegalAccessException
-                    | IllegalArgumentException | InvocationTargetException e) {
-                logger.warn("Could not instantiate class: " + className, e);
-                return false;
-            }
-
-            KeyRetriever.Result krr = null;
-            try {
-                krr = kr.retrieveKey(nickname, hosts);
-            } catch (Throwable e) {
-                logger.warn("Caught exception during execution of KeyRetriever.retrieveKey", e);
-                return false;
-            }
-
-            if (krr == null) {
-                logger.warn("KeyRetriever did not return a result.");
-                return false;
-            }
-
-            logger.debug("Importing key and cert");
-            byte[] certBytes = krr.getCertificate();
-            byte[] paoData = krr.getPKIArchiveOptions();
-            try {
-                CryptoManager manager = CryptoManager.getInstance();
-                CryptoToken token = manager.getInternalKeyStorageToken();
-
-                X509Certificate cert = manager.importCACertPackage(certBytes);
-                PublicKey pubkey = cert.getPublicKey();
-                token.getCryptoStore().deleteCert(cert);
-
-                PrivateKey unwrappingKey = hostCA.mSigningUnit.getPrivateKey();
-
-                CryptoUtil.importPKIArchiveOptions(
-                    token, unwrappingKey, pubkey, paoData);
-
-                cert = manager.importUserCACertPackage(certBytes, nickname);
-            } catch (Throwable e) {
-                logger.warn("Caught exception during cert/key import", e);
-                return false;
-            }
-
-            logger.debug("Reinitialising SigningUnit");
-
-            /* While we were retrieving the key and cert, the
-             * CertificateAuthority instance in the caMap might
-             * have been replaced, so look it up afresh.
-             */
-            CertificateAuthority ca = (CertificateAuthority) getCA(aid);
-            if (ca == null) {
-                /* We got the key, but the authority has been
-                 * deleted.  Do not retry.
-                 */
-                logger.debug("Authority was deleted; returning.");
-                return true;
-            }
-
-            boolean initSigUnitSucceeded = false;
-            try {
-                // re-init signing unit, but avoid triggering
-                // key replication if initialisation fails again
-                // for some reason
-                //
-                ca.initSigUnit();
-                initSigUnitSucceeded = true;
-
-            } catch (CAMissingCertException | CAMissingKeyException e) {
-                logger.warn("CA signing key and cert not (yet) present in NSSDB");
-                signingUnitException = e;
-
-            } catch (Throwable e) {
-                logger.warn("Caught exception during SigningUnit re-init", e);
-                return false;
-            }
-
-            if (!initSigUnitSucceeded) {
-                logger.warn("Failed to re-init SigningUnit");
-                return false;
-            }
-
-            logger.debug("Adding self to authorityKeyHosts attribute");
-            try {
-                ca.addInstanceToAuthorityKeyHosts();
-            } catch (Throwable e) {
-                /* We retrieved key, imported it, and successfully
-                 * re-inited the signing unit.  The only thing that
-                 * failed was adding this host to the list of hosts
-                 * that possess the key.  This is unlikely, and the
-                 * key is available elsewhere, so no need to retry.
-                 */
-                logger.warn("Failed to add self to authorityKeyHosts", e);
-                return true;
-            }
-
-            /* All good! */
-            return true;
-        }
-    }
-
 }

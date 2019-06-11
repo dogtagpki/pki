@@ -30,11 +30,11 @@ import java.util.Vector;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.IAttrSet;
 
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * An interface that defines abilities of request objects,

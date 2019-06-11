@@ -24,9 +24,9 @@ import java.util.Vector;
 
 import netscape.ldap.LDAPEntry;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * class for parsing a DN pattern used to construct a certificate

@@ -401,15 +401,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if len(deployer.instance.tomcat_instance_subsystems()) > 1:
             return False
 
+        nickname = deployer.mdict['pki_sslserver_nickname']
+        instance.set_sslserver_cert_nickname(nickname)
+
+        tmpdir = tempfile.mkdtemp()
         nssdb = instance.open_nssdb()
 
         try:
-            nickname = deployer.mdict['pki_self_signed_nickname']
-
             logger.info('Checking existing SSL server cert: %s', nickname)
-
-            pem_cert = nssdb.get_cert(
-                nickname=nickname)
+            pem_cert = nssdb.get_cert(nickname=nickname)
 
             if pem_cert:
                 cert = x509.load_pem_x509_certificate(pem_cert, default_backend())
@@ -430,56 +430,42 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
             logger.info('Creating temp SSL server cert for %s', deployer.mdict['pki_hostname'])
 
-            instance.set_sslserver_cert_nickname(nickname)
-
             # TODO: replace with pki-server create-cert sslserver --temp
 
-            logger.info('Creating password file: %s', deployer.mdict['pki_shared_pfile'])
-            deployer.password.create_password_conf(
-                deployer.mdict['pki_shared_pfile'],
-                deployer.mdict['pki_server_database_password'], pin_sans_token=True)
-
-            # only create a self signed cert for a new instance
-            #
             # NOTE:  ALWAYS create the temporary sslserver certificate
             #        in the software DB regardless of whether the
             #        instance will utilize 'softokn' or an HSM
-            #
-            # note: in the function below, certutil is used to generate
-            # the request for the self signed cert.  The keys are generated
-            # by NSS, which does not actually use the data in the noise
-            # file, so it does not matter what is in this file.  Certutil
-            # still requires it though, otherwise it waits for keyboard
-            # input
 
-            with open(deployer.mdict['pki_self_signed_noise_file'], 'w') as f:
-                f.write("not_so_random_data")
+            csr_file = os.path.join(tmpdir, 'sslserver.csr')
+            cert_file = os.path.join(tmpdir, 'sslserver.crt')
 
-            deployer.certutil.generate_self_signed_certificate(
-                deployer.mdict['pki_server_database_path'],
-                deployer.mdict['pki_self_signed_token'],
-                deployer.mdict['pki_self_signed_nickname'],
-                deployer.mdict['pki_self_signed_subject'],
-                deployer.mdict['pki_sslserver_key_type'],
-                deployer.mdict['pki_sslserver_key_size'],
-                deployer.mdict['pki_self_signed_serial_number'],
-                deployer.mdict['pki_self_signed_validity_period'],
-                deployer.mdict['pki_self_signed_issuer_name'],
-                deployer.mdict['pki_self_signed_trustargs'],
-                deployer.mdict['pki_self_signed_noise_file'],
-                password_file=deployer.mdict['pki_shared_pfile'])
+            nssdb.create_request(
+                subject_dn=deployer.mdict['pki_self_signed_subject'],
+                request_file=csr_file,
+                token=deployer.mdict['pki_self_signed_token'],
+                key_type=deployer.mdict['pki_sslserver_key_type'],
+                key_size=deployer.mdict['pki_sslserver_key_size']
+            )
 
-            # Delete the temporary 'noise' file
-            deployer.file.delete(
-                deployer.mdict['pki_self_signed_noise_file'])
+            nssdb.create_cert(
+                request_file=csr_file,
+                cert_file=cert_file,
+                serial=deployer.mdict['pki_self_signed_serial_number'],
+                validity=deployer.mdict['pki_self_signed_validity_period']
+            )
 
-            # Always delete the temporary 'pfile'
-            deployer.file.delete(deployer.mdict['pki_shared_pfile'])
+            nssdb.add_cert(
+                nickname=nickname,
+                cert_file=cert_file,
+                token=deployer.mdict['pki_self_signed_token'],
+                trust_attributes=deployer.mdict['pki_self_signed_trustargs']
+            )
 
             return True
 
         finally:
             nssdb.close()
+            shutil.rmtree(tmpdir)
 
     def remove_temp_sslserver_cert(self, instance, sslserver):
 
@@ -562,8 +548,39 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
         instance.load()
 
-        subsystem = instance.get_subsystem(
-            deployer.mdict['pki_subsystem'].lower())
+        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+
+        # configure internal database
+        subsystem.config['internaldb.ldapconn.host'] = deployer.mdict['pki_ds_hostname']
+
+        if config.str2bool(deployer.mdict['pki_ds_secure_connection']):
+            subsystem.config['internaldb.ldapconn.secureConn'] = 'true'
+            subsystem.config['internaldb.ldapconn.port'] = deployer.mdict['pki_ds_ldaps_port']
+        else:
+            subsystem.config['internaldb.ldapconn.secureConn'] = 'false'
+            subsystem.config['internaldb.ldapconn.port'] = deployer.mdict['pki_ds_ldap_port']
+
+        subsystem.config['internaldb.ldapauth.bindDN'] = deployer.mdict['pki_ds_bind_dn']
+        subsystem.config['internaldb.basedn'] = deployer.mdict['pki_ds_base_dn']
+        subsystem.config['internaldb.database'] = deployer.mdict['pki_ds_database']
+
+        if config.str2bool(deployer.mdict['pki_share_db']):
+            subsystem.config['preop.internaldb.dbuser'] = deployer.mdict['pki_share_dbuser_dn']
+
+        if config.str2bool(deployer.mdict['pki_ds_create_new_db']):
+            subsystem.config['preop.database.createNewDB'] = 'true'
+        else:
+            subsystem.config['preop.database.createNewDB'] = 'false'
+
+        if config.str2bool(deployer.mdict['pki_ds_remove_data']):
+            subsystem.config['preop.database.removeData'] = 'true'
+        else:
+            subsystem.config['preop.database.removeData'] = 'false'
+
+        # configure cloning
+        subsystem.config['preop.database.setupReplication'] = \
+            deployer.mdict['pki_clone_setup_replication']
+        subsystem.config['preop.database.reindexData'] = deployer.mdict['pki_clone_reindex_data']
 
         ocsp_uri = deployer.mdict.get('pki_default_ocsp_uri')
         if ocsp_uri:
@@ -645,10 +662,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             len(deployer.instance.tomcat_instance_subsystems())
 
         if tomcat_instance_subsystems == 1:
-            deployer.systemd.start()
+            instance.start()
 
         elif tomcat_instance_subsystems > 1:
-            deployer.systemd.restart()
+            instance.restart()
 
         # Configure status request timeout.  This is used for each
         # status request in wait_for_startup
@@ -699,42 +716,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         logger.info('Configuring certificates')
         response = client.configureCerts(request)
 
-        if not clone:
-            logger.info('Setting up admin')
-            admin_setup_request = deployer.config_client.create_admin_setup_request()
-            admin_setup_response = client.setupAdmin(admin_setup_request)
-
-        if config.str2bool(deployer.mdict['pki_backup_keys']):
-
-            logger.info(
-                'Backing up keys into %s',
-                deployer.mdict['pki_backup_keys_p12'])
-
-            key_backup_request = deployer.config_client.create_key_backup_request()
-            client.backupKeys(key_backup_request)
-
-        logger.info('Setting up security domain')
-        client.setupSecurityDomain(request)
-
-        logger.info('Setting up database user')
-        client.setupDatabaseUser(request)
-
-        logger.info('Finalizing %s configuration', subsystem.type)
-        client.finalizeConfiguration(request)
-
-        logger.info('%s configuration complete', subsystem.type)
-
-        # Create an empty file that designates the fact that although
-        # this server instance has been configured, it has NOT yet
-        # been restarted!
-
-        restart_server = os.path.join(instance.conf_dir, 'restart_server_after_configuration')
-        logger.debug('Creating %s', restart_server)
-
-        open(restart_server, 'a').close()
-        os.chown(restart_server, instance.uid, instance.gid)
-        os.chmod(restart_server, 0o660)
-
         try:
             certs = response['systemCerts']
         except KeyError:
@@ -756,18 +737,54 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             logger.debug('%s cert: %s', cdata['tag'], cdata['cert'])
             logger.debug('%s request: %s', cdata['tag'], cdata['request'])
 
-        # Cloned PKI subsystems do not return an Admin Certificate
         if not clone:
+
+            logger.info('Setting up admin user')
+
+            admin_setup_request = deployer.config_client.create_admin_setup_request()
+            admin_setup_response = client.setupAdmin(admin_setup_request)
 
             if external or standalone \
                     or not config.str2bool(deployer.mdict['pki_import_admin_cert']):
                 admin_cert = admin_setup_response['adminCert']['cert']
                 deployer.config_client.process_admin_cert(admin_cert)
 
+        if config.str2bool(deployer.mdict['pki_backup_keys']):
+
+            logger.info(
+                'Backing up keys into %s',
+                deployer.mdict['pki_backup_keys_p12'])
+
+            key_backup_request = deployer.config_client.create_key_backup_request()
+            client.backupKeys(key_backup_request)
+
+        logger.info('Setting up security domain')
+        client.setupSecurityDomain(request)
+
+        if not config.str2bool(deployer.mdict['pki_share_db']):
+            logger.info('Setting up database user')
+            client.setupDatabaseUser(request)
+
+        logger.info('Finalizing %s configuration', subsystem.type)
+        client.finalizeConfiguration(request)
+
+        logger.info('%s configuration complete', subsystem.type)
+
+        # Create an empty file that designates the fact that although
+        # this server instance has been configured, it has NOT yet
+        # been restarted!
+
+        restart_server = os.path.join(instance.conf_dir, 'restart_server_after_configuration')
+        logger.debug('Creating %s', restart_server)
+
+        open(restart_server, 'a').close()
+        os.chown(restart_server, instance.uid, instance.gid)
+        os.chmod(restart_server, 0o660)
+
         # If temp SSL server cert was created and there's a new perm cert,
         # replace it with the perm cert.
         if create_temp_sslserver_cert and sslserver and sslserver['data']:
-            deployer.systemd.stop()
+            instance.stop()
 
             # Remove temp SSL server cert.
             self.remove_temp_sslserver_cert(instance, sslserver)
@@ -783,11 +800,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 self.import_perm_sslserver_cert(deployer, instance, sslserver)
 
-            deployer.systemd.start()
+            instance.start()
 
         elif config.str2bool(deployer.mdict['pki_restart_configured_instance']):
             # Optionally, programmatically 'restart' the configured PKI instance
-            deployer.systemd.restart()
+            instance.restart()
 
         # wait for startup
         status = None

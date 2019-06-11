@@ -77,13 +77,6 @@ public interface ILdapAuthInfo {
     public int getAuthType();
 
     /**
-     * Get params for authentication.
-     *
-     * @return array of parameters for this authentication as an array of Strings.
-     */
-    public String[] getParms();
-
-    /**
      * Add password to private password data structure.
      *
      * @param prompt Password prompt.

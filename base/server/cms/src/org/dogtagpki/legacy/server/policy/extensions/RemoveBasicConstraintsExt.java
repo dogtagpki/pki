@@ -24,18 +24,17 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.X509CertInfo;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Remove Basic Constraints policy.
@@ -51,6 +50,9 @@ import netscape.security.x509.X509CertInfo;
  */
 public class RemoveBasicConstraintsExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RemoveBasicConstraintsExt.class);
+
     public RemoveBasicConstraintsExt() {
         NAME = "RemoveBasicConstraintsExt";
         DESC = "Remove Basic Constraints extension";
@@ -94,7 +96,7 @@ public class RemoveBasicConstraintsExt extends APolicyRule
             if (extensions != null) {
                 try {
                     extensions.delete(BasicConstraintsExtension.NAME);
-                    CMS.debug("PolicyRule RemoveBasicConstraintsExt: removed the extension from request "
+                    logger.debug("PolicyRule RemoveBasicConstraintsExt: removed the extension from request "
                             + req.getRequestId().toString());
                 } catch (IOException e) {
                 }

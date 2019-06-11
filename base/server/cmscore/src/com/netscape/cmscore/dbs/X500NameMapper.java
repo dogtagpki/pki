@@ -21,17 +21,18 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
-import netscape.security.x509.X500Name;
 
 /**
  * A class represents ann attribute mapper that maps
@@ -88,7 +89,7 @@ public class X500NameMapper implements IDBAttrMapper {
             return;
         }
         try {
-            parent.set(name, new X500Name((String)
+            parent.set(name, new X500Name(
                     attr.getStringValues().nextElement()));
         } catch (IOException e) {
 

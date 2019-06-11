@@ -27,13 +27,11 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
@@ -44,6 +42,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Servlet to report the status, ie, the agent-initiated user
@@ -93,6 +94,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
 
@@ -118,13 +120,13 @@ public class DisplayHashUserEnroll extends CMSServlet {
             return;
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        IConfigStore configStore = CMS.getConfigStore();
+        IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
         boolean isEnable = mgr.isEnable(reqHost);
@@ -187,8 +189,8 @@ public class DisplayHashUserEnroll extends CMSServlet {
             throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         mTemplates.remove(ICMSRequest.SUCCESS);

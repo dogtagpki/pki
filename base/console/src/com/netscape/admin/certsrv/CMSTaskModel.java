@@ -275,7 +275,7 @@ public class CMSTaskModel extends TaskModel implements IMenuInfo {
 			if ( entry != null ) {
 				LDAPAttribute attr = entry.getAttribute( attrs[0] );
 				if ( attr != null ) {
-					order = (String)attr.getStringValues().nextElement();
+					order = attr.getStringValues().nextElement();
 				}
 			}
 		} catch ( LDAPException ex ) {

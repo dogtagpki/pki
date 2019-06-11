@@ -6,24 +6,23 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import netscape.security.util.DerOutputStream;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.X509CertImpl;
+import org.junit.Assert;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.usrgrp.Certificates;
-import com.netscape.cmscore.app.CMSEngineDefaultStub;
 import com.netscape.cmscore.test.CMSBaseTestCase;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class AuthTokenTest extends CMSBaseTestCase {
 
     AuthToken authToken;
-    CMSMemoryStub cmsStub;
 
     public AuthTokenTest(String name) {
         super(name);
@@ -31,10 +30,6 @@ public class AuthTokenTest extends CMSBaseTestCase {
 
     public void cmsTestSetUp() {
         authToken = new AuthToken(null);
-
-        // this is needed because of CMS.AtoB/BtoA calls
-        cmsStub = new CMSMemoryStub();
-        CMS.setCMSEngine(cmsStub);
     }
 
     public void cmsTestTearDown() {
@@ -54,14 +49,10 @@ public class AuthTokenTest extends CMSBaseTestCase {
 
     public void testGetSetByteArray() {
         byte[] data = new byte[] { -12, 0, 14, 15 };
-
-        assertFalse(cmsStub.bToACalled);
         authToken.set("key", data);
-        assertTrue(cmsStub.bToACalled);
 
-        assertFalse(cmsStub.aToBCalled);
         byte[] retval = authToken.getInByteArray("key");
-        assertEquals(data, retval);
+        Assert.assertArrayEquals(data, retval);
 
         assertFalse(authToken.set("key2", (byte[]) null));
     }
@@ -88,11 +79,9 @@ public class AuthTokenTest extends CMSBaseTestCase {
         authToken.set("key", data);
         assertEquals("111111111,222222222,333333333",
                 authToken.get("key"));
+
         BigInteger[] retval = authToken.getInBigIntegerArray("key");
-        assertEquals(3, retval.length);
-        assertEquals(data[0], retval[0]);
-        assertEquals(data[1], retval[1]);
-        assertEquals(data[2], retval[2]);
+        Assert.assertArrayEquals(data, retval);
 
         authToken.set("key2", "123456");
         retval = authToken.getInBigIntegerArray("key2");
@@ -135,21 +124,13 @@ public class AuthTokenTest extends CMSBaseTestCase {
                 "eenie", "meenie", "miny", "moe"
         };
 
-        assertFalse(cmsStub.bToACalled);
         authToken.set("key", value);
-        assertTrue(cmsStub.bToACalled);
 
-        assertFalse(cmsStub.aToBCalled);
         String[] retval = authToken.getInStringArray("key");
         if (retval == null) {
             throw new IOException("Unable to get key as String Array");
         }
-        assertTrue(cmsStub.aToBCalled);
-        assertEquals(4, retval.length);
-        assertEquals(value[0], retval[0]);
-        assertEquals(value[1], retval[1]);
-        assertEquals(value[2], retval[2]);
-        assertEquals(value[3], retval[3]);
+        Assert.assertArrayEquals(value, retval);
 
         // illegal value parsing
         authToken.set("key2", new byte[] { 1, 2, 3, 4 });
@@ -167,14 +148,9 @@ public class AuthTokenTest extends CMSBaseTestCase {
 
     public void testGetSetCert() throws CertificateException {
         X509CertImpl cert = getFakeCert();
-
-        assertFalse(cmsStub.bToACalled);
         authToken.set("key", cert);
-        assertTrue(cmsStub.bToACalled);
 
-        assertFalse(cmsStub.aToBCalled);
         X509CertImpl retval = authToken.getInCert("key");
-        assertTrue(cmsStub.aToBCalled);
         assertNotNull(retval);
         assertEquals(cert, retval);
 
@@ -187,6 +163,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
 
         assertTrue(authToken.set("key", certExts));
         assertNotNull(authToken.get("key"));
+
         CertificateExtensions retval = authToken.getInCertExts("key");
         assertNotNull(retval);
         assertEquals(0, retval.size());
@@ -197,6 +174,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         retval = authToken.getInCertExts("key2");
         assertNotNull(authToken.get("key2"));
         assertNotNull(retval);
+
         assertEquals(1, retval.size());
 
         assertFalse(authToken.set("key3", (CertificateExtensions) null));
@@ -208,19 +186,13 @@ public class AuthTokenTest extends CMSBaseTestCase {
         X509CertImpl[] certArray = new X509CertImpl[] { cert1, cert2 };
         Certificates certs = new Certificates(certArray);
 
-        assertFalse(cmsStub.bToACalled);
         authToken.set("key", certs);
-        assertTrue(cmsStub.bToACalled);
 
-        assertFalse(cmsStub.aToBCalled);
         Certificates retval = authToken.getInCertificates("key");
-        assertTrue(cmsStub.aToBCalled);
         assertNotNull(retval);
 
         X509Certificate[] retCerts = retval.getCertificates();
-        assertEquals(2, retCerts.length);
-        assertEquals(cert1, retCerts[0]);
-        assertEquals(cert2, retCerts[1]);
+        Assert.assertArrayEquals(certArray, retCerts);
 
         assertFalse(authToken.set("key2", (Certificates) null));
     }
@@ -232,49 +204,12 @@ public class AuthTokenTest extends CMSBaseTestCase {
                 new byte[] { 50, -12, 0, 100 }
         };
 
-        assertFalse(cmsStub.bToACalled);
         assertTrue(authToken.set("key", value));
-        assertTrue(cmsStub.bToACalled);
 
-        assertFalse(cmsStub.aToBCalled);
         byte[][] retval = authToken.getInByteArrayArray("key");
-        assertTrue(cmsStub.aToBCalled);
         assertNotNull(retval);
-        assertEquals(value.length, retval.length);
-        for (int i = 0; i < value.length; i++) {
-            assertEquals(value[i].length, retval[i].length);
-            for (int j = 0; j < value[i].length; j++) {
-                assertEquals(value[i][j], retval[i][j]);
-            }
-        }
+        Assert.assertArrayEquals(value, retval);
 
         assertFalse(authToken.set("key2", (byte[][]) null));
-    }
-
-    /**
-     * CMSMemoryStub
-     *
-     * This class is used to help test methods that rely on setting and then
-     * getting a value out. It assumes BtoA is always called first, stores
-     * the value passed in, and then returns that value for BtoA.
-     */
-    static class CMSMemoryStub extends CMSEngineDefaultStub {
-        boolean bToACalled = false;
-        byte[] bToACalledWith = null;
-
-        boolean aToBCalled = false;
-        String aToBCalledWith = null;
-
-        public String BtoA(byte data[]) {
-            bToACalled = true;
-            bToACalledWith = data;
-            return "garbagetostoreinthehash";
-        }
-
-        public byte[] AtoB(String data) {
-            aToBCalled = true;
-            aToBCalledWith = data;
-            return bToACalledWith;
-        }
     }
 }

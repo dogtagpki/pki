@@ -17,13 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.evaluators;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents a IP address acls evaluator.
@@ -32,9 +31,11 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class IPAddressAccessEvaluator implements IAccessEvaluator {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IPAddressAccessEvaluator.class);
+
     private String mType = "ipaddress";
     private String mDescription = "IP Address evaluator";
-    private Logger mLogger = Logger.getLogger();
 
     /**
      * Class constructor.
@@ -106,7 +107,7 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
 
         if (type.equals(mType)) {
             if (ipaddress == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUATOR_IPADDRESS_NULL"));
+                logger.warn("IPAddressAccessEvaluator: " + CMS.getLogMessage("EVALUATOR_IPADDRESS_NULL"));
                 return false;
             }
             if (op.equals("=")) {
@@ -118,12 +119,5 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
         }
 
         return false;
-    }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_ACLS,
-                level, "GroupAccessEvaluator: " + msg);
     }
 }

@@ -34,7 +34,6 @@ import org.dogtagpki.server.tps.config.ProfileMappingDatabase;
 import org.dogtagpki.server.tps.config.ProfileMappingRecord;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.base.PKIException;
@@ -45,14 +44,18 @@ import com.netscape.certsrv.tps.profile.ProfileMappingCollection;
 import com.netscape.certsrv.tps.profile.ProfileMappingData;
 import com.netscape.certsrv.tps.profile.ProfileMappingResource;
 import com.netscape.cms.servlet.base.SubsystemService;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
  */
 public class ProfileMappingService extends SubsystemService implements ProfileMappingResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileMappingService.class);
+
     public ProfileMappingService() {
-        CMS.debug("ProfileMappingService.<init>()");
+        logger.debug("ProfileMappingService.<init>()");
     }
 
     public ProfileMappingData createProfileMappingData(ProfileMappingRecord profileMappingRecord)
@@ -86,7 +89,7 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
     @Override
     public Response findProfileMappings(String filter, Integer start, Integer size) {
 
-        CMS.debug("ProfileMappingService.findProfileMappings()");
+        logger.debug("ProfileMappingService.findProfileMappings()");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -95,8 +98,9 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             Iterator<ProfileMappingRecord> profileMappings = database.findRecords(filter).iterator();
@@ -131,11 +135,11 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
             return createOKResponse(response);
 
         } catch (PKIException e) {
-            CMS.debug("ProfileMappingService: " + e);
+            logger.error("ProfileMappingService: " + e.getMessage(), e);
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("ProfileMappingService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -143,20 +147,21 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
     @Override
     public Response getProfileMapping(String profileMappingID) {
 
-        CMS.debug("ProfileMappingService.getProfileMapping(\"" + profileMappingID + "\")");
+        logger.debug("ProfileMappingService.getProfileMapping(\"" + profileMappingID + "\")");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             return createOKResponse(createProfileMappingData(database.getRecord(profileMappingID)));
 
         } catch (PKIException e) {
-            CMS.debug("ProfileMappingService: " + e);
+            logger.error("ProfileMappingService: " + e.getMessage(), e);
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("ProfileMappingService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -165,10 +170,11 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
     public Response addProfileMapping(ProfileMappingData profileMappingData) {
         String method = "ProfileMappingService.addProfileMapping";
 
-        CMS.debug("ProfileMappingService.addProfileMapping(\"" + profileMappingData.getID() + "\")");
+        logger.debug("ProfileMappingService.addProfileMapping(\"" + profileMappingData.getID() + "\")");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             String status = profileMappingData.getStatus();
@@ -187,13 +193,13 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
             return createCreatedResponse(profileMappingData, profileMappingData.getLink().getHref());
 
         } catch (PKIException e) {
-            CMS.debug("ProfileMappingService: " + e);
+            logger.error("ProfileMappingService: " + e.getMessage(), e);
             auditMappingResolverChange(ILogger.FAILURE, method, profileMappingData.getID(),
                     profileMappingData.getProperties(), e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("ProfileMappingService: " + e.getMessage(), e);
             auditMappingResolverChange(ILogger.FAILURE, method, profileMappingData.getID(),
                     profileMappingData.getProperties(), e.toString());
             throw new PKIException(e);
@@ -204,10 +210,11 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
     public Response updateProfileMapping(String profileMappingID, ProfileMappingData profileMappingData) {
         String method = "ProfileMappingService.updateProfileMapping";
 
-        CMS.debug("ProfileMappingService.updateProfileMapping(\"" + profileMappingID + "\")");
+        logger.debug("ProfileMappingService.updateProfileMapping(\"" + profileMappingID + "\")");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             ProfileMappingRecord record = database.getRecord(profileMappingID);
@@ -259,13 +266,13 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
             return createOKResponse(profileMappingData);
 
         } catch (PKIException e) {
-            CMS.debug("ProfileMappingService: " + e);
+            logger.error("ProfileMappingService: " + e.getMessage(), e);
             auditMappingResolverChange(ILogger.FAILURE, method, profileMappingData.getID(),
                     profileMappingData.getProperties(), e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug("ProfileMappingService: " + e);
+            logger.error("ProfileMappingService: " + e.getMessage(), e);
             auditMappingResolverChange(ILogger.FAILURE, method, profileMappingData.getID(),
                     profileMappingData.getProperties(), e.toString());
             throw new PKIException(e);
@@ -291,10 +298,11 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
         }
         auditModParams.put("Action", action);
 
-        CMS.debug("ProfileMappingService.changeStatus(\"" + profileMappingID + "\", \"" + action + "\")");
+        logger.debug("ProfileMappingService.changeStatus(\"" + profileMappingID + "\", \"" + action + "\")");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             ProfileMappingRecord record = database.getRecord(profileMappingID);
@@ -390,13 +398,13 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
             return createOKResponse(profileMappingData);
 
         } catch (PKIException e) {
-            CMS.debug("ProfileMappingService: " + e);
+            logger.error("ProfileMappingService: " + e.getMessage(), e);
             auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
                     auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug("ProfileMappingService: " + e);
+            logger.error("ProfileMappingService: " + e.getMessage(), e);
             auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
                     auditModParams, e.toString());
             throw new PKIException(e);
@@ -408,10 +416,11 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
         String method = "ProfileMappingService.removeProfileMapping";
         Map<String, String> auditModParams = new HashMap<String, String>();
 
-        CMS.debug("ProfileMappingService.removeProfileMapping(\"" + profileMappingID + "\")");
+        logger.debug("ProfileMappingService.removeProfileMapping(\"" + profileMappingID + "\")");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ProfileMappingDatabase database = subsystem.getProfileMappingDatabase();
 
             ProfileMappingRecord record = database.getRecord(profileMappingID);
@@ -430,13 +439,13 @@ public class ProfileMappingService extends SubsystemService implements ProfileMa
             return createNoContentResponse();
 
         } catch (PKIException e) {
-            CMS.debug("ProfileMappingService: " + e);
+            logger.error("ProfileMappingService: " + e.getMessage(), e);
             auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
                     auditModParams, e.toString());
             throw e;
 
         } catch (Exception e) {
-            CMS.debug("ProfileMappingService: " + e);
+            logger.error("ProfileMappingService: " + e.getMessage(), e);
             auditMappingResolverChange(ILogger.FAILURE, method, profileMappingID,
                     auditModParams, e.toString());
             throw new PKIException(e);

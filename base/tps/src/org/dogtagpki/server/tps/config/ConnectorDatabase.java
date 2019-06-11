@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.cmscore.dbs.CSCfgDatabase;
@@ -33,6 +32,8 @@ import com.netscape.cmscore.dbs.CSCfgDatabase;
  * @author Endi S. Dewata
  */
 public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConnectorDatabase.class);
 
     public String prefix = "tps.connector";
 
@@ -80,7 +81,7 @@ public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
     @Override
     public void addRecord(String connectorID, ConnectorRecord connectorRecord) throws Exception {
 
-        CMS.debug("ConnectorDatabase.addRecord(\"" + connectorID + "\")");
+        logger.debug("ConnectorDatabase.addRecord(\"" + connectorID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
@@ -104,7 +105,7 @@ public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
     @Override
     public void updateRecord(String connectorID, ConnectorRecord connectorRecord) throws Exception {
 
-        CMS.debug("ConnectorDatabase.updateRecord(\"" + connectorID + "\")");
+        logger.debug("ConnectorDatabase.updateRecord(\"" + connectorID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
@@ -127,7 +128,7 @@ public class ConnectorDatabase extends CSCfgDatabase<ConnectorRecord> {
     @Override
     public void removeRecord(String connectorID) throws Exception {
 
-        CMS.debug("ConnectorDatabase.removeRecord(\"" + connectorID + "\")");
+        logger.debug("ConnectorDatabase.removeRecord(\"" + connectorID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 

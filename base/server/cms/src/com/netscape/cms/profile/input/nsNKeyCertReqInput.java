@@ -19,9 +19,8 @@ package com.netscape.cms.profile.input;
 
 import java.util.Locale;
 
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -31,6 +30,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements the certificate request input from TPS.
@@ -43,6 +43,9 @@ import com.netscape.cms.profile.common.EnrollProfile;
  * @version $Revision$, $Date$
  */
 public class nsNKeyCertReqInput extends EnrollInput implements IProfileInput {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(nsNKeyCertReqInput.class);
+
     public static final String VAL_SN = "screenname";
     public static final String VAL_PUBLIC_KEY = "publickey";
 
@@ -88,16 +91,14 @@ public class nsNKeyCertReqInput extends EnrollInput implements IProfileInput {
                 request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         if (sn == null) {
-            CMS.debug("nsNKeyCertReqInput: populate - id not found " +
-                    "");
+            logger.error("nsNKeyCertReqInput: populate - id not found");
             throw new EProfileException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_TOKENKEY_NO_ID",
                             ""));
         }
         if (pk == null) {
-            CMS.debug("nsNKeyCertReqInput: populate - public key not found " +
-                    "");
+            logger.error("nsNKeyCertReqInput: populate - public key not found");
             throw new EProfileException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_TOKENKEY_NO_PUBLIC_KEY",

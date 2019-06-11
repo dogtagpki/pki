@@ -26,12 +26,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
@@ -43,6 +41,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Get the recovered key in PKCS#12 format
@@ -51,9 +51,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GetAsyncPk12 extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetAsyncPk12.class);
     private static final long serialVersionUID = 6933634840339605800L;
 
     private final static String INFO = "getAsyncPk12";
@@ -147,8 +145,8 @@ public class GetAsyncPk12 extends CMSServlet {
         }
 
         cmsReq.setStatus(ICMSRequest.SUCCESS);
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         // get status and populate argSet
@@ -164,7 +162,7 @@ public class GetAsyncPk12 extends CMSServlet {
             }
 
             if (agent == null) {
-                CMS.debug("GetAsyncPk12::process() - agent is null!");
+                logger.error("GetAsyncPk12::process() - agent is null!");
                 throw new EBaseException("agent is null");
             }
 
@@ -183,7 +181,7 @@ public class GetAsyncPk12 extends CMSServlet {
             // The async recovery request must be in "approved" state
             //  i.e. all required # of recovery agents approved
             if (mService.isApprovedAsyncKeyRecovery(reqID) != true) {
-                CMS.debug("GetAsyncPk12::process() - # required recovery agents not met");
+                logger.error("GetAsyncPk12::process() - # required recovery agents not met");
                 throw new EBaseException("# required recovery agents not met");
             }
 

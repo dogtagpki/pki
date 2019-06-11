@@ -44,9 +44,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.w3c.dom.Node;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -74,7 +84,6 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.common.AuthCredentials;
@@ -93,21 +102,13 @@ import com.netscape.cms.servlet.common.GenSvcPendingTemplateFiller;
 import com.netscape.cms.servlet.common.GenUnexpectedErrorTemplateFiller;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cms.servlet.common.ServletUtils;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.CommandQueue;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.security.JssSubsystem;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.xml.XMLObject;
-
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
 
 /**
  * This is the base class of all CS servlet.
@@ -250,8 +251,8 @@ public abstract class CMSServlet extends HttpServlet {
     protected String mAuthzResourceName = null;
 
     protected String mOutputTemplatePath = null;
-    private IUGSubsystem mUG = (IUGSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+    CMSEngine engine = CMS.getCMSEngine();
+    private UGSubsystem mUG = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
     public CMSServlet() {
     }
@@ -273,7 +274,8 @@ public abstract class CMSServlet extends HttpServlet {
 
         this.servletConfig = sc;
 
-        mAuthz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        CMSEngine engine = CMS.getCMSEngine();
+        mAuthz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
         mId = sc.getInitParameter(PROP_ID);
 
         try {
@@ -283,7 +285,7 @@ public abstract class CMSServlet extends HttpServlet {
             throw e;
         }
 
-        mConfig = CMS.getConfigStore().getSubStore(CMSGateway.PROP_CMSGATEWAY);
+        mConfig = engine.getConfigStore().getSubStore(CMSGateway.PROP_CMSGATEWAY);
         mServletConfig = sc;
         mServletContext = sc.getServletContext();
         mFileLoader = new CMSFileLoader();
@@ -299,7 +301,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         if (authority != null) {
-            mAuthority = (IAuthority) CMS.getSubsystem(authority);
+            mAuthority = (IAuthority) engine.getSubsystem(authority);
             if (mAuthority instanceof ICertificateAuthority)
                 certAuthority = (ICertificateAuthority) mAuthority;
         }
@@ -418,16 +420,16 @@ public abstract class CMSServlet extends HttpServlet {
             HttpServletResponse httpResp)
             throws ServletException, IOException {
 
-        boolean running_state = CMS.isInRunningState();
+        CMSEngine engine = CMS.getCMSEngine();
+        boolean running_state = engine.isInRunningState();
 
-        if (!running_state)
-            throw new IOException(
-                    "CS server is not ready to serve.");
+        if (!running_state) {
+            throw new IOException("CS server is not ready to serve.");
+        }
 
         try {
-            if (CMS.getConfigStore().getBoolean("useThreadNaming", false)) {
+            if (engine.getConfigStore().getBoolean("useThreadNaming", false)) {
                 String currentName = Thread.currentThread().getName();
-
                 Thread.currentThread().setName(currentName + "-" + httpReq.getServletPath());
             }
         } catch (Exception e) {
@@ -455,7 +457,7 @@ public abstract class CMSServlet extends HttpServlet {
         CMSRequest cmsRequest = newCMSRequest();
 
         // set argblock
-        cmsRequest.setHttpParams(CMS.createArgBlock("http-request-params", toHashtable(httpReq)));
+        cmsRequest.setHttpParams(new ArgBlock("http-request-params", toHashtable(httpReq)));
 
         // set http request
         cmsRequest.setHttpReq(httpReq);
@@ -490,14 +492,14 @@ public abstract class CMSServlet extends HttpServlet {
                 SessionContext.releaseContext();
                 return;
             }
-            long startTime = CMS.getCurrentDate().getTime();
+            long startTime = new Date().getTime();
             process(cmsRequest);
             renderResult(cmsRequest);
-            Date endDate = CMS.getCurrentDate();
+            Date endDate = new Date();
             long endTime = endDate.getTime();
-            logger.info("CMSServlet: curDate: "
-                    + endDate + " id: " + mId + " time: " + (endTime - startTime));
+            logger.debug("CMSServlet: curDate: " + endDate + " id: " + mId + " time: " + (endTime - startTime));
             iCommandQueue.unRegisterProccess(cmsRequest, this);
+
         } catch (EBaseException e) {
             iCommandQueue.unRegisterProccess(cmsRequest, this);
             // ByteArrayOutputStream os = new ByteArrayOutputStream(); for debugging only
@@ -716,7 +718,7 @@ public abstract class CMSServlet extends HttpServlet {
                             cmsReq, mAuthority, locale[0], e);
             }
             if (templateParams == null) {
-                templateParams = new CMSTemplateParams(null, CMS.createArgBlock());
+                templateParams = new CMSTemplateParams(null, new ArgBlock());
             }
             if (e != null) {
                 templateParams.getFixed().set(
@@ -1536,7 +1538,7 @@ public abstract class CMSServlet extends HttpServlet {
                     CMS.getLogMessage("CMSGW_ERROR_SETTING_CRLREASON"));
         }
         RevokedCertImpl crlentry =
-                new RevokedCertImpl(serialNo, CMS.getCurrentDate(), crlentryexts);
+                new RevokedCertImpl(serialNo, new Date(), crlentryexts);
 
         return crlentry;
     }
@@ -1563,7 +1565,8 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     public static String generateSalt() {
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         SecureRandom rnd = jssSubsystem.getRandomNumberGenerator();
         String salt = new Integer(rnd.nextInt()).toString();
         return salt;
@@ -1705,7 +1708,7 @@ public abstract class CMSServlet extends HttpServlet {
         try {
             String getClientCert = mGetClientCert;
 
-            IArgBlock httpArgs = CMS.createArgBlock(toHashtable(httpReq));
+            ArgBlock httpArgs = new ArgBlock(toHashtable(httpReq));
             SessionContext ctx = SessionContext.getContext();
             String ip = httpReq.getRemoteAddr();
             logger.debug("IP: " + ip);

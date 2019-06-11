@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.common;
 
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -24,7 +25,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -50,6 +50,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements a basic profile.
@@ -58,6 +60,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
  */
 public abstract class BasicProfile implements IProfile {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BasicProfile.class);
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String PROP_ENABLE = "enable";
@@ -151,9 +154,10 @@ public abstract class BasicProfile implements IProfile {
     }
 
     public IProfileAuthenticator getAuthenticator() throws EProfileException {
+
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            IAuthSubsystem authSub = (IAuthSubsystem)
-                    CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+            IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
             IProfileAuthenticator auth = (IProfileAuthenticator)
                     authSub.get(mAuthInstanceId);
 
@@ -199,11 +203,12 @@ public abstract class BasicProfile implements IProfile {
      */
     public void init(IProfileSubsystem owner, IConfigStore config)
             throws EBaseException {
-        CMS.debug("BasicProfile: start init");
+        logger.debug("BasicProfile: start init");
         mOwner = owner;
         mConfig = config;
 
-        mRegistry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        CMSEngine engine = CMS.getCMSEngine();
+        mRegistry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
 
         // Configure File Formats:
         // visible
@@ -226,8 +231,7 @@ public abstract class BasicProfile implements IProfile {
             mAuthInstanceId = config.getString("auth." + PROP_INSTANCE_ID, null);
             mAuthzAcl = config.getString("authz.acl", "");
         } catch (EBaseException e) {
-            CMS.debug("BasicProfile: authentication class not found " +
-                    e.toString());
+            logger.warn("BasicProfile: authentication class not found " + e.getMessage(), e);
         }
 
         // handle profile input plugins
@@ -250,8 +254,7 @@ public abstract class BasicProfile implements IProfile {
                         Class.forName(inputClass).newInstance();
             } catch (Exception e) {
                 // throw Exception
-                CMS.debug("BasicProfile: input plugin Class.forName " +
-                        inputClass + " " + e.toString());
+                logger.error("BasicProfile: input plugin Class.forName " + inputClass + " " + e.getMessage(), e);
                 throw new EBaseException(e.toString());
             }
             IConfigStore inputConfig = inputStore.getSubStore(input_id);
@@ -281,8 +284,8 @@ public abstract class BasicProfile implements IProfile {
                         Class.forName(outputClass).newInstance();
             } catch (Exception e) {
                 // throw Exception
-                CMS.debug("BasicProfile: output plugin Class.forName " +
-                        outputClass + " " + e.toString());
+                logger.error("BasicProfile: output plugin Class.forName " +
+                        outputClass + " " + e.getMessage(), e);
                 throw new EBaseException(e.toString());
             }
             IConfigStore outputConfig = outputStore.getSubStore(output_id);
@@ -312,8 +315,8 @@ public abstract class BasicProfile implements IProfile {
                         Class.forName(updaterClass).newInstance();
             } catch (Exception e) {
                 // throw Exception
-                CMS.debug("BasicProfile: updater plugin Class.forName " +
-                        updaterClass + " " + e.toString());
+                logger.error("BasicProfile: updater plugin Class.forName " +
+                        updaterClass + " " + e.getMessage(), e);
                 throw new EBaseException(e.toString());
             }
             IConfigStore updaterConfig = updaterStore.getSubStore(updater_id);
@@ -349,7 +352,7 @@ public abstract class BasicProfile implements IProfile {
                         constraintClassId, false);
             }
         }
-        CMS.debug("BasicProfile: done init");
+        logger.debug("BasicProfile: done init");
     }
 
     public IConfigStore getConfigStore() {
@@ -467,7 +470,7 @@ public abstract class BasicProfile implements IProfile {
             }
 
             mConfig.putString("lastModified",
-                    Long.toString(CMS.getCurrentDate().getTime()));
+                    Long.toString(new Date().getTime()));
             mConfig.commit(false);
         } catch (Exception e) {
         }
@@ -520,7 +523,7 @@ public abstract class BasicProfile implements IProfile {
             mInputs.remove(inputId);
             mConfig.putString("input." + PROP_INPUT_LIST, newlist);
             mConfig.putString("lastModified",
-                    Long.toString(CMS.getCurrentDate().getTime()));
+                    Long.toString(new Date().getTime()));
             mConfig.commit(false);
         } catch (Exception e) {
         }
@@ -568,7 +571,7 @@ public abstract class BasicProfile implements IProfile {
             mOutputs.remove(outputId);
             mConfig.putString("output." + PROP_OUTPUT_LIST, newlist);
             mConfig.putString("lastModified",
-                    Long.toString(CMS.getCurrentDate().getTime()));
+                    Long.toString(new Date().getTime()));
             mConfig.commit(false);
         } catch (Exception e) {
         }
@@ -598,12 +601,12 @@ public abstract class BasicProfile implements IProfile {
                 outputId);
 
         if (outputInfo == null) {
-            CMS.debug("Cannot find " + outputId);
+            logger.error("Cannot find " + outputId);
             throw new EProfileException("Cannot find " + outputId);
         }
         String outputClass = outputInfo.getClassName();
 
-        CMS.debug("BasicProfile: loading output class " + outputClass);
+        logger.debug("BasicProfile: loading output class " + outputClass);
         IProfileOutput output = null;
 
         try {
@@ -611,14 +614,14 @@ public abstract class BasicProfile implements IProfile {
                     Class.forName(outputClass).newInstance();
         } catch (Exception e) {
             // throw Exception
-            CMS.debug(e.toString());
+            logger.warn(e.getMessage(), e);
         }
         if (output == null) {
-            CMS.debug("BasicProfile: failed to create " + outputClass);
+            logger.warn("BasicProfile: failed to create " + outputClass);
         } else {
-            CMS.debug("BasicProfile: initing " + id + " output");
+            logger.debug("BasicProfile: initing " + id + " output");
 
-            CMS.debug("BasicProfile: outputStore " + outputStore);
+            logger.debug("BasicProfile: outputStore " + outputStore);
             output.init(this, outputStore);
 
             mOutputs.put(id, output);
@@ -660,16 +663,16 @@ public abstract class BasicProfile implements IProfile {
                         output.setConfig(name, nvps.get(name));
                     }
                 } catch (EBaseException e) {
-                    CMS.debug(e.toString());
+                    logger.warn(e.getMessage(), e);
                 }
             }
 
             try {
                 mConfig.putString("lastModified",
-                        Long.toString(CMS.getCurrentDate().getTime()));
+                        Long.toString(new Date().getTime()));
                 mConfig.commit(false);
             } catch (EBaseException e) {
-                CMS.debug(e.toString());
+                logger.warn(e.getMessage(), e);
             }
         }
 
@@ -691,12 +694,12 @@ public abstract class BasicProfile implements IProfile {
                 inputId);
 
         if (inputInfo == null) {
-            CMS.debug("Cannot find " + inputId);
+            logger.error("Cannot find " + inputId);
             throw new EProfileException("Cannot find " + inputId);
         }
         String inputClass = inputInfo.getClassName();
 
-        CMS.debug("BasicProfile: loading input class " + inputClass);
+        logger.debug("BasicProfile: loading input class " + inputClass);
         IProfileInput input = null;
 
         try {
@@ -704,14 +707,14 @@ public abstract class BasicProfile implements IProfile {
                     Class.forName(inputClass).newInstance();
         } catch (Exception e) {
             // throw Exception
-            CMS.debug(e.toString());
+            logger.warn(e.getMessage(), e);
         }
         if (input == null) {
-            CMS.debug("BasicProfile: failed to create " + inputClass);
+            logger.warn("BasicProfile: failed to create " + inputClass);
         } else {
-            CMS.debug("BasicProfile: initing " + id + " input");
+            logger.debug("BasicProfile: initing " + id + " input");
 
-            CMS.debug("BasicProfile: inputStore " + inputStore);
+            logger.debug("BasicProfile: inputStore " + inputStore);
             input.init(this, inputStore);
 
             mInputs.put(id, input);
@@ -753,16 +756,16 @@ public abstract class BasicProfile implements IProfile {
                         input.setConfig(name, nvps.get(name));
                     }
                 } catch (EBaseException e) {
-                    CMS.debug(e.toString());
+                    logger.warn(e.getMessage(), e);
                 }
             }
 
             try {
                 mConfig.putString("lastModified",
-                        Long.toString(CMS.getCurrentDate().getTime()));
+                        Long.toString(new Date().getTime()));
                 mConfig.commit(false);
             } catch (EBaseException e) {
-                CMS.debug(e.toString());
+                logger.warn(e.getMessage(), e);
             }
         }
 
@@ -785,7 +788,7 @@ public abstract class BasicProfile implements IProfile {
             throws EProfileException {
 
         String method = "BasicProfile: createProfilePolicy: ";
-        CMS.debug(method + "begins");
+        logger.debug(method + "begins");
         // String setId ex: policyset.set1
         // String id    Id of policy : examples: p1,p2,p3
         // String defaultClassId : id of the default plugin ex: validityDefaultImpl
@@ -822,7 +825,7 @@ public abstract class BasicProfile implements IProfile {
             }
 
             if (ids == null) {
-                CMS.debug("BasicProfile::createProfilePolicy() - ids is null!");
+                logger.warn("BasicProfile::createProfilePolicy() - ids is null!");
                 return null;
             }
 
@@ -839,7 +842,7 @@ public abstract class BasicProfile implements IProfile {
                 if (pid.equals(id)) {
                     appearances++;
                     if (appearances >= appearancesTooMany) {
-                        CMS.debug("WARNING detected duplicate policy id:   " + id + " Profile: " + mId);
+                        logger.warn("detected duplicate policy id:   " + id + " Profile: " + mId);
                         if (createConfig) {
                             throw new EProfileException("Duplicate policy id: " + id);
                         }
@@ -871,7 +874,7 @@ public abstract class BasicProfile implements IProfile {
             try {
                 list = pStore.getString(PROP_POLICY_LIST, "");
             } catch (Exception e) {
-                CMS.debug("WARNING, can't get policy id list!");
+                logger.warn("can't get policy id list!");
             }
 
             StringTokenizer st1 = new StringTokenizer(list, ",");
@@ -885,7 +888,7 @@ public abstract class BasicProfile implements IProfile {
                     curDefaultClassId = pStore.getString(defaultRoot + "." +
                             PROP_CLASS_ID);
                 } catch (Exception e) {
-                    CMS.debug("WARNING, can't get default plugin id!");
+                    logger.warn("can't get default plugin id!");
                 }
 
                 //Disallow duplicate defaults  with the following exceptions:
@@ -898,7 +901,7 @@ public abstract class BasicProfile implements IProfile {
                     matches++;
                     if (createConfig) {
                         if (matches == 1) {
-                            CMS.debug("WARNING attempt to add duplicate Policy "
+                            logger.warn("attempt to add duplicate Policy "
                                     + defaultClassId + ":" + constraintClassId +
                                     " Contact System Administrator.");
                             throw new EProfileException("Attempt to add duplicate Policy : "
@@ -906,7 +909,7 @@ public abstract class BasicProfile implements IProfile {
                         }
                     } else {
                         if (matches > 1) {
-                            CMS.debug("WARNING attempt to add duplicate Policy "
+                            logger.warn("attempt to add duplicate Policy "
                                     + defaultClassId + ":" + constraintClassId +
                                     " Contact System Administrator.");
                         }
@@ -920,12 +923,12 @@ public abstract class BasicProfile implements IProfile {
                 defaultClassId);
 
         if (defInfo == null) {
-            CMS.debug(method + " Cannot find " + defaultClassId);
+            logger.error(method + " Cannot find " + defaultClassId);
             throw new EProfileException("Cannot find " + defaultClassId);
         }
         String defaultClass = defInfo.getClassName();
 
-        CMS.debug(method + " loading default class " + defaultClass);
+        logger.debug(method + " loading default class " + defaultClass);
         IPolicyDefault def = null;
 
         try {
@@ -933,40 +936,40 @@ public abstract class BasicProfile implements IProfile {
                     Class.forName(defaultClass).newInstance();
         } catch (Exception e) {
             // throw Exception
-            CMS.debug(method + " default policy " +
-                    defaultClass + " " + e.toString());
+            logger.warn(method + " default policy " +
+                    defaultClass + " " + e.getMessage(), e);
         }
         if (def == null) {
-            CMS.debug("BasicProfile: failed to create " + defaultClass);
+            logger.warn("BasicProfile: failed to create " + defaultClass);
         } else {
             IConfigStore defStore = null;
 
             defStore = policyStore.getSubStore(defaultRoot);
             def.init(this, defStore);
-            CMS.debug(method + " default class initialized.");
+            logger.debug(method + " default class initialized.");
         }
 
         IPluginInfo conInfo = mRegistry.getPluginInfo("constraintPolicy",
                 constraintClassId);
         if (conInfo == null) {
-            CMS.debug(method + " Cannot find " + constraintClassId);
+            logger.error(method + " Cannot find " + constraintClassId);
             throw new EProfileException("Cannot find " + constraintClassId);
         }
         String constraintClass = conInfo.getClassName();
 
-        CMS.debug(method + " loading constraint class " + constraintClass);
+        logger.debug(method + " loading constraint class " + constraintClass);
         IPolicyConstraint constraint = null;
         try {
             constraint = (IPolicyConstraint)
                     Class.forName(constraintClass).newInstance();
         } catch (Exception e) {
             // throw Exception
-            CMS.debug(method + " constraint policy " +
-                    constraintClass + " " + e.toString());
+            logger.warn(method + " constraint policy " +
+                    constraintClass + " " + e.getMessage(), e);
         }
         ProfilePolicy policy = null;
         if (constraint == null) {
-            CMS.debug(method + " failed to create " + constraintClass);
+            logger.warn(method + " failed to create " + constraintClass);
         } else {
             IConfigStore conStore = null;
 
@@ -974,11 +977,11 @@ public abstract class BasicProfile implements IProfile {
             constraint.init(this, conStore);
             policy = new ProfilePolicy(id, def, constraint);
             policies.addElement(policy);
-            CMS.debug(method + " constraint class initialized.");
+            logger.debug(method + " constraint class initialized.");
         }
 
         if (createConfig) {
-            CMS.debug(method + " createConfig true; creating...");
+            logger.debug(method + " createConfig true; creating...");
             String list = null;
 
             try {
@@ -1000,16 +1003,16 @@ public abstract class BasicProfile implements IProfile {
                     constraintClassId);
             try {
                 mConfig.putString("lastModified",
-                        Long.toString(CMS.getCurrentDate().getTime()));
+                        Long.toString(new Date().getTime()));
                 policyStore.commit(false);
             } catch (EBaseException e) {
-                CMS.debug("BasicProfile: commiting config store " +
-                        e.toString());
+                logger.warn("BasicProfile: commiting config store " +
+                        e.getMessage(), e);
             }
-            CMS.debug(method + " config created.");
+            logger.debug(method + " config created.");
         }
 
-        CMS.debug(method + "ends");
+        logger.debug(method + "ends");
         return policy;
     }
 
@@ -1106,7 +1109,7 @@ public abstract class BasicProfile implements IProfile {
         String method = "BasicProfile: populate: ";
         String setId = getPolicySetId(request);
         Vector<IProfilePolicy> policies = getPolicies(setId);
-        CMS.debug(method + "policy setid =" + setId);
+        logger.debug(method + "policy setid =" + setId);
 
         for (int i = 0; i < policies.size(); i++) {
             IProfilePolicy policy = policies.elementAt(i);
@@ -1122,7 +1125,7 @@ public abstract class BasicProfile implements IProfile {
     public void validate(IRequest request)
             throws ERejectException {
         String setId = getPolicySetId(request);
-        CMS.debug("BasicProfile: validate start on setId=" + setId);
+        logger.debug("BasicProfile: validate start on setId=" + setId);
         Vector<IProfilePolicy> policies = getPolicies(setId);
 
         for (int i = 0; i < policies.size(); i++) {
@@ -1130,9 +1133,9 @@ public abstract class BasicProfile implements IProfile {
 
             policy.getConstraint().validate(request);
         }
-        CMS.debug("BasicProfile: change to pending state");
+        logger.debug("BasicProfile: change to pending state");
         request.setRequestStatus(RequestStatus.PENDING);
-        CMS.debug("BasicProfile: validate end");
+        logger.debug("BasicProfile: validate end");
     }
 
     public Enumeration<IProfilePolicy> getProfilePolicies(String setId) {

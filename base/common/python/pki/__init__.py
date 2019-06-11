@@ -33,7 +33,6 @@ import string
 import sys
 
 import requests
-from six.moves import input   # pylint: disable=W0622,F0401
 import six
 
 
@@ -109,59 +108,6 @@ def convert_x509_name_to_dn(name):
             dn = rdn
 
     return dn
-
-
-def read_text(message,
-              options=None, default=None, delimiter=':',
-              allow_empty=True, case_sensitive=True):
-    """
-    Get an input from the user. This is used, for example, in
-    pkispawn and pkidestroy to obtain user input.
-
-    :param message: prompt to display to the user
-    :type message: str
-    :param options: list of possible inputs by the user.
-    :type options: list
-    :param default: default value of parameter being prompted.
-    :type default: str
-    :param delimiter: delimiter to be used at the end of the prompt.
-    :type delimiter: str
-    :param allow_empty: Allow input to be empty.
-    :type allow_empty: boolean -- True/False
-    :param case_sensitive: Allow input to be case sensitive.
-    :type case_sensitive: boolean -- True/False
-    :returns: str -- value obtained from user input.
-    """
-    if default:
-        message = message + ' [' + default + ']'
-    message = message + delimiter + ' '
-
-    done = False
-    value = None
-    while not done:
-        value = input(message)
-        value = value.strip()
-
-        if len(value) == 0:  # empty value
-            if allow_empty:
-                value = default
-                break
-
-        else:  # non-empty value
-            if options is not None:
-                for val in options:
-                    if case_sensitive:
-                        if val == value:
-                            done = True
-                            break
-                    else:
-                        if val.lower() == value.lower():
-                            done = True
-                            break
-            else:
-                break
-
-    return value
 
 
 def specification_version():

@@ -23,13 +23,12 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
-import netscape.security.x509.GeneralNameInterface;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectAlternativeNameExtension;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IAttrSet;
 import com.netscape.certsrv.base.IConfigStore;
@@ -40,6 +39,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -49,6 +49,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class SubjectAltNameExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectAltNameExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "subjAltNameExtCritical";
     public static final String CONFIG_NUM_GNS = "subjAltNameNumGNs";
@@ -109,7 +111,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         } catch (EBaseException e) {
             // nothing to do here
         }
-        CMS.debug("SubjectAltNameExtDefault: Upgrading old_type=" +
+        logger.debug("SubjectAltNameExtDefault: Upgrading old_type=" +
                 old_type);
         try {
             if (paramConfig != null) {
@@ -118,10 +120,10 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         } catch (EBaseException e) {
             // nothing to do here
         }
-        CMS.debug("SubjectAltNameExtDefault: Upgrading old_pattern=" +
+        logger.debug("SubjectAltNameExtDefault: Upgrading old_pattern=" +
                 old_pattern);
         if (old_type != null && old_pattern != null) {
-            CMS.debug("SubjectAltNameExtDefault: Upgrading");
+            logger.debug("SubjectAltNameExtDefault: Upgrading");
             try {
                 paramConfig.putString(CONFIG_NUM_GNS, "1");
                 paramConfig.putString(CONFIG_GN_ENABLE + "0", "true");
@@ -131,7 +133,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                 paramConfig.remove(CONFIG_OLD_PATTERN);
                 profile.getConfigStore().commit(true);
             } catch (Exception e) {
-                CMS.debug("SubjectAltNameExtDefault: Failed to upgrade " + e);
+                logger.warn("SubjectAltNameExtDefault: Failed to upgrade " + e.getMessage(), e);
             }
         }
     }
@@ -270,7 +272,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
 
                 while (st.hasMoreTokens()) {
                     String gname = st.nextToken();
-                    CMS.debug("SubjectAltNameExtDefault: setValue GN:" + gname);
+                    logger.debug("SubjectAltNameExtDefault: setValue GN:" + gname);
 
                     if (!isGeneralNameValid(gname)) {
                         continue;
@@ -285,11 +287,11 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                     }
                 }
                 if (gn.size() == 0) {
-                    CMS.debug("GN size is zero");
+                    logger.debug("GN size is zero");
                     deleteExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(), info);
                     return;
                 } else {
-                    CMS.debug("GN size is non zero (" + gn.size() + ")");
+                    logger.debug("GN size is non zero (" + gn.size() + ")");
                     ext.set(SubjectAlternativeNameExtension.SUBJECT_NAME, gn);
                 }
             } else {
@@ -300,11 +302,11 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                     PKIXExtensions.SubjectAlternativeName_Id.toString(),
                     ext, info);
         } catch (IOException e) {
-            CMS.debug("SubjectAltNameExtDefault: setValue " + e.toString());
+            logger.error("SubjectAltNameExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
-            CMS.debug("SubjectAltNameExtDefault: setValue " + e.toString());
+            logger.error("SubjectAltNameExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -367,7 +369,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                         sb.append("\r\n");
                     }
                     sb.append(toGeneralNameString(gn));
-                    CMS.debug("SubjectAltNameExtDefault: getValue append GN:" + toGeneralNameString(gn));
+                    logger.debug("SubjectAltNameExtDefault: getValue append GN:" + toGeneralNameString(gn));
                 }
                 return sb.toString();
             } else {
@@ -375,8 +377,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
-            CMS.debug("SubjectAltNameExtDefault: getValue " +
-                    e.toString());
+            logger.warn("SubjectAltNameExtDefault: getValue " + e.getMessage(), e);
         }
         return null;
     }
@@ -421,13 +422,13 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
             ext = createExtension(request);
 
         } catch (IOException e) {
-            CMS.debug("SubjectAltNameExtDefault: populate " + e.toString());
+            logger.warn("SubjectAltNameExtDefault: populate " + e.getMessage(), e);
         }
         if (ext != null) {
             addExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(),
                     ext, info);
         } else {
-            CMS.debug("SubjectAltNameExtDefault: populate sees no extension.  get out");
+            logger.warn("SubjectAltNameExtDefault: populate sees no extension.  get out");
         }
     }
 
@@ -444,7 +445,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         for (int i = 0; i < num; i++) {
             String enable = getConfig(CONFIG_GN_ENABLE + i);
             if (enable != null && enable.equals("true")) {
-                CMS.debug("SubjectAltNameExtDefault: createExtension i=" + i);
+                logger.debug("SubjectAltNameExtDefault: createExtension i=" + i);
 
                 String pattern = getConfig(CONFIG_PATTERN + i);
                 if (pattern == null || pattern.equals("")) {
@@ -452,7 +453,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                 }
 
                 if (!pattern.equals("")) {
-                    CMS.debug("SubjectAltNameExtDefault: createExtension() pattern="+ pattern);
+                    logger.debug("SubjectAltNameExtDefault: createExtension() pattern="+ pattern);
                     String gname = "";
                     String gtype = "";
 
@@ -462,7 +463,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                     String type = getConfig(CONFIG_TYPE + i);
                     if ((source != null) && (!source.equals(""))) {
                         if (type.equalsIgnoreCase("OtherName")) {
-                            CMS.debug("SubjectAlternativeNameExtension: using " +
+                            logger.debug("SubjectAlternativeNameExtension: using " +
                                     source + " as gn");
                             if (source.equals(CONFIG_SOURCE_UUID4)) {
                                 UUID randUUID = UUID.randomUUID();
@@ -473,12 +474,12 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                                     gname = mapPattern(randUUID.toString(), request, pattern);
                                 }
                             } else { //expand more server-gen types here
-                                CMS.debug("SubjectAltNameExtDefault: createExtension - unsupported server-generated type: "
+                                logger.warn("SubjectAltNameExtDefault: createExtension - unsupported server-generated type: "
                                         + source + ". Supported: UUID4");
                                 continue;
                             }
                         } else {
-                            CMS.debug("SubjectAltNameExtDefault: createExtension - source is only supported for subjAltExtType OtherName");
+                            logger.warn("SubjectAltNameExtDefault: createExtension - source is only supported for subjAltExtType OtherName");
                             continue;
                         }
                     } else {
@@ -490,24 +491,24 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
 
                     if (gname.equals("") ||
                         gname.startsWith(CONFIG_SAN_REQ_PATTERN_PREFIX)) {
-                        CMS.debug("SubjectAltNameExtDefault: gname is empty,not added.");
+                        logger.warn("SubjectAltNameExtDefault: gname is empty,not added.");
                         continue;
                     }
-                    CMS.debug("SubjectAltNameExtDefault: createExtension got gname=" +gname + " with type=" + gtype);
+                    logger.debug("SubjectAltNameExtDefault: createExtension got gname=" +gname + " with type=" + gtype);
 
                     GeneralNameInterface n = parseGeneralName(gtype + ":" + gname);
 
-                    CMS.debug("adding gname: " + gname);
+                    logger.debug("adding gname: " + gname);
                     if (n != null) {
                         if (!n.validSingle()) {
                             throw new EProfileException(
                                 "Not valid for Subject Alternative Name: " + gtype + ":" + gname);
                         }
-                        CMS.debug("SubjectAlternativeNameExtension: n not null");
+                        logger.debug("SubjectAlternativeNameExtension: n not null");
                         gn.addElement(n);
                         count++;
                     } else {
-                        CMS.debug("SubjectAlternativeNameExtension: n null");
+                        logger.warn("SubjectAlternativeNameExtension: n null");
                     }
                 }
             }
@@ -517,13 +518,13 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
             try {
                 ext = new SubjectAlternativeNameExtension();
             } catch (Exception e) {
-                CMS.debug(e.toString());
-                throw new IOException(e.toString());
+                logger.error("SubjectAltNameExtDefault: " + e.getMessage(), e);
+                throw new IOException(e.getMessage(), e);
             }
             ext.set(SubjectAlternativeNameExtension.SUBJECT_NAME, gn);
             ext.setCritical(critical);
         } else {
-            CMS.debug("count is 0");
+            logger.debug("count is 0");
         }
         return ext;
     }
@@ -549,7 +550,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         try {
             attrSet.set("source", val);
         } catch (Exception e) {
-            CMS.debug("SubjectAlternativeNameExtension: mapPattern source " + e.toString());
+            logger.warn("SubjectAlternativeNameExtension: mapPattern source " + e.getMessage(), e);
         }
 
         return p.substitute("server", attrSet);

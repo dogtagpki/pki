@@ -26,10 +26,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.w3c.dom.Node;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -39,9 +40,8 @@ import com.netscape.cmsutil.xml.XMLObject;
  */
 public class PortsServlet extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PortsServlet.class);
+
     private static final long serialVersionUID = -3750153734073658934L;
 
     public PortsServlet() {
@@ -62,13 +62,15 @@ public class PortsServlet extends CMSServlet {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
+        CMSEngine engine = CMS.getCMSEngine();
+
         String secure = req.getParameter("secure");
         String port = null;
 
         if (secure.equals("true"))
-            port = CMS.getEESSLPort();
+            port = engine.getEESSLPort();
         else
-            port = CMS.getEENonSSLPort();
+            port = engine.getEENonSSLPort();
 
         try {
             XMLObject xmlObj = null;
@@ -80,7 +82,7 @@ public class PortsServlet extends CMSServlet {
             byte[] cb = xmlObj.toByteArray();
             outputResult(resp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("Failed to send the XML output");
+            logger.warn("Failed to send the XML output: " + e.getMessage(), e);
         }
     }
 

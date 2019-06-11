@@ -22,19 +22,16 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.request.IRequestSubsystem;
 import com.netscape.certsrv.request.IService;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
 /**
  * RequestSubsystem
  * <p>
- * This class is reponsible for managing storage of request objects in the local database.
+ * This class is responsible for managing storage of request objects in the local database.
  * <p>
  * TODO: review this It provides: + registration of LDAP/JAVA mapping classes with the DBSubsystem + creation of
  * RequestQueue storage in the database + retrieval of existing RequestQueue objects from the database
@@ -43,28 +40,25 @@ import com.netscape.cmscore.dbs.DBSubsystem;
  * @author thayes
  * @version $Revision$, $Date$
  */
-public class RequestSubsystem
-        implements IRequestSubsystem, ISubsystem {
+public class RequestSubsystem implements ISubsystem {
 
-    public final static String ID = IRequestSubsystem.SUB_ID;
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestSubsystem.class);
 
-    // singleton enforcement
+    public final static String ID = "request";
 
-    private static RequestSubsystem mInstance = new RequestSubsystem();
-
-    public static RequestSubsystem getInstance() {
-        return mInstance;
+    public RequestSubsystem() {
     }
 
-    private RequestSubsystem() {
-    }
-
-    // end singleton enforcement.
-
-    //
-    // Create a new request queue.  The LDAP DN for the entry
-    // in the database is supplied by the caller.
-    //
+    /**
+     * Creates a new request queue.
+     * (Currently unimplemented. Just use getRequestQueue to create
+     * an in-memory queue.)
+     * <p>
+     *
+     * @param name The name of the queue object. This name can be used
+     *            in getRequestQueue to retrieve the queue later.
+     * @exception EBaseException failed to create request queue
+     */
     public void createRequestQueue(String name)
             throws EBaseException {
 
@@ -78,6 +72,34 @@ public class RequestSubsystem
         */
     }
 
+    /**
+     * Retrieves a request queue. This operation should only be done
+     * once on each queue. For example, the RA subsystem should retrieve
+     * its queue, and store it somewhere for use by related services, and
+     * servlets.
+     * <p>
+     * WARNING: retrieving the same queue twice with result in multi-thread race conditions.
+     * <p>
+     *
+     * @param name
+     *            the name of the request queue. (Ex: "ca" "ra")
+     * @param p
+     *            A policy enforcement module. This object is called to make
+     *            adjustments to the request, and decide whether it needs agent
+     *            approval.
+     * @param s
+     *            The service object. This object actually performs the request
+     *            after it is finalized and approved.
+     * @param n
+     *            A notifier object (optional). The notify() method of this object
+     *            is invoked when the request is completed (COMPLETE, REJECTED or
+     *            CANCELED states).
+     * @param pendingNotifier
+     *            A notifier object (optional). Like the 'n' argument, except the
+     *            notification happens if the request is made PENDING. May be the
+     *            same as the 'n' argument if desired.
+     * @exception EBaseException failed to retrieve request queue
+     */
     public IRequestQueue
             getRequestQueue(String name, int increment, IPolicy p, IService s, INotify n,
                     INotify pendingNotifier)
@@ -124,20 +146,12 @@ public class RequestSubsystem
      *
      * @see ISubsystem#startup
      */
-    public void startup()
-            throws EBaseException {
-        mLogger = Logger.getLogger();
-
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_REQQUEUE, ILogger.LL_INFO,
-                "Request subsystem started");
+    public void startup() {
+        logger.info("RequestSubsystem: Request subsystem started");
     }
 
     public void shutdown() {
-
-        if (mLogger != null) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_REQQUEUE, ILogger.LL_INFO,
-                    "Request subsystem stopped");
-        }
+        logger.info("RequestSubsystem: Request subsystem stopped");
     }
 
     public IConfigStore getConfigStore() {
@@ -174,7 +188,5 @@ public class RequestSubsystem
     private IConfigStore mConfig;
     @SuppressWarnings("unused")
     private ISubsystem mParent;
-    private String mId = IRequestSubsystem.SUB_ID;
-
-    protected Logger mLogger;
+    private String mId = ID;
 }

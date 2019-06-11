@@ -24,14 +24,17 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OptionalDataException;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.connector.IRequestEncoder;
-import com.netscape.cmscore.util.Debug;
-import com.netscape.cmsutil.util.Utils;
 
 /**
  * encodes a request by serializing it.
  */
 public class HttpRequestEncoder implements IRequestEncoder {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HttpRequestEncoder.class);
+
     public String encode(Object r)
             throws IOException {
         String s = null;
@@ -57,18 +60,17 @@ public class HttpRequestEncoder implements IRequestEncoder {
             ObjectInputStream is = new ObjectInputStream(ba);
 
             result = is.readObject();
+
         } catch (ClassNotFoundException e) {
             // XXX hack: change this
-            if (Debug.ON)
-                Debug.trace("class not found ex " + e + e.getMessage());
+            logger.error("HttpRequestEncoder: " + e.getMessage(), e);
             throw new IOException("Class Not Found " + e.getMessage());
+
         } catch (OptionalDataException e) {
             if (e.eof == true) {
-                if (Debug.ON)
-                    Debug.trace("done reading input stream " + result);
+                logger.trace("done reading input stream " + result);
             } else {
-                if (Debug.ON)
-                    Debug.trace(e.length + " more bytes of primitive data");
+                logger.trace(e.length + " more bytes of primitive data");
             }
         }
         return result;

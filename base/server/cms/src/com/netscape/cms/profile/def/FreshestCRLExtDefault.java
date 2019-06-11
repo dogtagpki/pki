@@ -22,15 +22,14 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.x509.CRLDistributionPoint;
-import netscape.security.x509.FreshestCRLExtension;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.GeneralNamesException;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CRLDistributionPoint;
+import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.GeneralNamesException;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.profile.EProfileException;
@@ -39,6 +38,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -48,6 +48,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class FreshestCRLExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FreshestCRLExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "freshestCRLCritical";
     public static final String CONFIG_NUM_POINTS = "freshestCRLPointNum";
@@ -276,8 +278,7 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
             replaceExtension(PKIXExtensions.FreshestCRL_Id.toString(),
                     ext, info);
         } catch (EProfileException e) {
-            CMS.debug("FreshestCRLExtDefault: setValue " +
-                    e.toString());
+            logger.error("FreshestCRLExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -299,13 +300,11 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", type));
             }
         } catch (IOException e) {
-            CMS.debug("FreshestCRLExtDefault: addCRLPoint " +
-                    e.toString());
+            logger.error("FreshestCRLExtDefault: addCRLPoint " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", type));
         } catch (GeneralNamesException e) {
-            CMS.debug("FreshestCRLExtDefault: addCRLPoint " +
-                    e.toString());
+            logger.error("FreshestCRLExtDefault: addCRLPoint " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", type));
         }
@@ -326,11 +325,9 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", type));
             }
         } catch (IOException e) {
-            CMS.debug("FreshestCRLExtDefault: addIssuer " +
-                    e.toString());
+            logger.warn("FreshestCRLExtDefault: addIssuer " + e.getMessage(), e);
         } catch (GeneralNamesException e) {
-            CMS.debug("FreshestCRLExtDefault: addIssuer " +
-                    e.toString());
+            logger.warn("FreshestCRLExtDefault: addIssuer " + e.getMessage(), e);
         }
     }
 
@@ -528,8 +525,7 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
                 }
             }
         } catch (Exception e) {
-            CMS.debug("FreshestCRLExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("FreshestCRLExtDefault: createExtension " + e.getMessage(), e);
         }
 
         return ext;
@@ -575,8 +571,7 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
                 }
             }
         } catch (Exception e) {
-            CMS.debug("FreshestCRLExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("FreshestCRLExtDefault: createExtension " + e.getMessage(), e);
         }
 
         return ext;

@@ -28,7 +28,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -45,11 +47,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.CrlPrettyPrint;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.x509.X509CRLImpl;
 
 /**
  * Retrieve CRL for a Certificate Authority
@@ -57,9 +58,8 @@ import netscape.security.x509.X509CRLImpl;
  * @version $Revision$, $Date$
  */
 public class GetCRL extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetCRL.class);
     private static final long serialVersionUID = 7132206924070383013L;
     private final static String TPL_FILE = "displayCRL.template";
     private String mFormPath = null;
@@ -127,7 +127,7 @@ public class GetCRL extends CMSServlet {
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
-        CMS.debug("**** mFormPath before getTemplate = " + mFormPath);
+        logger.debug("**** mFormPath before getTemplate = " + mFormPath);
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
@@ -139,8 +139,8 @@ public class GetCRL extends CMSServlet {
             return;
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         // Get the operation code
@@ -363,7 +363,7 @@ public class GetCRL extends CMSServlet {
                                 i = k + 1;
                             } else {
                                 n = 1;
-                                IArgBlock rarg = CMS.createArgBlock();
+                                ArgBlock rarg = new ArgBlock();
                                 rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, k));
                                 i = k + 1;
                                 j = i;
@@ -371,7 +371,7 @@ public class GetCRL extends CMSServlet {
                             }
                         }
                         if (j < length) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
                             rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, length));
                             argSet.addRepeatRecord(rarg);
                         }
@@ -403,7 +403,7 @@ public class GetCRL extends CMSServlet {
                                 i = k + 1;
                             } else {
                                 n = 1;
-                                IArgBlock rarg = CMS.createArgBlock();
+                                ArgBlock rarg = new ArgBlock();
                                 rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, k));
                                 i = k + 1;
                                 j = i;
@@ -411,7 +411,7 @@ public class GetCRL extends CMSServlet {
                             }
                         }
                         if (j < length) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
                             rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, length));
                             argSet.addRepeatRecord(rarg);
                         }

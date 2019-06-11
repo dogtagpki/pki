@@ -28,16 +28,16 @@ import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
 
-import netscape.security.util.CrlPrettyPrint;
-import netscape.security.x509.DeltaCRLIndicatorExtension;
-import netscape.security.x509.HoldInstructionExtension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.IssuingDistributionPointExtension;
-import netscape.security.x509.OIDMap;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509ExtensionException;
+import org.mozilla.jss.netscape.security.util.CrlPrettyPrint;
+import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
+import org.mozilla.jss.netscape.security.x509.HoldInstructionExtension;
+import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
+import org.mozilla.jss.netscape.security.x509.IssuingDistributionPointExtension;
+import org.mozilla.jss.netscape.security.x509.OIDMap;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
 
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * The PrettyPrintCrl class is a utility program designed to "pretty print"

@@ -31,16 +31,15 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -57,6 +56,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Retrieve a paged list of certs matching the specified query
@@ -65,9 +66,8 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class ListCerts extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ListCerts.class);
+
     private static final long serialVersionUID = -3568155814023099576L;
     private final static String TPL_FILE = "queryCert.template";
     private final static BigInteger MINUS_ONE = new BigInteger("-1");
@@ -144,20 +144,20 @@ public class ListCerts extends CMSServlet {
 
     public String buildFilter(HttpServletRequest req) {
         String queryCertFilter = req.getParameter("queryCertFilter");
-        CMS.debug("ListCerts: queryCertFilter: " + queryCertFilter);
+        logger.debug("ListCerts: queryCertFilter: " + queryCertFilter);
 
-        CMS.debug("ListCerts: useClientFilter: " + mUseClientFilter);
+        logger.debug("ListCerts: useClientFilter: " + mUseClientFilter);
         if (mUseClientFilter) {
             Enumeration<String> filters = mAllowedClientFilters.elements();
             // check to see if the filter is allowed
             while (filters.hasMoreElements()) {
                 String filter = filters.nextElement();
-                CMS.debug("ListCerts: Comparing with filter " + filter);
+                logger.debug("ListCerts: Comparing with filter " + filter);
                 if (filter.equals(queryCertFilter)) {
                     return queryCertFilter;
                 }
             }
-            CMS.debug("ListCerts: Requested filter '"
+            logger.debug("ListCerts: Requested filter '"
                     + queryCertFilter + "' is not allowed. Please check the " + ALLOWED_CLIENT_FILTERS + "parameter");
             return null;
         }
@@ -222,8 +222,8 @@ public class ListCerts extends CMSServlet {
         int maxCount = -1;
         BigInteger sentinel = new BigInteger("0");
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         CMSTemplate form = null;
@@ -244,14 +244,14 @@ public class ListCerts extends CMSServlet {
             if (req.getParameter("direction") != null) {
                 mDirection = req.getParameter("direction").trim();
                 mReverse = mDirection.equals("up");
-                CMS.debug("ListCerts: reverse: " + mReverse);
+                logger.debug("ListCerts: reverse: " + mReverse);
             }
 
             if (req.getParameter("maxCount") != null) {
                 maxCount = Integer.parseInt(req.getParameter("maxCount"));
             }
             if (maxCount == -1 || maxCount > mMaxReturns) {
-                CMS.debug("ListCerts: Resetting page size from " + maxCount + " to " + mMaxReturns);
+                logger.debug("ListCerts: Resetting page size from " + maxCount + " to " + mMaxReturns);
                 maxCount = mMaxReturns;
             }
 
@@ -295,7 +295,7 @@ public class ListCerts extends CMSServlet {
                 return;
             }
 
-            CMS.debug("ListCerts: queryCertFilter: " + queryCertFilter);
+            logger.debug("ListCerts: queryCertFilter: " + queryCertFilter);
 
             int totalRecordCount = -1;
 
@@ -359,12 +359,12 @@ public class ListCerts extends CMSServlet {
             Locale locale
             ) throws EBaseException {
 
-        CMS.debug("ListCerts.processCertFilter()");
-        CMS.debug("ListCerts: max count: " + maxCount);
-        CMS.debug("ListCerts: sentinel: " + sentinel);
-        CMS.debug("ListCerts: total record count: " + totalRecordCount);
-        CMS.debug("ListCerts: serialTo: " + serialTo);
-        CMS.debug("ListCerts: filter: " + filter);
+        logger.debug("ListCerts.processCertFilter()");
+        logger.debug("ListCerts: max count: " + maxCount);
+        logger.debug("ListCerts: sentinel: " + sentinel);
+        logger.debug("ListCerts: total record count: " + totalRecordCount);
+        logger.debug("ListCerts: serialTo: " + serialTo);
+        logger.debug("ListCerts: filter: " + filter);
 
         BigInteger serialToVal = MINUS_ONE;
 
@@ -382,9 +382,9 @@ public class ListCerts extends CMSServlet {
         } catch (Exception e) {
         }
 
-        CMS.debug("ListCerts: serialToVal: " + serialToVal);
-        CMS.debug("ListCerts: mReverse: " + mReverse);
-        CMS.debug("ListCerts: mHardJumpTo: " + mHardJumpTo);
+        logger.debug("ListCerts: serialToVal: " + serialToVal);
+        logger.debug("ListCerts: mReverse: " + mReverse);
+        logger.debug("ListCerts: mHardJumpTo: " + mHardJumpTo);
 
         String jumpTo = sentinel.toString();
         int pSize = 0;
@@ -396,14 +396,14 @@ public class ListCerts extends CMSServlet {
         } else
             pSize = maxCount;
 
-        CMS.debug("ListCerts: pSize: " + pSize);
+        logger.debug("ListCerts: pSize: " + pSize);
 
-        CMS.debug("ListCerts: calling findCertRecordsInList() with jumpTo");
+        logger.debug("ListCerts: calling findCertRecordsInList() with jumpTo");
         ICertRecordList list = mCertDB.findCertRecordsInList(
                 filter, (String[]) null, jumpTo, mHardJumpTo, "serialno",
                 pSize);
         // retrive maxCount + 1 entries
-        CMS.debug("ListCerts: list size: " + list.getSize());
+        logger.debug("ListCerts: list size: " + list.getSize());
 
         Enumeration<ICertRecord> e = list.getCertRecords(0, maxCount);
 
@@ -413,24 +413,24 @@ public class ListCerts extends CMSServlet {
         if (!serialToVal.equals(MINUS_ONE)) {
             // if user specify a range, we need to
             // calculate the totalRecordCount
-            CMS.debug("ListCerts: calling findCertRecordsInList() with serialTo");
+            logger.debug("ListCerts: calling findCertRecordsInList() with serialTo");
             tolist = mCertDB.findCertRecordsInList(
                         filter,
                         (String[]) null, serialTo,
                         "serialno", maxCount);
-            CMS.debug("ListCerts: tolist size: " + tolist.getSize());
+            logger.debug("ListCerts: tolist size: " + tolist.getSize());
 
             Enumeration<ICertRecord> en = tolist.getCertRecords(0, 0);
 
             if (en == null || (!en.hasMoreElements())) {
-                CMS.debug("ListCerts: no results");
+                logger.debug("ListCerts: no results");
                 toCurIndex = list.getSize() - 1;
 
             } else {
                 toCurIndex = tolist.getCurrentIndex();
                 ICertRecord rx = en.nextElement();
                 BigInteger curToSerial = rx.getSerialNumber();
-                CMS.debug("ListCerts: curToSerial: " + curToSerial);
+                logger.debug("ListCerts: curToSerial: " + curToSerial);
 
                 if (curToSerial.compareTo(serialToVal) == -1) {
                     toCurIndex = list.getSize() - 1;
@@ -440,11 +440,11 @@ public class ListCerts extends CMSServlet {
                     }
                 }
             }
-            CMS.debug("ListCerts: toCurIndex: " + toCurIndex);
+            logger.debug("ListCerts: toCurIndex: " + toCurIndex);
         }
 
         int curIndex = list.getCurrentIndex();
-        CMS.debug("ListCerts: curIndex: " + curIndex);
+        logger.debug("ListCerts: curIndex: " + curIndex);
 
         BigInteger firstSerial = new BigInteger("0");
         BigInteger curSerial = new BigInteger("0");
@@ -455,22 +455,22 @@ public class ListCerts extends CMSServlet {
             /* in reverse (page up), because the sentinel is the one after the
              * last item to be displayed, we need to skip it
              */
-            CMS.debug("ListCerts: records:");
+            logger.debug("ListCerts: records:");
             int count = 0;
             while ((count < ((mReverse && !mHardJumpTo) ? (maxCount + 1) : maxCount)) && e.hasMoreElements()) {
                 ICertRecord rec = e.nextElement();
 
                 if (rec == null) {
-                    //CMS.debug("ListCerts: * record " + count + " is null");
+                    //logger.debug("ListCerts: * record " + count + " is null");
                     break;
                 }
                 curSerial = rec.getSerialNumber();
-                //CMS.debug("ListCerts: * record " + count + ": " + curSerial);
+                //logger.debug("ListCerts: * record " + count + ": " + curSerial);
 
                 if (count == 0) {
                     firstSerial = curSerial;
                     if (mReverse && !mHardJumpTo) {//reverse got one more, skip
-                        CMS.debug("ListCerts:   skipping record");
+                        logger.debug("ListCerts:   skipping record");
                         count++;
                         continue;
                     }
@@ -480,25 +480,25 @@ public class ListCerts extends CMSServlet {
                 // even though the filter is not matched.
                 /*cfu -  is this necessary?  it breaks when paging up
                 if (curSerial.compareTo(sentinel) == -1) {
-                        CMS.debug("curSerial compare sentinel -1 break...");
+                        logger.debug("curSerial compare sentinel -1 break...");
                         break;
                     }
                 */
                 if (!serialToVal.equals(MINUS_ONE)) {
                     // check if we go over the limit
                     if (curSerial.compareTo(serialToVal) == 1) {
-                        CMS.debug("ListCerts: curSerial compare serialToVal 1 breaking...");
+                        logger.debug("ListCerts: curSerial compare serialToVal 1 breaking...");
                         break;
                     }
                 }
 
                 if (mReverse) {
-                    //CMS.debug("ListCerts: returning with rcount: " + rcount);
+                    //logger.debug("ListCerts: returning with rcount: " + rcount);
                     recs[rcount++] = rec;
 
                 } else {
-                    //CMS.debug("ListCerts: returning with arg block");
-                    IArgBlock rarg = CMS.createArgBlock();
+                    //logger.debug("ListCerts: returning with arg block");
+                    ArgBlock rarg = new ArgBlock();
                     fillRecordIntoArg(rec, rarg);
                     argSet.addRepeatRecord(rarg);
                 }
@@ -506,17 +506,17 @@ public class ListCerts extends CMSServlet {
                 count++;
             }
         } else {
-            CMS.debug("ListCerts: no records found");
+            logger.debug("ListCerts: no records found");
             return;
         }
 
         if (mReverse) {
-            CMS.debug("ListCerts: fill records into arg block and argSet");
+            logger.debug("ListCerts: fill records into arg block and argSet");
             for (int ii = rcount - 1; ii >= 0; ii--) {
                 if (recs[ii] != null) {
-                    //CMS.debug("ListCerts: processing recs[" + ii + "]");
-                    IArgBlock rarg = CMS.createArgBlock();
-                    // CMS.debug("item " + ii + " is serial #" + recs[ii].getSerialNumber());
+                    //logger.debug("ListCerts: processing recs[" + ii + "]");
+                    ArgBlock rarg = new ArgBlock();
+                    // logger.debug("item " + ii + " is serial #" + recs[ii].getSerialNumber());
                     fillRecordIntoArg(recs[ii], rarg);
                     argSet.addRepeatRecord(rarg);
                 }
@@ -528,10 +528,10 @@ public class ListCerts extends CMSServlet {
 
         if (e.hasMoreElements()) {
             nextRec = e.nextElement();
-            CMS.debug("ListCerts: next record: " + nextRec.getSerialNumber());
+            logger.debug("ListCerts: next record: " + nextRec.getSerialNumber());
 
         } else {
-            CMS.debug("ListCerts: no next record");
+            logger.debug("ListCerts: no next record");
         }
 
         header.addStringValue("op", req.getParameter("op"));
@@ -560,17 +560,17 @@ public class ListCerts extends CMSServlet {
         if (totalRecordCount == -1) {
             if (!serialToVal.equals(MINUS_ONE)) {
                 totalRecordCount = toCurIndex - curIndex + 1;
-                CMS.debug("ListCerts: totalRecordCount: " + totalRecordCount);
+                logger.debug("ListCerts: totalRecordCount: " + totalRecordCount);
             } else {
                 totalRecordCount = list.getSize() -
                         list.getCurrentIndex();
-                CMS.debug("ListCerts: totalRecordCount: " + totalRecordCount);
+                logger.debug("ListCerts: totalRecordCount: " + totalRecordCount);
             }
         }
 
         int currentRecordCount = list.getSize() - list.getCurrentIndex();
-        CMS.debug("ListCerts: totalRecordCount: " + totalRecordCount);
-        CMS.debug("ListCerts: currentRecordCount: " + currentRecordCount);
+        logger.debug("ListCerts: totalRecordCount: " + totalRecordCount);
+        logger.debug("ListCerts: currentRecordCount: " + currentRecordCount);
 
         header.addIntegerValue("totalRecordCount", totalRecordCount);
         header.addIntegerValue("currentRecordCount", currentRecordCount);
@@ -580,25 +580,25 @@ public class ListCerts extends CMSServlet {
             qs = "querySentinelUp";
         else
             qs = "querySentinelDown";
-        CMS.debug("ListCerts: qs: " + qs);
+        logger.debug("ListCerts: qs: " + qs);
 
         if (mHardJumpTo) {
-            CMS.debug("ListCerts: curSerial added to querySentinelUp: " + curSerial);
+            logger.debug("ListCerts: curSerial added to querySentinelUp: " + curSerial);
             header.addStringValue("querySentinelUp", curSerial.toString());
 
         } else {
             if (nextRec == null) {
                 header.addStringValue(qs, null);
-                CMS.debug("ListCerts: nextRec is null");
+                logger.debug("ListCerts: nextRec is null");
 
                 if (mReverse) {
-                    CMS.debug("ListCerts: curSerial added to querySentinelUp: " + curSerial);
+                    logger.debug("ListCerts: curSerial added to querySentinelUp: " + curSerial);
                     header.addStringValue("querySentinelUp", curSerial.toString());
                 }
 
             } else {
                 BigInteger nextRecNo = nextRec.getSerialNumber();
-                CMS.debug("ListCerts: nextRecNo: " + nextRecNo);
+                logger.debug("ListCerts: nextRecNo: " + nextRecNo);
 
                 if (serialToVal.equals(MINUS_ONE)) {
                     header.addStringValue(
@@ -612,7 +612,7 @@ public class ListCerts extends CMSServlet {
                                 null);
                     }
                 }
-                CMS.debug("ListCerts: querySentinel " + qs + ": " + nextRecNo);
+                logger.debug("ListCerts: querySentinel " + qs + ": " + nextRecNo);
             }
         } // !mHardJumpto
 

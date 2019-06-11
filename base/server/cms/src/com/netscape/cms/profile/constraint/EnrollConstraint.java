@@ -21,11 +21,10 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
@@ -44,6 +43,9 @@ import com.netscape.cms.profile.common.EnrollProfile;
  * @version $Revision$, $Date$
  */
 public abstract class EnrollConstraint implements IPolicyConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollConstraint.class);
+
     public static final String CONFIG_NAME = "name";
     public static final String CONFIG_PARAMS = "params";
 
@@ -102,13 +104,13 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
     public String getConfig(String name, String defval) {
 
         if (mConfig == null) {
-            CMS.debug("Error: Missing profile configuration");
+            logger.warn("Error: Missing profile configuration");
             return null;
         }
 
         IConfigStore params = mConfig.getSubStore(CONFIG_PARAMS);
         if (params == null) {
-            CMS.debug("Error: Missing constraint parameters");
+            logger.warn("Error: Missing constraint parameters");
             return null;
         }
 
@@ -116,7 +118,7 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
             return params.getString(name, defval);
 
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.warn("EnrollConstraint: " + e.getMessage(), e);
             return null;
         }
     }
@@ -159,14 +161,14 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
         String name = getClass().getName();
 
         name = name.substring(name.lastIndexOf('.') + 1);
-        CMS.debug(name + ": validate start");
+        logger.debug(name + ": validate start");
         X509CertInfo info =
                 request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         validate(request, info);
 
         request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
-        CMS.debug(name + ": validate end");
+        logger.debug(name + ": validate end");
     }
 
     public String getText(Locale locale) {
@@ -188,7 +190,7 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
             exts = (CertificateExtensions)
                     info.get(X509CertInfo.EXTENSIONS);
         } catch (Exception e) {
-            CMS.debug("EnrollConstraint: getExtension " + e.toString());
+            logger.warn("EnrollConstraint: getExtension " + e.getMessage(), e);
         }
         if (exts == null)
             return null;

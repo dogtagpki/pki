@@ -1,0 +1,46 @@
+# Authors:
+#     Endi S. Dewata <edewata@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2019 Red Hat, Inc.
+# All rights reserved.
+#
+
+from __future__ import absolute_import
+import re
+import pki.server.upgrade
+
+
+class RemoveResteasyPath(pki.server.upgrade.PKIServerUpgradeScriptlet):
+
+    def __init__(self):
+        super(RemoveResteasyPath, self).__init__()
+        self.message = 'Remove RESTEASY_LIB from JAVA_OPTS'
+
+    def upgrade_instance(self, instance):
+        self.fix_tomcat_config('/etc/pki/%s/tomcat.conf' % instance.name)
+        self.fix_tomcat_config('/etc/sysconfig/%s' % instance.name)
+
+    def fix_tomcat_config(self, filename):
+
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+
+        with open(filename, 'w') as f:
+            for line in lines:
+                match = re.match(r'(JAVA_OPTS=".*)-DRESTEASY_LIB=\S*\s*(.*")$', line)
+                if match:
+                    line = match.group(1) + match.group(2)
+                f.write(line)

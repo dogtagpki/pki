@@ -25,7 +25,7 @@ import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.base.EBaseException;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * A class represents the signing unit which is

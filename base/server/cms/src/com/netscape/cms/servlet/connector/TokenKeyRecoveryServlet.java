@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.server.connector.IRemoteRequest;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
@@ -39,6 +38,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 
 /**
@@ -52,9 +53,8 @@ import com.netscape.cmscore.cert.PrettyPrintFormat;
 //XXX add auditing later
 public class TokenKeyRecoveryServlet extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenKeyRecoveryServlet.class);
+
     private static final long serialVersionUID = -2322410659376501336L;
     private final static String INFO = "TokenKeyRecoveryServlet";
     public final static String PROP_AUTHORITY = "authority";
@@ -74,14 +74,16 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+
+        CMSEngine engine = CMS.getCMSEngine();
+
         mConfig = config;
         String authority = config.getInitParameter(PROP_AUTHORITY);
 
         if (authority != null)
-            mAuthority = (IAuthority)
-                    CMS.getSubsystem(authority);
+            mAuthority = (IAuthority) engine.getSubsystem(authority);
 
-        mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
     }
 
     /**
@@ -154,7 +156,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         boolean missingParam = false;
         String status = "0";
 
-        CMS.debug("processTokenKeyRecovery begins:");
+        logger.debug("processTokenKeyRecovery begins:");
 
         String rCUID = req.getParameter(IRemoteRequest.TOKEN_CUID);
         String rUserid = req.getParameter(IRemoteRequest.KRA_UserId);
@@ -163,24 +165,24 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         String rCert = req.getParameter(IRemoteRequest.KRA_RECOVERY_CERT);
 
         if ((rCUID == null) || (rCUID.equals(""))) {
-            CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: CUID");
+            logger.warn("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: CUID");
             missingParam = true;
         }
 
         if ((rUserid == null) || (rUserid.equals(""))) {
-            CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: userid");
+            logger.warn("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: userid");
             missingParam = true;
         }
 
         if ((rdesKeyString == null) ||
                 (rdesKeyString.equals(""))) {
-            CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: DRM-transportKey-wrapped des key");
+            logger.warn("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: DRM-transportKey-wrapped des key");
             missingParam = true;
         }
 
         if (((rCert == null) || (rCert.equals(""))) &&
             ((rKeyid == null) || (rKeyid.equals("")))) {
-            CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: cert or keyid");
+            logger.warn("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: cert or keyid");
             missingParam = true;
         }
 
@@ -193,11 +195,11 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             thisreq.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);
             if ((rCert != null) && (!rCert.equals(""))) {
                 thisreq.setExtData(IRequest.NETKEY_ATTR_USER_CERT, rCert);
-               CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): received request parameter: cert");
+               logger.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): received request parameter: cert");
             }
             if ((rKeyid != null) && (!rKeyid.equals(""))) {
                 thisreq.setExtData(IRequest.NETKEY_ATTR_KEYID, rKeyid);
-                CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): received request parameter: keyid");
+                logger.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): received request parameter: keyid");
             }
 
             //XXX auto process for netkey
@@ -215,7 +217,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             } else
                 status = "7";
 
-            CMS.debug("processTokenKeyRecovery finished");
+            logger.debug("processTokenKeyRecovery finished");
         } // ! missingParam
 
         String value = "";
@@ -234,14 +236,14 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             BigInteger serialNo = kr.getSerialNumber();
 
             String serialNumberString =
-                com.netscape.cmsutil.util.Utils.SpecialEncode(serialNo.toByteArray());
+                org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(serialNo.toByteArray());
 
             recoveryBlobString = (String)
                 thisreq.get("recoveryBlob");
         */
 
         if (thisreq == null) {
-            CMS.debug("TokenKeyRecoveryServlet::processTokenKeyRecovery() - "
+            logger.error("TokenKeyRecoveryServlet::processTokenKeyRecovery() - "
                      + "thisreq is null!");
             throw new EBaseException("thisreq is null");
         }
@@ -287,17 +289,17 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             value = sb.toString();
 
         }
-        //CMS.debug("ProcessTokenKeyRecovery:outputString.encode " + value);
+        //logger.debug("ProcessTokenKeyRecovery:outputString.encode " + value);
 
         try {
             resp.setContentLength(value.length());
-            CMS.debug("TokenKeyRecoveryServlet:outputString.length " + value.length());
+            logger.debug("TokenKeyRecoveryServlet:outputString.length " + value.length());
             OutputStream ooss = resp.getOutputStream();
             ooss.write(value.getBytes());
             ooss.flush();
             mRenderResult = false;
         } catch (IOException e) {
-            CMS.debug("TokenKeyRecoveryServlet: " + e.toString());
+            logger.warn("TokenKeyRecoveryServlet: " + e.getMessage(), e);
         }
     }
 
@@ -333,7 +335,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             try {
                 resp.setContentType("application/x-www-form-urlencoded");
                 String value = "unauthorized=";
-                CMS.debug("TokenKeyRecoveryServlet: Unauthorized");
+                logger.debug("TokenKeyRecoveryServlet: Unauthorized");
 
                 resp.setContentLength(value.length());
                 OutputStream ooss = resp.getOutputStream();
@@ -341,7 +343,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
                 ooss.flush();
                 mRenderResult = false;
             } catch (Exception e) {
-                CMS.debug("TokenKeyRecoveryServlet: " + e.toString());
+                logger.warn("TokenKeyRecoveryServlet: " + e.getMessage(), e);
             }
 
             cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
@@ -349,7 +351,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         }
 
         // begin Netkey serverSideKeyGen and archival
-        CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery would be called");
+        logger.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery would be called");
         processTokenKeyRecovery(req, resp);
         return;
         // end Netkey functions

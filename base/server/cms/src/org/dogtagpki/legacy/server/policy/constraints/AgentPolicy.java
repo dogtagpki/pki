@@ -23,12 +23,12 @@ import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * AgentPolicy is an enrollment policy wraps another policy module.

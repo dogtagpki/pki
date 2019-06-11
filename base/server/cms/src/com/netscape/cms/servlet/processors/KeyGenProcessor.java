@@ -20,11 +20,10 @@ package com.netscape.cms.servlet.processors;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -35,6 +34,7 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * KeyGenProcess parses Certificate request matching the
@@ -43,6 +43,8 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  * @version $Revision$, $Date$
  */
 public class KeyGenProcessor extends PKIProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyGenProcessor.class);
 
     public KeyGenProcessor() {
         super();
@@ -62,7 +64,7 @@ public class KeyGenProcessor extends PKIProcessor {
             IAuthToken authToken, IArgBlock httpParams)
             throws EBaseException {
 
-        CMS.debug("KeyGenProcessor: fillCertInfo");
+        logger.debug("KeyGenProcessor: fillCertInfo");
 
         if (mServlet == null) {
             return;

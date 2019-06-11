@@ -25,7 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * The AtoB class is a utility program designed to "translate" an ASCII

@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.policy.IPolicyRule;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -44,6 +43,8 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class is an administration servlet for policy management.
@@ -55,9 +56,9 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
  * @version $Revision$, $Date$
  */
 public class PolicyAdminServlet extends AdminServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyAdminServlet.class);
+
     private static final long serialVersionUID = 8850646362111106656L;
 
     public final static String PROP_AUTHORITY = "authority";
@@ -99,7 +100,7 @@ public class PolicyAdminServlet extends AdminServlet {
         String authority = config.getInitParameter(PROP_AUTHORITY);
         String policyStatus = null;
 
-        CMS.debug("PolicyAdminServlet: In Policy Admin Servlet init!");
+        logger.debug("PolicyAdminServlet: In Policy Admin Servlet init!");
 
         // CMS 6.1 began utilizing the "Certificate Profiles" framework
         // instead of the legacy "Certificate Policies" framework.
@@ -126,8 +127,9 @@ public class PolicyAdminServlet extends AdminServlet {
         //            ====================================================
         //            krapolicy              kra/krapolicy
         //
+        CMSEngine engine = CMS.getCMSEngine();
         if (authority != null)
-            mAuthority = (IAuthority) CMS.getSubsystem(authority);
+            mAuthority = (IAuthority) engine.getSubsystem(authority);
         if (mAuthority != null)
             if (mAuthority instanceof ICertificateAuthority) {
                 mProcessor = ((ICertificateAuthority) mAuthority).getPolicyProcessor();
@@ -142,12 +144,12 @@ public class PolicyAdminServlet extends AdminServlet {
                         //        'CS.cfg' file, and thus we err on the
                         //        side that the user may still need to
                         //        use the policy framework.
-                        CMS.debug("PolicyAdminServlet::init "
+                        logger.debug("PolicyAdminServlet::init "
                                  + "Certificate Policy Framework (deprecated) "
                                  + "is ENABLED");
                     } else {
                         // CS 8.1 Default:  ca.Policy.enable=false
-                        CMS.debug("PolicyAdminServlet::init "
+                        logger.debug("PolicyAdminServlet::init "
                                  + "Certificate Policy Framework (deprecated) "
                                  + "is DISABLED");
                         return;
@@ -174,12 +176,12 @@ public class PolicyAdminServlet extends AdminServlet {
                         //        'CS.cfg' file, and thus we err on the
                         //        side that the user may still need to
                         //        use the policy framework.
-                        CMS.debug("PolicyAdminServlet::init "
+                        logger.debug("PolicyAdminServlet::init "
                                  + "Certificate Policy Framework (deprecated) "
                                  + "is ENABLED");
                     } else {
                         // CS 8.1 Default:  kra.Policy.enable=false
-                        CMS.debug("PolicyAdminServlet::init "
+                        logger.debug("PolicyAdminServlet::init "
                                  + "Certificate Policy Framework (deprecated) "
                                  + "is DISABLED");
                         return;
@@ -841,7 +843,8 @@ public class PolicyAdminServlet extends AdminServlet {
         String user = combo.substring(0, semicolon);
         String pw = combo.substring(semicolon + 1);
 
-        CMS.putPasswordCache(user, pw);
+        CMSEngine engine = CMS.getCMSEngine();
+        engine.putPasswordCache(user, pw);
     }
 
     /**

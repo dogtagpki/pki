@@ -29,27 +29,27 @@ import org.dogtagpki.legacy.policy.IGeneralNameUtil;
 import org.dogtagpki.legacy.policy.IGeneralNamesAsConstraintsConfig;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.ISubjAltNameConfig;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.DNSName;
+import org.mozilla.jss.netscape.security.x509.EDIPartyName;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.IPAddressName;
+import org.mozilla.jss.netscape.security.x509.InvalidIPAddressException;
+import org.mozilla.jss.netscape.security.x509.OIDName;
+import org.mozilla.jss.netscape.security.x509.RFC822Name;
+import org.mozilla.jss.netscape.security.x509.URIName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.cmscore.util.Debug;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.DNSName;
-import netscape.security.x509.EDIPartyName;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNameInterface;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.IPAddressName;
-import netscape.security.x509.InvalidIPAddressException;
-import netscape.security.x509.OIDName;
-import netscape.security.x509.RFC822Name;
-import netscape.security.x509.URIName;
-import netscape.security.x509.X500Name;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Class that can be used to form general names from configuration file.
@@ -57,6 +57,7 @@ import netscape.security.x509.X500Name;
  */
 public class GeneralNameUtil implements IGeneralNameUtil {
 
+    public static Logger logger = LoggerFactory.getLogger(GeneralNameUtil.class);
     private static final String DOT = ".";
 
     /**
@@ -106,13 +107,13 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                 byte[] val = Utils.base64decode(value);
 
                 derVal = new DerValue(new ByteArrayInputStream(val));
-                Debug.trace("otherName formed");
+                logger.trace("otherName formed");
             } else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_RFC822NAME)) {
                 generalNameI = new RFC822Name(value);
-                Debug.trace("rfc822Name formed ");
+                logger.trace("rfc822Name formed ");
             } else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_DNSNAME)) {
                 generalNameI = new DNSName(value);
-                Debug.trace("dnsName formed");
+                logger.trace("dnsName formed");
             }/**
              * not supported -- no sun class
              * else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_X400ADDRESS)) {
@@ -120,16 +121,16 @@ public class GeneralNameUtil implements IGeneralNameUtil {
              **/
             else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_DIRECTORYNAME)) {
                 generalNameI = new X500Name(value);
-                Debug.trace("X500Name formed");
+                logger.trace("X500Name formed");
             } else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_EDIPARTYNAME)) {
                 generalNameI = new EDIPartyName(value);
-                Debug.trace("ediPartyName formed");
+                logger.trace("ediPartyName formed");
             } else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_URL)) {
                 generalNameI = new URIName(value);
-                Debug.trace("url formed");
+                logger.trace("url formed");
             } else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_IPADDRESS)) {
                 generalNameI = new IPAddressName(value);
-                Debug.trace("ipaddress formed");
+                logger.trace("ipaddress formed");
             } else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_REGISTEREDID)) {
                 ObjectIdentifier oid;
 
@@ -142,7 +143,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                                     "value must be a valid OID in the form n.n.n.n"));
                 }
                 generalNameI = new OIDName(oid);
-                Debug.trace("oidname formed");
+                logger.trace("oidname formed");
             } else {
                 throw new EBaseException(
                         CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
@@ -163,15 +164,15 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                                 ));
             }
         } catch (IOException e) {
-            Debug.printStackTrace(e);
+            logger.error("GeneralNameUtil: " + e.getMessage(), e);
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INVALID_VALUE_FOR_TYPE",
                             generalNameChoice, e.toString()));
         } catch (InvalidIPAddressException e) {
-            Debug.printStackTrace(e);
+            logger.error("GeneralNameUtil: " + e.getMessage(), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_IP_ADDR", value));
         } catch (RuntimeException e) {
-            Debug.printStackTrace(e);
+            logger.error("GeneralNameUtil: " + e.getMessage(), e);
             throw e;
         }
 
@@ -180,10 +181,10 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                 generalName = new GeneralName(generalNameI);
             else
                 generalName = new GeneralName(derVal);
-            Debug.trace("general name formed");
+            logger.trace("general name formed");
             return generalName;
         } catch (IOException e) {
-            Debug.printStackTrace(e);
+            logger.error("GeneralNameUtil: " + e.getMessage(), e);
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "Could not form GeneralName. Error: " + e));
         }
@@ -561,7 +562,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
 
             if (name != null)
                 nameDot = name + ".";
-            Debug.trace("GeneralnameConfig getDefaultParams");
+            logger.trace("GeneralnameConfig getDefaultParams");
             params.addElement(nameDot + PROP_GENNAME_CHOICE + "=");
             if (isValueConfigured)
                 params.addElement(nameDot + PROP_GENNAME_VALUE + "=");

@@ -22,7 +22,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -37,9 +39,7 @@ import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.RandomizedValidityDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
 import com.netscape.cms.profile.def.ValidityDefault;
-
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.X509CertInfo;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements the validity constraint.
@@ -49,6 +49,8 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class ValidityConstraint extends EnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ValidityConstraint.class);
 
     public static final String CONFIG_RANGE = "range";
     public static final String CONFIG_RANGE_UNIT = "rangeUnit";
@@ -145,9 +147,9 @@ public class ValidityConstraint extends EnrollConstraint {
         Date notBefore;
         try {
             notBefore = (Date) v.get(CertificateValidity.NOT_BEFORE);
-            CMS.debug("ValidityConstraint: not before: " + notBefore);
+            logger.debug("ValidityConstraint: not before: " + notBefore);
         } catch (IOException e) {
-            CMS.debug("ValidityConstraint: not before not found");
+            logger.error("ValidityConstraint: not before not found: " + e.getMessage(), e);
             throw new ERejectException(CMS.getUserMessage(getLocale(request),
                         "CMS_PROFILE_VALIDITY_NOT_FOUND"));
         }
@@ -155,30 +157,31 @@ public class ValidityConstraint extends EnrollConstraint {
         Date notAfter;
         try {
             notAfter = (Date) v.get(CertificateValidity.NOT_AFTER);
-            CMS.debug("ValidityConstraint: not after: " + notAfter);
+            logger.debug("ValidityConstraint: not after: " + notAfter);
         } catch (IOException e) {
-            CMS.debug("ValidityConstraint: not after not found");
+            logger.error("ValidityConstraint: not after not found: " + e.getMessage(), e);
             throw new ERejectException(CMS.getUserMessage(getLocale(request),
                         "CMS_PROFILE_VALIDITY_NOT_FOUND"));
         }
 
         if (notAfter.getTime() < notBefore.getTime()) {
-            CMS.debug("ValidityConstraint: notAfter (" + notAfter + ") < notBefore (" + notBefore + ")");
+            logger.debug("ValidityConstraint: notAfter (" + notAfter + ") < notBefore (" + notBefore + ")");
             throw new ERejectException(CMS.getUserMessage(getLocale(request),
                         "CMS_PROFILE_NOT_AFTER_BEFORE_NOT_BEFORE"));
         }
 
         String rangeStr = getConfig(CONFIG_RANGE, "365");
-        CMS.debug("ValidityConstraint: range: " + rangeStr);
+        logger.debug("ValidityConstraint: range: " + rangeStr);
         int range = Integer.parseInt(rangeStr);
 
         String rangeUnitStr = getConfig(CONFIG_RANGE_UNIT, "day");
-        CMS.debug("ValidityConstraint: range unit: " + rangeUnitStr);
+        logger.debug("ValidityConstraint: range unit: " + rangeUnitStr);
 
         int rangeUnit;
         try {
             rangeUnit = convertRangeUnit(rangeUnitStr);
         } catch (Exception e) {
+            logger.error("ValidityConstraint: invalid range unit: " + e.getMessage(), e);
             throw new ERejectException(CMS.getUserMessage(getLocale(request),
                     "CMS_PROFILE_VALIDITY_INVALID_RANGE_UNIT",
                     rangeUnitStr));
@@ -190,7 +193,7 @@ public class ValidityConstraint extends EnrollConstraint {
         date.add(rangeUnit, range);
 
         Date limit = date.getTime();
-        CMS.debug("ValidityConstraint: limit: " + limit);
+        logger.debug("ValidityConstraint: limit: " + limit);
 
         if (notAfter.after(limit)) {
             throw new ERejectException(CMS.getUserMessage(getLocale(request),
@@ -226,10 +229,10 @@ public class ValidityConstraint extends EnrollConstraint {
         }
         long notBeforeGracePeriod = Long.parseLong(notBeforeGracePeriodStr) * SECS_IN_MS;
 
-        Date current = CMS.getCurrentDate();
+        Date current = new Date();
         if (notBeforeCheck) {
             if (notBefore.getTime() > (current.getTime() + notBeforeGracePeriod)) {
-                CMS.debug("ValidityConstraint: notBefore (" + notBefore + ") > current + " +
+                logger.debug("ValidityConstraint: notBefore (" + notBefore + ") > current + " +
                           "gracePeriod (" + new Date(current.getTime() + notBeforeGracePeriod) + ")");
                 throw new ERejectException(CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_NOT_BEFORE_AFTER_CURRENT"));
@@ -237,7 +240,7 @@ public class ValidityConstraint extends EnrollConstraint {
         }
         if (notAfterCheck) {
             if (notAfter.getTime() < current.getTime()) {
-                CMS.debug("ValidityConstraint: notAfter (" + notAfter + ") <  current + (" + current + ")");
+                logger.debug("ValidityConstraint: notAfter (" + notAfter + ") <  current + (" + current + ")");
                 throw new ERejectException(CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_NOT_AFTER_BEFORE_CURRENT"));
             }

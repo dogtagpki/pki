@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Map;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
@@ -27,6 +26,8 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  * @author Endi S. Dewata
  */
 public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LDAPDatabase.class);
 
     public IDBSubsystem dbSubsystem;
     public String baseDN;
@@ -59,7 +60,7 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
 
     public void register(Class<E> recordType) throws EBaseException {
 
-        CMS.debug("registering " + recordType.getName());
+        logger.debug("registering " + recordType.getName());
 
         IDBRegistry dbRegistry = dbSubsystem.getRegistry();
 
@@ -123,12 +124,12 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
 
     public Collection<E> findRecords(String keyword, Map<String, String> attributes) throws Exception {
 
-        CMS.debug("LDAPDatabase: findRecords()");
+        logger.debug("LDAPDatabase: findRecords()");
 
         try (IDBSSession session = dbSubsystem.createSession()) {
             Collection<E> list = new ArrayList<E>();
             String ldapFilter = createFilter(keyword, attributes);
-            CMS.debug("LDAPDatabase: searching " + baseDN + " with filter " + ldapFilter);
+            logger.debug("LDAPDatabase: searching " + baseDN + " with filter " + ldapFilter);
             IDBSearchResults results = session.search(baseDN, ldapFilter);
 
             while (results.hasMoreElements()) {
@@ -144,12 +145,12 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
     public IDBVirtualList<E> findRecords(String keyword, Map<String, String> attributes,
             String[] sortKeys, int pageSize) throws Exception {
 
-        CMS.debug("LDAPDatabase: findRecords()");
+        logger.debug("LDAPDatabase: findRecords()");
 
         try (IDBSSession session = dbSubsystem.createSession()) {
 
             String ldapFilter = createFilter(keyword, attributes);
-            CMS.debug("LDAPDatabase: searching " + baseDN + " with filter " + ldapFilter);
+            logger.debug("LDAPDatabase: searching " + baseDN + " with filter " + ldapFilter);
 
             return session.<E>createVirtualList(
                     baseDN,
@@ -163,21 +164,21 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
     @SuppressWarnings("unchecked")
     @Override
     public E getRecord(String id) throws Exception {
-        CMS.debug("LDAPDatabase: getRecord(\"" + id + "\")");
+        logger.debug("LDAPDatabase: getRecord(\"" + id + "\")");
         try (IDBSSession session = dbSubsystem.createSession()) {
             String dn = createDN(id);
-            CMS.debug("LDAPDatabase: reading " + baseDN);
+            logger.debug("LDAPDatabase: reading " + baseDN);
             return (E)session.read(dn);
         }
     }
 
     @Override
     public void addRecord(String id, E record) throws Exception {
-        CMS.debug("LDAPDatabase: addRecord(\"" + id + "\")");
+        logger.debug("LDAPDatabase: addRecord(\"" + id + "\")");
         try (IDBSSession session = dbSubsystem.createSession()) {
             String dn = createDN(id);
 
-            CMS.debug("LDAPDatabase: adding " + dn);
+            logger.debug("LDAPDatabase: adding " + dn);
             session.add(dn, record);
         }
     }
@@ -185,40 +186,39 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
     @Override
     public void updateRecord(String id, E record) throws Exception {
 
-        CMS.debug("LDAPDatabase: updateRecord(\"" + id + "\")");
+        logger.debug("LDAPDatabase: updateRecord(\"" + id + "\")");
 
         try (IDBSSession session = dbSubsystem.createSession()) {
             String dn = createDN(id);
-            CMS.debug("LDAPDatabase: dn: " + dn);
-            CMS.debug("LDAPDatabase: changetype: modify");
+            logger.debug("LDAPDatabase: dn: " + dn);
+            logger.debug("LDAPDatabase: changetype: modify");
 
             ModificationSet mods = new ModificationSet();
             for (Enumeration<String> names = record.getSerializableAttrNames(); names.hasMoreElements(); ) {
                 String name = names.nextElement();
                 Object value = record.get(name);
-                CMS.debug("LDAPDatabase: replace: " + name);
-                CMS.debug("LDAPDatabase: " + name + ": " + value);
-                CMS.debug("LDAPDatabase: -");
+                logger.debug("LDAPDatabase: replace: " + name);
+                logger.debug("LDAPDatabase: " + name + ": " + value);
+                logger.debug("LDAPDatabase: -");
                 mods.add(name, Modification.MOD_REPLACE, value);
             }
 
             session.modify(dn, mods);
-            CMS.debug("LDAPDatabase: modification completed");
+            logger.debug("LDAPDatabase: modification completed");
 
         } catch (Exception e) {
-            CMS.debug("LDAPDatabase: modification failed");
-            CMS.debug(e);
+            logger.error("LDAPDatabase: modification failed: " + e.getMessage(), e);
             throw e;
         }
     }
 
     @Override
     public void removeRecord(String id) throws Exception {
-        CMS.debug("LDAPDatabase: removeRecord(\"" + id + "\")");
+        logger.debug("LDAPDatabase: removeRecord(\"" + id + "\")");
         try (IDBSSession session = dbSubsystem.createSession()) {
             String dn = createDN(id);
 
-            CMS.debug("LDAPDatabase: removing " + dn);
+            logger.debug("LDAPDatabase: removing " + dn);
             session.delete(dn);
         }
     }

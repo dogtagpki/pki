@@ -20,11 +20,10 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -32,6 +31,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -41,6 +41,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class BasicConstraintsExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BasicConstraintsExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "basicConstraintsCritical";
     public static final String CONFIG_IS_CA = "basicConstraintsIsCA";
@@ -154,11 +156,11 @@ public class BasicConstraintsExtDefault extends EnrollExtDefault {
             replaceExtension(PKIXExtensions.BasicConstraints_Id.toString(),
                     ext, info);
         } catch (IOException e) {
-            CMS.debug("BasicConstraintsExtDefault: setValue " + e.toString());
+            logger.error("BasicConstraintsExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
-            CMS.debug("BasicConstraintsExtDefault: setValue " + e.toString());
+            logger.error("BasicConstraintsExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -177,13 +179,13 @@ public class BasicConstraintsExtDefault extends EnrollExtDefault {
                     getExtension(PKIXExtensions.BasicConstraints_Id.toString(), info);
 
             if (ext == null) {
-                CMS.debug("BasicConstraintsExtDefault: getValue ext is null, populating a new one ");
+                logger.debug("BasicConstraintsExtDefault: getValue ext is null, populating a new one ");
 
                 try {
                     populate(null, info);
 
                 } catch (EProfileException e) {
-                    CMS.debug("BasicConstraintsExtDefault: getValue " + e.toString());
+                    logger.error("BasicConstraintsExtDefault: getValue " + e.getMessage(), e);
                     throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
                 }
@@ -234,7 +236,7 @@ public class BasicConstraintsExtDefault extends EnrollExtDefault {
 
                 }
 
-                CMS.debug("BasicConstriantsExtDefault getValue(pLen) " + pLen);
+                logger.debug("BasicConstriantsExtDefault getValue(pLen) " + pLen);
 
                 return pLen;
 
@@ -243,7 +245,7 @@ public class BasicConstraintsExtDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
-            CMS.debug("BasicConstraintsExtDefault: getValue " + e.toString());
+            logger.error("BasicConstraintsExtDefault: getValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -287,8 +289,7 @@ public class BasicConstraintsExtDefault extends EnrollExtDefault {
         try {
             ext = new BasicConstraintsExtension(isCA, critical, pathLen);
         } catch (Exception e) {
-            CMS.debug("BasicConstraintsExtDefault: createExtension " +
-                    e.toString());
+            logger.error("BasicConstraintsExtDefault: createExtension " + e.getMessage(), e);
             return null;
         }
         ext.setCritical(critical);

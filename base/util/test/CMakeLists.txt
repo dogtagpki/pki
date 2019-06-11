@@ -42,3 +42,8 @@ add_junit_test(test-pki-util
     DEPENDS
         pki-util-test-classes
 )
+
+add_test(
+    NAME "test_PKICertImport"
+    COMMAND bash "${CMAKE_SOURCE_DIR}/base/util/test/PKICertImport/runtest.bash"
+)

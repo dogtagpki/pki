@@ -27,14 +27,13 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.servlet.VelocityServlet;
 
-import com.netscape.certsrv.apps.CMS;
+import com.netscape.cmscore.apps.CMS;
 
 @SuppressWarnings("deprecation")
 public class BaseServlet extends VelocityServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BaseServlet.class);
+
     private static final long serialVersionUID = 3169697149104780149L;
 
     /**
@@ -60,7 +59,7 @@ public class BaseServlet extends VelocityServlet {
     }
 
     public void outputHttpParameters(HttpServletRequest httpReq) {
-        CMS.debug("BaseServlet:service() uri = " + httpReq.getRequestURI());
+        logger.debug("BaseServlet:service() uri = " + httpReq.getRequestURI());
         Enumeration<String> paramNames = httpReq.getParameterNames();
 
         while (paramNames.hasMoreElements()) {
@@ -71,10 +70,10 @@ public class BaseServlet extends VelocityServlet {
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed
             if (CMS.isSensitive(pn)) {
-                CMS.debug("BaseServlet::service() param name='" + pn +
+                logger.debug("BaseServlet::service() param name='" + pn +
                          "' value='(sensitive)'");
             } else {
-                CMS.debug("BaseServlet::service() param name='" + pn +
+                logger.debug("BaseServlet::service() param name='" + pn +
                          "' value='" + httpReq.getParameter(pn) + "'");
             }
         }
@@ -92,7 +91,7 @@ public class BaseServlet extends VelocityServlet {
     public Template handleRequest(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {
-        if (CMS.debugOn()) {
+        if (logger.isDebugEnabled()) {
             outputHttpParameters(request);
         }
 

@@ -20,21 +20,20 @@ package com.netscape.cms.jobs;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobCron;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailTemplate;
-
-import netscape.security.x509.X509CertImpl;
 
 /**
  * This abstract class is a base job for real job extentions for the
@@ -44,6 +43,9 @@ import netscape.security.x509.X509CertImpl;
  * @see com.netscape.certsrv.jobs.IJob
  */
 public abstract class AJobBase implements IJob, Runnable {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AJobBase.class);
+
     // config parameters...
     protected static final String PROP_SUMMARY = "summary";
     protected static final String PROP_ENABLED = "enabled";
@@ -63,7 +65,6 @@ public abstract class AJobBase implements IJob, Runnable {
     protected String mCron = null;
     protected IJobCron mJobCron = null;
 
-    protected Logger mLogger = Logger.getLogger();
     protected static String[] mConfigParams = null;
 
     protected String mSummaryMailSubject = null;
@@ -164,28 +165,25 @@ public abstract class AJobBase implements IJob, Runnable {
          */
         EmailTemplate template = new EmailTemplate(templatePath);
 
-        if (template != null) {
-            if (!template.init()) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
-                return null;
-            }
-
-            // this should take care of inner tempaltes not being html
-            // we go with the outter template
-            if (template.isHTML()) {
-                mMailHTML = true;
-            }
-            templateString = template.toString();
-        } else {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
+        if (!template.init()) {
+            logger.warn("AJobBase: " + CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
+            return null;
         }
+
+        // this should take care of inner tempaltes not being html
+        // we go with the outter template
+        if (template.isHTML()) {
+            mMailHTML = true;
+        }
+        templateString = template.toString();
 
         return templateString;
     }
 
     protected void mailSummary(String content) {
         // no need for email resolver here...
-        IMailNotification mn = CMS.getMailNotification();
+        CMSEngine engine = CMS.getCMSEngine();
+        IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSummarySenderEmail);
         mn.setTo(mSummaryReceiverEmail);
@@ -198,15 +196,9 @@ public abstract class AJobBase implements IJob, Runnable {
         try {
             mn.sendNotification();
         } catch (ENotificationException e) {
-            // already logged, lets audit
-            mLogger.log(ILogger.EV_AUDIT,
-                    ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()));
+            logger.warn("AJobBase: " + CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()), e);
         } catch (IOException e) {
-            // already logged, lets audit
-            mLogger.log(ILogger.EV_AUDIT,
-                    ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()));
+            logger.warn("AJobBase: " + CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()), e);
         }
     }
 
@@ -250,7 +242,7 @@ public abstract class AJobBase implements IJob, Runnable {
         if (val != null)
             mItemParams.put(name, val);
         else {
-            CMS.debug("AJobBase: buildItemParams: null value for name= " + name);
+            logger.debug("AJobBase: buildItemParams: null value for name= " + name);
             mItemParams.put(name, "");
         }
     }
@@ -259,37 +251,9 @@ public abstract class AJobBase implements IJob, Runnable {
         if (val != null)
             mContentParams.put(name, val);
         else {
-            CMS.debug("AJobBase: buildContentParams: null value for name= " + name);
+            logger.debug("AJobBase: buildContentParams: null value for name= " + name);
             mContentParams.put(name, "");
         }
-    }
-
-    /**
-     * logs an entry in the log file. Used by classes extending this class.
-     *
-     * @param level log level
-     * @param msg log message in String
-     */
-    public void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, mId + ": " + msg);
-    }
-
-    /**
-     * capable of logging multiline entry in the log file. Used by classes extending this class.
-     *
-     * @param level log level
-     * @param msg log message in String
-     * @param multiline boolean indicating whether the message is a
-     *            multi-lined message.
-     */
-    public void log(int level, String msg, boolean multiline) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, mId + ": " + msg, multiline);
     }
 
     public void stop() {

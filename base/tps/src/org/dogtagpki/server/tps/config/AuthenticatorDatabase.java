@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.dbs.CSCfgDatabase;
 
@@ -32,6 +31,8 @@ import com.netscape.cmscore.dbs.CSCfgDatabase;
  * @author Endi S. Dewata
  */
 public class AuthenticatorDatabase extends CSCfgDatabase<AuthenticatorRecord> {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthenticatorDatabase.class);
 
     public AuthenticatorDatabase() {
         super("Authenticator", "Authentication_Sources");
@@ -77,7 +78,7 @@ public class AuthenticatorDatabase extends CSCfgDatabase<AuthenticatorRecord> {
     @Override
     public void addRecord(String authenticatorID, AuthenticatorRecord authenticatorRecord) throws Exception {
 
-        CMS.debug("AuthenticatorDatabase.addRecord(\"" + authenticatorID + "\")");
+        logger.debug("AuthenticatorDatabase.addRecord(\"" + authenticatorID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
@@ -101,7 +102,7 @@ public class AuthenticatorDatabase extends CSCfgDatabase<AuthenticatorRecord> {
     @Override
     public void updateRecord(String authenticatorID, AuthenticatorRecord authenticatorRecord) throws Exception {
 
-        CMS.debug("AuthenticatorDatabase.updateRecord(\"" + authenticatorID + "\")");
+        logger.debug("AuthenticatorDatabase.updateRecord(\"" + authenticatorID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
@@ -124,7 +125,7 @@ public class AuthenticatorDatabase extends CSCfgDatabase<AuthenticatorRecord> {
     @Override
     public void removeRecord(String authenticatorID) throws Exception {
 
-        CMS.debug("AuthenticatorDatabase.removeRecord(\"" + authenticatorID + "\")");
+        logger.debug("AuthenticatorDatabase.removeRecord(\"" + authenticatorID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 

@@ -27,7 +27,13 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -46,18 +52,15 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.IUser;
-
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
  */
 public class RevocationProcessor extends CertProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
 
     public final static String REVOKE = "revoke";
     public final static String ON_HOLD = "on-hold";
@@ -188,8 +191,8 @@ public class RevocationProcessor extends CertProcessor {
             return ug.isMemberOf(user, "Subsystem Group");
 
         } catch (Exception e) {
-            CMS.debug("RevocationProcessor:  Failed to map certificate '" +
-                    clientCert.getSubjectDN().getName() + "' to user.");
+            logger.warn("RevocationProcessor:  Failed to map certificate '" +
+                    clientCert.getSubjectDN().getName() + "' to user: " + e.getMessage(), e);
             return false;
         }
     }
@@ -232,7 +235,7 @@ public class RevocationProcessor extends CertProcessor {
 
     public void addCertificateToRevoke(X509CertImpl cert) {
         addCertificate(cert);
-        revCertImpls.add(new RevokedCertImpl(cert.getSerialNumber(), CMS.getCurrentDate(), entryExtn));
+        revCertImpls.add(new RevokedCertImpl(cert.getSerialNumber(), new Date(), entryExtn));
     }
 
     public void addSerialNumberToUnrevoke(BigInteger serialNumber) throws EBaseException {
@@ -308,7 +311,7 @@ public class RevocationProcessor extends CertProcessor {
         requestQueue.processRequest(request);
         requestStatus = request.getRequestStatus();
 
-        CMS.debug("revokeCert: status: " + requestStatus);
+        logger.debug("revokeCert: status: " + requestStatus);
 
         String type = request.getRequestType();
 
@@ -341,7 +344,7 @@ public class RevocationProcessor extends CertProcessor {
                 throw new EBaseException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
             }
 
-            long endTime = CMS.getCurrentDate().getTime();
+            long endTime = new Date().getTime();
 
             // audit log the success.
             for (X509CertImpl cert : certificates) {
@@ -428,41 +431,27 @@ public class RevocationProcessor extends CertProcessor {
 
     public void logRevoke(IRequest revocationRequest, X509Certificate cert, String status, String message) {
 
-        if (logger == null)
-            return;
-
-        logger.log(
-                ILogger.EV_AUDIT,
-                ILogger.S_OTHER,
-                AuditFormat.LEVEL,
+        logger.info(
                 AuditFormat.DOREVOKEFORMAT,
-                new Object[] {
-                        revocationRequest.getRequestId(),
-                        initiative,
-                        status,
-                        cert.getSubjectDN(),
-                        cert.getSerialNumber().toString(16),
-                        message
-                });
+                revocationRequest.getRequestId(),
+                initiative,
+                status,
+                cert.getSubjectDN(),
+                cert.getSerialNumber().toString(16),
+                message
+        );
     }
 
     public void logUnrevoke(IRequest unrevocationRequest, X509Certificate cert, String status) {
 
-        if (logger == null)
-            return;
-
-        logger.log(
-                ILogger.EV_AUDIT,
-                ILogger.S_OTHER,
-                AuditFormat.LEVEL,
+        logger.info(
                 AuditFormat.DOUNREVOKEFORMAT,
-                new Object[] {
-                        unrevocationRequest.getRequestId(),
-                        initiative,
-                        status,
-                        cert.getSubjectDN(),
-                        cert.getSerialNumber().toString(16),
-                });
+                unrevocationRequest.getRequestId(),
+                initiative,
+                status,
+                cert.getSubjectDN(),
+                cert.getSerialNumber().toString(16)
+        );
     }
 
     public void auditChangeRequest(String status) {

@@ -57,6 +57,7 @@ javac(pki-server-classes
     CLASSPATH
         ${SLF4J_API_JAR} ${JAXB_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR}
+        ${COMMONS_CLI_JAR}
         ${HTTPCORE_JAR} ${HTTPCLIENT_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}
         ${LDAPJDK_JAR}
@@ -139,7 +140,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_BASE_JAR} common/lib/jackson-jaxrs-base.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXRS_JSON_PROVIDER_JAR} common/lib/jackson-jaxrs-json-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JACKSON2_JAXB_ANNOTATIONS_JAR} common/lib/jackson-module-jaxb-annotations.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/javassist.jar common/lib/javassist.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JSS_JAR} common/lib/jss4.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LDAPJDK_JAR} common/lib/ldapjdk.jar
     COMMAND ln -sf /usr/share/java/pki/pki-nsutil.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/pki-nsutil.jar
@@ -151,7 +151,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-jaxb-provider.jar common/lib/resteasy-jaxb-provider.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${JAXRS_API_JAR} common/lib/jaxrs-api.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${RESTEASY_LIB}/resteasy-jaxrs.jar common/lib/resteasy-jaxrs.jar
-    COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/java/scannotation.jar common/lib/scannotation.jar
     COMMAND ln -sf /usr/lib/java/symkey.jar ${CMAKE_CURRENT_BINARY_DIR}/common/lib/symkey.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${TOMCATJSS_JAR} common/lib/tomcatjss.jar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${VELOCITY_JAR} common/lib/velocity.jar
@@ -174,6 +173,33 @@ add_custom_command(
     COMMAND ln -sf /usr/share/java/pki/pki-cms.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cms.jar
     COMMAND ln -sf /usr/share/java/pki/pki-cmscore.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmscore.jar
     COMMAND ln -sf /usr/share/java/pki/pki-cmsbundle.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmsbundle.jar
+)
+
+add_custom_target(pki-server-man ALL
+    COMMENT "Creating PKI server manuals")
+
+add_custom_command(
+    TARGET pki-server-man
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/man/man1
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man1/pkidaemon.1.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man1/pkidaemon.1
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/man/man5
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki_default.cfg.5.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man5/pki_default.cfg.5
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man5/pki-server-logging.5.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man5/pki-server-logging.5
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/man/man8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-ca.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-ca.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-cert.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-cert.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-instance.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-instance.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-kra.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-kra.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-migrate.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-migrate.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-nuxwdog.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-nuxwdog.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-ocsp.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-ocsp.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-subsystem.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-subsystem.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-tks.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-tks.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-tps.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-tps.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pki-server-upgrade.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pki-server-upgrade.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pkidestroy.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pkidestroy.8
+    COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pkispawn.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pkispawn.8
 )
 
 install(
@@ -217,9 +243,10 @@ install(
         ${DATA_INSTALL_DIR}/server/docs
 )
 
+# install man pages generated by md2man
 install(
     DIRECTORY
-        man/
+        ${CMAKE_CURRENT_BINARY_DIR}/man/
     DESTINATION
         ${MAN_INSTALL_DIR}
     FILE_PERMISSIONS

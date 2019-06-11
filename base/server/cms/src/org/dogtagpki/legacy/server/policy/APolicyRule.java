@@ -28,7 +28,6 @@ import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IExpression;
 import org.dogtagpki.legacy.policy.IPolicyRule;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -37,11 +36,12 @@ import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * The abstract policy rule that concrete implementations will

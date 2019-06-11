@@ -23,19 +23,19 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
-
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509ExtensionException;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents a serializable certificate record.
@@ -46,9 +46,7 @@ import netscape.security.x509.X509ExtensionException;
  */
 public class CertRecord implements IDBObj, ICertRecord {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertRecord.class);
     private static final long serialVersionUID = -6231895305929417777L;
     private BigInteger mId = null;
     private X509CertImpl mX509Certificate = null;
@@ -95,8 +93,8 @@ public class CertRecord implements IDBObj, ICertRecord {
         mMetaInfo = meta;
         mStatus = STATUS_VALID;
         mAutoRenew = AUTO_RENEWAL_ENABLED;
-        mCreateTime = CMS.getCurrentDate();
-        mModifyTime = CMS.getCurrentDate();
+        mCreateTime = new Date();
+        mModifyTime = new Date();
     }
 
     /**
@@ -283,12 +281,12 @@ public class CertRecord implements IDBObj, ICertRecord {
             throws EBaseException, X509ExtensionException {
         String method = "CertRecord.getRevReason:";
         String msg = "";
-        //CMS.debug(method + " checking for cert serial: "
+        // logger.debug(method + " checking for cert serial: "
         //        + getSerialNumber().toString());
         IRevocationInfo revInfo = getRevocationInfo();
         if (revInfo == null) {
             msg = "revInfo null for" + getSerialNumber().toString();
-            CMS.debug(method + msg);
+            logger.debug(method + msg);
             return null;
         }
 
@@ -305,19 +303,19 @@ public class CertRecord implements IDBObj, ICertRecord {
     }
 
     public boolean isCertOnHold() {
-        String method = "CertRecord.isCertOnHold:";
-        CMS.debug(method + " checking for cert serial: "
+        String method = "CertRecord.isCertOnHold: ";
+        logger.debug(method + "checking for cert serial: "
                 + getSerialNumber().toString());
         try {
             RevocationReason revReason = getRevReason();
             if (revReason == RevocationReason.CERTIFICATE_HOLD) {
-                CMS.debug(method + "for " + getSerialNumber().toString() + " returning true");
+                logger.debug(method + "for " + getSerialNumber().toString() + " returning true");
                 return true;
             }
         } catch (Exception e) {
-            CMS.debug(method + e);
+            logger.warn(method + e.getMessage(), e);
         }
-        CMS.debug(method + "for " + getSerialNumber().toString() + " returning false");
+        logger.debug(method + "for " + getSerialNumber().toString() + " returning false");
         return false;
     }
 

@@ -20,21 +20,21 @@ package com.netscape.cms.servlet.processors;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS10Attribute;
-import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.pkcs.PKCS9Attribute;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
+import org.mozilla.jss.netscape.security.pkcs.PKCS9Attribute;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -44,7 +44,7 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * PKCS10Processor process Certificate Requests in
@@ -54,6 +54,8 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class PKCS10Processor extends PKIProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKCS10Processor.class);
 
     private PKCS10 mPkcs10 = null;
 
@@ -91,14 +93,14 @@ public class PKCS10Processor extends PKIProcessor {
 
         PKCS10 p10 = null;
 
-        CMS.debug("PKCS10Processor:fillCertInfo");
+        logger.debug("PKCS10Processor:fillCertInfo");
 
         if (protocolString == null) {
             p10 = getPKCS10(httpParams);
         } else if (protocolString.equals(USE_INTERNAL_PKCS10)) {
             p10 = mPkcs10;
         } else {
-            CMS.debug("PKCS10Processor::fillCertInfo() - p10 is null!");
+            logger.error("PKCS10Processor::fillCertInfo() - p10 is null!");
             throw new EBaseException("p10 is null");
         }
 
@@ -192,8 +194,7 @@ public class PKCS10Processor extends PKIProcessor {
                     }
                 }
             }
-            CMS.debug(
-                    "PKCS10Processor: Seted cert extensions from pkcs10. ");
+            logger.debug("PKCS10Processor: Seted cert extensions from pkcs10. ");
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()));

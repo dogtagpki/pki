@@ -24,20 +24,19 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CPSuri;
-import netscape.security.x509.CertificatePoliciesExtension;
-import netscape.security.x509.CertificatePolicyId;
-import netscape.security.x509.CertificatePolicyInfo;
-import netscape.security.x509.DisplayText;
-import netscape.security.x509.NoticeReference;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.PolicyQualifiers;
-import netscape.security.x509.Qualifier;
-import netscape.security.x509.UserNotice;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.CPSuri;
+import org.mozilla.jss.netscape.security.x509.CertificatePoliciesExtension;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyId;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyInfo;
+import org.mozilla.jss.netscape.security.x509.DisplayText;
+import org.mozilla.jss.netscape.security.x509.NoticeReference;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.PolicyQualifiers;
+import org.mozilla.jss.netscape.security.x509.Qualifier;
+import org.mozilla.jss.netscape.security.x509.UserNotice;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -45,6 +44,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -54,6 +54,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class CertificatePoliciesExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificatePoliciesExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "Critical";
     public static final String CONFIG_PREFIX = "PoliciesExt.certPolicy";
@@ -320,7 +322,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                                 String cpsuri =
                                         h.get(CONFIG_PREFIX
                                         + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_CPSURI_VALUE);
-                                netscape.security.x509.PolicyQualifierInfo qualifierInfo = createCPSuri(cpsuri);
+                                org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo qualifierInfo = createCPSuri(cpsuri);
                                 if (qualifierInfo != null)
                                     policyQualifiers.add(qualifierInfo);
                             } else if (usernoticeEnable != null && enable.equals("true")) {
@@ -336,8 +338,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                                         h.get(CONFIG_PREFIX
                                         + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
                                         + CONFIG_USERNOTICE_TEXT);
-                                netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(orgName,
-                                        noticenumbers, explicitText);
+                                org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(orgName,
+                                        explicitText, noticenumbers);
                                 if (qualifierInfo != null)
                                     policyQualifiers.add(qualifierInfo);
                             }
@@ -361,12 +363,14 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
             replaceExtension(PKIXExtensions.CertificatePolicies_Id.toString(),
                     ext, info);
+
         } catch (EProfileException e) {
-            CMS.debug("CertificatePoliciesExtDefault: setValue " + e.toString());
+            logger.error("CertificatePoliciesExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
+
         } catch (IOException e) {
-            CMS.debug("CertificatePoliciesExtDefault: setValue " + e.toString());
+            logger.error("CertificatePoliciesExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -485,7 +489,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                 }
 
                 for (int j = 0; j < qSize; j++) {
-                    netscape.security.x509.PolicyQualifierInfo qinfo = qualifiers.getInfoAt(j);
+                    org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo qinfo = qualifiers.getInfoAt(j);
                     ObjectIdentifier oid = qinfo.getId();
                     Qualifier qualifier = qinfo.getQualifier();
 
@@ -496,11 +500,11 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                     StringBuffer noticeNum = new StringBuffer();
                     String explicitText = "";
 
-                    if (oid.toString().equals(netscape.security.x509.PolicyQualifierInfo.QT_CPS.toString())) {
+                    if (oid.toString().equals(org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo.QT_CPS.toString())) {
                         cpsuriEnable = "true";
                         CPSuri content = (CPSuri) qualifier;
                         cpsuri = content.getURI();
-                    } else if (oid.toString().equals(netscape.security.x509.PolicyQualifierInfo.QT_UNOTICE.toString())) {
+                    } else if (oid.toString().equals(org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo.QT_UNOTICE.toString())) {
                         usernoticeEnable = "true";
                         UserNotice content = (UserNotice) qualifier;
                         NoticeReference ref = content.getNoticeReference();
@@ -640,7 +644,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
             Vector<CertificatePolicyInfo> certificatePolicies = new Vector<CertificatePolicyInfo>();
             int num = getNumPolicies();
-            CMS.debug("CertificatePoliciesExtension: createExtension: number of policies=" + num);
+            logger.debug("CertificatePoliciesExtension: createExtension: number of policies=" + num);
             IConfigStore config = getConfigStore();
 
             for (int i = 0; i < num; i++) {
@@ -648,11 +652,11 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                 IConfigStore substore = basesubstore.getSubStore(CONFIG_PREFIX + i);
                 String enable = substore.getString(CONFIG_POLICY_ENABLE);
 
-                CMS.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy " + i + " enable=" + enable);
+                logger.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy " + i + " enable=" + enable);
                 if (enable != null && enable.equals("true")) {
                     String policyId = substore.getString(CONFIG_POLICY_ID);
                     CertificatePolicyId cpolicyId = getPolicyId(policyId);
-                    CMS.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy "
+                    logger.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy "
                             + i + " policyId=" + policyId);
                     int qualifierNum = getNumQualifiers();
                     PolicyQualifiers policyQualifiers = new PolicyQualifiers();
@@ -663,7 +667,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
                         if (cpsuriEnable != null && cpsuriEnable.equals("true")) {
                             String cpsuri = substore1.getString(CONFIG_CPSURI_VALUE, "");
-                            netscape.security.x509.PolicyQualifierInfo qualifierInfo = createCPSuri(cpsuri);
+                            org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo qualifierInfo = createCPSuri(cpsuri);
                             if (qualifierInfo != null)
                                 policyQualifiers.add(qualifierInfo);
                         } else if (usernoticeEnable != null &&
@@ -672,8 +676,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                             String orgName = substore1.getString(CONFIG_USERNOTICE_ORG);
                             String noticenumbers = substore1.getString(CONFIG_USERNOTICE_NUMBERS);
                             String explicitText = substore1.getString(CONFIG_USERNOTICE_TEXT);
-                            netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(orgName,
-                                    noticenumbers, explicitText);
+                            org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(orgName,
+                                    explicitText, noticenumbers);
                             if (qualifierInfo != null)
                                 policyQualifiers.add(qualifierInfo);
                         }
@@ -699,8 +703,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         } catch (EProfileException e) {
             throw e;
         } catch (Exception e) {
-            CMS.debug("CertificatePoliciesExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("CertificatePoliciesExtDefault: createExtension " + e.getMessage(), e);
         }
 
         return ext;
@@ -722,20 +725,20 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         }
     }
 
-    private netscape.security.x509.PolicyQualifierInfo createCPSuri(String uri) throws EPropertyException {
+    private org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo createCPSuri(String uri) throws EPropertyException {
         if (uri == null || uri.length() == 0)
             throw new EPropertyException(CMS.getUserMessage(
                     "CMS_PROFILE_CERTIFICATE_POLICIES_EMPTY_CPSURI"));
 
         CPSuri cpsURI = new CPSuri(uri);
-        netscape.security.x509.PolicyQualifierInfo policyQualifierInfo2 =
-                new netscape.security.x509.PolicyQualifierInfo(netscape.security.x509.PolicyQualifierInfo.QT_CPS,
+        org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo policyQualifierInfo2 =
+                new org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo(org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo.QT_CPS,
                         cpsURI);
 
         return policyQualifierInfo2;
     }
 
-    private netscape.security.x509.PolicyQualifierInfo createUserNotice(String organization,
+    private org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo createUserNotice(String organization,
             String noticeText, String noticeNums) throws EPropertyException {
 
         if ((organization == null || organization.length() == 0) &&
@@ -782,9 +785,9 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         if (explicitText != null || noticeReference != null) {
             userNotice = new UserNotice(noticeReference, explicitText);
 
-            netscape.security.x509.PolicyQualifierInfo policyQualifierInfo1 =
-                    new netscape.security.x509.PolicyQualifierInfo(
-                            netscape.security.x509.PolicyQualifierInfo.QT_UNOTICE, userNotice);
+            org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo policyQualifierInfo1 =
+                    new org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo(
+                            org.mozilla.jss.netscape.security.x509.PolicyQualifierInfo.QT_UNOTICE, userNotice);
             return policyQualifierInfo1;
         }
 

@@ -43,14 +43,14 @@ import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.symkey.SessionKey;
 
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 public class Util {
 

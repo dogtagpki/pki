@@ -5,11 +5,11 @@ import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.profile.ProfileClient;
 import com.netscape.certsrv.profile.ProfileDataInfo;
 import com.netscape.certsrv.profile.ProfileDataInfos;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class ProfileFindCLI extends CLI {

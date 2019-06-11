@@ -31,7 +31,34 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.extensions.CertInfo;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
+import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.LdapV3DNStrConverter;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.SerialNumber;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509ExtensionException;
+
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -60,7 +87,8 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
-import com.netscape.cmscore.base.SubsystemRegistry;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.connector.HttpConnector;
 import com.netscape.cmscore.connector.LocalConnector;
 import com.netscape.cmscore.connector.RemoteAuthority;
@@ -69,35 +97,6 @@ import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
-import com.netscape.cmscore.util.Debug;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.extensions.CertInfo;
-import netscape.security.util.BigInt;
-import netscape.security.util.DerValue;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSerialNumber;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.Extension;
-import netscape.security.x509.LdapV3DNStrConverter;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.SerialNumber;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500NameAttrMap;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509ExtensionException;
 
 /**
  * Request Service for CertificateAuthority.
@@ -174,7 +173,7 @@ public class CAService implements ICAService, IService {
 
         try {
             // MOVED TO com.netscape.certsrv.apps.CMS
-            //			java.security.Security.addProvider(new netscape.security.provider.CMS());
+            //			java.security.Security.addProvider(new org.mozilla.jss.netscape.security.provider.CMS());
             //			java.security.Provider pr = java.security.Security.getProvider("CMS");
             //			if (pr != null) {
             //				;
@@ -230,6 +229,8 @@ public class CAService implements ICAService, IService {
 
     public IConnector getConnector(IConfigStore config)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
         IConnector connector = null;
 
         if (config == null || config.size() <= 0) {
@@ -259,7 +260,7 @@ public class CAService implements ICAService, IService {
         if (local) {
             String id = config.getString("id");
 
-            authority = (IAuthority) SubsystemRegistry.getInstance().get(id);
+            authority = (IAuthority) engine.getSubsystem(id);
             if (authority == null) {
                 String msg = "local authority " + id + " not found.";
 
@@ -330,8 +331,8 @@ public class CAService implements ICAService, IService {
             throw new EBaseException("profileId not found");
         }
 
-        IProfileSubsystem ps = (IProfileSubsystem)
-                CMS.getSubsystem("profile");
+        CMSEngine engine = CMS.getCMSEngine();
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
         IProfile profile = null;
 
         try {
@@ -648,7 +649,7 @@ public class CAService implements ICAService, IService {
                     (begin.getTime() == 0 && end.getTime() == 0)) {
                 logger.debug("setting default validity");
 
-                begin = CMS.getCurrentDate();
+                begin = new Date();
                 end = new Date(begin.getTime() + ca.getDefaultValidity());
                 certi.set(CertificateValidity.NAME,
                         new CertificateValidity(begin, end));
@@ -672,7 +673,7 @@ public class CAService implements ICAService, IService {
                     Enumeration<Extension> e = exts.getAttributes();
 
                     while (e.hasMoreElements()) {
-                        netscape.security.x509.Extension ext = e.nextElement();
+                        org.mozilla.jss.netscape.security.x509.Extension ext = e.nextElement();
 
                         if (ext.getExtensionId().toString().equals(PKIXExtensions.BasicConstraints_Id.toString())) {
                             bc_ext = (BasicConstraintsExtension) ext;
@@ -908,7 +909,7 @@ public class CAService implements ICAService, IService {
                     logger.debug("No meta info! for " + oldSerialNo);
                     oldMeta = new MetaInfo();
                 } else {
-                    if (Debug.ON) {
+                    if (logger.isDebugEnabled()) {
                         logger.debug("Old meta info");
                         Enumeration<String> n = oldMeta.getElements();
 
@@ -932,7 +933,7 @@ public class CAService implements ICAService, IService {
                 mCA.getCertificateRepository().modifyCertificateRecord(oldSerialNo, modSet);
                 mCA.log(ILogger.LL_INFO,
                         CMS.getLogMessage("CMSCORE_CA_MARK_SERIAL", oldSerialNo.toString(16), newSerialNo.toString(16)));
-                if (Debug.ON) {
+                if (logger.isDebugEnabled()) {
                     CertRecord check = (CertRecord)
                             mCA.getCertificateRepository().readCertificateRecord(oldSerialNo);
                     MetaInfo meta = check.getMetaInfo();

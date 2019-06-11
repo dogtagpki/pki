@@ -23,14 +23,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPConnection;
-import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSearchResults;
-import netscape.ldap.LDAPv2;
-
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -40,7 +32,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
@@ -48,7 +39,15 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.ldap.LDAPUtil;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPConnection;
+import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
+import netscape.ldap.LDAPSearchResults;
+import netscape.ldap.LDAPv2;
 
 /**
  * uid/pwd directory based authentication manager
@@ -58,6 +57,8 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  */
 public class UidPwdDirAuthentication extends DirBasedAuthentication
         implements IProfileAuthenticator {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UidPwdDirAuthentication.class);
 
     /* required credentials to authenticate. uid and pwd are strings. */
     public static final String CRED_UID = "uid";
@@ -104,7 +105,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
     private ArrayList<String> listGroups(LDAPConnection ldapconn, String uid, String userdn)
             throws EUsrGrpException, LDAPException {
         String method = "UidPwdDirAuthentication: listGroups: ";
-        CMS.debug(method + " begins");
+        logger.debug(method + " begins");
         String[] attrs = {};
 
         String k = null;
@@ -113,7 +114,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
         else if (mGroupObjectClass.equalsIgnoreCase("groupOfNames"))
             k = "member";
         else {
-            CMS.debug("UidPwdDirAuthentication: isMemberOfLdapGroup: unrecognized mGroupObjectClass: " + mGroupObjectClass);
+            logger.warn("UidPwdDirAuthentication: isMemberOfLdapGroup: unrecognized mGroupObjectClass: " + mGroupObjectClass);
             return null;
         }
 
@@ -123,14 +124,14 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
         else
             filter = k + "=" + mGroupUserIDName + "=" + LDAPUtil.escapeFilter(uid);
 
-        CMS.debug(method + "searching " + getGroupBaseDN() + " for (&(objectclass=" + mGroupObjectClass + ")(" + filter + "))");
+        logger.debug(method + "searching " + getGroupBaseDN() + " for (&(objectclass=" + mGroupObjectClass + ")(" + filter + "))");
         LDAPSearchResults res = ldapconn.search(
             getGroupBaseDN(),
             LDAPv2.SCOPE_SUB,
             "(&(objectclass=" + mGroupObjectClass + ")(" + filter + "))",
             attrs, true /* attrsOnly */ );
 
-        CMS.debug(method + " ends");
+        logger.debug(method + " ends");
         return buildGroups(res);
     }
 
@@ -140,7 +141,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
         while (res.hasMoreElements()) {
             LDAPEntry entry = (LDAPEntry) res.nextElement();
             String groupDN = entry.getDN();
-            CMS.debug("UidPwdDirAuthentication: Authenticate: Found group membership: " + groupDN);
+            logger.debug("UidPwdDirAuthentication: Authenticate: Found group membership: " + groupDN);
             v.add(groupDN);
         }
         return v;
@@ -165,7 +166,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
         try {
             // get the uid.
             uid = (String) authCreds.get(CRED_UID);
-            CMS.debug("Authenticating UID=" + uid);
+            logger.debug("Authenticating UID=" + uid);
             if (uid == null) {
                 throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_UID));
             }
@@ -178,7 +179,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
             }
             if (pwd.equals("")) {
                 // anonymous binding not allowed
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_EMPTY_PASSWORD", uid));
+                logger.error("UidPwdDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_EMPTY_PASSWORD", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
 
@@ -190,7 +191,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
             String groupAttrs[] = {"memberOf"};
 
             // get user dn.
-            CMS.debug("UidPwdDirAuthentication: Authenticating: Searching for " +
+            logger.debug("UidPwdDirAuthentication: Authenticating: Searching for " +
                     mUserIDName + "=" + uid + " base DN=" + mBaseDN);
             LDAPSearchResults res = conn.search(
                 mBaseDN,
@@ -204,9 +205,9 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
                 entry = res.next();
 
                 userdn = entry.getDN();
-                CMS.debug("UidPwdDirAuthentication: Authenticating: Found User DN=" + userdn);
+                logger.debug("UidPwdDirAuthentication: Authenticating: Found User DN=" + userdn);
             } else {
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_USER_NOT_EXIST", uid));
+                logger.error("UidPwdDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_USER_NOT_EXIST", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
 
@@ -215,11 +216,11 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
 
             LDAPAttribute attribute = entry.getAttribute("memberOf");
             if ( attribute != null ) {
-                CMS.debug("UidPwdDirAuthentication: Authenticate: Found memberOf attribute");
+                logger.debug("UidPwdDirAuthentication: Authenticate: Found memberOf attribute");
                 String[] groups = attribute.getStringValueArray();
                 token.set(IAuthToken.GROUPS, groups);
             } else if (mGroupsEnable) {
-                CMS.debug("UidPwdDirAuthentication: Authenticate: memberOf attribute not found.");
+                logger.debug("UidPwdDirAuthentication: Authenticate: memberOf attribute not found.");
                 ArrayList<String> groups = null;
                 groups = listGroups(conn, uid, userdn);
                 if (groups != null) {
@@ -234,40 +235,40 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
 
             return userdn;
         } catch (ELdapException e) {
-            CMS.debug("Authenticating: User authentication failure: "+e);
-            CMS.debug("Authenticating: closing bad connection");
+            logger.error("Authenticating: User authentication failure: " + e.getMessage(), e);
+            logger.debug("Authenticating: closing bad connection");
             try {
                 conn.disconnect();
             } catch (Exception f) {
-                CMS.debug("Authenticating: conn.disconnect() exception =" + f.toString());
+                logger.warn("Authenticating: conn.disconnect() exception: " + f.getMessage(), f);
             }
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CANNOT_CONNECT_LDAP", e.toString()));
+            logger.error("UidPwdDirAuthentication: " + CMS.getLogMessage("CANNOT_CONNECT_LDAP", e.toString()));
             throw e;
         } catch (LDAPException e) {
-            CMS.debug("Authenticating: User authentication failure: "+e);
-            CMS.debug("Authenticating: closing bad connection");
+            logger.error("Authenticating: User authentication failure: " + e.getMessage(), e);
+            logger.debug("Authenticating: closing bad connection");
             try {
                 conn.disconnect();
             } catch (Exception f) {
-                CMS.debug("Authenticating: conn.disconnect() exception =" + f.toString());
+                logger.warn("Authenticating: conn.disconnect() exception =" + f.getMessage(), e);
             }
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
             case LDAPException.LDAP_PARTIAL_RESULTS:
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("USER_NOT_EXIST", uid));
+                logger.error("UidPwdDirAuthentication: " + CMS.getLogMessage("USER_NOT_EXIST", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
 
             case LDAPException.INVALID_CREDENTIALS:
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_BAD_PASSWORD", uid));
+                logger.error("UidPwdDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_BAD_PASSWORD", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
 
             case LDAPException.SERVER_DOWN:
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("LDAP_SERVER_DOWN"));
+                logger.error("UidPwdDirAuthentication: " + CMS.getLogMessage("LDAP_SERVER_DOWN"));
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
 
             default:
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.getMessage()));
+                logger.error("UidPwdDirAuthentication: " + CMS.getLogMessage("OPERATION_ERROR", e.getMessage()));
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_OTHER_LDAP_EXCEPTION",
                                 e.errorCodeToString()));

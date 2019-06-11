@@ -23,7 +23,6 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.cert.CertReviewResponse;
@@ -46,6 +45,8 @@ import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
 import com.netscape.cms.servlet.profile.ProfileInputFactory;
 
 public class CertReviewResponseFactory {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertReviewResponseFactory.class);
 
     public static CertReviewResponse create(IRequest request, IProfile profile, UriInfo uriInfo, Locale locale) throws EBaseException {
         CertReviewResponse ret = new CertReviewResponse();
@@ -95,7 +96,7 @@ public class CertReviewResponseFactory {
         }
 
         String profileSetId = request.getExtDataInString("profileSetId");
-        CMS.debug("createAgentCertRequestInfo: profileSetId=" + profileSetId);
+        logger.debug("createAgentCertRequestInfo: profileSetId=" + profileSetId);
         Enumeration<String> policyIds = (profileSetId != null && profileSetId.length() > 0) ?
                 profile.getProfilePolicyIds(profileSetId) : null;
         ProfilePolicySet dataPolicySet = new ProfilePolicySet();
@@ -103,7 +104,7 @@ public class CertReviewResponseFactory {
         if (policyIds != null) {
             while (policyIds.hasMoreElements()) {
                 String id = policyIds.nextElement();
-                CMS.debug("policyId:" + id);
+                logger.debug("policyId:" + id);
                 IProfilePolicy policy = profile.getProfilePolicy(profileSetId, id);
                 ProfilePolicy dataPolicy = new ProfilePolicy();
 
@@ -154,7 +155,7 @@ public class CertReviewResponseFactory {
         if (policyIds != null) {
             while (policyIds.hasMoreElements()) {
                 String id = policyIds.nextElement();
-                CMS.debug("policyId:" + id);
+                logger.debug("policyId:" + id);
                 IProfilePolicy policy = profile.getProfilePolicy(profileSetId, id);
                 com.netscape.certsrv.profile.ProfilePolicy dataPolicy =
                         new com.netscape.certsrv.profile.ProfilePolicy();
@@ -165,7 +166,7 @@ public class CertReviewResponseFactory {
                 dataPolicy.setDef(dataDef);
 
                 dataPolicySet.addPolicy(dataPolicy);
-                CMS.debug(dataPolicy.toString());
+                logger.debug(dataPolicy.toString());
             }
         }
 

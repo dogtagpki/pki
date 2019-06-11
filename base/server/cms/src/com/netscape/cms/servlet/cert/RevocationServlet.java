@@ -32,10 +32,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -56,8 +56,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.security.JssSubsystem;
-import com.netscape.cmsutil.util.Utils;
 
 /**
  * Perform the first step in revoking a certificate
@@ -108,10 +110,12 @@ public class RevocationServlet extends CMSServlet {
             if (mFormPath == null)
                 mFormPath = "/" + TPL_FILE;
 
+            CMSEngine engine = CMS.getCMSEngine();
+
             if (mAuthority instanceof ICertificateAuthority) {
                 if (((ICertificateAuthority) mAuthority).noncesEnabled()) {
 
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     mRandom = jssSubsystem.getRandomNumberGenerator();
                 }
             }
@@ -164,8 +168,8 @@ public class RevocationServlet extends CMSServlet {
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         IAuthToken authToken = authenticate(cmsReq);
@@ -295,7 +299,7 @@ public class RevocationServlet extends CMSServlet {
             header.addIntegerValue("verifiedRecordCount", certsToRevoke.length);
 
             for (int i = 0; i < certsToRevoke.length; i++) {
-                IArgBlock rarg = CMS.createArgBlock();
+                ArgBlock rarg = new ArgBlock();
 
                 rarg.addStringValue("serialNumber",
                         certsToRevoke[i].getSerialNumber().toString(16));

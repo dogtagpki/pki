@@ -31,7 +31,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
@@ -54,16 +59,13 @@ import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchResults;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * A class represents a certificate repository. It
@@ -136,6 +138,8 @@ public class CertificateRepository extends Repository
 
     public void setEnableRandomSerialNumbers(boolean random, boolean updateMode, boolean forceModeChange) {
         logger.debug("CertificateRepository:  setEnableRandomSerialNumbers   random="+random+"  updateMode="+updateMode);
+
+        CMSEngine engine = CMS.getCMSEngine();
         if (mEnableRandomSerialNumbers ^ random || forceModeChange) {
             mEnableRandomSerialNumbers = random;
             logger.debug("CertificateRepository:  setEnableRandomSerialNumbers   switching to " +
@@ -165,7 +169,7 @@ public class CertificateRepository extends Repository
             }
 
             try {
-                CMS.getConfigStore().commit(false);
+                engine.getConfigStore().commit(false);
             } catch (Exception e) {
             }
         }
@@ -189,7 +193,8 @@ public class CertificateRepository extends Repository
             throw new EBaseException ("Range size is too small to support random certificate serial numbers.");
         }
 
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         SecureRandom random = jssSubsystem.getRandomNumberGenerator();
 
         BigInteger randomNumber = new BigInteger(mBitLength, random);
@@ -254,8 +259,6 @@ public class CertificateRepository extends Repository
         return nextSerialNumber;
     }
 
-    private Object nextSerialNumberMonitor = new Object();
-
     public synchronized BigInteger getNextSerialNumber()
             throws EBaseException {
 
@@ -303,6 +306,8 @@ public class CertificateRepository extends Repository
     public void updateCounter() {
         logger.debug("CertificateRepository: updateCounter  mEnableRandomSerialNumbers="+
                   mEnableRandomSerialNumbers+"  mCounter="+mCounter);
+
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             super.initCacheIfNeeded();
         } catch (Exception e) {
@@ -327,7 +332,7 @@ public class CertificateRepository extends Repository
             long t = System.currentTimeMillis();
             mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, mCounter.toString()+","+t);
             try {
-                CMS.getConfigStore().commit(false);
+                engine.getConfigStore().commit(false);
             } catch (Exception e) {
                 logger.warn("CertificateRepository: updateCounter: " + e.getMessage(), e);
             }
@@ -370,6 +375,7 @@ public class CertificateRepository extends Repository
 
     private BigInteger getInRangeCounter(BigInteger  minSerialNo, BigInteger maxSerialNo)
     throws EBaseException {
+        CMSEngine engine = CMS.getCMSEngine();
         String c = null;
         String t = null;
         String s = (mDBConfig.getString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, "-1")).trim();
@@ -392,12 +398,12 @@ public class CertificateRepository extends Repository
 
         BigInteger counter = new BigInteger(c);
         BigInteger count = BigInteger.ZERO;
-        if (CMS.isPreOpMode()) {
+        if (engine.isPreOpMode()) {
             logger.debug("CertificateRepository: getInRangeCounter:  CMS.isPreOpMode");
             counter = new BigInteger("-2");
             mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, "-2");
             try {
-                CMS.getConfigStore().commit(false);
+                engine.getConfigStore().commit(false);
             } catch (Exception e) {
                 logger.warn("CertificateRepository: getInRangeCounter: " + e.getMessage(), e);
             }
@@ -429,6 +435,8 @@ public class CertificateRepository extends Repository
 
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
+
         mEnableRandomSerialNumbers = mDBConfig.getBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, false);
         mForceModeChange = mDBConfig.getBoolean(PROP_FORCE_MODE_CHANGE, false);
         String crMode = mDBService.getEntryAttribute(mBaseDN, IRepositoryRecord.ATTR_DESCRIPTION, "", null);
@@ -437,7 +445,7 @@ public class CertificateRepository extends Repository
         mMaxCollisionRecoveryRegenerations = mDBConfig.getInteger(PROP_COLLISION_RECOVERY_REGENERATIONS, 3);
         boolean modeChange = (mEnableRandomSerialNumbers && crMode != null && crMode.equals(PROP_SEQUENTIAL_MODE)) ||
                              ((!mEnableRandomSerialNumbers) && crMode != null && crMode.equals(PROP_RANDOM_MODE));
-        boolean enableRsnAtConfig = mEnableRandomSerialNumbers && CMS.isPreOpMode() &&
+        boolean enableRsnAtConfig = mEnableRandomSerialNumbers && engine.isPreOpMode() &&
                                     (crMode == null || crMode.length() == 0);
         logger.debug("CertificateRepository: getLastSerialNumberInRange"+
                   "  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers+
@@ -465,7 +473,7 @@ public class CertificateRepository extends Repository
         }
         mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, mCounter.toString());
         try {
-            CMS.getConfigStore().commit(false);
+            engine.getConfigStore().commit(false);
         } catch (Exception e) {
         }
         logger.debug("CertificateRepository: getLastSerialNumberInRange  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
@@ -726,7 +734,7 @@ public class CertificateRepository extends Repository
                     CertRecord.ATTR_X509CERT);
 
             if (x509cert != null) {
-                Date now = CMS.getCurrentDate();
+                Date now = new Date();
 
                 if (x509cert.getNotBefore().after(now)) {
                     // not yet valid
@@ -776,7 +784,7 @@ public class CertificateRepository extends Repository
      */
     public void transitValidCertificates() throws EBaseException {
 
-        Date now = CMS.getCurrentDate();
+        Date now = new Date();
         ICertRecordList recList = getValidCertsByNotAfterDate(now, -1 * mTransitRecordPageSize);
 
         int size = recList.getSize();
@@ -833,7 +841,7 @@ public class CertificateRepository extends Repository
      * if an revoked certificate becomes expired.
      */
     public void transitRevokedExpiredCertificates() throws EBaseException {
-        Date now = CMS.getCurrentDate();
+        Date now = new Date();
         ICertRecordList recList = getRevokedCertsByNotAfterDate(now, -1 * mTransitRecordPageSize);
 
         int size = recList.getSize();
@@ -889,7 +897,7 @@ public class CertificateRepository extends Repository
      */
     public void transitInvalidCertificates() throws EBaseException {
 
-        Date now = CMS.getCurrentDate();
+        Date now = new Date();
 
         ICertRecordList recList = getInvalidCertsByNotBeforeDate(now, -1 * mTransitRecordPageSize);
 
@@ -1090,7 +1098,7 @@ public class CertificateRepository extends Repository
                     serialNo.toString() + "," + getDN();
 
             mods.add(CertRecord.ATTR_MODIFY_TIME, Modification.MOD_REPLACE,
-                    CMS.getCurrentDate());
+                    new Date());
             s.modify(name, mods);
         } finally {
             if (s != null)
@@ -1150,7 +1158,7 @@ public class CertificateRepository extends Repository
                         uid);
             }
             mods.add(CertRecord.ATTR_REVOKED_ON, Modification.MOD_REPLACE,
-                    CMS.getCurrentDate());
+                    new Date());
         } else {
             if (uid == null) {
                 mods.add(CertRecord.ATTR_REVOKED_BY, Modification.MOD_ADD,
@@ -1160,7 +1168,7 @@ public class CertificateRepository extends Repository
                         uid);
             }
             mods.add(CertRecord.ATTR_REVOKED_ON, Modification.MOD_ADD,
-                    CMS.getCurrentDate());
+                    new Date());
             mods.add(CertRecord.ATTR_CERT_STATUS, Modification.MOD_REPLACE,
                     CertRecord.STATUS_REVOKED);
         }
@@ -1406,12 +1414,12 @@ public class CertificateRepository extends Repository
         IDBSSession s = mDBService.createSession();
         CertRecordList list = null;
 
-        CMS.debug("In findCertRecordsInList with Jumpto " + jumpTo);
+        logger.debug("In findCertRecordsInList with Jumpto " + jumpTo);
         try {
             String jumpToVal = null;
 
             if (hardJumpTo) {
-                CMS.debug("In findCertRecordsInList with hardJumpto ");
+                logger.debug("In findCertRecordsInList with hardJumpto ");
                 jumpToVal = "99";
             } else {
                 int len = jumpTo.length();
@@ -1440,7 +1448,7 @@ public class CertificateRepository extends Repository
         IDBSSession s = mDBService.createSession();
         CertRecordList list = null;
 
-        CMS.debug("In findCertRecordsInListRawJumpto with Jumpto " + jumpTo);
+        logger.debug("In findCertRecordsInListRawJumpto with Jumpto " + jumpTo);
 
         try {
 
@@ -1684,12 +1692,12 @@ public class CertificateRepository extends Repository
 
             for (int i = 0;; i++) {
                 CertRecord rec = (CertRecord) list.getCertRecord(i);
-                CMS.debug("processing record: " + i);
+                logger.debug("processing record: " + i);
                 if (rec == null) {
                     break; // no element returned
                 } else {
 
-                    CMS.debug("processing record: " + i + " " + rec.getSerialNumber());
+                    logger.debug("processing record: " + i + " " + rec.getSerialNumber());
                     // Check if we are past the 'to' marker
                     if (toInt != null) {
                         if (rec.getSerialNumber().compareTo(toInt) > 0) {
@@ -1717,7 +1725,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(&(!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
                     CertRecord.ATTR_X509CERT + "." +
                     CertificateValidity.NOT_BEFORE + "<=" +
@@ -1754,7 +1762,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(&(";
 
             if (from != null && from.length() > 0)
@@ -1796,7 +1804,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(&(!(" + CertRecord.ATTR_REVO_INFO + "=*))(" +
                     CertRecord.ATTR_X509CERT + "." +
                     CertificateValidity.NOT_BEFORE + "<=" +
@@ -1835,7 +1843,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(&(";
 
             if (from != null && from.length() > 0)
@@ -1870,7 +1878,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(!(" + CertRecord.ATTR_X509CERT + "." +
                     CertificateValidity.NOT_AFTER + ">=" +
                     DateMapper.dateToDB(now) + "))";
@@ -1902,7 +1910,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(&(";
 
             if (from != null && from.length() > 0)
@@ -1941,7 +1949,7 @@ public class CertificateRepository extends Repository
         Enumeration<ICertRecord> e = null;
 
         try {
-            Date now = CMS.getCurrentDate();
+            Date now = new Date();
             String ldapfilter = "(&";
 
             ldapfilter += "(!(" + CertRecord.ATTR_X509CERT + "." +
@@ -2443,7 +2451,7 @@ class SerialNumberUpdateTask implements Runnable {
 
     public void run() {
         try {
-            logger.debug("About to start updateSerialNumbers");
+            logger.info("SerialNumberUpdateTask: updating serial numbers");
             updateSerialNumbers();
 
         } catch (EBaseException e) {

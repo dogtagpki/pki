@@ -39,12 +39,18 @@ import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs11.PK11Store;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -53,25 +59,18 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.profile.CertInfoProfile;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
-
-import netscape.security.pkcs.PKCS10;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 
 public class CertUtil {
 
@@ -85,7 +84,7 @@ public class CertUtil {
 
         logger.debug("CertUtil: content: " + content);
 
-        String c = ConfigurationUtils.post(hostname, port, true, "/ca/ee/ca/profileSubmit", content, null, null);
+        String c = Configurator.post(hostname, port, true, "/ca/ee/ca/profileSubmit", content, null, null);
 
         if (c != null) {
             ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
@@ -359,7 +358,8 @@ public class CertUtil {
             return;
         }
 
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         IRequestQueue queue = ca.getRequestQueue();
 
         IRequest req = queue.findRequest(new RequestId(reqId));
@@ -482,7 +482,8 @@ public class CertUtil {
             keyAlgorithm = config.getString(prefix + certTag + ".keyalgorithm");
         }
 
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICertificateRepository cr = ca.getCertificateRepository();
 
         X509CertInfo info;
@@ -612,7 +613,8 @@ public class CertUtil {
                 cert.getSerialNumber() + ", " +
                 cert.getSubjectDN() + ")");
 
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICertificateRepository cr = ca.getCertificateRepository();
 
         MetaInfo meta = new MetaInfo();
@@ -624,14 +626,16 @@ public class CertUtil {
     }
 
     public static void addUserCertificate(X509CertImpl cert) {
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         int num = 0;
         try {
             num = cs.getInteger("preop.subsystem.count", 0);
         } catch (Exception e) {
             logger.warn("Unable to retrieve server configuration: " + e, e);
         }
-        IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
+
+        UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         String id = "user" + num;
 
         try {
@@ -726,7 +730,8 @@ public class CertUtil {
 
     public static boolean privateKeyExistsOnToken(String certTag,
             String tokenname, String nickname) {
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         String givenid = "";
         try {
             givenid = cs.getString("preop.cert." + certTag + ".privkey.id");

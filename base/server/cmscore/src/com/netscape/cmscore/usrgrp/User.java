@@ -23,11 +23,11 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents a user.

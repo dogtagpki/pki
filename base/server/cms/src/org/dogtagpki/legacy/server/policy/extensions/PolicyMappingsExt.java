@@ -25,8 +25,14 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyId;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyMap;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.PolicyMappingsExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -34,15 +40,8 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertUtils;
-
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificatePolicyId;
-import netscape.security.x509.CertificatePolicyMap;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.PolicyMappingsExtension;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * Policy Mappings Extension Policy
@@ -59,6 +58,9 @@ import netscape.security.x509.X509CertInfo;
  */
 public class PolicyMappingsExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyMappingsExt.class);
+
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_NUM_POLICYMAPPINGS = "numPolicyMappings";
 
@@ -327,6 +329,8 @@ public class PolicyMappingsExt extends APolicyRule
 
 class PolicyMap {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyMap.class);
+
     protected static String PROP_ISSUER_DOMAIN_POLICY = "issuerDomainPolicy";
     protected static String PROP_SUBJECT_DOMAIN_POLICY = "subjectDomainPolicy";
 
@@ -351,7 +355,7 @@ class PolicyMap {
         mNameDot = mName + ".";
 
         if (mConfig == null) {
-            CMS.debug("PolicyMappingsExt::PolicyMap - mConfig is null!");
+            logger.warn("PolicyMappingsExt::PolicyMap - mConfig is null!");
             return;
         }
 
@@ -361,7 +365,7 @@ class PolicyMap {
             config.putString(mNameDot + PROP_SUBJECT_DOMAIN_POLICY, "");
             mConfig = config.getSubStore(mName);
             if (mConfig == null || mConfig.size() == 0) {
-                CMS.debug("PolicyMappingsExt::PolicyMap - mConfig " +
+                logger.warn("PolicyMappingsExt::PolicyMap - mConfig " +
                            "is null or empty!");
                 return;
             }

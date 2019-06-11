@@ -26,15 +26,15 @@ import java.util.Date;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
 import com.netscape.certsrv.cert.CertSearchRequest;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
-import netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 /**
  * @author Endi S. Dewata

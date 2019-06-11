@@ -31,7 +31,6 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -41,13 +40,12 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This represents the authentication manager that authenticates
@@ -57,6 +55,8 @@ import com.netscape.cms.logging.Logger;
  */
 public class FlatFileAuth
         implements IProfileAuthenticator, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FlatFileAuth.class);
 
     /* configuration parameter keys */
     protected static final String PROP_FILENAME = "fileName";
@@ -105,9 +105,6 @@ public class FlatFileAuth
 
     /** configuration store */
     protected IConfigStore mConfig = null;
-
-    /** system logger */
-    protected Logger mLogger = Logger.getLogger();
 
     /**
      * This array is created as to include all the requested attributes
@@ -208,32 +205,19 @@ public class FlatFileAuth
 
             mFileLastRead = file.lastModified();
             entries = readFile(file, keyAttrs);
-            CMS.debug("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_READ_ENTRIES", mFilename));
+            logger.debug("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_READ_ENTRIES", mFilename));
             // printAllEntries();
         } catch (IOException e) {
             throw new EBaseException(mName
                     + " authentication: Could not open file " + mFilename + "   (" + e.getMessage() + ")");
         } catch (java.lang.StringIndexOutOfBoundsException ee) {
-            CMS.debug("FlatFileAuth: " + CMS.getLogMessage("OPERATION_ERROR", ee.toString()));
+            logger.warn("FlatFileAuth: " + CMS.getLogMessage("OPERATION_ERROR", ee.toString()));
         }
 
     }
 
-    /**
-     * Log a message.
-     *
-     * @param level The logging level.
-     * @param msg The message to log.
-     */
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
-                level, msg);
-    }
-
     void print(String s) {
-        CMS.debug("FlatFileAuth: " + s);
+        logger.debug("FlatFileAuth: " + s);
     }
 
     /**
@@ -315,17 +299,17 @@ public class FlatFileAuth
                 }
                 if (orgFile.renameTo(new File(name.substring(0, name.length() - 1)))) {
                     if (!newFile.renameTo(new File(mFilename))) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("RENAME_FILE_ERROR", name, mFilename));
+                        logger.warn("FlatFileAuth: " + CMS.getLogMessage("RENAME_FILE_ERROR", name, mFilename));
                         File file = new File(name.substring(0, name.length() - 1));
                         file.renameTo(new File(mFilename));
                     }
                 } else {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("RENAME_FILE_ERROR", mFilename,
+                    logger.warn("FlatFileAuth: " + CMS.getLogMessage("RENAME_FILE_ERROR", mFilename,
                                                               name.substring(0, name.length() - 1)));
                 }
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+            logger.warn("FlatFileAuth: " + CMS.getLogMessage("FILE_ERROR", e.getMessage()), e);
         }
     }
 
@@ -356,7 +340,7 @@ public class FlatFileAuth
                 done = true;
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+            logger.warn("FlatFileAuth: " + CMS.getLogMessage("FILE_ERROR", e.getMessage()), e);
         }
 
         try {
@@ -368,7 +352,7 @@ public class FlatFileAuth
                 writer.close();
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+            logger.warn("FlatFileAuth: " + CMS.getLogMessage("FILE_ERROR", e.getMessage()), e);
         }
 
         try {
@@ -390,7 +374,7 @@ public class FlatFileAuth
                 }
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+            logger.warn("FlatFileAuth: " + CMS.getLogMessage("FILE_ERROR", e.getMessage()), e);
         }
 
         return name;
@@ -415,7 +399,7 @@ public class FlatFileAuth
      */
     protected Hashtable<String, Hashtable<String, String>> readFile(File f, String[] keys)
             throws IOException {
-        log(ILogger.LL_INFO, "Reading file: " + f.getName());
+        logger.info("FlatFileAuth: Reading file: " + f.getName());
         BufferedReader file = new BufferedReader(
                 new FileReader(f)
                 );
@@ -538,7 +522,7 @@ public class FlatFileAuth
                 // printAllEntries();
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("READ_FILE_ERROR", mFilename, e.getMessage()));
+            logger.warn("FlatFileAuth: " + CMS.getLogMessage("READ_FILE_ERROR", mFilename, e.getMessage()));
         }
     }
 
@@ -574,7 +558,7 @@ public class FlatFileAuth
             if (user != null) {
                 authToken = doAuthentication(user, authCred);
             } else {
-                CMS.debug("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_USER_NOT_FOUND"));
+                logger.warn("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_USER_NOT_FOUND"));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
         } catch (EInvalidCredentials e) {
@@ -583,7 +567,7 @@ public class FlatFileAuth
             if (!mDeferOnFailure) {
                 throw e;
             } else {
-                CMS.debug("FlatFileAuth: Since defering on failure - ignore invalid creds");
+                logger.warn("FlatFileAuth: Since defering on failure - ignore invalid creds");
             }
         }
 

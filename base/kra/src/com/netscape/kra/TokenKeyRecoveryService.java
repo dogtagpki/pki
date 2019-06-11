@@ -35,10 +35,15 @@ import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.PrivateKey.Type;
 import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs11.PK11SymKey;
 import org.mozilla.jss.util.Base64OutputStream;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.SessionContext;
@@ -57,16 +62,11 @@ import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Cert;
-
-import netscape.security.util.BigInt;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerValue;
-import netscape.security.util.WrappingParams;
-import netscape.security.x509.X509Key;
 
 /**
  * A class represents recovery request processor.
@@ -76,6 +76,7 @@ import netscape.security.x509.X509Key;
  */
 public class TokenKeyRecoveryService implements IService {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenKeyRecoveryService.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public static final String ATTR_NICKNAME = "nickname";
@@ -191,12 +192,13 @@ public class TokenKeyRecoveryService implements IService {
         String auditSubjectID = null;
         String iv_s = "";
 
-        CMS.debug("KRA services token key recovery request");
+        logger.debug("KRA services token key recovery request");
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = null;
         Boolean allowEncDecrypt_recovery = false;
 
         try {
-            config = CMS.getConfigStore();
+            config = engine.getConfigStore();
             allowEncDecrypt_recovery = config.getBoolean("kra.allowEncDecrypt.recovery", false);
         } catch (Exception e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
@@ -206,11 +208,11 @@ public class TokenKeyRecoveryService implements IService {
 
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         try {
-            JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             SecureRandom random = jssSubsystem.getRandomNumberGenerator();
             random.nextBytes(iv);
         } catch (Exception e) {
-            CMS.debug("TokenKeyRecoveryService.serviceRequest: " + e.toString());
+            logger.error("TokenKeyRecoveryService.serviceRequest: " + e.getMessage(), e);
             throw new EBaseException(e);
         }
 
@@ -228,7 +230,7 @@ public class TokenKeyRecoveryService implements IService {
 
         if (params == null) {
             // possibly we are in recovery mode
-            CMS.debug("getVolatileRequest params null");
+            logger.warn("getVolatileRequest params null");
             //            return true;
         }
 
@@ -247,10 +249,10 @@ public class TokenKeyRecoveryService implements IService {
 
         auditSubjectID = rCUID + ":" + rUserid;
 
-        //CMS.debug("TokenKeyRecoveryService: received DRM-trans-wrapped des key =" + rWrappedDesKeyString);
-        CMS.debug("TokenKeyRecoveryService: received DRM-trans-wrapped des key");
-        wrapped_des_key = com.netscape.cmsutil.util.Utils.SpecialDecode(rWrappedDesKeyString);
-        CMS.debug("TokenKeyRecoveryService: wrapped_des_key specialDecoded");
+        //logger.debug("TokenKeyRecoveryService: received DRM-trans-wrapped des key =" + rWrappedDesKeyString);
+        logger.debug("TokenKeyRecoveryService: received DRM-trans-wrapped des key");
+        wrapped_des_key = org.mozilla.jss.netscape.security.util.Utils.SpecialDecode(rWrappedDesKeyString);
+        logger.debug("TokenKeyRecoveryService: wrapped_des_key specialDecoded");
 
         if ((wrapped_des_key != null) &&
                 (wrapped_des_key.length > 0)) {
@@ -263,13 +265,13 @@ public class TokenKeyRecoveryService implements IService {
             // unwrap the des key
             try {
                 sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key, wrapParams);
-                CMS.debug("TokenKeyRecoveryService: received des key");
+                logger.debug("TokenKeyRecoveryService: received des key");
             } catch (Exception e) {
-                CMS.debug("TokenKeyRecoveryService: no des key");
+                logger.debug("TokenKeyRecoveryService: no des key");
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
             }
         } else {
-            CMS.debug("TokenKeyRecoveryService: not receive des key");
+            logger.warn("TokenKeyRecoveryService: not receive des key");
             request.setExtData(IRequest.RESULT, Integer.valueOf(4));
             audit(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
@@ -288,7 +290,7 @@ public class TokenKeyRecoveryService implements IService {
         KeyId keyId = keyid_s != null ? new KeyId(keyid_s): null;
         /* have to have at least one */
         if ((cert_s == null) && (keyid_s == null)) {
-            CMS.debug("TokenKeyRecoveryService: not receive cert or keyid");
+            logger.warn("TokenKeyRecoveryService: not receive cert or keyid");
             request.setExtData(IRequest.RESULT, Integer.valueOf(3));
             audit(new SecurityDataRecoveryProcessedEvent(
                     auditSubjectID,
@@ -308,7 +310,7 @@ public class TokenKeyRecoveryService implements IService {
             try {
                 x509cert = Cert.mapCert(cert);
                 if (x509cert == null) {
-                    CMS.debug("cert mapping failed");
+                    logger.warn("cert mapping failed");
                     request.setExtData(IRequest.RESULT, Integer.valueOf(5));
                     audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
@@ -320,7 +322,7 @@ public class TokenKeyRecoveryService implements IService {
                     return false;
                 }
             } catch (IOException e) {
-                CMS.debug("TokenKeyRecoveryService: mapCert failed");
+                logger.warn("TokenKeyRecoveryService: mapCert failed");
                 request.setExtData(IRequest.RESULT, Integer.valueOf(6));
                 audit(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
@@ -341,24 +343,24 @@ public class TokenKeyRecoveryService implements IService {
             CryptoManager.getInstance().getInternalKeyStorageToken();
             */
             CryptoToken token = mStorageUnit.getToken();
-            CMS.debug("TokenKeyRecoveryService: got token slot:" + token.getName());
+            logger.debug("TokenKeyRecoveryService: got token slot:" + token.getName());
             IVParameterSpec algParam = new IVParameterSpec(iv);
 
             KeyRecord keyRecord = null;
-            CMS.debug("KRA reading key record");
+            logger.debug("KRA reading key record");
             try {
                 if (keyid != null) {
-                    CMS.debug("TokenKeyRecoveryService: recover by keyid");
+                    logger.debug("TokenKeyRecoveryService: recover by keyid");
                     keyRecord = (KeyRecord) mStorage.readKeyRecord(keyid);
                 } else {
-                    CMS.debug("TokenKeyRecoveryService: recover by cert");
+                    logger.debug("TokenKeyRecoveryService: recover by cert");
                     keyRecord = (KeyRecord) mStorage.readKeyRecord(cert);
                 }
 
                 if (keyRecord != null)
-                    CMS.debug("read key record");
+                    logger.debug("read key record");
                 else {
-                    CMS.debug("key record not found");
+                    logger.warn("key record not found");
                     request.setExtData(IRequest.RESULT, Integer.valueOf(8));
                     audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
@@ -370,7 +372,7 @@ public class TokenKeyRecoveryService implements IService {
                     return false;
                 }
             } catch (Exception e) {
-                com.netscape.cmscore.util.Debug.printStackTrace(e);
+                logger.warn("TokenKeyRecoveryService: " + e.getMessage(), e);
                 request.setExtData(IRequest.RESULT, Integer.valueOf(9));
                 audit(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
@@ -384,13 +386,13 @@ public class TokenKeyRecoveryService implements IService {
 
             // see if the owner name matches (cuid:userid) -XXX need make this optional
             String owner = keyRecord.getOwnerName();
-            CMS.debug("TokenKeyRecoveryService: owner name on record =" + owner);
-            CMS.debug("TokenKeyRecoveryService: owner name from TPS =" + rCUID + ":" + rUserid);
+            logger.debug("TokenKeyRecoveryService: owner name on record =" + owner);
+            logger.debug("TokenKeyRecoveryService: owner name from TPS =" + rCUID + ":" + rUserid);
             if (owner != null) {
                 if (owner.equals(rCUID + ":" + rUserid)) {
-                    CMS.debug("TokenKeyRecoveryService: owner name matches");
+                    logger.debug("TokenKeyRecoveryService: owner name matches");
                 } else {
-                    CMS.debug("TokenKeyRecoveryService: owner name mismatches");
+                    logger.debug("TokenKeyRecoveryService: owner name mismatches");
                 }
             }
 
@@ -448,7 +450,7 @@ public class TokenKeyRecoveryService implements IService {
                 privateKeyData = recoverKey(params, keyRecord);
                 if (privateKeyData == null) {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-                    CMS.debug("TokenKeyRecoveryService: failed getting private key");
+                    logger.warn("TokenKeyRecoveryService: failed getting private key");
                     audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
@@ -458,19 +460,19 @@ public class TokenKeyRecoveryService implements IService {
                             agentId));
                     return false;
                 }
-                CMS.debug("TokenKeyRecoveryService: got private key...about to verify");
+                logger.debug("TokenKeyRecoveryService: got private key...about to verify");
 
-                iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
+                iv_s = /*base64Encode(iv);*/org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);
 
-                CMS.debug("request.setExtData: iv_s: " + iv_s);
+                logger.debug("request.setExtData: iv_s: " + iv_s);
 
                 /* LunaSA returns data with padding which we need to remove */
                 ByteArrayInputStream dis = new ByteArrayInputStream(privateKeyData);
                 DerValue dv = new DerValue(dis);
                 byte p[] = dv.toByteArray();
                 int l = p.length;
-                CMS.debug("length different data length=" + l +
+                logger.debug("length different data length=" + l +
                     " real length=" + privateKeyData.length);
                 if (l != privateKeyData.length) {
                     privateKeyData = p;
@@ -486,13 +488,13 @@ public class TokenKeyRecoveryService implements IService {
                             keyId,
                             CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"),
                             agentId));
-                    JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(privateKeyData);
                     jssSubsystem.obscureBytes(p);
                     throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
                 } else {
-                    CMS.debug("TokenKeyRecoveryService: private key verified with public key");
+                    logger.debug("TokenKeyRecoveryService: private key verified with public key");
                 }
 
                 //encrypt and put in private key
@@ -503,14 +505,14 @@ public class TokenKeyRecoveryService implements IService {
                         EncryptionAlgorithm.DES3_CBC_PAD,
                         algParam);
 
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(privateKeyData);
                 jssSubsystem.obscureBytes(p);
             } else { //encrypted == false
                 PrivateKey privKey = recoverKey(params, keyRecord, allowEncDecrypt_recovery);
                 if (privKey == null) {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-                    CMS.debug("TokenKeyRecoveryService: failed getting private key");
+                    logger.warn("TokenKeyRecoveryService: failed getting private key");
                     audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
@@ -521,7 +523,7 @@ public class TokenKeyRecoveryService implements IService {
                     return false;
                 }
 
-                CMS.debug("TokenKeyRecoveryService: about to wrap...");
+                logger.debug("TokenKeyRecoveryService: about to wrap...");
 
                 wrapped = CryptoUtil.wrapUsingSymmetricKey(
                         token,
@@ -530,16 +532,16 @@ public class TokenKeyRecoveryService implements IService {
                         algParam,
                         KeyWrapAlgorithm.DES3_CBC_PAD);
 
-                iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
+                iv_s = /*base64Encode(iv);*/org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(iv);
                 request.setExtData("iv_s", iv_s);
             }
 
             String wrappedPrivKeyString =
-                com.netscape.cmsutil.util.Utils.SpecialEncode(wrapped);
+                org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(wrapped);
 
             if (wrappedPrivKeyString == null) {
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-                CMS.debug("TokenKeyRecoveryService: failed generating wrapped private key");
+                logger.warn("TokenKeyRecoveryService: failed generating wrapped private key");
                 audit(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
@@ -549,22 +551,22 @@ public class TokenKeyRecoveryService implements IService {
                         agentId));
                 return false;
             } else {
-                CMS.debug("TokenKeyRecoveryService: got private key data wrapped");
+                logger.debug("TokenKeyRecoveryService: got private key data wrapped");
                 request.setExtData("wrappedUserPrivate",
                         wrappedPrivKeyString);
                 request.setExtData(IRequest.RESULT, Integer.valueOf(1));
-                CMS.debug("TokenKeyRecoveryService: key for " + rCUID + ":" + rUserid + " recovered");
+                logger.debug("TokenKeyRecoveryService: key for " + rCUID + ":" + rUserid + " recovered");
             }
 
             //convert and put in the public key
             String PubKey = "";
             if (keyType == PrivateKey.EC) {
                 /* url encode */
-                PubKey = com.netscape.cmsutil.util.Utils.SpecialEncode(pubData);
-                CMS.debug("TokenKeyRecoveryService: EC PubKey special encoded");
+                PubKey = org.mozilla.jss.netscape.security.util.Utils.SpecialEncode(pubData);
+                logger.debug("TokenKeyRecoveryService: EC PubKey special encoded");
             } else {
                 PubKey = base64Encode(pubData);
-                CMS.debug("TokenKeyRecoveryService: RSA PubKey base64 encoded");
+                logger.debug("TokenKeyRecoveryService: RSA PubKey base64 encoded");
             }
 
             audit(new SecurityDataRecoveryEvent(
@@ -576,7 +578,7 @@ public class TokenKeyRecoveryService implements IService {
 
             if (PubKey == null) {
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-                CMS.debug("TokenKeyRecoveryService: failed getting publickey encoded");
+                logger.warn("TokenKeyRecoveryService: failed getting publickey encoded");
                 audit(new SecurityDataRecoveryProcessedEvent(
                         auditSubjectID,
                         ILogger.FAILURE,
@@ -586,9 +588,9 @@ public class TokenKeyRecoveryService implements IService {
                         agentId));
                 return false;
             } else {
-                //CMS.debug("TokenKeyRecoveryService: got publicKeyData b64 = " +
+                //logger.debug("TokenKeyRecoveryService: got publicKeyData b64 = " +
                 //        PubKey);
-                CMS.debug("TokenKeyRecoveryService: got publicKeyData");
+                logger.debug("TokenKeyRecoveryService: got publicKeyData");
             }
             request.setExtData("public_key", PubKey);
 
@@ -602,7 +604,7 @@ public class TokenKeyRecoveryService implements IService {
             return true;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.warn("TokenKeyRecoveryService: " + e.getMessage(), e);
             request.setExtData(IRequest.RESULT, Integer.valueOf(4));
         }
 
@@ -634,20 +636,20 @@ public class TokenKeyRecoveryService implements IService {
             BigInt privateKeyExponent = privateKeyDerIn.getInteger();
 
             if (!publicKeyModulus.equals(privateKeyModulus)) {
-                CMS.debug("verifyKeyPair modulus mismatch publicKeyModulus="
+                logger.warn("verifyKeyPair modulus mismatch publicKeyModulus="
                         + publicKeyModulus + " privateKeyModulus=" + privateKeyModulus);
                 return false;
             }
 
             if (!publicKeyExponent.equals(privateKeyExponent)) {
-                CMS.debug("verifyKeyPair exponent mismatch publicKeyExponent="
+                logger.warn("verifyKeyPair exponent mismatch publicKeyExponent="
                         + publicKeyExponent + " privateKeyExponent=" + privateKeyExponent);
                 return false;
             }
 
             return true;
         } catch (Exception e) {
-            CMS.debug("verifyKeyPair error " + e);
+            logger.warn("verifyKeyPair error " + e.getMessage(), e);
             return false;
         }
     }
@@ -658,9 +660,9 @@ public class TokenKeyRecoveryService implements IService {
      */
     public synchronized PrivateKey recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord, boolean allowEncDecrypt_archival)
         throws EBaseException {
-        CMS.debug( "TokenKeyRecoveryService: recoverKey() - with allowEncDecrypt_archival being false");
+        logger.debug("TokenKeyRecoveryService: recoverKey() - with allowEncDecrypt_archival being false");
         if (allowEncDecrypt_archival) {
-            CMS.debug( "TokenKeyRecoveryService: recoverKey() - allowEncDecrypt_archival needs to be false for this call");
+            logger.error( "TokenKeyRecoveryService: recoverKey() - allowEncDecrypt_archival needs to be false for this call");
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "recoverKey, allowEncDecrypt_archival needs to be false for this call"));
         }
 
@@ -669,7 +671,7 @@ public class TokenKeyRecoveryService implements IService {
             try {
                 pubkey = X509Key.parsePublicKey (new DerValue(keyRecord.getPublicKeyData()));
             } catch (Exception e) {
-                CMS.debug("TokenKeyRecoverService: after parsePublicKey:"+e.toString());
+                logger.error("TokenKeyRecoverService: after parsePublicKey: " + e.getMessage(), e);
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "public key parsing failure"));
             }
 
@@ -681,16 +683,16 @@ public class TokenKeyRecoveryService implements IService {
                         false,
                         keyRecord.getWrappingParams(mStorageUnit.getOldWrappingParams()));
             } catch (Exception e) {
-                CMS.debug("TokenKeyRecoveryService: recoverKey() - recovery failure");
+                logger.error("TokenKeyRecoveryService: recovery failure: " + e.getMessage(), e);
                 throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
                                 "private key recovery/unwrapping failure"), e);
             }
-            CMS.debug( "TokenKeyRecoveryService: recoverKey() - recovery completed, returning privKey");
+            logger.debug("TokenKeyRecoveryService: recoverKey() - recovery completed, returning privKey");
             return privKey;
 
         } catch (Exception e) {
-            CMS.debug("TokenKeyRecoverService: recoverKey() failed with allowEncDecrypt_recovery=false:"+e.toString());
+            logger.error("TokenKeyRecoverService: failed with allowEncDecrypt_recovery=false: " + e.getMessage(), e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "Exception:"+e.toString()));
         }
     }
@@ -699,7 +701,7 @@ public class TokenKeyRecoveryService implements IService {
      */
     public synchronized byte[] recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord)
             throws EBaseException {
-        CMS.debug( "TokenKeyRecoveryService: recoverKey() - with allowEncDecrypt_archival being true");
+        logger.debug("TokenKeyRecoveryService: recoverKey() - with allowEncDecrypt_archival being true");
         /*
             Credential creds[] = (Credential[])
                 request.get(ATTR_AGENT_CREDENTIALS);

@@ -2,12 +2,15 @@
 Name:             pki
 ################################################################################
 
-Summary:          PKI Package
+%global           vendor dogtag
+%global           brand Dogtag
+
+Summary:          %{brand} PKI Package
 URL:              http://www.dogtagpki.org/
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 
-Version:          10.7.0
+Version:          10.7.1
 Release:          1%{?_timestamp}%{?_commit_id}%{?dist}
 # global           _phase -a1
 
@@ -143,8 +146,6 @@ Source: https://github.com/dogtagpki/pki/archive/v%{version}%{?_phase}/pki-%{ver
 %define pki_gid 17
 %define pki_homedir /usr/share/pki
 
-%global brand dogtag
-
 %global saveFileContext() \
 if [ -s /etc/selinux/config ]; then \
      . %{_sysconfdir}/selinux/config; \
@@ -176,7 +177,7 @@ BuildRequires:    gcc-c++
 BuildRequires:    zip
 BuildRequires:    java-1.8.0-openjdk-devel
 BuildRequires:    redhat-rpm-config
-BuildRequires:    ldapjdk >= 4.20
+BuildRequires:    ldapjdk >= 4.21.0
 BuildRequires:    apache-commons-cli
 BuildRequires:    apache-commons-codec
 BuildRequires:    apache-commons-io
@@ -213,7 +214,8 @@ BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
+%if 0%{?rhel} <= 7
 # 'resteasy-base' is a subset of the complete set of
 # 'resteasy' packages and consists of what is needed to
 # support the PKI Restful interface on certain RHEL platforms
@@ -223,6 +225,9 @@ BuildRequires:    resteasy-base-jaxb-provider >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs >= 3.0.6-1
 BuildRequires:    resteasy-base-jaxrs-api >= 3.0.6-1
 BuildRequires:    resteasy-base-jackson-provider >= 3.0.6-1
+%else
+BuildRequires:    resteasy >= 3.0.26
+%endif
 %else
 BuildRequires:    jboss-annotations-1.2-api
 BuildRequires:    jboss-jaxrs-2.0-api
@@ -308,8 +313,8 @@ BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.4.0-11
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
-BuildRequires:    jss >= 4.5.1
-BuildRequires:    tomcatjss >= 7.3.6
+BuildRequires:    jss >= 4.6.0
+BuildRequires:    tomcatjss >= 7.4.0
 %endif
 BuildRequires:    systemd-units
 
@@ -322,7 +327,11 @@ BuildRequires:    tomcat >= 8.0.49
 %if 0%{?fedora} && 0%{?fedora} <= 28
 BuildRequires:    tomcat >= 1:8.5.23
 %else
+%if 0%{?rhel}
+BuildRequires:    pki-servlet-engine
+%else
 BuildRequires:    tomcat >= 1:9.0.7
+%endif
 %endif
 %endif
 %endif
@@ -338,11 +347,18 @@ BuildRequires:    systemd
 BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
+# build dependency to build man pages
+BuildRequires:    go-md2man
+
+# PKICertImport depends on certutil and openssl
+BuildRequires:    nss-tools
+BuildRequires:    openssl
+
 # description for top-level package (if there is a separate meta package)
-%if "%{name}" != "%{brand}-pki"
+%if "%{name}" != "%{vendor}-pki"
 %description
 
-Dogtag PKI is an enterprise software system designed
+%{brand} PKI is an enterprise software system designed
 to manage enterprise Public Key Infrastructure deployments.
 
 PKI consists of the following components:
@@ -356,36 +372,31 @@ PKI consists of the following components:
 %endif
 
 %if %{with meta}
-%if "%{name}" != "%{brand}-pki"
+%if "%{name}" != "%{vendor}-pki"
 ################################################################################
-%package -n       %{brand}-pki
+%package -n       %{vendor}-pki
 ################################################################################
 
-Summary:          Dogtag PKI Package
+Summary:          %{brand} PKI Package
 %endif
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI theme packages
-Requires:         %{brand}-pki-server-theme >= %{version}
-Requires:         %{brand}-pki-console-theme >= %{version}
+Requires:         %{vendor}-pki-server-theme = %{version}
+Requires:         %{vendor}-pki-console-theme = %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI core packages
-Requires:         pki-base-java >= %{version}
-%if 0%{?with_python3}
-Requires:         pki-base-python3 >= %{version}
-%endif
-Requires:         pki-tools >= %{version}
-Requires:         pki-server >= %{version}
-Requires:         pki-ca >= %{version}
-Requires:         pki-kra >= %{version}
-Requires:         pki-ocsp >= %{version}
-Requires:         pki-tks >= %{version}
-Requires:         pki-tps >= %{version}
+Requires:         pki-ca = %{version}
+Requires:         pki-kra = %{version}
+Requires:         pki-ocsp = %{version}
+Requires:         pki-tks = %{version}
+Requires:         pki-tps = %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of PKI console
-Requires:         pki-console >= %{version}
+Requires:         pki-console = %{version}
+Requires:         pki-javadoc = %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI clients
@@ -396,13 +407,13 @@ Requires:         esc >= 1.1.1
 %endif
 
 # description for top-level package (unless there is a separate meta package)
-%if "%{name}" == "%{brand}-pki"
+%if "%{name}" == "%{vendor}-pki"
 %description
 %else
-%description -n   %{brand}-pki
+%description -n   %{vendor}-pki
 %endif
 
-Dogtag PKI is an enterprise software system designed
+%{brand} PKI is an enterprise software system designed
 to manage enterprise Public Key Infrastructure deployments.
 
 PKI consists of the following components:
@@ -427,9 +438,15 @@ Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.1
+Requires:         jss >= 4.6.0
 %endif
 Requires:         nss >= 3.38.0
+
+# Ensure we end up with a useful installation
+Conflicts:        pki-symkey < %{version}
+Conflicts:        pki-javadoc < %{version}
+Conflicts:        pki-server-theme < %{version}
+Conflicts:        pki-console-theme < %{version}
 
 %description -n   pki-symkey
 The PKI Symmetric Key Java Package supplies various native
@@ -444,12 +461,18 @@ BuildArch:        noarch
 
 Requires:         nss >= 3.36.1
 %if 0%{?with_python3_default}
-Requires:         python3-pki = %{version}-%{release}
-Requires(post):   python3-pki = %{version}-%{release}
+Requires:         python3-pki = %{version}
+Requires(post):   python3-pki = %{version}
 %else
-Requires:         python2-pki = %{version}-%{release}
-Requires(post):   python2-pki = %{version}-%{release}
+Requires:         python2-pki = %{version}
+Requires(post):   python2-pki = %{version}
 %endif  # with_python3_default
+
+# Ensure we end up with a useful installation
+Conflicts:        pki-symkey < %{version}
+Conflicts:        pki-javadoc < %{version}
+Conflicts:        pki-server-theme < %{version}
+Conflicts:        pki-console-theme < %{version}
 
 %description -n   pki-base
 The PKI Base Package contains the common and client libraries and utilities
@@ -464,12 +487,12 @@ Summary:          PKI Python 2 Package
 BuildArch:        noarch
 
 Obsoletes:        pki-base-python2 < %{version}
-Provides:         pki-base-python2 = %{version}-%{release}
+Provides:         pki-base-python2 = %{version}
 %if 0%{?fedora}
 %{?python_provide:%python_provide python2-pki}
 %endif
 
-Requires:         pki-base >= %{version}-%{release}
+Requires:         pki-base = %{version}
 Requires:         python2-cryptography
 %if 0%{?rhel} && 0%{?rhel} <= 7 || 0%{?fedora} && 0%{?fedora} <= 27
 Requires:         python-nss
@@ -495,12 +518,12 @@ Summary:          PKI Python 3 Package
 BuildArch:        noarch
 
 Obsoletes:        pki-base-python3 < %{version}
-Provides:         pki-base-python3 = %{version}-%{release}
+Provides:         pki-base-python3 = %{version}
 %if 0%{?fedora}
 %{?python_provide:%python_provide python3-pki}
 %endif
 
-Requires:         pki-base >= %{version}-%{release}
+Requires:         pki-base = %{version}
 Requires:         python3-cryptography
 Requires:         python3-lxml
 Requires:         python3-nss
@@ -533,17 +556,17 @@ Requires:         slf4j
 %else
 Requires:         slf4j-jdk14
 %endif
-Requires:         javassist
 Requires:         jpackage-utils >= 0:1.7.5-10
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         jss >= 4.4.0-11
 %else
-Requires:         jss >= 4.5.1
+Requires:         jss >= 4.6.0
 %endif
-Requires:         ldapjdk >= 4.20
-Requires:         pki-base >= %{version}-%{release}
+Requires:         ldapjdk >= 4.21.0
+Requires:         pki-base = %{version}
 
-%if 0%{?rhel} && 0%{?rhel} <= 7
+%if 0%{?rhel}
+%if 0%{?rhel} <= 7
 # 'resteasy-base' is a subset of the complete set of
 # 'resteasy' packages and consists of what is needed to
 # support the PKI Restful interface on certain RHEL platforms
@@ -553,6 +576,9 @@ Requires:         resteasy-base-jaxb-provider >= 3.0.6-1
 Requires:         resteasy-base-jaxrs >= 3.0.6-1
 Requires:         resteasy-base-jaxrs-api >= 3.0.6-1
 Requires:         resteasy-base-jackson-provider >= 3.0.6-1
+%else
+Requires:         resteasy >= 3.0.26
+%endif
 %else
 Requires:         resteasy-atom-provider >= 3.0.17-1
 Requires:         resteasy-client >= 3.0.17-1
@@ -578,7 +604,11 @@ Summary:          PKI Tools Package
 
 Requires:         openldap-clients
 Requires:         nss-tools >= 3.36.1
-Requires:         pki-base-java >= %{version}-%{release}
+Requires:         pki-base-java = %{version}
+
+# PKICertImport depends on certutil and openssl
+Requires:         nss-tools
+Requires:         openssl
 
 %description -n   pki-tools
 This package contains PKI executables that can be used to help make
@@ -605,9 +635,10 @@ Requires:         openssl >= 1.0.2k-11
 %else
 Requires:         openssl
 %endif
-Requires:         pki-symkey >= %{version}-%{release}
-Requires:         pki-base-java >= %{version}-%{release}
-Requires:         pki-tools >= %{version}-%{release}
+Requires:         pki-symkey = %{version}
+Requires:         pki-tools = %{version}
+
+Requires:         keyutils
 
 %if 0%{?rhel} && 0%{?rhel} <= 7
 # no policycoreutils-python-utils
@@ -649,7 +680,11 @@ Requires:         tomcat >= 8.0.49
 %if 0%{?fedora} && 0%{?fedora} <= 28
 Requires:         tomcat >= 1:8.5.23
 %else
+%if 0%{?rhel}
+Requires:         pki-servlet-engine >= 1:9.0.7
+%else
 Requires:         tomcat >= 1:9.0.7
+%endif
 %endif
 %endif
 %endif
@@ -662,11 +697,15 @@ Requires(pre):    shadow-utils
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         tomcatjss >= 7.2.1-4
 %else
-Requires:         tomcatjss >= 7.3.6
+Requires:         tomcatjss >= 7.4.0
 %endif
 
 # https://pagure.io/freeipa/issue/7742
+%if 0%{?rhel}
+Conflicts:        ipa-server < 4.7.1
+%else
 Conflicts:        freeipa-server < 4.7.1
+%endif
 
 %description -n   pki-server
 The PKI Server Package contains libraries and utilities needed by the
@@ -688,7 +727,7 @@ following PKI subsystems:
 Summary:          PKI CA Package
 BuildArch:        noarch
 
-Requires:         pki-server >= %{version}-%{release}
+Requires:         pki-server = %{version}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -712,7 +751,7 @@ where it obtains its own signing certificate from a public CA.
 Summary:          PKI KRA Package
 BuildArch:        noarch
 
-Requires:         pki-server >= %{version}-%{release}
+Requires:         pki-server = %{version}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -742,7 +781,7 @@ since such archival would undermine non-repudiation properties of signing keys.
 Summary:          PKI OCSP Package
 BuildArch:        noarch
 
-Requires:         pki-server >= %{version}-%{release}
+Requires:         pki-server = %{version}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -779,7 +818,7 @@ whenever they are issued or updated.
 Summary:          PKI TKS Package
 BuildArch:        noarch
 
-Requires:         pki-server >= %{version}-%{release}
+Requires:         pki-server = %{version}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -809,7 +848,7 @@ behind the firewall with restricted access.
 
 Summary:          PKI TPS Package
 
-Requires:         pki-server >= %{version}-%{release}
+Requires:         pki-server = %{version}
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -850,6 +889,12 @@ smart card.
 Summary:          PKI Javadoc Package
 BuildArch:        noarch
 
+# Ensure we end up with a useful installation
+Conflicts:        pki-base < %{version}
+Conflicts:        pki-symkey < %{version}
+Conflicts:        pki-server-theme < %{version}
+Conflicts:        pki-console-theme < %{version}
+
 %description -n   pki-javadoc
 This package contains PKI API documentation.
 
@@ -866,8 +911,8 @@ BuildArch:        noarch
 BuildRequires:    idm-console-framework >= 1.2.0
 
 Requires:         idm-console-framework >= 1.2.0
-Requires:         pki-base-java >= %{version}
-Requires:         pki-console-theme >= %{version}
+Requires:         pki-base-java = %{version}
+Requires:         pki-console-theme = %{version}
 
 %description -n   pki-console
 The PKI Console is a Java application used to administer PKI server.
@@ -876,30 +921,42 @@ The PKI Console is a Java application used to administer PKI server.
 
 %if %{with theme}
 ################################################################################
-%package -n       %{brand}-pki-server-theme
+%package -n       %{vendor}-pki-server-theme
 ################################################################################
 
-Summary:          Dogtag PKI Server Theme Package
+Summary:          %{brand} PKI Server Theme Package
 BuildArch:        noarch
 
-Provides:         pki-server-theme = %{version}-%{release}
+Provides:         pki-server-theme = %{version}
 
-%description -n   %{brand}-pki-server-theme
+# Ensure we end up with a useful installation
+Conflicts:        pki-base < %{version}
+Conflicts:        pki-symkey < %{version}
+Conflicts:        pki-console-theme < %{version}
+Conflicts:        pki-javadoc < %{version}
+
+%description -n   %{vendor}-pki-server-theme
 This PKI Server Theme Package contains
-Dogtag textual and graphical user interface for PKI Server.
+%{brand} textual and graphical user interface for PKI Server.
 
 ################################################################################
-%package -n       %{brand}-pki-console-theme
+%package -n       %{vendor}-pki-console-theme
 ################################################################################
 
-Summary:          Dogtag PKI Console Theme Package
+Summary:          %{brand} PKI Console Theme Package
 BuildArch:        noarch
 
-Provides:         pki-console-theme = %{version}-%{release}
+Provides:         pki-console-theme = %{version}
 
-%description -n   %{brand}-pki-console-theme
+# Ensure we end up with a useful installation
+Conflicts:        pki-base < %{version}
+Conflicts:        pki-symkey < %{version}
+Conflicts:        pki-server-theme < %{version}
+Conflicts:        pki-javadoc < %{version}
+
+%description -n   %{vendor}-pki-console-theme
 This PKI Console Theme Package contains
-Dogtag textual and graphical user interface for PKI Console.
+%{brand} textual and graphical user interface for PKI Console.
 
 %endif # with theme
 
@@ -948,7 +1005,7 @@ cd build
 %endif
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
-    -DTHEME=%{?with_theme:%{brand}} \
+    -DTHEME=%{?with_theme:%{vendor}} \
     ..
 
 ################################################################################
@@ -966,12 +1023,16 @@ cd build
     --no-print-directory \
     all install
 
+%if %{with_test}
+ctest --output-on-failure
+%endif
+
 %if %{with meta}
 %{__mkdir_p} %{buildroot}%{_datadir}/doc/pki
 
 cat > %{buildroot}%{_datadir}/doc/pki/README << EOF
 This package is a "meta-package" whose dependencies pull in all of the
-packages comprising the Dogtag Public Key Infrastructure (PKI) Suite.
+packages comprising the %{brand} Public Key Infrastructure (PKI) Suite.
 EOF
 %endif # with meta
 
@@ -994,7 +1055,6 @@ EOF
 %if 0%{?rhel} && 0%{?rhel} <= 7
 # no link customization
 %else
-    rm -f %{buildroot}%{_datadir}/pki/lib/scannotation.jar
     ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/lib/jboss-logging.jar
     ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/lib/jboss-annotations-api_1.2_spec.jar
 %endif
@@ -1035,8 +1095,6 @@ mv %{buildroot}%{_datadir}/pki/server/upgrade/10.5.5/01-AddTPSExternalRegISEtoke
 
 # Customize server common library links in /usr/share/pki/server/common/lib
 %if 0%{?fedora} || 0%{?rhel} > 7
-    rm -f %{buildroot}%{_datadir}/pki/server/common/lib/scannotation.jar
-    rm -f %{buildroot}%{_datadir}/pki/server/common/lib/resteasy-jaxrs-api.jar
     ln -sf %{jaxrs_api_jar} %{buildroot}%{_datadir}/pki/server/common/lib/jboss-jaxrs-2.0-api.jar
     ln -sf /usr/share/java/jboss-logging/jboss-logging.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-logging.jar
     ln -sf /usr/share/java/jboss-annotations-1.2-api/jboss-annotations-api_1.2_spec.jar %{buildroot}%{_datadir}/pki/server/common/lib/jboss-annotations-api_1.2_spec.jar
@@ -1224,9 +1282,9 @@ fi
 %endif # with server
 
 %if %{with meta}
-%if "%{name}" != "%{brand}-pki"
+%if "%{name}" != "%{vendor}-pki"
 ################################################################################
-%files -n %{brand}-pki
+%files -n %{vendor}-pki
 ################################################################################
 %else
 %files
@@ -1339,6 +1397,7 @@ fi
 %{_bindir}/OCSPClient
 %{_bindir}/PKCS10Client
 %{_bindir}/PKCS12Export
+%{_bindir}/PKICertImport
 %{_bindir}/PrettyPrintCert
 %{_bindir}/PrettyPrintCrl
 %{_bindir}/TokenInfo
@@ -1357,13 +1416,13 @@ fi
 %{_mandir}/man1/PrettyPrintCrl.1.gz
 %{_mandir}/man1/pki.1.gz
 %{_mandir}/man1/pki-audit.1.gz
+%{_mandir}/man1/pki-ca-cert.1.gz
 %{_mandir}/man1/pki-ca-kraconnector.1.gz
 %{_mandir}/man1/pki-ca-profile.1.gz
-%{_mandir}/man1/pki-cert.1.gz
 %{_mandir}/man1/pki-client.1.gz
 %{_mandir}/man1/pki-group.1.gz
 %{_mandir}/man1/pki-group-member.1.gz
-%{_mandir}/man1/pki-key.1.gz
+%{_mandir}/man1/pki-kra-key.1.gz
 %{_mandir}/man1/pki-pkcs12-cert.1.gz
 %{_mandir}/man1/pki-pkcs12-key.1.gz
 %{_mandir}/man1/pki-pkcs12.1.gz
@@ -1373,6 +1432,7 @@ fi
 %{_mandir}/man1/pki-user-cert.1.gz
 %{_mandir}/man1/pki-user-membership.1.gz
 %{_mandir}/man1/PKCS10Client.1.gz
+%{_mandir}/man1/PKICertImport.1.gz
 
 %endif # with base
 
@@ -1541,10 +1601,10 @@ fi
 
 %if %{with theme}
 ################################################################################
-%files -n %{brand}-pki-server-theme
+%files -n %{vendor}-pki-server-theme
 ################################################################################
 
-%doc themes/%{brand}/common-ui/LICENSE
+%doc themes/%{vendor}/common-ui/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/CS_SERVER_VERSION
 %{_datadir}/pki/common-ui/
@@ -1559,10 +1619,10 @@ fi
 %{_datadir}/pki/server/webapps/pki/tks
 
 ################################################################################
-%files -n %{brand}-pki-console-theme
+%files -n %{vendor}-pki-console-theme
 ################################################################################
 
-%doc themes/%{brand}/console-ui/LICENSE
+%doc themes/%{vendor}/console-ui/LICENSE
 %{_javadir}/pki/pki-console-theme.jar
 
 %endif # with theme

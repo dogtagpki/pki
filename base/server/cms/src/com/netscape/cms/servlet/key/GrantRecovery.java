@@ -28,7 +28,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -43,6 +42,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Approve a key recovery request
@@ -112,6 +114,7 @@ public class GrantRecovery extends CMSServlet {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
@@ -144,12 +147,12 @@ public class GrantRecovery extends CMSServlet {
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         String agentID = authToken.getInString("uid");
-        if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
+        if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
             agentID = req.getParameter("agentID");
         }
         try {

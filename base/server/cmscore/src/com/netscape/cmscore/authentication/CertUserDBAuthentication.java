@@ -19,7 +19,8 @@ package com.netscape.cmscore.authentication;
 
 import java.security.cert.X509Certificate;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -29,15 +30,13 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authentication.ICertUserDBAuthentication;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
-import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.User;
-
-import netscape.security.x509.X509CertImpl;
 
 /**
  * Certificate server agent authentication.
@@ -64,7 +63,6 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
     private IConfigStore mConfig = null;
 
     private ICertUserLocator mCULocator = null;
-    private Logger mLogger = Logger.getLogger();
 
     private boolean mRevocationCheckingEnabled = false;
     private IConfigStore mRevocationChecking = null;
@@ -86,6 +84,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
             throws EBaseException {
         mName = name;
         mImplName = implName;
+        CMSEngine engine = CMS.getCMSEngine();
         mConfig = config;
 
         if (mConfig != null) {
@@ -99,12 +98,12 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
                 long unknownStateInterval = mRevocationChecking.getInteger("unknownStateInterval", 1800);
 
                 if (size > 0)
-                    CMS.setListOfVerifiedCerts(size, interval, unknownStateInterval);
+                    engine.setListOfVerifiedCerts(size, interval, unknownStateInterval);
             }
         }
 
         mCULocator = new ExactMatchCertUserLocator();
-        log(ILogger.LL_INFO, CMS.getLogMessage("INIT_DONE", name));
+        logger.info("CertUserDBAuthentication: " + CMS.getLogMessage("INIT_DONE", name));
     }
 
     /**
@@ -144,8 +143,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
                 (X509Certificate[]) authCred.get(CRED_CERT);
 
         if (x509Certs == null) {
-            logger.error("CertUserDBAuth: no client certificate found");
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
+            logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
             throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CERT));
         }
         logger.debug("CertUserDBAuth: Got client certificate");
@@ -153,11 +151,12 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         if (mRevocationCheckingEnabled) {
             X509CertImpl cert0 = (X509CertImpl) x509Certs[0];
             if (cert0 == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_NO_CERT"));
+                logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_NO_CERT"));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
             }
-            if (CMS.isRevoked(x509Certs)) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_REVOKED_CERT"));
+            CMSEngine engine = CMS.getCMSEngine();
+            if (engine.isRevoked(x509Certs)) {
+                logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_REVOKED_CERT"));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
         }
@@ -172,11 +171,11 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
             user = (User) mCULocator.locateUser(certs);
         } catch (EUsrGrpException e) {
             logger.error("CertUserDBAuthentication: cannot map certificate to any user: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0].getSerialNumber()
+            logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0].getSerialNumber()
                     .toString(16), x509Certs[0].getSubjectDN().toString(), e.toString()));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         } catch (netscape.ldap.LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_CANNOT_AGENT_AUTH", e.toString()));
+            logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_CANNOT_AGENT_AUTH", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
         }
 
@@ -184,7 +183,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         // UGSubsystem only returns null for user.
         if (user == null) {
             logger.error("CertUserDBAuthentication: cannot map certificate to any user");
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_USER_NOT_FOUND"));
+            logger.error("CertUserDBAuthentication: " + CMS.getLogMessage("CMSCORE_AUTH_AGENT_USER_NOT_FOUND"));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
@@ -196,8 +195,7 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
         authToken.set(TOKEN_UID, user.getUserID());
         authToken.set(CRED_CERT, certs);
 
-        log(ILogger.LL_INFO, CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", user.getUserID()));
-        logger.info("Authenticated user: " + user.getUserDN());
+        logger.info("CertUserDBAuthentication: " + CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", user.getUserID()));
 
         return authToken;
     }
@@ -246,12 +244,4 @@ public class CertUserDBAuthentication implements IAuthManager, ICertUserDBAuthen
     public IConfigStore getConfigStore() {
         return mConfig;
     }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
-                level, msg);
-    }
-
 }

@@ -22,13 +22,13 @@ import java.io.PushbackReader;
 import java.io.StringReader;
 import java.util.Vector;
 
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * class for parsing a DN pattern used to construct a ldap dn from
@@ -81,6 +81,8 @@ import com.netscape.certsrv.request.IRequest;
  */
 public class MapDNPattern {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MapDNPattern.class);
+
     /* the list of request attriubutes to retrieve*/
     protected String[] mReqAttrs = null;
 
@@ -104,8 +106,7 @@ public class MapDNPattern {
     public MapDNPattern(String pattern)
             throws ELdapException {
         if (pattern == null || pattern.equals("")) {
-            CMS.debug(
-                    "MapDNPattern: null pattern");
+            logger.debug("MapDNPattern: null pattern");
         } else {
             mPatternString = pattern;
             PushbackReader in = new PushbackReader(new StringReader(pattern));

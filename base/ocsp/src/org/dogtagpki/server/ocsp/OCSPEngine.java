@@ -19,15 +19,19 @@
 package org.dogtagpki.server.ocsp;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.SubsystemInfo;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.ocsp.OCSPAuthority;
 
 public class OCSPEngine extends CMSEngine {
 
-    public OCSPEngine() {
+    public OCSPEngine() throws Exception {
         super("OCSP");
+    }
+
+    public Configurator createConfigurator() throws Exception {
+        return new OCSPConfigurator(this);
     }
 
     protected void loadSubsystems() throws EBaseException {
@@ -38,11 +42,8 @@ public class OCSPEngine extends CMSEngine {
             // Disable some subsystems before database initialization
             // in pre-op mode to prevent misleading exceptions.
 
-            SubsystemInfo si = dynSubsystems.get(OCSPAuthority.ID);
-            si.enabled = false;
-
-            si = dynSubsystems.get(SelfTestSubsystem.ID);
-            si.enabled = false;
+            setSubsystemEnabled(OCSPAuthority.ID, false);
+            setSubsystemEnabled(SelfTestSubsystem.ID, false);
         }
     }
 }

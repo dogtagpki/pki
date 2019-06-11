@@ -28,12 +28,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.util.IStatsSubsystem;
@@ -42,6 +40,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Retrieve information.
@@ -88,6 +89,7 @@ public class GetStats extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
 
@@ -121,11 +123,11 @@ public class GetStats extends CMSServlet {
             return;
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         StatsEvent st = statsSub.getMainStatsEvent();
 
         String op = httpReq.getParameter("op");
@@ -168,7 +170,7 @@ public class GetStats extends CMSServlet {
             String name = names.nextElement();
             StatsEvent subSt = st.getSubEvent(name);
 
-            IArgBlock rarg = CMS.createArgBlock();
+            ArgBlock rarg = new ArgBlock();
             rarg.addStringValue("name", getSep(level) + " " + subSt.getName());
             rarg.addLongValue("noOfOp", subSt.getNoOfOperations());
             rarg.addLongValue("timeTaken", subSt.getTimeTaken());

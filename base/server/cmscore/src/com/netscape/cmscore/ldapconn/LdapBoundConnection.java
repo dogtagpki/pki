@@ -19,7 +19,7 @@ package com.netscape.cmscore.ldapconn;
 
 import java.util.Properties;
 
-import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
@@ -37,9 +37,8 @@ import netscape.ldap.LDAPv2;
  * overridden to prevent this.
  */
 public class LdapBoundConnection extends LDAPConnection {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapBoundConnection.class);
     private static final long serialVersionUID = -2242077674357271559L;
     // LDAPConnection calls authenticate so must set this for first
     // authenticate call.
@@ -51,13 +50,12 @@ public class LdapBoundConnection extends LDAPConnection {
      * connection with Ldap basic bind dn & pw authentication.
      */
     public LdapBoundConnection(
-            LdapConnInfo connInfo, LdapAuthInfo authInfo)
-            throws LDAPException {
-        // this LONG line to satisfy super being the first call. (yuk)
-        super(
-                authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH ?
-                        new PKISocketFactory(authInfo.getParms()[0]) :
-                        new PKISocketFactory(connInfo.getSecure()));
+            LDAPSocketFactory socketFactory,
+            LdapConnInfo connInfo,
+            LdapAuthInfo authInfo)
+            throws EBaseException, LDAPException {
+
+        super(socketFactory);
 
         // Set option to automatically follow referrals.
         // Use the same credentials to follow referrals; this is the easiest
@@ -70,9 +68,27 @@ public class LdapBoundConnection extends LDAPConnection {
         setOption(LDAPv2.REFERRALS,Boolean.valueOf(followReferrals));
         if (followReferrals &&
                 authInfo.getAuthType() != LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-            LDAPRebind rebindInfo =
-                    new ARebindInfo(authInfo.getParms()[0],
-                            authInfo.getParms()[1]);
+
+            LDAPRebind rebindInfo = new LDAPRebind() {
+                public LDAPRebindAuth getRebindAuthentication(String host, int port) {
+                    return new LDAPRebindAuth() {
+                        public String getDN() {
+                            try {
+                                return authInfo.getBindDN();
+                            } catch (EBaseException e) {
+                                throw new RuntimeException("Unable to get bind DN: " + e.getMessage(), e);
+                            }
+                        }
+                        public String getPassword() {
+                            try {
+                                return authInfo.getBindPassword();
+                            } catch (EBaseException e) {
+                                throw new RuntimeException("Unable to get bind password: " + e.getMessage(), e);
+                            }
+                        }
+                    };
+                }
+            };
 
             setOption(LDAPv2.REFERRALS_REBIND_PROC, rebindInfo);
         }
@@ -80,17 +96,15 @@ public class LdapBoundConnection extends LDAPConnection {
         if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
             // will be bound to client auth cert mapped entry.
             super.connect(connInfo.getHost(), connInfo.getPort());
-            CMS.debug(
-                    "Established LDAP connection with SSL client auth to " +
+            logger.debug("Established LDAP connection with SSL client auth to " +
                             connInfo.getHost() + ":" + connInfo.getPort());
         } else { // basic auth
-            String binddn = authInfo.getParms()[0];
-            String bindpw = authInfo.getParms()[1];
+            String binddn = authInfo.getBindDN();
+            String bindpw = authInfo.getBindPassword();
 
             super.connect(connInfo.getVersion(),
                     connInfo.getHost(), connInfo.getPort(), binddn, bindpw);
-            CMS.debug(
-                    "Established LDAP connection using basic authentication to" +
+            logger.debug("Established LDAP connection using basic authentication to" +
                             " host " + connInfo.getHost() +
                             " port " + connInfo.getPort() +
                             " as " + binddn);
@@ -108,8 +122,7 @@ public class LdapBoundConnection extends LDAPConnection {
         super(fac);
         if (bindDN != null) {
             super.connect(version, host, port, bindDN, bindPW);
-            CMS.debug(
-                    "Established LDAP connection using basic authentication " +
+            logger.debug("Established LDAP connection using basic authentication " +
                             " as " + bindDN + " to " + host + ":" + port);
         } else {
             if (fac == null && bindDN == null) {
@@ -118,8 +131,7 @@ public class LdapBoundConnection extends LDAPConnection {
             }
             // automatically authenticated if it's ssl client auth.
             super.connect(version, host, port, null, null);
-            CMS.debug(
-                    "Established LDAP connection using SSL client authentication " +
+            logger.debug("Established LDAP connection using SSL client authentication " +
                             "to " + host + ":" + port);
         }
     }
@@ -188,17 +200,5 @@ public class LdapBoundConnection extends LDAPConnection {
             String dn, String pw) throws LDAPException {
         throw new RuntimeException(
                 "this LdapBoundConnection is already connected: conn(version,h,p)");
-    }
-}
-
-class ARebindInfo implements LDAPRebind {
-    private LDAPRebindAuth mRebindAuthInfo = null;
-
-    public ARebindInfo(String binddn, String pw) {
-        mRebindAuthInfo = new LDAPRebindAuth(binddn, pw);
-    }
-
-    public LDAPRebindAuth getRebindAuthentication(String host, int port) {
-        return mRebindAuthInfo;
     }
 }

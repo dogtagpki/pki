@@ -27,7 +27,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-import netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 
 /**
  * KRA transport certificate

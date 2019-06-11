@@ -19,10 +19,9 @@ package com.netscape.cms.profile.def;
 
 import java.util.Locale;
 
-import netscape.security.extensions.OCSPNoCheckExtension;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.extensions.OCSPNoCheckExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -30,6 +29,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -39,6 +39,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class OCSPNoCheckExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPNoCheckExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "ocspNoCheckCritical";
 
@@ -173,8 +175,7 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
         try {
             ext = new OCSPNoCheckExtension();
         } catch (Exception e) {
-            CMS.debug("OCSPNoCheckExtDefault:  createExtension " +
-                    e.toString());
+            logger.warn("OCSPNoCheckExtDefault:  createExtension " + e.getMessage(), e);
             return null;
         }
         boolean critical = getConfigBoolean(CONFIG_CRITICAL);

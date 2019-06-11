@@ -17,13 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.rest;
 
-import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.Principal;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -38,13 +36,10 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
@@ -52,25 +47,13 @@ import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.KeyBackupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
-import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.csadmin.Cert;
-import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
-import com.netscape.cms.servlet.csadmin.ReplicationUtil;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.SubsystemInfo;
-import com.netscape.cmscore.authentication.AuthSubsystem;
-import com.netscape.cmscore.authorization.AuthzSubsystem;
-import com.netscape.cmscore.dbs.DBSubsystem;
-import com.netscape.cmscore.security.JssSubsystem;
-import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.password.IPasswordStore;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.x509.X509CertImpl;
 
 /**
  * @author alee
@@ -80,8 +63,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public final static Logger logger = LoggerFactory.getLogger(SystemConfigService.class);
 
-    public static final String ECC_INTERNAL_ADMIN_CERT_PROFILE = "caECAdminCert";
-    public static final String RSA_INTERNAL_ADMIN_CERT_PROFILE = "caAdminCert";
+    public Configurator configurator;
 
     public IConfigStore cs;
     public String csType;
@@ -90,16 +72,23 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public boolean isMasterCA = false;
     public String instanceRoot;
 
-    public SystemConfigService() throws EBaseException {
-        cs = CMS.getConfigStore();
+    public SystemConfigService() throws Exception {
+
+        CMSEngine engine = CMS.getCMSEngine();
+        cs = engine.getConfigStore();
+
         csType = cs.getString("cs.type");
         csSubsystem = csType.toLowerCase();
         csState = cs.getString("cs.state");
+
         String domainType = cs.getString("securitydomain.select", "existingdomain");
         if (csType.equals("CA") && domainType.equals("new")) {
             isMasterCA = true;
         }
+
         instanceRoot = cs.getString("instanceRoot");
+
+        configurator = engine.createConfigurator();
     }
 
     /* (non-Javadoc)
@@ -108,7 +97,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public ConfigurationResponse configure(ConfigurationRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: configure()");
+        logger.info("SystemConfigService: configuring subsystem");
 
         try {
             ConfigurationResponse response = new ConfigurationResponse();
@@ -146,11 +135,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // configure security domain
         logger.debug("=== Security Domain Configuration ===");
-        String domainXML = configureSecurityDomain(data);
+        String domainXML = configurator.configureSecurityDomain(data);
 
         // configure subsystem
         logger.debug("=== Subsystem Configuration ===");
-        configureSubsystem(data, token, domainXML);
+        configurator.configureSubsystem(data, token, domainXML);
 
         // configure hierarchy
         logger.debug("=== Hierarchy Configuration ===");
@@ -163,7 +152,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public void setupDatabase(ConfigurationRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: setupDatabase()");
+        logger.info("SystemConfigService: setting up database");
 
         try {
             validatePin(request.getPin());
@@ -172,11 +161,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            configureDatabase(request);
+            configurator.configureDatabase(request);
             cs.commit(false);
 
-            initializeDatabase(request);
-            reinitSubsystems();
+            configurator.initializeDatabase(request);
+            configurator.reinitSubsystems();
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
@@ -191,7 +180,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public ConfigurationResponse configureCerts(ConfigurationRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: configureCerts()");
+        logger.info("SystemConfigService: configuring certificates");
 
         try {
             validatePin(request.getPin());
@@ -223,7 +212,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public AdminSetupResponse setupAdmin(AdminSetupRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: setupAdmin()");
+        logger.info("SystemConfigService: setting up admin");
 
         try {
             validatePin(request.getPin());
@@ -271,16 +260,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             AdminSetupResponse response = new AdminSetupResponse();
 
-            createAdminUser(request);
-
-            X509CertImpl cert = createAdminCert(request);
-            updateAdminUserCert(request, cert);
-
-            String b64cert = Utils.base64encodeSingleLine(cert.getEncoded());
-            logger.debug("SystemConfigService: admin cert: " + b64cert);
-
-            SystemCertData adminCert = response.getAdminCert();
-            adminCert.setCert(b64cert);
+            configurator.setupAdmin(request, response);
 
             return response;
 
@@ -295,9 +275,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     @Override
-    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
+    public void setupSecurityDomain(ConfigurationRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: finalizeConfiguration()");
+        logger.info("SystemConfigService: setting up security domain");
 
         try {
             validatePin(request.getPin());
@@ -306,8 +286,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            cs.putInteger("cs.state", 1);
-            ConfigurationUtils.removePreopConfigEntries();
+            configurator.setupSecurityDomain(
+                    request.getSecurityDomainType(),
+                    request.getSubordinateSecurityDomainName());
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
@@ -322,7 +303,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public void setupDatabaseUser(ConfigurationRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: setupDatabaseUser()");
+        logger.info("SystemConfigService: setting up database user");
 
         try {
             validatePin(request.getPin());
@@ -331,7 +312,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            if (!request.getSharedDB()) ConfigurationUtils.setupDBUser();
+            configurator.setupDatabaseUser();
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
@@ -344,9 +325,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     @Override
-    public void setupSecurityDomain(ConfigurationRequest request) throws Exception {
+    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: setupSecurityDomain()");
+        logger.info("SystemConfigService: finalizing configuration");
 
         try {
             validatePin(request.getPin());
@@ -355,29 +336,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            String securityDomainType = request.getSecurityDomainType();
-            if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-                logger.debug("Creating new security domain");
-                ConfigurationUtils.createSecurityDomain();
-            } else if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
-                logger.debug("Creating subordinate CA security domain");
-
-                // switch out security domain parameters from issuing CA security domain
-                // to subordinate CA hosted security domain
-                cs.putString("securitydomain.name", request.getSubordinateSecurityDomainName());
-                cs.putString("securitydomain.host", CMS.getEENonSSLHost());
-                cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
-                cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
-                cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
-                cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
-                ConfigurationUtils.createSecurityDomain();
-            } else {
-                logger.debug("Updating existing security domain");
-                ConfigurationUtils.updateSecurityDomain();
-            }
-            cs.putString("service.securityDomainPort", CMS.getAgentPort());
-            cs.putString("securitydomain.store", "ldap");
-            cs.commit(false);
+            configurator.finalizeConfiguration(request);
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
@@ -393,7 +352,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             ConfigurationRequest request,
             Collection<Cert> certs) throws Exception {
 
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+        CMSEngine engine = CMS.getCMSEngine();
 
         boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
         boolean generateSubsystemCert = request.getGenerateSubsystemCert();
@@ -403,7 +362,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         for (String tag : certList) {
 
-            logger.debug("=== Processing " + tag + " cert ===");
+            logger.info("SystemConfigService: processing " + tag + " cert");
 
             boolean enable = cs.getBoolean("preop.cert." + tag + ".enable", true);
             if (!enable) continue;
@@ -411,8 +370,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             SystemCertData certData = request.getSystemCert(tag);
 
             if (certData == null) {
-                logger.error("No data for '" + tag + "' was found!");
-                throw new BadRequestException("No data for '" + tag + "' was found!");
+                logger.error("SystemConfigService: missing certificate: " + tag);
+                throw new BadRequestException("Missing certificate: " + tag);
             }
 
             if (!generateServerCert && tag.equals("sslserver")) {
@@ -440,7 +399,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             certs.add(cert);
 
             String subsystem = cert.getSubsystem();
-            ConfigurationUtils.handleCert(cert);
+            configurator.handleCert(cert);
 
             if (tag.equals("signing") && subsystem.equals("ca")) {
                 engine.reinit(ICertificateAuthority.ID);
@@ -451,7 +410,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.commit(false);
 
         if (request.isClone()) {
-            ConfigurationUtils.updateCloneConfig();
+            configurator.updateCloneConfig();
         }
     }
 
@@ -498,33 +457,34 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.commit(false);
 
         try {
-
             logger.debug("SystemConfigService: loading existing key pair from NSS database");
-            KeyPair pair = ConfigurationUtils.loadKeyPair(certData.getNickname(), tokenName);
+            KeyPair pair = configurator.loadKeyPair(certData.getNickname(), tokenName);
+            logger.info("SystemConfigService: loaded existing key pair for " + tag + " certificate");
 
             logger.debug("SystemConfigService: storing key pair into CS.cfg");
-            ConfigurationUtils.storeKeyPair(cs, tag, pair);
+            configurator.storeKeyPair(tag, pair);
 
         } catch (ObjectNotFoundException e) {
 
             logger.debug("SystemConfigService: key pair not found, generating new key pair");
+            logger.info("SystemConfigService: generating new key pair for " + tag + " certificate");
 
             KeyPair pair;
             if (keytype.equals("ecc")) {
                 String curvename = certData.getKeySize() != null ?
                         certData.getKeySize() : cs.getString("keys.ecc.curve.default");
                 cs.putString("preop.cert." + tag + ".curvename.name", curvename);
-                pair = ConfigurationUtils.createECCKeyPair(token, curvename, cs, tag);
+                pair = configurator.createECCKeyPair(token, curvename, tag);
 
             } else {
                 String keysize = certData.getKeySize() != null ? certData.getKeySize() : cs
                         .getString("keys.rsa.keysize.default");
                 cs.putString("preop.cert." + tag + ".keysize.size", keysize);
-                pair = ConfigurationUtils.createRSAKeyPair(token, Integer.parseInt(keysize), cs, tag);
+                pair = configurator.createRSAKeyPair(token, Integer.parseInt(keysize), tag);
             }
 
             logger.debug("SystemConfigService: storing key pair into CS.cfg");
-            ConfigurationUtils.storeKeyPair(cs, tag, pair);
+            configurator.storeKeyPair(tag, pair);
         }
     }
 
@@ -563,7 +523,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         try {
             x509Cert = cm.findCertByNickname(fullName);
         } catch (ObjectNotFoundException e) {
-            logger.warn("SystemConfigService: cert not found: " + fullName);
+            logger.debug("SystemConfigService: cert not found: " + fullName);
             x509Cert = null;
         }
 
@@ -577,7 +537,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 || request.getStandAlone()
                 || request.isExternal() && ("kra".equals(subsystem) || "ocsp".equals(subsystem))) {
 
-            logger.debug("SystemConfigService: loading existing " + tag + " cert");
+            logger.info("SystemConfigService: loading existing " + tag + " certificate");
+
             byte[] bytes = x509Cert.getEncoded();
             String b64 = CryptoUtil.base64Encode(bytes);
             String certStr = CryptoUtil.normalizeCertStr(b64);
@@ -585,10 +546,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             cert.setCert(bytes);
 
-            ConfigurationUtils.updateConfig(cs, cert);
+            configurator.updateConfig(cert);
 
             logger.debug("SystemConfigService: loading existing cert request");
-            byte[] binRequest = ConfigurationUtils.loadCertRequest(cs, subsystem, tag);
+            byte[] binRequest = configurator.loadCertRequest(subsystem, tag);
             String b64Request = CryptoUtil.base64Encode(binRequest);
 
             logger.debug("SystemConfigService: request: " + b64Request);
@@ -624,13 +585,14 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             logger.debug("SystemConfigService: creating cert record for " + tag + " cert");
-            ConfigurationUtils.createCertRecord(cs, cert);
+            configurator.createCertRecord(cert);
 
             return cert;
         }
 
         // create and configure other system certificate
-        ConfigurationUtils.configCert(request, null, null, cert);
+        logger.info("SystemConfigService: creating new " + tag + " certificate");
+        configurator.configCert(request, null, null, cert);
 
         String certStr = cs.getString(subsystem + "." + tag + ".cert" );
         cert.setCert(CryptoUtil.base64Decode(certStr));
@@ -638,7 +600,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: cert: " + certStr);
 
         // generate certificate request for the system certificate
-        ConfigurationUtils.generateCertRequest(cs, tag, cert);
+        configurator.generateCertRequest(tag, cert);
 
         return cert;
     }
@@ -712,7 +674,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     @Override
     public void backupKeys(KeyBackupRequest request) throws Exception {
 
-        logger.debug("SystemConfigService: backupKeys()");
+        logger.info("SystemConfigService: backing up keys into " + request.getBackupFile());
 
         try {
             validatePin(request.getPin());
@@ -730,7 +692,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("Key backup password must be at least 8 characters");
             }
 
-            ConfigurationUtils.backupKeys(request.getBackupPassword(), request.getBackupFile());
+            configurator.backupKeys(request.getBackupPassword(), request.getBackupFile());
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
@@ -740,210 +702,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.error("Configuration failed: " + e.getMessage(), e);
             throw e;
         }
-    }
-
-    public X509CertImpl createAdminCert(AdminSetupRequest data) throws Exception {
-
-        if (data.getImportAdminCert().equalsIgnoreCase("true")) {
-
-            String cert = data.getAdminCert();
-            logger.info("SystemConfigService: Importing admin cert: " + cert);
-            // standalone admin cert is already stored into CS.cfg by configuration.py
-
-            String b64 = CryptoUtil.stripCertBrackets(cert.trim());
-            b64 = CryptoUtil.normalizeCertStr(b64);
-            byte[] b = CryptoUtil.base64Decode(b64);
-
-            return new X509CertImpl(b);
-        }
-
-        String adminSubjectDN = data.getAdminSubjectDN();
-        cs.putString("preop.cert.admin.dn", adminSubjectDN);
-
-        if (csType.equals("CA")) {
-
-            logger.info("SystemConfigService: Generating admin cert");
-
-            ConfigurationUtils.createAdminCertificate(data.getAdminCertRequest(),
-                    data.getAdminCertRequestType(), adminSubjectDN);
-
-            String serialno = cs.getString("preop.admincert.serialno.0");
-            ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(ICertificateAuthority.ID);
-            ICertificateRepository repo = ca.getCertificateRepository();
-
-            return repo.getX509Certificate(new BigInteger(serialno, 16));
-        }
-
-        logger.info("SystemConfigService: Requesting admin cert from CA");
-
-        String type = cs.getString("preop.ca.type", "");
-        String ca_hostname = "";
-        int ca_port = -1;
-
-        if (type.equals("sdca")) {
-            ca_hostname = cs.getString("preop.ca.hostname");
-            ca_port = cs.getInteger("preop.ca.httpsport");
-        } else {
-            ca_hostname = cs.getString("securitydomain.host", "");
-            ca_port = cs.getInteger("securitydomain.httpseeport");
-        }
-
-        String keyType = data.getAdminKeyType();
-        String profileID;
-
-        if ("ecc".equalsIgnoreCase(keyType)) {
-            profileID = ECC_INTERNAL_ADMIN_CERT_PROFILE;
-        } else { // rsa
-            profileID = RSA_INTERNAL_ADMIN_CERT_PROFILE;
-        }
-
-        logger.debug("SystemConfigService: profile: " + profileID);
-
-        String b64 = ConfigurationUtils.submitAdminCertRequest(ca_hostname, ca_port,
-                profileID, data.getAdminCertRequestType(),
-                data.getAdminCertRequest(), adminSubjectDN);
-
-        b64 = CryptoUtil.stripCertBrackets(b64.trim());
-        byte[] b = CryptoUtil.base64Decode(b64);
-
-        return new X509CertImpl(b);
-    }
-
-    public void createAdminUser(AdminSetupRequest request) throws Exception {
-
-        ConfigurationUtils.createAdmin(request.getAdminUID(), request.getAdminEmail(),
-                request.getAdminName(), request.getAdminPassword());
-
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-        engine.reinit(IUGSubsystem.ID);
-    }
-
-    public void updateAdminUserCert(AdminSetupRequest request, X509CertImpl adminCert) throws Exception {
-
-        X509CertImpl[] adminCerts = new X509CertImpl[] { adminCert };
-
-        IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(IUGSubsystem.ID);
-        IUser user = ug.getUser(request.getAdminUID());
-        user.setX509Certificates(adminCerts);
-        ug.addUserCert(user);
-    }
-
-    public void configureDatabase(ConfigurationRequest data) {
-        cs.putString("internaldb.ldapconn.host", data.getDsHost());
-        cs.putString("internaldb.ldapconn.port", data.getDsPort());
-        cs.putString("internaldb.database", data.getDatabase());
-        cs.putString("internaldb.basedn", data.getBaseDN());
-        cs.putString("internaldb.ldapauth.bindDN", data.getBindDN());
-        cs.putBoolean("internaldb.ldapconn.secureConn", data.getSecureConn().equals("true"));
-        cs.putString("preop.database.removeData", data.getRemoveData());
-        cs.putBoolean("preop.database.createNewDB", data.getCreateNewDB());
-        cs.putBoolean("preop.database.setupReplication", data.getSetupReplication());
-        cs.putBoolean("preop.database.reindexData", data.getReindexData());
-    }
-
-    public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
-
-        if (data.isClone() && data.getSetupReplication()) {
-            String masterhost = "";
-            String masterport = "";
-            String masterbasedn = "";
-            String realhostname = "";
-            try {
-                masterhost = cs.getString("preop.internaldb.master.ldapconn.host", "");
-                masterport = cs.getString("preop.internaldb.master.ldapconn.port", "");
-                masterbasedn = cs.getString("preop.internaldb.master.basedn", "");
-                realhostname = cs.getString("machineName", "");
-            } catch (Exception e) {
-            }
-
-            if (masterhost.equals(realhostname) && masterport.equals(data.getDsPort())) {
-                throw new BadRequestException("Master and clone must not share the same internal database");
-            }
-
-            if (!masterbasedn.equals(data.getBaseDN())) {
-                throw new BadRequestException("Master and clone should have the same base DN");
-            }
-
-            String masterReplicationPort = data.getMasterReplicationPort();
-            if ((masterReplicationPort != null) && (!masterReplicationPort.equals(""))) {
-                cs.putString("internaldb.ldapconn.masterReplicationPort", masterReplicationPort);
-            } else {
-                cs.putString("internaldb.ldapconn.masterReplicationPort", masterport);
-            }
-
-            String cloneReplicationPort = data.getCloneReplicationPort();
-            if ((cloneReplicationPort == null) || (cloneReplicationPort.length() == 0)) {
-                cloneReplicationPort = data.getDsPort();
-            }
-            cs.putString("internaldb.ldapconn.cloneReplicationPort", cloneReplicationPort);
-
-            String replicationSecurity = data.getReplicationSecurity();
-            if ((cloneReplicationPort == data.getDsPort()) && (data.getSecureConn().equals("true"))) {
-                replicationSecurity = "SSL";
-            } else if (replicationSecurity == null) {
-                replicationSecurity = "None";
-            }
-            cs.putString("internaldb.ldapconn.replicationSecurity", replicationSecurity);
-
-            cs.putString("preop.internaldb.replicateSchema", data.getReplicateSchema());
-        }
-
-        try {
-            /* BZ 430745 create password for replication manager */
-            // use user-provided password if specified
-            String replicationPassword = data.getReplicationPassword();
-
-            if (StringUtils.isEmpty(replicationPassword)) {
-                // generate random password
-
-                JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
-                SecureRandom random = jssSubsystem.getRandomNumberGenerator();
-                replicationPassword = Integer.toString(random.nextInt());
-            }
-
-            IPasswordStore psStore = null;
-            psStore = CMS.getPasswordStore();
-            psStore.putPassword("internaldb", data.getBindpwd());
-            if (StringUtils.isEmpty(psStore.getPassword("replicationdb", 0))) {
-                psStore.putPassword("replicationdb", replicationPassword);
-            }
-            psStore.commit();
-
-            ConfigurationUtils.enableUSNPlugin();
-            ConfigurationUtils.populateDB();
-
-            cs.putString("preop.internaldb.replicationpwd", replicationPassword);
-            cs.putString("preop.database.removeData", "false");
-            if (data.getSharedDB()) {
-                cs.putString("preop.internaldb.dbuser", data.getSharedDBUserDN());
-            }
-            cs.commit(false);
-
-            if (data.isClone() && data.getSetupReplication()) {
-                ReplicationUtil.setupReplication();
-            }
-
-            ConfigurationUtils.populateDBManager();
-            ConfigurationUtils.populateVLVIndexes();
-
-        } catch (Exception e) {
-            logger.error("Unable to populate database: " + e.getMessage(), e);
-            throw new PKIException("Unable to populate database: " + e.getMessage(), e);
-        }
-    }
-
-    public void reinitSubsystems() throws EBaseException {
-
-        // Enable subsystems after database initialization.
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-
-        SubsystemInfo si = engine.staticSubsystems.get(UGSubsystem.ID);
-        si.enabled = true;
-
-        engine.reinit(DBSubsystem.ID);
-        engine.reinit(UGSubsystem.ID);
-        engine.reinit(AuthSubsystem.ID);
-        engine.reinit(AuthzSubsystem.ID);
     }
 
     public void configureHierarchy(ConfigurationRequest data) {
@@ -983,7 +741,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     String host = urlx.getHost();
                     int port = urlx.getPort();
 
-                    int admin_port = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
+                    int admin_port = configurator.getPortFromSecurityDomain(domainXML,
                             host, port, "CA", "SecurePort", "SecureAdminPort");
 
                     cs.putString("preop.ca.type", "sdca");
@@ -992,8 +750,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                     cs.putInteger("preop.ca.httpsadminport", admin_port);
 
                     if (!data.isClone() && !data.getSystemCertsImported()) {
-                        String certchain = ConfigurationUtils.getCertChain(host, admin_port, "/ca/admin/ca/getCertChain");
-                        ConfigurationUtils.importCertChain(certchain, "ca");
+                        String certchain = configurator.getCertChain(host, admin_port, "/ca/admin/ca/getCertChain");
+                        configurator.importCertChain(certchain, "ca");
                     }
 
                     if (csType.equals("CA")) {
@@ -1004,199 +762,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             } catch (Exception e) {
                 throw new PKIException("Error in obtaining certificate chain from issuing CA: " + e);
             }
-        }
-    }
-
-    private void configureClone(ConfigurationRequest data, String token, String domainXML) throws Exception {
-
-        String value = cs.getString("preop.cert.list");
-        String[] certList = value.split(",");
-
-        for (String tag : certList) {
-            if (tag.equals("sslserver")) {
-                cs.putBoolean("preop.cert." + tag + ".enable", true);
-            } else {
-                cs.putBoolean("preop.cert." + tag + ".enable", false);
-            }
-        }
-
-        String cloneUri = data.getCloneUri();
-        URL url = new URL(cloneUri);
-        String masterHost = url.getHost();
-        int masterPort = url.getPort();
-
-        logger.debug("SystemConfigService: validate clone URI: " + url);
-        boolean validCloneUri = ConfigurationUtils.isValidCloneURI(domainXML, masterHost, masterPort);
-
-        if (!validCloneUri) {
-            throw new BadRequestException(
-                    "Clone URI does not match available subsystems: " + url);
-        }
-
-        if (csType.equals("CA") && !data.getSystemCertsImported()) {
-            logger.debug("SystemConfigService: import certificate chain from master");
-            int masterAdminPort = ConfigurationUtils.getPortFromSecurityDomain(domainXML,
-                    masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
-
-            String certchain = ConfigurationUtils.getCertChain(masterHost, masterAdminPort,
-                    "/ca/admin/ca/getCertChain");
-            ConfigurationUtils.importCertChain(certchain, "clone");
-        }
-
-        logger.debug("SystemConfigService: get configuration entries from master");
-        ConfigurationUtils.getConfigEntriesFromMaster();
-
-        if (CryptoUtil.isInternalToken(token)) {
-            if (!data.getSystemCertsImported()) {
-                logger.debug("SystemConfigService: restore certificates from P12 file");
-                String p12File = data.getP12File();
-                String p12Pass = data.getP12Password();
-                ConfigurationUtils.restoreCertsFromP12(p12File, p12Pass);
-            }
-
-        } else {
-            logger.debug("SystemConfigService: import certificates from HSM and set permission");
-            ConfigurationUtils.importAndSetCertPermissionsFromHSM();
-        }
-
-        logger.debug("SystemConfigService: verify certificates");
-        ConfigurationUtils.verifySystemCertificates();
-    }
-
-    public String configureSecurityDomain(ConfigurationRequest data) throws Exception {
-
-        String domainXML = null;
-
-        String securityDomainType = data.getSecurityDomainType();
-        String securityDomainName = data.getSecurityDomainName();
-
-        if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-            configureNewSecurityDomain(data, securityDomainName);
-        } else if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)){
-            logger.debug("Configuring new subordinate root CA");
-            configureNewSecurityDomain(data, data.getSubordinateSecurityDomainName());
-            String securityDomainURL = data.getSecurityDomainUri();
-            domainXML = logIntoSecurityDomain(data, securityDomainURL);
-        } else {
-            logger.debug("Joining existing security domain");
-            cs.putString("preop.securitydomain.select", "existing");
-            cs.putString("securitydomain.select", "existing");
-            cs.putString("preop.cert.subsystem.type", "remote");
-            cs.putString("preop.cert.subsystem.profile", data.getSystemCertProfileID("subsystem", "caInternalAuthSubsystemCert"));
-            String securityDomainURL = data.getSecurityDomainUri();
-            domainXML = logIntoSecurityDomain(data, securityDomainURL);
-        }
-        return domainXML;
-    }
-
-    private void configureNewSecurityDomain(ConfigurationRequest data, String securityDomainName) {
-        logger.debug("Creating new security domain");
-        cs.putString("preop.securitydomain.select", "new");
-        cs.putString("securitydomain.select", "new");
-        cs.putString("preop.securitydomain.name", securityDomainName);
-        cs.putString("securitydomain.name", securityDomainName);
-        cs.putString("securitydomain.host", CMS.getEENonSSLHost());
-        cs.putString("securitydomain.httpport", CMS.getEENonSSLPort());
-        cs.putString("securitydomain.httpsagentport", CMS.getAgentPort());
-        cs.putString("securitydomain.httpseeport", CMS.getEESSLPort());
-        cs.putString("securitydomain.httpsadminport", CMS.getAdminPort());
-
-        cs.putString("preop.cert.subsystem.type", "local");
-        cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
-    }
-
-    private String logIntoSecurityDomain(ConfigurationRequest data, String securityDomainURL) throws Exception {
-        URL secdomainURL;
-        String host;
-        int port;
-        try {
-            logger.debug("Resolving security domain URL " + securityDomainURL);
-            secdomainURL = new URL(securityDomainURL);
-            host = secdomainURL.getHost();
-            port = secdomainURL.getPort();
-            cs.putString("securitydomain.host", host);
-            cs.putInteger("securitydomain.httpsadminport",port);
-        } catch (Exception e) {
-            logger.error("Failed to resolve security domain URL: " + e.getMessage(), e);
-            throw new PKIException("Failed to resolve security domain URL: " + e, e);
-        }
-
-        if (!data.getSystemCertsImported()) {
-            logger.debug("Getting security domain cert chain");
-            String certchain = ConfigurationUtils.getCertChain(host, port, "/ca/admin/ca/getCertChain");
-            ConfigurationUtils.importCertChain(certchain, "securitydomain");
-        }
-
-        getInstallToken(data, host, port);
-
-        String domainXML = getDomainXML(host, port);
-
-        /* Sleep for a bit to allow security domain session to replicate
-         * to other clones.  In the future we can use signed tokens
-         * (ticket https://pagure.io/dogtagpki/issue/2831) but we need to
-         * be mindful of working with older versions, too.
-         *
-         * The default sleep time is 5s.
-         */
-        Long d = data.getSecurityDomainPostLoginSleepSeconds();
-        if (null == d || d <= 0)
-            d = new Long(5);
-        logger.debug("Logged into security domain; sleeping for " + d + "s");
-        Thread.sleep(d * 1000);
-
-        return domainXML;
-    }
-
-    private String getDomainXML(String host, int port) {
-        logger.debug("Getting domain XML");
-        String domainXML = null;
-        try {
-            domainXML = ConfigurationUtils.getDomainXML(host, port, true);
-            ConfigurationUtils.getSecurityDomainPorts(domainXML, host, port);
-        } catch (Exception e) {
-            logger.error("Failed to obtain security domain decriptor from security domain master: " + e.getMessage(), e);
-            throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e, e);
-        }
-        return domainXML;
-    }
-
-    private void getInstallToken(ConfigurationRequest data, String host, int port) {
-
-        logger.debug("Getting installation token from security domain");
-
-        String user = data.getSecurityDomainUser();
-        String pass = data.getSecurityDomainPassword();
-        String installToken;
-
-        try {
-            installToken = ConfigurationUtils.getInstallToken(host, port, user, pass);
-        } catch (Exception e) {
-            logger.error("Unable to get installation token: " + e.getMessage(), e);
-            throw new PKIException("Unable to get installation token: " + e.getMessage(), e);
-        }
-
-        if (installToken == null) {
-            logger.error("Missing installation token");
-            throw new PKIException("Missing installation token");
-        }
-
-        CMS.setConfigSDSessionId(installToken);
-    }
-
-    public void configureSubsystem(ConfigurationRequest request,
-            String token, String domainXML) throws Exception {
-
-        cs.putString("preop.subsystem.name", request.getSubsystemName());
-
-        // is this a clone of another subsystem?
-        if (!request.isClone()) {
-            cs.putString("preop.subsystem.select", "new");
-            cs.putString("subsystem.select", "New");
-
-        } else {
-            cs.putString("preop.subsystem.select", "clone");
-            cs.putString("subsystem.select", "Clone");
-            configureClone(request, token, domainXML);
         }
     }
 
@@ -1321,37 +886,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             data.setClone("false");
         }
 
-        String dsHost = data.getDsHost();
-        if (dsHost == null || dsHost.length() == 0) {
-            throw new BadRequestException("Internal database host not provided");
-        }
-
-        try {
-            Integer.parseInt(data.getDsPort());  // check for errors
-        } catch (NumberFormatException e) {
-            throw new BadRequestException("Internal database port is invalid: " + data.getDsPort(), e);
-        }
-
-        String basedn = data.getBaseDN();
-        if (basedn == null || basedn.length() == 0) {
-            throw new BadRequestException("Internal database basedn not provided");
-        }
-
-        String binddn = data.getBindDN();
-        if (binddn == null || binddn.length() == 0) {
-            throw new BadRequestException("Internal database basedn not provided");
-        }
-
-        String database = data.getDatabase();
-        if (database == null || database.length() == 0) {
-            throw new BadRequestException("Internal database database name not provided");
-        }
-
-        String bindpwd = data.getBindpwd();
-        if (bindpwd == null || bindpwd.length() == 0) {
-            throw new BadRequestException("Internal database database name not provided");
-        }
-
         String masterReplicationPort = data.getMasterReplicationPort();
         if (masterReplicationPort != null && masterReplicationPort.length() > 0) {
             try {
@@ -1382,16 +916,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (data.getGenerateServerCert() == null) {
             data.setGenerateServerCert("true");
-        }
-
-        if (! data.getGenerateSubsystemCert()) {
-            // No subsystem cert to be generated.  All interactions use a shared subsystem cert.
-            if (data.getSharedDB() && StringUtils.isEmpty(data.getSharedDBUserDN())) {
-                throw new BadRequestException("Shared db user DN not provided");
-            }
-        } else {
-            // if the subsystem cert is not shared, we do not need to worry about sharing the db
-            data.setSharedDB("false");
         }
 
         if (csType.equals("TPS")) {

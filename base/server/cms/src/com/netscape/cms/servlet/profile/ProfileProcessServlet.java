@@ -24,7 +24,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
@@ -46,6 +45,7 @@ import com.netscape.certsrv.template.ArgString;
 import com.netscape.cms.servlet.cert.RequestProcessor;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This servlet approves profile-based request.
@@ -53,6 +53,8 @@ import com.netscape.cms.servlet.common.CMSTemplate;
  * @version $Revision$, $Date$
  */
 public class ProfileProcessServlet extends ProfileServlet {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileProcessServlet.class);
 
     private static final long serialVersionUID = 5244627530516577838L;
 
@@ -76,14 +78,14 @@ public class ProfileProcessServlet extends ProfileServlet {
 
         String op = request.getParameter("op");
         if (op == null) {
-            CMS.debug("ProfileProcessServlet: No op found");
+            logger.error("ProfileProcessServlet: No op found");
             setError(args, CMS.getUserMessage(locale, "CMS_OP_NOT_FOUND"), request, response);
             return;
         }
 
         String requestId = request.getParameter("requestId");
         if (requestId == null || requestId.equals("")) {
-            CMS.debug("ProfileProcessServlet: Request Id not found");
+            logger.error("ProfileProcessServlet: Request Id not found");
             setError(args, CMS.getUserMessage(locale, "CMS_REQUEST_ID_NOT_FOUND"), request, response);
             return;
         }
@@ -96,11 +98,11 @@ public class ProfileProcessServlet extends ProfileServlet {
 
         String profileId = req.getExtDataInString(IRequest.PROFILE_ID);
         if (profileId == null || profileId.equals("")) {
-            CMS.debug("ProfileProcessServlet: Profile Id not found");
+            logger.error("ProfileProcessServlet: Profile Id not found");
             setError(args, CMS.getUserMessage(locale, "CMS_PROFILE_ID_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)), request, response);
             return;
         }
-        CMS.debug("ProfileProcessServlet: profileId=" + profileId);
+        logger.debug("ProfileProcessServlet: profileId=" + profileId);
 
         // set request in cmsReq for later retrieval
         cmsReq.setIRequest(req);
@@ -125,19 +127,19 @@ public class ProfileProcessServlet extends ProfileServlet {
             setError(args, e.getMessage(), request, response);
             return;
         } catch (ERejectException e) {
-            CMS.debug("ProfileProcessServlet: execution rejected " + e.toString());
+            logger.debug("ProfileProcessServlet: execution rejected " + e.getMessage());
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_PROFILE_REJECTED", e.toString()));
         } catch (EDeferException e) {
-            CMS.debug("ProfileProcessServlet: execution defered " + e.toString());
+            logger.debug("ProfileProcessServlet: execution defered " + e.getMessage());
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_PROFILE_DEFERRED", e.toString()));
         } catch (EPropertyException e) {
-            CMS.debug("ProfileProcessServlet: execution error " + e.toString());
+            logger.debug("ProfileProcessServlet: execution error " + e.getMessage());
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_PROFILE_PROPERTY_ERROR", e.toString()));
         } catch (EProfileException e) {
-            CMS.debug("ProfileProcessServlet: execution error " + e.toString());
+            logger.debug("ProfileProcessServlet: execution error " + e.getMessage());
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
         } catch (EBaseException e) {

@@ -31,7 +31,20 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -52,22 +65,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * Display detailed information about a certificate
@@ -79,9 +80,7 @@ import netscape.security.x509.X509CertInfo;
  */
 public class DisplayBySerial extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DisplayBySerial.class);
     private static final long serialVersionUID = -4143700762995036597L;
     private final static String TPL_FILE1 = "displayBySerial.template";
     private final static BigInteger MINUS_ONE = new BigInteger("-1");
@@ -180,8 +179,8 @@ public class DisplayBySerial extends CMSServlet {
                     CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", "0x" + serialNumber.toString(16)));
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         try {
@@ -260,13 +259,13 @@ public class DisplayBySerial extends CMSServlet {
         try {
             ICertRecord rec = mCertDB.readCertificateRecord(seq);
             if (rec == null) {
-                CMS.debug("DisplayBySerial: failed to read record");
+                logger.error("DisplayBySerial: failed to read record");
                 throw new ECMSGWException(
                         CMS.getLogMessage("CMSGW_ERROR_ENCODING_ISSUED_CERT"));
             }
             X509CertImpl cert = rec.getCertificate();
             if (cert == null) {
-                CMS.debug("DisplayBySerial: no certificate in record");
+                logger.error("DisplayBySerial: no certificate in record");
                 throw new ECMSGWException(
                         CMS.getLogMessage("CMSGW_ERROR_ENCODING_ISSUED_CERT"));
             }
@@ -274,7 +273,7 @@ public class DisplayBySerial extends CMSServlet {
             try {
                 X509CertInfo info = (X509CertInfo) cert.get(X509CertImpl.NAME + "." + X509CertImpl.INFO);
                 if (info == null) {
-                    CMS.debug("DisplayBySerial: no info found");
+                    logger.error("DisplayBySerial: no info found");
                     throw new ECMSGWException(
                             CMS.getLogMessage("CMSGW_ERROR_ENCODING_ISSUED_CERT"));
                 }

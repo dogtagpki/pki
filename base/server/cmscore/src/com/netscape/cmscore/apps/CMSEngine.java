@@ -18,93 +18,63 @@
 package com.netscape.cmscore.apps;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.X509Certificate;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Timer;
-import java.util.Vector;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.xerces.parsers.DOMParser;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.apps.ICMSEngine;
 import com.netscape.certsrv.authentication.ISharedToken;
-import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.ITimeSource;
-import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.connector.IRemoteAuthority;
-import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ConsoleError;
-import com.netscape.certsrv.logging.ELogException;
-import com.netscape.certsrv.logging.ILogEvent;
-import com.netscape.certsrv.logging.ILogEventListener;
-import com.netscape.certsrv.logging.ILogQueue;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.password.IPasswordCheck;
-import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
+import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.authentication.VerifiedCerts;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
-import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.base.FileConfigStore;
-import com.netscape.cmscore.base.SubsystemRegistry;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
-import com.netscape.cmscore.connector.Resender;
-import com.netscape.cmscore.dbs.CRLIssuingPointRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.jobs.JobsScheduler;
-import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.LogSubsystem;
@@ -122,36 +92,26 @@ import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.password.NuxwdogPasswordStore;
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPException;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.X509CertImpl;
 
-public class CMSEngine implements ICMSEngine {
+public class CMSEngine implements ISubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
 
     private static final String ID = "MAIN";
 
-    private static final String PROP_SUBSYSTEM = "subsystem";
-    private static final String PROP_ID = "id";
-    private static final String PROP_CLASS = "class";
-    private static final String PROP_ENABLED = "enabled";
+    public static final String PROP_SUBSYSTEM = "subsystem";
+    public static final String PROP_ID = "id";
+    public static final String PROP_CLASS = "class";
+    public static final String PROP_ENABLED = "enabled";
+
     private static final String SERVER_XML = "server.xml";
 
     // used for testing HSM issues
     public static final String PROP_SIGNED_AUDIT_CERT_NICKNAME =
                               "log.instance.SignedAudit.signedAuditCertNickname";
-
-    public static final SubsystemRegistry mSSReg = SubsystemRegistry.getInstance();
 
     public String name;
     public String instanceDir; /* path to instance <server-root>/cert-<instance-name> */
@@ -160,7 +120,9 @@ public class CMSEngine implements ICMSEngine {
 
     private CryptoManager mManager = null;
 
-    private IConfigStore mConfig = null;
+    protected IConfigStore mConfig;
+    protected ServerXml serverXml;
+
     private boolean mExcludedLdapAttrsEnabled = false;
     // AutoSD : AutoShutdown
     private String mAutoSD_CrumbFile = null;
@@ -174,41 +136,26 @@ public class CMSEngine implements ICMSEngine {
     private ISubsystem mOwner;
     private long mStartupTime = 0;
     private boolean isStarted = false;
-    private StringBuffer mWarning = new StringBuffer();
     private ITimeSource mTimeSource = null;
     private IPasswordStore mPasswordStore = null;
-    private WarningListener mWarningListener = null;
-    private ILogQueue mQueue = null;
     private ISecurityDomainSessionTable mSecurityDomainSessionTable = null;
     private String mConfigSDSessionId = null;
     private Timer mSDTimer = null;
     private String mServerCertNickname = null;
     private String serverStatus = null;
 
-    // static subsystems - must be singletons
-    public Map<String, SubsystemInfo> staticSubsystems = new LinkedHashMap<>();
+    private RequestSubsystem requestSubsystem = new RequestSubsystem();
 
-    // dynamic subsystems are loaded at init time, not necessarily singletons.
-    public Map<String, SubsystemInfo> dynSubsystems = new LinkedHashMap<>();
+    public Collection<String> staticSubsystems = new LinkedHashSet<>();
+    public Collection<String> dynSubsystems = new LinkedHashSet<>();
+    public Collection<String> finalSubsystems = new LinkedHashSet<>();
 
-    // final static subsystems - must be singletons.
-    public Map<String, SubsystemInfo> finalSubsystems = new LinkedHashMap<>();
+    public final Map<String, SubsystemInfo> subsystemInfos = new HashMap<>();
+    public final Map<String, ISubsystem> subsystems = new HashMap<>();
 
-    private static final int IP = 0;
-    private static final int PORT = 1;
-    @SuppressWarnings("unused")
-    private static final int HOST = 2;
-    private static final int AGENT = 0;
-    private static final int ADMIN = 1;
-    private static final int EE_SSL = 2;
-    private static final int EE_NON_SSL = 3;
-    private static final int EE_CLIENT_AUTH_SSL = 4;
-    private static String info[][] = { { null, null, null },//agent
-            { null, null, null },//admin
-            { null, null, null },//sslEE
-            { null, null, null },//non_sslEE
-            { null, null, null } //ssl_clientauth_EE
-    };
+    public String hostname;
+    public String unsecurePort;
+    public String securePort;
 
     private static final int PW_OK =0;
     //private static final int PW_BAD_SETUP = 1;
@@ -277,24 +224,26 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void initializePasswordStore(IConfigStore config) throws EBaseException, IOException {
-        logger.debug("CMSEngine.initializePasswordStore() begins");
+
+        logger.info("CMSEngine: initializing password stores");
+
         // create and initialize mPasswordStore
         getPasswordStore();
 
-        boolean skipPublishingCheck = config.getBoolean(
-                "cms.password.ignore.publishing.failure", true);
+        boolean skipPublishingCheck = config.getBoolean("cms.password.ignore.publishing.failure", true);
         String pwList = config.getString("cms.passwordlist", "internaldb,replicationdb");
         String tags[] = StringUtils.split(pwList, ",");
 
         for (String tag : tags) {
-            int iteration = 0;
-            int result = PW_INVALID_PASSWORD;
+
+            logger.info("CMSEngine: initializing password store for " + tag);
+
             String binddn;
             String authType;
             LdapConnInfo connInfo = null;
-            logger.debug("CMSEngine.initializePasswordStore(): tag=" + tag);
 
             if (tag.equals("internaldb")) {
+
                 authType = config.getString("internaldb.ldapauth.authtype", "BasicAuth");
                 if (!authType.equals("BasicAuth"))
                     continue;
@@ -305,7 +254,9 @@ public class CMSEngine implements ICMSEngine {
                         config.getBoolean("internaldb.ldapconn.secureConn"));
 
                 binddn = config.getString("internaldb.ldapauth.bindDN");
+
             } else if (tag.equals("replicationdb")) {
+
                 authType = config.getString("internaldb.ldapauth.authtype", "BasicAuth");
                 if (!authType.equals("BasicAuth"))
                     continue;
@@ -317,7 +268,9 @@ public class CMSEngine implements ICMSEngine {
 
                 binddn = "cn=Replication Manager masterAgreement1-" + config.getString("machineName", "") + "-" +
                         config.getString("instanceId", "") + ",cn=config";
+
             } else if (tags.equals("CA LDAP Publishing")) {
+
                 authType = config.getString("ca.publish.ldappublish.ldap.ldapauth.authtype", "BasicAuth");
                 if (!authType.equals("BasicAuth"))
                     continue;
@@ -352,6 +305,7 @@ public class CMSEngine implements ICMSEngine {
                     continue;
                 }
                 logger.debug("CMSEngine.initializePasswordStore(): authPrefix=" + authPrefix);
+
                 authType = config.getString(authPrefix +".ldap.ldapauth.authtype", "BasicAuth");
                 logger.debug("CMSEngine.initializePasswordStore(): authType " + authType);
                 if (!authType.equals("BasicAuth"))
@@ -369,6 +323,9 @@ public class CMSEngine implements ICMSEngine {
                 }
             }
 
+            int iteration = 0;
+            int result = PW_INVALID_PASSWORD;
+
             do {
                 String passwd = mPasswordStore.getPassword(tag, iteration);
                 result = testLDAPConnection(tag, connInfo, binddn, passwd);
@@ -378,15 +335,16 @@ public class CMSEngine implements ICMSEngine {
             if (result != PW_OK) {
                 if ((result == PW_NO_USER) && (tag.equals("replicationdb"))) {
                     logger.warn(
-                        "CMSEngine: init(): password test execution failed for replicationdb" +
-                        "with NO_SUCH_USER.  This may not be a latest instance.  Ignoring ..");
+                        "CMSEngine: password test execution failed for replicationdb " +
+                        "with NO_SUCH_USER. This may not be a latest instance. Ignoring ..");
+
                 } else if (skipPublishingCheck && (result == PW_CANNOT_CONNECT) && (tag.equals("CA LDAP Publishing"))) {
                     logger.warn(
-                        "Unable to connect to the publishing database to check password, " +
-                        "but continuing to start up.  Please check if publishing is operational.");
+                        "CMSEngine: Unable to connect to the publishing database to check password, " +
+                        "but continuing to start up. Please check if publishing is operational.");
                 } else {
                     // password test failed
-                    logger.error("CMSEngine: init(): password test execution failed: " + result);
+                    logger.error("CMSEngine: password test execution failed: " + result);
                     throw new EBaseException("Password test execution failed. Is the database up?");
                 }
             }
@@ -394,42 +352,50 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public int testLDAPConnection(String name, LdapConnInfo info, String binddn, String pwd) {
+
         int ret = PW_OK;
 
-        if (StringUtils.isEmpty(pwd))
+        if (StringUtils.isEmpty(pwd)) {
             return PW_INVALID_PASSWORD;
+        }
 
         String host = info.getHost();
         int port = info.getPort();
 
-        LDAPConnection conn = new LDAPConnection(new PKISocketFactory(info.getSecure()));
+        PKISocketFactory socketFactory = new PKISocketFactory(info.getSecure());
+        socketFactory.init(mConfig);
 
-        logger.debug("testLDAPConnection connecting to " + host + ":" + port);
+        LDAPConnection conn = new LDAPConnection(socketFactory);
 
         try {
+            logger.info("CMSEngine: verifying connection to " + host + ":" + port + " as " + binddn);
             conn.connect(host, port, binddn, pwd);
+
         } catch (LDAPException e) {
+
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
-                logger.error("testLDAPConnection: The specified user " + binddn + " does not exist");
+                logger.debug("CMSEngine: user does not exist: " + binddn);
                 ret = PW_NO_USER;
                 break;
             case LDAPException.INVALID_CREDENTIALS:
-                logger.error("testLDAPConnection: Invalid Password");
+                logger.debug("CMSEngine: invalid password");
                 ret = PW_INVALID_PASSWORD;
                 break;
             default:
-                logger.error("testLDAPConnection: Unable to connect to " + name + ": " + e);
+                logger.debug("CMSEngine: unable to connect to " + name + ": " + e.getMessage());
                 ret = PW_CANNOT_CONNECT;
                 break;
             }
+
         } finally {
             try {
-                if (conn != null)
-                    conn.disconnect();
+                if (conn != null) conn.disconnect();
             } catch (Exception e) {
+                logger.warn("CMSEngine: unable to disconnect from " + host + ":" + port);
             }
         }
+
         return ret;
     }
 
@@ -485,7 +451,7 @@ public class CMSEngine implements ICMSEngine {
             mTimeSource = new SimpleTimeSource();
         }
 
-        Security.addProvider(new netscape.security.provider.CMS());
+        Security.addProvider(new org.mozilla.jss.netscape.security.provider.CMS());
 
         loadSubsystems();
         initSubsystems();
@@ -524,107 +490,22 @@ public class CMSEngine implements ICMSEngine {
         serverStatus = "running";
     }
 
-    /**
-     * Parse server.xml to get the ports and IPs
-     * @throws EBaseException
-     */
+    public Configurator createConfigurator() throws Exception {
+        return new Configurator(this);
+    }
+
     private void parseServerXML() throws EBaseException {
         try {
             String instanceRoot = mConfig.getString("instanceRoot");
             String path = instanceRoot + File.separator + "conf" + File.separator + SERVER_XML;
-            DOMParser parser = new DOMParser();
-            parser.parse(path);
-            NodeList nodes = parser.getDocument().getElementsByTagName("Connector");
-            String parentName = "";
-            String name = "";
-            String port = "";
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Element n = (Element) nodes.item(i);
 
-                parentName = "";
-                Element p = (Element) n.getParentNode();
-                if (p != null) {
-                    parentName = p.getAttribute("name");
-                }
-                name = n.getAttribute("name");
-                port = n.getAttribute("port");
-
-                // The "server.xml" file is parsed from top-to-bottom, and
-                // supports BOTH "Port Separation" (the new default method)
-                // as well as "Shared Ports" (the old legacy method).  Since
-                // both methods must be supported, the file structure MUST
-                // conform to ONE AND ONLY ONE of the following formats:
-                //
-                // Port Separation:
-                //
-                //  <Catalina>
-                //     ...
-                //     <!-- Port Separation:  Unsecure Port -->
-                //     <Connector name="Unsecure" . . .
-                //     ...
-                //     <!-- Port Separation:  Agent Secure Port -->
-                //     <Connector name="Agent" . . .
-                //     ...
-                //     <!-- Port Separation:  Admin Secure Port -->
-                //     <Connector name="Admin" . . .
-                //     ...
-                //     <!-- Port Separation:  EE Secure Port -->
-                //     <Connector name="EE" . . .
-                //     ...
-                //  </Catalina>
-                //
-                //
-                // Shared Ports:
-                //
-                //  <Catalina>
-                //     ...
-                //     <!-- Shared Ports:  Unsecure Port -->
-                //     <Connector name="Unsecure" . . .
-                //     ...
-                //     <!-- Shared Ports:  Agent, EE, and Admin Secure Port -->
-                //     <Connector name="Secure" . . .
-                //     ...
-                //     <!--
-                //     <Connector name="Unused" . . .
-                //     -->
-                //     ...
-                //     <!--
-                //     <Connector name="Unused" . . .
-                //     -->
-                //     ...
-                //  </Catalina>
-                //
-                if (parentName.equals("Catalina")) {
-                    if (name.equals("Unsecure")) {
-                        // Port Separation:  Unsecure Port
-                        //                   OR
-                        // Shared Ports:     Unsecure Port
-                        info[EE_NON_SSL][PORT] = port;
-                    } else if (name.equals("Agent")) {
-                        // Port Separation:  Agent Secure Port
-                        info[AGENT][PORT] = port;
-                    } else if (name.equals("Admin")) {
-                        // Port Separation:  Admin Secure Port
-                        info[ADMIN][PORT] = port;
-                    } else if (name.equals("EE")) {
-                        // Port Separation:  EE Secure Port
-                        info[EE_SSL][PORT] = port;
-                    } else if (name.equals("EEClientAuth")) {
-                        // Port Separation: EE Client Auth Secure Port
-                        info[EE_CLIENT_AUTH_SSL][PORT] = port;
-                    } else if (name.equals("Secure")) {
-                        // Shared Ports:  Agent, EE, and Admin Secure Port
-                        info[AGENT][PORT] = port;
-                        info[ADMIN][PORT] = port;
-                        info[EE_SSL][PORT] = port;
-                        info[EE_CLIENT_AUTH_SSL][PORT] = port;
-                    }
-                }
-            }
+            serverXml = ServerXml.load(path);
+            unsecurePort = serverXml.getUnsecurePort();
+            securePort = serverXml.getSecurePort();
 
         } catch (Exception e) {
-            logger.error("CMSEngine: parseServerXML exception: " + e.getMessage(), e);
-            throw new EBaseException("CMSEngine: Cannot parse the configuration file. " + e.getMessage(), e);
+            logger.error("CMSEngine: Unable to parse server.xml: " + e.getMessage(), e);
+            throw new EBaseException("CMSEngine: Unable to parse server.xml: " + e.getMessage(), e);
         }
     }
 
@@ -632,15 +513,12 @@ public class CMSEngine implements ICMSEngine {
         try {
             String port = mConfig.getString("proxy.securePort", "");
             if (!port.equals("")) {
-                info[EE_SSL][PORT] = port;
-                info[ADMIN][PORT] = port;
-                info[AGENT][PORT] = port;
-                info[EE_CLIENT_AUTH_SSL][PORT] = port;
+                securePort = port;
             }
 
             port = mConfig.getString("proxy.unsecurePort", "");
             if (!port.equals("")) {
-                info[EE_NON_SSL][PORT] = port;
+                unsecurePort = port;
             }
         } catch (EBaseException e) {
             logger.error("CMSEngine: fixProxyPorts exception: " + e.getMessage(), e);
@@ -658,18 +536,6 @@ public class CMSEngine implements ICMSEngine {
             throw new EBaseException("Cannot create file: " + path + ": " + e.getMessage(), e);
         }
         return new FileConfigStore(path);
-    }
-
-    public IArgBlock createArgBlock() {
-        return new ArgBlock();
-    }
-
-    public IArgBlock createArgBlock(Hashtable<String, String> httpReq) {
-        return new ArgBlock(httpReq);
-    }
-
-    public IArgBlock createArgBlock(String realm, Hashtable<String, String> httpReq) {
-        return new ArgBlock(realm, httpReq);
     }
 
     public boolean isPreOpMode() {
@@ -697,17 +563,8 @@ public class CMSEngine implements ICMSEngine {
         return mode;
     }
 
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String
-            id, BigInteger crlNumber, Long crlSize, Date thisUpdate, Date nextUpdate) {
-        return new CRLIssuingPointRecord(id, crlNumber, crlSize, thisUpdate, nextUpdate);
-    }
-
     public ISecurityDomainSessionTable getSecurityDomainSessionTable() {
         return mSecurityDomainSessionTable;
-    }
-
-    public String getCRLIssuingPointRecordName() {
-        return CRLIssuingPointRecord.class.getName();
     }
 
     public String getEEHost() {
@@ -729,11 +586,11 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public String getEENonSSLIP() {
-        return info[EE_NON_SSL][IP];
+        return hostname;
     }
 
     public String getEENonSSLPort() {
-        return info[EE_NON_SSL][PORT];
+        return unsecurePort;
     }
 
     public String getEESSLHost() {
@@ -746,15 +603,15 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public String getEESSLIP() {
-        return info[EE_SSL][IP];
+        return hostname;
     }
 
     public String getEESSLPort() {
-        return info[EE_SSL][PORT];
+        return securePort;
     }
 
     public String getEEClientAuthSSLPort() {
-        return info[EE_CLIENT_AUTH_SSL][PORT];
+        return securePort;
     }
 
     public String getAgentHost() {
@@ -767,11 +624,11 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public String getAgentIP() {
-        return info[AGENT][IP];
+        return hostname;
     }
 
     public String getAgentPort() {
-        return info[AGENT][PORT];
+        return securePort;
     }
 
     public String getAdminHost() {
@@ -784,52 +641,46 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public String getAdminIP() {
-        return info[ADMIN][IP];
+        return hostname;
     }
 
     public String getAdminPort() {
-        return info[ADMIN][PORT];
+        return securePort;
     }
 
-    public IResender getResender(IAuthority authority, String nickname,
-            String clientCiphers,
-            IRemoteAuthority remote, int interval) {
-        return new Resender(authority, nickname, clientCiphers, remote, interval);
+    public SubsystemInfo addSubsystem(String id, ISubsystem instance) {
+        SubsystemInfo si = new SubsystemInfo(id);
+        subsystems.put(id, instance);
+        subsystemInfos.put(id, si);
+        return si;
     }
 
-    public Enumeration<String> getSubsystemNames() {
-        return mSSReg.keys();
-    }
-
-    public Enumeration<ISubsystem> getSubsystems() {
-        return mSSReg.elements();
+    public Collection<ISubsystem> getSubsystems() {
+        return subsystems.values();
     }
 
     public ISubsystem getSubsystem(String name) {
-        return mSSReg.get(name);
+        return subsystems.get(name);
+    }
+
+    public void setSubsystemEnabled(String id, boolean enabled) {
+        SubsystemInfo si = subsystemInfos.get(id);
+        si.enabled = enabled;
     }
 
     protected void initSubsystems() throws EBaseException {
 
-        mSSReg.put(ID, this);
+        subsystems.put(ID, this);
 
         initSubsystems(staticSubsystems);
-
-        // Once the log subsystem is initialized, we
-        // want to register a listener to catch
-        // all the warning message so that we can
-        // display them in the console.
-        mQueue = Logger.getLogger().getLogQueue();
-        mWarningListener = new WarningListener(mWarning);
-        mQueue.addLogEventListener(mWarningListener);
-
         initSubsystems(dynSubsystems);
         initSubsystems(finalSubsystems);
     }
 
-    private void initSubsystems(Map<String, SubsystemInfo> subsystems)
+    private void initSubsystems(Collection<String> ids)
             throws EBaseException {
-        for (SubsystemInfo si : subsystems.values()) {
+        for (String id : ids) {
+            SubsystemInfo si = subsystemInfos.get(id);
             initSubsystem(si);
         }
     }
@@ -851,31 +702,43 @@ public class CMSEngine implements ICMSEngine {
         logger.debug("CMSEngine: loading static subsystems");
 
         staticSubsystems.clear();
+        dynSubsystems.clear();
+        finalSubsystems.clear();
 
-        staticSubsystems.put(Debug.ID,
-                new SubsystemInfo(Debug.ID, Debug.getInstance()));
-        staticSubsystems.put(LogSubsystem.ID,
-                new SubsystemInfo(LogSubsystem.ID, LogSubsystem.getInstance()));
-        staticSubsystems.put(JssSubsystem.ID,
-                new SubsystemInfo(JssSubsystem.ID, JssSubsystem.getInstance()));
-        staticSubsystems.put(DBSubsystem.ID,
-                new SubsystemInfo(DBSubsystem.ID, DBSubsystem.getInstance()));
-        staticSubsystems.put(UGSubsystem.ID,
-                new SubsystemInfo(UGSubsystem.ID, UGSubsystem.getInstance()));
-        staticSubsystems.put(PluginRegistry.ID,
-                new SubsystemInfo(PluginRegistry.ID, new PluginRegistry()));
-        staticSubsystems.put(OidLoaderSubsystem.ID,
-                new SubsystemInfo(OidLoaderSubsystem.ID, OidLoaderSubsystem.getInstance()));
-        staticSubsystems.put(X500NameSubsystem.ID,
-                new SubsystemInfo(X500NameSubsystem.ID, X500NameSubsystem.getInstance()));
+        subsystemInfos.clear();
+        subsystems.clear();
+
+        staticSubsystems.add(Debug.ID);
+        addSubsystem(Debug.ID, Debug.getInstance());
+
+        staticSubsystems.add(LogSubsystem.ID);
+        addSubsystem(LogSubsystem.ID, LogSubsystem.getInstance());
+
+        staticSubsystems.add(JssSubsystem.ID);
+        addSubsystem(JssSubsystem.ID, JssSubsystem.getInstance());
+
+        staticSubsystems.add(DBSubsystem.ID);
+        addSubsystem(DBSubsystem.ID, DBSubsystem.getInstance());
+
+        staticSubsystems.add(UGSubsystem.ID);
+        addSubsystem(UGSubsystem.ID, UGSubsystem.getInstance());
+
+        staticSubsystems.add(PluginRegistry.ID);
+        addSubsystem(PluginRegistry.ID, new PluginRegistry());
+
+        staticSubsystems.add(OidLoaderSubsystem.ID);
+        addSubsystem(OidLoaderSubsystem.ID, OidLoaderSubsystem.getInstance());
+
+        staticSubsystems.add(X500NameSubsystem.ID);
+        addSubsystem(X500NameSubsystem.ID, X500NameSubsystem.getInstance());
+
         // skip TP subsystem;
         // problem in needing dbsubsystem in constructor. and it's not used.
-        staticSubsystems.put(RequestSubsystem.ID,
-                new SubsystemInfo(RequestSubsystem.ID, RequestSubsystem.getInstance()));
+
+        staticSubsystems.add(RequestSubsystem.ID);
+        addSubsystem(RequestSubsystem.ID, requestSubsystem);
 
         logger.debug("CMSEngine: loading dyn subsystems");
-
-        dynSubsystems.clear();
 
         ArrayList<String> ssNames = getDynSubsystemNames();
         IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
@@ -901,52 +764,32 @@ public class CMSEngine implements ICMSEngine {
                         CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()), e);
             }
 
-            dynSubsystems.put(id, new SubsystemInfo(id, ss, enabled, true));
+            dynSubsystems.add(id);
+
+            SubsystemInfo si = addSubsystem(id, ss);
+            si.setEnabled(enabled);
+            si.setUpdateIdOnInit(true);
+
             logger.debug("CMSEngine: loaded dyn subsystem " + id);
         }
 
         logger.debug("CMSEngine: loading final subsystems");
 
-        finalSubsystems.clear();
+        finalSubsystems.add(AuthSubsystem.ID);
+        addSubsystem(AuthSubsystem.ID, AuthSubsystem.getInstance());
 
-        finalSubsystems.put(AuthSubsystem.ID,
-                new SubsystemInfo(AuthSubsystem.ID, AuthSubsystem.getInstance()));
-        finalSubsystems.put(AuthzSubsystem.ID,
-                new SubsystemInfo(AuthzSubsystem.ID, AuthzSubsystem.getInstance()));
-        finalSubsystems.put(JobsScheduler.ID,
-                new SubsystemInfo(JobsScheduler.ID, JobsScheduler.getInstance()));
+        finalSubsystems.add(AuthzSubsystem.ID);
+        addSubsystem(AuthzSubsystem.ID, AuthzSubsystem.getInstance());
+
+        finalSubsystems.add(JobsScheduler.ID);
+        addSubsystem(JobsScheduler.ID, JobsScheduler.getInstance());
 
         if (isPreOpMode()) {
             // Disable some subsystems before database initialization
             // in pre-op mode to prevent errors.
-            SubsystemInfo si = staticSubsystems.get(UGSubsystem.ID);
-            si.enabled = false;
-        }
-    }
 
-    /**
-     * Set whether the given subsystem is enabled.
-     *
-     * @param id The subsystem ID.
-     * @param enabled Whether the subsystem is enabled
-     */
-    public void setSubsystemEnabled(String id, boolean enabled)
-            throws EBaseException {
-        IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
-        for (String ssName : getDynSubsystemNames()) {
-            IConfigStore config = ssconfig.getSubStore(ssName);
-            if (id.equalsIgnoreCase(config.getString(PROP_ID))) {
-                config.putBoolean(PROP_ENABLED, enabled);
-                break;
-            }
+            setSubsystemEnabled(UGSubsystem.ID, false);
         }
-    }
-
-    public LDAPConnection getBoundConnection(String id, String host, int port,
-               int version, LDAPSSLSocketFactoryExt fac, String bindDN,
-               String bindPW) throws LDAPException {
-        return new LdapBoundConnection(host, port, version, fac,
-                bindDN, bindPW);
     }
 
     /**
@@ -956,10 +799,9 @@ public class CMSEngine implements ICMSEngine {
             throws EBaseException {
 
         String id = ssinfo.id;
-        ISubsystem ss = ssinfo.instance;
-
         logger.debug("CMSEngine: initSubsystem(" + id + ")");
-        mSSReg.put(id, ss);
+
+        ISubsystem ss = subsystems.get(id);
 
         if (ssinfo.updateIdOnInit) {
             ss.setId(id);
@@ -1161,17 +1003,16 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void reinit(String id) throws EBaseException {
+
+        logger.info("CMSEngine: reinitializing " + id + " subsystem");
+
         ISubsystem system = getSubsystem(id);
         IConfigStore cs = mConfig.getSubStore(id);
         system.init(this, cs);
     }
 
-    /**
-     * Starts up all subsystems. subsystems must be initialized.
-     *
-     * @exception EBaseException if any subsystem fails to startup.
-     */
-    public void startup() throws EBaseException {
+    public void startupSubsystems() throws EBaseException {
+
         startupSubsystems(staticSubsystems);
         startupSubsystems(dynSubsystems);
         startupSubsystems(finalSubsystems);
@@ -1179,79 +1020,20 @@ public class CMSEngine implements ICMSEngine {
         // global admin servlet. (anywhere else more fit for this ?)
 
         mStartupTime = System.currentTimeMillis();
+    }
 
-        mQueue.removeLogEventListener(mWarningListener);
-        if (!mWarning.toString().equals("")) {
-            logger.warn(Constants.SERVER_STARTUP_WARNING_MESSAGE + mWarning);
-        }
+    public void startup() throws EBaseException {
 
-        // check serial number ranges if a CA/KRA
-        ICertificateAuthority ca = (ICertificateAuthority) getSubsystem("ca");
-        if ((ca != null) && !isPreOpMode()) {
-            logger.debug("CMSEngine: checking request serial number ranges for the CA");
-            ca.getRequestQueue().getRequestRepository().checkRanges();
-
-            logger.debug("CMSEngine: checking certificate serial number ranges");
-            ca.getCertificateRepository().checkRanges();
-        }
-
-        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) getSubsystem("kra");
-        if ((kra != null) && !isPreOpMode()) {
-            logger.debug("CMSEngine: checking request serial number ranges for the KRA");
-            kra.getRequestQueue().getRequestRepository().checkRanges();
-
-            logger.debug("CMSEngine: checking key serial number ranges");
-            kra.getKeyRepository().checkRanges();
-        }
-
-        /*LogDoc
-         *
-         * @phase server startup
-         * @reason all subsystems are initialized and started.
-         */
-        logger.info(CMS.getLogMessage("SERVER_STARTUP"));
-
-        String type = mConfig.get("cs.type");
-        logger.info(type + " is started.");
+        startupSubsystems();
 
         isStarted = true;
+
+        String type = mConfig.get("cs.type");
+        logger.info(type + " subsystem started");
     }
 
     public boolean isInRunningState() {
         return isStarted;
-    }
-
-    public byte[] getPKCS7(Locale locale, IRequest req) {
-        try {
-            X509CertImpl cert = req.getExtDataInCert(
-                    IEnrollProfile.REQUEST_ISSUED_CERT);
-            if (cert == null)
-                return null;
-
-            ICertificateAuthority ca = (ICertificateAuthority)
-                    getSubsystem("ca");
-            CertificateChain cachain = ca.getCACertChain();
-            X509Certificate[] cacerts = cachain.getChain();
-
-            X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
-            int m = 1, n = 0;
-
-            for (; n < cacerts.length; m++, n++) {
-                userChain[m] = (X509CertImpl) cacerts[n];
-            }
-
-            userChain[0] = cert;
-            PKCS7 p7 = new PKCS7(new AlgorithmId[0],
-                    new ContentInfo(new byte[0]),
-                    userChain,
-                    new SignerInfo[0]);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-            p7.encodeSignedData(bos);
-            return bos.toByteArray();
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     public String getServerCertNickname() {
@@ -1275,167 +1057,6 @@ public class CMSEngine implements ICMSEngine {
 
     public void setServerCertNickname(String newName) {
         mServerCertNickname = newName;
-    }
-
-    public String getUserMessage(Locale locale, String msgID, String params[]) {
-        // if locale is null, try to get it out from session context
-        if (locale == null) {
-            SessionContext sc = SessionContext.getExistingContext();
-
-            if (sc != null)
-                locale = (Locale) sc.get(SessionContext.LOCALE);
-        }
-        ResourceBundle rb = null;
-
-        if (locale == null) {
-            rb = ResourceBundle.getBundle(
-                        "UserMessages", Locale.ENGLISH);
-        } else {
-            rb = ResourceBundle.getBundle(
-                        "UserMessages", locale);
-        }
-        String msg = rb.getString(msgID);
-
-        if (params == null)
-            return msg;
-        MessageFormat mf = new MessageFormat(msg);
-
-        return mf.format(params);
-    }
-
-    public String getUserMessage(Locale locale, String msgID) {
-        return getUserMessage(locale, msgID, (String[]) null);
-    }
-
-    public String getUserMessage(Locale locale, String msgID, String p1) {
-        String params[] = { p1 };
-
-        return getUserMessage(locale, msgID, params);
-    }
-
-    public String getUserMessage(Locale locale, String msgID, String p1, String p2) {
-        String params[] = { p1, p2 };
-
-        return getUserMessage(locale, msgID, params);
-    }
-
-    public String getUserMessage(Locale locale, String msgID,
-            String p1, String p2, String p3) {
-        String params[] = { p1, p2, p3 };
-
-        return getUserMessage(locale, msgID, params);
-    }
-
-    public String getLogMessage(String msgID, Object[] params) {
-
-        String bundleName;
-
-        // check whether requested message is an audit event
-        if (msgID.startsWith("LOGGING_SIGNED_AUDIT_")) {
-            // get audit event from audit-events.properties
-            bundleName = "audit-events";
-        } else {
-            // get log message from LogMessages.properties
-            bundleName = "LogMessages";
-        }
-
-        ResourceBundle rb = ResourceBundle.getBundle(bundleName);
-        String msg = rb.getString(msgID);
-
-        if (params == null) {
-            return msg;
-        }
-
-        MessageFormat mf = new MessageFormat(msg);
-
-        Object escapedParams[] = new Object[params.length];
-        for (int i = 0; i < params.length; i++) {
-            Object param = params[i];
-
-            if (param instanceof String) {
-                escapedParams[i] = escapeLogMessageParam((String) param);
-            } else {
-                escapedParams[i] = param;
-            }
-        }
-
-        return mf.format(escapedParams);
-    }
-
-    /** Quote a string for inclusion in a java.text.MessageFormat
-     */
-    private String escapeLogMessageParam(String s) {
-        if (s == null)
-            return null;
-        if (s.contains("{") || s.contains("}"))
-            return "'" + s.replaceAll("'", "''") + "'";
-        return s;
-    }
-
-    public void debug(byte data[]) {
-        if (!debugOn()) {
-            // this helps to not saving stuff to file when debug
-            // is disable
-            return;
-        }
-        Debug.print(data);
-    }
-
-    public void debug(int level, String msg) {
-        if (!debugOn()) {
-            // this helps to not saving stuff to file when debug
-            // is disable
-            return;
-        }
-        Debug.trace(level, msg);
-    }
-
-    public void debug(String msg) {
-        if (!debugOn()) {
-            // this helps to not saving stuff to file when debug
-            // is disable
-            return;
-        }
-        Debug.trace(msg);
-    }
-
-    public void debug(Throwable e) {
-        if (!debugOn()) {
-            // this helps to not saving stuff to file when debug
-            // is disable
-            return;
-        }
-        Debug.printStackTrace(e);
-    }
-
-    public boolean debugOn() {
-        return Debug.on();
-    }
-
-    public void debugStackTrace() {
-        Debug.printStackTrace();
-    }
-
-    public void traceHashKey(String type, String key) {
-        Debug.traceHashKey(type, key);
-    }
-
-    public void traceHashKey(String type, String key, String val) {
-        Debug.traceHashKey(type, key, val);
-    }
-
-    public void traceHashKey(String type, String key, String val, String def) {
-        Debug.traceHashKey(type, key, val, def);
-    }
-
-    public String getEncodedCert(X509Certificate cert) {
-        try {
-            return Cert.HEADER + "\n" +
-                    Utils.base64encode(cert.getEncoded(), true) +
-                    Cert.FOOTER + "\n";
-        } catch (Exception e) {
-            return null;
-        }
     }
 
     public IMailNotification getMailNotification() {
@@ -1496,13 +1117,15 @@ public class CMSEngine implements ICMSEngine {
         return tokenClass;
     }
 
-    private void startupSubsystems(Map<String, SubsystemInfo> subsystems)
+    private void startupSubsystems(Collection<String> ids)
             throws EBaseException {
 
-        for (SubsystemInfo si : subsystems.values()) {
-            logger.debug("CMSEngine: starting " + si.id);
-            si.instance.startup();
-            logger.debug("CMSEngine: " + si.id + " started");
+        for (String id : ids) {
+            ISubsystem subsystem = subsystems.get(id);
+
+            logger.debug("CMSEngine: starting " + id);
+            subsystem.startup();
+            logger.debug("CMSEngine: " + id + " started");
         }
     }
 
@@ -1711,15 +1334,18 @@ public class CMSEngine implements ICMSEngine {
         }
     }
 
-    private void shutdownSubsystems(Map<String, SubsystemInfo> subsystems) {
+    private void shutdownSubsystems(Collection<String> ids) {
         // reverse list of subsystems
-        List<SubsystemInfo> list = new ArrayList<>(subsystems.values());
+        List<String> list = new ArrayList<>();
+        list.addAll(ids);
         Collections.reverse(list);
 
-        for (SubsystemInfo si : list) {
-            logger.debug("CMSEngine: stopping " + si.id);
-            si.instance.shutdown();
-            logger.debug("CMSEngine: " + si.id + " stopped");
+        for (String id : list) {
+            ISubsystem subsystem = subsystems.get(id);
+
+            logger.debug("CMSEngine: stopping " + id);
+            subsystem.shutdown();
+            logger.debug("CMSEngine: " + id + " stopped");
         }
     }
 
@@ -1728,6 +1354,10 @@ public class CMSEngine implements ICMSEngine {
      */
     public IConfigStore getConfigStore() {
         return mConfig;
+    }
+
+    public ServerXml getServerXml() {
+        return serverXml;
     }
 
     /**
@@ -1779,13 +1409,6 @@ public class CMSEngine implements ICMSEngine {
         return pid;
     }
 
-    public Date getCurrentDate() {
-        if (mTimeSource == null) {
-            return new Date();
-        }
-        return mTimeSource.getCurrentDate();
-    }
-
     public void setConfigSDSessionId(String val) {
         mConfigSDSessionId = val;
     }
@@ -1819,8 +1442,7 @@ public class CMSEngine implements ICMSEngine {
         ICertificateRepository certDB = null;
 
         try {
-            ICertificateAuthority ca = (ICertificateAuthority)
-                    SubsystemRegistry.getInstance().get("ca");
+            ICertificateAuthority ca = (ICertificateAuthority) subsystems.get("ca");
 
             if (ca != null) {
                 certDB = ca.getCertificateRepository();
@@ -1836,8 +1458,7 @@ public class CMSEngine implements ICMSEngine {
         IRequestQueue queue = null;
 
         try {
-            IRegistrationAuthority ra = (IRegistrationAuthority)
-                    SubsystemRegistry.getInstance().get("ra");
+            IRegistrationAuthority ra = (IRegistrationAuthority) subsystems.get("ra");
 
             if (ra != null) {
                 queue = ra.getRequestQueue();
@@ -1861,94 +1482,98 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public boolean isRevoked(X509Certificate[] certificates) {
+
+        if (certificates == null) {
+            return false;
+        }
+
+        X509CertImpl cert = (X509CertImpl) certificates[0];
+
+        int result = VerifiedCert.UNKNOWN;
+
+        if (mVCList != null) {
+            result = mVCList.check(cert);
+        }
+
+        if (result == VerifiedCert.REVOKED) {
+            return true;
+        }
+
+        if (result == VerifiedCert.NOT_REVOKED || result == VerifiedCert.CHECKED) {
+            return false;
+        }
+
         boolean revoked = false;
 
-        if (certificates != null) {
-            X509CertImpl cert = (X509CertImpl) certificates[0];
+        CertificateRepository certDB = (CertificateRepository) getCertDB();
 
-            int result = VerifiedCert.UNKNOWN;
-
-            if (mVCList != null) {
-                result = mVCList.check(cert);
+        if (certDB != null) {
+            try {
+                if (certDB.isCertificateRevoked(cert) != null) {
+                    revoked = true;
+                    if (mVCList != null)
+                        mVCList.update(cert, VerifiedCert.REVOKED);
+                } else {
+                    if (mVCList != null)
+                        mVCList.update(cert, VerifiedCert.NOT_REVOKED);
+                }
+            } catch (EBaseException e) {
+                logger.warn(CMS.getLogMessage("CMSCORE_AUTH_AGENT_REVO_STATUS"), e);
             }
-            if (result != VerifiedCert.REVOKED &&
-                    result != VerifiedCert.NOT_REVOKED &&
-                    result != VerifiedCert.CHECKED) {
+        } else {
+            IRequestQueue queue = getReqQueue();
 
-                CertificateRepository certDB = (CertificateRepository) getCertDB();
+            if (queue != null) {
+                IRequest checkRevReq = null;
 
-                if (certDB != null) {
-                    try {
-                        if (certDB.isCertificateRevoked(cert) != null) {
-                            revoked = true;
-                            if (mVCList != null)
-                                mVCList.update(cert, VerifiedCert.REVOKED);
-                        } else {
+                try {
+                    checkRevReq = queue.newRequest(CertRequestConstants.GETREVOCATIONINFO_REQUEST);
+                    checkRevReq.setExtData(IRequest.REQ_TYPE,
+                            CertRequestConstants.GETREVOCATIONINFO_REQUEST);
+                    checkRevReq.setExtData(IRequest.REQUESTOR_TYPE,
+                            IRequest.REQUESTOR_RA);
+
+                    X509CertImpl agentCerts[] = new X509CertImpl[certificates.length];
+
+                    for (int i = 0; i < certificates.length; i++) {
+                        agentCerts[i] = (X509CertImpl) certificates[i];
+                    }
+                    checkRevReq.setExtData(IRequest.ISSUED_CERTS, agentCerts);
+
+                    queue.processRequest(checkRevReq);
+
+                    RequestStatus status = checkRevReq.getRequestStatus();
+
+                    if (status == RequestStatus.COMPLETE) {
+                        Enumeration<String> enum1 = checkRevReq.getExtDataKeys();
+
+                        while (enum1.hasMoreElements()) {
+                            String name = enum1.nextElement();
+
+                            if (name.equals(IRequest.REVOKED_CERTS)) {
+                                revoked = true;
+                                if (mVCList != null)
+                                    mVCList.update(cert, VerifiedCert.REVOKED);
+                            }
+                        }
+                        if (revoked == false) {
                             if (mVCList != null)
                                 mVCList.update(cert, VerifiedCert.NOT_REVOKED);
                         }
-                    } catch (EBaseException e) {
-                        logger.warn(CMS.getLogMessage("CMSCORE_AUTH_AGENT_REVO_STATUS"), e);
+
+                    } else {
+                        if (mVCList != null)
+                            mVCList.update(cert, VerifiedCert.CHECKED);
                     }
-                } else {
-                    IRequestQueue queue = getReqQueue();
-
-                    if (queue != null) {
-                        IRequest checkRevReq = null;
-
-                        try {
-                            checkRevReq = queue.newRequest(CertRequestConstants.GETREVOCATIONINFO_REQUEST);
-                            checkRevReq.setExtData(IRequest.REQ_TYPE,
-                                    CertRequestConstants.GETREVOCATIONINFO_REQUEST);
-                            checkRevReq.setExtData(IRequest.REQUESTOR_TYPE,
-                                    IRequest.REQUESTOR_RA);
-
-                            X509CertImpl agentCerts[] = new X509CertImpl[certificates.length];
-
-                            for (int i = 0; i < certificates.length; i++) {
-                                agentCerts[i] = (X509CertImpl) certificates[i];
-                            }
-                            checkRevReq.setExtData(IRequest.ISSUED_CERTS, agentCerts);
-
-                            queue.processRequest(checkRevReq);
-
-                            RequestStatus status = checkRevReq.getRequestStatus();
-
-                            if (status == RequestStatus.COMPLETE) {
-                                Enumeration<String> enum1 = checkRevReq.getExtDataKeys();
-
-                                while (enum1.hasMoreElements()) {
-                                    String name = enum1.nextElement();
-
-                                    if (name.equals(IRequest.REVOKED_CERTS)) {
-                                        revoked = true;
-                                        if (mVCList != null)
-                                            mVCList.update(cert, VerifiedCert.REVOKED);
-                                    }
-                                }
-                                if (revoked == false) {
-                                    if (mVCList != null)
-                                        mVCList.update(cert, VerifiedCert.NOT_REVOKED);
-                                }
-
-                            } else {
-                                if (mVCList != null)
-                                    mVCList.update(cert, VerifiedCert.CHECKED);
-                            }
-                        } catch (EBaseException e) {
-                            logger.warn(CMS.getLogMessage("CMSCORE_AUTH_AGENT_PROCESS_CHECKING"), e);
-                        }
-                    }
+                } catch (EBaseException e) {
+                    logger.warn(CMS.getLogMessage("CMSCORE_AUTH_AGENT_PROCESS_CHECKING"), e);
                 }
-            } else if (result == VerifiedCert.REVOKED) {
-                revoked = true;
             }
         }
 
         return revoked;
     }
 
-    @Override
     public String getServerStatus() {
         return serverStatus;
     }
@@ -1970,83 +1595,5 @@ public class CMSEngine implements ICMSEngine {
                 logger.warn("debugSleep: sleep out:" + e.toString());
             }
         }
-    }
-}
-
-class WarningListener implements ILogEventListener {
-    private StringBuffer mSB = null;
-
-    public WarningListener(StringBuffer sb) {
-        mSB = sb;
-    }
-
-    public void log(ILogEvent event) throws ELogException {
-        String str = event.toString();
-
-        // start.cc and restart.cc does not like carriage
-        // return. They are the programs that pass the
-        // log messages to the console
-        str = str.replace('\n', ' ');
-        if (event.getLevel() == ILogger.LL_FAILURE) {
-            mSB.append("FAILURE: " + str + "|");
-        }
-        if (event.getLevel() == ILogger.LL_WARN) {
-            mSB.append("WARNING: " + str + "|");
-        }
-    }
-
-    public void flush() {
-    }
-
-    public void shutdown() {
-    }
-
-    public IConfigStore getConfigStore() {
-        return null;
-    }
-
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
-    }
-
-    public void startup() {
-    }
-
-    /**
-     * Retrieve last "maxLine" number of system log with log lever >"level"
-     * and from source "source". If the parameter is omitted. All entries
-     * are sent back.
-     */
-    public synchronized NameValuePairs retrieveLogContent(Hashtable<String, String> req) throws ServletException,
-            IOException, EBaseException {
-        return null;
-    }
-
-    /**
-     * Retrieve log file list.
-     */
-    public synchronized NameValuePairs retrieveLogList(Hashtable<String, String> req) throws ServletException,
-            IOException, EBaseException {
-        return null;
-    }
-
-    public String getImplName() {
-        return "ConsoleLog";
-    }
-
-    public String getDescription() {
-        return "ConsoleLog";
-    }
-
-    public Vector<String> getDefaultParams() {
-        Vector<String> v = new Vector<String>();
-
-        return v;
-    }
-
-    public Vector<String> getInstanceParams() {
-        Vector<String> v = new Vector<String>();
-
-        return v;
     }
 }

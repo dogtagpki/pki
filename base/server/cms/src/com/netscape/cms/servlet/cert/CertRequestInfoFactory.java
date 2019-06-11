@@ -33,7 +33,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 public class CertRequestInfoFactory {
 

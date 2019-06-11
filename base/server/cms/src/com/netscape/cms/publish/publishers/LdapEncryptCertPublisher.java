@@ -26,7 +26,12 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -37,6 +42,8 @@ import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertUtils;
 
 import netscape.ldap.LDAPAttribute;
@@ -46,11 +53,6 @@ import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
 
 /**
  * Interface for mapping a X509 certificate to a LDAP entry
@@ -58,6 +60,9 @@ import netscape.security.x509.X509CertImpl;
  * @version $Revision$, $Date$
  */
 public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapEncryptCertPublisher.class);
+
     public static final String LDAP_USERCERT_ATTR = "userCertificate;binary";
     public static final String PROP_REVOKE_CERT = "revokeCert";
 
@@ -160,7 +165,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
 
             conn.modify(dn, mod);
         } catch (CertificateEncodingException e) {
-            CMS.debug("LdapEncryptCertPublisher: error in publish: " + e.toString());
+            logger.error("LdapEncryptCertPublisher: error in publish: " + e.getMessage(), e);
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
@@ -298,6 +303,9 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
 
     private void revokeCert(X509CertImpl cert)
             throws EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
+
         try {
             if (mConfig.getBoolean(PROP_REVOKE_CERT, true) == false) {
                 return;
@@ -307,8 +315,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         }
         BigInteger serialNum = cert.getSerialNumber();
         // need to revoke certificate also
-        ICertificateAuthority ca = (ICertificateAuthority)
-                CMS.getSubsystem("ca");
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService service = (ICAService) ca.getCAService();
         RevokedCertImpl crlEntry = formCRLEntry(
                 serialNum, RevocationReason.KEY_COMPROMISE);

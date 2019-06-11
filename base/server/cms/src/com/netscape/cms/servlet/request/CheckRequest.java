@@ -34,11 +34,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.pkcs.PKCS7;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
@@ -48,6 +43,11 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkix.cmc.CMCStatusInfoV2;
 import org.mozilla.jss.pkix.cmc.PKIData;
 import org.mozilla.jss.pkix.cmc.ResponseBody;
@@ -59,7 +59,6 @@ import org.mozilla.jss.pkix.cms.SignerIdentifier;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -80,7 +79,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Check the status of a certificate request
@@ -88,9 +88,9 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class CheckRequest extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CheckRequest.class);
+
     private static final long serialVersionUID = 2791195859767119636L;
     // constants
     public static String FULL_RESPONSE = "cmcFullEnrollmentResponse";
@@ -145,7 +145,7 @@ public class CheckRequest extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("checkRequest: in process!");
+        logger.debug("checkRequest: in process!");
         SET transIds = null, sNonces = null;
         boolean isCMCReq = false;
         INTEGER bodyPartId = null;
@@ -188,8 +188,8 @@ public class CheckRequest extends CMSServlet {
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         // Note error is covered in the same template as success.
@@ -198,7 +198,7 @@ public class CheckRequest extends CMSServlet {
         String requestId = req.getParameter("requestId");
         String format = req.getParameter("format");
 
-        CMS.debug("checkRequest: requestId " + requestId);
+        logger.debug("checkRequest: requestId " + requestId);
 
         // They may check the status using CMC queryPending
         String queryPending = req.getParameter("queryPending");
@@ -329,7 +329,7 @@ public class CheckRequest extends CMSServlet {
 
         /*        if (type.equals(IRequest.ENROLLMENT_REQUEST) && (r.get("profile") != null) && status.equals(RequestStatus.COMPLETE)) {
                     X509CertImpl cert = (X509CertImpl) r.get(IEnrollProfile.REQUEST_ISSUED_CERT);
-                    IArgBlock rarg = CMS.createArgBlock();
+                    ArgBlock rarg = new ArgBlock();
 
                     rarg.addBigIntegerValue("serialNumber",
                         cert.getSerialNumber(), 16);
@@ -357,7 +357,7 @@ public class CheckRequest extends CMSServlet {
                 if (certs != null && certs.length > 0) {
                     for (int i = 0; i < certs.length; i++) {
                         if (certs[i] != null) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     certs[i].getSerialNumber(), 16);
@@ -392,9 +392,9 @@ public class CheckRequest extends CMSServlet {
 
                                 try {
                                     PKCS7 p7 = new PKCS7(new AlgorithmId[0],
-                                            new netscape.security.pkcs.ContentInfo(new byte[0]),
+                                            new org.mozilla.jss.netscape.security.pkcs.ContentInfo(new byte[0]),
                                             certsInChain,
-                                            new netscape.security.pkcs.SignerInfo[0]);
+                                            new org.mozilla.jss.netscape.security.pkcs.SignerInfo[0]);
                                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
                                     p7.encodeSignedData(bos);

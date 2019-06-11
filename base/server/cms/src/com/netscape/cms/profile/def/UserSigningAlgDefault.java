@@ -20,11 +20,10 @@ package com.netscape.cms.profile.def;
 import java.io.ByteArrayInputStream;
 import java.util.Locale;
 
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IEnrollProfile;
@@ -33,6 +32,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -42,6 +42,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class UserSigningAlgDefault extends EnrollDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserSigningAlgDefault.class);
 
     public static final String VAL_ALG_ID = "userSigningAlgID";
 
@@ -90,7 +92,7 @@ public class UserSigningAlgDefault extends EnrollDefault {
 
                 return id.toString();
             } catch (Exception e) {
-                CMS.debug("UserSigningAlgDefault: setValue " + e.toString());
+                logger.warn("UserSigningAlgDefault: setValue " + e.getMessage(), e);
                 return ""; //XXX
             }
         } else {
@@ -120,7 +122,7 @@ public class UserSigningAlgDefault extends EnrollDefault {
             }
             info.set(X509CertInfo.ALGORITHM_ID, certAlg);
         } catch (Exception e) {
-            CMS.debug("UserSigningAlgDefault: populate " + e.toString());
+            logger.warn("UserSigningAlgDefault: populate " + e.getMessage(), e);
         }
     }
 }

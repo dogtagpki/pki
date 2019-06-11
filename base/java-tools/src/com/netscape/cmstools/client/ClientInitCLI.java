@@ -29,8 +29,8 @@ import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
+import org.dogtagpki.cli.CLI;
 
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**

@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.DerValue;
 
 public class IA5StringTest {
 

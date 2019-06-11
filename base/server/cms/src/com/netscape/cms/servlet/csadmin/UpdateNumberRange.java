@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -44,6 +43,8 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class UpdateNumberRange extends CMSServlet {
@@ -85,6 +86,7 @@ public class UpdateNumberRange extends CMSServlet {
 
         logger.debug("UpdateNumberRange process: authentication starts");
 
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
 
         if (authToken == null) {
@@ -120,7 +122,7 @@ public class UpdateNumberRange extends CMSServlet {
             String type = httpReq.getParameter("type");
             logger.debug("UpdateNumberRange: type: " + type);
 
-            IConfigStore cs = CMS.getConfigStore();
+            IConfigStore cs = engine.getConfigStore();
             String cstype = cs.getString("cs.type", "");
 
             auditParams += "+type;;" + type;
@@ -131,8 +133,7 @@ public class UpdateNumberRange extends CMSServlet {
 
             IRepository repo = null;
             if (cstype.equals("KRA")) {
-                IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) CMS.getSubsystem(
-                        IKeyRecoveryAuthority.ID);
+                IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
                 if (type.equals("request")) {
                     repo = kra.getRequestQueue().getRequestRepository();
                 } else if (type.equals("serialNo")) {
@@ -142,8 +143,7 @@ public class UpdateNumberRange extends CMSServlet {
                 }
 
             } else { // CA
-                ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(
-                        ICertificateAuthority.ID);
+                ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 if (type.equals("request")) {
                     repo = ca.getRequestQueue().getRequestRepository();
                 } else if (type.equals("serialNo")) {

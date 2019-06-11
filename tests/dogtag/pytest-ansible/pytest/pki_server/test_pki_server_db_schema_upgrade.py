@@ -151,7 +151,7 @@ def test_pki_server_db_schema_upgrade_when_password_is_wrong(ansible_module):
     """
     subsystem = ['ca', 'kra', 'ocsp', 'tks', 'tps']
     bind_dn = "cn=Directory Manager"
-    bind_pass = "Secret123231"
+    bind_pass = "SECret.123231"
 
     for system in subsystem:
         instance = None

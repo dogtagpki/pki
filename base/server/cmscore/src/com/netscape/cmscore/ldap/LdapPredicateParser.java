@@ -19,10 +19,9 @@ package com.netscape.cmscore.ldap;
 
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapExpression;
-import com.netscape.cmscore.util.Debug;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Default implementation of predicate parser.
@@ -40,6 +39,9 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class LdapPredicateParser {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapPredicateParser.class);
+
     public static final int OP_AND = 1;
     public static final int OP_OR = 2;
     public static final int EXPRESSION = 0;
@@ -70,8 +72,7 @@ public class LdapPredicateParser {
         String token = pt.nextToken();
 
         if (getOP(token) != EXPRESSION) {
-            if (Debug.ON)
-                Debug.trace("Malformed expression: " + predicateExpression);
+            logger.error("Malformed expression: " + predicateExpression);
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION", predicateExpression));
         }
         ILdapExpression current = parseExpression(token);
@@ -111,8 +112,7 @@ public class LdapPredicateParser {
             }
         }
         if (malformed) {
-            if (Debug.ON)
-                Debug.trace("Malformed expression: " + predicateExpression);
+            logger.error("Malformed expression: " + predicateExpression);
             throw new ELdapException(
                     CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION",
                             predicateExpression));
@@ -258,6 +258,9 @@ public class LdapPredicateParser {
 }
 
 class PredicateTokenizer {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PredicateTokenizer.class);
+
     String input;
     int currentIndex;
     String nextToken;
@@ -320,8 +323,7 @@ class PredicateTokenizer {
             }
         } else {
             // Cannot happen; Assert here.
-            if (Debug.ON)
-                Debug.trace("Malformed expression: Null Token");
+            logger.error("Malformed expression: Null Token");
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION"));
         }
 

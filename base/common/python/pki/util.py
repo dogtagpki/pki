@@ -25,6 +25,7 @@ Module containing utility functions and classes for the Dogtag python code
 
 from __future__ import absolute_import
 import functools
+import logging
 import os
 import re
 import shutil
@@ -35,6 +36,7 @@ except ImportError:
     WindowsError = None
 
 import six
+from six.moves import input   # pylint: disable=W0622,F0401
 import subprocess
 
 DEFAULT_PKI_ENV_LIST = [
@@ -43,7 +45,76 @@ DEFAULT_PKI_ENV_LIST = [
 ]
 
 
-def copy(source, dest):
+def replace_params(line, params=None):
+    """
+    Replace all occurrences of [param] in the line with the value of the
+    parameter.
+    """
+
+    if not params:
+        return line
+
+    # find the first parameter in the line
+    begin = line.find('[')
+
+    # repeat while there are parameters in the line
+    while begin >= 0:
+
+        # find the end of the parameter
+        end = line.find(']', begin + 1)
+
+        # if the end not is found not found, don't do anything
+        if end < 0:
+            return line
+
+        # get parameter name
+        name = line[begin + 1:end]
+
+        try:
+            # get parameter value as string
+            value = str(params[name])
+
+            # replace parameter with value, keep the rest of the line
+            line = line[0:begin] + value + line[end + 1:]
+
+            # calculate the new end position
+            end = begin + len(value) + 1
+
+        except KeyError:
+            # undefined parameter, skip
+            logging.warning('Ignoring [%s] parameter', line[begin:end + 1])
+
+        # find the next parameter in the remainder of the line
+        begin = line.find('[', end + 1)
+
+    return line
+
+
+def makedirs(path, uid=-1, gid=-1, force=False):
+
+    logging.debug('Command: mkdir -p %s', path)
+
+    if force and os.path.exists(path):
+        logging.warning('Directory already exists: %s', path)
+        return
+
+    os.makedirs(path)
+    os.chown(path, uid, gid)
+
+
+def symlink(source, dest, uid=-1, gid=-1, force=False):
+
+    logging.debug('Command: ln -s %s %s', source, dest)
+
+    if force and os.path.exists(dest):
+        logging.warning('Link already exists: %s', dest)
+        return
+
+    os.symlink(source, dest)
+    os.lchown(dest, uid, gid)
+
+
+def copy(source, dest, uid=-1, gid=-1, force=False):
     """
     Copy a file or a folder and its contents.
     """
@@ -57,10 +128,11 @@ def copy(source, dest):
     sourceparent = os.path.dirname(source)
     destparent = os.path.dirname(dest)
 
-    copydirs(sourceparent, destparent)
+    if not os.path.exists(destparent):
+        copydirs(sourceparent, destparent, uid=uid, gid=gid, force=force)
 
     if os.path.isfile(source):
-        copyfile(source, dest)
+        copyfile(source, dest, uid=uid, gid=gid, force=force)
 
     else:
         for sourcepath, _, filenames in os.walk(source):
@@ -70,83 +142,105 @@ def copy(source, dest):
             if destpath == '':
                 destpath = '/'
 
-            copydirs(sourcepath, destpath)
+            copydirs(sourcepath, destpath, uid=uid, gid=gid, force=force)
 
             for filename in filenames:
                 sourcefile = os.path.join(sourcepath, filename)
                 targetfile = os.path.join(destpath, filename)
-                copyfile(sourcefile, targetfile)
+                copyfile(sourcefile, targetfile, uid=uid, gid=gid, force=force)
 
 
-def copyfile(source, dest, overwrite=True):
+def copyfile(source, dest, uid=-1, gid=-1, force=False):
     """
     Copy a file or link while preserving its attributes.
     """
 
+    logging.debug('Command: cp %s %s', source, dest)
+
     # if dest already exists and not overwriting, do nothing
-    if os.path.exists(dest) and not overwrite:
-        return
+    if os.path.exists(dest):
+        logging.warning('File already exists: %s', dest)
+
+        if not force:
+            return
 
     if os.path.islink(source):
         target = os.readlink(source)
         os.symlink(target, dest)
 
         stat = os.lstat(source)
-        os.lchown(dest, stat.st_uid, stat.st_gid)
+        if uid == -1:
+            uid = stat.st_uid
+        if gid == -1:
+            gid = stat.st_gid
+
+        os.lchown(dest, uid, gid)
 
     else:
         shutil.copyfile(source, dest)
 
         stat = os.stat(source)
+        if uid == -1:
+            uid = stat.st_uid
+        if gid == -1:
+            gid = stat.st_gid
+
         os.utime(dest, (stat.st_atime, stat.st_mtime))
         os.chmod(dest, stat.st_mode)
-        os.chown(dest, stat.st_uid, stat.st_gid)
+        os.chown(dest, uid, gid)
 
 
-def copydirs(source, dest):
+def copydirs(source, dest, uid=-1, gid=-1, force=False):
     """
     Copy a folder and its parents while preserving their attributes.
     """
-
-    if os.path.exists(dest):
-        return
 
     destparent = os.path.dirname(dest)
 
     if not os.path.exists(destparent):
         sourceparent = os.path.dirname(source)
-        copydirs(sourceparent, destparent)
+        copydirs(sourceparent, destparent, uid=uid, gid=gid, force=force)
+
+    logging.debug('Command: mkdir %s', dest)
+
+    if force and os.path.exists(dest):
+        logging.warning('Directory already exists: %s', dest)
+        return
 
     os.mkdir(dest)
 
     stat = os.stat(source)
+    if uid == -1:
+        uid = stat.st_uid
+    if gid == -1:
+        gid = stat.st_gid
+
     os.utime(dest, (stat.st_atime, stat.st_mtime))
     os.chmod(dest, stat.st_mode)
-    os.chown(dest, stat.st_uid, stat.st_gid)
+    os.chown(dest, uid, gid)
 
 
 def chown(path, uid, gid):
     """
-    Change ownership of a file or folder recursively.
+    Change ownership of a file, link, or folder recursively.
     """
 
-    os.chown(path, uid, gid)
+    if os.path.islink(path):
+        os.lchown(path, uid, gid)
+    else:
+        os.chown(path, uid, gid)
 
     if not os.path.isdir(path):
         return
 
     for item in os.listdir(path):
         itempath = os.path.join(path, item)
-
-        if os.path.isfile(itempath):
-            os.chown(itempath, uid, gid)
-        elif os.path.isdir(itempath):
-            chown(itempath, uid, gid)
+        chown(itempath, uid, gid)
 
 
 def chmod(path, perms):
     """
-    Change permissions of a file or folder recursively.
+    Change permissions of a file, link, or folder recursively.
     """
 
     os.chmod(path, perms)
@@ -156,11 +250,40 @@ def chmod(path, perms):
 
     for item in os.listdir(path):
         itempath = os.path.join(path, item)
+        chmod(itempath, perms)
 
-        if os.path.isfile(itempath):
-            os.chmod(itempath, perms)
-        elif os.path.isdir(itempath):
-            chmod(itempath, perms)
+
+def remove(path, force=False):
+
+    logging.debug('Command: rm -rf %s', path)
+
+    if force and not os.path.exists(path):
+        logging.warning('File not found: %s', path)
+        return
+
+    os.remove(path)
+
+
+def rmtree(path, force=False):
+
+    logging.debug('Command: rm -rf %s', path)
+
+    if force and not os.path.exists(path):
+        logging.warning('Directory not found: %s', path)
+        return
+
+    shutil.rmtree(path)
+
+
+def unlink(link, force=False):
+
+    logging.debug('Command: rm -rf %s', link)
+
+    if force and not os.path.islink(link):
+        logging.warning('Link not found: %s', link)
+        return
+
+    os.unlink(link)
 
 
 def customize_file(input_file, output_file, params):
@@ -320,6 +443,59 @@ def read_environment_files(env_file_list=None):
         if not key.strip() or key == u'_':
             continue
         os.environ[key] = value
+
+
+def read_text(message,
+              options=None, default=None, delimiter=':',
+              allow_empty=True, case_sensitive=True):
+    """
+    Get an input from the user. This is used, for example, in
+    pkispawn and pkidestroy to obtain user input.
+
+    :param message: prompt to display to the user
+    :type message: str
+    :param options: list of possible inputs by the user.
+    :type options: list
+    :param default: default value of parameter being prompted.
+    :type default: str
+    :param delimiter: delimiter to be used at the end of the prompt.
+    :type delimiter: str
+    :param allow_empty: Allow input to be empty.
+    :type allow_empty: boolean -- True/False
+    :param case_sensitive: Allow input to be case sensitive.
+    :type case_sensitive: boolean -- True/False
+    :returns: str -- value obtained from user input.
+    """
+    if default:
+        message = message + ' [' + default + ']'
+    message = message + delimiter + ' '
+
+    done = False
+    value = None
+    while not done:
+        value = input(message)
+        value = value.strip()
+
+        if len(value) == 0:  # empty value
+            if allow_empty:
+                value = default
+                break
+
+        else:  # non-empty value
+            if options is not None:
+                for val in options:
+                    if case_sensitive:
+                        if val == value:
+                            done = True
+                            break
+                    else:
+                        if val.lower() == value.lower():
+                            done = True
+                            break
+            else:
+                break
+
+    return value
 
 
 @functools.total_ordering

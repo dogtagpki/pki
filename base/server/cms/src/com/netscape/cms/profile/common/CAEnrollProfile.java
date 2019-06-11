@@ -17,11 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.common;
 
+import java.util.Date;
 import java.util.Enumeration;
 
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
@@ -30,7 +33,6 @@ import com.netscape.certsrv.ca.ICAService;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -38,12 +40,9 @@ import com.netscape.certsrv.profile.IProfileUpdater;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertUtils;
-
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements a Certificate Manager enrollment
@@ -53,12 +52,14 @@ import netscape.security.x509.X509CertInfo;
  */
 public class CAEnrollProfile extends EnrollProfile {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAEnrollProfile.class);
+
     public CAEnrollProfile() {
     }
 
     public IAuthority getAuthority() {
-        IAuthority authority = (IAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = CMS.getCMSEngine();
+        IAuthority authority = (IAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
         if (authority == null)
             return null;
@@ -66,8 +67,8 @@ public class CAEnrollProfile extends EnrollProfile {
     }
 
     public X500Name getIssuerName() {
-        ICertificateAuthority ca = (ICertificateAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         X500Name issuerName = ca.getX500Name();
 
         return issuerName;
@@ -76,10 +77,10 @@ public class CAEnrollProfile extends EnrollProfile {
     public void execute(IRequest request)
             throws EProfileException, ERejectException {
 
-        long startTime = CMS.getCurrentDate().getTime();
+        long startTime = new Date().getTime();
 
         if (!isEnable()) {
-            CMS.debug("CAEnrollProfile: Profile Not Enabled");
+            logger.error("CAEnrollProfile: Profile Not Enabled");
             throw new EProfileException("Profile Not Enabled");
         }
 
@@ -88,7 +89,7 @@ public class CAEnrollProfile extends EnrollProfile {
         RequestId requestId = request.getRequestId();
 
 
-        CMS.debug("CAEnrollProfile: execute request ID " + requestId.toString());
+        logger.debug("CAEnrollProfile: execute request ID " + requestId.toString());
 
         ICertificateAuthority ca = (ICertificateAuthority) getAuthority();
 
@@ -106,14 +107,14 @@ public class CAEnrollProfile extends EnrollProfile {
             PKIArchiveOptions options = toPKIArchiveOptions(optionsData);
 
             if (options != null) {
-                CMS.debug("CAEnrollProfile: execute found " +
+                logger.debug("CAEnrollProfile: execute found " +
                         "PKIArchiveOptions");
                 try {
                     IConnector kraConnector = caService.getKRAConnector();
 
                     if (kraConnector == null) {
                         String message = "KRA connector not configured";
-                        CMS.debug("CAEnrollProfile: " + message);
+                        logger.error("CAEnrollProfile: " + message);
 
                         signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                                 auditSubjectID,
@@ -125,13 +126,13 @@ public class CAEnrollProfile extends EnrollProfile {
                         throw new EProfileException(message);
 
                     } else {
-                        CMS.debug("CAEnrollProfile: execute send request");
+                        logger.debug("CAEnrollProfile: execute send request");
                         kraConnector.send(request);
 
                         // check response
                         if (!request.isSuccess()) {
                             String message = "archival request failed";
-                            CMS.debug("CAEnrollProfile: " + message);
+                            logger.error("CAEnrollProfile: " + message);
 
                             signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                                     auditSubjectID,
@@ -144,7 +145,7 @@ public class CAEnrollProfile extends EnrollProfile {
                                 request.getError(getLocale(request)) != null) {
 
                                 if ((request.getError(getLocale(request))).equals(CMS.getUserMessage("CMS_KRA_INVALID_TRANSPORT_CERT"))) {
-                                    CMS.debug("CAEnrollProfile: execute set request status: REJECTED");
+                                    logger.error("CAEnrollProfile: execute set request status: REJECTED");
                                     request.setRequestStatus(RequestStatus.REJECTED);
                                     ca.getRequestQueue().updateRequest(request);
                                 }
@@ -163,7 +164,7 @@ public class CAEnrollProfile extends EnrollProfile {
                     }
                 } catch (Exception e) {
 
-                    CMS.debug("CAEnrollProfile: " + e);
+                    logger.error("CAEnrollProfile: " + e.getMessage(), e);
 
                     signedAuditLogger.log(SecurityDataArchivalRequestEvent.createFailureEvent(
                             auditSubjectID,
@@ -201,35 +202,31 @@ public class CAEnrollProfile extends EnrollProfile {
             theCert = caService.issueX509Cert(
                 aid, info, getId() /* profileId */, requestId.toString());
         } catch (EBaseException e) {
-            CMS.debug(e);
+            logger.error("CAEnrollProfile: " + e.getMessage(), e);
             throw new EProfileException(e);
         }
 
         request.setExtData(REQUEST_ISSUED_CERT, theCert);
 
-        long endTime = CMS.getCurrentDate().getTime();
+        long endTime = new Date().getTime();
 
         String initiative = AuditFormat.FROMAGENT
                           + " userID: "
                           + (String) sc.get(SessionContext.USER_ID);
         String authMgr = (String) sc.get(SessionContext.AUTH_MANAGER_ID);
 
-        Logger logger = Logger.getLogger();
-        if (logger != null) {
-            logger.log(ILogger.EV_AUDIT,
-                        ILogger.S_OTHER, AuditFormat.LEVEL, AuditFormat.FORMAT,
-                        new Object[] {
-                                request.getRequestType(),
-                                request.getRequestId(),
-                                initiative,
-                                authMgr,
-                                "completed",
-                                theCert.getSubjectDN(),
-                                "cert issued serial number: 0x" +
-                                        theCert.getSerialNumber().toString(16) +
-                                        " time: " + (endTime - startTime) }
-                    );
-        }
+        logger.info(
+                AuditFormat.FORMAT,
+                request.getRequestType(),
+                request.getRequestId(),
+                initiative,
+                authMgr,
+                "completed",
+                theCert.getSubjectDN(),
+                "cert issued serial number: 0x" +
+                        theCert.getSerialNumber().toString(16) +
+                        " time: " + (endTime - startTime)
+        );
 
         request.setRequestStatus(RequestStatus.COMPLETE);
 

@@ -31,14 +31,14 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -65,7 +65,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Takes the certificate info (serial number) and optional challenge phrase, creates a
@@ -74,9 +75,9 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class ChallengeRevocationServlet1 extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChallengeRevocationServlet1.class);
+
     private static final long serialVersionUID = 1253319999546210407L;
     public final static String GETCERTS_FOR_CHALLENGE_REQUEST = "getCertsForChallenge";
     public static final String TOKEN_CERT_SERIAL = "certSerialToRevoke";
@@ -150,8 +151,8 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         // for audit log
@@ -239,7 +240,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             header.addIntegerValue("verifiedRecordCount", serialNoArray.length);
 
             for (int i = 0; i < serialNoArray.length; i++) {
-                IArgBlock rarg = CMS.createArgBlock();
+                ArgBlock rarg = new ArgBlock();
 
                 rarg.addBigIntegerValue("serialNumber",
                         serialNoArray[i], 16);
@@ -265,8 +266,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             ServletOutputStream out = resp.getOutputStream();
 
             if (serialNoArray == null) {
-                CMS.debug("ChallengeRevcationServlet1::process() - " +
-                           " serialNoArray is null!");
+                logger.warn("ChallengeRevcationServlet1::process() - serialNoArray is null!");
                 EBaseException ee = new EBaseException("No matched certificate is found");
 
                 cmsReq.setError(ee);
@@ -340,7 +340,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 while (e != null && e.hasMoreElements()) {
                     ICertRecord rec = e.nextElement();
                     X509CertImpl cert = rec.getCertificate();
-                    IArgBlock rarg = CMS.createArgBlock();
+                    ArgBlock rarg = new ArgBlock();
 
                     rarg.addBigIntegerValue("serialNumber",
                             cert.getSerialNumber(), 16);
@@ -354,7 +354,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                         RevokedCertImpl revCertImpl =
                                 new RevokedCertImpl(cert.getSerialNumber(),
-                                        CMS.getCurrentDate(), entryExtn);
+                                        new Date(), entryExtn);
 
                         revCertImplsV.addElement(revCertImpl);
                         count++;
@@ -406,7 +406,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                             }
                         }
                         if (addToList) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     certs[i].getSerialNumber(), 16);
@@ -414,7 +414,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                             RevokedCertImpl revCertImpl =
                                     new RevokedCertImpl(certs[i].getSerialNumber(),
-                                            CMS.getCurrentDate(), entryExtn);
+                                            new Date(), entryExtn);
 
                             revCertImplsV.addElement(revCertImpl);
                             count++;
@@ -428,7 +428,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                     if (b64eCert != null) {
                         byte[] certBytes = Utils.base64decode(b64eCert);
                         X509CertImpl cert = new X509CertImpl(certBytes);
-                        IArgBlock rarg = CMS.createArgBlock();
+                        ArgBlock rarg = new ArgBlock();
 
                         rarg.addBigIntegerValue("serialNumber",
                                 cert.getSerialNumber(), 16);
@@ -436,7 +436,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                         RevokedCertImpl revCertImpl =
                                 new RevokedCertImpl(cert.getSerialNumber(),
-                                        CMS.getCurrentDate(), entryExtn);
+                                        new Date(), entryExtn);
 
                         revCertImplsV.addElement(revCertImpl);
                         count++;
@@ -487,19 +487,15 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                                 //cmsReq.setErrorDescription(err);
                                 for (int j = 0; j < count; j++) {
                                     if (oldCerts[j] != null) {
-                                        mLogger.log(ILogger.EV_AUDIT,
-                                                ILogger.S_OTHER,
-                                                AuditFormat.LEVEL,
+                                        logger.info(
                                                 AuditFormat.DOREVOKEFORMAT,
-                                                new Object[] {
-                                                        revReq.getRequestId(),
-                                                        initiative,
-                                                        "completed with error: " +
-                                                                err,
-                                                        oldCerts[j].getSubjectDN(),
-                                                        oldCerts[j].getSerialNumber().toString(16),
-                                                        RevocationReason.fromInt(reason).toString() }
-                                                );
+                                                revReq.getRequestId(),
+                                                initiative,
+                                                "completed with error: " + err,
+                                                oldCerts[j].getSubjectDN(),
+                                                oldCerts[j].getSerialNumber().toString(16),
+                                                RevocationReason.fromInt(reason)
+                                        );
                                     }
                                 }
                             }
@@ -511,17 +507,15 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 // audit log the success.
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
-                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.DOREVOKEFORMAT,
-                                new Object[] {
-                                        revReq.getRequestId(),
-                                        initiative,
-                                        "completed",
-                                        oldCerts[j].getSubjectDN(),
-                                        oldCerts[j].getSerialNumber().toString(16),
-                                        RevocationReason.fromInt(reason).toString() }
-                                );
+                                revReq.getRequestId(),
+                                initiative,
+                                "completed",
+                                oldCerts[j].getSubjectDN(),
+                                oldCerts[j].getSerialNumber().toString(16),
+                                RevocationReason.fromInt(reason)
+                        );
                     }
                 }
 
@@ -577,14 +571,14 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                         if (updateResult != null) {
                             if (updateResult.equals(IRequest.RES_SUCCESS)) {
-                                CMS.debug("ChallengeRevcationServlet1: "
+                                logger.debug("ChallengeRevcationServlet1: "
                                         + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER",
                                                 updateStatusStr));
                                 header.addStringValue(updateStatusStr, "yes");
                             } else {
                                 String updateErrorStr = crl.getCrlUpdateErrorStr();
 
-                                CMS.debug("ChallengeRevcationServlet1: "
+                                logger.debug("ChallengeRevcationServlet1: "
                                         + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
                                                 updateStatusStr));
                                 header.addStringValue(updateStatusStr, "no");
@@ -656,17 +650,15 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 // audit log the pending
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
-                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.DOREVOKEFORMAT,
-                                new Object[] {
-                                        revReq.getRequestId(),
-                                        initiative,
-                                        "pending",
-                                        oldCerts[j].getSubjectDN(),
-                                        oldCerts[j].getSerialNumber().toString(16),
-                                        RevocationReason.fromInt(reason).toString() }
-                                );
+                                revReq.getRequestId(),
+                                initiative,
+                                "pending",
+                                oldCerts[j].getSubjectDN(),
+                                oldCerts[j].getSerialNumber().toString(16),
+                                RevocationReason.fromInt(reason)
+                        );
                     }
                 }
 
@@ -684,17 +676,15 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 // audit log the error
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
-                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.DOREVOKEFORMAT,
-                                new Object[] {
-                                        revReq.getRequestId(),
-                                        initiative,
-                                        stat.toString(),
-                                        oldCerts[j].getSubjectDN(),
-                                        oldCerts[j].getSerialNumber().toString(16),
-                                        RevocationReason.fromInt(reason).toString() }
-                                );
+                                revReq.getRequestId(),
+                                initiative,
+                                stat,
+                                oldCerts[j].getSubjectDN(),
+                                oldCerts[j].getSerialNumber().toString(16),
+                                RevocationReason.fromInt(reason)
+                        );
                     }
                 }
             }

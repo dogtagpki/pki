@@ -21,15 +21,16 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.TimerTask;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMS;
 
 public class SessionTimer extends TimerTask {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SessionTimer.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private ISecurityDomainSessionTable m_sessiontable = null;
@@ -40,26 +41,28 @@ public class SessionTimer extends TimerTask {
     }
 
     public void run() {
-        CMS.debug("SessionTimer: run()");
         try {
             runImpl();
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.warn("SessionTimer: " + e.getMessage(), e);
         }
     }
 
     public void runImpl() throws Exception {
 
+        logger.info("SessionTimer: checking security domain sessions");
         Enumeration<String> keys = m_sessiontable.getSessionIDs();
+
         while (keys.hasMoreElements()) {
             String sessionId = keys.nextElement();
             long beginTime = m_sessiontable.getBeginTime(sessionId);
             Date nowDate = new Date();
             long nowTime = nowDate.getTime();
             long timeToLive = m_sessiontable.getTimeToLive();
+
             if ((nowTime - beginTime) > timeToLive) {
                 m_sessiontable.removeEntry(sessionId);
-                CMS.debug("SessionTimer run: successfully remove the session id entry from the table.");
+                logger.info("SessionTimer: removed expired security domain session: " + sessionId);
 
                 // audit message
                 String auditParams = "operation;;expire_token+token;;" + sessionId;
@@ -70,7 +73,6 @@ public class SessionTimer extends TimerTask {
                                          auditParams);
 
                 signedAuditLogger.log(auditMessage);
-
             }
         }
     }

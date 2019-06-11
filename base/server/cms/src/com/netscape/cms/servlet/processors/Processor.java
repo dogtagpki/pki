@@ -7,20 +7,20 @@ import java.util.Map;
 
 import javax.ws.rs.FormParam;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.logging.Auditor;
 
 public class Processor {
 
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    protected Logger logger = Logger.getLogger();
+    protected Logger systemLogger = Logger.getLogger();
     protected Auditor auditor = Auditor.getAuditor();
 
     protected String id;
@@ -67,9 +67,9 @@ public class Processor {
 
     public void log(LogSource source, int level, String message) {
 
-        if (logger == null) return;
+        if (systemLogger == null) return;
 
-        logger.log(ILogger.EV_SYSTEM,
+        systemLogger.log(ILogger.EV_SYSTEM,
                 source,
                 level,
                 getClass().getSimpleName() + ": " + message);

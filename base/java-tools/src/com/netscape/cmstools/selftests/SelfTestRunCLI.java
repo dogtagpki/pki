@@ -22,11 +22,11 @@ import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.selftests.SelfTestClient;
 import com.netscape.certsrv.selftests.SelfTestResult;
 import com.netscape.certsrv.selftests.SelfTestResults;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**

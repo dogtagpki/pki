@@ -24,7 +24,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
@@ -33,11 +37,8 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.X509CertInfo;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements a CA signing cert enrollment default policy
@@ -46,6 +47,8 @@ import netscape.security.x509.X509CertInfo;
  * It allows an agent to bypass the CA's signing cert's expiration constraint
  */
 public class CAValidityDefault extends EnrollDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAValidityDefault.class);
 
     public static final String CONFIG_RANGE = "range";
     public static final String CONFIG_RANGE_UNIT = "rangeUnit";
@@ -75,8 +78,8 @@ public class CAValidityDefault extends EnrollDefault {
     public void init(IProfile profile, IConfigStore config)
             throws EProfileException {
         super.init(profile, config);
-        mCA = (ICertificateAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = CMS.getCMSEngine();
+        mCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
     }
 
     public void setConfig(String name, String value)
@@ -155,7 +158,7 @@ public class CAValidityDefault extends EnrollDefault {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
-        CMS.debug("CAValidityDefault: setValue name= " + name);
+        logger.debug("CAValidityDefault: setValue name= " + name);
 
         if (name.equals(VAL_NOT_BEFORE)) {
             SimpleDateFormat formatter =
@@ -170,7 +173,7 @@ public class CAValidityDefault extends EnrollDefault {
                 validity.set(CertificateValidity.NOT_BEFORE,
                         date);
             } catch (Exception e) {
-                CMS.debug("CAValidityDefault: setValue " + e.toString());
+                logger.error("CAValidityDefault: setValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -187,29 +190,29 @@ public class CAValidityDefault extends EnrollDefault {
                 validity.set(CertificateValidity.NOT_AFTER,
                         date);
             } catch (Exception e) {
-                CMS.debug("CAValidityDefault: setValue " + e.toString());
+                logger.error("CAValidityDefault: setValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } else if (name.equals(VAL_BYPASS_CA_NOTAFTER)) {
             boolean bypassCAvalidity = Boolean.valueOf(value).booleanValue();
-            CMS.debug("CAValidityDefault: setValue: bypassCAvalidity=" + bypassCAvalidity);
+            logger.debug("CAValidityDefault: setValue: bypassCAvalidity=" + bypassCAvalidity);
 
             BasicConstraintsExtension ext = (BasicConstraintsExtension)
                     getExtension(PKIXExtensions.BasicConstraints_Id.toString(), info);
 
             if (ext == null) {
-                CMS.debug("CAValidityDefault: setValue: this default cannot be applied to non-CA cert.");
+                logger.warn("CAValidityDefault: setValue: this default cannot be applied to non-CA cert.");
                 return;
             }
             try {
                 Boolean isCA = (Boolean) ext.get(BasicConstraintsExtension.IS_CA);
                 if (isCA.booleanValue() != true) {
-                    CMS.debug("CAValidityDefault: setValue: this default cannot be aplied to non-CA cert.");
+                    logger.warn("CAValidityDefault: setValue: this default cannot be aplied to non-CA cert.");
                     return;
                 }
             } catch (Exception e) {
-                CMS.debug("CAValidityDefault: setValue: this default cannot be aplied to non-CA cert." + e.toString());
+                logger.warn("CAValidityDefault: setValue: this default cannot be aplied to non-CA cert." + e.getMessage(), e);
                 return;
             }
 
@@ -220,7 +223,7 @@ public class CAValidityDefault extends EnrollDefault {
                         info.get(X509CertInfo.VALIDITY);
                 notAfter = (Date) validity.get(CertificateValidity.NOT_AFTER);
             } catch (Exception e) {
-                CMS.debug("CAValidityDefault: setValue " + e.toString());
+                logger.error("CAValidityDefault: setValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -232,16 +235,16 @@ public class CAValidityDefault extends EnrollDefault {
             if (notAfter.after(caNotAfter)) {
                 if (bypassCAvalidity == false) {
                     notAfter = caNotAfter;
-                    CMS.debug("CAValidityDefault: setValue: bypassCAvalidity off. reset notAfter to caNotAfter. reset ");
+                    logger.debug("CAValidityDefault: setValue: bypassCAvalidity off. reset notAfter to caNotAfter. reset ");
                 } else {
-                    CMS.debug("CAValidityDefault: setValue: bypassCAvalidity on.  notAfter is after caNotAfter. no reset");
+                    logger.debug("CAValidityDefault: setValue: bypassCAvalidity on.  notAfter is after caNotAfter. no reset");
                 }
             }
             try {
                 validity.set(CertificateValidity.NOT_AFTER,
                         notAfter);
             } catch (Exception e) {
-                CMS.debug("CAValidityDefault: setValue " + e.toString());
+                logger.error("CAValidityDefault: setValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -259,7 +262,7 @@ public class CAValidityDefault extends EnrollDefault {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
 
-        CMS.debug("CAValidityDefault: getValue: name= " + name);
+        logger.debug("CAValidityDefault: getValue: name= " + name);
         if (name.equals(VAL_NOT_BEFORE)) {
             SimpleDateFormat formatter =
                     new SimpleDateFormat(DATE_FORMAT);
@@ -271,7 +274,7 @@ public class CAValidityDefault extends EnrollDefault {
                 return formatter.format((Date)
                         validity.get(CertificateValidity.NOT_BEFORE));
             } catch (Exception e) {
-                CMS.debug("CAValidityDefault: getValue " + e.toString());
+                logger.error("CAValidityDefault: getValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -286,7 +289,7 @@ public class CAValidityDefault extends EnrollDefault {
                 return formatter.format((Date)
                         validity.get(CertificateValidity.NOT_AFTER));
             } catch (Exception e) {
-                CMS.debug("CAValidityDefault: getValue " + e.toString());
+                logger.error("CAValidityDefault: getValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -338,11 +341,11 @@ public class CAValidityDefault extends EnrollDefault {
 
         // always + 60 seconds
         String startTimeStr = getConfig(CONFIG_START_TIME);
-        CMS.debug("CAValidityDefault: start time: " + startTimeStr);
+        logger.debug("CAValidityDefault: start time: " + startTimeStr);
         try {
             startTimeStr = mapPattern(request, startTimeStr);
         } catch (IOException e) {
-            CMS.debug("CAValidityDefault: populate " + e.toString());
+            logger.warn("CAValidityDefault: populate " + e.getMessage(), e);
         }
 
         if (startTimeStr == null || startTimeStr.equals("")) {
@@ -350,30 +353,30 @@ public class CAValidityDefault extends EnrollDefault {
         }
         long startTime = Long.parseLong(startTimeStr);
 
-        Date notBefore = new Date(CMS.getCurrentDate().getTime() + (1000 * startTime));
-        CMS.debug("CAValidityDefault: not before: " + notBefore);
+        Date notBefore = new Date(new Date().getTime() + (1000 * startTime));
+        logger.debug("CAValidityDefault: not before: " + notBefore);
 
         String rangeStr = getConfig(CONFIG_RANGE, "7305");
-        CMS.debug("CAValidityDefault: range: " + rangeStr);
+        logger.debug("CAValidityDefault: range: " + rangeStr);
 
         int range;
         try {
             rangeStr = mapPattern(request, rangeStr);
             range = Integer.parseInt(rangeStr);
         } catch (IOException e) {
-            CMS.debug(e);
+            logger.error("CAValidityDefault: " + e.getMessage(), e);
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_INVALID_PROPERTY", CONFIG_RANGE));
         }
 
         String rangeUnitStr = getConfig(CONFIG_RANGE_UNIT, "day");
-        CMS.debug("CAValidityDefault: range unit: " + rangeUnitStr);
+        logger.debug("CAValidityDefault: range unit: " + rangeUnitStr);
 
         int rangeUnit;
         try {
             rangeUnit = convertRangeUnit(rangeUnitStr);
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("CAValidityDefault: " + e.getMessage(), e);
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_INVALID_PROPERTY", CONFIG_RANGE_UNIT));
         }
@@ -384,7 +387,7 @@ public class CAValidityDefault extends EnrollDefault {
         date.add(rangeUnit, range);
 
         Date notAfter = date.getTime();
-        CMS.debug("CAValidityDefault: not after: " + notAfter);
+        logger.debug("CAValidityDefault: not after: " + notAfter);
 
         CertificateValidity validity =
                 new CertificateValidity(notBefore, notAfter);
@@ -393,7 +396,7 @@ public class CAValidityDefault extends EnrollDefault {
             info.set(X509CertInfo.VALIDITY, validity);
         } catch (Exception e) {
             // failed to insert subject name
-            CMS.debug("CAValidityDefault: populate " + e.toString());
+            logger.error("CAValidityDefault: populate " + e.getMessage(), e);
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_INVALID_PROPERTY", X509CertInfo.VALIDITY));
         }

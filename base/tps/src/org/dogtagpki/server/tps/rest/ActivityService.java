@@ -30,7 +30,6 @@ import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.ActivityRecord;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.IDBVirtualList;
@@ -38,14 +37,18 @@ import com.netscape.certsrv.logging.ActivityCollection;
 import com.netscape.certsrv.logging.ActivityData;
 import com.netscape.certsrv.logging.ActivityResource;
 import com.netscape.cms.servlet.base.PKIService;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * @author Endi S. Dewata
  */
 public class ActivityService extends PKIService implements ActivityResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ActivityService.class);
+
     public ActivityService() {
-        CMS.debug("ActivityService.<init>()");
+        logger.debug("ActivityService.<init>()");
     }
 
     public ActivityData createActivityData(ActivityRecord activityRecord) {
@@ -92,7 +95,7 @@ public class ActivityService extends PKIService implements ActivityResource {
     @Override
     public Response findActivities(String filter, Integer start, Integer size) {
 
-        CMS.debug("ActivityService.findActivities()");
+        logger.debug("ActivityService.findActivities()");
 
         if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
             throw new BadRequestException("Filter is too short.");
@@ -101,8 +104,9 @@ public class ActivityService extends PKIService implements ActivityResource {
         start = start == null ? 0 : start;
         size = size == null ? DEFAULT_SIZE : size;
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
             ActivityCollection response = new ActivityCollection();
 
@@ -125,7 +129,7 @@ public class ActivityService extends PKIService implements ActivityResource {
             return createOKResponse(response);
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("ActivityService: " + e.getMessage(), e);
             throw new PKIException(e.getMessage());
         }
     }
@@ -147,7 +151,7 @@ public class ActivityService extends PKIService implements ActivityResource {
             ActivityRecord record = list.getElementAt(i);
 
             if (record == null) {
-                CMS.debug("ActivityService: Activity record not found");
+                logger.error("ActivityService: Activity record not found");
                 throw new PKIException("Activity record not found");
             }
 
@@ -191,16 +195,17 @@ public class ActivityService extends PKIService implements ActivityResource {
 
         if (activityID == null) throw new BadRequestException("Activity ID is null.");
 
-        CMS.debug("ActivityService.getActivity(\"" + activityID + "\")");
+        logger.debug("ActivityService.getActivity(\"" + activityID + "\")");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            TPSSubsystem subsystem = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
+            TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
             ActivityDatabase database = subsystem.getActivityDatabase();
 
             return createOKResponse(createActivityData(database.getRecord(activityID)));
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("ActivityService: " + e.getMessage(), e);
             throw new PKIException(e.getMessage());
         }
     }

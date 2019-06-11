@@ -30,7 +30,6 @@ import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 
 import netscape.ldap.LDAPException;
@@ -52,23 +51,19 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     PKIClientSocketListener sockListener = null;
 
     public PKISocketFactory() {
-        init();
     }
 
     public PKISocketFactory(boolean secure) {
         this.secure = secure;
-        init();
     }
 
     public PKISocketFactory(String certNickname) {
         this.secure = true;
         mClientAuthCertNickname = certNickname;
-        init();
     }
 
-    public void init() {
+    public void init(IConfigStore cs) {
         try {
-            IConfigStore cs = CMS.getConfigStore();
             keepAlive = cs.getBoolean("tcp.keepAlive", true);
             logger.debug("TCP Keep-Alive: " + keepAlive);
             sockListener = new PKIClientSocketListener();

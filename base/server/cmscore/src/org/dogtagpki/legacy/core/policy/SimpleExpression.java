@@ -23,10 +23,9 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IExpression;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.util.AssertionException;
-import com.netscape.cmscore.util.Debug;
 
 /**
  * This class represents an expression of the form var = val,
@@ -38,6 +37,9 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class SimpleExpression implements IExpression {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SimpleExpression.class);
+
     private String mPfx;
     private String mVar;
     private String mVal;
@@ -121,8 +123,7 @@ public class SimpleExpression implements IExpression {
         // mPfx and mVar are looked up case-indendently
         String givenVal = req.getExtDataInString(mPfx, mVar);
 
-        if (Debug.ON)
-            Debug.trace("mPfx: " + mPfx + " mVar: " + mVar +
+        logger.trace("mPfx: " + mPfx + " mVar: " + mVar +
                     ",Given Value: " + givenVal + ", Value to compare with: " + mVal);
 
         return matchValue(givenVal);

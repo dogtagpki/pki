@@ -29,9 +29,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -48,6 +47,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Get detailed information about CA CRL processing
@@ -56,9 +58,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GetInfo extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetInfo.class);
     private static final long serialVersionUID = 1909881831730252799L;
 
     private ICertificateAuthority mCA = null;
@@ -118,8 +118,8 @@ public class GetInfo extends CMSServlet {
 
         EBaseException error = null;
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         String template = req.getParameter("template");
@@ -146,7 +146,7 @@ public class GetInfo extends CMSServlet {
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
-        CMS.debug("*** formFile = " + formFile);
+        logger.debug("*** formFile = " + formFile);
         try {
             form = getTemplate(formFile, req, locale);
         } catch (IOException e) {
@@ -190,6 +190,7 @@ public class GetInfo extends CMSServlet {
             HttpServletResponse resp,
             Locale locale)
             throws EBaseException {
+        CMSEngine engine = CMS.getCMSEngine();
         if (mCA != null) {
             String crlIssuingPoints = "";
             String crlNumbers = "";
@@ -202,8 +203,8 @@ public class GetInfo extends CMSServlet {
             String crlTesting = "";
             boolean isDeltaCRLEnabled = false;
 
-            String masterHost = CMS.getConfigStore().getString("master.ca.agent.host", "");
-            String masterPort = CMS.getConfigStore().getString("master.ca.agent.port", "");
+            String masterHost = engine.getConfigStore().getString("master.ca.agent.host", "");
+            String masterPort = engine.getConfigStore().getString("master.ca.agent.port", "");
 
             if (masterHost != null && masterHost.length() > 0 &&
                     masterPort != null && masterPort.length() > 0) {
@@ -354,7 +355,7 @@ public class GetInfo extends CMSServlet {
             String[] allAlgorithms = mCA.getCASigningAlgorithms();
 
             if (allAlgorithms == null) {
-                CMS.debug("GetInfo: signing algorithms set to All algorithms");
+                logger.debug("GetInfo: signing algorithms set to All algorithms");
                 allAlgorithms = AlgorithmId.ALL_SIGNING_ALGORITHMS;
             }
 

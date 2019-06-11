@@ -122,7 +122,7 @@ run_rhcs_install_packages() {
                         # Adding JAVA_OPTS to configfile /usr/share/pki/server/conf/tomcat.conf for the jacoco javaagent
                        rlLog "Adding JAVA_OPTS to configfile /usr/share/pki/server/conf/tomcat.conf for the jacoco javaagent"
                        local configfile="/usr/share/pki/server/conf/tomcat.conf"
-                       rlRun "sed -e 's/JAVA\_OPTS\=\\\"\-DRESTEASY\_LIB\=\[PKI_RESTEASY_LIB\]\\\"/JAVA\_OPTS\=\\\"\-DRESTEASY\_LIB\=\[PKI_RESTEASY_LIB\] -javaagent:\/usr\/lib\/jvm\/java\/jre\/lib\/org.jacoco.agent.rt.jar=destfile=\/tmp\/jacoco.exec,output=file\\\"/g' -i $configfile"
+                       rlRun "sed -e 's/JAVA\_OPTS\=\\\"\\\"/JAVA\_OPTS\=\\\"-javaagent:\/usr\/lib\/jvm\/java\/jre\/lib\/org.jacoco.agent.rt.jar=destfile=\/tmp\/jacoco.exec,output=file\\\"/g' -i $configfile"
                        rlLog "Check if the javaagent added to /usr/share/pki/server/conf/tomcat.conf"
                        rlRun "cat $configfile"
                        rlRun "sleep 20"

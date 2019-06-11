@@ -30,7 +30,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
@@ -45,12 +47,11 @@ import com.netscape.certsrv.request.IRequestRecord;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.ldap.IRequestMod;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.BigIntegerMapper;
 import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.StringMapper;
-import com.netscape.cmscore.util.Debug;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.X509CertInfo;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -63,9 +64,8 @@ import netscape.ldap.LDAPAttributeSet;
 public class RequestRecord
         extends ARequestRecord
         implements IRequestRecord, IDBObj {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRecord.class);
     private static final long serialVersionUID = 8044665107558872084L;
 
     public RequestId getRequestId() {
@@ -250,6 +250,7 @@ public class RequestRecord
             // where CMC puts it
             reqType = r.getExtDataInString("auth_token.cert_request_type");
         }
+        CMSEngine engine = CMS.getCMSEngine();
         Enumeration<String> e = r.getExtDataKeys();
         while (e.hasMoreElements()) {
             String key = e.nextElement();
@@ -260,11 +261,11 @@ public class RequestRecord
                     String subjectName = r.getExtDataInString("req_subject_name");
                     if (subjectName == null || subjectName.equals("")) {
                         X509CertInfo info = r.getExtDataInCertInfo(IRequest.CERT_INFO);
-                        CMS.debug("RequestRecord.loadExtDataFromRequest: missing subject name. Processing extracting subjectName from req_x509info");
+                        logger.debug("RequestRecord.loadExtDataFromRequest: missing subject name. Processing extracting subjectName from req_x509info");
                         try {
                             CertificateSubjectName subjName = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);
                             if (subjName != null) {
-                                CMS.debug("RequestRecord.loadExtDataFromRequest: got subjName");
+                                logger.debug("RequestRecord.loadExtDataFromRequest: got subjName");
                                 h.put("req_subject_name", subjName.toString());
                             }
                         } catch (Exception es) {
@@ -272,13 +273,13 @@ public class RequestRecord
                           //so be it
                         }
                     }/* else { //this is the common case
-                        CMS.debug("RequestRecord.loadExtDataFromRequest: subject name already exists, no action needed");
+                        logger.debug("RequestRecord.loadExtDataFromRequest: subject name already exists, no action needed");
                     }*/
                 }
                 if (reqType != null &&
                     (reqType.equals("crmf") || reqType.equals("cmc-crmf")) &&
-                        CMS.isExcludedLdapAttr(key)) {
-                    //CMS.debug("RequestRecord.loadExtDataFromRequest: found excluded attr; key=" + key);
+                        engine.isExcludedLdapAttr(key)) {
+                    // logger.debug("RequestRecord.loadExtDataFromRequest: found excluded attr; key=" + key);
                     continue;
                 }
                 h.put(key, r.getExtDataInString(key));
@@ -376,15 +377,13 @@ public class RequestRecord
 //
 class RequestStateMapper
         implements IDBAttrMapper {
-    // IDBAttrMapper methods
 
-    //
-    //
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestStateMapper.class);
+
     public Enumeration<String> getSupportedLDAPAttributeNames() {
         return mAttrs.elements();
     }
 
-    //
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs) throws EBaseException {
         if (obj == null) {
@@ -404,7 +403,7 @@ class RequestStateMapper
         if (attr == null)
             throw new EBaseException("schema violation");
 
-        String value = (String) attr.getStringValues().nextElement();
+        String value = attr.getStringValues().nextElement();
 
         parent.set(name, RequestStatus.fromString(value));
     }
@@ -459,7 +458,7 @@ class RequestIdMapper
         if (attr == null)
             throw new EBaseException("schema violation");
 
-        String value = (String) attr.getStringValues().nextElement();
+        String value = attr.getStringValues().nextElement();
 
         parent.set(name, new RequestId(
                 BigIntegerMapper.BigIntegerFromDB(value).toString()));
@@ -495,15 +494,13 @@ class RequestIdMapper
  */
 class RequestAttrsMapper
         implements IDBAttrMapper {
-    // IDBAttrMapper methods
 
-    //
-    //
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestAttrsMapper.class);
+
     public Enumeration<String> getSupportedLDAPAttributeNames() {
         return mAttrs.elements();
     }
 
-    //
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs) throws EBaseException {
         if (obj == null) {
@@ -531,17 +528,11 @@ class RequestAttrsMapper
                     os.writeObject(key);
                     os.writeObject(data);
                 } catch (NotSerializableException x) {
-                    if (Debug.ON) {
-                        System.err.println("Error: attribute '" + key + "' (" +
-                                x.getMessage() + ") is not serializable");
-                        x.printStackTrace();
-                    }
+                    logger.warn("RequestRecord: attribute '" + key + "' is not serializable: "
+                            + x.getMessage(), x);
                 } catch (Exception x) {
-                    if (Debug.ON) {
-                        System.err.println("Error: attribute '" + key +
-                                "' - error during serialization: " + x);
-                        x.printStackTrace();
-                    }
+                    logger.warn("RequestRecord: attribute '" + key + "' - error during serialization: "
+                            + x.getMessage(), x);
                 }
             }
 
@@ -549,11 +540,8 @@ class RequestAttrsMapper
 
         } catch (Exception x) {
             if (parent != null)
-                Debug.trace("Output Mapping Error in requeset ID " +
-                        ((RequestRecord) parent).getRequestId().toString() + " : " + x);
-            //if (Debug.ON) {
-            Debug.printStackTrace(x);
-            //}
+                logger.error("Output Mapping Error in requeset ID " +
+                        ((RequestRecord) parent).getRequestId() + " : " + x.getMessage(), x);
             throw new EBaseException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         } finally {
             if (os != null) {
@@ -616,13 +604,13 @@ class RequestAttrsMapper
                 ht.put(key, decode(bytes));
             }
         } catch (ObjectStreamException e) {
-            Debug.trace("Key " + key); // would be nice to know object type.
+            logger.error("Key " + key + ": " + e.getMessage(), e);
             throw e;
         } catch (IOException e) {
-            Debug.trace("Key " + key); // would be nice to know object type.
+            logger.error("Key " + key + ": " + e.getMessage(), e);
             throw e;
         } catch (ClassNotFoundException e) {
-            Debug.trace("Key " + key); // would be nice to know object type.
+            logger.error("Key " + key + ": " + e.getMessage(), e);
             throw e;
         }
 
@@ -659,12 +647,9 @@ class RequestAttrsMapper
                 ht = decodeHashtable(value);
             }
         } catch (Exception x) {
-            Debug.trace("Mapping error in request Id " +
-                    ((RequestRecord) parent).getRequestId().toString() + " : " + x);
-            Debug.trace("Attr " + attr.getName());
-            //if (Debug.ON) {
-            Debug.printStackTrace(x);
-            //}
+            logger.warn("Mapping error in request Id " +
+                    ((RequestRecord) parent).getRequestId() + " : " + x.getMessage(), x);
+            logger.trace("Attr " + attr.getName());
         }
 
         parent.set(name, ht);
@@ -705,6 +690,8 @@ class RequestAttrsMapper
  *
  */
 class ExtAttrDynMapper implements IDBDynAttrMapper {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExtAttrDynMapper.class);
 
     public boolean supportsLDAPAttributeName(String attrName) {
         return (attrName != null) &&
@@ -903,7 +890,7 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
                             ((IRequestRecord) parent).getRequestId().toString() + " : " +
                             "more than one value returned for " +
                             keyName;
-                    Debug.trace(message);
+                    logger.error(message);
                     throw new EBaseException(message);
                 }
                 if ((subTypes != null) && (subTypes.length > 0)) {
@@ -912,7 +899,7 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
                                 ((IRequestRecord) parent).getRequestId().toString() + " : " +
                                 "more than one subType returned for " +
                                 keyName;
-                        Debug.trace(message);
+                        logger.error(message);
                         throw new EBaseException(message);
                     }
                     Object value = ht.get(keyName);
@@ -921,7 +908,7 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
                                 ((IRequestRecord) parent).getRequestId().toString() + " : " +
                                 "combined no-subtype and subtype data for key " +
                                 keyName;
-                        Debug.trace(message);
+                        logger.error(message);
                         throw new EBaseException(message);
                     }
                     valueHashtable = (Hashtable<String, String>) value;

@@ -22,6 +22,7 @@ package com.netscape.certsrv.logging;
  * class "AuditFormat" is legacy and has nothing to do with the signed
  * audit log events format
  *
+ * @author mzhao
  * @version $Revision$, $Date$
  */
 public class AuditFormat {
@@ -67,50 +68,50 @@ public class AuditFormat {
      * 6: other info. eg cert serial number, violation policies
      */
     public static final String FORMAT =
-            "{0} reqID {1} {2} authenticated by {3} is {4} DN requested: {5} {6}";
+            "{} reqID {} {} authenticated by {} is {} DN requested: {} {}";
     public static final String NODNFORMAT =
-            "{0} reqID {1} {2} authenticated by {3} is {4}";
+            "{} reqID {} {} authenticated by {} is {}";
 
     public static final String ENROLLMENTFORMAT =
-            "Enrollment request reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} {5}";
+            "Enrollment request reqID {} {} authenticated by {} is {}. DN requested: {} {}";
     public static final String RENEWALFORMAT =
-            "Renewal request reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} old serial number: 0x{5} {6}";
+            "Renewal request reqID {} {} authenticated by {} is {}. DN requested: {} old serial number: 0x{} {}";
     public static final String REVOCATIONFORMAT =
-            "Revocation request reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} serial number: 0x{5} revocation reason: {6} {7}";
+            "Revocation request reqID {} {} authenticated by {} is {}. DN requested: {} serial number: 0x{} revocation reason: {} {}";
 
     // 1: fromAgent AgentID: xxx authenticated by xxx
     public static final String DOREVOKEFORMAT =
-            "Revocation request reqID {0} {1} is {2}. DN requested: {3} serial number: 0x{4} revocation reason: {5}";
+            "Revocation request reqID {} {} is {}. DN requested: {} serial number: 0x{} revocation reason: {}";
     // 1: fromAgent AgentID: xxx authenticated by xxx
     public static final String DOUNREVOKEFORMAT =
-            "Unrevocation request reqID {0} {1} is {2}. DN requested: {3} serial number: 0x{4}";
+            "Unrevocation request reqID {} {} is {}. DN requested: {} serial number: 0x{}";
 
     // 0:initiative
     public static final String CRLUPDATEFORMAT =
-            "CRLUpdate request {0} authenticated by {1} is {2}. Id: {3}\ncrl Number: {4} last update time: {5} next update time: {6} number of entries in the CRL: {7}";
+            "CRLUpdate request {} authenticated by {} is {}. Id: {}\ncrl Number: {} last update time: {} next update time: {} number of entries in the CRL: {}";
 
     // audit user/group
     public static final String ADDUSERFORMAT =
-            "Admin UID: {0} added User UID: {1}";
+            "Admin UID: {} added User UID: {}";
     public static final String REMOVEUSERFORMAT =
-            "Admin UID: {0} removed User UID: {1} ";
+            "Admin UID: {} removed User UID: {} ";
     public static final String MODIFYUSERFORMAT =
-            "Admin UID: {0} modified User UID: {1}";
+            "Admin UID: {} modified User UID: {}";
     public static final String ADDUSERCERTFORMAT =
-            "Admin UID: {0} added cert for User UID: {1}. cert DN: {2} serial number: 0x{3}";
+            "Admin UID: {} added cert for User UID: {}. cert DN: {} serial number: 0x{}";
     public static final String REMOVEUSERCERTFORMAT =
-            "Admin UID: {0} removed cert of User UID: {1}. cert DN: {2} serial number: 0x{3}";
+            "Admin UID: {} removed cert of User UID: {}. cert DN: {} serial number: 0x{}";
     public static final String ADDUSERGROUPFORMAT =
-            "Admin UID: {0} added User UID: {1} to group: {2}";
+            "Admin UID: {} added User UID: {} to group: {}";
     public static final String REMOVEUSERGROUPFORMAT =
-            "Admin UID: {0} removed User UID: {1} from group: {2}";
+            "Admin UID: {} removed User UID: {} from group: {}";
     public static final String ADDCERTSUBJECTDNFORMAT =
-            "Admin UID: {0} added cert subject DN for User UID: {1}. cert DN: {2}";
+            "Admin UID: {} added cert subject DN for User UID: {}. cert DN: {}";
     public static final String REMOVECERTSUBJECTDNFORMAT =
-            "Admin UID: {0} removed cert subject DN for User UID: {1}. cert DN: {2}";
+            "Admin UID: {} removed cert subject DN for User UID: {}. cert DN: {}";
 
     // LDAP publishing
     public static final String LDAP_PUBLISHED_FORMAT =
-            "{0} successfully published serial number: 0x{1} with DN: {2}";
+            "{} successfully published serial number: 0x{} with DN: {}";
 
 }

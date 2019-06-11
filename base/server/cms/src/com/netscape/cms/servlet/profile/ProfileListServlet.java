@@ -25,7 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -36,6 +35,8 @@ import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * List all enabled profiles.
@@ -44,9 +45,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
  */
 public class ProfileListServlet extends ProfileServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileListServlet.class);
+
     private static final long serialVersionUID = -5118812083812548395L;
 
     public ProfileListServlet() {
@@ -72,8 +72,9 @@ public class ProfileListServlet extends ProfileServlet {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();
 
-        CMS.debug("ProfileListServlet: start serving");
+        logger.debug("ProfileListServlet: start serving");
 
+        CMSEngine engine = CMS.getCMSEngine();
         Locale locale = getLocale(request);
 
         ArgSet args = new ArgSet();
@@ -106,12 +107,11 @@ public class ProfileListServlet extends ProfileServlet {
         if (mProfileSubId == null || mProfileSubId.equals("")) {
             mProfileSubId = IProfileSubsystem.ID;
         }
-        CMS.debug("ProfileListServlet: SubId=" + mProfileSubId);
-        IProfileSubsystem ps = (IProfileSubsystem)
-                CMS.getSubsystem(mProfileSubId);
+        logger.debug("ProfileListServlet: SubId=" + mProfileSubId);
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(mProfileSubId);
 
         if (ps == null) {
-            CMS.debug("ProfileListServlet: ProfileSubsystem " +
+            logger.warn("ProfileListServlet: ProfileSubsystem " +
                     mProfileSubId + " not found");
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
@@ -132,12 +132,13 @@ public class ProfileListServlet extends ProfileServlet {
                     profile = ps.getProfile(id);
                 } catch (EBaseException e1) {
                     // skip bad profile
-                    CMS.debug("ProfileListServlet: profile " + id +
-                            " not found (skipped) " + e1.toString());
+                    logger.warn("ProfileListServlet: profile " + id +
+                            " not found (skipped) " + e1.getMessage(), e);
                     continue;
                 }
+
                 if (profile == null) {
-                    CMS.debug("ProfileListServlet: profile " + id +
+                    logger.warn("ProfileListServlet: profile " + id +
                             " not found (skipped)");
                     continue;
                 }

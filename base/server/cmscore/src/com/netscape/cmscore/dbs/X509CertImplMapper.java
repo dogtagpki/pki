@@ -25,21 +25,22 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.Extension;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.AttributeNameHelper;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
+import com.netscape.cmscore.apps.CMS;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 
 /**
  * A class represents a mapper to serialize
@@ -264,8 +265,7 @@ public class X509CertImplMapper implements IDBAttrMapper {
                             CertDBSchema.LDAP_ATTR_SIGNED_CERT + ";binary");
             }
             if (attr != null) {
-                byte der[] = (byte[])
-                        attr.getByteValues().nextElement();
+                byte der[] = attr.getByteValues().nextElement();
                 X509CertImpl impl = new X509CertImpl(der);
 
                 parent.set(name, impl);

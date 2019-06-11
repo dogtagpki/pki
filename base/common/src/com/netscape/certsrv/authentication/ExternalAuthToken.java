@@ -27,8 +27,8 @@ import java.util.Enumeration;
 
 import org.apache.catalina.realm.GenericPrincipal;
 
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.usrgrp.Certificates;
 

@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -41,6 +41,8 @@ import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
@@ -48,7 +50,6 @@ import com.netscape.cmsutil.ocsp.ResponseBytes;
 import com.netscape.cmsutil.ocsp.ResponseData;
 import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
-import com.netscape.cmsutil.util.Utils;
 
 /**
  * Process OCSP messages, According to RFC 2560
@@ -58,9 +59,8 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class OCSPServlet extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OCSPServlet.class);
+
     private static final long serialVersionUID = 120903601883352030L;
     public final static String PROP_AUTHORITY = "authority";
     public final static String PROP_CLIENTAUTH = "GetClientCert";
@@ -103,7 +103,8 @@ public class OCSPServlet extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming("ocsp", true /* main action */);
         }
@@ -123,19 +124,19 @@ public class OCSPServlet extends CMSServlet {
             return;
         }
 
-        CMS.debug("OCSPServlet: Servlet Path: " + httpReq.getServletPath());
-        CMS.debug("OCSPServlet: RequestURI: " + httpReq.getRequestURI());
+        logger.debug("OCSPServlet: Servlet Path: " + httpReq.getServletPath());
+        logger.debug("OCSPServlet: RequestURI: " + httpReq.getRequestURI());
 
         String pathInfo = httpReq.getPathInfo();
         if (pathInfo != null && pathInfo.indexOf('%') != -1) {
             try {
                 pathInfo = URLDecoder.decode(pathInfo, "UTF-8");
             } catch (UnsupportedEncodingException e) {
-                CMS.debug(e);
+                logger.error("OCSPServlet: " + e.getMessage(), e);
                 throw new EBaseException("OCSPServlet: Unsupported encoding: " + e, e);
             }
         }
-        CMS.debug("OCSPServlet: PathInfo: " + pathInfo);
+        logger.debug("OCSPServlet: PathInfo: " + pathInfo);
 
         OCSPRequest ocspReq = null;
 
@@ -144,11 +145,11 @@ public class OCSPServlet extends CMSServlet {
             byte reqbuf[] = null;
 
             String method = httpReq.getMethod();
-            CMS.debug("OCSPServlet: HTTP method: " + method);
+            logger.debug("OCSPServlet: HTTP method: " + method);
 
             if (method != null && method.equals("POST")) {
 
-                CMS.debug("OCSPServlet: processing POST request");
+                logger.debug("OCSPServlet: processing POST request");
 
                 int reqlen = httpReq.getContentLength();
 
@@ -183,7 +184,7 @@ public class OCSPServlet extends CMSServlet {
 
             } else {
 
-                CMS.debug("OCSPServlet: processing GET request");
+                logger.debug("OCSPServlet: processing GET request");
 
                 if ((pathInfo == null) ||
                         (pathInfo.equals("")) ||
@@ -209,7 +210,7 @@ public class OCSPServlet extends CMSServlet {
                                        + "empty or malformed");
                 }
 
-                CMS.debug("OCSPServlet: decoding request");
+                logger.debug("OCSPServlet: decoding request");
                 ocspReq = (OCSPRequest) reqTemplate.decode(is);
 
                 if ((ocspReq == null) ||
@@ -218,7 +219,7 @@ public class OCSPServlet extends CMSServlet {
                                        + "is empty or malformed");
                 }
 
-                CMS.debug("OCSPServlet: validating request");
+                logger.debug("OCSPServlet: validating request");
                 response = ((IOCSPService) mAuthority).validate(ocspReq);
 
                 if (response == null) {
@@ -229,7 +230,7 @@ public class OCSPServlet extends CMSServlet {
                 }
 
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.warn("OCSPServlet: " + e.getMessage(), e);
                 audit(OCSPGenerationEvent.createFailureEvent(auditSubjectID(), e.getMessage()));
             }
 
@@ -245,24 +246,24 @@ public class OCSPServlet extends CMSServlet {
 
                 // print out OCSP response in debug mode so that
                 // we can validate the response
-                if (CMS.debugOn()) {
-                    CMS.debug("OCSPServlet: OCSP Request:");
-                    CMS.debug("OCSPServlet: " + Utils.base64encode(ASN1Util.encode(ocspReq), true));
+                if (logger.isDebugEnabled()) {
+                    logger.debug("OCSPServlet: OCSP Request:");
+                    logger.debug("OCSPServlet: " + Utils.base64encode(ASN1Util.encode(ocspReq), true));
 
                     TBSRequest tbsReq = ocspReq.getTBSRequest();
                     for (int i = 0; i < tbsReq.getRequestCount(); i++) {
                         com.netscape.cmsutil.ocsp.Request req = tbsReq.getRequestAt(i);
-                        CMS.debug("Serial Number: " + req.getCertID().getSerialNumber());
+                        logger.debug("Serial Number: " + req.getCertID().getSerialNumber());
                     }
 
-                    CMS.debug("OCSPServlet: OCSP Response Size:");
-                    CMS.debug("OCSPServlet: " + Integer.toString(respbytes.length));
-                    CMS.debug("OCSPServlet: OCSP Response Data:");
-                    CMS.debug("OCSPServlet: " + Utils.base64encode(respbytes, true));
+                    logger.debug("OCSPServlet: OCSP Response Size:");
+                    logger.debug("OCSPServlet: " + Integer.toString(respbytes.length));
+                    logger.debug("OCSPServlet: OCSP Response Data:");
+                    logger.debug("OCSPServlet: " + Utils.base64encode(respbytes, true));
 
                     ResponseBytes rbytes = response.getResponseBytes();
                     if (rbytes == null) {
-                        CMS.debug("OCSPServlet: Response bytes is null");
+                        logger.debug("OCSPServlet: Response bytes is null");
 
                     } else if (rbytes.getObjectIdentifier().equals(
                                ResponseBytes.OCSP_BASIC)) {
@@ -272,15 +273,15 @@ public class OCSPServlet extends CMSServlet {
                                         new ByteArrayInputStream(rbytes.getResponse().toByteArray()));
 
                         if (basicRes == null) {
-                            CMS.debug("OCSPServlet: Basic Res is null");
+                            logger.warn("OCSPServlet: Basic Res is null");
 
                         } else {
                             ResponseData data = basicRes.getResponseData();
                             for (int i = 0; i < data.getResponseCount(); i++) {
                                 SingleResponse res = data.getResponseAt(i);
-                                CMS.debug("OCSPServlet: Serial Number: " +
+                                logger.debug("OCSPServlet: Serial Number: " +
                                           res.getCertID().getSerialNumber());
-                                CMS.debug("OCSPServlet: Status: " +
+                                logger.debug("OCSPServlet: Status: " +
                                           res.getCertStatus().getClass().getName());
                             }
                         }
@@ -301,11 +302,11 @@ public class OCSPServlet extends CMSServlet {
                 mRenderResult = false;
 
             } else {
-                CMS.debug("OCSPServlet: response is null");
+                logger.warn("OCSPServlet: response is null");
             }
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.warn("OCSPServlet: " + e.getMessage(), e);
         }
     }
 }

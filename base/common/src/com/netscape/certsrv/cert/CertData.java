@@ -35,7 +35,7 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.CertIdAdapter;
 import com.netscape.certsrv.util.DateAdapter;
-import com.netscape.cmsutil.util.Cert;
+import org.mozilla.jss.netscape.security.util.Cert;
 
 /**
  * @author alee

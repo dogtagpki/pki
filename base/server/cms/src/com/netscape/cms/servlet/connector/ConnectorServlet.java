@@ -35,8 +35,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
@@ -60,24 +71,13 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.connector.HttpPKIMessage;
 import com.netscape.cmscore.connector.HttpRequestEncoder;
-
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * Connector servlet
@@ -88,7 +88,7 @@ import netscape.security.x509.X509CertInfo;
  */
 public class ConnectorServlet extends CMSServlet {
 
-    private static Logger mLogger = Logger.getLogger();
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConnectorServlet.class);
 
     private static final long serialVersionUID = 1221916495803185863L;
     public static final String INFO = "Connector Servlet";
@@ -105,22 +105,24 @@ public class ConnectorServlet extends CMSServlet {
 
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
+        CMSEngine engine = CMS.getCMSEngine();
         mConfig = sc;
         String authority = sc.getInitParameter(PROP_AUTHORITY);
 
         if (authority != null)
-            mAuthority = (IAuthority)
-                    CMS.getSubsystem(authority);
+            mAuthority = (IAuthority) engine.getSubsystem(authority);
         mReqEncoder = new HttpRequestEncoder();
 
-        mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
     }
 
     public void service(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        boolean running_state = CMS.isInRunningState();
+        CMSEngine engine = CMS.getCMSEngine();
+        boolean running_state = engine.isInRunningState();
 
         if (!running_state)
             throw new IOException(
@@ -132,7 +134,7 @@ public class ConnectorServlet extends CMSServlet {
         CMSRequest cmsRequest = newCMSRequest();
 
         // set argblock
-        cmsRequest.setHttpParams(CMS.createArgBlock(toHashtable(request)));
+        cmsRequest.setHttpParams(new ArgBlock(toHashtable(request)));
 
         // set http request
         cmsRequest.setHttpReq(request);
@@ -251,32 +253,29 @@ public class ConnectorServlet extends CMSServlet {
 
         // now process request.
 
-        CMS.debug("ConnectorServlet: process request RA_Id=" + RA_Id);
+        logger.debug("ConnectorServlet: process request RA_Id=" + RA_Id);
         try {
             // decode request.
             msg = (IPKIMessage) mReqEncoder.decode(encodedreq);
             // process request
             replymsg = processRequest(RA_Id, raUserId, msg, token);
         } catch (IOException e) {
-            CMS.debug("ConnectorServlet: service " + e.toString());
-            CMS.debug(e);
+            logger.error("ConnectorServlet: service " + e.getMessage(), e);
             mAuthority.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         } catch (EBaseException e) {
-            CMS.debug("ConnectorServlet: service " + e.toString());
-            CMS.debug(e);
+            logger.error("ConnectorServlet: service " + e.getMessage(), e);
             mAuthority.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
         } catch (Exception e) {
-            CMS.debug("ConnectorServlet: service " + e.toString());
-            CMS.debug(e);
+            logger.warn("ConnectorServlet: service " + e.getMessage(), e);
         }
 
-        CMS.debug("ConnectorServlet: done processRequest");
+        logger.debug("ConnectorServlet: done processRequest");
 
         // encode reply
         try {
@@ -295,9 +294,9 @@ public class ConnectorServlet extends CMSServlet {
             writer.close();
             out.flush();
         } catch (Exception e) {
-            CMS.debug("ConnectorServlet: error writing e=" + e.toString());
+            logger.warn("ConnectorServlet: error writing e=" + e.getMessage(), e);
         }
-        CMS.debug("ConnectorServlet: send response RA_Id=" + RA_Id);
+        logger.debug("ConnectorServlet: send response RA_Id=" + RA_Id);
     }
 
     public static boolean isProfileRequest(IRequest request) {
@@ -314,6 +313,7 @@ public class ConnectorServlet extends CMSServlet {
         // x509certinfo from ra into request
         X509CertInfo info = null;
         ByteArrayOutputStream byteStream;
+        CMSEngine engine = CMS.getCMSEngine();
 
         try {
             info = request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
@@ -359,29 +359,27 @@ public class ConnectorServlet extends CMSServlet {
                         certAlgOut.toByteArray());
             }
         } catch (Exception e) {
-            CMS.debug("ConnectorServlet: profile normalization " +
-                    e.toString());
+            logger.warn("ConnectorServlet: profile normalization " + e.getMessage(), e);
         }
 
         String profileId = request.getExtDataInString(IRequest.PROFILE_ID);
-        IProfileSubsystem ps = (IProfileSubsystem)
-                CMS.getSubsystem("profile");
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
         IEnrollProfile profile = null;
 
         // profile subsystem may not be available. In case of KRA for
         // example
         if (ps == null) {
-            CMS.debug("ConnectorServlet: Profile Subsystem not found ");
+            logger.error("ConnectorServlet: Profile Subsystem not found ");
             return;
         }
         try {
             profile = (IEnrollProfile) (ps.getProfile(profileId));
             profile.setDefaultCertInfo(request);
         } catch (EProfileException e) {
-            CMS.debug("ConnectorServlet: normalizeProfileRequest Exception: " + e.toString());
+            logger.warn("ConnectorServlet: normalizeProfileRequest Exception: " + e.getMessage(), e);
         }
         if (profile == null) {
-            CMS.debug("ConnectorServlet: Profile not found " + profileId);
+            logger.error("ConnectorServlet: Profile not found " + profileId);
             return;
         }
     }
@@ -511,7 +509,7 @@ public class ConnectorServlet extends CMSServlet {
 
             // if not found process request.
             thisreq = queue.newRequest(msg.getReqType());
-            CMS.debug("ConnectorServlet: created requestId=" +
+            logger.debug("ConnectorServlet: created requestId=" +
                     thisreq.getRequestId().toString());
             thisreq.setSourceId(srcid);
 
@@ -555,8 +553,7 @@ public class ConnectorServlet extends CMSServlet {
 
                     audit(auditMessage);
                 } catch (CertificateException e) {
-                    CMS.debug("ConnectorServlet: processRequest "
-                             + e.toString());
+                    logger.warn("ConnectorServlet: processRequest " + e.getMessage(), e);
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
@@ -569,8 +566,7 @@ public class ConnectorServlet extends CMSServlet {
 
                     audit(auditMessage);
                 } catch (IOException e) {
-                    CMS.debug("ConnectorServlet: processRequest "
-                             + e.toString());
+                    logger.warn("ConnectorServlet: processRequest " + e.getMessage(), e);
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
@@ -609,13 +605,13 @@ public class ConnectorServlet extends CMSServlet {
                 s.put(SessionContext.REQUESTER_ID, msg.getReqId());
             }
 
-            //CMS.debug("ConnectorServlet: calling processRequest instance=" +
+            //logger.debug("ConnectorServlet: calling processRequest instance=" +
             //        thisreq);
             if (isProfileRequest(thisreq)) {
                 normalizeProfileRequest(thisreq);
             }
 
-            CMS.debug("ConnectorServlet: calling processRequest");
+            logger.debug("ConnectorServlet: calling processRequest");
             try {
                 queue.processRequest(thisreq);
 
@@ -647,7 +643,7 @@ public class ConnectorServlet extends CMSServlet {
             replymsg = new HttpPKIMessage();
             replymsg.fromRequest(thisreq);
 
-            CMS.debug("ConnectorServlet: replymsg.reqStatus=" +
+            logger.debug("ConnectorServlet: replymsg.reqStatus=" +
                     replymsg.getReqStatus());
 
             //for audit log
@@ -663,7 +659,7 @@ public class ConnectorServlet extends CMSServlet {
 
             if (isProfileRequest(thisreq)) {
                 // XXX audit log
-                CMS.debug("ConnectorServlet: done requestId=" +
+                logger.debug("ConnectorServlet: done requestId=" +
                         thisreq.getRequestId().toString());
 
                 // store a message in the signed audit log file
@@ -691,32 +687,26 @@ public class ConnectorServlet extends CMSServlet {
                 if (!thisreq.getRequestStatus().equals(RequestStatus.COMPLETE)) {
                     if (x509Info != null) {
                         for (int i = 0; i < x509Info.length; i++) {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.FORMAT,
-                                    new Object[] {
-                                            thisreq.getRequestType(),
-                                            thisreq.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            thisreq.getRequestStatus(),
-                                            x509Info[i].get(X509CertInfo.SUBJECT),
-                                            "" }
-                                    );
+                                    thisreq.getRequestType(),
+                                    thisreq.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    thisreq.getRequestStatus(),
+                                    x509Info[i].get(X509CertInfo.SUBJECT),
+                                    ""
+                            );
                         }
                     } else {
-                        mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.NODNFORMAT,
-                                new Object[] {
-                                        thisreq.getRequestType(),
-                                        thisreq.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        thisreq.getRequestStatus() }
-                                );
+                                thisreq.getRequestType(),
+                                thisreq.getRequestId(),
+                                initiative,
+                                authMgr,
+                                thisreq.getRequestStatus()
+                        );
                     }
                 } else {
                     if (thisreq.getRequestType().equals(IRequest.ENROLLMENT_REQUEST)) {
@@ -731,33 +721,27 @@ public class ConnectorServlet extends CMSServlet {
                         // return potentially more than one certificates.
                         if (x509Certs != null) {
                             for (int i = 0; i < x509Certs.length; i++) {
-                                mLogger.log(ILogger.EV_AUDIT,
-                                        ILogger.S_OTHER,
-                                        AuditFormat.LEVEL,
+                                logger.info(
                                         AuditFormat.FORMAT,
-                                        new Object[] {
-                                                thisreq.getRequestType(),
-                                                thisreq.getRequestId(),
-                                                initiative,
-                                                authMgr,
-                                                "completed",
-                                                x509Certs[i].getSubjectDN(),
-                                                "cert issued serial number: 0x" +
-                                                        x509Certs[i].getSerialNumber().toString(16) }
-                                        );
+                                        thisreq.getRequestType(),
+                                        thisreq.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        "completed",
+                                        x509Certs[i].getSubjectDN(),
+                                        "cert issued serial number: 0x" +
+                                                x509Certs[i].getSerialNumber().toString(16)
+                                );
                             }
                         } else {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.NODNFORMAT,
-                                    new Object[] {
-                                            thisreq.getRequestType(),
-                                            thisreq.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "completed" }
-                                    );
+                                    thisreq.getRequestType(),
+                                    thisreq.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "completed"
+                            );
                         }
                     } else if (thisreq.getRequestType().equals(IRequest.RENEWAL_REQUEST)) {
                         X509CertImpl[] certs =
@@ -768,31 +752,26 @@ public class ConnectorServlet extends CMSServlet {
                         X509CertImpl renewed_cert = certs[0];
 
                         if (old_cert != null && renewed_cert != null) {
-                            mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.RENEWALFORMAT,
-                                    new Object[] {
-                                            thisreq.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "completed",
-                                            old_cert.getSubjectDN(),
-                                            old_cert.getSerialNumber().toString(16),
-                                            "new serial number: 0x" +
-                                                    renewed_cert.getSerialNumber().toString(16) }
-                                    );
+                                    thisreq.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "completed",
+                                    old_cert.getSubjectDN(),
+                                    old_cert.getSerialNumber().toString(16),
+                                    "new serial number: 0x" +
+                                            renewed_cert.getSerialNumber().toString(16)
+                            );
                         } else {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.NODNFORMAT,
-                                    new Object[] {
-                                            thisreq.getRequestType(),
-                                            thisreq.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "completed with error" }
-                                    );
+                                    thisreq.getRequestType(),
+                                    thisreq.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "completed with error"
+                            );
                         }
                     } else if (thisreq.getRequestType().equals(IRequest.REVOCATION_REQUEST)) {
                         Certificate[] oldCerts =
@@ -832,19 +811,15 @@ public class ConnectorServlet extends CMSServlet {
                                                 if (oldCerts[j] instanceof X509CertImpl) {
                                                     X509CertImpl cert = (X509CertImpl) oldCerts[j];
 
-                                                    mLogger.log(ILogger.EV_AUDIT,
-                                                            ILogger.S_OTHER,
-                                                            AuditFormat.LEVEL,
+                                                    logger.info(
                                                             AuditFormat.DOREVOKEFORMAT,
-                                                            new Object[] {
-                                                                    thisreq.getRequestId(),
-                                                                    initiative,
-                                                                    "completed with error: " +
-                                                                            err,
-                                                                    cert.getSubjectDN(),
-                                                                    cert.getSerialNumber().toString(16),
-                                                                    RevocationReason.fromInt(reason).toString() }
-                                                            );
+                                                            thisreq.getRequestId(),
+                                                            initiative,
+                                                            "completed with error: " + err,
+                                                            cert.getSubjectDN(),
+                                                            cert.getSerialNumber().toString(16),
+                                                            RevocationReason.fromInt(reason)
+                                                    );
                                                 }
                                             }
                                         }
@@ -858,33 +833,28 @@ public class ConnectorServlet extends CMSServlet {
                                     if (oldCerts[j] instanceof X509CertImpl) {
                                         X509CertImpl cert = (X509CertImpl) oldCerts[j];
 
-                                        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                                                AuditFormat.LEVEL,
+                                        logger.info(
                                                 AuditFormat.DOREVOKEFORMAT,
-                                                new Object[] {
-                                                        thisreq.getRequestId(),
-                                                        initiative,
-                                                        "completed",
-                                                        cert.getSubjectDN(),
-                                                        cert.getSerialNumber().toString(16),
-                                                        RevocationReason.fromInt(reason).toString() }
-                                                );
+                                                thisreq.getRequestId(),
+                                                initiative,
+                                                "completed",
+                                                cert.getSubjectDN(),
+                                                cert.getSerialNumber().toString(16),
+                                                RevocationReason.fromInt(reason)
+                                        );
                                     }
                                 }
                             }
                         }
                     } else {
-                        mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.NODNFORMAT,
-                                new Object[] {
-                                        thisreq.getRequestType(),
-                                        thisreq.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        "completed" }
-                                );
+                                thisreq.getRequestType(),
+                                thisreq.getRequestId(),
+                                initiative,
+                                authMgr,
+                                "completed"
+                        );
                     }
                 }
 
@@ -899,7 +869,7 @@ public class ConnectorServlet extends CMSServlet {
 
                 audit(auditMessage);
             } catch (IOException e) {
-                CMS.debug("ConnectorServlet: process " + e.toString());
+                logger.warn("ConnectorServlet: process " + e.getMessage(), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -912,7 +882,7 @@ public class ConnectorServlet extends CMSServlet {
 
                 audit(auditMessage);
             } catch (CertificateException e) {
-                CMS.debug("ConnectorServlet: process " + e.toString());
+                logger.warn("ConnectorServlet: process " + e.getMessage(), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -925,7 +895,7 @@ public class ConnectorServlet extends CMSServlet {
 
                 audit(auditMessage);
             } catch (Exception e) {
-                CMS.debug("ConnectorServlet: process " + e.toString());
+                logger.warn("ConnectorServlet: process " + e.getMessage(), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(

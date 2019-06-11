@@ -27,12 +27,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
@@ -44,6 +42,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Get the recovered key in PKCS#12 format
@@ -52,9 +52,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class GetPk12 extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetPk12.class);
     private static final long serialVersionUID = 8974964964333880697L;
 
     private final static String INFO = "getPk12";
@@ -146,8 +144,8 @@ public class GetPk12 extends CMSServlet {
         }
 
         cmsReq.setStatus(ICMSRequest.SUCCESS);
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         // get status and populate argSet
@@ -172,7 +170,7 @@ public class GetPk12 extends CMSServlet {
             }
 
             if (agent == null) {
-                CMS.debug("GetPk12::process() - agent is null!");
+                logger.error("GetPk12::process() - agent is null!");
                 throw new EBaseException("agent is null");
             }
 

@@ -21,7 +21,6 @@ import java.util.Vector;
 
 import org.dogtagpki.server.PKIClientSocketListener;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -32,6 +31,7 @@ import com.netscape.certsrv.connector.IResender;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
@@ -80,7 +80,7 @@ public class HttpConnector implements IConnector {
         //        mConn = CMS.getHttpConnection(dest, mFactory);
         // this will start resending past requests in parallel.
         if (resendInterval >= 0) {
-            mResender = CMS.getResender(mSource, nickName, clientCiphers, dest, resendInterval);
+            mResender = new Resender(mSource, nickName, clientCiphers, dest, resendInterval);
         }
     }
 
@@ -110,7 +110,7 @@ public class HttpConnector implements IConnector {
 
         // this will start resending past requests in parallel.
         if (resendInterval >= 0) {
-            mResender = CMS.getResender(mSource, nickName, clientCiphers, dest, resendInterval);
+            mResender = new Resender(mSource, nickName, clientCiphers, dest, resendInterval);
         }
     }
 

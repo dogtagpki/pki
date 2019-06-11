@@ -20,22 +20,21 @@ package com.netscape.cmscore.cert;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
 
-import netscape.security.extensions.CertificateRenewalWindowExtension;
-import netscape.security.extensions.CertificateScopeOfUseExtension;
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.DeltaCRLIndicatorExtension;
-import netscape.security.x509.FreshestCRLExtension;
-import netscape.security.x509.HoldInstructionExtension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.IssuingDistributionPointExtension;
-import netscape.security.x509.OIDMap;
+import org.mozilla.jss.netscape.security.extensions.CertificateRenewalWindowExtension;
+import org.mozilla.jss.netscape.security.extensions.CertificateScopeOfUseExtension;
+import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
+import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
+import org.mozilla.jss.netscape.security.x509.HoldInstructionExtension;
+import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
+import org.mozilla.jss.netscape.security.x509.IssuingDistributionPointExtension;
+import org.mozilla.jss.netscape.security.x509.OIDMap;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.cmscore.util.Debug;
 
 /**
  *
@@ -43,6 +42,8 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision
  */
 public class OidLoaderSubsystem implements ISubsystem {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OidLoaderSubsystem.class);
 
     private IConfigStore mConfig = null;
     public static final String ID = "oidmap";
@@ -128,9 +129,7 @@ public class OidLoaderSubsystem implements ISubsystem {
      */
     public synchronized void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        if (Debug.ON) {
-            Debug.trace("OIDLoaderSubsystem started");
-        }
+        logger.trace("OIDLoaderSubsystem started");
         mConfig = config;
 
         Enumeration<String> names = mConfig.getSubStoreNames();

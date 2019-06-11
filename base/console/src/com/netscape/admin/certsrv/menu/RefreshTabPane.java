@@ -17,9 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.menu;
 
-import com.netscape.management.client.*;
-import com.netscape.admin.certsrv.*;
-import java.awt.*;
+import java.awt.Component;
+
+import com.netscape.admin.certsrv.CMSBasePanel;
+import com.netscape.admin.certsrv.CMSBaseResourceModel;
+import com.netscape.admin.certsrv.IMenuAction;
+import com.netscape.admin.certsrv.IRefreshTab;
+import com.netscape.admin.certsrv.IRefreshTabPanel;
+import com.netscape.management.client.IPage;
 
 /**
  * Refresh Tab Pane
@@ -68,12 +73,10 @@ public class RefreshTabPane implements IMenuAction {
      */
     public void perform(IPage viewInstance) {
         if (mPanel != null) {
-            if (mPanel instanceof IRefreshTabPanel) {
-                CMSBasePanel panel = mPanel.getSelectedTab();
-                if (panel instanceof IRefreshTab) {
-                    IRefreshTab tab = (IRefreshTab)panel;
-                    tab.refresh();
-                }
+            CMSBasePanel panel = mPanel.getSelectedTab();
+            if (panel instanceof IRefreshTab) {
+                IRefreshTab tab = (IRefreshTab)panel;
+                tab.refresh();
             }
         }
     }

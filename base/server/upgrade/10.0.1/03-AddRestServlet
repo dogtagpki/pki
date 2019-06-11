@@ -47,7 +47,7 @@ class AddRestServlet(pki.server.upgrade.PKIServerUpgradeScriptlet):
         self.root = None
 
     def upgrade_subsystem(self, instance, subsystem):
-        if subsystem.type >= 10:
+        if instance.version >= 10:
             return
 
         web_xml = os.path.join(

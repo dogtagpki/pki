@@ -30,8 +30,9 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.BadRequestException;
@@ -56,11 +57,12 @@ import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
-
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class RenewalProcessor extends CertProcessor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RenewalProcessor.class);
 
     public RenewalProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         super(id, locale);
@@ -81,12 +83,14 @@ public class RenewalProcessor extends CertProcessor {
             AuthCredentials credentials)
             throws EBaseException {
         try {
-            if (CMS.debugOn()) {
+            if (logger.isDebugEnabled()) {
                 HashMap<String, String> params = data.toParams();
                 printParameterValues(params);
             }
 
-            CMS.debug("RenewalProcessor: processRenewal()");
+            logger.debug("RenewalProcessor: processRenewal()");
+
+            CMSEngine engine = CMS.getCMSEngine();
 
             startTiming("enrollment");
             request.setAttribute("reqType", "renewal");
@@ -94,16 +98,16 @@ public class RenewalProcessor extends CertProcessor {
             // in case of renew, "profile" is the orig profile
             // while "renewProfile" is the current profile used for renewal
             String renewProfileId = (this.profileID == null) ? data.getProfileId() : this.profileID;
-            CMS.debug("RenewalProcessor: profile: " + renewProfileId);
+            logger.debug("RenewalProcessor: profile: " + renewProfileId);
 
             IProfile renewProfile = ps.getProfile(renewProfileId);
             if (renewProfile == null) {
-                CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",
+                logger.error(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",
                         CMSTemplate.escapeJavaScriptStringHTML(renewProfileId)));
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(renewProfileId)));
             }
             if (!ps.isProfileEnable(renewProfileId)) {
-                CMS.debug("RenewalProcessor: Profile " + renewProfileId + " not enabled");
+                logger.error("RenewalProcessor: Profile " + renewProfileId + " not enabled");
                 throw new BadRequestDataException("Profile " + renewProfileId + " not enabled");
             }
 
@@ -112,14 +116,14 @@ public class RenewalProcessor extends CertProcessor {
             // get serial number from <SerialNumber> element (no auth required)
             CertId serial = data.getSerialNum();
             if (serial != null) {
-                CMS.debug("RenewalProcessor: serial number: " + serial);
+                logger.debug("RenewalProcessor: serial number: " + serial);
                 certSerial = serial.toBigInteger();
             }
 
             // if not found, get serial number from profile input (no auth required)
             if (certSerial == null) {
 
-                IPluginRegistry registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+                IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
 
                 // find SerialNumRenewInput
                 for (ProfileInput input : data.getInputs()) {
@@ -145,7 +149,7 @@ public class RenewalProcessor extends CertProcessor {
                         continue;
                     }
 
-                    CMS.debug("RenewalProcessor: found SerialNumRenewInput");
+                    logger.debug("RenewalProcessor: found SerialNumRenewInput");
                     ProfileAttribute attribute = input.getAttribute(SerialNumRenewInput.SERIAL_NUM);
 
                     if (attribute == null) {
@@ -153,7 +157,7 @@ public class RenewalProcessor extends CertProcessor {
                     }
 
                     String value = attribute.getValue();
-                    CMS.debug("RenewalProcessor: profile input " + SerialNumRenewInput.SERIAL_NUM + " value: " + value);
+                    logger.debug("RenewalProcessor: profile input " + SerialNumRenewInput.SERIAL_NUM + " value: " + value);
 
                     if (!StringUtils.isEmpty(value)) {
                         serial = new CertId(value);
@@ -173,46 +177,44 @@ public class RenewalProcessor extends CertProcessor {
                 // ssl client auth is to be used
                 // this is not authentication. Just use the cert to search
                 // for orig request and find the right profile
-                CMS.debug("RenewalProcessor: get serial number from client certificate");
+                logger.debug("RenewalProcessor: get serial number from client certificate");
                 certSerial = getSerialNumberFromCert(request);
             }
 
-            CMS.debug("processRenewal: serial number of cert to renew:" + certSerial.toString());
+            logger.debug("processRenewal: serial number of cert to renew:" + certSerial.toString());
             ICertRecord rec = certdb.readCertificateRecord(certSerial);
             if (rec == null) {
-                CMS.debug("processRenewal: cert record not found for serial number " + certSerial.toString());
+                logger.error("processRenewal: cert record not found for serial number " + certSerial);
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
             }
 
             // check to see if the cert is revoked or revoked_expired
             if ((rec.getStatus().equals(ICertRecord.STATUS_REVOKED))
                     || (rec.getStatus().equals(ICertRecord.STATUS_REVOKED_EXPIRED))) {
-                CMS.debug("processRenewal: cert found to be revoked. Serial number = "
-                        + certSerial.toString());
+                logger.error("processRenewal: cert found to be revoked. Serial number: " + certSerial);
                 throw new BadRequestDataException(CMS.getUserMessage(locale, "CMS_CA_CANNOT_RENEW_REVOKED_CERT"));
             }
 
             X509CertImpl origCert = rec.getCertificate();
             if (origCert == null) {
-                CMS.debug("processRenewal: original cert not found in cert record for serial number "
-                        + certSerial.toString());
+                logger.error("processRenewal: original cert not found in cert record for serial number " + certSerial);
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
             }
 
             Date origNotAfter = origCert.getNotAfter();
-            CMS.debug("processRenewal: origNotAfter =" + origNotAfter.toString());
+            logger.debug("processRenewal: origNotAfter =" + origNotAfter.toString());
 
             String origSubjectDN = origCert.getSubjectDN().getName();
-            CMS.debug("processRenewal: orig subj dn =" + origSubjectDN);
+            logger.debug("processRenewal: orig subj dn =" + origSubjectDN);
 
             IRequest origReq = getOriginalRequest(certSerial, rec);
             if (origReq == null) {
-                CMS.debug("processRenewal: original request not found");
+                logger.error("processRenewal: original request not found");
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
             }
 
             String profileId = origReq.getExtDataInString(IRequest.PROFILE_ID);
-            CMS.debug("RenewalSubmitter: renewal original profileId=" + profileId);
+            logger.debug("RenewalSubmitter: renewal original profileId=" + profileId);
 
             String aidString = origReq.getExtDataInString(
                     IRequest.AUTHORITY_ID);
@@ -220,11 +222,11 @@ public class RenewalProcessor extends CertProcessor {
             Integer origSeqNum = origReq.getExtDataInInteger(IEnrollProfile.REQUEST_SEQ_NUM);
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
-                CMS.debug(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)));
+                logger.error(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND",CMSTemplate.escapeJavaScriptStringHTML(profileId)));
                 throw new EBaseException(CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", CMSTemplate.escapeJavaScriptStringHTML(profileId)));
             }
             if (!ps.isProfileEnable(profileId)) {
-                CMS.debug("RenewalSubmitter: Profile " + profileId + " not enabled");
+                logger.error("RenewalSubmitter: Profile " + profileId + " not enabled");
                 throw new BadRequestDataException("Profile " + profileId + " not enabled");
             }
 
@@ -237,19 +239,19 @@ public class RenewalProcessor extends CertProcessor {
             IProfileAuthenticator origAuthenticator = profile.getAuthenticator();
 
             if (authenticator != null) {
-                CMS.debug("RenewalSubmitter: authenticator " + authenticator.getName() + " found");
+                logger.debug("RenewalSubmitter: authenticator " + authenticator.getName() + " found");
                 setCredentialsIntoContext(request, credentials, authenticator, ctx);
             }
 
             // for renewal, this will override or add auth info to the profile context
             if (origAuthenticator != null) {
-                CMS.debug("RenewalSubmitter: for renewal, original authenticator " +
+                logger.debug("RenewalSubmitter: for renewal, original authenticator " +
                         origAuthenticator.getName() + " found");
                 setCredentialsIntoContext(request, credentials, origAuthenticator, ctx);
             }
 
             // for renewal, input needs to be retrieved from the orig req record
-            CMS.debug("processRenewal: set original Inputs into profile Context");
+            logger.debug("processRenewal: set original Inputs into profile Context");
             setInputsIntoContext(origReq, profile, ctx, locale);
             ctx.set(IEnrollProfile.CTX_RENEWAL, "true");
             ctx.set("renewProfileId", renewProfileId);
@@ -260,7 +262,7 @@ public class RenewalProcessor extends CertProcessor {
             SessionContext context = SessionContext.getContext();
             context.put("profileContext", ctx);
             context.put("sslClientCertProvider", new SSLClientCertProvider(request));
-            CMS.debug("RenewalSubmitter: set sslClientCertProvider");
+            logger.debug("RenewalSubmitter: set sslClientCertProvider");
             if (origSubjectDN != null)
                 context.put("origSubjectDN", origSubjectDN);
 
@@ -308,7 +310,7 @@ public class RenewalProcessor extends CertProcessor {
             ret.put(ARG_ERROR_REASON, errorReason);
             ret.put(ARG_PROFILE, profile);
 
-            CMS.debug("RenewalSubmitter: done serving");
+            logger.debug("RenewalSubmitter: done serving");
             endTiming("enrollment");
 
             return ret;
@@ -324,18 +326,18 @@ public class RenewalProcessor extends CertProcessor {
         X509Certificate[] certs = sslCCP.getClientCertificateChain();
 
         if (certs == null || certs.length == 0) {
-            CMS.debug("RenewalProcessor: missing SSL client certificate chain");
+            logger.error("RenewalProcessor: missing SSL client certificate chain");
             throw new BadRequestException("Missing SSL client certificate chain");
         }
 
-        CMS.debug("RenewalProcessor: has SSL client cert chain");
+        logger.debug("RenewalProcessor: has SSL client cert chain");
         // shouldn't expect leaf cert to be always at the
         // same location
 
         X509Certificate clientCert = null;
         for (X509Certificate cert : certs) {
 
-            CMS.debug("RenewalProcessor: cert " + cert.getSubjectDN());
+            logger.debug("RenewalProcessor: cert " + cert.getSubjectDN());
             clientCert = cert;
 
             byte[] extBytes = clientCert.getExtensionValue("2.5.29.19");
@@ -344,11 +346,11 @@ public class RenewalProcessor extends CertProcessor {
             // look for BasicConstraint extension
             if (extBytes == null) {
                 // found leaf cert
-                CMS.debug("RenewalProcessor: found leaf cert");
+                logger.debug("RenewalProcessor: found leaf cert");
                 break;
             }
 
-            CMS.debug("RenewalProcessor: found cert having BasicConstraints ext");
+            logger.debug("RenewalProcessor: found cert having BasicConstraints ext");
             // it's got BasicConstraints extension
             // so it's not likely to be a leaf cert,
             // however, check the isCA field regardless
@@ -356,12 +358,12 @@ public class RenewalProcessor extends CertProcessor {
             try {
                 BasicConstraintsExtension bce = new BasicConstraintsExtension(true, extBytes);
                 if (!(Boolean) bce.get("is_ca")) {
-                    CMS.debug("RenewalProcessor: found CA cert in chain");
+                    logger.debug("RenewalProcessor: found CA cert in chain");
                     break;
                 } // else found a ca cert, continue
 
             } catch (Exception e) {
-                CMS.debug("RenewalProcessor: Invalid certificate extension:" + e);
+                logger.error("RenewalProcessor: Invalid certificate extension:" + e.getMessage(), e);
                 throw new BadRequestException("Invalid certificate extension: " + e.getMessage(), e);
             }
         }
@@ -389,18 +391,18 @@ public class RenewalProcessor extends CertProcessor {
                 while (inputNames.hasMoreElements()) {
                     String inputName = inputNames.nextElement();
                     String inputValue = "";
-                    CMS.debug("RenewalSubmitter: setInputsIntoContext() getting input name= " + inputName);
+                    logger.debug("RenewalSubmitter: setInputsIntoContext() getting input name= " + inputName);
                     try {
                         inputValue = profileInput.getValue(inputName, locale, request);
                     } catch (Exception e) {
-                        CMS.debug("RenewalSubmitter: setInputsIntoContext() getvalue() failed: " + e.toString());
+                        logger.warn("RenewalSubmitter: setInputsIntoContext() getvalue() failed: " + e.getMessage(), e);
                     }
 
                     if (inputValue != null) {
-                        CMS.debug("RenewalSubmitter: setInputsIntoContext() setting value in ctx:" + inputValue);
+                        logger.debug("RenewalSubmitter: setInputsIntoContext() setting value in ctx:" + inputValue);
                         ctx.set(inputName, inputValue);
                     } else {
-                        CMS.debug("RenewalSubmitter: setInputsIntoContext() value null");
+                        logger.warn("RenewalSubmitter: setInputsIntoContext() value null");
                     }
                 }
             }

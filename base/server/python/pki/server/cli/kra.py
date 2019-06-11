@@ -34,6 +34,7 @@ import time
 import pki.cli
 import pki.server.cli.audit
 import pki.server.cli.config
+import pki.server.cli.db
 
 
 KRA_VLVS = ['allKeys', 'kraAll',
@@ -55,6 +56,7 @@ class KRACLI(pki.cli.CLI):
         self.add_module(KRADBCLI())
         self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
+        self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
 
 
 class KRACloneCLI(pki.cli.CLI):

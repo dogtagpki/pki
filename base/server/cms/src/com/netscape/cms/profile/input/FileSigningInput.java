@@ -23,7 +23,6 @@ import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -32,6 +31,7 @@ import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements the image
@@ -41,6 +41,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class FileSigningInput extends EnrollInput implements IProfileInput {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FileSigningInput.class);
 
     public static final String URL = "file_signing_url";
     public static final String TEXT = "file_signing_text";
@@ -117,7 +119,7 @@ public class FileSigningInput extends EnrollInput implements IProfileInput {
             byte digest[] = digester.digest(data);
             request.setExtData(DIGEST, toHexString(digest));
         } catch (Exception e) {
-            CMS.debug("FileSigningInput populate failure " + e);
+            logger.error("FileSigningInput populate failure " + e.getMessage(), e);
             throw new EProfileException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_FILE_NOT_FOUND"));

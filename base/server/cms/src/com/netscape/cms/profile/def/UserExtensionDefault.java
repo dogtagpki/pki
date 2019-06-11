@@ -19,11 +19,10 @@ package com.netscape.cms.profile.def;
 
 import java.util.Locale;
 
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IEnrollProfile;
@@ -32,6 +31,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -41,6 +41,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class UserExtensionDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserExtensionDefault.class);
 
     public static final String CONFIG_CRITICAL = "userExtCritical";
     public static final String CONFIG_OID = "userExtOID";
@@ -124,13 +126,13 @@ public class UserExtensionDefault extends EnrollExtDefault {
             return;
         Extension ext = getExtension(getConfig(CONFIG_OID), inExts);
         if (ext == null) {
-            CMS.debug("UserExtensionDefault: no user ext supplied for " + oid);
+            logger.warn("UserExtensionDefault: no user ext supplied for " + oid);
             return;
         }
 
         // user supplied the ext that's allowed, replace the def set by system
         deleteExtension(oid, info);
-        CMS.debug("UserExtensionDefault: using user supplied ext for " + oid);
+        logger.debug("UserExtensionDefault: using user supplied ext for " + oid);
         addExtension(oid, ext, info);
     }
 }

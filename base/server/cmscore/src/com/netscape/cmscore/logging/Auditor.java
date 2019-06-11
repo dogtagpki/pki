@@ -21,13 +21,14 @@ package com.netscape.cmscore.logging;
 import java.util.Enumeration;
 import java.util.Map;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.logging.IAuditor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * @author Endi S. Dewata
@@ -60,10 +61,11 @@ public class Auditor implements IAuditor {
             return null;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         Enumeration<IGroup> groups;
 
         try {
-            IUGSubsystem userGroupSubsystem = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+            UGSubsystem userGroupSubsystem = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
             groups = userGroupSubsystem.findGroups("*");
 
         } catch (Exception e) {

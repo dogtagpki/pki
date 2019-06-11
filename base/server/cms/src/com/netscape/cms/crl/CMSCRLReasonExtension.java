@@ -20,18 +20,18 @@ package com.netscape.cms.crl;
 import java.io.IOException;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.Extension;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 /**
  * This represents a CRL reason extension.

@@ -24,6 +24,8 @@ import java.io.IOException;
 
 public class FileAsString {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FileAsString.class);
+
     protected String mFilename;
     protected long mLastRead = 0;
 
@@ -71,7 +73,7 @@ public class FileAsString {
 
     private BufferedReader createBufferedReader(String filename)
             throws IOException {
-        Debug.trace("createBufferedReader(filename=" + filename + ")");
+        logger.trace("createBufferedReader(filename=" + filename + ")");
         BufferedReader br = null;
         FileReader fr = null;
 

@@ -34,15 +34,16 @@ import org.mozilla.jss.SecretDecoderRing.Encryptor;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Utils;
 
 /*
  * A class for managing passwords in the SDR password cache
@@ -51,6 +52,9 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class PWsdrCache {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PWsdrCache.class);
+
     public static final String PROP_PWC_TOKEN_NAME = "pwcTokenname";
     public static final String PROP_PWC_KEY_ID = "pwcKeyid";
     public static final String PROP_PWC_NICKNAME = "sso_key";
@@ -65,10 +69,11 @@ public class PWsdrCache {
 
     // for CMSEngine
     public PWsdrCache() throws EBaseException {
+        CMSEngine engine = CMS.getCMSEngine();
         mLogger = Logger.getLogger();
         try {
-            mPWcachedb = CMS.getConfigStore().getString("pwCache");
-            CMS.debug("got pwCache file path from configstore");
+            mPWcachedb = engine.getConfigStore().getString("pwCache");
+            logger.debug("got pwCache file path from configstore");
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_CONFIG"));
             // let it fall through
@@ -78,9 +83,10 @@ public class PWsdrCache {
     }
 
     private void initToken() throws EBaseException {
+        CMSEngine engine = CMS.getCMSEngine();
         if (mToken == null) {
             try {
-                mTokenName = CMS.getConfigStore().getString(PROP_PWC_TOKEN_NAME);
+                mTokenName = engine.getConfigStore().getString(PROP_PWC_TOKEN_NAME);
                 log(ILogger.LL_DEBUG, "pwcTokenname specified.  Use token for SDR key. tokenname= " + mTokenName);
                 mToken = CryptoUtil.getKeyStorageToken(mTokenName);
             } catch (Exception e) {
@@ -92,9 +98,10 @@ public class PWsdrCache {
 
     // called from PWCBsdr or CMSEngine only
     private void initKey() throws EBaseException {
+        CMSEngine engine = CMS.getCMSEngine();
         if (mKeyID == null) {
             try {
-                String keyID = CMS.getConfigStore().getString(PROP_PWC_KEY_ID);
+                String keyID = engine.getConfigStore().getString(PROP_PWC_KEY_ID);
                 log(ILogger.LL_DEBUG, "retrieved PWC SDR key");
                 mKeyID = base64Decode(keyID);
 
@@ -120,7 +127,7 @@ public class PWsdrCache {
         }
 
         mToken = CryptoUtil.getKeyStorageToken(mTokenName);
-        debug("PWsdrCache: token: " + mToken.getName());
+        logger.debug("PWsdrCache: token: " + mToken.getName());
     }
 
     public byte[] getKeyId() {
@@ -227,7 +234,7 @@ public class PWsdrCache {
             while (enum1.hasMoreElements()) {
                 tag = enum1.nextElement();
                 pwd = tagPwds.get(tag);
-                debug("password tag: " + tag + " stored in " + mPWcachedb);
+                logger.debug("password tag: " + tag + " stored in " + mPWcachedb);
 
                 stringToAdd.append(tag + ":" + pwd + "\n");
             }
@@ -241,15 +248,15 @@ public class PWsdrCache {
             Hashtable<String, String> ht = string2Hashtable(dcrypts);
 
             if (ht.containsKey(tag) == false) {
-                debug("adding new tag: " + tag);
+                logger.debug("adding new tag: " + tag);
                 ht.put(tag, pwd);
             } else {
-                debug("replacing tag: " + tag);
+                logger.debug("replacing tag: " + tag);
                 ht.put(tag, pwd);
             }
             bufs = hashtable2String(ht);
         } else {
-            debug("adding new tag: " + tag);
+            logger.debug("adding new tag: " + tag);
             bufs = stringToAdd.toString();
         }
 
@@ -271,15 +278,15 @@ public class PWsdrCache {
             Hashtable<String, String> ht = string2Hashtable(dcrypts);
 
             if (ht.containsKey(tag) == false) {
-                debug("tag: " + tag + " does not exist");
+                logger.debug("tag: " + tag + " does not exist");
                 return;
             } else {
-                debug("deleting tag: " + tag);
+                logger.debug("deleting tag: " + tag);
                 ht.remove(tag);
             }
             bufs = hashtable2String(ht);
         } else {
-            debug("password cache contains no tags");
+            logger.debug("password cache contains no tags");
             return;
         }
 
@@ -291,7 +298,7 @@ public class PWsdrCache {
      * reads and decrypts the pwcache.db content
      */
     public String readPWcache() throws EBaseException {
-        debug("about to read password cache");
+        logger.debug("about to read password cache");
         String dcrypts = null;
         Decryptor sdr = new Decryptor(mToken);
 
@@ -368,7 +375,7 @@ public class PWsdrCache {
             if (tmpPWcache.exists()) {
                 // it wasn't removed?
                 if (!tmpPWcache.delete()) {
-                    debug("Could not delete the existing " + mPWcachedb + ".tmp file.");
+                    logger.warn("Could not delete the existing " + mPWcachedb + ".tmp file.");
                 }
                 tmpPWcache = new File(mPWcachedb + ".tmp");
             }
@@ -403,14 +410,13 @@ public class PWsdrCache {
                             Utils.exec("chmod 00660 " +
                                         origFile.getCanonicalPath());
                         } catch (IOException e) {
-                            CMS.debug("Unable to change file permissions on "
-                                    + origFile.toString());
+                            logger.warn("Unable to change file permissions: " + e.getMessage(), e);
                         }
                     }
                     if (!tmpPWcache.delete()) {
-                        debug("Could not delete the existing " + mPWcachedb + ".tmp file.");
+                        logger.warn("Could not delete the existing " + mPWcachedb + ".tmp file.");
                     }
-                    debug("operation completed for " + mPWcachedb);
+                    logger.debug("operation completed for " + mPWcachedb);
                 }
             } catch (Exception exx) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_CACHE", exx.toString()));
@@ -488,10 +494,10 @@ public class PWsdrCache {
         Hashtable<String, String> pwTable = null;
         String pw = null;
 
-        debug("in getEntry, tag=" + tag);
+        logger.debug("in getEntry, tag=" + tag);
 
         if (mPWcachedb == null) {
-            debug("mPWcachedb file path name is not initialized");
+            logger.warn("mPWcachedb file path name is not initialized");
             return null;
         }
 
@@ -510,12 +516,12 @@ public class PWsdrCache {
 
             // this is created and destroyed at each use
             pwTable = string2Hashtable(cache);
-            debug("in getEntry, pw cache parsed");
+            logger.debug("in getEntry, pw cache parsed");
             pw = pwTable.get(tag);
         }
 
         if (pw != null) {
-            debug("getEntry gotten password for " + tag);
+            logger.debug("getEntry gotten password for " + tag);
             return new Password(pw.toCharArray());
         } else {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_TAG", tag));
@@ -581,12 +587,6 @@ public class PWsdrCache {
         }
     }
 
-    public void debug(String msg) {
-        if (mLogger != null) {
-            CMS.debug(msg);
-        }
-    }
-
     public void log(int level, String msg) {
         if (mLogger != null) {
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level,
@@ -609,7 +609,7 @@ public class PWsdrCache {
             return false;
         }
 
-        debug("----- Password Cache Content -----");
+        logger.debug("----- Password Cache Content -----");
 
         if (dcrypts != null) {
             // first, break into lines
@@ -625,11 +625,11 @@ public class PWsdrCache {
                     String passwd = line.substring(colonIdx + 1,
                             line.length());
 
-                    debug(tag.trim() +
+                    logger.debug(tag.trim() +
                             " : " + passwd.trim());
                 } else {
                     //invalid format...log or throw...later
-                    debug("invalid format");
+                    logger.warn("invalid format");
                 }
             }
         } // else print nothing

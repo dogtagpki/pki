@@ -39,13 +39,26 @@ import javax.servlet.http.HttpServletResponse;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.netscape.security.extensions.CertInfo;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
@@ -70,22 +83,10 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.extensions.CertInfo;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extension;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 
 /**
  * performs face-to-face enrollment.
@@ -93,9 +94,9 @@ import netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class HashEnrollServlet extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HashEnrollServlet.class);
+
     private static final long serialVersionUID = 5532936020515258333L;
 
     public final static String ADMIN_ENROLL_SERVLET_ID = "adminEnroll";
@@ -156,7 +157,8 @@ public class HashEnrollServlet extends CMSServlet {
             }
 
             // cfu
-            mCa = (ICertificateAuthority) CMS.getSubsystem("ca");
+            CMSEngine engine = CMS.getCMSEngine();
+            mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
             init_testbed_hack(mConfig);
         } catch (Exception e) {
@@ -187,10 +189,10 @@ public class HashEnrollServlet extends CMSServlet {
             return;
         }
 
-        IConfigStore configStore = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 
@@ -234,8 +236,8 @@ public class HashEnrollServlet extends CMSServlet {
             throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         mTemplates.remove(ICMSRequest.SUCCESS);
@@ -297,7 +299,7 @@ public class HashEnrollServlet extends CMSServlet {
 
         if ((certAuthEnrollOn != null) && (certAuthEnrollOn.equals("on"))) {
             certAuthEnroll = true;
-            CMS.debug("HashEnrollServlet: certAuthEnroll is on");
+            logger.debug("HashEnrollServlet: certAuthEnroll is on");
         }
 
         String certauthEnrollType = null;
@@ -307,11 +309,11 @@ public class HashEnrollServlet extends CMSServlet {
                     httpParams.getValueAsString("certauthEnrollType", null);
             if (certauthEnrollType != null) {
                 if (certauthEnrollType.equals("dual")) {
-                    CMS.debug("HashEnrollServlet: certauthEnrollType is dual");
+                    logger.debug("HashEnrollServlet: certauthEnrollType is dual");
                 } else if (certauthEnrollType.equals("encryption")) {
-                    CMS.debug("HashEnrollServlet: certauthEnrollType is encryption");
+                    logger.debug("HashEnrollServlet: certauthEnrollType is encryption");
                 } else if (certauthEnrollType.equals("single")) {
-                    CMS.debug("HashEnrollServlet: certauthEnrollType is single");
+                    logger.debug("HashEnrollServlet: certauthEnrollType is single");
                 } else {
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSGW_INVALID_CERTAUTH_ENROLL_TYPE_1", certauthEnrollType));
@@ -331,6 +333,8 @@ public class HashEnrollServlet extends CMSServlet {
         cmsReq.setIRequest(req);
         saveHttpHeaders(httpReq, req);
         saveHttpParams(httpParams, req);
+
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken token = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
@@ -383,10 +387,9 @@ public class HashEnrollServlet extends CMSServlet {
         X509CertInfo[] certInfoArray = new X509CertInfo[] { certInfo };
 
         //AuthToken authToken = access.getAuthToken();
-        IConfigStore configStore = CMS.getConfigStore();
+        IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         IAuthManager authMgr1 = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr1;
         String pageID = httpParams.getValueAsString("pageID", null);
@@ -564,8 +567,7 @@ public class HashEnrollServlet extends CMSServlet {
                     certInfoArray = fillCRMF(crmf, authToken, httpParams, req);
                     req.setExtData(CLIENT_ISSUER,
                             sslClientCert.getIssuerDN().toString());
-                    CMS.debug(
-                            "HashEnrollServlet: sslClientCert issuerDN = " + sslClientCert.getIssuerDN().toString());
+                    logger.debug("HashEnrollServlet: sslClientCert issuerDN = " + sslClientCert.getIssuerDN());
                 } else {
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
@@ -650,45 +652,36 @@ public class HashEnrollServlet extends CMSServlet {
                             wholeMsg.append("\n");
                             wholeMsg.append(msgs.nextElement());
                         }
-                        mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.ENROLLMENTFORMAT,
-                                new Object[] {
-                                        req.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        status.toString(),
-                                        certInfo.get(X509CertInfo.SUBJECT),
-                                        " violation: " +
-                                                wholeMsg.toString() },
-                                ILogger.L_MULTILINE
-                                );
+                                req.getRequestId(),
+                                initiative,
+                                authMgr,
+                                status,
+                                certInfo.get(X509CertInfo.SUBJECT),
+                                " violation: " + wholeMsg
+                        );
                     } else { // no policy violation, from agent
-                        mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
+                        logger.info(
                                 AuditFormat.ENROLLMENTFORMAT,
-                                new Object[] {
-                                        req.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        status.toString(),
-                                        certInfo.get(X509CertInfo.SUBJECT), "" }
-                                );
+                                req.getRequestId(),
+                                initiative,
+                                authMgr,
+                                status,
+                                certInfo.get(X509CertInfo.SUBJECT),
+                                ""
+                        );
                     }
-                } else { // other imcomplete status
-                    mLogger.log(ILogger.EV_AUDIT,
-                            ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
+                } else { // other incomplete status
+                    logger.info(
                             AuditFormat.ENROLLMENTFORMAT,
-                            new Object[] {
-                                    req.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    status.toString(),
-                                    certInfo.get(X509CertInfo.SUBJECT), "" }
-                            );
+                            req.getRequestId(),
+                            initiative,
+                            authMgr,
+                            status,
+                            certInfo.get(X509CertInfo.SUBJECT),
+                            ""
+                    );
                 }
             } catch (IOException e) {
                 log(ILogger.LL_FAILURE,
@@ -720,18 +713,15 @@ public class HashEnrollServlet extends CMSServlet {
                         cmsReq.setErrorDescription(err);
                         // audit log the error
                         try {
-                            mLogger.log(ILogger.EV_AUDIT,
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
+                            logger.info(
                                     AuditFormat.ENROLLMENTFORMAT,
-                                    new Object[] {
-                                            req.getRequestId(),
-                                            initiative,
-                                            authMgr,
-                                            "completed with error: " +
-                                                    err,
-                                            certInfo.get(X509CertInfo.SUBJECT), "" }
-                                    );
+                                    req.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    "completed with error: " + err,
+                                    certInfo.get(X509CertInfo.SUBJECT),
+                                    ""
+                            );
                         } catch (IOException e) {
                             log(ILogger.LL_FAILURE,
                                     CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
@@ -753,18 +743,16 @@ public class HashEnrollServlet extends CMSServlet {
                 req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
         // audit log the success.
-        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                AuditFormat.LEVEL,
+        logger.info(
                 AuditFormat.ENROLLMENTFORMAT,
-                new Object[] {
-                        req.getRequestId(),
-                        initiative,
-                        authMgr,
-                        "completed",
-                        issuedCerts[0].getSubjectDN(),
-                        "cert issued serial number: 0x" +
-                                issuedCerts[0].getSerialNumber().toString(16) }
-                );
+                req.getRequestId(),
+                initiative,
+                authMgr,
+                "completed",
+                issuedCerts[0].getSubjectDN(),
+                "cert issued serial number: 0x" +
+                        issuedCerts[0].getSerialNumber().toString(16)
+        );
 
         // return cert as mime type binary if requested.
         if (checkImportCertToNav(
@@ -1091,7 +1079,7 @@ public class HashEnrollServlet extends CMSServlet {
             X509CertImpl certs[] =
                     cmsReq.getIRequest().getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
-            out.println(CMS.getEncodedCert(certs[0]));
+            out.println(CertUtils.getEncodedCert(certs[0]));
             out.println("</PRE>");
             out.println("<P>");
             out.println("<!HTTP_OUTPUT REQUEST_CREATION_TIME=" +
@@ -1101,7 +1089,7 @@ public class HashEnrollServlet extends CMSServlet {
             out.println("<!HTTP_OUTPUT REQUEST_ID=" +
                     cmsReq.getIRequest().getRequestId().toString() + ">");
             out.println("<!HTTP_OUTPUT X509_CERTIFICATE=" +
-                    CMS.getEncodedCert(certs[0]) + ">");
+                    CertUtils.getEncodedCert(certs[0]) + ">");
         } else if (cmsReq.getIRequest().getRequestStatus().equals(RequestStatus.PENDING)) {
             out.println("<H1>");
             out.println("PENDING");

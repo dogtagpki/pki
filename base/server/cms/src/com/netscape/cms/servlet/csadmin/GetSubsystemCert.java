@@ -29,20 +29,20 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.w3c.dom.Node;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class GetSubsystemCert extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetSubsystemCert.class);
+
     private static final long serialVersionUID = -5720342238234153488L;
     private final static String SUCCESS = "0";
 
@@ -65,7 +65,8 @@ public class GetSubsystemCert extends CMSServlet {
     protected void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         String nickname = "";
         try {
             nickname = cs.getString("ca.subsystem.nickname", "");
@@ -75,14 +76,14 @@ public class GetSubsystemCert extends CMSServlet {
         } catch (Exception e) {
         }
 
-        CMS.debug("GetSubsystemCert process: nickname=" + nickname);
+        logger.debug("GetSubsystemCert process: nickname=" + nickname);
         String s = "";
         try {
             CryptoManager cm = CryptoManager.getInstance();
             X509Certificate cert = cm.findCertByNickname(nickname);
 
             if (cert == null) {
-                CMS.debug("GetSubsystemCert process: subsystem cert is null");
+                logger.warn("GetSubsystemCert process: subsystem cert is null");
                 outputError(httpResp, "Error: Failed to get subsystem certificate.");
                 return;
             }
@@ -90,7 +91,7 @@ public class GetSubsystemCert extends CMSServlet {
             byte[] bytes = cert.getEncoded();
             s = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(bytes));
         } catch (Exception e) {
-            CMS.debug("GetSubsystemCert process: exception: " + e.toString());
+            logger.warn("GetSubsystemCert process: exception: " + e.getMessage(), e);
         }
 
         try {
@@ -102,7 +103,7 @@ public class GetSubsystemCert extends CMSServlet {
             byte[] cb = xmlObj.toByteArray();
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("Failed to send the XML output");
+            logger.warn("Failed to send the XML output: " + e.getMessage(), e);
         }
     }
 

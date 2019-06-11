@@ -26,7 +26,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -40,6 +39,8 @@ import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.jobs.JobPlugin;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class representing an administration servlet for the
@@ -48,9 +49,9 @@ import com.netscape.certsrv.logging.ILogger;
  * @version $Revision$, $Date$
  */
 public class JobsAdminServlet extends AdminServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JobsAdminServlet.class);
+
     private static final long serialVersionUID = 561767449283982015L;
     // ... remove later
     private final static String VISIBLE = ";visible";
@@ -72,8 +73,8 @@ public class JobsAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mJobsSched = (IJobsScheduler)
-                CMS.getSubsystem(CMS.SUBSYSTEM_JOBS);
+        CMSEngine engine = CMS.getCMSEngine();
+        mJobsSched = (IJobsScheduler) engine.getSubsystem(IJobsScheduler.ID);
     }
 
     /**
@@ -382,6 +383,8 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
+
         // is the job instance id unique?
         if (mJobsSched.getInstances().containsKey(id)) {
             sendResponse(ERROR,
@@ -476,8 +479,7 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
-        IJobsScheduler scheduler = (IJobsScheduler)
-                CMS.getSubsystem(CMS.SUBSYSTEM_JOBS);
+        IJobsScheduler scheduler = (IJobsScheduler) engine.getSubsystem(IJobsScheduler.ID);
 
         // initialize the job plugin
         try {
@@ -772,6 +774,8 @@ public class JobsAdminServlet extends AdminServlet {
             return;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
+
         // Does the job instance exist?
         if (!mJobsSched.getInstances().containsKey(id)) {
             sendResponse(ERROR,
@@ -894,8 +898,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         // initialize the job plugin
 
-        IJobsScheduler scheduler = (IJobsScheduler)
-                CMS.getSubsystem(CMS.SUBSYSTEM_JOBS);
+        IJobsScheduler scheduler = (IJobsScheduler) engine.getSubsystem(IJobsScheduler.ID);
 
         try {
             newJobInst.init(scheduler, id, implname, substore);
@@ -905,7 +908,7 @@ public class JobsAdminServlet extends AdminServlet {
             sendResponse(ERROR, e.toString(getLocale(req)), null, resp);
             return;
         } catch (Exception e) {
-            CMS.debug("JobsAdminServlet: modJobsInst: " + e);
+            logger.warn("JobsAdminServlet: modJobsInst: " + e.getMessage(), e);
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR, "unidentified error" + e, null, resp);
             return;

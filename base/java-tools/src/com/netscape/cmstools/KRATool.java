@@ -60,13 +60,13 @@ import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * The KRATool class is a utility program designed to operate on an LDIF file

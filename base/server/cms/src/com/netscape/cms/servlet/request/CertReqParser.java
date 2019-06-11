@@ -30,7 +30,26 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
+
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
@@ -41,29 +60,10 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.RawJS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.ExtPrettyPrint;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extension;
-import netscape.security.x509.RevocationReason;
-import netscape.security.x509.RevokedCertImpl;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 
 /**
  * Output a 'pretty print' of a certificate request
@@ -71,6 +71,8 @@ import netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class CertReqParser extends ReqParser {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertReqParser.class);
 
     public static final CertReqParser DETAIL_PARSER = new CertReqParser(true);
     public static final CertReqParser NODETAIL_PARSER = new CertReqParser(false);
@@ -111,7 +113,7 @@ public class CertReqParser extends ReqParser {
         if (req.getExtDataInCertInfo("req_x509info"/*IRequest.CERT_INFO*/) == null
                 && req.getExtDataInCertInfo(IRequest.CERT_INFO) == null
                 && arg.getValueAsString("subject", "").equals("")) {
-            //CMS.debug("CertReqParser.fillRequestIntoArg: filling subject due to missing x509CertInfo in request");
+            //logger.debug("CertReqParser.fillRequestIntoArg: filling subject due to missing x509CertInfo in request");
             try {
                 String subjectnamevalue = req.getExtDataInString("req_subject_name");
                 if (subjectnamevalue != null && !subjectnamevalue.equals("")) {
@@ -122,7 +124,7 @@ public class CertReqParser extends ReqParser {
                     }
                 }
             } catch (Exception ee) {
-                CMS.debug("CertReqParser.fillRequestIntoArg: Exception:" + ee.toString());
+                logger.warn("CertReqParser.fillRequestIntoArg: Exception:" + ee.getMessage(), ee);
             }
         }
 
@@ -417,7 +419,7 @@ public class CertReqParser extends ReqParser {
                                 } // pretty print all others.
                                 else {
                                     if (argSet != null) {
-                                        IArgBlock rr = CMS.createArgBlock();
+                                        ArgBlock rr = new ArgBlock();
 
                                         rr.addStringValue(
                                                 EXT_PRETTYPRINT,
@@ -482,7 +484,7 @@ public class CertReqParser extends ReqParser {
                 if (oldSerialNo != null) {
                     if (argSet != null) {
                         for (int i = 0; i < oldSerialNo.length; i++) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     oldSerialNo[i], 16);
@@ -512,7 +514,7 @@ public class CertReqParser extends ReqParser {
                     arg.addStringValue("subject", oldCert[0].getSubjectDN().toString());
                     if (req.getRequestType().equals(IRequest.GETCERTS_REQUEST)) {
                         for (int i = 0; i < oldCert.length; i++) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     oldCert[i].getSerialNumber(), 16);
@@ -533,7 +535,7 @@ public class CertReqParser extends ReqParser {
                         X509Certificate cert[] = certChain.getChain();
 
                         for (int i = 0; i < cert.length; i++) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     cert[i].getSerialNumber(), 16);
@@ -654,7 +656,7 @@ public class CertReqParser extends ReqParser {
                 }
             }
         } catch (Exception e) {
-            CMS.debug("CertReqParser: getCertSubjectDN " + e.toString());
+            logger.warn("CertReqParser: getCertSubjectDN " + e.getMessage(), e);
         }
         return null;
     }
@@ -669,7 +671,7 @@ public class CertReqParser extends ReqParser {
 
             return sn.toString();
         } catch (Exception e) {
-            CMS.debug("CertReqParser: getRequestorDN " + e.toString());
+            logger.warn("CertReqParser: getRequestorDN " + e.getMessage(), e);
         }
         return null;
     }
@@ -693,7 +695,7 @@ public class CertReqParser extends ReqParser {
 
             return kid;
         } catch (Exception e) {
-            CMS.debug("CertReqParser: getKeyID " + e.toString());
+            logger.warn("CertReqParser: getKeyID " + e.getMessage(), e);
         }
         return null;
     }
@@ -707,7 +709,7 @@ public class CertReqParser extends ReqParser {
         String profile = req.getExtDataInString("profile");
         String reqType = req.getExtDataInString(IRequest.ATTR_REQUEST_TYPE);
 
-        //CMS.debug("CertReqParser: profile=" + profile);
+        //logger.debug("CertReqParser: profile=" + profile);
         //profile null can mean either recovery case or TMS reqs
         if (profile != null) {
             arg.addStringValue("profile", profile);
@@ -880,7 +882,7 @@ public class CertReqParser extends ReqParser {
                 if (mDetails && revokedCert != null) {
                     if (argSet != null) {
                         for (int i = 0; i < revokedCert.length; i++) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     revokedCert[i].getSerialNumber(), 16);
@@ -916,7 +918,7 @@ public class CertReqParser extends ReqParser {
                 if (oldSerialNo != null) {
                     if (argSet != null) {
                         for (int i = 0; i < oldSerialNo.length; i++) {
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
                                     oldSerialNo[i], 16);
@@ -940,7 +942,7 @@ public class CertReqParser extends ReqParser {
                         arg.addStringValue("subject", xcert.getSubjectDN().toString());
                         if (req.getRequestType().equals(IRequest.GETCERTS_REQUEST)) {
                             for (int i = 0; i < oldCert.length; i++) {
-                                IArgBlock rarg = CMS.createArgBlock();
+                                ArgBlock rarg = new ArgBlock();
 
                                 xcert = (X509CertImpl) oldCert[i];
                                 rarg.addBigIntegerValue("serialNumber",

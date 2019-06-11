@@ -30,7 +30,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -47,11 +49,11 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.CrlPrettyPrint;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.x509.X509CRLImpl;
 
 /**
  * Decode the CRL and display it to the requester.
@@ -140,8 +142,8 @@ public class DisplayCRL extends CMSServlet {
                     CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         // Note error is covered in the same template as success.
@@ -177,6 +179,7 @@ public class DisplayCRL extends CMSServlet {
                          HttpServletResponse resp,
                          String crlIssuingPointId,
                          Locale locale) {
+        CMSEngine engine = CMS.getCMSEngine();
         ICRLIssuingPoint crlIP = null;
         X509CRLImpl crl = null;
         boolean clonedCA = false;
@@ -188,8 +191,8 @@ public class DisplayCRL extends CMSServlet {
         ICRLRepository crlRepository = mCA.getCRLRepository();
 
         try {
-            masterHost = CMS.getConfigStore().getString("master.ca.agent.host", "");
-            masterPort = CMS.getConfigStore().getString("master.ca.agent.port", "");
+            masterHost = engine.getConfigStore().getString("master.ca.agent.host", "");
+            masterPort = engine.getConfigStore().getString("master.ca.agent.port", "");
             if (masterHost != null && masterHost.length() > 0 &&
                     masterPort != null && masterPort.length() > 0) {
                 clonedCA = true;
@@ -367,14 +370,14 @@ public class DisplayCRL extends CMSServlet {
                             n++;
                             i = k + 1;
                             if (i >= length) {
-                                IArgBlock rarg = CMS.createArgBlock();
+                                ArgBlock rarg = new ArgBlock();
 
                                 rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, k));
                                 argSet.addRepeatRecord(rarg);
                             }
                         } else {
                             n = 1;
-                            IArgBlock rarg = CMS.createArgBlock();
+                            ArgBlock rarg = new ArgBlock();
 
                             if (k > -1) {
                                 rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, k));
@@ -440,7 +443,7 @@ public class DisplayCRL extends CMSServlet {
                                             n++;
                                             i = k + 1;
                                             if (i >= length) {
-                                                IArgBlock rarg = CMS.createArgBlock();
+                                                ArgBlock rarg = new ArgBlock();
 
                                                 rarg.addStringValue("crlBase64Encoded",
                                                         crlBase64Encoded.substring(j, k));
@@ -448,7 +451,7 @@ public class DisplayCRL extends CMSServlet {
                                             }
                                         } else {
                                             n = 1;
-                                            IArgBlock rarg = CMS.createArgBlock();
+                                            ArgBlock rarg = new ArgBlock();
 
                                             if (k > -1) {
                                                 rarg.addStringValue("crlBase64Encoded",

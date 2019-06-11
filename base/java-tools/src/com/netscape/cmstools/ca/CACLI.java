@@ -18,11 +18,12 @@
 
 package com.netscape.cmstools.ca;
 
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.certsrv.ca.CAClient;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.client.SubsystemClient;
 import com.netscape.cmstools.authority.AuthorityCLI;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.SubsystemCLI;
 import com.netscape.cmstools.feature.FeatureCLI;
 import com.netscape.cmstools.group.GroupCLI;

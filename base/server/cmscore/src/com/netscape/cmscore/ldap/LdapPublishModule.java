@@ -24,7 +24,10 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -46,16 +49,17 @@ import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
-import com.netscape.cmscore.util.Debug;
 
 import netscape.ldap.LDAPConnection;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
-import netscape.security.x509.X509CertImpl;
 
 public class LdapPublishModule implements ILdapPublishModule {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapPublishModule.class);
+
     protected IConfigStore mConfig = null;
     protected LdapBoundConnFactory mLdapConnFactory = null;
     protected Logger mLogger = Logger.getLogger();
@@ -117,11 +121,16 @@ public class LdapPublishModule implements ILdapPublishModule {
         if (mInited)
             return;
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         mAuthority = authority;
         mPubProcessor = p;
         mConfig = config;
+
+        IConfigStore ldapCfg = mConfig.getSubStore("ldap");
         mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
-        mLdapConnFactory.init(mConfig.getSubStore("ldap"));
+        mLdapConnFactory.init(cs, ldapCfg, engine.getPasswordStore());
 
         // initMappers(config);
         initHandlers();
@@ -134,10 +143,15 @@ public class LdapPublishModule implements ILdapPublishModule {
         if (mInited)
             return;
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         mAuthority = authority;
         mConfig = config;
+
+        IConfigStore ldapCfg = mConfig.getSubStore("ldap");
         mLdapConnFactory = new LdapBoundConnFactory("LdapPublishModule");
-        mLdapConnFactory.init(mConfig.getSubStore("ldap"));
+        mLdapConnFactory.init(cs, ldapCfg, engine.getPasswordStore());
 
         initMappers(config);
         initHandlers();
@@ -155,7 +169,7 @@ public class LdapPublishModule implements ILdapPublishModule {
      * publishing directory.
      * Use ILdapConnFactory.returnConn() to return the connection.
      *
-     * @see com.netscape.certsrv.ldap.ILdapBoundConnFactory
+     * @see com.netscape.certsrv.ldap.LdapBoundConnFactory
      * @see com.netscape.certsrv.ldap.ILdapConnFactory
      */
     public ILdapConnFactory getLdapConnFactory() {
@@ -184,8 +198,7 @@ public class LdapPublishModule implements ILdapPublishModule {
 
         if (types == null || types.size() <= 0) {
             // nothing configured.
-            if (Debug.ON)
-                System.out.println("No ldap publishing configurations.");
+            logger.debug("No ldap publishing configurations.");
             return;
         }
         Enumeration<String> substores = types.getSubStoreNames();
@@ -195,8 +208,7 @@ public class LdapPublishModule implements ILdapPublishModule {
             IConfigStore current = types.getSubStore(certType);
 
             if (current == null || current.size() <= 0) {
-                CMS.debug(
-                        "No ldap publish configuration for " + certType + " found.");
+                logger.debug("No ldap publish configuration for " + certType + " found.");
                 continue;
             }
             ILdapPlugin mapper = null, publisher = null;
@@ -207,8 +219,7 @@ public class LdapPublishModule implements ILdapPublishModule {
                 mapperConf = current.getSubStore(PROP_MAPPER);
                 mapperClassName = mapperConf.getString(PROP_CLASS, null);
                 if (mapperClassName != null && mapperClassName.length() > 0) {
-                    CMS.debug(
-                            "mapper " + mapperClassName + " for " + certType);
+                    logger.debug("mapper " + mapperClassName + " for " + certType);
                     mapper = (ILdapPlugin)
                             Class.forName(mapperClassName).newInstance();
                     mapper.init(mapperConf);
@@ -217,8 +228,7 @@ public class LdapPublishModule implements ILdapPublishModule {
                 publisherClassName = publisherConf.getString(PROP_CLASS, null);
                 if (publisherClassName != null &&
                         publisherClassName.length() > 0) {
-                    CMS.debug(
-                            "publisher " + publisherClassName + " for " + certType);
+                    logger.debug("publisher " + publisherClassName + " for " + certType);
                     publisher = (ILdapPlugin)
                             Class.forName(publisherClassName).newInstance();
                     publisher.init(publisherConf);
@@ -278,8 +288,7 @@ public class LdapPublishModule implements ILdapPublishModule {
         IRequestListener handler = mEventHandlers.get(type);
 
         if (handler == null) {
-            CMS.debug(
-                    "Nothing to publish for request type " + type);
+            logger.debug("Nothing to publish for request type " + type);
             return;
         }
         handler.accept(r);
@@ -291,7 +300,7 @@ public class LdapPublishModule implements ILdapPublishModule {
         LdapMappers mappers = getMappers(certType);
 
         if (mappers == null || mappers.publisher == null) {
-            CMS.debug("publisher for " + certType + " is null");
+            logger.debug("publisher for " + certType + " is null");
             return;
         }
         publish((ILdapMapper) mappers.mapper,
@@ -307,7 +316,7 @@ public class LdapPublishModule implements ILdapPublishModule {
         LdapMappers mappers = getMappers(certType);
 
         if (mappers == null || mappers.publisher == null) {
-            CMS.debug("publisher for " + certType + " is null");
+            logger.debug("publisher for " + certType + " is null");
             return;
         }
         unpublish((ILdapMapper) mappers.mapper,
@@ -370,9 +379,7 @@ public class LdapPublishModule implements ILdapPublishModule {
             conn = mLdapConnFactory.getConn();
             if (mapper == null) { // use the cert's subject name exactly
                 dirdn = cert.getSubjectDN().toString();
-                CMS.debug(
-                        "no mapper found. Using subject name exactly." +
-                                cert.getSubjectDN());
+                logger.debug("no mapper found. Using subject name exactly: " + cert.getSubjectDN());
             } else {
                 result = mapper.map(conn, cert);
                 dirdn = result;
@@ -435,7 +442,7 @@ public class LdapPublishModule implements ILdapPublishModule {
         LdapMappers mappers = getMappers(PROP_TYPE_CRL);
 
         if (mappers == null || mappers.publisher == null) {
-            CMS.debug("publisher for crl is null");
+            logger.debug("publisher for crl is null");
             return;
         }
 
@@ -458,14 +465,15 @@ public class LdapPublishModule implements ILdapPublishModule {
                 }
             }
             ((ILdapPublisher) mappers.publisher).publish(conn, dn, crl);
+
         } catch (ELdapException e) {
-            //e.printStackTrace();
-            CMS.debug(
-                    "Error publishing CRL to " + dn + ": " + e);
+            logger.error("Error publishing CRL to " + dn + ": " + e.getMessage(), e);
             throw e;
+
         } catch (IOException e) {
-            CMS.debug("Error publishing CRL to " + dn + ": " + e);
+            logger.error("Error publishing CRL to " + dn + ": " + e.getMessage(), e);
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_ISSUER_FROM_CRL_FAILED", ""));
+
         } finally {
             if (conn != null) {
                 mLdapConnFactory.returnConn(conn);
@@ -482,7 +490,7 @@ public class LdapPublishModule implements ILdapPublishModule {
         LdapMappers mappers = getMappers(PROP_TYPE_CRL);
 
         if (mappers == null || mappers.publisher == null) {
-            CMS.debug("publisher for crl is null");
+            logger.debug("publisher for crl is null");
             return;
         }
 
@@ -491,10 +499,11 @@ public class LdapPublishModule implements ILdapPublishModule {
         try {
             conn = mLdapConnFactory.getConn();
             ((ILdapPublisher) mappers.publisher).publish(conn, dn, crl);
+
         } catch (ELdapException e) {
-            CMS.debug(
-                    "Error publishing CRL to " + dn + ": " + e.toString());
+            logger.error("Error publishing CRL to " + dn + ": " + e.getMessage(), e);
             throw e;
+
         } finally {
             if (conn != null) {
                 mLdapConnFactory.returnConn(conn);
@@ -520,6 +529,9 @@ class LdapMappers {
 }
 
 class HandleEnrollment implements IRequestListener {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HandleEnrollment.class);
+
     LdapPublishModule mModule = null;
 
     public HandleEnrollment(LdapPublishModule module) {
@@ -533,9 +545,7 @@ class HandleEnrollment implements IRequestListener {
     }
 
     public void accept(IRequest r) {
-        CMS.debug(
-                "handling publishing for enrollment request id " +
-                        r.getRequestId());
+        logger.debug("handling publishing for enrollment request id " + r.getRequestId());
 
         // in case it's not meant for us
         if (r.getExtDataInInteger(IRequest.RESULT) == null)
@@ -543,19 +553,18 @@ class HandleEnrollment implements IRequestListener {
 
         // check if request failed.
         if ((r.getExtDataInInteger(IRequest.RESULT)).equals(IRequest.RES_ERROR)) {
-            CMS.debug("Request errored. " +
+            logger.debug("Request errored. " +
                     "Nothing to publish for enrollment request id " +
                     r.getRequestId());
             return;
         }
-        CMS.debug("Checking publishing for request " +
+        logger.debug("Checking publishing for request " +
                 r.getRequestId());
         // check if issued certs is set.
         X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
         if (certs == null || certs.length == 0 || certs[0] == null) {
-            CMS.debug(
-                    "No certs to publish for request id " + r.getRequestId());
+            logger.debug("No certs to publish for request id " + r.getRequestId());
             return;
         }
 
@@ -564,8 +573,7 @@ class HandleEnrollment implements IRequestListener {
                 mModule.getMappers(LdapPublishModule.PROP_TYPE_CLIENT);
 
         if (mappers == null || mappers.publisher == null) {
-            CMS.debug(
-                    "In publishing: No publisher for type " +
+            logger.debug("In publishing: No publisher for type " +
                             LdapPublishModule.PROP_TYPE_CLIENT);
             return;
         }
@@ -580,9 +588,9 @@ class HandleEnrollment implements IRequestListener {
                 mModule.publish((ILdapMapper) mappers.mapper,
                         (ILdapPublisher) mappers.publisher, certs[i]);
                 results[i] = IRequest.RES_SUCCESS;
-                CMS.debug(
-                        "Published cert serial no 0x" + certs[i].getSerialNumber().toString(16));
+                logger.debug("Published cert serial no 0x" + certs[i].getSerialNumber().toString(16));
                 mModule.setPublishedFlag(certs[i].getSerialNumber(), true);
+
             } catch (ELdapException e) {
                 mModule.log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
@@ -595,6 +603,9 @@ class HandleEnrollment implements IRequestListener {
 }
 
 class HandleRenewal implements IRequestListener {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HandleRenewal.class);
+
     private LdapPublishModule mModule = null;
 
     public HandleRenewal(LdapPublishModule module) {
@@ -612,7 +623,7 @@ class HandleRenewal implements IRequestListener {
         X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
         if (certs == null || certs.length == 0) {
-            CMS.debug("no certs to publish for renewal " +
+            logger.debug("no certs to publish for renewal " +
                     "request " + r.getRequestId());
             return;
         }
@@ -624,8 +635,7 @@ class HandleRenewal implements IRequestListener {
                 mModule.getMappers(LdapPublishModule.PROP_TYPE_CLIENT);
 
         if (mappers == null || mappers.publisher == null) {
-            CMS.debug(
-                    "publisher for " + LdapPublishModule.PROP_TYPE_CLIENT + " is null");
+            logger.debug("publisher for " + LdapPublishModule.PROP_TYPE_CLIENT + " is null");
             return;
         }
 
@@ -656,6 +666,9 @@ class HandleRenewal implements IRequestListener {
 }
 
 class HandleRevocation implements IRequestListener {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HandleRevocation.class);
+
     private LdapPublishModule mModule = null;
 
     public HandleRevocation(LdapPublishModule module) {
@@ -669,16 +682,14 @@ class HandleRevocation implements IRequestListener {
     }
 
     public void accept(IRequest r) {
-        CMS.debug(
-                "Handle publishing for revoke request id " + r.getRequestId());
+        logger.debug("Handle publishing for revoke request id " + r.getRequestId());
 
         // get fields in request.
         X509CertImpl[] revcerts = r.getExtDataInCertArray(IRequest.OLD_CERTS);
 
         if (revcerts == null || revcerts.length == 0 || revcerts[0] == null) {
             // no certs in revoke.
-            CMS.debug(
-                    "Nothing to unpublish for revocation " +
+            logger.debug("Nothing to unpublish for revocation " +
                             "request " + r.getRequestId());
             return;
         }
@@ -688,8 +699,7 @@ class HandleRevocation implements IRequestListener {
                 mModule.getMappers(LdapPublishModule.PROP_TYPE_CLIENT);
 
         if (mappers == null || mappers.publisher == null) {
-            CMS.debug(
-                    "publisher for " + LdapPublishModule.PROP_TYPE_CLIENT + " is null");
+            logger.debug("publisher for " + LdapPublishModule.PROP_TYPE_CLIENT + " is null");
             return;
         }
 
@@ -704,8 +714,8 @@ class HandleRevocation implements IRequestListener {
                 mModule.unpublish((ILdapMapper) mappers.mapper,
                         (ILdapPublisher) mappers.publisher, cert);
                 results[i] = IRequest.RES_SUCCESS;
-                CMS.debug(
-                        "Unpublished cert serial no 0x" + cert.getSerialNumber().toString(16));
+                logger.debug("Unpublished cert serial no 0x" + cert.getSerialNumber().toString(16));
+
             } catch (ELdapException e) {
                 error = true;
                 mModule.log(ILogger.LL_FAILURE,
@@ -720,6 +730,9 @@ class HandleRevocation implements IRequestListener {
 }
 
 class HandleUnrevocation implements IRequestListener {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HandleUnrevocation.class);
+
     private LdapPublishModule mModule = null;
 
     public HandleUnrevocation(LdapPublishModule module) {
@@ -733,16 +746,14 @@ class HandleUnrevocation implements IRequestListener {
     }
 
     public void accept(IRequest r) {
-        CMS.debug(
-                "Handle publishing for unrevoke request id " + r.getRequestId());
+        logger.debug("Handle publishing for unrevoke request id " + r.getRequestId());
 
         // get fields in request.
         X509CertImpl[] certs = r.getExtDataInCertArray(IRequest.OLD_CERTS);
 
         if (certs == null || certs.length == 0 || certs[0] == null) {
             // no certs in unrevoke.
-            CMS.debug(
-                    "Nothing to publish for unrevocation " +
+            logger.debug("Nothing to publish for unrevocation " +
                             "request " + r.getRequestId());
             return;
         }
@@ -752,8 +763,7 @@ class HandleUnrevocation implements IRequestListener {
                 mModule.getMappers(LdapPublishModule.PROP_TYPE_CLIENT);
 
         if (mappers == null || mappers.publisher == null) {
-            CMS.debug(
-                    "publisher for " + LdapPublishModule.PROP_TYPE_CLIENT + " is null");
+            logger.debug("publisher for " + LdapPublishModule.PROP_TYPE_CLIENT + " is null");
             return;
         }
 
@@ -766,8 +776,8 @@ class HandleUnrevocation implements IRequestListener {
                 mModule.publish((ILdapMapper) mappers.mapper,
                         (ILdapPublisher) mappers.publisher, certs[i]);
                 results[i] = IRequest.RES_SUCCESS;
-                CMS.debug(
-                        "Unpublished cert serial no 0x" + certs[i].getSerialNumber().toString(16));
+                logger.debug("Unpublished cert serial no 0x" + certs[i].getSerialNumber().toString(16));
+
             } catch (ELdapException e) {
                 error = true;
                 mModule.log(ILogger.LL_FAILURE,

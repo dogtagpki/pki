@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
@@ -41,13 +40,16 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.request.ldap.IRequestMod;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
-import com.netscape.cmscore.util.Debug;
 
 public class RequestQueue
         extends ARequestQueue
         implements IRequestMod {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestQueue.class);
 
     // ARequestQueue.newRequestId
     protected RequestId newRequestId()
@@ -61,7 +63,8 @@ public class RequestQueue
     }
 
     protected RequestId newEphemeralRequestId() {
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         SecureRandom random = jssSubsystem.getRandomNumberGenerator();
 
         long id = System.currentTimeMillis() * 10000 + random.nextInt(10000);
@@ -82,8 +85,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             obj = dbs.read(name);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
@@ -127,8 +129,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             dbs.add(name, record);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.error("RequestQueue: " + e.getMessage(), e);
             throw e;
         } finally {
             // Close session - ignoring errors (UTIL)
@@ -158,8 +159,7 @@ public class RequestQueue
         try {
             RequestRecord.mod(mods, r);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         }
 
         /*
@@ -191,8 +191,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             dbs.modify(name, mods);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
@@ -210,8 +209,7 @@ public class RequestQueue
             // convert (copy) fields
             record.read(this, r);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         }
 
         return r;
@@ -244,9 +242,9 @@ public class RequestQueue
     }
 
     public BigInteger getLastRequestIdInRange(BigInteger reqId_low_bound, BigInteger reqId_upper_bound) {
-        CMS.debug("RequestQueue: getLastRequestId: low " + reqId_low_bound + " high " + reqId_upper_bound);
+        logger.debug("RequestQueue: getLastRequestId: low " + reqId_low_bound + " high " + reqId_upper_bound);
         if (reqId_low_bound == null || reqId_upper_bound == null || reqId_low_bound.compareTo(reqId_upper_bound) >= 0) {
-            CMS.debug("RequestQueue: getLastRequestId: bad upper and lower bound range.");
+            logger.warn("RequestQueue: getLastRequestId: bad upper and lower bound range.");
             return null;
         }
 
@@ -254,25 +252,25 @@ public class RequestQueue
 
         RequestId fromId = new RequestId(reqId_upper_bound);
 
-        CMS.debug("RequestQueue: getLastRequestId: filter " + filter + " fromId " + fromId);
+        logger.debug("RequestQueue: getLastRequestId: filter " + filter + " fromId " + fromId);
         ListEnumeration recList = (ListEnumeration) getPagedRequestsByFilter(fromId, filter, 5 * -1, "requestId");
 
         int size = recList.getSize();
 
-        CMS.debug("RequestQueue: getLastRequestId: size   " + size);
+        logger.debug("RequestQueue: getLastRequestId: size   " + size);
 
         int ltSize = recList.getSizeBeforeJumpTo();
 
-        CMS.debug("RequestQueue: getSizeBeforeJumpTo: " + ltSize);
+        logger.debug("RequestQueue: getSizeBeforeJumpTo: " + ltSize);
 
         if (size <= 0) {
-            CMS.debug("RequestQueue: getLastRequestId:  request list is empty.");
+            logger.debug("RequestQueue: getLastRequestId:  request list is empty.");
 
             BigInteger ret = new BigInteger(reqId_low_bound.toString(10));
 
             ret = ret.add(new BigInteger("-1"));
 
-            CMS.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
+            logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
             return ret;
         }
 
@@ -291,13 +289,13 @@ public class RequestQueue
 
                 reqId = curId.toString();
 
-                CMS.debug("RequestQueue: curReqId: " + reqId);
+                logger.debug("RequestQueue: curReqId: " + reqId);
 
                 BigInteger curIdInt = new BigInteger(reqId);
 
                 if (((curIdInt.compareTo(reqId_low_bound) == 0) || (curIdInt.compareTo(reqId_low_bound) == 1)) &&
                         ((curIdInt.compareTo(reqId_upper_bound) == 0) || (curIdInt.compareTo(reqId_upper_bound) == -1))) {
-                    CMS.debug("RequestQueue: getLastRequestId : returning value " + curIdInt);
+                    logger.debug("RequestQueue: getLastRequestId : returning value " + curIdInt);
                     return curIdInt;
                 }
 
@@ -309,7 +307,7 @@ public class RequestQueue
 
         ret = ret.add(new BigInteger("-1"));
 
-        CMS.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
+        logger.debug("CertificateRepository:getLastCertRecordSerialNo: returning " + ret);
         return ret;
 
     }
@@ -347,8 +345,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             results = dbs.search(mBaseDN, filter);
         } catch (EBaseException e) {
-            Debug.trace("Error in Ldap Request searching code: " + e);
-            Debug.printStackTrace(e);
+            logger.error("Error in Ldap Request searching code: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
@@ -373,8 +370,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             results = dbs.search(mBaseDN, "(requestId=*)");
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
@@ -400,8 +396,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             results = dbs.search(mBaseDN, f);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
@@ -427,8 +422,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             results = dbs.search(mBaseDN, f, maxSize);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)
@@ -454,8 +448,7 @@ public class RequestQueue
             dbs = mDB.createSession();
             results = dbs.search(mBaseDN, f, maxSize, timeLimit);
         } catch (EBaseException e) {
-            Debug.trace("Error: " + e);
-            Debug.printStackTrace(e);
+            logger.warn("RequestQueue: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null)

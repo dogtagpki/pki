@@ -28,7 +28,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -45,6 +44,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**
@@ -78,7 +80,8 @@ public class EnableEnrollResult extends CMSServlet {
 
         mTemplates.remove(ICMSRequest.SUCCESS);
 
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         random = jssSubsystem.getRandomNumberGenerator();
     }
 
@@ -94,6 +97,7 @@ public class EnableEnrollResult extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
@@ -140,18 +144,18 @@ public class EnableEnrollResult extends CMSServlet {
             return;
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        IConfigStore configStore = CMS.getConfigStore();
+        IConfigStore configStore = engine.getConfigStore();
         String machine = configStore.getString("machineName");
-        String port = CMS.getEESSLPort();
+        String port = engine.getEESSLPort();
 
         header.addStringValue("machineName", machine);
         header.addStringValue("port", port);
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 

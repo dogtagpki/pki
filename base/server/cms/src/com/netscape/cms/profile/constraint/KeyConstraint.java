@@ -22,14 +22,13 @@ import java.security.interfaces.DSAParams;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.provider.DSAPublicKey;
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.provider.DSAPublicKey;
+import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -41,6 +40,8 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserKeyDefault;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -51,6 +52,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
  */
 
 public class KeyConstraint extends EnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyConstraint.class);
 
     public static final String CONFIG_KEY_TYPE = "keyType"; // (EC, RSA)
     public static final String CONFIG_KEY_PARAMETERS = "keyParameters";
@@ -69,13 +72,14 @@ public class KeyConstraint extends EnrollConstraint {
             throws EProfileException {
         super.init(profile, config);
 
+        CMSEngine engine = CMS.getCMSEngine();
         String ecNames = "";
         try {
-            ecNames = CMS.getConfigStore().getString("keys.ecc.curve.list");
+            ecNames = engine.getConfigStore().getString("keys.ecc.curve.list");
         } catch (Exception e) {
         }
 
-        CMS.debug("KeyConstraint.init ecNames: " + ecNames);
+        logger.debug("KeyConstraint.init ecNames: " + ecNames);
         if (ecNames != null && ecNames.length() != 0) {
             cfgECCurves = ecNames.split(",");
         }
@@ -153,16 +157,16 @@ public class KeyConstraint extends EnrollConstraint {
                 boolean curveFound = false;
 
                 if (vect != null) {
-                    CMS.debug("vect: " + vect.toString());
+                    logger.debug("vect: " + vect);
 
                     if (!isOptional(keyType)) {
                         //Check the curve parameters only if explicit ECC or not optional
                         for (int i = 0; i < keyParams.length; i++) {
                             String ecParam = keyParams[i];
-                            CMS.debug("keyParams[i]: " + i + " param: " + ecParam);
+                            logger.debug("keyParams[i]: " + i + " param: " + ecParam);
                             if (vect.contains(ecParam)) {
                                 curveFound = true;
-                                CMS.debug("KeyConstraint.validate: EC key constrainst passed.");
+                                logger.debug("KeyConstraint.validate: EC key constrainst passed.");
                                 break;
                             }
                         }
@@ -172,12 +176,12 @@ public class KeyConstraint extends EnrollConstraint {
                 }
 
                 if (!curveFound) {
-                    CMS.debug("KeyConstraint.validate: EC key constrainst failed.");
-                    throw new ERejectException(
-                            CMS.getUserMessage(
-                                    getLocale(request),
-                                    "CMS_PROFILE_KEY_PARAMS_NOT_MATCHED",
-                                    value));
+                    String message = CMS.getUserMessage(
+                            getLocale(request),
+                            "CMS_PROFILE_KEY_PARAMS_NOT_MATCHED",
+                            value);
+                    logger.error("KeyConstraint.validate: EC key constrainst failed: " + message);
+                    throw new ERejectException(message);
                 }
 
             } else {
@@ -188,13 +192,13 @@ public class KeyConstraint extends EnrollConstraint {
                                     "CMS_PROFILE_KEY_PARAMS_NOT_MATCHED",
                                     value));
                 }
-                CMS.debug("KeyConstraint.validate: RSA key contraints passed.");
+                logger.debug("KeyConstraint.validate: RSA key contraints passed.");
             }
         } catch (Exception e) {
             if (e instanceof ERejectException) {
                 throw (ERejectException) e;
             }
-            CMS.debug("KeyConstraint: " + e.toString());
+            logger.error("KeyConstraint: " + e.getMessage(), e);
             throw new ERejectException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_KEY_NOT_FOUND"));
         }
@@ -207,7 +211,7 @@ public class KeyConstraint extends EnrollConstraint {
             newkey = new X509Key(AlgorithmId.get("RSA"),
                         key.getKey());
         } catch (Exception e) {
-            CMS.debug("KeyConstraint: getRSAKey Len " + e.toString());
+            logger.error("KeyConstraint: getRSAKey Len " + e.getMessage(), e);
             return -1;
         }
         RSAPublicKey rsaKey = new RSAPublicKey(newkey.getEncoded());
@@ -247,7 +251,7 @@ public class KeyConstraint extends EnrollConstraint {
     public void setConfig(String name, String value)
             throws EPropertyException {
 
-        CMS.debug("KeyConstraint.setConfig name: " + name + " value: " + value);
+        logger.debug("KeyConstraint.setConfig name: " + name + " value: " + value);
         //establish keyType, we don't know which order these params will arrive
         if (name.equals(CONFIG_KEY_TYPE)) {
             keyType = value;
@@ -257,7 +261,7 @@ public class KeyConstraint extends EnrollConstraint {
 
         //establish keyParams
         if (name.equals(CONFIG_KEY_PARAMETERS)) {
-            CMS.debug("establish keyParams: " + value);
+            logger.debug("establish keyParams: " + value);
             keyParams = value;
 
             if (keyType.equals(""))

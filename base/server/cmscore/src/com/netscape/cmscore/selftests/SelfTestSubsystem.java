@@ -32,7 +32,6 @@ import java.util.ListIterator;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
@@ -50,6 +49,7 @@ import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
 //////////////////////
@@ -537,7 +537,7 @@ public class SelfTestSubsystem
 
                     logger.error("SelfTestSubsystem: Disabling subsystem due to selftest failure: " + e.getMessage(), e);
 
-                    CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
+                    CMSEngine engine = CMS.getCMSEngine();
                     engine.disableSubsystem();
 
                     throw new ESelfTestException("Selftest failed: " + e.getMessage(), e);
@@ -1755,7 +1755,8 @@ public class SelfTestSubsystem
             instance.startupSelfTest();
         }
 
-        if (CMS.isPreOpMode()) {
+        CMSEngine engine = CMS.getCMSEngine();
+        if (engine.isPreOpMode()) {
             logger.debug("SelfTestSubsystem.startup(): Do not run selftests in pre-op mode");
             return;
         }
@@ -1809,7 +1810,6 @@ public class SelfTestSubsystem
 
             logger.error("SelfTestSubsystem: Disabling subsystem due to selftest failure: " + e.getMessage(), e);
 
-            CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
             engine.disableSubsystem();
 
             throw new ESelfTestException("Selftest failed: " + e.getMessage(), e);

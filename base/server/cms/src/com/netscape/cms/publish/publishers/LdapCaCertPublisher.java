@@ -22,7 +22,6 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -31,6 +30,9 @@ import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -39,7 +41,6 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
-import netscape.ldap.LDAPSSLSocketFactoryExt;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 
@@ -50,6 +51,9 @@ import netscape.ldap.LDAPv2;
  */
 public class LdapCaCertPublisher
         implements ILdapPublisher, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCaCertPublisher.class);
+
     public static final String LDAP_CACERT_ATTR = "caCertificate;binary";
     public static final String LDAP_CA_OBJECTCLASS = "pkiCA";
     public static final String LDAP_ARL_ATTR = "authorityRevocationList;binary";
@@ -165,6 +169,9 @@ public class LdapCaCertPublisher
             return;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         try {
             mCaCertAttr = mConfig.getString("caCertAttr", LDAP_CACERT_ATTR);
             mCaObjectclass = mConfig.getString("caObjectClass", LDAP_CA_OBJECTCLASS);
@@ -181,24 +188,27 @@ public class LdapCaCertPublisher
                 int portVal = Integer.parseInt(port);
                 int version = Integer.parseInt(mConfig.getString("version", "2"));
                 String cert_nick = mConfig.getString("clientCertNickname", null);
-                LDAPSSLSocketFactoryExt sslSocket;
+
+                PKISocketFactory sslSocket;
                 if (cert_nick != null) {
                     sslSocket = new PKISocketFactory(cert_nick);
                 } else {
                     sslSocket = new PKISocketFactory(true);
                 }
+                sslSocket.init(cs);
+
                 String mgr_dn = mConfig.getString("bindDN", null);
                 String mgr_pwd = mConfig.getString("bindPWD", null);
 
-                altConn = CMS.getBoundConnection("LdapCaCertPublisher", host, portVal,
+                altConn = new LdapBoundConnection(host, portVal,
                         version,
                         sslSocket, mgr_dn, mgr_pwd);
                 conn = altConn;
             }
         } catch (LDAPException e) {
-            CMS.debug("Failed to create alt connection " + e);
+            logger.warn("Failed to create alt connection " + e.getMessage(), e);
         } catch (EBaseException e) {
-            CMS.debug("Failed to create alt connection " + e);
+            logger.warn("Failed to create alt connection " + e.getMessage(), e);
         }
 
         if (!(certObj instanceof X509Certificate))
@@ -395,7 +405,7 @@ public class LdapCaCertPublisher
             }
             conn.modify(dn, modSet);
         } catch (CertificateEncodingException e) {
-            CMS.debug("LdapCaCertPublisher: unpublish: Cannot decode cert for " + dn);
+            logger.error("LdapCaCertPublisher: unpublish: Cannot decode cert for " + dn + ": " + e.getMessage(), e);
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {

@@ -69,7 +69,6 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
 
     # Configure loggers
     modules = [
-        'pki',
         'pkihelper',
         'pkimanifest',
         'pkiparser',

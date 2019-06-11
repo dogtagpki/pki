@@ -25,13 +25,13 @@ import java.io.ObjectOutputStream;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -46,6 +46,7 @@ import netscape.ldap.LDAPAttributeSet;
  */
 public class ObjectStreamMapper implements IDBAttrMapper {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ObjectStreamMapper.class);
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
     private Logger mLogger = Logger.getLogger();
@@ -78,10 +79,10 @@ public class ObjectStreamMapper implements IDBAttrMapper {
             os.writeObject(obj);
             byte data[] = bos.toByteArray();
             if (data == null) {
-                CMS.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
+                logger.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
                         name + " size=0");
             } else {
-                CMS.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
+                logger.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
                         name + " size=" + data.length);
             }
             attrs.add(new LDAPAttribute(mLdapName, data));
@@ -113,7 +114,7 @@ public class ObjectStreamMapper implements IDBAttrMapper {
                 return;
             }
             ByteArrayInputStream bis = new ByteArrayInputStream(
-                    (byte[]) attr.getByteValues().nextElement());
+                    attr.getByteValues().nextElement());
             ObjectInputStream is = new ObjectInputStream(bis);
 
             parent.set(name, is.readObject());

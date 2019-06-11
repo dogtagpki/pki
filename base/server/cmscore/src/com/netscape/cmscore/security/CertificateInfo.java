@@ -29,35 +29,34 @@ import java.security.cert.CertificateParsingException;
 import java.util.Calendar;
 import java.util.Date;
 
-import netscape.security.util.DerInputStream;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSerialNumber;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
-
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.crypto.PQGParamGenException;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
+import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This base class provides methods to import CA signing cert or get certificate
@@ -101,7 +100,7 @@ public abstract class CertificateInfo {
 
         /*
          String period = (String)mProperties.get(Constants.PR_VALIDITY_PERIOD);
-         Date notBeforeDate = CMS.getCurrentDate();
+         Date notBeforeDate = new Date();
          Date notAfterDate = new Date(notBeforeDate.getYear(),
          notBeforeDate.getMonth(),
          notBeforeDate.getDate()+Integer.parseInt(period));

@@ -19,7 +19,8 @@ package com.netscape.cms.profile.output;
 
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -29,9 +30,9 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertPrettyPrint;
-
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.cert.CertUtils;
 
 /**
  * This class implements the pretty print certificate output
@@ -111,7 +112,7 @@ public class CertOutput extends EnrollOutput implements IProfileOutput {
                     EnrollProfile.REQUEST_ISSUED_CERT);
             if (cert == null)
                 return null;
-            return CMS.getEncodedCert(cert);
+            return CertUtils.getEncodedCert(cert);
         } else {
             return null;
         }

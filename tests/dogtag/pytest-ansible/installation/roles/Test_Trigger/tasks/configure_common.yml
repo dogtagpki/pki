@@ -86,14 +86,14 @@
   - /tmp/test_dir/tps.cfg
   - /tmp/test_dir/constants.py
 
-- name : Substitute ecc with rsa when topology=topology-ecc
-  replace: dest={{item}} regexp="SHA512withRSA" replace="SHA384withEC"
+- name : Substitute SHA512withEC with SHA512withRSA when topology=topology-ecc
+  replace: dest={{item}} regexp="SHA512withRSA" replace="SHA512withEC"
   with_items:
   - /tmp/test_dir/ca.cfg
   - /tmp/test_dir/kra.cfg
   - /tmp/test_dir/ocsp.cfg
-  when:
-    - topology == "topology-ecc"
+  - /tmp/test_dir/tks.cfg
+  when: topology == "topology-ecc"
 
 - name : Substitute ecc with rsa when topology=topology-ecc
   replace: dest={{item}} regexp="rsa" replace="ecc"
@@ -101,17 +101,17 @@
   - /tmp/test_dir/ca.cfg
   - /tmp/test_dir/kra.cfg
   - /tmp/test_dir/ocsp.cfg
-  when:
-    - topology == "topology-ecc"
+  - /tmp/test_dir/tks.cfg
+  when: topology == "topology-ecc"
 
-- name : Substitute ecc with rsa when topology=topology-ecc
-  replace: dest={{item}} regexp="2048" replace="nistp384"
+- name : Substitute keysize nistp521 with keysize 2048 when topology=topology-ecc
+  replace: dest={{item}} regexp="2048" replace="nistp521"
   with_items:
   - /tmp/test_dir/ca.cfg
   - /tmp/test_dir/kra.cfg
   - /tmp/test_dir/ocsp.cfg
-  when:
-    - topology == "topology-ecc"
+  - /tmp/test_dir/tks.cfg
+  when: topology == "topology-ecc"
     
 - name : For topology-01
   replace: dest={{item}} regexp="pki_instance_name" replace="#pki_instance_name"
@@ -143,4 +143,3 @@
   - /tmp/test_dir/ldap_tks.cfg
   - /tmp/test_dir/ldap_tps.cfg
   when: topology  == "topology-05"
-    

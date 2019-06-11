@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.dbs.CSCfgDatabase;
 
@@ -32,6 +31,8 @@ import com.netscape.cmscore.dbs.CSCfgDatabase;
  * @author Endi S. Dewata
  */
 public class ProfileMappingDatabase extends CSCfgDatabase<ProfileMappingRecord> {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileMappingDatabase.class);
 
     public ProfileMappingDatabase() {
         super("Profile Mapping", "Profile_Mappings");
@@ -78,7 +79,7 @@ public class ProfileMappingDatabase extends CSCfgDatabase<ProfileMappingRecord> 
     @Override
     public void addRecord(String profileMappingID, ProfileMappingRecord profileMappingRecord) throws Exception {
 
-        CMS.debug("ProfileMappingDatabase.addRecord(\"" + profileMappingID + "\")");
+        logger.debug("ProfileMappingDatabase.addRecord(\"" + profileMappingID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
@@ -102,7 +103,7 @@ public class ProfileMappingDatabase extends CSCfgDatabase<ProfileMappingRecord> 
     @Override
     public void updateRecord(String profileMappingID, ProfileMappingRecord profileMappingRecord) throws Exception {
 
-        CMS.debug("ProfileMappingDatabase.updateRecord(\"" + profileMappingID + "\")");
+        logger.debug("ProfileMappingDatabase.updateRecord(\"" + profileMappingID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 
@@ -125,7 +126,7 @@ public class ProfileMappingDatabase extends CSCfgDatabase<ProfileMappingRecord> 
     @Override
     public void removeRecord(String profileMappingID) throws Exception {
 
-        CMS.debug("ProfileMappingDatabase.removeRecord(\"" + profileMappingID + "\")");
+        logger.debug("ProfileMappingDatabase.removeRecord(\"" + profileMappingID + "\")");
         ConfigDatabase configDatabase = new ConfigDatabase();
         ConfigRecord configRecord = configDatabase.getRecord(substoreName);
 

@@ -38,9 +38,12 @@ public class LdapAnonConnection extends LDAPConnection {
     /**
      * instantiates a connection to a ldap server
      */
-    public LdapAnonConnection(LdapConnInfo connInfo)
+    public LdapAnonConnection(
+            LDAPSocketFactory socketFactory,
+            LdapConnInfo connInfo)
             throws LDAPException {
-        super(new PKISocketFactory(connInfo.getSecure()));
+
+        super(socketFactory);
 
         // Set option to automatically follow referrals.
         // rebind info is also anonymous.

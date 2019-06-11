@@ -23,12 +23,12 @@ import java.security.Principal;
 
 import javax.ws.rs.core.Response;
 
-import netscape.security.x509.X509CertImpl;
-
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
@@ -40,8 +40,8 @@ import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.certsrv.system.SystemCertResource;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This is the class used to list, retrieve and modify system certificates for all Java subsystems.
@@ -51,13 +51,16 @@ import com.netscape.cmsutil.util.Utils;
  */
 public class SystemCertService extends PKIService implements SystemCertResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SystemCertService.class);
+
     /**
      * Used to retrieve the transport certificate
      */
     public Response getTransportCert() {
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
-            IConfigStore cs = CMS.getConfigStore();
+            IConfigStore cs = engine.getConfigStore();
             String type = cs.getString("cs.type");
 
             CertData certData;
@@ -80,7 +83,7 @@ public class SystemCertService extends PKIService implements SystemCertResource 
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("SystemCertService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -98,7 +101,8 @@ public class SystemCertService extends PKIService implements SystemCertResource 
 
     public CertData getTransportCertFromKRA() throws Exception {
 
-        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) CMS.getSubsystem("kra");
+        CMSEngine engine = CMS.getCMSEngine();
+        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) engine.getSubsystem(IKeyRecoveryAuthority.ID);
         if (kra == null) {
             // no KRA
             throw new ResourceNotFoundException("KRA subsystem not found.");
@@ -106,13 +110,13 @@ public class SystemCertService extends PKIService implements SystemCertResource 
 
         ITransportKeyUnit tu = kra.getTransportKeyUnit();
         if (tu == null) {
-            CMS.debug("getTransportCert: transport key unit is null");
+            logger.error("getTransportCert: transport key unit is null");
             throw new PKIException("No transport key unit.");
         }
 
         X509Certificate transportCert = tu.getCertificate();
         if (transportCert == null) {
-            CMS.debug("getTransportCert: transport cert is null");
+            logger.error("getTransportCert: transport cert is null");
             throw new PKIException("Transport cert not found.");
         }
 

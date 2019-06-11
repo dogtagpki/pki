@@ -42,7 +42,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -55,6 +54,8 @@ import com.netscape.certsrv.logging.AuditResource;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ConfigSignedAuditEvent;
 import com.netscape.cms.servlet.base.SubsystemService;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.LogSubsystem;
 
 /**
@@ -62,8 +63,10 @@ import com.netscape.cmscore.logging.LogSubsystem;
  */
 public class AuditService extends SubsystemService implements AuditResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuditService.class);
+
     public AuditService() {
-        CMS.debug("AuditService.<init>()");
+        logger.debug("AuditService.<init>()");
     }
 
     public AuditConfig createAuditConfig() throws UnsupportedEncodingException, EBaseException {
@@ -73,7 +76,8 @@ public class AuditService extends SubsystemService implements AuditResource {
     public AuditConfig createAuditConfig(Map<String, String> auditParams)
             throws UnsupportedEncodingException, EBaseException {
 
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
         AuditConfig auditConfig = new AuditConfig();
         String val = null;
@@ -102,7 +106,7 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         Map<String, String> eventConfigs = new TreeMap<String, String>();
 
-        LogSubsystem logSubsystem = (LogSubsystem) CMS.getSubsystem(LogSubsystem.ID);
+        LogSubsystem logSubsystem = (LogSubsystem) engine.getSubsystem(LogSubsystem.ID);
 
         // load all audit events as disabled initially
         for (String name : logSubsystem.getAuditEvents()) {
@@ -136,7 +140,7 @@ public class AuditService extends SubsystemService implements AuditResource {
     @Override
     public Response getAuditConfig() {
 
-        CMS.debug("AuditService.getAuditConfig()");
+        logger.debug("AuditService.getAuditConfig()");
 
         try {
             return createOKResponse(createAuditConfig());
@@ -161,13 +165,14 @@ public class AuditService extends SubsystemService implements AuditResource {
             throw e;
         }
 
-        CMS.debug("AuditService.updateAuditConfig()");
+        logger.debug("AuditService.updateAuditConfig()");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             AuditConfig currentAuditConfig = createAuditConfig();
             Map<String, String> currentEventConfigs = currentAuditConfig.getEventConfigs();
 
-            IConfigStore cs = CMS.getConfigStore();
+            IConfigStore cs = engine.getConfigStore();
 
             if (auditConfig.getSigned() != null) {
                 cs.putBoolean("log.instance.SignedAudit.logSigning", auditConfig.getSigned());
@@ -268,11 +273,12 @@ public class AuditService extends SubsystemService implements AuditResource {
     public Response changeAuditStatus(String action) {
         Map<String, String> auditModParams = new HashMap<String, String>();
 
-        CMS.debug("AuditService.changeAuditStatus()");
+        logger.debug("AuditService.changeAuditStatus()");
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             auditModParams.put("Action", action);
-            IConfigStore cs = CMS.getConfigStore();
+            IConfigStore cs = engine.getConfigStore();
 
             if ("enable".equals(action)) {
                 cs.putBoolean("log.instance.SignedAudit.enable", true);
@@ -310,7 +316,8 @@ public class AuditService extends SubsystemService implements AuditResource {
     }
 
     public File getCurrentLogFile() {
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         String filename = cs.get("log.instance.SignedAudit.fileName");
         return new File(filename);
     }
@@ -355,10 +362,10 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         List<File> files = getLogFiles();
 
-        CMS.debug("Audit files:");
+        logger.debug("Audit files:");
         for (File file : files) {
             String name = file.getName();
-            CMS.debug(" - " + name);
+            logger.debug(" - " + name);
 
             AuditFile auditFile = new AuditFile();
             auditFile.setName(name);
@@ -377,7 +384,7 @@ public class AuditService extends SubsystemService implements AuditResource {
 
         // make sure filename does not contain path
         if (!new File(filename).getName().equals(filename)) {
-            CMS.debug("Invalid file name: " + filename);
+            logger.error("Invalid file name: " + filename);
             throw new BadRequestException("Invalid file name: " + filename);
         }
 

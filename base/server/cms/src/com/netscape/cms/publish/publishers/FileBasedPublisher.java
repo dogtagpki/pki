@@ -40,9 +40,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.util.Base64OutputStream;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
@@ -50,7 +50,8 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.ldap.LDAPConnection;
 
@@ -61,6 +62,9 @@ import netscape.ldap.LDAPConnection;
  * @version $Revision$, $Date$
  */
 public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FileBasedPublisher.class);
+
     private static final String PROP_DIR = "directory";
     private static final String PROP_DER = "Filename.der";
     private static final String PROP_B64 = "Filename.b64";
@@ -206,6 +210,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
      * Initializes this plugin.
      */
     public void init(IConfigStore config) {
+        CMSEngine engine = CMS.getCMSEngine();
         mConfig = config;
         String dir = null;
 
@@ -239,7 +244,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             String mInstanceRoot = null;
 
             try {
-                mInstanceRoot = CMS.getConfigStore().getString("instanceRoot");
+                mInstanceRoot = engine.getConfigStore().getString("instanceRoot");
             } catch (Exception e) {
                 throw new RuntimeException("Invalid Instance Dir " + e);
             }
@@ -273,7 +278,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             format.setTimeZone(tz);
         String timeStamp = format.format(crl.getThisUpdate()).toString();
         namePrefix[0] += "-" + timeStamp;
-        if (((netscape.security.x509.X509CRLImpl) crl).isDeltaCRL()) {
+        if (((org.mozilla.jss.netscape.security.x509.X509CRLImpl) crl).isDeltaCRL()) {
             namePrefix[0] += "-delta";
             namePrefix[1] += "-delta";
         }
@@ -283,7 +288,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     private void createLink(String linkName, String fileName) {
         String cmd = "ln -s " + fileName + " " + linkName + ".new";
-        if (com.netscape.cmsutil.util.Utils.exec(cmd)) {
+        if (org.mozilla.jss.netscape.security.util.Utils.exec(cmd)) {
             File oldLink = new File(linkName + ".old");
             if (oldLink.exists()) { // remove old link if exists
                 oldLink.delete();
@@ -301,7 +306,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 oldLink.delete();
             }
         } else {
-            CMS.debug("FileBasedPublisher:  createLink: '" + cmd + "' --- failed");
+            logger.warn("FileBasedPublisher:  createLink: '" + cmd + "' --- failed");
         }
     }
 
@@ -318,7 +323,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
      */
     public void publish(LDAPConnection conn, String dn, Object object)
             throws ELdapException {
-        CMS.debug("FileBasedPublisher: publish");
+        logger.debug("FileBasedPublisher: publish");
 
         try {
             if (object instanceof X509Certificate) {
@@ -514,13 +519,13 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 try {
                     long creationTime = getCreationTime(file);
                     if (creationTime < expiration) {
-                        CMS.debug("Expiring and deleting CRLs older than " + maxAge + " hours: " +
+                        logger.debug("Expiring and deleting CRLs older than " + maxAge + " hours: " +
                                 file.getName());
                         if (file.isFile())
                             file.delete();
                     }
                 } catch (ParseException e) {
-                    CMS.debug("Unable to correctly parse CRL " + file + ": " + e);
+                    logger.warn("Unable to correctly parse CRL " + file + ": " + e.getMessage(), e);
                 }
             }
         }
@@ -549,7 +554,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             for (File crl : crls) {
                 if (crl.getName().equals(lastFullCRLToKeep.getName())) break;
 
-                CMS.debug("Deleting file as publishing directory has more than " + maxFullCRLs
+                logger.debug("Deleting file as publishing directory has more than " + maxFullCRLs
                         + " files: " + crl);
                 if (crl.isFile()) crl.delete();
             }
@@ -568,7 +573,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
      */
     public void unpublish(LDAPConnection conn, String dn, Object object)
             throws ELdapException {
-        CMS.debug("FileBasedPublisher: unpublish");
+        logger.debug("FileBasedPublisher: unpublish");
         String name = mDir + File.separator;
         String fileName;
 

@@ -19,7 +19,6 @@ package com.netscape.cmscore.request;
 
 import java.math.BigInteger;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBSSession;
@@ -43,6 +42,8 @@ import com.netscape.cmscore.dbs.RepositoryRecord;
 class RequestRepository
         extends Repository {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RequestRepository.class);
+
     IDBSubsystem mDB = null;
     IRequestQueue mRequestQueue = null;
 
@@ -60,7 +61,7 @@ class RequestRepository
             throws EDBException {
         super(db, increment, "ou=" + name + ",ou=requests," + db.getBaseDN());
 
-        CMS.debug("RequestRepository: constructor 1");
+        logger.debug("RequestRepository: constructor 1");
         mBaseDN = "ou=" + name + ",ou=requests," + db.getBaseDN();
 
         // Let RequestRecord class register its
@@ -73,7 +74,7 @@ class RequestRepository
             throws EDBException {
         super(db, increment, "ou=" + name + ",ou=requests," + db.getBaseDN());
 
-        CMS.debug("RequestRepository: constructor2.");
+        logger.debug("RequestRepository: constructor2.");
         mRequestQueue = requestQueue;
         mBaseDN = "ou=" + name + ",ou=requests," + db.getBaseDN();
 
@@ -125,19 +126,19 @@ class RequestRepository
 
     public BigInteger getLastSerialNumberInRange(BigInteger min, BigInteger max) {
 
-        CMS.debug("RequestRepository: in getLastSerialNumberInRange: min " + min + " max " + max);
+        logger.debug("RequestRepository: in getLastSerialNumberInRange: min " + min + " max " + max);
 
-        CMS.debug("RequestRepository: mRequestQueue " + mRequestQueue);
+        logger.debug("RequestRepository: mRequestQueue " + mRequestQueue);
 
         BigInteger ret = null;
 
         if (mRequestQueue == null) {
 
-            CMS.debug("RequestRepository:  mRequestQueue is null.");
+            logger.warn("RequestRepository:  mRequestQueue is null.");
 
         } else {
 
-            CMS.debug("RequestRepository: about to call mRequestQueue.getLastRequestIdInRange");
+            logger.debug("RequestRepository: about to call mRequestQueue.getLastRequestIdInRange");
             ret = mRequestQueue.getLastRequestIdInRange(min, max);
 
         }
@@ -161,15 +162,14 @@ class RequestRepository
             dbs = mDB.createSession();
             obj = dbs.read(mBaseDN);
         } catch (Exception e) {
-            CMS.debug("RequestRepository:  getPublishingStatus:  Error: " + e);
-            CMS.debugStackTrace();
+            logger.error("RequestRepository:  getPublishingStatus:  Error: " + e.getMessage(), e);
         } finally {
             // Close session - ignoring errors (UTIL)
             if (dbs != null) {
                 try {
                     dbs.close();
                 } catch (Exception ex) {
-                    CMS.debug("RequestRepository:  getPublishingStatus:  Error: " + ex);
+                    logger.warn("RequestRepository:  getPublishingStatus:  Error: " + ex.getMessage(), ex);
                 }
             }
         }
@@ -178,9 +178,9 @@ class RequestRepository
             record = (RepositoryRecord) obj;
             status = record.getPublishingStatus();
         } else {
-            CMS.debug("RequestRepository:  obj is NOT instanceof RepositoryRecord");
+            logger.debug("RequestRepository:  obj is NOT instanceof RepositoryRecord");
         }
-        CMS.debug("RequestRepository:  getPublishingStatus  mBaseDN: " + mBaseDN +
+        logger.debug("RequestRepository:  getPublishingStatus  mBaseDN: " + mBaseDN +
                   "  status: " + ((status != null) ? status : "null"));
 
         return status;
@@ -189,7 +189,7 @@ class RequestRepository
     public void setPublishingStatus(String status) {
         IDBSSession dbs = null;
 
-        CMS.debug("RequestRepository:  setPublishingStatus  mBaseDN: " + mBaseDN + "  status: " + status);
+        logger.debug("RequestRepository:  setPublishingStatus  mBaseDN: " + mBaseDN + "  status: " + status);
         ModificationSet mods = new ModificationSet();
 
         if (status != null && status.length() > 0) {
@@ -200,15 +200,14 @@ class RequestRepository
                 dbs = mDB.createSession();
                 dbs.modify(mBaseDN, mods);
             } catch (Exception e) {
-                CMS.debug("RequestRepository:  setPublishingStatus:  Error: " + e);
-                CMS.debugStackTrace();
+                logger.error("RequestRepository:  setPublishingStatus:  Error: " + e.getMessage(), e);
             } finally {
                 // Close session - ignoring errors (UTIL)
                 if (dbs != null) {
                     try {
                         dbs.close();
                     } catch (Exception ex) {
-                        CMS.debug("RequestRepository:  setPublishingStatus:  Error: " + ex);
+                        logger.warn("RequestRepository:  setPublishingStatus:  Error: " + ex.getMessage(), ex);
                     }
                 }
             }

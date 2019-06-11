@@ -40,7 +40,6 @@ import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
@@ -77,6 +76,8 @@ import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cms.servlet.profile.PolicyConstraintFactory;
 import com.netscape.cms.servlet.profile.PolicyDefaultFactory;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
 
@@ -86,8 +87,11 @@ import com.netscape.cmscore.base.SimpleProperties;
  */
 public class ProfileService extends SubsystemService implements ProfileResource {
 
-    private IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
-    private IPluginRegistry registry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProfileService.class);
+
+    CMSEngine engine = CMS.getCMSEngine();
+    private IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
+    private IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
 
     @Override
     public Response listProfiles(Integer start, Integer size) {
@@ -99,7 +103,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         boolean visibleOnly = true;
 
         if (ps == null) {
-            CMS.debug("listProfiles: ps is null");
+            logger.error("listProfiles: ps is null");
             throw new PKIException("Error listing profiles.  Profile Service not available");
         }
 
@@ -154,12 +158,12 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         boolean visibleOnly = true;
 
         if (profileId == null) {
-            CMS.debug("retrieveProfile: profileID is null");
+            logger.error("retrieveProfile: profileID is null");
             throw new BadRequestException("Unable to retrieve profile: invalid profile ID");
         }
 
         if (ps == null) {
-            CMS.debug("retrieveProfile: ps is null");
+            logger.error("retrieveProfile: ps is null");
             throw new PKIException("Error retrieving profile.  Profile Service not available");
         }
 
@@ -325,7 +329,8 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     public static ProfileDataInfo createProfileDataInfo(String profileId, boolean visibleOnly, UriInfo uriInfo,
             Locale locale) throws EBaseException {
 
-        IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
         if (profileId == null) {
             throw new EBaseException("Error creating ProfileDataInfo.");
         }
@@ -360,24 +365,24 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     @Override
     public Response modifyProfileState(String profileId, String action) {
         if (profileId == null) {
-            CMS.debug("modifyProfileState: invalid request. profileId is null");
+            logger.error("modifyProfileState: invalid request. profileId is null");
             throw new BadRequestException("Unable to modify profile state: Invalid Profile Id");
         }
 
         if (action == null) {
-            CMS.debug("modifyProfileState: invalid request. action is null");
+            logger.error("modifyProfileState: invalid request. action is null");
             throw new BadRequestException("Unable to modify profile state: Missing action");
         }
 
         if (ps == null) {
-            CMS.debug("modifyProfileState: ps is null");
+            logger.error("modifyProfileState: ps is null");
             throw new PKIException("Error modifying profile state.  Profile Service not available");
         }
 
         try {
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
-                CMS.debug("Trying to modify profile: " + profileId + ".  Profile not found.");
+                logger.error("Trying to modify profile: " + profileId + ".  Profile not found.");
                 throw new ProfileNotFoundException(profileId);
             }
         } catch (EProfileException e1) {
@@ -397,8 +402,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                 ps.commitProfile(profileId);
                 auditProfileChangeState(profileId, "approve", ILogger.SUCCESS);
             } catch (EProfileException e) {
-                CMS.debug("modifyProfileState: error enabling profile. " + e);
-                e.printStackTrace();
+                logger.error("modifyProfileState: error enabling profile: " + e.getMessage(), e);
                 auditProfileChangeState(profileId, "approve", ILogger.FAILURE);
                 throw new PKIException("Error enabling profile");
             }
@@ -425,8 +429,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
                     auditProfileChangeState(profileId, "disapprove", ILogger.SUCCESS);
                 }
             } catch (EProfileException e) {
-                CMS.debug("modifyProfileState: Error disabling profile: " + e);
-                e.printStackTrace();
+                logger.error("modifyProfileState: Error disabling profile: " + e.getMessage(), e);
                 auditProfileChangeState(profileId, "disapprove", ILogger.FAILURE);
                 throw new PKIException("Error disabling profile");
             }
@@ -442,12 +445,12 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     @Override
     public Response createProfile(ProfileData data) {
         if (data == null) {
-            CMS.debug("createProfile: profile data is null");
+            logger.error("createProfile: profile data is null");
             throw new BadRequestException("Unable to create profile: Invalid profile data.");
         }
 
         if (ps == null) {
-            CMS.debug("createProfile: ps is null");
+            logger.error("createProfile: ps is null");
             throw new PKIException("Error creating profile.  Profile Service not available");
         }
 
@@ -493,8 +496,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return createCreatedResponse(profileData, profileData.getLink().getHref());
 
         } catch (EBaseException e) {
-            CMS.debug("createProfile: error creating profile");
-            CMS.debug(e);
+            logger.error("createProfile: error creating profile: " + e.getMessage(), e);
 
             auditProfileChange(
                     ScopeDef.SC_PROFILE_RULES,
@@ -510,12 +512,12 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     @Override
     public Response createProfileRaw(byte[] data) {
         if (data == null) {
-            CMS.debug("createProfileRaw: profile data is null");
+            logger.error("createProfileRaw: profile data is null");
             throw new BadRequestException("Unable to create profile: Invalid profile data.");
         }
 
         if (ps == null) {
-            CMS.debug("createProfile: ps is null");
+            logger.error("createProfile: ps is null");
             throw new PKIException("Error creating profile.  Profile Service not available");
         }
 
@@ -587,8 +589,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
             return createCreatedResponse(data, uriInfo.getAbsolutePath());
         } catch (EBaseException | IOException e) {
-            CMS.debug("createProfile: error in creating profile: " + e);
-            e.printStackTrace();
+            logger.error("createProfile: error in creating profile: " + e.getMessage(), e);
 
             auditProfileChange(
                     ScopeDef.SC_PROFILE_RULES,
@@ -604,17 +605,17 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     @Override
     public Response modifyProfile(String profileId, ProfileData data) {
         if (profileId == null) {
-            CMS.debug("modifyProfile: invalid request. profileId is null");
+            logger.error("modifyProfile: invalid request. profileId is null");
             throw new BadRequestException("Unable to modify profile: Invalid Profile Id");
         }
 
         if (data == null) {
-            CMS.debug("modifyProfile: invalid request. data is null");
+            logger.error("modifyProfile: invalid request. data is null");
             throw new BadRequestException("Unable to modify profile: Invalid profile data");
         }
 
         if (ps == null) {
-            CMS.debug("modifyProfile: ps is null");
+            logger.error("modifyProfile: ps is null");
             throw new PKIException("Error modifying profile.  Profile Service not available");
         }
 
@@ -632,8 +633,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return createOKResponse(profileData);
 
         } catch (EBaseException e) {
-            CMS.debug("modifyProfile: error obtaining profile `" + profileId + "`: " + e);
-            e.printStackTrace();
+            logger.error("modifyProfile: error obtaining profile `" + profileId + "`: " + e.getMessage(), e);
             throw new PKIException("Error modifying profile.  Cannot obtain profile.");
         }
     }
@@ -641,17 +641,17 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     @Override
     public Response modifyProfileRaw(String profileId, byte[] data) {
         if (profileId == null) {
-            CMS.debug("modifyProfile: invalid request. profileId is null");
+            logger.error("modifyProfile: invalid request. profileId is null");
             throw new BadRequestException("Unable to modify profile: Invalid Profile Id");
         }
 
         if (data == null) {
-            CMS.debug("modifyProfile: invalid request. data is null");
+            logger.error("modifyProfile: invalid request. data is null");
             throw new BadRequestException("Unable to modify profile: Invalid profile data");
         }
 
         if (ps == null) {
-            CMS.debug("modifyProfile: ps is null");
+            logger.error("modifyProfile: ps is null");
             throw new PKIException("Error modifying profile.  Profile Service not available");
         }
 
@@ -706,8 +706,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
 
             return createOKResponse(data);
         } catch (EBaseException | IOException e) {
-            CMS.debug("modifyProfile: error modifying profile " + profileId);
-            CMS.debug(e);
+            logger.error("modifyProfile: error modifying profile " + profileId + ": " + e.getMessage(), e);
             throw new PKIException("Error modifying profile.", e);
         }
     }
@@ -715,7 +714,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     private void changeProfileData(ProfileData data, IProfile profile) {
         String profileId = data.getId();
         if (profile == null) {
-            CMS.debug("changeProfileData - profile is null");
+            logger.error("changeProfileData - profile is null");
             throw new PKIException("Error changing profile data. Profile not available.");
         }
         if (ps.isProfileEnable(profileId)) {
@@ -781,8 +780,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             populateProfilePolicies(data, profile);
             ps.commitProfile(profileId);
         } catch (EBaseException e) {
-            CMS.debug("changeProfileData: Error changing profile inputs/outputs/policies: " + e);
-            e.printStackTrace();
+            logger.error("changeProfileData: Error changing profile inputs/outputs/policies: " + e.getMessage(), e);
             throw new PKIException("Error changing profile data");
         }
     }
@@ -1110,24 +1108,24 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     @Override
     public Response deleteProfile(@PathParam("id") String profileId) {
         if (profileId == null) {
-            CMS.debug("deleteProfile: invalid request. profileId is null");
+            logger.error("deleteProfile: invalid request. profileId is null");
             throw new BadRequestException("Unable to delete profile: Invalid Profile Id");
         }
 
         if (ps == null) {
-            CMS.debug("deleteProfile: ps is null");
+            logger.error("deleteProfile: ps is null");
             throw new PKIException("Error deleting profile.  Profile Service not available");
         }
 
         try {
             IProfile profile = ps.getProfile(profileId);
             if (profile == null) {
-                CMS.debug("Trying to delete profile: " + profileId + ".  Profile already deleted.");
+                logger.error("Trying to delete profile: " + profileId + ".  Profile already deleted.");
                 throw new ProfileNotFoundException(profileId);
             }
 
             if (ps.isProfileEnable(profileId)) {
-                CMS.debug("Delete profile not permitted.  Profile must be disabled first.");
+                logger.error("Delete profile not permitted.  Profile must be disabled first.");
                 auditProfileChange(
                         ScopeDef.SC_PROFILE_RULES,
                         OpDef.OP_DELETE,
@@ -1151,8 +1149,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             return createNoContentResponse();
 
         } catch (EBaseException e) {
-            CMS.debug("deleteProfile: error in deleting profile `" + profileId + "`: " + e);
-            e.printStackTrace();
+            logger.error("deleteProfile: error in deleting profile `" + profileId + "`: " + e.getMessage(), e);
 
             auditProfileChange(
                     ScopeDef.SC_PROFILE_RULES,

@@ -29,17 +29,16 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.security.ITransportKeyUnit;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.util.WrappingParams;
 
 /**
  * A class represents the transport key pair. This key pair
@@ -50,6 +49,8 @@ import netscape.security.util.WrappingParams;
  */
 public class TransportKeyUnit extends EncryptionUnit implements
         ISubsystem, ITransportKeyUnit {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TransportKeyUnit.class);
 
     public static final String PROP_NICKNAME = "nickName";
     public static final String PROP_NEW_NICKNAME = "newNickName";
@@ -211,7 +212,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
                     certB64 = Utils.base64encode(mCert.getEncoded(), true).replaceAll("\n", "").replaceAll("\r", "");
                     if (transportCert.equals(certB64)) {
                         cert = mCert;
-                        CMS.debug("TransportKeyUnit:  Transport certificate verified");
+                        logger.debug("TransportKeyUnit:  Transport certificate verified");
                     }
                 } catch (Exception e) {
                 }
@@ -221,7 +222,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
                     certB64 = Utils.base64encode(mNewCert.getEncoded(), true).replaceAll("\n", "").replaceAll("\r", "");
                     if (transportCert.equals(certB64)) {
                         cert = mNewCert;
-                        CMS.debug("TransportKeyUnit:  New transport certificate verified");
+                        logger.debug("TransportKeyUnit:  New transport certificate verified");
                     }
                 } catch (Exception e) {
                 }
@@ -273,7 +274,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
             org.mozilla.jss.crypto.X509Certificate transCert)
             throws Exception {
 
-        CMS.debug("EncryptionUnit.decryptExternalPrivate");
+        logger.debug("TransportKeyUnit.decryptExternalPrivate");
 
         if (transCert == null) {
             transCert = mCert;

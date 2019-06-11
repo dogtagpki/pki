@@ -28,10 +28,11 @@ import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.Tag;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class implements CertificatePair used for Cross Certification
@@ -104,9 +105,11 @@ public class CertificatePair implements ASN1Value {
      */
     private boolean certOrders(X509Certificate c1, X509Certificate c2)
             throws EBaseException {
+
         logger.debug("CertifiatePair: in certOrders() with X509Cert");
 
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         X509Certificate caCert = ca.getCACert();
 
         logger.debug("CertifiatePair: got this caCert");
@@ -237,9 +240,11 @@ public class CertificatePair implements ASN1Value {
      */
     private boolean certOrders(byte[] cert1, byte[] cert2)
             throws EBaseException {
+
         logger.debug("CertifiatePair: in certOrders() with byte[]");
-        ICrossCertPairSubsystem ccps =
-                (ICrossCertPairSubsystem) CMS.getSubsystem("CrossCertPair");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        ICrossCertPairSubsystem ccps = (ICrossCertPairSubsystem) engine.getSubsystem(ICrossCertPairSubsystem.ID);
         X509Certificate c1 = null;
         X509Certificate c2 = null;
 

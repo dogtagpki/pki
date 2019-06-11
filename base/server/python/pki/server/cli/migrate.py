@@ -116,6 +116,9 @@ class MigrateCLI(pki.cli.CLI):
 
     def migrate_nssdb(self, instance):
 
+        if not os.path.exists(instance.nssdb_dir):
+            return
+
         if self.verbose:
             print('Migrating %s instance to NSS SQL database' % instance.name)
 
@@ -150,8 +153,6 @@ class MigrateCLI(pki.cli.CLI):
             'localhost',
             'pki.xml')
         self.migrate_context_xml(pki_context_xml, tomcat_version)
-
-        self.migrate_tomcat_libraries(instance)
 
     def migrate_server_xml(self, instance, filename, tomcat_version):
         if self.verbose:
@@ -391,8 +392,6 @@ class MigrateCLI(pki.cli.CLI):
         if self.debug:
             print('* updating secure Connector')
 
-        full_name = instance.get_sslserver_cert_nickname()
-
         connectors = server.findall('Service/Connector')
         for connector in connectors:
 
@@ -409,6 +408,8 @@ class MigrateCLI(pki.cli.CLI):
             connector.set('keystoreProvider', 'Mozilla-JSS')
             connector.attrib.pop('keystoreFile', None)
             connector.attrib.pop('keystorePassFile', None)
+
+            full_name = instance.get_sslserver_cert_nickname()
             connector.set('keyAlias', full_name)
 
             connector.set('trustManagerClassName', 'org.dogtagpki.tomcat.PKITrustManager')
@@ -452,14 +453,13 @@ class MigrateCLI(pki.cli.CLI):
         if self.debug:
             print('* adding SSLHostConfig')
 
-        full_name = instance.get_sslserver_cert_nickname()
-
         connectors = server.findall('Service/Connector')
         for connector in connectors:
 
             if connector.get('secure') != 'true':
                 continue
 
+            connector.set('sslImplementationName', 'org.dogtagpki.tomcat.JSSImplementation')
             connector.attrib.pop('sslProtocol', None)
             connector.attrib.pop('clientAuth', None)
             connector.attrib.pop('keystoreType', None)
@@ -475,7 +475,7 @@ class MigrateCLI(pki.cli.CLI):
 
             sslHostConfig.set('sslProtocol', 'SSL')
             sslHostConfig.set('certificateVerification', 'optional')
-            sslHostConfig.set('trustManagerClassName', 'org.dogtagpki.tomcat.PKITrustManager')
+            sslHostConfig.attrib.pop('trustManagerClassName', None)
 
             certificates = sslHostConfig.findall('Certificate')
             if len(certificates) > 0:
@@ -485,6 +485,8 @@ class MigrateCLI(pki.cli.CLI):
 
             certificate.set('certificateKeystoreType', 'pkcs11')
             certificate.set('certificateKeystoreProvider', 'Mozilla-JSS')
+
+            full_name = instance.get_sslserver_cert_nickname()
             certificate.set('certificateKeyAlias', full_name)
 
     def migrate_subsystems(self, instance, tomcat_version):
@@ -550,37 +552,6 @@ class MigrateCLI(pki.cli.CLI):
             context.append(resources)
 
         resources.set('allowLinking', 'true')
-
-    def migrate_tomcat_libraries(self, instance):
-        # remove old links
-        for filename in os.listdir(instance.lib_dir):
-
-            path = os.path.join(instance.lib_dir, filename)
-
-            if self.verbose:
-                print('Removing %s' % path)
-
-            os.remove(path)
-
-        tomcat_dir = '/usr/share/tomcat/lib'
-
-        # create new links
-        for filename in os.listdir(tomcat_dir):
-
-            source = os.path.join(tomcat_dir, filename)
-            dest = os.path.join(instance.lib_dir, filename)
-            self.create_link(instance, source, dest)
-
-        # slf4j-api.jar
-        source = '/usr/share/pki/server/lib/slf4j-api.jar'
-        dest = os.path.join(instance.lib_dir, 'slf4j-api.jar')
-        self.create_link(instance, source, dest)
-
-        # slf4j-jdk14.jar
-        source = '/usr/share/pki/server/lib/slf4j-jdk14.jar'
-        dest = os.path.join(instance.lib_dir, 'slf4j-jdk14.jar')
-        if os.path.islink(source):
-            self.create_link(instance, source, dest)
 
     def create_link(self, instance, source, dest):
 

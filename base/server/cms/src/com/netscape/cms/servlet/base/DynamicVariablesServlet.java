@@ -30,12 +30,13 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Return some javascript to the request which contains the list of
@@ -92,11 +93,11 @@ public class DynamicVariablesServlet extends CMSServlet {
     private ServletContext mServletCtx = null;
     private static String mCrlurl = "";
     static {
-        IConfigStore config = CMS.getConfigStore().getSubStore(PROP_CLONING);
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore config = engine.getConfigStore().getSubStore(PROP_CLONING);
 
         try {
-            mCrlurl =
-                    config.getString(PROP_CRLURL, "");
+            mCrlurl = config.getString(PROP_CRLURL, "");
         } catch (EBaseException e) {
         }
     }
@@ -190,7 +191,9 @@ public class DynamicVariablesServlet extends CMSServlet {
     public void service(HttpServletRequest httpReq,
             HttpServletResponse httpResp)
             throws ServletException, IOException {
-        boolean running_state = CMS.isInRunningState();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        boolean running_state = engine.isInRunningState();
 
         if (!running_state)
             throw new IOException(
@@ -261,10 +264,10 @@ public class DynamicVariablesServlet extends CMSServlet {
 
                         if (varcode.equals(VAR_AUTHMGRS)) {
                             toBeWritten = "";
-                            IAuthSubsystem as = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+                            IAuthSubsystem as = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
                             Enumeration<IAuthManager> ame = as.getAuthManagers();
 
-                            Date d = CMS.getCurrentDate();
+                            Date d = new Date();
                             long now = d.getTime();
 
                             if (now > (mAuthMgrCacheTime + 1000 * AUTHMGRCACHE)) {

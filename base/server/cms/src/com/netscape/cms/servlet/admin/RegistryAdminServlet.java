@@ -25,7 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
@@ -36,6 +35,8 @@ import com.netscape.certsrv.property.IConfigTemplate;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This implements the administration servlet for registry subsystem.
@@ -43,9 +44,9 @@ import com.netscape.certsrv.registry.IPluginRegistry;
  * @version $Revision$, $Date$
  */
 public class RegistryAdminServlet extends AdminServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RegistryAdminServlet.class);
+
     private static final long serialVersionUID = 2104924641665675578L;
 
     public final static String PROP_AUTHORITY = "authority";
@@ -81,7 +82,8 @@ public class RegistryAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mRegistry = (IPluginRegistry) CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        CMSEngine engine = CMS.getCMSEngine();
+        mRegistry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
     }
 
     /**
@@ -190,7 +192,7 @@ public class RegistryAdminServlet extends AdminServlet {
         try {
             mRegistry.addPluginInfo(scope, id, info);
         } catch (Exception e) {
-            CMS.debug(e.toString());
+            logger.warn("RegistryAdminServlet: " + e.getMessage(), e);
         }
 
         sendResponse(SUCCESS, null, nvp, resp);
@@ -221,7 +223,7 @@ public class RegistryAdminServlet extends AdminServlet {
         try {
             mRegistry.removePluginInfo(scope, id);
         } catch (Exception e) {
-            CMS.debug(e.toString());
+            logger.warn("RegistryAdminServlet: " + e.getMessage(), e);
         }
 
         sendResponse(SUCCESS, null, nvp, resp);
@@ -275,10 +277,10 @@ public class RegistryAdminServlet extends AdminServlet {
                     IPolicyConstraint policyConstraintClass = (IPolicyConstraint)
                             Class.forName(constraintInfo.getClassName()).newInstance();
 
-                    CMS.debug("RegistryAdminServlet: getSUpportedConstraint " + constraintInfo.getClassName());
+                    logger.debug("RegistryAdminServlet: getSUpportedConstraint " + constraintInfo.getClassName());
 
                     if (policyConstraintClass.isApplicable(policyDefaultClass)) {
-                        CMS.debug("RegistryAdminServlet: getSUpportedConstraint isApplicable "
+                        logger.debug("RegistryAdminServlet: getSUpportedConstraint isApplicable "
                                 + constraintInfo.getClassName());
                         nvp.put(constraintID,
                                 constraintInfo.getClassName()
@@ -289,8 +291,7 @@ public class RegistryAdminServlet extends AdminServlet {
                 }
             }
         } catch (Exception ex) {
-            CMS.debug("RegistyAdminServlet: getSupportConstraintPolicies: " + ex.toString());
-            CMS.debug(ex);
+            logger.warn("RegistryAdminServlet: getSupportConstraintPolicies: " + ex.getMessage(), ex);
         }
         sendResponse(SUCCESS, null, nvp, resp);
     }
@@ -331,7 +332,7 @@ public class RegistryAdminServlet extends AdminServlet {
             if (names != null) {
                 while (names.hasMoreElements()) {
                     String name = names.nextElement();
-                    CMS.debug("RegistryAdminServlet: getProfileImpl descriptor " + name);
+                    logger.debug("RegistryAdminServlet: getProfileImpl descriptor " + name);
                     IDescriptor desc = template.getConfigDescriptor(getLocale(req), name);
 
                     if (desc != null) {
@@ -342,14 +343,15 @@ public class RegistryAdminServlet extends AdminServlet {
                                             + desc.getDescription(getLocale(req)) + ";"
                                             + getNonNull(desc.getDefaultValue());
 
-                            CMS.debug("RegistryAdminServlet: getProfileImpl " + value);
+                            logger.debug("RegistryAdminServlet: getProfileImpl " + value);
                             nvp.put(name, value);
-                        } catch (Exception e) {
 
-                            CMS.debug("RegistryAdminServlet: getProfileImpl skipped descriptor for " + name);
+                        } catch (Exception e) {
+                            logger.warn("RegistryAdminServlet: getProfileImpl skipped descriptor for " + name + ": " + e.getMessage(), e);
                         }
+
                     } else {
-                        CMS.debug("RegistryAdminServlet: getProfileImpl cannot find descriptor for " + name);
+                        logger.warn("RegistryAdminServlet: getProfileImpl cannot find descriptor for " + name);
                     }
                 }
             }

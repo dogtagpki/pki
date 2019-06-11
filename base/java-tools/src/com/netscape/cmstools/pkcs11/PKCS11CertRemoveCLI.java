@@ -22,11 +22,11 @@ import java.security.KeyStore;
 import java.security.cert.Certificate;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.provider.java.security.JSSLoadStoreParameter;
 
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**

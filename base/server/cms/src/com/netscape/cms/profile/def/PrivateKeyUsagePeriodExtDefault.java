@@ -22,12 +22,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.PrivateKeyUsageExtension;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.PrivateKeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -35,6 +34,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -44,6 +44,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PrivateKeyUsagePeriodExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "puCritical";
     public static final String CONFIG_START_TIME = "puStartTime";
@@ -191,9 +193,9 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
 
             replaceExtension(ext.getExtensionId().toString(), ext, info);
         } catch (EProfileException e) {
-            CMS.debug("PrivateKeyUsageExtension: setValue " + e.toString());
+            logger.warn("PrivateKeyUsageExtension: setValue " + e.getMessage(), e);
         } catch (Exception e) {
-            CMS.debug("PrivateKeyUsageExtension: setValue " + e.toString());
+            logger.warn("PrivateKeyUsageExtension: setValue " + e.getMessage(), e);
         }
     }
 
@@ -297,7 +299,7 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
                 startTimeStr = "60";
             }
             long startTime = Long.parseLong(startTimeStr);
-            Date notBefore = new Date(CMS.getCurrentDate().getTime() +
+            Date notBefore = new Date(new Date().getTime() +
                     (1000 * startTime));
             long notAfterVal = 0;
 
@@ -308,8 +310,7 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
             ext = new PrivateKeyUsageExtension(notBefore, notAfter);
             ext.setCritical(critical);
         } catch (Exception e) {
-            CMS.debug("PrivateKeyUsagePeriodExt: createExtension " +
-                    e.toString());
+            logger.warn("PrivateKeyUsagePeriodExt: createExtension " + e.getMessage(), e);
         }
         return ext;
     }

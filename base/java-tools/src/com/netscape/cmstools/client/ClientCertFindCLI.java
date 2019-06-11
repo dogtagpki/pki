@@ -21,10 +21,10 @@ package com.netscape.cmstools.client;
 import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
+import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**

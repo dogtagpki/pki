@@ -20,7 +20,13 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
+
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -28,14 +34,8 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 
 /**
  * This class implements an enrollment default policy
@@ -45,6 +45,8 @@ import netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectKeyIdentifierExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "critical";
 
@@ -58,9 +60,9 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
     public SubjectKeyIdentifierExtDefault() {
         super();
 
-        CMS.debug("SubjectKeyIdentifierExtDefault: adding config name. " + CONFIG_MD);
+        logger.debug("SubjectKeyIdentifierExtDefault: adding config name. " + CONFIG_MD);
         addConfigName(CONFIG_MD);
-        CMS.debug("SubjectKeyIdentifierExtDefault: done adding config name. " + CONFIG_MD);
+        logger.debug("SubjectKeyIdentifierExtDefault: done adding config name. " + CONFIG_MD);
         addValueName(VAL_CRITICAL);
         addValueName(VAL_KEY_ID);
 
@@ -117,7 +119,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
             // read-only; do nothing
         } else if (name.equals(VAL_MD)) {
             // read-only; do nothing
-            CMS.debug("value: " + value );
+            logger.debug("value: " + value );
         } else {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -174,8 +176,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
                 kid = (KeyIdentifier)
                         ext.get(SubjectKeyIdentifierExtension.KEY_ID);
             } catch (IOException e) {
-                CMS.debug("SubjectKeyIdentifierExtDefault::getValue() - " +
-                           "kid is null!");
+                logger.error("SubjectKeyIdentifierExtDefault::getValue() key ID is null: " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(locale,
                                                                   "CMS_INVALID_PROPERTY",
                                                                   name));
@@ -212,7 +213,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
         KeyIdentifier kid = getKeyIdentifier(info);
 
         if (kid == null) {
-            CMS.debug("SubjectKeyIdentifierExtDefault: KeyIdentifier not found");
+            logger.error("SubjectKeyIdentifierExtDefault: KeyIdentifier not found");
             return null;
         }
         SubjectKeyIdentifierExtension ext = null;
@@ -222,9 +223,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
         try {
             ext = new SubjectKeyIdentifierExtension(critical, kid.getIdentifier());
         } catch (IOException e) {
-            CMS.debug("SubjectKeyIdentifierExtDefault: createExtension " +
-                    e.toString());
-            //
+            logger.warn("SubjectKeyIdentifierExtDefault: createExtension " + e.getMessage(), e);
         }
         return ext;
     }
@@ -235,7 +234,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
 
             String configHashAlg = getConfig(CONFIG_MD);
 
-            CMS.debug(method + " configured hash alg: " + configHashAlg);
+            logger.debug(method + " configured hash alg: " + configHashAlg);
             CertificateX509Key infokey = (CertificateX509Key)
                     info.get(X509CertInfo.KEY);
             X509Key key = (X509Key) infokey.get(CertificateX509Key.KEY);
@@ -248,21 +247,20 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
             byte[] hash = null;
 
             if (configHashAlg != null && configHashAlg.length() != 0) {
-                CMS.debug(method + " generating hash with alg: " + configHashAlg);
+                logger.debug(method + " generating hash with alg: " + configHashAlg);
                 hash = CryptoUtil.generateKeyIdentifier(key.getKey(), configHashAlg);
             } else {
-                CMS.debug(method + " generating hash with default alg: SHA-1");
+                logger.debug(method + " generating hash with default alg: SHA-1");
                 hash = CryptoUtil.generateKeyIdentifier(key.getKey());
             }
 
             if (hash == null) {
-                CMS.debug(method +
-                    "CryptoUtil.generateKeyIdentifier returns null");
+                logger.error(method + "CryptoUtil.generateKeyIdentifier returns null");
                 return null;
             }
             return new KeyIdentifier(hash);
         } catch (Exception e) {
-            CMS.debug(method + e.toString());
+            logger.warn(method + e.getMessage(), e);
         }
         return null;
     }

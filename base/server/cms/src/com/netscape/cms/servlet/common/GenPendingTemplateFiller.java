@@ -24,9 +24,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Locale;
 
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
@@ -35,6 +32,9 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkix.cmc.CMCStatusInfoV2;
 import org.mozilla.jss.pkix.cmc.OtherInfo;
 import org.mozilla.jss.pkix.cmc.PendInfo;
@@ -49,14 +49,13 @@ import org.mozilla.jss.pkix.cms.SignerInfo;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * default Pending template filler
@@ -64,6 +63,8 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class GenPendingTemplateFiller implements ICMSTemplateFiller {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenPendingTemplateFiller.class);
     public static String FULL_RESPONSE = "cmcFullEnrollmentResponse";
 
     public GenPendingTemplateFiller() {
@@ -79,7 +80,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
      */
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 
         if (cmsReq == null) {
@@ -154,7 +155,7 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                 controlSeq.addElement(ta);
                 req.setExtData(IRequest.CMC_RECIPIENTNONCE, senderNonce);
 
-                Date date = CMS.getCurrentDate();
+                Date date = new Date();
                 String salt = "lala123" + date.toString();
                 byte[] dig;
 
@@ -210,9 +211,8 @@ public class GenPendingTemplateFiller implements ICMSTemplateFiller {
                     } else if (keyType.equals(org.mozilla.jss.crypto.PrivateKey.EC)) {
                         signAlg = SignatureAlgorithm.ECSignatureWithSHA256Digest;
                     } else {
-                        CMS.debug("GenPendingTemplateFiller::getTemplateParams() - "
-                                 + "keyType " + keyType.toString()
-                                 + " is unsupported!");
+                        logger.warn("GenPendingTemplateFiller::getTemplateParams() - keyType " +
+                                keyType + " is unsupported!");
                         return null;
                     }
 

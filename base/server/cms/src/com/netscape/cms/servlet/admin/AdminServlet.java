@@ -35,7 +35,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
@@ -55,15 +57,14 @@ import com.netscape.certsrv.logging.event.AuthEvent;
 import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.UserInfo;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.logging.Auditor;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * A class represents an administration servlet that
@@ -94,6 +95,7 @@ import netscape.security.x509.X509CertImpl;
  */
 public class AdminServlet extends HttpServlet {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AdminServlet.class);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private static final long serialVersionUID = 7740464244137421542L;
@@ -102,7 +104,7 @@ public class AdminServlet extends HttpServlet {
 
     protected Logger mLogger = Logger.getLogger();
     protected Auditor auditor = Auditor.getAuditor();
-    private IUGSubsystem mUG = null;
+    private UGSubsystem mUG = null;
     protected IConfigStore mConfig = null;
     protected IAuthzSubsystem mAuthz = null;
 
@@ -142,8 +144,10 @@ public class AdminServlet extends HttpServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mUG = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
-        mConfig = CMS.getConfigStore();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        mUG = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
+        mConfig = engine.getConfigStore();
 
         String srcType = AUTHZ_SRC_LDAP;
 
@@ -152,16 +156,15 @@ public class AdminServlet extends HttpServlet {
 
             srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
         } catch (EBaseException e) {
-            CMS.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
+            logger.warn("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE") + ": " + e.getMessage(), e);
         }
-        mAuthz =
-                (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
+        mAuthz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
 
         mServletID = getSCparam(sc, PROP_ID, "servlet id unknown");
-        CMS.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", mServletID));
+        logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", mServletID));
 
         if (srcType.equalsIgnoreCase(AUTHZ_SRC_XML)) {
-            CMS.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
+            logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
             // get authz mgr from xml file;  if not specified, use
             //			ldap by default
             mAclMethod = getSCparam(sc, PROP_AUTHZ_MGR, AUTHZ_MGR_LDAP);
@@ -177,24 +180,24 @@ public class AdminServlet extends HttpServlet {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_FAIL"));
                         throw new ServletException("failed to init authz info from xml config file");
                     }
-                    CMS.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", mServletID));
+                    logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", mServletID));
                 } else { // PROP_AUTHZ_MGR not specified, use default authzmgr
-                    CMS.debug("AdminServlet: "
+                    logger.debug("AdminServlet: "
                             + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC", PROP_ACL, mServletID, AUTHZ_MGR_LDAP));
                 }
             } else { // PROP_AUTHZ_MGR not specified, use default authzmgr
-                CMS.debug("AdminServlet: "
+                logger.debug("AdminServlet: "
                         + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC", PROP_AUTHZ_MGR, mServletID, AUTHZ_MGR_LDAP));
             }
 
         } else {
             mAclMethod = AUTHZ_MGR_LDAP;
-            CMS.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", mServletID));
+            logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_LDAP_NOT_XML", mServletID));
         }
     }
 
     public void outputHttpParameters(HttpServletRequest httpReq) {
-        CMS.debug("AdminServlet:service() uri = " + httpReq.getRequestURI());
+        logger.debug("AdminServlet:service() uri = " + httpReq.getRequestURI());
         Enumeration<String> paramNames = httpReq.getParameterNames();
         while (paramNames.hasMoreElements()) {
             String pn = paramNames.nextElement();
@@ -204,10 +207,10 @@ public class AdminServlet extends HttpServlet {
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed
             if (CMS.isSensitive(pn)) {
-                CMS.debug("AdminServlet::service() param name='" + pn +
+                logger.debug("AdminServlet::service() param name='" + pn +
                         "' value='(sensitive)'");
             } else {
-                CMS.debug("AdminServlet::service() param name='" + pn +
+                logger.debug("AdminServlet::service() param name='" + pn +
                         "' value='" + httpReq.getParameter(pn) + "'");
             }
         }
@@ -218,13 +221,14 @@ public class AdminServlet extends HttpServlet {
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        boolean running_state = CMS.isInRunningState();
+        CMSEngine engine = CMS.getCMSEngine();
+        boolean running_state = engine.isInRunningState();
 
         if (!running_state)
             throw new IOException(
                     "CMS server is not ready to serve.");
 
-        if (CMS.debugOn()) {
+        if (logger.isErrorEnabled()) {
             outputHttpParameters(req);
         }
     }
@@ -264,6 +268,7 @@ public class AdminServlet extends HttpServlet {
     protected void authenticate(HttpServletRequest req) throws
             IOException {
 
+        CMSEngine engine = CMS.getCMSEngine();
         String auditUID = ILogger.UNIDENTIFIED;
         String authType = "";
 
@@ -271,14 +276,13 @@ public class AdminServlet extends HttpServlet {
         // to the signed audit log and stored as failures
         try {
             try {
-                IConfigStore configStore = CMS.getConfigStore();
+                IConfigStore configStore = engine.getConfigStore();
 
                 authType = configStore.getString("authType");
             } catch (EBaseException e) {
                 // do nothing for now.
             }
-            IAuthSubsystem auth = (IAuthSubsystem)
-                    CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+            IAuthSubsystem auth = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
             X509Certificate cert = null;
 
             if (authType.equals("sslclientauth")) {
@@ -358,7 +362,7 @@ public class AdminServlet extends HttpServlet {
 
                     token = auth.authenticate(cred,
                                 IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID);
-                    CMS.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_FOR_SRVLT",
+                    logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_FOR_SRVLT",
                             mServletID));
                 }
             } catch (EBaseException e) {
@@ -560,7 +564,7 @@ public class AdminServlet extends HttpServlet {
 
         AuthzToken authzTok = null;
 
-        CMS.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CHECK_AUTHZ_AUTH", mServletID));
+        logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CHECK_AUTHZ_AUTH", mServletID));
         // hardcoded for now .. just testing
         try {
             // we check both "read" and "write" for now. later within
@@ -582,7 +586,7 @@ public class AdminServlet extends HttpServlet {
                 auditOperation = operation.trim();
             }
 
-            CMS.debug(CMS.getLogMessage("ADMIN_SRVLT_AUTH_SUCCEED", mServletID));
+            logger.debug(CMS.getLogMessage("ADMIN_SRVLT_AUTH_SUCCEED", mServletID));
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
 

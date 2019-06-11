@@ -28,10 +28,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
@@ -42,12 +40,14 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 
 public class GetCookie extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetCookie.class);
+
     private static final long serialVersionUID = 2466968231929541707L;
     private String mErrorFormPath = null;
     private String mFormPath = null;
@@ -64,7 +64,7 @@ public class GetCookie extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        CMS.debug("GetCookie init");
+        logger.debug("GetCookie init");
         mTemplates.remove(ICMSRequest.SUCCESS);
         mErrorFormPath = sc.getInitParameter("errorTemplatePath");
         if (mOutputTemplatePath != null) {
@@ -81,7 +81,7 @@ public class GetCookie extends CMSServlet {
         try {
             processImpl(cmsReq);
         } catch (Throwable t) {
-            CMS.debug(t);
+            logger.error("GetCookie: " + t.getMessage(), t);
             throw t;
         }
     }
@@ -90,19 +90,20 @@ public class GetCookie extends CMSServlet {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        CMS.debug("GetCookie start");
+        logger.debug("GetCookie start");
         IAuthToken authToken = null;
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
         String url = httpReq.getParameter("url");
-        CMS.debug("GetCookie before auth, url = " + url);
+        logger.debug("GetCookie before auth, url = " + url);
         if (url == null) {
             throw new ECMSGWException(
                     "GetCookie missing parameter: url");
@@ -130,25 +131,25 @@ public class GetCookie extends CMSServlet {
         try {
             authToken = authenticate(cmsReq);
         } catch (Exception e) {
-            CMS.debug("GetCookie authentication failed");
+            logger.error("GetCookie authentication failed: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
                             e.toString()));
             header.addStringValue("sd_uid", "");
             header.addStringValue("sd_pwd", "");
             header.addStringValue("host", u.getHost());
-            header.addStringValue("sdhost", CMS.getEESSLHost());
+            header.addStringValue("sdhost", engine.getEESSLHost());
             header.addStringValue("subsystem", subsystem);
             header.addStringValue("url", url_e);
             header.addStringValue("errorString", "Failed Authentication");
             String sdname = cs.getString("securitydomain.name", "");
             header.addStringValue("sdname", sdname);
 
-            CMS.debug("mErrorFormPath=" + mErrorFormPath);
+            logger.debug("mErrorFormPath=" + mErrorFormPath);
             try {
                 form = getTemplate(mErrorFormPath, httpReq, locale);
             } catch (IOException eee) {
-                CMS.debug("GetCookie process: cant locate the form");
+                logger.error("GetCookie process: cant locate the form: " + eee.getMessage(), eee);
                 /*
                                 log(ILogger.LL_FAILURE,
                                     CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
@@ -158,7 +159,7 @@ public class GetCookie extends CMSServlet {
             }
 
             if (form == null) {
-                CMS.debug("GetCookie::process() - form is null!");
+                logger.error("GetCookie::process() - form is null!");
                 throw new EBaseException("form is null");
             }
 
@@ -179,13 +180,13 @@ public class GetCookie extends CMSServlet {
 
         if (authToken != null) {
             String uid = authToken.getInString("uid");
-            CMS.debug("UID: " + uid);
+            logger.debug("UID: " + uid);
 
             String addr = "";
             try {
                 addr = u.getHost();
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.error("GetCookie: " + e.getMessage(), e);
             }
 
             try {
@@ -193,13 +194,13 @@ public class GetCookie extends CMSServlet {
 
                 InstallToken installToken = processor.getInstallToken(uid, addr, subsystem);
                 String cookie = installToken.getToken();
-                CMS.debug("Cookie: " + cookie);
+                logger.debug("Cookie: " + cookie);
 
                 if (!url.startsWith("$")) {
                     try {
                         form = getTemplate(mFormPath, httpReq, locale);
                     } catch (IOException e) {
-                        CMS.debug("GetCookie process: cant locate the form");
+                        logger.warn("GetCookie process: cant locate the form: " + e.getMessage(), e);
                         /*
                         log(ILogger.LL_FAILURE,
                           CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
@@ -227,7 +228,7 @@ public class GetCookie extends CMSServlet {
                 }
 
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.warn("GetCookie: " + e.getMessage(), e);
             }
         }
     }

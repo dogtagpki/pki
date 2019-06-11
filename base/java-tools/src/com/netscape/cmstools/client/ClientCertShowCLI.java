@@ -25,13 +25,13 @@ import java.io.PrintWriter;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.lang.RandomStringUtils;
+import org.dogtagpki.cli.CLI;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.X509Certificate;
 
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * @author Endi S. Dewata

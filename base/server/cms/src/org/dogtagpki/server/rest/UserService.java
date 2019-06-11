@@ -38,8 +38,10 @@ import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
@@ -63,25 +65,27 @@ import com.netscape.certsrv.user.UserMembershipData;
 import com.netscape.certsrv.user.UserResource;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertPrettyPrint;
-import com.netscape.cmsutil.util.Cert;
-
-import netscape.security.pkcs.PKCS7;
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * @author Endi S. Dewata
  */
 public class UserService extends SubsystemService implements UserResource {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserService.class);
+
     public final static String BACK_SLASH = "\\";
     public final static String SYSTEM_USER = "$System$";
 
-    public IUGSubsystem userGroupManager = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+    CMSEngine engine = CMS.getCMSEngine();
+    public UGSubsystem userGroupManager = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
     public UserData createUserData(IUser user) throws Exception {
 
@@ -156,15 +160,15 @@ public class UserService extends SubsystemService implements UserResource {
             // Workaround for ticket #914.
             // If no users found, return empty result.
             if (CMS.getUserMessage("CMS_USRGRP_USER_NOT_FOUND").equals(e.getMessage())) {
-                CMS.debug("UserService.findUsers(): " + e.getMessage());
+                logger.debug("UserService.findUsers(): " + e.getMessage());
                 return createOKResponse(response);
             }
 
-            CMS.debug(e);
+            logger.error("UserService: " + e.getMessage(), e);
             throw new PKIException(e);
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("UserService: " + e.getMessage(), e);
             throw new PKIException(e);
         }
     }
@@ -191,7 +195,8 @@ public class UserService extends SubsystemService implements UserResource {
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
-            IConfigStore cs = CMS.getConfigStore();
+            CMSEngine engine = CMS.getCMSEngine();
+            IConfigStore cs = engine.getConfigStore();
             IUser user;
 
             try {
@@ -265,13 +270,14 @@ public class UserService extends SubsystemService implements UserResource {
     @Override
     public Response addUser(UserData userData) {
 
-        CMS.debug("UserService.addUser()");
+        logger.debug("UserService.addUser()");
 
         if (userData == null) throw new BadRequestException("User data is null.");
 
-        IConfigStore cs = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
         String userID = userData.getUserID();
-        CMS.debug("User ID: " + userID);
+        logger.debug("User ID: " + userID);
 
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
@@ -296,7 +302,7 @@ public class UserService extends SubsystemService implements UserResource {
             IUser user = userGroupManager.createUser(userID);
 
             String fname = userData.getFullName();
-            CMS.debug("Full name: " + fname);
+            logger.debug("Full name: " + fname);
             if (fname == null || fname.length() == 0) {
                 String msg = getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", headers, "full name");
 
@@ -308,7 +314,7 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             String email = userData.getEmail();
-            CMS.debug("Email: " + email);
+            logger.debug("Email: " + email);
             if (email != null) {
                 user.setEmail(email);
             } else {
@@ -316,9 +322,9 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             String pword = userData.getPassword();
-            CMS.debug("Password: " + (pword == null ? null : "********"));
+            logger.debug("Password: " + (pword == null ? null : "********"));
             if (pword != null && !pword.equals("")) {
-                IPasswordCheck passwdCheck = CMS.getPasswordChecker();
+                IPasswordCheck passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
                     throw new EUsrGrpException(passwdCheck.getReason(pword));
@@ -330,7 +336,7 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             String phone = userData.getPhone();
-            CMS.debug("Phone: " + phone);
+            logger.debug("Phone: " + phone);
             if (phone != null) {
                 user.setPhone(phone);
             } else {
@@ -338,7 +344,7 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             String type = userData.getType();
-            CMS.debug("Type: " + type);
+            logger.debug("Type: " + type);
             if (type != null) {
                 user.setUserType(type);
             } else {
@@ -346,7 +352,7 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             String state = userData.getState();
-            CMS.debug("State: " + state);
+            logger.debug("State: " + state);
             if (state != null) {
                 user.setState(state);
             }
@@ -356,7 +362,7 @@ public class UserService extends SubsystemService implements UserResource {
             if (csType.equals("TPS")) {
 
                 String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
-                CMS.debug("TPS profiles: " + tpsProfiles);
+                logger.debug("TPS profiles: " + tpsProfiles);
                 if (tpsProfiles != null) { // update profiles if specified
 
                     String[] profiles;
@@ -407,9 +413,10 @@ public class UserService extends SubsystemService implements UserResource {
 
         if (userData == null) throw new BadRequestException("User data is null.");
 
+        CMSEngine engine = CMS.getCMSEngine();
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -425,7 +432,7 @@ public class UserService extends SubsystemService implements UserResource {
             user.setEmail(email);
 
             String pword = userData.getPassword();
-            IPasswordCheck passwdCheck = CMS.getPasswordChecker();
+            IPasswordCheck passwdCheck = engine.getPasswordChecker();
 
             if (!passwdCheck.isGoodPassword(pword)) {
                 throw new EUsrGrpException(passwdCheck.getReason(pword));
@@ -444,7 +451,7 @@ public class UserService extends SubsystemService implements UserResource {
             if (csType.equals("TPS")) {
 
                 String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
-                CMS.debug("TPS Profiles: " + tpsProfiles);
+                logger.debug("TPS Profiles: " + tpsProfiles);
                 if (tpsProfiles != null) { // update profiles if specified
 
                     String[] profiles;
@@ -493,13 +500,14 @@ public class UserService extends SubsystemService implements UserResource {
     @Override
     public Response modifyUser(String userID, UserData userData) {
 
-        CMS.debug("UserService.modifyUser(" + userID + ")");
+        logger.debug("UserService.modifyUser(" + userID + ")");
 
         if (userData == null) throw new BadRequestException("User data is null.");
 
+        CMSEngine engine = CMS.getCMSEngine();
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
-        IConfigStore cs = CMS.getConfigStore();
+        IConfigStore cs = engine.getConfigStore();
         try {
             if (userID == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -509,20 +517,20 @@ public class UserService extends SubsystemService implements UserResource {
             IUser user = userGroupManager.createUser(userID);
 
             String fullName = userData.getFullName();
-            CMS.debug("Full name: " + fullName);
+            logger.debug("Full name: " + fullName);
             if (fullName != null) {
                 user.setFullName(fullName);
             }
 
             String email = userData.getEmail();
-            CMS.debug("Email: " + email);
+            logger.debug("Email: " + email);
             if (email != null) {
                 user.setEmail(email);
             }
 
             String pword = userData.getPassword();
             if (pword != null && !pword.equals("")) {
-                IPasswordCheck passwdCheck = CMS.getPasswordChecker();
+                IPasswordCheck passwdCheck = engine.getPasswordChecker();
 
                 if (!passwdCheck.isGoodPassword(pword)) {
                     throw new EUsrGrpException(passwdCheck.getReason(pword));
@@ -532,13 +540,13 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             String phone = userData.getPhone();
-            CMS.debug("Phone: " + phone);
+            logger.debug("Phone: " + phone);
             if (phone != null) {
                 user.setPhone(phone);
             }
 
             String state = userData.getState();
-            CMS.debug("State: " + state);
+            logger.debug("State: " + state);
             if (state != null) {
                 user.setState(state);
             }
@@ -548,7 +556,7 @@ public class UserService extends SubsystemService implements UserResource {
             if (csType.equals("TPS")) {
 
                 String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
-                CMS.debug("TPS Profiles: " + tpsProfiles);
+                logger.debug("TPS Profiles: " + tpsProfiles);
                 if (tpsProfiles != null) { // update profiles if specified
 
                     String[] profiles;
@@ -776,7 +784,7 @@ public class UserService extends SubsystemService implements UserResource {
                 userCertData.setPrettyPrint(print.toString(getLocale(headers)));
 
                 // add base64 encoding
-                String base64 = CMS.getEncodedCert(cert);
+                String base64 = CertUtils.getEncodedCert(cert);
                 userCertData.setEncoded(base64);
 
                 return userCertData;
@@ -838,7 +846,7 @@ public class UserService extends SubsystemService implements UserResource {
                 cert = new X509CertImpl(binaryCert);
 
             } catch (CertificateException e) {
-                CMS.debug("UserService: Submitted data is not an X.509 certificate: " + e);
+                logger.warn("UserService: Submitted data is not an X.509 certificate: " + e.getMessage(), e);
                 // ignore
             }
 
@@ -849,7 +857,7 @@ public class UserService extends SubsystemService implements UserResource {
                 boolean assending = true;
 
                 // could it be a pkcs7 blob?
-                CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_IS_PK_BLOB"));
+                logger.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_IS_PK_BLOB"));
 
                 try {
                     CryptoManager manager = CryptoManager.getInstance();
@@ -859,7 +867,7 @@ public class UserService extends SubsystemService implements UserResource {
                     X509Certificate p7certs[] = pkcs7.getCertificates();
 
                     if (p7certs.length == 0) {
-                        CMS.debug("UserService: PKCS #7 data contains no certificates");
+                        logger.error("UserService: PKCS #7 data contains no certificates");
                         throw new BadRequestException("PKCS #7 data contains no certificates");
                     }
 
@@ -872,24 +880,24 @@ public class UserService extends SubsystemService implements UserResource {
                             p7certs[0].getIssuerDN().toString()) &&
                             (p7certs.length == 1)) {
                         cert = p7certs[0];
-                        CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_SINGLE_CERT_IMPORT"));
+                        logger.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_SINGLE_CERT_IMPORT"));
 
                     } else if (p7certs[0].getIssuerDN().toString().equals(p7certs[1].getSubjectDN().toString())) {
                         cert = p7certs[0];
-                        CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_ACEND_ORD"));
+                        logger.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_ACEND_ORD"));
 
                     } else if (p7certs[1].getIssuerDN().toString().equals(p7certs[0].getSubjectDN().toString())) {
                         assending = false;
-                        CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_DESC_ORD"));
+                        logger.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_CHAIN_DESC_ORD"));
                         cert = p7certs[p7certs.length - 1];
 
                     } else {
                         // not a chain, or in random order
-                        CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_BAD_CHAIN"));
+                        logger.error("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_BAD_CHAIN"));
                         throw new BadRequestException(getUserMessage("CMS_USRGRP_SRVLT_CERT_ERROR", headers));
                     }
 
-                    CMS.debug("UserService: "
+                    logger.debug("UserService: "
                             + CMS.getLogMessage("ADMIN_SRVLT_CHAIN_STORED_DB", String.valueOf(p7certs.length)));
 
                     int j = 0;
@@ -906,17 +914,17 @@ public class UserService extends SubsystemService implements UserResource {
 
                     // store the chain into cert db, except for the user cert
                     for (j = jBegin; j < jEnd; j++) {
-                        CMS.debug("UserService: "
+                        logger.debug("UserService: "
                                 + CMS.getLogMessage("ADMIN_SRVLT_CERT_IN_CHAIN", String.valueOf(j),
                                         String.valueOf(p7certs[j].getSubjectDN())));
                         org.mozilla.jss.crypto.X509Certificate leafCert =
                                 manager.importCACertPackage(p7certs[j].getEncoded());
 
                         if (leafCert == null) {
-                            CMS.debug("UserService: missing leaf certificate");
+                            logger.warn("UserService: missing leaf certificate");
                             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NULL"));
                         } else {
-                            CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
+                            logger.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
                         }
 
                         if (leafCert instanceof InternalCertificate) {
@@ -937,19 +945,19 @@ public class UserService extends SubsystemService implements UserResource {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_PKS7_IGNORED", e.toString()));
                     */
                 } catch (PKIException e) {
-                    CMS.debug("UserService: Unable to import user certificate from PKCS #7 data: " + e);
+                    logger.error("UserService: Unable to import user certificate from PKCS #7 data: " + e);
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", e.toString()));
                     throw e;
 
                 } catch (Exception e) {
-                    CMS.debug(e);
+                    logger.error("UserService: " + e.getMessage(), e);
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", e.toString()));
                     throw new PKIException("Unable to import user certificate from PKCS #7 data: " + e.getMessage(), e);
                 }
             }
 
             try {
-                CMS.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_BEFORE_VALIDITY"));
+                logger.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_BEFORE_VALIDITY"));
                 cert.checkValidity(); // throw exception if fails
 
                 user.setX509Certificates(new X509Certificate[] { cert });
@@ -970,25 +978,25 @@ public class UserService extends SubsystemService implements UserResource {
                 return createCreatedResponse(userCertData, userCertData.getLink().getHref());
 
             } catch (CertificateExpiredException e) {
-                CMS.debug("UserService: Certificate expired: " + e);
+                logger.error("UserService: Certificate expired: " + e.getMessage(), e);
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
                         String.valueOf(cert.getSubjectDN())));
                 throw new BadRequestException("Certificate expired: " + e.getMessage(), e);
 
             } catch (CertificateNotYetValidException e) {
-                CMS.debug("UserService: Certificate not yet valid: " + e);
+                logger.error("UserService: Certificate not yet valid: " + e.getMessage(), e);
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
                         String.valueOf(cert.getSubjectDN())));
                 throw new BadRequestException("Certificate not yet valid: " + e.getMessage(), e);
             }
 
         } catch (PKIException e) {
-            CMS.debug("UserService: Unable to import user certificate: " + e);
+            logger.error("UserService: Unable to import user certificate: " + e.getMessage(), e);
             auditAddUserCert(userID, userCertData, ILogger.FAILURE);
             throw e;
 
         } catch (Exception e) {
-            CMS.debug(e);
+            logger.error("UserService: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE, e.toString());
             auditAddUserCert(userID, userCertData, ILogger.FAILURE);
             throw new PKIException("Unable to import user certificate: " + e.getMessage(), e);
@@ -1088,7 +1096,7 @@ public class UserService extends SubsystemService implements UserResource {
     @Override
     public Response findUserMemberships(String userID, String filter, Integer start, Integer size) {
 
-        CMS.debug("UserService.findUserMemberships(" + userID + ", " + filter + ")");
+        logger.debug("UserService.findUserMemberships(" + userID + ", " + filter + ")");
 
         if (userID == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));

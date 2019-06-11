@@ -22,15 +22,18 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.registry.ERegistryException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class PluginRegistry implements IPluginRegistry {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PluginRegistry.class);
 
     private static final String PROP_TYPES = "types";
     private static final String PROP_IDS = "ids";
@@ -73,11 +76,12 @@ public class PluginRegistry implements IPluginRegistry {
      */
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        CMS.debug("RegistrySubsystem: start init");
+        logger.debug("RegistrySubsystem: start init");
         mConfig = config;
         mOwner = owner;
 
-        mFileConfig = CMS.createFileConfigStore(
+        CMSEngine engine = CMS.getCMSEngine();
+        mFileConfig = engine.createFileConfigStore(
                     mConfig.getString(PROP_FILE));
 
         String types_str = null;
@@ -87,7 +91,7 @@ public class PluginRegistry implements IPluginRegistry {
         } catch (EBaseException e) {
         }
         if (types_str == null) {
-            CMS.debug("PluginRegistry: no types");
+            logger.debug("PluginRegistry: no types");
             return;
         }
         StringTokenizer st = new StringTokenizer(types_str, ",");
@@ -180,7 +184,7 @@ public class PluginRegistry implements IPluginRegistry {
         }
         Locale locale = Locale.getDefault();
 
-        CMS.debug("added plugin " + type + " " + id + " " +
+        logger.debug("added plugin " + type + " " + id + " " +
                 info.getName(locale) + " " + info.getDescription(locale) + " " +
                 info.getClassName());
         plugins.put(id, info);
@@ -228,7 +232,7 @@ public class PluginRegistry implements IPluginRegistry {
         try {
             mFileConfig.commit(false);
         } catch (EBaseException e) {
-            CMS.debug("PluginRegistry: failed to commit registry.cfg");
+            logger.warn("PluginRegistry: failed to commit registry.cfg: " + e.getMessage(), e);
         }
     }
 
@@ -236,7 +240,7 @@ public class PluginRegistry implements IPluginRegistry {
      * Notifies this subsystem if owner is in running mode.
      */
     public void startup() throws EBaseException {
-        CMS.debug("RegistrySubsystem: startup");
+        logger.debug("RegistrySubsystem: startup");
     }
 
     /**

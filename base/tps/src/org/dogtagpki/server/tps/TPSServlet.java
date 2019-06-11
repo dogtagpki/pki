@@ -25,23 +25,32 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dogtagpki.tps.TPSConnection;
 
-import com.netscape.certsrv.apps.CMS;
-
 /**
  * @author Endi S. Dewata <edewata@redhat.com>
  */
 public class TPSServlet extends HttpServlet {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TPSServlet.class);
     private static final long serialVersionUID = -1092227495262381074L;
 
     public void service(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String encoding = request.getHeader("Transfer-Encoding");
+        String method = request.getMethod();
 
-        CMS.debug("Encoding: " + encoding);
+        logger.debug("Encoding: " + encoding);
+        logger.debug("Method: " + method);
 
-        if (encoding.equals("chunked") == false) {
-            throw new IOException("TPSServlet.service: incorrect encoding! ");
+        if(!"POST".equals(method)) {
+        	response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+                logger.warn("Returning 405 Method Not Allowed - the HTTP method must be POST");
+                return;
+        }
+
+        if(!"chunked".equals(encoding)) {
+        	response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                logger.warn("Returning 400 Bad Request - Transfer-Encoding is not chunked");
+        	return;
         }
 
         response.setHeader("Transfer-Encoding", "chunked");
@@ -49,17 +58,16 @@ public class TPSServlet extends HttpServlet {
         TPSConnection con = new TPSConnection(
                 request.getInputStream(), response.getOutputStream(), true);
 
-        CMS.debug("TPSConnection created: " + con);
+        logger.debug("TPSConnection created: " + con);
 
         String ipAddress = request.getRemoteAddr();
 
         TPSSession session = new TPSSession(con, ipAddress);
 
-        CMS.debug("TPSSession created: " + session);
+        logger.debug("TPSSession created: " + session);
 
         session.process();
 
-        CMS.debug("After session.process() exiting ...");
-
+        logger.debug("After session.process() exiting ...");
     }
 }

@@ -21,9 +21,9 @@ import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents a repository record.

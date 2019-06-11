@@ -17,11 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * This class represents an abstract class for CA enrollment
@@ -40,8 +41,8 @@ public abstract class CAEnrollConstraint extends EnrollConstraint {
      * Retrieves the CA certificate.
      */
     public X509CertImpl getCACert() throws EBaseException {
-        ICertificateAuthority ca = (ICertificateAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         X509CertImpl caCert = ca.getCACert();
 
         return caCert;

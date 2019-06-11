@@ -22,17 +22,18 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPConnection;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
 
 /**
  * Maps a X509 certificate to a LDAP entry using AVAs in the certificate's
@@ -49,6 +50,8 @@ import netscape.security.x509.X509CRLImpl;
  */
 public class LdapCertCompsMap
         extends LdapDNCompsMap implements ILdapMapper {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCertCompsMap.class);
     Logger mLogger = Logger.getLogger();
 
     public LdapCertCompsMap() {
@@ -132,7 +135,7 @@ public class LdapCertCompsMap
             // form dn and filter for search.
             X500Name subjectDN = (X500Name) cert.getSubjectDN();
 
-            CMS.debug("LdapCertCompsMap: " + subjectDN.toString());
+            logger.debug("LdapCertCompsMap: " + subjectDN);
 
             byte[] certbytes = cert.getEncoded();
 
@@ -148,7 +151,7 @@ public class LdapCertCompsMap
                 String result = null;
                 X500Name issuerDN = (X500Name) crl.getIssuerDN();
 
-                CMS.debug("LdapCertCompsMap: " + issuerDN.toString());
+                logger.warn("LdapCertCompsMap: " + issuerDN + ": " + e.getMessage(), e);
 
                 byte[] crlbytes = crl.getEncoded();
 

@@ -31,13 +31,20 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
 import org.mozilla.jss.asn1.INTEGER;
+import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.SignerInfo;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkix.cmmf.CertOrEncCert;
 import org.mozilla.jss.pkix.cmmf.CertRepContent;
 import org.mozilla.jss.pkix.cmmf.CertResponse;
 import org.mozilla.jss.pkix.cmmf.CertifiedKeyPair;
 import org.mozilla.jss.pkix.cmmf.PKIStatusInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -48,17 +55,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.pkcs.ContentInfo;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.SignerInfo;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.X509CertImpl;
 
 /**
  * Set up HTTP response to import certificate into browsers
@@ -116,8 +116,8 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
     public CMSTemplateParams getX509TemplateParams(
             CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e)
             throws Exception {
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(header, fixed);
 
         // set host name and port.
@@ -233,7 +233,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
 
         // set base 64, pretty print and cmmf response for each issued cert.
         for (int i = 0; i < certs.length; i++) {
-            IArgBlock repeat = CMS.createArgBlock();
+            ArgBlock repeat = new ArgBlock();
             X509CertImpl cert = certs[i];
 
             // set serial number.

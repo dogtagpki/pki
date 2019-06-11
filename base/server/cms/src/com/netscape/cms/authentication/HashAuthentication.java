@@ -26,7 +26,8 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -36,9 +37,7 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cmsutil.util.Utils;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Hash uid/pwd directory based authentication manager
@@ -47,6 +46,8 @@ import com.netscape.cmsutil.util.Utils;
  * @version $Revision$, $Date$
  */
 public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HashAuthentication.class);
 
     public static final String SALT = "lala123";
     public static final String CRED_UID = "uid";
@@ -62,7 +63,6 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     private IConfigStore mConfig;
     private String mName = null;
     private String mImplName = null;
-    private Logger mLogger = Logger.getLogger();
     private static Vector<String> mExtendedPluginInfo = null;
     private HashAuthData mHosts = null;
 
@@ -174,13 +174,6 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
         return date.getTime();
     }
 
-    public void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
-                level, msg);
-    }
-
     public boolean validFingerprint(String host, String pageID, String uid, String fingerprint) {
         String val = hashFingerprint(host, pageID, uid);
 
@@ -222,7 +215,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
 
         if (fingerprint.equals("") ||
                 !validFingerprint(host, pageID, uid, fingerprint)) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_INVALID_FINGER_PRINT"));
+            logger.error("HashAuthentication: " + CMS.getLogMessage("CMS_AUTH_INVALID_FINGER_PRINT"));
             throw new EAuthException("Invalid Fingerprint");
         }
 

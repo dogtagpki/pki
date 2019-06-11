@@ -130,42 +130,42 @@ import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS10Attribute;
-import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.pkcs.PKCS7;
-import netscape.security.pkcs.PKCS9Attribute;
-import netscape.security.pkcs.ParsingException;
-import netscape.security.util.BigInt;
-import netscape.security.util.DerInputStream;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.util.WrappingParams;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertAttrSet;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateIssuerName;
-import netscape.security.x509.CertificateSerialNumber;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extension;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500Signer;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.pkcs.PKCS9Attribute;
+import org.mozilla.jss.netscape.security.pkcs.ParsingException;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertAttrSet;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateIssuerName;
+import org.mozilla.jss.netscape.security.x509.CertificateSerialNumber;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Signer;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 @SuppressWarnings("serial")
 public class CryptoUtil {
@@ -563,7 +563,15 @@ public class CryptoUtil {
      * @throws Exception
      */
     public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize) throws Exception {
+        return generateRSAKeyPair(token, keysize, false);
+    }
+
+    public static KeyPair generateRSAKeyPair(CryptoToken token, int keysize, boolean temporary) throws Exception {
         KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+
+        if (temporary == true)
+            kg.temporaryPairs(true);
+
         logger.debug("CryptoUtil: Keypair Generator initializing for: " + token.getName());
         kg.initialize(keysize);
         logger.debug("CryptoUtil: Initialization complete");
@@ -1196,7 +1204,7 @@ public class CryptoUtil {
 
     public static X509Key getPublicX509Key(byte modulus[], byte exponent[])
             throws InvalidKeyException {
-        return new netscape.security.provider.RSAPublicKey(new BigInt(modulus),
+        return new org.mozilla.jss.netscape.security.provider.RSAPublicKey(new BigInt(modulus),
                 new BigInt(exponent));
     }
 
@@ -1216,7 +1224,7 @@ public class CryptoUtil {
         if (pubk instanceof RSAPublicKey) {
             RSAPublicKey rsaKey = (RSAPublicKey) pubk;
 
-            xKey = new netscape.security.provider.RSAPublicKey(
+            xKey = new org.mozilla.jss.netscape.security.provider.RSAPublicKey(
                     new BigInt(rsaKey.getModulus()),
                     new BigInt(rsaKey.getPublicExponent()));
         } else if (pubk instanceof PK11ECPublicKey) {
@@ -1227,7 +1235,7 @@ public class CryptoUtil {
             DSAPublicKey dsaKey = (DSAPublicKey) pubk;
             DSAParams params = dsaKey.getParams();
 
-            xKey = new netscape.security.provider.DSAPublicKey(dsaKey.getY(),
+            xKey = new org.mozilla.jss.netscape.security.provider.DSAPublicKey(dsaKey.getY(),
                     params.getP(), params.getQ(), params.getG());
         }
         return xKey;
@@ -1565,7 +1573,7 @@ public class CryptoUtil {
         }
 
         // format SKI: xx:xx:xx:...
-        netscape.security.util.PrettyPrintFormat pp = new netscape.security.util.PrettyPrintFormat(":", 20);
+        org.mozilla.jss.netscape.security.util.PrettyPrintFormat pp = new org.mozilla.jss.netscape.security.util.PrettyPrintFormat(":", 20);
         return pp.toHexString(ski).trim();
     }
 
@@ -1617,7 +1625,7 @@ public class CryptoUtil {
     /*
      * get extention from  PKCS10 request
      */
-    public static netscape.security.x509.Extension getExtensionFromPKCS10(PKCS10 pkcs10, String extnName)
+    public static org.mozilla.jss.netscape.security.x509.Extension getExtensionFromPKCS10(PKCS10 pkcs10, String extnName)
             throws IOException, CertificateException {
         Extension extn = null;
 
@@ -1659,14 +1667,14 @@ public class CryptoUtil {
     /*
      * get extension from CRMF cert request (CertTemplate)
      */
-    public static netscape.security.x509.Extension getExtensionFromCertTemplate(CertTemplate certTemplate, ObjectIdentifier csOID) {
+    public static org.mozilla.jss.netscape.security.x509.Extension getExtensionFromCertTemplate(CertTemplate certTemplate, ObjectIdentifier csOID) {
         //ObjectIdentifier csOID = PKIXExtensions.SubjectKey_Id;
         OBJECT_IDENTIFIER jssOID =
                 new OBJECT_IDENTIFIER(csOID.toString());
 /*
         return getExtensionFromCertTemplate(certTemplate, jssOID);
     }
-    public static netscape.security.x509.Extension getExtensionFromCertTemplate(CertTemplate certTemplate, org.mozilla.jss.asn1.OBJECT_IDENTIFIER jssOID) {
+    public static org.mozilla.jss.netscape.security.x509.Extension getExtensionFromCertTemplate(CertTemplate certTemplate, org.mozilla.jss.asn1.OBJECT_IDENTIFIER jssOID) {
 */
 
         String method = "CryptoUtil: getSKIExtensionFromCertTemplate: ";
@@ -1698,7 +1706,7 @@ public class CryptoUtil {
                        } else {
                          System.out.println(method + "SKIoid != jssOID");
                          extn =
-                             new netscape.security.x509.Extension(csOID, false, jssext.getExtnValue().toByteArray());
+                             new org.mozilla.jss.netscape.security.x509.Extension(csOID, false, jssext.getExtnValue().toByteArray());
                        }
                      } catch (IOException e) {
                        logger.warn(method + e, e);
@@ -2832,10 +2840,6 @@ public class CryptoUtil {
         throw new NoSuchAlgorithmException();
     }
 
-    public static final OBJECT_IDENTIFIER KW_AES_KEY_WRAP_PAD = new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.1.8");
-    public static final OBJECT_IDENTIFIER KW_AES_CBC_PAD = new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.1.2");
-    public static final OBJECT_IDENTIFIER KW_DES_CBC_PAD = new OBJECT_IDENTIFIER("1.2.840.113549.3.7");
-
     /*
      * Useful method to map KeyWrap algorithms to an OID.
      * This is not yet defined within JSS, although it will be valuable to do
@@ -2849,31 +2853,18 @@ public class CryptoUtil {
     public static OBJECT_IDENTIFIER getOID(KeyWrapAlgorithm kwAlg) throws NoSuchAlgorithmException {
         String name = kwAlg.toString();
         if (name.equals(KeyWrapAlgorithm.AES_KEY_WRAP_PAD.toString()))
-            return KW_AES_KEY_WRAP_PAD;
+            return KeyWrapAlgorithm.AES_KEY_WRAP_PAD_OID;
+        if (name.equals(KeyWrapAlgorithm.AES_KEY_WRAP.toString()))
+            return KeyWrapAlgorithm.AES_KEY_WRAP_OID;
         if (name.equals(KeyWrapAlgorithm.AES_CBC_PAD.toString()))
-            return KW_AES_CBC_PAD;
+            return KeyWrapAlgorithm.AES_CBC_PAD_OID;
         if (name.equals(KeyWrapAlgorithm.DES3_CBC_PAD.toString()))
-            return KW_DES_CBC_PAD;
+            return KeyWrapAlgorithm.DES_CBC_PAD_OID;
         if (name.equals(KeyWrapAlgorithm.DES_CBC_PAD.toString()))
-            return KW_DES_CBC_PAD;
+            return KeyWrapAlgorithm.DES_CBC_PAD_OID;
 
         throw new NoSuchAlgorithmException();
     }
-
-    public static KeyWrapAlgorithm getKeyWrapAlgorithmFromOID(String wrapOID) throws NoSuchAlgorithmException {
-        OBJECT_IDENTIFIER oid = new OBJECT_IDENTIFIER(wrapOID);
-        if (oid.equals(KW_AES_KEY_WRAP_PAD))
-            return KeyWrapAlgorithm.AES_KEY_WRAP_PAD;
-
-        if (oid.equals(KW_AES_CBC_PAD))
-            return KeyWrapAlgorithm.AES_CBC_PAD;
-
-        if (oid.equals(KW_DES_CBC_PAD))
-            return KeyWrapAlgorithm.DES3_CBC_PAD;
-
-        throw new NoSuchAlgorithmException();
-    }
-
 }
 
 // START ENABLE_ECC

@@ -25,21 +25,20 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.util.BigInt;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * RSAKeyConstraints policy enforces min and max size of the key.
@@ -55,6 +54,9 @@ import netscape.security.x509.X509Key;
  */
 public class RSAKeyConstraints extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RSAKeyConstraints.class);
+
     private Vector<BigInt> mExponents;
     private int mMinSize;
     private int mMaxSize;
@@ -193,8 +195,7 @@ public class RSAKeyConstraints extends APolicyRule
                     newkey = new X509Key(AlgorithmId.get("RSA"),
                                 key.getKey());
                 } catch (Exception e) {
-                    CMS.debug("RSAKeyConstraints::apply() - "
-                             + "Exception=" + e.toString());
+                    logger.warn("RSAKeyConstraints::apply(): " + e.getMessage(), e);
                     setError(req,
                               CMS.getUserMessage("CMS_POLICY_KEY_SIZE_VIOLATION",
                                                   getInstanceName()),

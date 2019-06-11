@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.request;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
@@ -28,13 +29,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
@@ -46,6 +45,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -54,9 +55,8 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  * @version $Revision$, $Date$
  */
 public class QueryReq extends CMSServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(QueryReq.class);
     private static final long serialVersionUID = -8729364426329835378L;
     // constants
     private final static String IN_SHOW_ALL = "showAll";
@@ -214,7 +214,7 @@ public class QueryReq extends CMSServlet {
      */
 
     public void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("in QueryReq servlet");
+        logger.debug("in QueryReq servlet");
 
         // Authentication / Authorization
 
@@ -336,7 +336,7 @@ public class QueryReq extends CMSServlet {
         } catch (Exception e) {
         }
         if (maxCount > mMaxReturns) {
-            CMS.debug("Resetting page size from " + maxCount + " to " + mMaxReturns);
+            logger.debug("Resetting page size from " + maxCount + " to " + mMaxReturns);
             maxCount = mMaxReturns;
         }
 
@@ -406,12 +406,12 @@ public class QueryReq extends CMSServlet {
             int count,
             BigInteger marker) {
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock context = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock context = new ArgBlock();
         CMSTemplateParams argset = new CMSTemplateParams(header, context);
 
         try {
-            long startTime = CMS.getCurrentDate().getTime();
+            long startTime = new Date().getTime();
             // preserve the type of request that we are
             // requesting.
 
@@ -459,7 +459,7 @@ public class QueryReq extends CMSServlet {
                 try {
                     request = requests.nextElement();
                 } catch (Exception e) {
-                    CMS.debug("Error displaying request:" + e.getMessage());
+                    logger.warn("Error displaying request:" + e.getMessage(), e);
                     // handled below
                 }
                 if (request == null) {
@@ -473,7 +473,7 @@ public class QueryReq extends CMSServlet {
                     firstNum = curNum;
                 }
 
-                IArgBlock rec = CMS.createArgBlock();
+                ArgBlock rec = new ArgBlock();
                 mParser.fillRequestIntoArg(locale, request, argset, rec);
                 mQueue.releaseRequest(request);
                 argset.addRepeatRecord(rec);
@@ -481,7 +481,7 @@ public class QueryReq extends CMSServlet {
                 currentCount++;
 
             }// while
-            long endTime = CMS.getCurrentDate().getTime();
+            long endTime = new Date().getTime();
 
             header.addIntegerValue(OUT_CURRENTCOUNT, currentCount);
             header.addStringValue("time", Long.toString(endTime - startTime));

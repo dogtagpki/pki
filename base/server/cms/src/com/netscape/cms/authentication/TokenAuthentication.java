@@ -25,7 +25,6 @@ import java.util.Vector;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -40,7 +39,9 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.servlet.csadmin.ConfigurationUtils;
+import com.netscape.cms.servlet.csadmin.Configurator;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -52,6 +53,8 @@ import com.netscape.cmsutil.xml.XMLObject;
  */
 public class TokenAuthentication implements IAuthManager,
         IProfileAuthenticator {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenAuthentication.class);
 
     /* required credentials */
     public static final String CRED_SESSION_ID = IAuthManager.CRED_SESSION_ID;
@@ -119,7 +122,9 @@ public class TokenAuthentication implements IAuthManager,
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
-        CMS.debug("TokenAuthentication: start");
+        logger.debug("TokenAuthentication: start");
+
+        CMSEngine engine = CMS.getCMSEngine();
 
         // force SSL handshake
         SessionContext context = SessionContext.getExistingContext();
@@ -128,7 +133,7 @@ public class TokenAuthentication implements IAuthManager,
         AuthToken authToken = new AuthToken(this);
 
         // get group name from configuration file
-        IConfigStore sconfig = CMS.getConfigStore();
+        IConfigStore sconfig = engine.getConfigStore();
 
         String sessionId = (String) authCred.get(CRED_SESSION_ID);
         String givenHost = (String) authCred.get("clientHost");
@@ -140,7 +145,7 @@ public class TokenAuthentication implements IAuthManager,
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle(CRED_SESSION_ID, sessionId);
         content.putSingle("hostname", givenHost);
-        CMS.debug("TokenAuthentication: content=" + content);
+        logger.debug("TokenAuthentication: content=" + content);
 
         String c = null;
         try {
@@ -153,15 +158,17 @@ public class TokenAuthentication implements IAuthManager,
             }
         } catch (Exception e) {
 
-            CMS.debug("TokenAuthenticate: failed to contact admin host:port "
-                    + authHost + ":" + authAdminPort + " " + e);
-            CMS.debug("TokenAuthenticate: attempting ee port " + authEEPort);
+            logger.error("TokenAuthenticate: failed to contact admin host:port "
+                    + authHost + ":" + authAdminPort + " " + e.getMessage(), e);
+
+            logger.warn("TokenAuthenticate: attempting ee port " + authEEPort);
             authURL = "/ca/ee/ca/tokenAuthenticate";
+
             try {
                 c = sendAuthRequest(authHost, authEEPort, authURL, content);
             } catch (Exception e1) {
-                CMS.debug("TokenAuthenticate: failed to contact EE host:port "
-                        + authHost + ":" + authAdminPort + " " + e1);
+                logger.error("TokenAuthenticate: failed to contact EE host:port "
+                        + authHost + ":" + authAdminPort + " " + e1.getMessage(), e1);
                 throw new EBaseException(e1.getMessage());
             }
         }
@@ -174,16 +181,16 @@ public class TokenAuthentication implements IAuthManager,
                 try {
                     parser = new XMLObject(bis);
                 } catch (Exception e) {
-                    CMS.debug("TokenAuthentication::authenticate() - "
-                             + "Exception=" + e.toString());
+                    logger.error("TokenAuthentication::authenticate() - "
+                             + "Exception=" + e.getMessage(), e);
                     throw new EBaseException(e.toString());
                 }
                 String status = parser.getValue("Status");
 
-                CMS.debug("TokenAuthentication: status=" + status);
+                logger.debug("TokenAuthentication: status=" + status);
                 if (!status.equals("0")) {
                     String error = parser.getValue("Error");
-                    CMS.debug("TokenAuthentication: error: " + error);
+                    logger.error("TokenAuthentication: error: " + error);
                     throw new EBaseException(error);
                 }
 
@@ -195,12 +202,12 @@ public class TokenAuthentication implements IAuthManager,
                 authToken.set(IAuthToken.GROUPS, groups);
 
                 if (context != null) {
-                    CMS.debug("SessionContext.USER_ID " + uid + " SessionContext.GROUP_ID " + gid);
+                    logger.debug("SessionContext.USER_ID " + uid + " SessionContext.GROUP_ID " + gid);
                     context.put(SessionContext.USER_ID, uid);
                     context.put(SessionContext.GROUP_ID, gid);
                 }
 
-                CMS.debug("TokenAuthentication: authenticated uid=" + uid + ", gid=" + gid);
+                logger.debug("TokenAuthentication: authenticated uid=" + uid + ", gid=" + gid);
             } catch (EBaseException e) {
                 throw e;
             } catch (Exception e) {
@@ -213,7 +220,7 @@ public class TokenAuthentication implements IAuthManager,
     private String sendAuthRequest(String authHost, int authPort, String authUrl, MultivaluedMap<String, String> content)
             throws Exception {
 
-        return ConfigurationUtils.post(authHost, authPort, true, authUrl, content, null, null);
+        return Configurator.post(authHost, authPort, true, authUrl, content, null, null);
     }
 
     /**

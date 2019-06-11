@@ -37,6 +37,7 @@ import java.security.cert.CertificateException;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -62,20 +63,51 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
+import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
+import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
+import org.mozilla.jss.netscape.security.extensions.OCSPNoCheckExtension;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
+import org.mozilla.jss.netscape.security.pkcs.PKCS9Attribute;
+import org.mozilla.jss.netscape.security.util.BigInt;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AlgIdDSA;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.Extensions;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.URIName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Signer;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs11.PK11ECPublicKey;
 import org.mozilla.jss.util.Base64OutputStream;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.dbs.BigIntegerMapper;
 import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.X509CertImplMapper;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
@@ -83,36 +115,6 @@ import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
-import netscape.security.extensions.AuthInfoAccessExtension;
-import netscape.security.extensions.ExtendedKeyUsageExtension;
-import netscape.security.extensions.NSCertTypeExtension;
-import netscape.security.extensions.OCSPNoCheckExtension;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS10Attribute;
-import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.pkcs.PKCS9Attribute;
-import netscape.security.util.BigInt;
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AlgIdDSA;
-import netscape.security.x509.AlgorithmId;
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateAlgorithmId;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.Extensions;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.URIName;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500Signer;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 
 /**
  * This class provides all the base methods to generate the key for different
@@ -123,6 +125,7 @@ import netscape.security.x509.X509Key;
  */
 public class KeyCertUtil {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyCertUtil.class);
     public static final String CA_SIGNINGCERT_NICKNAME = "caSigningCert";
 
     public static void checkCertificateExt(String ext) throws EBaseException {
@@ -232,6 +235,7 @@ public class KeyCertUtil {
     public static X509CertImpl signCert(PrivateKey privateKey, X509CertInfo certInfo,
             SignatureAlgorithm sigAlg)
             throws NoSuchTokenException, EBaseException, NotInitializedException {
+        CMSEngine engine = CMS.getCMSEngine();
         try (DerOutputStream out = new DerOutputStream()) {
             CertificateAlgorithmId sId = (CertificateAlgorithmId)
                     certInfo.get(X509CertInfo.ALGORITHM_ID);
@@ -267,8 +271,8 @@ public class KeyCertUtil {
         } catch (TokenException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR_1", e.toString()));
         } catch (SignatureException e) {
-            CMS.debug("CertKeyUtil.signCert: "+ e.toString());
-            CMS.checkForAndAutoShutdown();
+            logger.error("CertKeyUtil.signCert: "+ e.getMessage(), e);
+            engine.checkForAndAutoShutdown();
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_SIGNED_FAILED", e.toString()));
         } catch (InvalidKeyException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", e.toString()));
@@ -614,7 +618,7 @@ public class KeyCertUtil {
             RSAPublicKey rsaKey = (RSAPublicKey) pubk;
 
             // REMOVED constructors from parameters by MLH on 1/9/99
-            xKey = new netscape.security.provider.RSAPublicKey(
+            xKey = new org.mozilla.jss.netscape.security.provider.RSAPublicKey(
                         new BigInt(rsaKey.getModulus()),
                         new BigInt(rsaKey.getPublicExponent()));
         } else if (pubk instanceof PK11ECPublicKey) {
@@ -625,7 +629,7 @@ public class KeyCertUtil {
             DSAPublicKey dsaKey = (DSAPublicKey) pubk;
             DSAParams params = dsaKey.getParams();
 
-            xKey = new netscape.security.provider.DSAPublicKey(
+            xKey = new org.mozilla.jss.netscape.security.provider.DSAPublicKey(
                         dsaKey.getY(),
                         params.getP(),
                         params.getQ(),
@@ -982,8 +986,9 @@ public class KeyCertUtil {
         String aia = properties.getAIA();
 
         if ((aia != null) && (aia.equals(Constants.TRUE))) {
-            String hostname = CMS.getEENonSSLHost();
-            String port = CMS.getEENonSSLPort();
+            CMSEngine engine = CMS.getCMSEngine();
+            String hostname = engine.getEENonSSLHost();
+            String port = engine.getEENonSSLPort();
             AuthInfoAccessExtension aiaExt = new AuthInfoAccessExtension(false);
             if (hostname != null && port != null) {
                 String location = "http://" + hostname + ":" + port + "/ca/ocsp";
@@ -1037,7 +1042,7 @@ public class KeyCertUtil {
         byte[] hash = CryptoUtil.generateKeyIdentifier(subjectKeyInfo.getKey());
 
         if (hash == null) {
-            CMS.debug("KeyCertUtil: createKeyIdentifier " +
+            logger.warn("KeyCertUtil: createKeyIdentifier " +
                 "CryptoUtil.generateKeyIdentifier returns null");
             return null;
         }
@@ -1053,7 +1058,7 @@ public class KeyCertUtil {
         if (serialNo == null) {
             throw new LDAPException("No value for attribute serial number in LDAP entry " + entry.getDN());
         }
-        String serialnoStr = (String) serialNo.getStringValues().nextElement();
+        String serialnoStr = serialNo.getStringValues().nextElement();
 
         serialno = BigIntegerMapper.BigIntegerFromDB(serialnoStr);
         LDAPAttribute attr = new LDAPAttribute("serialno");
@@ -1099,9 +1104,9 @@ public class KeyCertUtil {
                 BigIntegerMapper.BigIntegerToDB(
                         serialno)));
         attrs.add(new LDAPAttribute("dateOfCreate",
-                DateMapper.dateToDB((CMS.getCurrentDate()))));
+                DateMapper.dateToDB(new Date())));
         attrs.add(new LDAPAttribute("dateOfModify",
-                DateMapper.dateToDB((CMS.getCurrentDate()))));
+                DateMapper.dateToDB(new Date())));
         attrs.add(new LDAPAttribute("certStatus",
                 "VALID"));
         attrs.add(new LDAPAttribute("autoRenew",

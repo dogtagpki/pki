@@ -27,10 +27,9 @@ package com.netscape.cms.selftests.ca;
 import java.security.cert.CertificateParsingException;
 import java.util.Locale;
 
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -41,6 +40,8 @@ import com.netscape.certsrv.selftests.EMissingSelfTestException;
 import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 //////////////////////
 // class definition //
@@ -195,7 +196,8 @@ public class CAPresence
      */
     public void runSelfTest(ILogEventListener logger) throws Exception {
 
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(mCaSubId);
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(mCaSubId);
         if (ca == null) {
             // log that the CA is not installed
             String logMessage = CMS.getLogMessage(

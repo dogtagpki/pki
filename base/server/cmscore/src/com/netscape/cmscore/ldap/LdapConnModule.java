@@ -17,23 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldap;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapBoundConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
+import com.netscape.cmsutil.password.IPasswordStore;
 
 import netscape.ldap.LDAPConnection;
 
 public class LdapConnModule implements ILdapConnModule {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapConnModule.class);
+
     protected IConfigStore mConfig = null;
     protected LdapBoundConnFactory mLdapConnFactory = null;
     protected Logger mLogger = Logger.getLogger();
@@ -59,12 +63,17 @@ public class LdapConnModule implements ILdapConnModule {
             IConfigStore config)
             throws EBaseException {
 
-        CMS.debug("LdapConnModule: init called");
+        logger.debug("LdapConnModule: init called");
         if (mInited) {
-            CMS.debug("LdapConnModule: already initialized. return.");
+            logger.debug("LdapConnModule: already initialized. return.");
             return;
         }
-        CMS.debug("LdapConnModule: init begins");
+
+        logger.debug("LdapConnModule: init begins");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+        IPasswordStore passwordStore = engine.getPasswordStore();
 
         mPubProcessor = p;
         mConfig = config;
@@ -76,26 +85,30 @@ public class LdapConnModule implements ILdapConnModule {
         // support publishing dirsrv with different pwd than internaldb
         IConfigStore ldap = mConfig.getSubStore("ldap");
 
-        IConfigStore ldapconn = ldap.getSubStore(
-                         ILdapBoundConnFactory.PROP_LDAPCONNINFO);
-        IConfigStore authinfo = ldap.getSubStore(
-                         ILdapBoundConnFactory.PROP_LDAPAUTHINFO);
-        LdapConnInfo connInfo = new LdapConnInfo(ldapconn);
-        LdapAuthInfo authInfo =
-                new LdapAuthInfo(authinfo, ldapconn.getString("host"),
-                        ldapconn.getInteger("port"), connInfo.getSecure());
+        IConfigStore connConfig = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPCONNINFO);
+        LdapConnInfo connInfo = new LdapConnInfo(connConfig);
 
-        int minConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MINCONNS, 3);
-        int maxConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MAXCONNS, 15);
+        IConfigStore authConfig = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO);
+
+        LdapAuthInfo authInfo = new LdapAuthInfo();
+        authInfo.setPasswordStore(passwordStore);
+        authInfo.init(
+                authConfig,
+                connConfig.getString("host"),
+                connConfig.getInteger("port"),
+                connInfo.getSecure());
+
+        int minConns = mConfig.getInteger(LdapBoundConnFactory.PROP_MINCONNS, 3);
+        int maxConns = mConfig.getInteger(LdapBoundConnFactory.PROP_MAXCONNS, 15);
         // must get authInfo from the config, don't default to internaldb!!!
 
-        CMS.debug("Creating LdapBoundConnFactory for LdapConnModule.");
-        mLdapConnFactory =
-                new LdapBoundConnFactory("LDAPConnModule", minConns, maxConns, connInfo, authInfo);
+        logger.debug("Creating LdapBoundConnFactory for LdapConnModule.");
+        mLdapConnFactory = new LdapBoundConnFactory("LDAPConnModule", minConns, maxConns, connInfo, authInfo);
+        mLdapConnFactory.init(cs, passwordStore);
 
         mInited = true;
 
-        CMS.debug("LdapConnModule: init ends");
+        logger.debug("LdapConnModule: init ends");
     }
 
     /**
@@ -108,7 +121,7 @@ public class LdapConnModule implements ILdapConnModule {
      * publishing directory.
      * Use ILdapConnFactory.returnConn() to return the connection.
      *
-     * @see com.netscape.certsrv.ldap.ILdapBoundConnFactory
+     * @see com.netscape.certsrv.ldap.LdapBoundConnFactory
      * @see com.netscape.certsrv.ldap.ILdapConnFactory
      */
     public ILdapConnFactory getLdapConnFactory() {

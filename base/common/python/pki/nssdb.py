@@ -221,6 +221,18 @@ class NSSDatabase(object):
 
         self.passwords = passwords
 
+    def create(self):
+
+        cmd = [
+            'certutil',
+            '-N',
+            '-d', self.directory,
+            '-f', self.internal_password_file
+        ]
+
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
     def close(self):
         shutil.rmtree(self.tmpdir)
 
@@ -1476,16 +1488,23 @@ class NSSDatabase(object):
 
         """
         args = []
+
         if key_type:
+            if key_type.lower() == 'ecc':
+                key_type = 'ec'
             args.extend(['-k', key_type])
+
         if key_type.lower() == 'ec':
             # This is fix for Bugzilla 1544843
             args.extend([
                 '--keyOpFlagsOn', 'sign',
                 '--keyOpFlagsOff', 'derive',
             ])
+
         if key_size:
             args.extend(['-g', str(key_size)])
+
         if curve:
             args.extend(['-q', curve])
+
         return args

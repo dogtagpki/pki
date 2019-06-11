@@ -24,7 +24,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
+
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -43,12 +44,12 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailFormProcessor;
 import com.netscape.cmscore.notification.EmailResolverKeys;
 import com.netscape.cmscore.notification.EmailTemplate;
 import com.netscape.cmscore.notification.ReqCertSANameEmailResolver;
-
-import netscape.security.x509.RevokedCertImpl;
 
 /**
  * a listener for every completed enrollment request
@@ -78,6 +79,9 @@ import netscape.security.x509.RevokedCertImpl;
  * @version $Revision$, $Date$
  */
 public class CertificateRevokedListener implements IRequestListener {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateRevokedListener.class);
+
     protected final static String PROP_CERT_ISSUED_SUBSTORE = "certRevoked";
     protected static final String PROP_ENABLED = "enabled";
     protected final static String PROP_NOTIFY_SUBSTORE = "notification";
@@ -109,6 +113,7 @@ public class CertificateRevokedListener implements IRequestListener {
 
     public void init(ISubsystem sub, IConfigStore config)
             throws EListenersException, EPropertyNotFound, EBaseException {
+        CMSEngine engine = CMS.getCMSEngine();
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -130,7 +135,7 @@ public class CertificateRevokedListener implements IRequestListener {
         int ridx = mFormPath.lastIndexOf(File.separator);
 
         if (ridx == -1) {
-            CMS.debug("CertificateRevokedListener: file separator: " + File.separator
+            logger.debug("CertificateRevokedListener: file separator: " + File.separator
                     +
                     " not found. Use default /");
             ridx = mFormPath.lastIndexOf("/");
@@ -139,7 +144,7 @@ public class CertificateRevokedListener implements IRequestListener {
             mDir = mFormPath.substring(0, ridx +
                             File.separator.length());
         }
-        CMS.debug("CertificateRevokedListener: template file directory: " + mDir);
+        logger.debug("CertificateRevokedListener: template file directory: " + mDir);
         mRejectPath = mDir + REJECT_FILE_NAME;
         if (mFormPath.endsWith(".html"))
             mRejectPath += ".html";
@@ -150,7 +155,7 @@ public class CertificateRevokedListener implements IRequestListener {
         else if (mFormPath.endsWith(".HTM"))
             mRejectPath += ".HTM";
 
-        CMS.debug("CertificateRevokedListener: Reject file path: " + mRejectPath);
+        logger.debug("CertificateRevokedListener: Reject file path: " + mRejectPath);
 
         mDateFormat = DateFormat.getDateTimeInstance();
 
@@ -159,8 +164,8 @@ public class CertificateRevokedListener implements IRequestListener {
         mSubject = new String(mSubject_Success);
 
         // form the cert retrieval URL for the notification
-        mHttpHost = CMS.getEEHost();
-        mHttpPort = CMS.getEESSLPort();
+        mHttpHost = engine.getEEHost();
+        mHttpPort = engine.getEESSLPort();
 
         // register for this event listener
         mSubsystem.registerRequestListener(this);
@@ -179,7 +184,7 @@ public class CertificateRevokedListener implements IRequestListener {
         if (requestType.equals(IRequest.REVOCATION_REQUEST) == false)
             return;
         if (rs.equals("complete") == false) {
-            CMS.debug("CertificateRevokedListener: Request status: " + rs);
+            logger.warn("CertificateRevokedListener: Request status: " + rs);
             //revoked(r);
             return;
         }
@@ -189,14 +194,14 @@ public class CertificateRevokedListener implements IRequestListener {
             return;
 
         if ((r.getExtDataInInteger(IRequest.RESULT)).equals(IRequest.RES_ERROR)) {
-            CMS.debug("CertificateRevokedListener: Request errored. " +
+            logger.warn("CertificateRevokedListener: Request errored. " +
                     "No need to email notify for enrollment request id " +
                     mReqId);
             return;
         }
 
         if (requestType.equals(IRequest.REVOCATION_REQUEST)) {
-            CMS.debug("CertificateRevokedListener: accept() revocation request...");
+            logger.debug("CertificateRevokedListener: accept() revocation request...");
             // Get the certificate from the request
             //X509CertImpl issuedCert[] =
             //    (X509CertImpl[])
@@ -204,7 +209,7 @@ public class CertificateRevokedListener implements IRequestListener {
                     r.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
 
             if (crlentries != null) {
-                CMS.debug("CertificateRevokedListener: Sending email notification..");
+                logger.debug("CertificateRevokedListener: Sending email notification..");
 
                 // do we have an email to send?
                 String mEmail = null;
@@ -253,7 +258,8 @@ public class CertificateRevokedListener implements IRequestListener {
     }
 
     private void mailIt(String mEmail, RevokedCertImpl crlentries[]) {
-        IMailNotification mn = CMS.getMailNotification();
+        CMSEngine engine = CMS.getCMSEngine();
+        IMailNotification mn = engine.getMailNotification();
 
         mn.setFrom(mSenderEmail);
         mn.setTo(mEmail);
@@ -267,28 +273,18 @@ public class CertificateRevokedListener implements IRequestListener {
         /*
          * parse and process the template
          */
-        if (template != null) {
-            if (!template.init()) {
-                return;
-            }
-
-            buildContentParams(crlentries, mEmail);
-            EmailFormProcessor et = new EmailFormProcessor();
-            String c = et.getEmailContent(template.toString(), mContentParams);
-
-            if (template.isHTML()) {
-                mn.setContentType("text/html");
-            }
-            mn.setContent(c);
-        } else {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("LISTENERS_CERT_ISSUED_TEMPLATE_ERROR",
-                            crlentries[0].getSerialNumber().toString(), mReqId.toString()));
-
-            mn.setContent("Serial Number = " +
-                    crlentries[0].getSerialNumber() +
-                    "; Request ID = " + mReqId);
+        if (!template.init()) {
+            return;
         }
+
+        buildContentParams(crlentries, mEmail);
+        EmailFormProcessor et = new EmailFormProcessor();
+        String c = et.getEmailContent(template.toString(), mContentParams);
+
+        if (template.isHTML()) {
+            mn.setContentType("text/html");
+        }
+        mn.setContent(c);
 
         try {
             mn.sendNotification();
@@ -314,9 +310,10 @@ public class CertificateRevokedListener implements IRequestListener {
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT,
                 mHttpPort);
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             RevokedCertImpl revCert = crlentries[0];
-            ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
             ICertificateRepository certDB = ca.getCertificateRepository();
             X509Certificate cert = certDB.getX509Certificate(revCert.getSerialNumber());
 

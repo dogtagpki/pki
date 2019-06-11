@@ -30,12 +30,10 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
@@ -45,6 +43,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Check to see if a Key Recovery Request has been approved
@@ -129,8 +129,8 @@ public class GetApprovalStatus extends CMSServlet {
         Locale[] locale = new Locale[1];
 
         cmsReq.setStatus(ICMSRequest.SUCCESS);
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
         int rComplete = 0;
 
@@ -161,7 +161,7 @@ public class GetApprovalStatus extends CMSServlet {
             Enumeration<Credential> agents = dc.elements();
 
             while (agents.hasMoreElements()) {
-                IArgBlock rarg = CMS.createArgBlock();
+                ArgBlock rarg = new ArgBlock();
 
                 rarg.addStringValue("agentName", agents.nextElement().getIdentifier());
                 argSet.addRepeatRecord(rarg);

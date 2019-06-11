@@ -70,13 +70,15 @@ class InstanceCertExportCLI(pki.cli.CLI):
         super(InstanceCertExportCLI, self).__init__(
             'export', 'Export system certificates')
 
-    def print_help(self):  # flake8: noqa
+    def print_help(self):
         print('Usage: pki-server instance-cert-export [OPTIONS] [nicknames...]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --pkcs12-file <path>           Output file to store the exported certificate and key in PKCS #12 format.')
+        print('      --pkcs12-file <path>           Output file to store the exported certificate '
+              'and key in PKCS #12 format.')
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
-        print('      --pkcs12-password-file <path>  Input file containing the password for the PKCS #12 file.')
+        print('      --pkcs12-password-file <path>  Input file containing the password for the '
+              'PKCS #12 file.')
         print('      --append                       Append into an existing PKCS #12 file.')
         print('      --no-trust-flags               Do not include trust flags')
         print('      --no-key                       Do not include private key')
@@ -221,8 +223,8 @@ class InstanceFindCLI(pki.cli.CLI):
                 sys.exit(1)
 
         results = []
-        if os.path.exists(pki.server.INSTANCE_BASE_DIR):
-            for f in os.listdir(pki.server.INSTANCE_BASE_DIR):
+        if os.path.exists(pki.server.PKIServer.BASE_DIR):
+            for f in os.listdir(pki.server.PKIServer.BASE_DIR):
 
                 if not os.path.isdir:
                     continue
@@ -624,7 +626,8 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
         print('Usage: pki-server instance-externalcert-add [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
-        print('      --cert-file <path>             Input file containing the external certificate or certificate chain.')
+        print('      --cert-file <path>             Input file containing the external certificate'
+              ' or certificate chain.')
         print('      --trust-args <trust-args>      Trust args (default \",,\").')
         print('      --nickname <nickname>          Nickname to be used.')
         print('      --token <token_name>           Token (default: internal).')
@@ -636,7 +639,7 @@ class InstanceExternalCertAddCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'cert-file=', 'trust-args=', 'nickname=','token=',
+                'cert-file=', 'trust-args=', 'nickname=', 'token=',
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
@@ -745,7 +748,7 @@ class InstanceExternalCertDeleteCLI(pki.cli.CLI):
     def execute(self, argv):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'nickname=','token=',
+                'instance=', 'nickname=', 'token=',
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:

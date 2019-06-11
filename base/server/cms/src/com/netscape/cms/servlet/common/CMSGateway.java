@@ -30,7 +30,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthManager;
@@ -38,8 +37,9 @@ import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * This class is to hold some general method for servlets.
@@ -47,6 +47,9 @@ import com.netscape.cms.logging.Logger;
  * @version $Revision$, $Date$
  */
 public class CMSGateway {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSGateway.class);
+
     public final static String PROP_CMSGATEWAY = "cmsgateway";
     private final static String PROP_ENABLE_ADMIN_ENROLL = "enableAdminEnroll";
 
@@ -59,18 +62,15 @@ public class CMSGateway {
     private static boolean mEnableAdminEnroll = true;
     private static IConfigStore mConfig = null;
 
-    // system logger.
-    protected static Logger mLogger = Logger.getLogger();
-
     static {
+        CMSEngine engine = CMS.getCMSEngine();
         mEnableFileServing = true;
-        mConfig = CMS.getConfigStore().getSubStore(PROP_CMSGATEWAY);
+        mConfig = engine.getConfigStore().getSubStore(PROP_CMSGATEWAY);
         try {
             mEnableAdminEnroll =
                     mConfig.getBoolean(PROP_ENABLE_ADMIN_ENROLL, false);
         } catch (EBaseException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_BAD_CONFIG_PARAM"));
+            logger.error("CMSGateway: " + CMS.getLogMessage("CMSGW_BAD_CONFIG_PARAM"), e);
         }
     }
 
@@ -99,7 +99,8 @@ public class CMSGateway {
 
     public static void setEnableAdminEnroll(boolean enableAdminEnroll)
             throws EBaseException {
-        IConfigStore mainConfig = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore mainConfig = engine.getConfigStore();
 
         //!!! Is it thread safe? xxxx
         mEnableAdminEnroll = enableAdminEnroll;
@@ -129,12 +130,10 @@ public class CMSGateway {
         String[] reqCreds = authMgr.getRequiredCreds();
         AuthCredentials creds = new AuthCredentials();
 
-        if (clientCert instanceof java.security.cert.X509Certificate) {
-            try {
-                clientCert = new netscape.security.x509.X509CertImpl(clientCert.getEncoded());
-            } catch (Exception e) {
-                CMS.debug("CMSGateway: getAuthCreds " + e.toString());
-            }
+        try {
+            clientCert = new org.mozilla.jss.netscape.security.x509.X509CertImpl(clientCert.getEncoded());
+        } catch (Exception e) {
+            logger.warn("CMSGateway: getAuthCreds " + e.getMessage(), e);
         }
 
         for (int i = 0; i < reqCreds.length; i++) {
@@ -167,9 +166,10 @@ public class CMSGateway {
         IArgBlock httpArgs = httpParams;
 
         if (httpArgs == null)
-            httpArgs = CMS.createArgBlock(toHashtable(httpReq));
+            httpArgs = new ArgBlock(toHashtable(httpReq));
 
-        IAuthSubsystem authSub = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        CMSEngine engine = CMS.getCMSEngine();
+        IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
 
         String authMgr_http = httpArgs.getValueAsString(
                 AUTHMGR_PARAM, null);
@@ -190,7 +190,7 @@ public class CMSGateway {
         if (authMgr == null)
             return null;
         IAuthCredentials creds =
-                getAuthCreds(authMgr, CMS.createArgBlock(toHashtable(httpReq)), cert);
+                getAuthCreds(authMgr, new ArgBlock(toHashtable(httpReq)), cert);
         AuthToken authToken = null;
 
         try {
@@ -198,7 +198,7 @@ public class CMSGateway {
         } catch (EBaseException e) {
             throw e;
         } catch (Exception e) {
-            CMS.debug("CMSGateway: " + e);
+            logger.error("CMSGateway: " + e.getMessage(), e);
             // catch all errors from authentication manager.
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_AUTH_ERROR_2",
                         e.toString(), e.getMessage()));
@@ -320,7 +320,7 @@ public class CMSGateway {
             throws EBaseException, IOException {
         // this converts to system dependent file seperator char.
         if (servletConfig == null) {
-            CMS.debug("CMSGateway:getTemplate() - servletConfig is null!");
+            logger.warn("CMSGateway:getTemplate() - servletConfig is null!");
             return null;
         }
         if (servletConfig.getServletContext() == null) {

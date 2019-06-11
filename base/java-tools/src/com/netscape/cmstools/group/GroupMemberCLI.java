@@ -18,11 +18,11 @@
 
 package com.netscape.cmstools.group;
 
+import org.dogtagpki.cli.CLI;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.group.GroupClient;
 import com.netscape.certsrv.group.GroupMemberData;
-import com.netscape.cmstools.cli.CLI;
 
 /**
  * @author Endi S. Dewata

@@ -21,9 +21,8 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.Locale;
 
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -34,6 +33,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class supports renewal grace period, which has two
@@ -43,6 +43,8 @@ import com.netscape.cms.profile.def.NoDefault;
  * @version $Revision$, $Date$
  */
 public class RenewGracePeriodConstraint extends EnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RenewGracePeriodConstraint.class);
 
     // for renewal: # of days before the orig cert expiration date
     public static final String CONFIG_RENEW_GRACE_BEFORE = "renewal.graceBefore";
@@ -92,10 +94,10 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
 
         String origExpDate_s = req.getExtDataInString("origNotAfter");
         if (origExpDate_s == null) { // probably not for renewal
-            CMS.debug(method + " original cert expiration date not found...return without validation");
+            logger.debug(method + " original cert expiration date not found...return without validation");
             return;
         } else { //should occur when it's renewal
-            CMS.debug(method + " original cert expiration date found... validating");
+            logger.debug(method + " original cert expiration date found... validating");
         }
         BigInteger origExpDate_BI = new BigInteger(origExpDate_s);
         Date origExpDate = new Date(origExpDate_BI.longValue());
@@ -122,9 +124,9 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
         if (renew_grace_after > 0)
             renew_grace_after_BI = renew_grace_after_BI.multiply(BigInteger.valueOf(1000 * 86400));
 
-        Date current = CMS.getCurrentDate();
+        Date current = new Date();
         long millisDiff = origExpDate.getTime() - current.getTime();
-        CMS.debug(method + " millisDiff="
+        logger.debug(method + " millisDiff="
                 + millisDiff + " origExpDate=" + origExpDate.getTime() + " current=" + current.getTime());
 
         /*

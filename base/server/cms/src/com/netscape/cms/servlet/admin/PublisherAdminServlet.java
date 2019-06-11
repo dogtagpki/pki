@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -43,7 +42,6 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
-import com.netscape.certsrv.ldap.ILdapBoundConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnInfo;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.EMapperNotFound;
@@ -62,6 +60,9 @@ import com.netscape.certsrv.publish.PublisherPlugin;
 import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.certsrv.security.ICryptoSubsystem;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
@@ -77,9 +78,9 @@ import netscape.ldap.LDAPException;
  * @version $Revision$, $Date$
  */
 public class PublisherAdminServlet extends AdminServlet {
-    /**
-     *
-     */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublisherAdminServlet.class);
+
     private static final long serialVersionUID = 7055088618787207262L;
 
     public final static String PROP_AUTHORITY = "authority";
@@ -99,9 +100,10 @@ public class PublisherAdminServlet extends AdminServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         String authority = config.getInitParameter(PROP_AUTHORITY);
+        CMSEngine engine = CMS.getCMSEngine();
 
         if (authority != null)
-            mAuth = (IAuthority) CMS.getSubsystem(authority);
+            mAuth = (IAuthority) engine.getSubsystem(authority);
         if (mAuth != null)
             if (mAuth instanceof ICertificateAuthority) {
                 mProcessor = ((ICertificateAuthority) mAuth).getPublisherProcessor();
@@ -123,7 +125,7 @@ public class PublisherAdminServlet extends AdminServlet {
             throws ServletException, IOException {
         super.service(req, resp);
 
-        CMS.debug("PublisherAdminServlet: in service");
+        logger.debug("PublisherAdminServlet: in service");
         String scope = req.getParameter(Constants.OP_SCOPE);
         String op = req.getParameter(Constants.OP_TYPE);
 
@@ -430,6 +432,7 @@ public class PublisherAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
+        CMSEngine engine = CMS.getCMSEngine();
         IConfigStore config = mAuth.getConfigStore();
         IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
         IConfigStore ldapcfg = publishcfg.getSubStore(IPublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
@@ -461,18 +464,18 @@ public class PublisherAdminServlet extends AdminServlet {
             if (name.equals(Constants.PR_PUBLISHING_QUEUE_STATUS))
                 continue;
             if (name.equals(Constants.PR_CERT_NAMES)) {
-                ICryptoSubsystem jss = (ICryptoSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                ICryptoSubsystem jss = (ICryptoSubsystem) engine.getSubsystem(ICryptoSubsystem.ID);
 
                 params.put(name, jss.getAllCerts());
             } else {
                 String value = ldap.getString(name, "");
 
                 if (value == null || value.equals("")) {
-                    if (name.equals(ILdapBoundConnFactory.PROP_LDAPCONNINFO + "." + ILdapConnInfo.PROP_HOST)) {
+                    if (name.equals(LdapBoundConnFactory.PROP_LDAPCONNINFO + "." + ILdapConnInfo.PROP_HOST)) {
                         value = mConfig.getString(ConfigConstants.PR_MACHINE_NAME, null);
-                    } else if (name.equals(ILdapBoundConnFactory.PROP_LDAPCONNINFO + "." + ILdapConnInfo.PROP_PORT)) {
+                    } else if (name.equals(LdapBoundConnFactory.PROP_LDAPCONNINFO + "." + ILdapConnInfo.PROP_PORT)) {
                         value = ILdapConnInfo.PROP_PORT_DEFAULT;
-                    } else if (name.equals(ILdapBoundConnFactory.PROP_LDAPAUTHINFO + "." + ILdapAuthInfo.PROP_BINDDN)) {
+                    } else if (name.equals(LdapBoundConnFactory.PROP_LDAPAUTHINFO + "." + ILdapAuthInfo.PROP_BINDDN)) {
                         value = ILdapAuthInfo.PROP_BINDDN_DEFAULT;
                     }
                 }
@@ -498,6 +501,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
     private void setLDAPDest(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
+
+        CMSEngine engine = CMS.getCMSEngine();
 
         //Save New Settings to the config file
         IConfigStore config = mAuth.getConfigStore();
@@ -575,11 +580,11 @@ public class PublisherAdminServlet extends AdminServlet {
         // support publishing dirsrv with different pwd than internaldb
         // update passwordFile
         String prompt = ldap.getString(Constants.PR_BINDPWD_PROMPT);
-        IPasswordStore pwdStore = CMS.getPasswordStore();
-        CMS.debug("PublisherAdminServlet: setLDAPDest(): saving password for " + prompt + " to password file");
+        IPasswordStore pwdStore = engine.getPasswordStore();
+        logger.debug("PublisherAdminServlet: setLDAPDest(): saving password for " + prompt + " to password file");
         pwdStore.putPassword(prompt, pwd);
         pwdStore.commit();
-        CMS.debug("PublisherAdminServlet: setLDAPDest(): password saved");
+        logger.debug("PublisherAdminServlet: setLDAPDest(): password saved");
 
         /* we'll shut down and restart the PublisherProcessor instead
                 // what a hack to  do this without require restart server
@@ -592,17 +597,17 @@ public class PublisherAdminServlet extends AdminServlet {
 
         //        authInfo.addPassword(PW_TAG_CA_LDAP_PUBLISHING, pwd);
                 if (authInfo != null) {
-                    CMS.debug("PublisherAdminServlet: setLDAPDest(): adding password to memory cache");
+                    logger.debug("PublisherAdminServlet: setLDAPDest(): adding password to memory cache");
                     authInfo.addPassword(prompt, pwd);
                 } else
-                    CMS.debug("PublisherAdminServlet: setLDAPDest(): authInfo null");
+                    logger.warn("PublisherAdminServlet: setLDAPDest(): authInfo null");
         */
 
         try {
-            CMS.debug("PublisherAdminServlet: setLDAPDest(): restarting publishing processor");
+            logger.debug("PublisherAdminServlet: setLDAPDest(): restarting publishing processor");
             mProcessor.shutdown();
             mProcessor.startup();
-            CMS.debug("PublisherAdminServlet: setLDAPDest(): publishing processor restarted");
+            logger.debug("PublisherAdminServlet: setLDAPDest(): publishing processor restarted");
         } catch (Exception ex) {
             // force to save the config even there is error
             // ignore any exception
@@ -617,7 +622,11 @@ public class PublisherAdminServlet extends AdminServlet {
             throws ServletException, IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
 
-        CMS.debug("PublisherAdmineServlet: in testSetLDAPDest");
+        logger.debug("PublisherAdmineServlet: in testSetLDAPDest");
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         //Save New Settings to the config file
         IConfigStore config = mAuth.getConfigStore();
         IConfigStore publishcfg = config.getSubStore(IPublisherProcessor.PROP_PUBLISH_SUBSTORE);
@@ -692,17 +701,16 @@ public class PublisherAdminServlet extends AdminServlet {
                             " to a LDAP directory. The connection status is" +
                             " as follows:\n \n");
             LDAPConnection conn = null;
-            LdapConnInfo connInfo = new LdapConnInfo(ldap.getSubStore(
-                            ILdapBoundConnFactory.PROP_LDAPCONNINFO));
+            LdapConnInfo connInfo = new LdapConnInfo(
+                    ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPCONNINFO));
             //LdapAuthInfo authInfo =
-            //new LdapAuthInfo(ldap.getSubStore(
-            //			   ILdapBoundConnFactory.PROP_LDAPAUTHINFO));
+            //new LdapAuthInfo(ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO));
             String host = connInfo.getHost();
             int port = connInfo.getPort();
             boolean secure = connInfo.getSecure();
             //int authType = authInfo.getAuthType();
-            String authType = ldap.getSubStore(
-                    ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(ILdapAuthInfo.PROP_LDAPAUTHTYPE);
+            String authType = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO).
+                    getString(ILdapAuthInfo.PROP_LDAPAUTHTYPE);
             int version = connInfo.getVersion();
             String bindAs = null;
             String certNickName = null;
@@ -712,10 +720,14 @@ public class PublisherAdminServlet extends AdminServlet {
                     //certNickName = authInfo.getParms()[0];
                     certNickName =
                             ldap.getSubStore(
-                                    ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(
+                                    LdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(
                                     ILdapAuthInfo.PROP_CLIENTCERTNICKNAME);
-                    conn = new LDAPConnection(new PKISocketFactory(certNickName));
-                    CMS.debug("Publishing Test certNickName=" + certNickName);
+
+                    PKISocketFactory socketFactory = new PKISocketFactory(certNickName);
+                    socketFactory.init(cs);
+
+                    conn = new LDAPConnection(socketFactory);
+                    logger.debug("Publishing Test certNickName=" + certNickName);
                     params.put(Constants.PR_CONN_INITED,
                             "Create ssl LDAPConnection with certificate: " +
                                     certNickName + dashes(70 - 44 - certNickName.length()) + " Success");
@@ -770,7 +782,10 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
             } else {
                 try {
-                    conn = new LDAPConnection(new PKISocketFactory(secure));
+                    PKISocketFactory socketFactory = new PKISocketFactory(secure);
+                    socketFactory.init(cs);
+
+                    conn = new LDAPConnection(socketFactory);
                     if (secure) {
                         params.put(Constants.PR_CONN_INITED,
                                 "Create ssl LDAPConnection" +
@@ -829,8 +844,8 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
                 try {
                     //bindAs = authInfo.getParms()[0];
-                    bindAs = ldap.getSubStore(
-                                ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(ILdapAuthInfo.PROP_BINDDN);
+                    bindAs = ldap.getSubStore(LdapBoundConnFactory.PROP_LDAPAUTHINFO).
+                            getString(ILdapAuthInfo.PROP_BINDDN);
                     conn.authenticate(version, bindAs, pwd);
                     params.put(Constants.PR_AUTH_OK,
                             "Authentication: Basic authentication" +
@@ -887,12 +902,12 @@ public class PublisherAdminServlet extends AdminServlet {
             // support publishing dirsrv with different pwd than internaldb
             // update passwordFile
             String prompt = ldap.getString(Constants.PR_BINDPWD_PROMPT);
-            IPasswordStore pwdStore = CMS.getPasswordStore();
-            CMS.debug("PublisherAdminServlet: testSetLDAPDest(): saving password for " +
+            IPasswordStore pwdStore = engine.getPasswordStore();
+            logger.debug("PublisherAdminServlet: testSetLDAPDest(): saving password for " +
                     prompt + " to password file");
             pwdStore.putPassword(prompt, pwd);
             pwdStore.commit();
-            CMS.debug("PublisherAdminServlet: testSetLDAPDest(): password saved");
+            logger.debug("PublisherAdminServlet: testSetLDAPDest(): password saved");
             /* we'll shut down and restart the PublisherProcessor instead
                          // what a hack to  do this without require restart server
             //        ILdapAuthInfo authInfo = CMS.getLdapAuthInfo();
@@ -901,14 +916,14 @@ public class PublisherAdminServlet extends AdminServlet {
                         if (connModule != null) {
                             authInfo = connModule.getLdapAuthInfo();
                         } else
-                            CMS.debug("PublisherAdminServlet: testSetLDAPDest(): connModule null");
+                            logger.warn("PublisherAdminServlet: testSetLDAPDest(): connModule null");
 
             //        authInfo.addPassword(PW_TAG_CA_LDAP_PUBLISHING, pwd);
                         if (authInfo != null) {
-                            CMS.debug("PublisherAdminServlet: testSetLDAPDest(): adding password to memory cache");
+                            logger.debug("PublisherAdminServlet: testSetLDAPDest(): adding password to memory cache");
                             authInfo.addPassword(prompt, pwd);
                         } else
-                            CMS.debug("PublisherAdminServlet: testSetLDAPDest(): authInfo null");
+                            logger.warn("PublisherAdminServlet: testSetLDAPDest(): authInfo null");
             */
         }
         //params.add(Constants.PR_SAVE_OK,
@@ -930,7 +945,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 // publish ca cert
                 try {
                     mProcessor.publishCACert(ca.getCACert());
-                    CMS.debug("PublisherAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_PUB_CA_CERT"));
+                    logger.debug("PublisherAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_PUB_CA_CERT"));
                     params.put("publishCA",
                             "CA certificate is published.");
                 } catch (Exception ex) {
@@ -957,9 +972,9 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
                 // publish crl
                 try {
-                    CMS.debug("PublisherAdminServlet: about to update CRL");
+                    logger.debug("PublisherAdminServlet: about to update CRL");
                     ca.publishCRLNow();
-                    CMS.debug(CMS.getLogMessage("ADMIN_SRVLT_PUB_CRL"));
+                    logger.debug(CMS.getLogMessage("ADMIN_SRVLT_PUB_CRL"));
                     params.put("publishCRL",
                             "CRL is published.");
                 } catch (Exception ex) {
@@ -3040,20 +3055,20 @@ public class PublisherAdminServlet extends AdminServlet {
         String[] deletedList = getExtras(oldList, newList);
         String[] addedList = getExtras(newList, oldList);
 
-        // CMS.debug("addedList = " + join(addedList, ","));
-        // CMS.debug("deletedList = " + join(deletedList, ","));
+        // logger.debug("addedList = " + join(addedList, ","));
+        // logger.debug("deletedList = " + join(deletedList, ","));
 
         if ((addedList.length == 0) && (deletedList.length == 0))
             return; // no changes
 
         if (oldAdded != null) {
-            // CMS.debug("oldAdded is " + oldAdded);
+            // logger.debug("oldAdded is " + oldAdded);
             String[] oldAddedList = oldAdded.split(",");
             addedList = joinLists(addedList, oldAddedList);
         }
 
         if (oldDeleted != null) {
-            // CMS.debug("oldDeleted is " + oldDeleted);
+            // logger.debug("oldDeleted is " + oldDeleted);
             String[] oldDeletedList = oldDeleted.split(",");
             deletedList = joinLists(deletedList, oldDeletedList);
         }
@@ -3065,8 +3080,8 @@ public class PublisherAdminServlet extends AdminServlet {
         String addedListStr = join(addedList1, ",");
         String deletedListStr = join(deletedList1, ",");
 
-        CMS.debug("processChangedOC: added list is " + addedListStr);
-        CMS.debug("processChangedOC: deleted list is " + deletedListStr);
+        logger.debug("processChangedOC: added list is " + addedListStr);
+        logger.debug("processChangedOC: deleted list is " + deletedListStr);
 
         newstore.put(objName + "Added", addedListStr);
         newstore.put(objName + "Deleted", deletedListStr);

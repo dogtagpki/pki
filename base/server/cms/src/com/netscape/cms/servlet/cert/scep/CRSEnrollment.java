@@ -54,12 +54,39 @@ import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.extensions.CertInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attribute;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10Attributes;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.AVA;
+import org.mozilla.jss.netscape.security.x509.CertAttrSet;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.DNSName;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.IPAddressName;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.OIDMap;
+import org.mozilla.jss.netscape.security.x509.RDN;
+import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 import org.mozilla.jss.pkcs7.IssuerAndSerialNumber;
 import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.PasswordCallback;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthCredentials;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -68,7 +95,6 @@ import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
@@ -91,43 +117,19 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.security.PWCBsdr;
+import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.scep.CRSPKIMessage;
-import com.netscape.cmsutil.util.Utils;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
-import netscape.security.extensions.CertInfo;
-import netscape.security.pkcs.PKCS10;
-import netscape.security.pkcs.PKCS10Attribute;
-import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.AVA;
-import netscape.security.x509.CertAttrSet;
-import netscape.security.x509.CertificateChain;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.DNSName;
-import netscape.security.x509.Extension;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNameInterface;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.IPAddressName;
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.OIDMap;
-import netscape.security.x509.RDN;
-import netscape.security.x509.SubjectAlternativeNameExtension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X500NameAttrMap;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
-import netscape.security.x509.X509Key;
 
 /**
  * This servlet deals with PKCS#10-based certificate requests from
@@ -142,6 +144,8 @@ import netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public class CRSEnrollment extends HttpServlet {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRSEnrollment.class);
 
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
@@ -172,7 +176,6 @@ public class CRSEnrollment extends HttpServlet {
     private String[] mAllowedEncryptionAlgorithm;
     private SecureRandom mRandom = null;
     private int mNonceSizeLimit = 0;
-    protected Logger mLogger = Logger.getLogger();
     private ICertificateAuthority ca;
     /* for hashing challenge password */
     protected MessageDigest mSHADigest = null;
@@ -227,68 +230,69 @@ public class CRSEnrollment extends HttpServlet {
         String crsCA = sc.getInitParameter(PROP_AUTHORITY);
         if (crsCA == null)
             crsCA = "ca";
-        mAuthority = (ICertAuthority) CMS.getSubsystem(crsCA);
+
+        CMSEngine engine = CMS.getCMSEngine();
+        mAuthority = (ICertAuthority) engine.getSubsystem(crsCA);
         ca = (ICertificateAuthority) mAuthority;
 
         if (mAuthority == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_CANT_FIND_AUTHORITY", crsCA));
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_CANT_FIND_AUTHORITY", crsCA));
         }
 
         try {
-            if (mAuthority instanceof ISubsystem) {
-                IConfigStore authorityConfig = ((ISubsystem) mAuthority).getConfigStore();
-                IConfigStore scepConfig = authorityConfig.getSubStore("scep");
-                mEnabled = scepConfig.getBoolean("enable", false);
-                mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
-                mConfiguredEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
-                mNonceSizeLimit = scepConfig.getInteger("nonceSizeLimit", 0);
-                mHashAlgorithmList = scepConfig.getString("allowedHashAlgorithms", "SHA1,SHA256,SHA512");
-                mAllowedHashAlgorithm = mHashAlgorithmList.split(",");
-                mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
-                mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");
-                mNickname = scepConfig.getString("nickname", ca.getNickname());
-                if (mNickname.equals(ca.getNickname())) {
-                    mTokenName = ca.getSigningUnit().getTokenName();
-                } else {
-                    mTokenName = scepConfig.getString("tokenname", "");
-                    mUseCA = false;
-                }
-                if (!CryptoUtil.isInternalToken(mTokenName)) {
-                    int i = mNickname.indexOf(':');
-                    if (!((i > -1) && (mTokenName.length() == i) && (mNickname.startsWith(mTokenName)))) {
-                        mNickname = mTokenName + ":" + mNickname;
-                    }
+            IConfigStore authorityConfig = ((ISubsystem) mAuthority).getConfigStore();
+            IConfigStore scepConfig = authorityConfig.getSubStore("scep");
+            mEnabled = scepConfig.getBoolean("enable", false);
+            mHashAlgorithm = scepConfig.getString("hashAlgorithm", "SHA1");
+            mConfiguredEncryptionAlgorithm = scepConfig.getString("encryptionAlgorithm", "DES3");
+            mNonceSizeLimit = scepConfig.getInteger("nonceSizeLimit", 0);
+            mHashAlgorithmList = scepConfig.getString("allowedHashAlgorithms", "SHA1,SHA256,SHA512");
+            mAllowedHashAlgorithm = mHashAlgorithmList.split(",");
+            mEncryptionAlgorithmList = scepConfig.getString("allowedEncryptionAlgorithms", "DES3");
+            mAllowedEncryptionAlgorithm = mEncryptionAlgorithmList.split(",");
+            mNickname = scepConfig.getString("nickname", ca.getNickname());
+            if (mNickname.equals(ca.getNickname())) {
+                mTokenName = ca.getSigningUnit().getTokenName();
+            } else {
+                mTokenName = scepConfig.getString("tokenname", "");
+                mUseCA = false;
+            }
+            if (!CryptoUtil.isInternalToken(mTokenName)) {
+                int i = mNickname.indexOf(':');
+                if (!((i > -1) && (mTokenName.length() == i) && (mNickname.startsWith(mTokenName)))) {
+                    mNickname = mTokenName + ":" + mNickname;
                 }
             }
+
         } catch (EBaseException e) {
-            CMS.debug("CRSEnrollment: init: EBaseException: " + e);
+            logger.warn("CRSEnrollment: init: EBaseException: " + e.getMessage(), e);
         }
         mEncryptionAlgorithm = mConfiguredEncryptionAlgorithm;
-        CMS.debug("CRSEnrollment: init: SCEP support is " + ((mEnabled) ? "enabled" : "disabled") + ".");
-        CMS.debug("CRSEnrollment: init: SCEP nickname: " + mNickname);
-        CMS.debug("CRSEnrollment: init:   CA nickname: " + ca.getNickname());
-        CMS.debug("CRSEnrollment: init:    Token name: " + mTokenName);
-        CMS.debug("CRSEnrollment: init: Is SCEP using CA keys: " + mUseCA);
-        CMS.debug("CRSEnrollment: init: mNonceSizeLimit: " + mNonceSizeLimit);
-        CMS.debug("CRSEnrollment: init: mHashAlgorithm: " + mHashAlgorithm);
-        CMS.debug("CRSEnrollment: init: mHashAlgorithmList: " + mHashAlgorithmList);
+        logger.debug("CRSEnrollment: init: SCEP support is " + ((mEnabled) ? "enabled" : "disabled") + ".");
+        logger.debug("CRSEnrollment: init: SCEP nickname: " + mNickname);
+        logger.debug("CRSEnrollment: init:   CA nickname: " + ca.getNickname());
+        logger.debug("CRSEnrollment: init:    Token name: " + mTokenName);
+        logger.debug("CRSEnrollment: init: Is SCEP using CA keys: " + mUseCA);
+        logger.debug("CRSEnrollment: init: mNonceSizeLimit: " + mNonceSizeLimit);
+        logger.debug("CRSEnrollment: init: mHashAlgorithm: " + mHashAlgorithm);
+        logger.debug("CRSEnrollment: init: mHashAlgorithmList: " + mHashAlgorithmList);
         for (int i = 0; i < mAllowedHashAlgorithm.length; i++) {
             mAllowedHashAlgorithm[i] = mAllowedHashAlgorithm[i].trim();
-            CMS.debug("CRSEnrollment: init: mAllowedHashAlgorithm[" + i + "]=" + mAllowedHashAlgorithm[i]);
+            logger.debug("CRSEnrollment: init: mAllowedHashAlgorithm[" + i + "]=" + mAllowedHashAlgorithm[i]);
         }
-        CMS.debug("CRSEnrollment: init: mEncryptionAlgorithm: " + mEncryptionAlgorithm);
-        CMS.debug("CRSEnrollment: init: mEncryptionAlgorithmList: " + mEncryptionAlgorithmList);
+        logger.debug("CRSEnrollment: init: mEncryptionAlgorithm: " + mEncryptionAlgorithm);
+        logger.debug("CRSEnrollment: init: mEncryptionAlgorithmList: " + mEncryptionAlgorithmList);
         for (int i = 0; i < mAllowedEncryptionAlgorithm.length; i++) {
             mAllowedEncryptionAlgorithm[i] = mAllowedEncryptionAlgorithm[i].trim();
-            CMS.debug("CRSEnrollment: init: mAllowedEncryptionAlgorithm[" + i + "]=" + mAllowedEncryptionAlgorithm[i]);
+            logger.debug("CRSEnrollment: init: mAllowedEncryptionAlgorithm[" + i + "]=" + mAllowedEncryptionAlgorithm[i]);
         }
 
         try {
-            mProfileSubsystem = (IProfileSubsystem) CMS.getSubsystem("profile");
+            mProfileSubsystem = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
             mProfileId = sc.getInitParameter("profileId");
-            CMS.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
+            logger.debug("CRSEnrollment: init: mProfileId=" + mProfileId);
 
-            mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+            mAuthSubsystem = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
             mAuthManagerName = sc.getInitParameter(PROP_CRSAUTHMGR);
             mAppendDN = sc.getInitParameter(PROP_APPENDDN);
             String tmp = sc.getInitParameter(PROP_CREATEENTRY);
@@ -319,7 +323,7 @@ public class CRSEnrollment extends HttpServlet {
         } catch (NoSuchAlgorithmException e) {
         }
 
-        JssSubsystem jssSubsystem = (JssSubsystem) CMS.getSubsystem(JssSubsystem.ID);
+        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         mRandom = jssSubsystem.getRandomNumberGenerator();
 
     }
@@ -336,7 +340,10 @@ public class CRSEnrollment extends HttpServlet {
     public void service(HttpServletRequest httpReq,
                       HttpServletResponse httpResp)
             throws ServletException {
-        boolean running_state = CMS.isInRunningState();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        boolean running_state = engine.isInRunningState();
+
         if (!running_state)
             throw new ServletException(
                     "CMS server is not ready to serve.");
@@ -347,17 +354,17 @@ public class CRSEnrollment extends HttpServlet {
 
         // Parse the URL from the HTTP Request. Split it up into
         // a structure which enables us to read the form elements
-        IArgBlock input = CMS.createArgBlock(toHashtable(httpReq));
+        ArgBlock input = new ArgBlock(toHashtable(httpReq));
 
         try {
             // Read in two form parameters - the router sets these
             operation = (String) input.get(URL_OPERATION);
-            CMS.debug("operation=" + operation);
+            logger.debug("operation=" + operation);
             message = (String) input.get(URL_MESSAGE);
-            CMS.debug("message=" + message);
+            logger.debug("message=" + message);
 
             if (!mEnabled) {
-                CMS.debug("CRSEnrollment: SCEP support is disabled.");
+                logger.error("CRSEnrollment: SCEP support is disabled.");
                 throw new ServletException("SCEP support is disabled.");
             }
             if (operation == null) {
@@ -381,28 +388,17 @@ public class CRSEnrollment extends HttpServlet {
                     decodePKIMessage(httpReq, httpResp, message);
                 }
             } else {
-                CMS.debug("Invalid operation " + operation);
+                logger.error("Invalid operation " + operation);
                 throw new ServletException("unknown operation requested: " + operation);
             }
 
         } catch (ServletException e) {
-            CMS.debug("ServletException " + e);
+            logger.error("CRSEnrollment: " + e.getMessage(), e);
             throw new ServletException(e.getMessage().toString());
         } catch (Exception e) {
-            CMS.debug("Service exception " + e);
-            log(ILogger.LL_FAILURE, e.getMessage());
+            logger.warn("CRSEnrollment: " + e.getMessage(), e);
         }
 
-    }
-
-    /**
-     * Log a message to the system log
-     */
-
-    private void log(int level, String msg) {
-
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    level, "CEP Enrollment: " + msg);
     }
 
     private boolean isAlgorithmAllowed(String[] allowedAlgorithm, String algorithm) {
@@ -475,7 +471,7 @@ public class CRSEnrollment extends HttpServlet {
 
             int i = 0;
             String message = httpReq.getParameter(URL_MESSAGE);
-            CMS.debug("handleGetCACert message=" + message);
+            logger.debug("handleGetCACert message=" + message);
             if (message != null) {
                 try {
                     int j = Integer.parseInt(message);
@@ -485,7 +481,7 @@ public class CRSEnrollment extends HttpServlet {
                 } catch (NumberFormatException e1) {
                 }
             }
-            CMS.debug("handleGetCACert selected chain=" + i);
+            logger.debug("handleGetCACert selected chain=" + i);
 
             if (mUseCA) {
                 bytes = chain[i].getEncoded();
@@ -531,11 +527,10 @@ public class CRSEnrollment extends HttpServlet {
             httpResp.getOutputStream().write(bytes);
             httpResp.getOutputStream().flush();
 
-            CMS.debug("Output certificate chain:");
-            CMS.debug(bytes);
+            logger.debug("Output certificate chain:");
+            logger.debug(Debug.dump(bytes));
         } catch (Exception e) {
-            CMS.debug("handleGetCACert exception " + e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_SENDING_DER_ENCODE_CERT", e.getMessage()));
+            logger.error("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ERROR_SENDING_DER_ENCODE_CERT", e.getMessage()), e);
             throw new ServletException("Failed sending DER encoded version of CA cert to client");
         }
 
@@ -600,14 +595,14 @@ public class CRSEnrollment extends HttpServlet {
                 req = new CRSPKIMessage(is);
                 String ea = req.getEncryptionAlgorithm();
                 if (!isAlgorithmAllowed(mAllowedEncryptionAlgorithm, ea)) {
-                    CMS.debug("CRSEnrollment: decodePKIMessage:  Encryption algorithm '" + ea +
+                    logger.error("CRSEnrollment: decodePKIMessage:  Encryption algorithm '" + ea +
                             "' is not allowed (" + mEncryptionAlgorithmList + ").");
                     throw new ServletException("Encryption algorithm '" + ea +
                                            "' is not allowed (" + mEncryptionAlgorithmList + ").");
                 }
                 String da = req.getDigestAlgorithmName();
                 if (!isAlgorithmAllowed(mAllowedHashAlgorithm, da)) {
-                    CMS.debug("CRSEnrollment: decodePKIMessage:  Hashing algorithm '" + da +
+                    logger.error("CRSEnrollment: decodePKIMessage:  Hashing algorithm '" + da +
                             "' is not allowed (" + mHashAlgorithmList + ").");
                     throw new ServletException("Hashing algorithm '" + da +
                                            "' is not allowed (" + mHashAlgorithmList + ").");
@@ -616,7 +611,7 @@ public class CRSEnrollment extends HttpServlet {
                     mEncryptionAlgorithm = ea;
                 }
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.error("CRSEnrollment: " + e.getMessage(), e);
                 throw new ServletException("Could not decode the request.");
             }
 
@@ -629,21 +624,21 @@ public class CRSEnrollment extends HttpServlet {
 
             IProfile profile = mProfileSubsystem.getProfile(mProfileId);
             if (profile == null) {
-                CMS.debug("Profile '" + mProfileId + "' not found.");
+                logger.error("Profile '" + mProfileId + "' not found.");
                 throw new ServletException("Profile '" + mProfileId + "' not found.");
             } else {
-                CMS.debug("Found profile '" + mProfileId + "'.");
+                logger.debug("Found profile '" + mProfileId + "'.");
             }
 
             IProfileAuthenticator authenticator = null;
             try {
-                CMS.debug("Retrieving authenticator");
+                logger.debug("Retrieving authenticator");
                 authenticator = profile.getAuthenticator();
                 if (authenticator == null) {
-                    CMS.debug("Authenticator not found.");
+                    logger.error("Authenticator not found.");
                     throw new ServletException("Authenticator not found.");
                 } else {
-                    CMS.debug("Got authenticator=" + authenticator.getClass().getName());
+                    logger.debug("Got authenticator=" + authenticator.getClass().getName());
                 }
             } catch (EProfileException e) {
                 throw new ServletException("Authenticator not found.");
@@ -660,11 +655,11 @@ public class CRSEnrollment extends HttpServlet {
             try {
                 authToken = authenticate(credentials, authenticator, httpReq);
             } catch (Exception e) {
-                CMS.debug("Authentication failure: " + e.getMessage());
+                logger.error("Authentication failure: " + e.getMessage(), e);
                 throw new ServletException("Authentication failure: " + e.getMessage());
             }
             if (authToken == null) {
-                CMS.debug("Authentication failure.");
+                logger.error("Authentication failure.");
                 throw new ServletException("Authentication failure.");
             }
 
@@ -763,11 +758,9 @@ public class CRSEnrollment extends HttpServlet {
         } catch (ServletException e) {
             throw new ServletException(e.getMessage().toString());
         } catch (CRSInvalidSignatureException e) {
-            CMS.debug("handlePKIMessage exception " + e);
-            CMS.debug(e);
+            logger.warn("handlePKIMessage exception " + e.getMessage(), e);
         } catch (Exception e) {
-            CMS.debug("handlePKIMessage exception " + e);
-            CMS.debug(e);
+            logger.error("handlePKIMessage exception " + e.getMessage(), e);
             throw new ServletException("Failed to process message in CEP servlet: " + e.getMessage());
         }
 
@@ -795,8 +788,8 @@ public class CRSEnrollment extends HttpServlet {
                 }
             }
 
-            CMS.debug("Output (decoding) PKIOperation response:");
-            CMS.debug(responseData);
+            logger.debug("Output (decoding) PKIOperation response:");
+            logger.debug(responseData);
         } catch (Exception e) {
             throw new ServletException("Failed to create response for CEP message" + e.getMessage());
         }
@@ -841,14 +834,14 @@ public class CRSEnrollment extends HttpServlet {
                 req = new CRSPKIMessage(is);
                 String ea = req.getEncryptionAlgorithm();
                 if (!isAlgorithmAllowed(mAllowedEncryptionAlgorithm, ea)) {
-                    CMS.debug("CRSEnrollment: handlePKIOperation:  Encryption algorithm '" + ea +
+                    logger.error("CRSEnrollment: handlePKIOperation:  Encryption algorithm '" + ea +
                             "' is not allowed (" + mEncryptionAlgorithmList + ").");
                     throw new ServletException("Encryption algorithm '" + ea +
                                            "' is not allowed (" + mEncryptionAlgorithmList + ").");
                 }
                 String da = req.getDigestAlgorithmName();
                 if (!isAlgorithmAllowed(mAllowedHashAlgorithm, da)) {
-                    CMS.debug("CRSEnrollment: handlePKIOperation:  Hashing algorithm '" + da +
+                    logger.error("CRSEnrollment: handlePKIOperation:  Hashing algorithm '" + da +
                             "' is not allowed (" + mHashAlgorithmList + ").");
                     throw new ServletException("Hashing algorithm '" + da +
                                            "' is not allowed (" + mHashAlgorithmList + ").");
@@ -860,7 +853,7 @@ public class CRSEnrollment extends HttpServlet {
             } catch (ServletException e) {
                 throw new ServletException(e.getMessage().toString());
             } catch (Exception e) {
-                CMS.debug(e);
+                logger.error("CRSEnrollmenet: " + e.getMessage(), e);
                 throw new ServletException("Could not decode the request.");
             }
             crsResp.setMessageType(CRSPKIMessage.mType_CertRep);
@@ -905,7 +898,7 @@ public class CRSEnrollment extends HttpServlet {
 
             // now run appropriate code, depending on message type
             if (mt.equals(CRSPKIMessage.mType_PKCSReq)) {
-                CMS.debug("Processing PKCSReq");
+                logger.debug("Processing PKCSReq");
                 try {
                     // Check if there is an existing request. If this returns non-null,
                     // then the request is 'active' (either pending or completed) in
@@ -927,20 +920,18 @@ public class CRSEnrollment extends HttpServlet {
                     throw new ServletException("Couldn't handle CEP request (PKCSReq) - " + e.getMessage());
                 }
             } else if (mt.equals(CRSPKIMessage.mType_GetCertInitial)) {
-                CMS.debug("Processing GetCertInitial");
+                logger.debug("Processing GetCertInitial");
                 cert = handleGetCertInitial(req, crsResp);
             } else {
-                CMS.debug("Invalid request type " + mt);
+                logger.warn("Invalid request type " + mt);
             }
         } catch (ServletException e) {
             throw new ServletException(e.getMessage().toString());
         } catch (CRSInvalidSignatureException e) {
-            CMS.debug("handlePKIMessage exception " + e);
-            CMS.debug(e);
+            logger.error("handlePKIMessage exception " + e.getMessage(), e);
             crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badMessageCheck);
         } catch (Exception e) {
-            CMS.debug("handlePKIMessage exception " + e);
-            CMS.debug(e);
+            logger.error("handlePKIMessage exception " + e.getMessage(), e);
             throw new ServletException("Failed to process message in CEP servlet: " + e.getMessage());
         }
 
@@ -959,8 +950,8 @@ public class CRSEnrollment extends HttpServlet {
             httpResp.getOutputStream().write(response);
             httpResp.getOutputStream().flush();
 
-            CMS.debug("Output PKIOperation response:");
-            CMS.debug(Utils.base64encode(response, true));
+            logger.debug("Output PKIOperation response:");
+            logger.debug(Utils.base64encode(response, true));
         } catch (Exception e) {
             throw new ServletException("Failed to create response for CEP message" + e.getMessage());
         }
@@ -1067,8 +1058,7 @@ public class CRSEnrollment extends HttpServlet {
 
         IPublisherProcessor ldapPub = mAuthority.getPublisherProcessor();
         if (ldapPub == null || !ldapPub.isCertPublishingEnabled()) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_CREATE_ENTRY_FROM_CEP"));
-
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ERROR_CREATE_ENTRY_FROM_CEP"));
             return result;
         }
 
@@ -1090,7 +1080,7 @@ public class CRSEnrollment extends HttpServlet {
             connection.add(newEntry);
             result = true;
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_FAIL_CREAT_ENTRY_EXISTS", dn));
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_FAIL_CREAT_ENTRY_EXISTS", dn), e);
         } finally {
             try {
                 connFactory.returnConn(connection);
@@ -1144,12 +1134,12 @@ public class CRSEnrollment extends HttpServlet {
             cip.initDecrypt(skinternal, (new IVParameterSpec(req.getIV())));
 
             decryptedP10bytes = cip.doFinal(req.getEncryptedPkcs10());
-            CMS.debug("decryptedP10bytes:");
-            CMS.debug(decryptedP10bytes);
+            logger.debug("decryptedP10bytes:");
+            logger.debug(Debug.dump(decryptedP10bytes));
 
             req.setP10(new PKCS10(decryptedP10bytes));
         } catch (Exception e) {
-            CMS.debug("failed to unwrap PKCS10 " + e);
+            logger.error("failed to unwrap PKCS10 " + e.getMessage(), e);
             throw new CRSFailureException("Could not unwrap PKCS10 blob: " + e.getMessage());
         }
 
@@ -1299,8 +1289,8 @@ public class CRSEnrollment extends HttpServlet {
                 if (sane == null)
                     sane = makeDefaultSubjectAltName(sanehash);
             } catch (Exception sane_e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_SUBJ_ALT_NAME",
-                        sane_e.getMessage()));
+                logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_SUBJ_ALT_NAME",
+                        sane_e.getMessage()), e);
             }
 
             try {
@@ -1312,9 +1302,8 @@ public class CRSEnrollment extends HttpServlet {
                 }
 
             } catch (Exception sne) {
-                log(ILogger.LL_INFO,
-                        "Unable to use appendDN parameter: "
-                                + mAppendDN + ". Error is " + sne.getMessage() + " Using unmodified subjectname");
+                logger.warn("CRSEnrollment: Unable to use appendDN parameter: "
+                                + mAppendDN + ". Error is " + sne.getMessage() + " Using unmodified subjectname", sne);
             }
 
             if (subject != null)
@@ -1378,8 +1367,8 @@ public class CRSEnrollment extends HttpServlet {
         try {
             return new SubjectAlternativeNameExtension(new GeneralNames(gn));
         } catch (Exception e) {
-            log(ILogger.LL_INFO, CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_SUBJ_ALT_NAME",
-                    e.getMessage()));
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_SUBJ_ALT_NAME",
+                    e.getMessage()), e);
             return null;
         }
     }
@@ -1483,11 +1472,10 @@ public class CRSEnrollment extends HttpServlet {
 
             if (cmsRequest != null) {
                 if (areFingerprintsEqual(cmsRequest, fingerprints)) {
-                    CMS.debug("created response from request");
+                    logger.debug("created response from request");
                     return makeResponseFromRequest(req, crsResp, cmsRequest);
                 } else {
-                    CMS.debug("duplicated transaction id");
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ENROLL_FAIL_DUP_TRANS_ID"));
+                    logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_DUP_TRANS_ID"));
                     crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badRequest);
                     crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
                     return null;
@@ -1498,8 +1486,7 @@ public class CRSEnrollment extends HttpServlet {
             boolean authFailed = authenticateUser(req);
 
             if (authFailed) {
-                CMS.debug("authentication failed");
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_AUTH"));
+                logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_AUTH"));
                 crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badIdentity);
                 crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
 
@@ -1517,19 +1504,17 @@ public class CRSEnrollment extends HttpServlet {
             } else {
                 IRequest ireq = postRequest(httpReq, req, crsResp);
 
-                CMS.debug("created response");
+                logger.debug("created response");
                 return makeResponseFromRequest(req, crsResp, ireq);
             }
         } catch (CryptoContext.CryptoContextException e) {
-            CMS.debug("failed to decrypt the request " + e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_DECRYPT_PKCS10",
-                    e.getMessage()));
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ENROLL_FAIL_NO_DECRYPT_PKCS10",
+                    e.getMessage()), e);
             crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badMessageCheck);
             crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
         } catch (EBaseException e) {
-            CMS.debug("operation failure - " + e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERNOLL_FAIL_NO_NEW_REQUEST_POSTED",
-                    e.getMessage()));
+            logger.warn("CRSEnrollment: " + CMS.getLogMessage("CMSGW_ERNOLL_FAIL_NO_NEW_REQUEST_POSTED",
+                    e.getMessage()), e);
             crsResp.setFailInfo(CRSPKIMessage.mFailInfo_internalCAError);
             crsResp.setPKIStatus(CRSPKIMessage.mStatus_FAILURE);
         }
@@ -1554,7 +1539,7 @@ public class CRSEnrollment extends HttpServlet {
 
         if (mCreateEntry) {
             if (subject == null) {
-                CMS.debug("CRSEnrollment::postRequest() - subject is null!");
+                logger.error("CRSEnrollment::postRequest() - subject is null!");
                 return null;
             }
             createEntry(subject.toString());
@@ -1566,22 +1551,22 @@ public class CRSEnrollment extends HttpServlet {
             String pkcs10blob = Utils.base64encode(pkcs10data.toByteArray(), true);
 
             // XXX authentication handling
-            CMS.debug("Found profile=" + mProfileId);
+            logger.debug("Found profile=" + mProfileId);
             IProfile profile = mProfileSubsystem.getProfile(mProfileId);
             if (profile == null) {
-                CMS.debug("profile " + mProfileId + " not found");
+                logger.error("profile " + mProfileId + " not found");
                 return null;
             }
             IProfileContext ctx = profile.createContext();
 
             IProfileAuthenticator authenticator = null;
             try {
-                CMS.debug("Retrieving authenticator");
+                logger.debug("Retrieving authenticator");
                 authenticator = profile.getAuthenticator();
                 if (authenticator == null) {
-                    CMS.debug("No authenticator Found");
+                    logger.debug("No authenticator Found");
                 } else {
-                    CMS.debug("Got authenticator=" + authenticator.getClass().getName());
+                    logger.debug("Got authenticator=" + authenticator.getClass().getName());
                 }
             } catch (EProfileException e) {
                 // authenticator not installed correctly
@@ -1612,16 +1597,16 @@ public class CRSEnrollment extends HttpServlet {
             }
 
             IRequest reqs[] = null;
-            CMS.debug("CRSEnrollment: Creating profile requests");
+            logger.debug("CRSEnrollment: Creating profile requests");
             ctx.set(IEnrollProfile.CTX_CERT_REQUEST_TYPE, "pkcs10");
             ctx.set(IEnrollProfile.CTX_CERT_REQUEST, pkcs10blob);
             Locale locale = Locale.getDefault();
             reqs = profile.createRequests(ctx, locale);
             if (reqs == null) {
-                CMS.debug("CRSEnrollment: No request has been created");
+                logger.error("CRSEnrollment: No request has been created");
                 return null;
             } else {
-                CMS.debug("CRSEnrollment: Request (" + reqs.length + ") have been created");
+                logger.debug("CRSEnrollment: Request (" + reqs.length + ") have been created");
             }
             // set transaction id
             reqs[0].setSourceId(req.getTransactionID());
@@ -1636,16 +1621,16 @@ public class CRSEnrollment extends HttpServlet {
             reqs[0].setExtData("profileRemoteAddr", httpReq.getRemoteAddr());
             reqs[0].setExtData("profileApprovedBy", profile.getApprovedBy());
 
-            CMS.debug("CRSEnrollment: Populating inputs");
+            logger.debug("CRSEnrollment: Populating inputs");
             profile.populateInput(ctx, reqs[0]);
-            CMS.debug("CRSEnrollment: Populating requests");
+            logger.debug("CRSEnrollment: Populating requests");
             profile.populate(reqs[0]);
 
-            CMS.debug("CRSEnrollment: Submitting request");
+            logger.debug("CRSEnrollment: Submitting request");
             profile.submit(authToken, reqs[0]);
-            CMS.debug("CRSEnrollment: Done submitting request");
+            logger.debug("CRSEnrollment: Done submitting request");
             profile.getRequestQueue().markAsServiced(reqs[0]);
-            CMS.debug("CRSEnrollment: Request marked as serviced");
+            logger.debug("CRSEnrollment: Request marked as serviced");
 
             return reqs[0];
 
@@ -1691,17 +1676,15 @@ public class CRSEnrollment extends HttpServlet {
 
         crsResp.setPKIStatus(CRSPKIMessage.mStatus_SUCCESS);
 
-        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            AuditFormat.ENROLLMENTFORMAT,
-                            new Object[] {
-                                    pkiReq.getRequestId(),
-                                    AuditFormat.FROMROUTER,
-                                    mAuthManagerName == null ? AuditFormat.NOAUTH : mAuthManagerName,
-                                    "pending",
-                                    subject,
-                                    "" }
-                            );
+        logger.info(
+                AuditFormat.ENROLLMENTFORMAT,
+                pkiReq.getRequestId(),
+                AuditFormat.FROMROUTER,
+                mAuthManagerName == null ? AuditFormat.NOAUTH : mAuthManagerName,
+                "pending",
+                subject,
+                ""
+        );
 
         return pkiReq;
     }
@@ -1740,13 +1723,13 @@ public class CRSEnrollment extends HttpServlet {
 
         String profileId = pkiReq.getExtDataInString(IRequest.PROFILE_ID);
         if (profileId != null) {
-            CMS.debug("CRSEnrollment: Found profile request");
+            logger.debug("CRSEnrollment: Found profile request");
             X509CertImpl cert =
                     pkiReq.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
             if (cert == null) {
-                CMS.debug("CRSEnrollment: No certificate has been found");
+                logger.debug("CRSEnrollment: No certificate has been found");
             } else {
-                CMS.debug("CRSEnrollment: Found certificate");
+                logger.debug("CRSEnrollment: Found certificate");
             }
             crsResp.setPKIStatus(CRSPKIMessage.mStatus_SUCCESS);
             return cert;
@@ -1761,7 +1744,7 @@ public class CRSEnrollment extends HttpServlet {
                         pkiReq.getExtDataInCertArray(IRequest.ISSUED_CERTS);
                 if (issuedCertBuf == null || issuedCertBuf.length == 0) {
                     //  writeError("Internal Error: Bad operation",httpReq,httpResp);
-                    CMS.debug("CRSEnrollment::makeResponseFromRequest() - " +
+                    logger.error("CRSEnrollment::makeResponseFromRequest() - " +
                                "Bad operation");
                     return null;
                 }
@@ -1971,7 +1954,7 @@ public class CRSEnrollment extends HttpServlet {
                 keyStorageToken = CryptoUtil.getKeyStorageToken(mTokenName);
                 if (CryptoUtil.isInternalToken(mTokenName)) {
                     internalKeyStorageToken = keyStorageToken;
-                    CMS.debug("CRSEnrollment: CryptoContext: internal token name: '" + mTokenName + "'");
+                    logger.debug("CRSEnrollment: CryptoContext: internal token name: '" + mTokenName + "'");
                 } else {
                     internalKeyStorageToken = null;
                 }

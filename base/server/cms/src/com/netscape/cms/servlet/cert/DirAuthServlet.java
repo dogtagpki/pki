@@ -27,7 +27,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -44,6 +43,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * 'Face-to-face' certificate enrollment.
@@ -105,6 +107,7 @@ public class DirAuthServlet extends CMSServlet {
             return;
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
@@ -119,8 +122,8 @@ public class DirAuthServlet extends CMSServlet {
             return;
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
 
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
         IAuthToken authToken = authenticate(cmsReq);
@@ -139,9 +142,9 @@ public class DirAuthServlet extends CMSServlet {
             return;
         }
 
-        IConfigStore configStore = CMS.getConfigStore();
+        IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 
@@ -201,8 +204,8 @@ public class DirAuthServlet extends CMSServlet {
             throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         mTemplates.remove(ICMSRequest.SUCCESS);

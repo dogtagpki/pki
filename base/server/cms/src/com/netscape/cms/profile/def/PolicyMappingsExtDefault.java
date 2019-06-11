@@ -22,14 +22,13 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.CertificatePolicyId;
-import netscape.security.x509.CertificatePolicyMap;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.PolicyMappingsExtension;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyId;
+import org.mozilla.jss.netscape.security.x509.CertificatePolicyMap;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.PolicyMappingsExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.profile.EProfileException;
@@ -38,6 +37,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -47,6 +47,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class PolicyMappingsExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyMappingsExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "policyMappingsCritical";
     public static final String CONFIG_NUM_POLICY_MAPPINGS = "policyMappingsNum";
@@ -251,11 +253,11 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
             replaceExtension(PKIXExtensions.PolicyMappings_Id.toString(),
                     ext, info);
         } catch (EProfileException e) {
-            CMS.debug("PolicyMappingsExtDefault: setValue " + e.toString());
+            logger.error("PolicyMappingsExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (IOException e) {
-            CMS.debug("PolicyMappingsExtDefault: setValue " + e.toString());
+            logger.error("PolicyMappingsExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -410,8 +412,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
 
             ext = new PolicyMappingsExtension(critical, policyMaps);
         } catch (Exception e) {
-            CMS.debug("PolicyMappingsExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("PolicyMappingsExtDefault: createExtension " + e.getMessage(), e);
         }
 
         return ext;

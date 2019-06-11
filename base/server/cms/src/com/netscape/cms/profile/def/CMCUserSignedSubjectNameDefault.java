@@ -20,7 +20,10 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
@@ -31,10 +34,7 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
-
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -45,6 +45,8 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class CMCUserSignedSubjectNameDefault extends EnrollDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCUserSignedSubjectNameDefault.class);
 
     public static final String VAL_NAME = "name";
 
@@ -80,16 +82,16 @@ public class CMCUserSignedSubjectNameDefault extends EnrollDefault {
             try {
                 x500name = new X500Name(value);
             } catch (IOException e) {
-                CMS.debug(e.toString());
+                logger.warn("CMCUserSignedSubjectNameDefault: " + e.getMessage(), e);
                 // failed to build x500 name
             }
-            CMS.debug("SubjectNameDefault: setValue name=" + x500name);
+            logger.debug("SubjectNameDefault: setValue name=" + x500name);
             try {
                 info.set(X509CertInfo.SUBJECT,
                         new CertificateSubjectName(x500name));
             } catch (Exception e) {
                 // failed to insert subject name
-                CMS.debug("CMCUserSignedSubjectNameDefault: setValue " + e.toString());
+                logger.error("CMCUserSignedSubjectNameDefault: setValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -135,17 +137,17 @@ public class CMCUserSignedSubjectNameDefault extends EnrollDefault {
             throws EProfileException {
         String method = "CMCUserSignedSubjectNameDefault: populate: ";
         String msg = "";
-        CMS.debug(method + "begins");
+        logger.debug(method + "begins");
 
         if (info == null) {
             msg = method + "info null";
-            CMS.debug(msg);
+            logger.error(msg);
             throw new EProfileException(msg);
         }
         String signingUserSerial = request.getExtDataInString(IAuthManager.CRED_CMC_SIGNING_CERT);
         if (signingUserSerial == null) {
             msg = method + "signing user serial not found; request was unsigned?";
-            CMS.debug(msg);
+            logger.error(msg);
             throw new EProfileException(msg);
         }
 
@@ -153,12 +155,12 @@ public class CMCUserSignedSubjectNameDefault extends EnrollDefault {
         try {
             certSN = EnrollProfile.getCMCSigningCertSNfromCertSerial(signingUserSerial);
             info.set(X509CertInfo.SUBJECT, certSN);
-            CMS.debug(method + "subjectDN set in X509CertInfo");
+            logger.debug(method + "subjectDN set in X509CertInfo");
         } catch (Exception e) {
             msg = method + "exception thrown:" + e;
             throw new EProfileException(e.toString());
         }
         request.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
-        CMS.debug(method + "ends");
+        logger.debug(method + "ends");
     }
 }

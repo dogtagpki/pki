@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.w3c.dom.Node;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -37,9 +36,8 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 public class GetDomainXML extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetDomainXML.class);
+
     private static final long serialVersionUID = 3079546345000720649L;
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
@@ -54,9 +52,9 @@ public class GetDomainXML extends CMSServlet {
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
-        CMS.debug("GetDomainXML: initializing...");
+        logger.debug("GetDomainXML: initializing...");
         super.init(sc);
-        CMS.debug("GetDomainXML: done initializing...");
+        logger.debug("GetDomainXML: done initializing...");
     }
 
     /**
@@ -69,7 +67,7 @@ public class GetDomainXML extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        CMS.debug("GetDomainXML: processing...");
+        logger.debug("GetDomainXML: processing...");
 
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
@@ -87,7 +85,7 @@ public class GetDomainXML extends CMSServlet {
                 response.addItemToContainer(root, "DomainInfo", xmlObj.toXMLString());
 
             } catch (Exception e) {
-                CMS.debug("Failed to read domain.xml: " + e.toString());
+                logger.warn("Failed to read domain.xml: " + e.getMessage(), e);
                 status = FAILED;
             }
 
@@ -96,7 +94,7 @@ public class GetDomainXML extends CMSServlet {
             outputResult(httpResp, "application/xml", cb);
 
         } catch (Exception e) {
-            CMS.debug("GetDomainXML: Failed to send the XML output" + e.toString());
+            logger.warn("GetDomainXML: Failed to send the XML output" + e.getMessage(), e);
         }
     }
 

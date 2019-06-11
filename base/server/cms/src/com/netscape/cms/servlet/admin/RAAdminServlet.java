@@ -25,7 +25,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
@@ -34,6 +33,8 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * A class representings an administration servlet for Registration
@@ -77,7 +78,8 @@ public class RAAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mRA = (IRegistrationAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_RA);
+        CMSEngine engine = CMS.getCMSEngine();
+        mRA = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
     }
 
     /**

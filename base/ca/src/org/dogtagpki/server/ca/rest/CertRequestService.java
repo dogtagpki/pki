@@ -28,8 +28,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.plugins.providers.atom.Link;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authorization.EAuthzException;
 import com.netscape.certsrv.base.BadRequestDataException;
@@ -66,9 +66,9 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cms.servlet.cert.CertRequestDAO;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.ldap.LDAPUtil;
-
-import netscape.security.x509.X500Name;
 
 /**
  * @author alee
@@ -122,9 +122,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         if (aidString != null && adnString != null)
             throw new BadRequestException("Cannot provide both issuer-id and issuer-dn");
 
+        CMSEngine engine = CMS.getCMSEngine();
         AuthorityID aid = null;
-        ICertificateAuthority ca = (ICertificateAuthority)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         if (aidString != null) {
             try {
                 aid = new AuthorityID(aidString);
@@ -386,7 +386,8 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new BadRequestException(message);
         }
 
-        IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
         if (ps == null) {
             String message = "Unable to get enrollment template: Profile Service not available";
             logger.error(message);
@@ -445,7 +446,8 @@ public class CertRequestService extends PKIService implements CertRequestResourc
         start = start == null ? DEFAULT_START : start;
         size = size == null ? DEFAULT_PAGESIZE : size;
 
-        IProfileSubsystem ps = (IProfileSubsystem) CMS.getSubsystem(IProfileSubsystem.ID);
+        CMSEngine engine = CMS.getCMSEngine();
+        IProfileSubsystem ps = (IProfileSubsystem) engine.getSubsystem(IProfileSubsystem.ID);
 
         if (ps == null) {
             throw new PKIException("Profile subsystem unavailable.");

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.logging;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogCategory;
@@ -25,6 +24,7 @@ import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.SystemEvent;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * A class represents certificate server logger

@@ -25,11 +25,11 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**

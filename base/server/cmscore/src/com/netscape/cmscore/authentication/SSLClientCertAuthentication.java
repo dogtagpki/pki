@@ -24,7 +24,8 @@ import java.math.BigInteger;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthUserError;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
@@ -43,9 +44,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.util.Debug;
-
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * SSL client based authentication.
@@ -112,7 +112,8 @@ public class SSLClientCertAuthentication implements IAuthManager {
         }
         logger.debug("SSLCertAuth: Got client certificate");
 
-        mCA = (ICertificateAuthority) CMS.getSubsystem("ca");
+        CMSEngine engine = CMS.getCMSEngine();
+        mCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
         if (mCA != null) {
             mCertDB = mCA.getCertificateRepository();
@@ -138,9 +139,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
             try {
                 record = mCertDB.readCertificateRecord(serialNum);
             } catch (EBaseException ee) {
-                if (Debug.ON) {
-                    Debug.trace(ee.toString());
-                }
+                logger.warn("SSLClientCertAuthentication: " + ee.getMessage(), ee);
             }
             if (record != null) {
                 String status = record.getStatus();
@@ -250,11 +249,12 @@ public class SSLClientCertAuthentication implements IAuthManager {
     }
 
     private IRequestQueue getReqQueue() {
+
+        CMSEngine engine = CMS.getCMSEngine();
         IRequestQueue queue = null;
 
         try {
-            IRegistrationAuthority ra =
-                    (IRegistrationAuthority) CMS.getSubsystem("ra");
+            IRegistrationAuthority ra = (IRegistrationAuthority) engine.getSubsystem(IRegistrationAuthority.ID);
 
             if (ra != null) {
                 queue = ra.getRequestQueue();

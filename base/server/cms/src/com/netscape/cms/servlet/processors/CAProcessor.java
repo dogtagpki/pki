@@ -34,7 +34,8 @@ import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -44,7 +45,6 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
@@ -63,15 +63,18 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
-
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 public class CAProcessor extends Processor {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAProcessor.class);
 
     public final static String ARG_REQUEST_OWNER = "requestOwner";
     public final static String HDR_LANG = "accept-language";
@@ -124,9 +127,10 @@ public class CAProcessor extends Processor {
     protected String authMgr;
     protected String getClientCert = "false";
     // subsystems
-    protected ICertificateAuthority authority = (ICertificateAuthority) CMS.getSubsystem("ca");
-    protected IAuthzSubsystem authz = (IAuthzSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTHZ);
-    protected IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+    CMSEngine engine = CMS.getCMSEngine();
+    protected ICertificateAuthority authority = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+    protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
+    protected UGSubsystem ug = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
     protected ICertUserLocator ul = ug.getCertUserLocator();
     protected IRequestQueue queue;
     protected IProfileSubsystem ps;
@@ -139,7 +143,8 @@ public class CAProcessor extends Processor {
     public CAProcessor(String id, Locale locale) throws EPropertyNotFound, EBaseException {
         super(id, locale);
 
-        IConfigStore cs = CMS.getConfigStore().getSubStore("processor." + id);
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore().getSubStore("processor." + id);
         this.profileID = cs.getString(PROFILE_ID, "").isEmpty() ? null : cs.getString(PROFILE_ID);
         this.authzResourceName = cs.getString(AUTHZ_RESOURCE_NAME, "").isEmpty() ? null :
             cs.getString(AUTHZ_RESOURCE_NAME);
@@ -168,7 +173,7 @@ public class CAProcessor extends Processor {
             profileSubId = IProfileSubsystem.ID;
         }
 
-        ps = (IProfileSubsystem) CMS.getSubsystem(profileSubId);
+        ps = (IProfileSubsystem) engine.getSubsystem(profileSubId);
         if (ps == null) {
             throw new EBaseException("CAProcessor: Profile Subsystem not found");
         }
@@ -192,7 +197,8 @@ public class CAProcessor extends Processor {
      ******************************************/
 
     public void startTiming(String event) {
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.startTiming(event, true);
         }
@@ -200,7 +206,8 @@ public class CAProcessor extends Processor {
     }
 
     public void endTiming(String event) {
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             statsSub.endTiming(event);
         }
@@ -208,7 +215,8 @@ public class CAProcessor extends Processor {
     }
 
     public void endAllEvents() {
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        CMSEngine engine = CMS.getCMSEngine();
+        IStatsSubsystem statsSub = (IStatsSubsystem) engine.getSubsystem(IStatsSubsystem.ID);
         if (statsSub != null) {
             Iterator<String> iter = statEvents.iterator();
             while (iter.hasNext()) {
@@ -231,15 +239,14 @@ public class CAProcessor extends Processor {
     protected IRequest getOriginalRequest(BigInteger certSerial, ICertRecord rec) throws EBaseException {
         MetaInfo metaInfo = (MetaInfo) rec.get(ICertRecord.ATTR_META_INFO);
         if (metaInfo == null) {
-            CMS.debug("getOriginalRequest: cert record locating MetaInfo failed for serial number "
-                    + certSerial.toString());
+            logger.error("getOriginalRequest: cert record locating MetaInfo failed for serial number " + certSerial);
             return null;
         }
 
         String rid = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
         if (rid == null) {
-            CMS.debug("getOriginalRequest: cert record locating request id in MetaInfo failed " +
-                    "for serial number " + certSerial.toString());
+            logger.error("getOriginalRequest: cert record locating request id in MetaInfo failed " +
+                    "for serial number " + certSerial);
             return null;
         }
 
@@ -249,7 +256,7 @@ public class CAProcessor extends Processor {
 
     protected void printParameterValues(HashMap<String, String> data) {
 
-        CMS.debug("CAProcessor: Input Parameters:");
+        logger.debug("CAProcessor: Input Parameters:");
 
         for (Entry<String, String> entry : data.entrySet()) {
             String paramName = entry.getKey();
@@ -259,9 +266,9 @@ public class CAProcessor extends Processor {
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed
             if (CMS.isSensitive(paramName)) {
-                CMS.debug("CAProcessor: - " + paramName + ": (sensitive)");
+                logger.debug("CAProcessor: - " + paramName + ": (sensitive)");
             } else {
-                CMS.debug("CAProcessor: - " + paramName + ": " + entry.getValue());
+                logger.debug("CAProcessor: - " + paramName + ": " + entry.getValue());
             }
         }
     }
@@ -273,7 +280,7 @@ public class CAProcessor extends Processor {
             throws EBaseException {
         X509Certificate cert = null;
 
-        CMS.debug(CMS.getLogMessage("CMSGW_GETTING_SSL_CLIENT_CERT"));
+        logger.debug(CMS.getLogMessage("CMSGW_GETTING_SSL_CLIENT_CERT"));
 
         // iws60 support Java Servlet Spec V2.2, attribute
         // javax.servlet.request.X509Certificate now contains array
@@ -289,7 +296,7 @@ public class CAProcessor extends Processor {
         if (cert == null) {
             // just don't have a cert.
 
-            CMS.debug(CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL"));
+            logger.error(CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL"));
             return null;
         }
 
@@ -298,11 +305,11 @@ public class CAProcessor extends Processor {
             byte[] certEncoded = cert.getEncoded();
             cert = new X509CertImpl(certEncoded);
         } catch (CertificateEncodingException e) {
-            CMS.debug(CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_ENCODE", e.getMessage()));
+            logger.error(CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_ENCODE", e.getMessage()), e);
             return null;
 
         } catch (CertificateException e) {
-            CMS.debug(CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_DECODE", e.getMessage()));
+            logger.error(CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_DECODE", e.getMessage()), e);
             return null;
         }
         return cert;
@@ -347,46 +354,46 @@ public class CAProcessor extends Processor {
                 if (sdn != null) {
                     ouid = getUidFromDN(sdn);
                     if (ouid != null)
-                        CMS.debug("CAProcessor: renewal: authToken original uid not found");
+                        logger.warn("CAProcessor: renewal: authToken original uid not found");
                 }
             } else {
-                CMS.debug("CAProcessor: renewal: authToken original uid found in orig request auth_token");
+                logger.debug("CAProcessor: renewal: authToken original uid found in orig request auth_token");
             }
             String auid = authToken.getInString("uid");
             if (auid != null) { // not through ssl client auth
-                CMS.debug("CAProcessor: renewal: authToken uid found:" + auid);
+                logger.debug("CAProcessor: renewal: authToken uid found:" + auid);
                 // authenticated with uid
                 // put "orig_req.auth_token.uid" so that authz with
                 // UserOrigReqAccessEvaluator will work
                 if (ouid != null) {
                     context.put("orig_req.auth_token.uid", ouid);
-                    CMS.debug("CAProcessor: renewal: authToken original uid found:" + ouid);
+                    logger.debug("CAProcessor: renewal: authToken original uid found:" + ouid);
                 } else {
-                    CMS.debug("CAProcessor: renewal: authToken original uid not found");
+                    logger.warn("CAProcessor: renewal: authToken original uid not found");
                 }
             } else { // through ssl client auth?
-                CMS.debug("CAProcessor: renewal: authToken uid not found:");
+                logger.debug("CAProcessor: renewal: authToken uid not found:");
                 // put in orig_req's uid
                 if (ouid != null) {
-                    CMS.debug("CAProcessor: renewal: origReq uid not null:" + ouid + ". Setting authtoken");
+                    logger.debug("CAProcessor: renewal: origReq uid not null:" + ouid + ". Setting authtoken");
                     authToken.set("uid", ouid);
                     context.put(SessionContext.USER_ID, ouid);
                 } else {
-                    CMS.debug("CAProcessor: renewal: origReq uid not found");
+                    logger.warn("CAProcessor: renewal: origReq uid not found");
                     //                      throw new EBaseException("origReq uid not found");
                 }
             }
 
             String userdn = origReq.getExtDataInString("auth_token.userdn");
             if (userdn != null) {
-                CMS.debug("CAProcessor: renewal: origReq userdn not null:" + userdn + ". Setting authtoken");
+                logger.debug("CAProcessor: renewal: origReq userdn not null:" + userdn + ". Setting authtoken");
                 authToken.set("userdn", userdn);
             } else {
-                CMS.debug("CAProcessor: renewal: origReq userdn not found");
+                logger.warn("CAProcessor: renewal: origReq userdn not found");
                 //                      throw new EBaseException("origReq userdn not found");
             }
         } else {
-            CMS.debug("CAProcessor: renewal: authToken null");
+            logger.warn("CAProcessor: renewal: authToken null");
         }
         return authToken;
     }
@@ -437,7 +444,7 @@ public class CAProcessor extends Processor {
 
         IAuthToken authToken = null;
         if (authenticator != null) {
-            CMS.debug("authenticate: authentication required.");
+            logger.debug("authenticate: authentication required.");
             String uid_cred = "Unidentified";
             String uid_attempted_cred = "Unidentified";
             Enumeration<String> authIds = authenticator.getValueNames();
@@ -465,7 +472,7 @@ public class CAProcessor extends Processor {
                 }
 
             } catch (EAuthException e) {
-                CMS.debug("CAProcessor: authentication error: " + e);
+                logger.error("CAProcessor: authentication error: " + e.getMessage(), e);
 
                 authSubjectID += " : " + uid_cred;
 
@@ -477,7 +484,7 @@ public class CAProcessor extends Processor {
                 throw e;
 
             } catch (EBaseException e) {
-                CMS.debug(e);
+                logger.error("CAProcessor: " + e.getMessage(), e);
 
                 authSubjectID += " : " + uid_cred;
 
@@ -524,7 +531,7 @@ public class CAProcessor extends Processor {
                 String[] x1 = token.getInStringArray(n);
                 if (x1 != null) {
                     for (int i = 0; i < x1.length; i++) {
-                        CMS.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n +
+                        logger.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n +
                                 "(" + i + ")=" + x1[i]);
                         req.setExtData(IRequest.AUTH_TOKEN + "-" + n + "(" + i + ")",
                                 x1[i]);
@@ -532,7 +539,7 @@ public class CAProcessor extends Processor {
                 } else {
                     String x = token.getInString(n);
                     if (x != null) {
-                        CMS.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n + "=" + x);
+                        logger.debug("Setting " + IRequest.AUTH_TOKEN + "-" + n + "=" + x);
                         req.setExtData(IRequest.AUTH_TOKEN + "-" + n, x);
                     }
                 }
@@ -550,16 +557,16 @@ public class CAProcessor extends Processor {
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            IArgBlock httpArgs = CMS.createArgBlock(toHashtable(httpReq));
+            ArgBlock httpArgs = new ArgBlock(toHashtable(httpReq));
             SessionContext ctx = SessionContext.getContext();
             String ip = httpReq.getRemoteAddr();
-            CMS.debug("IP: " + ip);
+            logger.debug("IP: " + ip);
 
             if (ip != null) {
                 ctx.put(SessionContext.IPADDRESS, ip);
             }
             if (authMgrName != null) {
-                CMS.debug("AuthMgrName: " + authMgrName);
+                logger.debug("AuthMgrName: " + authMgrName);
                 ctx.put(SessionContext.AUTH_MANAGER_ID, authMgrName);
             }
             // put locale into session context
@@ -571,7 +578,7 @@ public class CAProcessor extends Processor {
             X509Certificate clientCert = null;
 
             if (getClientCert != null && getClientCert.equals("true")) {
-                CMS.debug("CMSServlet: retrieving SSL certificate");
+                logger.debug("CMSServlet: retrieving SSL certificate");
                 clientCert = getSSLClientCertificate(httpReq);
             }
 
@@ -587,16 +594,16 @@ public class CAProcessor extends Processor {
                 // audit message called LOGGING_SIGNED_AUDIT_AUTH_FAIL has
                 // been removed.
 
-                CMS.debug("CMSServlet: no authMgrName");
+                logger.error("CMSServlet: no authMgrName");
                 return null;
             } else {
                 // save the "Subject DN" of this certificate in case it
                 // must be audited as an authentication failure
                 if (clientCert == null) {
-                    CMS.debug("CMSServlet: no client certificate found");
+                    logger.warn("CMSServlet: no client certificate found");
                 } else {
                     String certUID = clientCert.getSubjectDN().getName();
-                    CMS.debug("CMSServlet: certUID=" + certUID);
+                    logger.debug("CMSServlet: certUID=" + certUID);
 
                     if (certUID != null) {
                         certUID = certUID.trim();
@@ -620,7 +627,7 @@ public class CAProcessor extends Processor {
             }
             String userid = authToken.getInString(IAuthToken.USER_ID);
 
-            CMS.debug("CMSServlet: userid=" + userid);
+            logger.debug("CMSServlet: userid=" + userid);
 
             if (userid != null) {
                 ctx.put(SessionContext.USER_ID, userid);
@@ -658,7 +665,7 @@ public class CAProcessor extends Processor {
             String n = t.substring(0, i);
             if (n.equalsIgnoreCase("uid")) {
                 String v = t.substring(i + 1);
-                CMS.debug("CAProcessor:: getUidFromDN(): uid found:" + v);
+                logger.debug("CAProcessor:: getUidFromDN(): uid found:" + v);
                 return v;
             } else {
                 continue;
@@ -675,7 +682,7 @@ public class CAProcessor extends Processor {
             String exp) throws EBaseException {
         AuthzToken authzToken = null;
 
-        CMS.debug("CAProcessor.authorize(" + authzMgrName + ", " + resource + ")");
+        logger.debug("CAProcessor.authorize(" + authzMgrName + ", " + resource + ")");
 
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
@@ -747,7 +754,7 @@ public class CAProcessor extends Processor {
     public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
             String resource, String operation) {
 
-        CMS.debug("CAProcessor.authorize(" + authzMgrName + ")");
+        logger.debug("CAProcessor.authorize(" + authzMgrName + ")");
 
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
@@ -764,7 +771,7 @@ public class CAProcessor extends Processor {
             if (authManagerId != null && authManagerId.equals("TokenAuth")) {
                 if (auditSubjectID.equals(ILogger.NONROLEUSER) ||
                         auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
-                    CMS.debug("CMSServlet: in authorize... TokenAuth auditSubjectID unavailable, changing to auditGroupID");
+                    logger.debug("CMSServlet: in authorize... TokenAuth auditSubjectID unavailable, changing to auditGroupID");
                     auditID = auditGroupID;
                 }
             }
@@ -847,10 +854,10 @@ public class CAProcessor extends Processor {
 
     public void authorize(String profileId, IProfile profile, IAuthToken authToken) throws EBaseException {
         if (authToken != null) {
-            CMS.debug("CertProcessor authToken not null");
+            logger.debug("CertProcessor authToken not null");
 
             String acl = profile.getAuthzAcl();
-            CMS.debug("CAProcessor: authz using acl: " + acl);
+            logger.debug("CAProcessor: authz using acl: " + acl);
             if (acl != null && acl.length() > 0) {
                 String resource = profileId + ".authz.acl";
                 authorize(aclMethod, resource, authToken, acl);
@@ -886,18 +893,18 @@ public class CAProcessor extends Processor {
 
     protected String auditSubjectID() {
 
-        CMS.debug("CMSServlet: in auditSubjectID");
+        logger.debug("CMSServlet: in auditSubjectID");
         String subjectID = null;
 
         // Initialize subjectID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        CMS.debug("CMSServlet: auditSubjectID auditContext " + auditContext);
+        logger.debug("CMSServlet: auditSubjectID auditContext " + auditContext);
         if (auditContext != null) {
             subjectID = (String)
                     auditContext.get(SessionContext.USER_ID);
 
-            CMS.debug("CMSServlet auditSubjectID: subjectID: " + subjectID);
+            logger.debug("CMSServlet auditSubjectID: subjectID: " + subjectID);
             if (subjectID != null) {
                 subjectID = subjectID.trim();
             } else {
@@ -912,18 +919,18 @@ public class CAProcessor extends Processor {
 
     protected String auditGroupID() {
 
-        CMS.debug("CMSServlet: in auditGroupID");
+        logger.debug("CMSServlet: in auditGroupID");
         String groupID = null;
 
         // Initialize groupID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        CMS.debug("CMSServlet: auditGroupID auditContext " + auditContext);
+        logger.debug("CMSServlet: auditGroupID auditContext " + auditContext);
         if (auditContext != null) {
             groupID = (String)
                     auditContext.get(SessionContext.GROUP_ID);
 
-            CMS.debug("CMSServlet auditGroupID: groupID: " + groupID);
+            logger.debug("CMSServlet auditGroupID: groupID: " + groupID);
             if (groupID != null) {
                 groupID = groupID.trim();
             } else {
@@ -1005,6 +1012,6 @@ public class CAProcessor extends Processor {
 
         nonces.remove(id);
 
-        CMS.debug("Processor: Nonce verified");
+        logger.debug("Processor: Nonce verified");
     }
 }

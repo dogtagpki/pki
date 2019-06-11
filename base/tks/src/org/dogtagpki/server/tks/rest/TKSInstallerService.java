@@ -19,35 +19,12 @@ package org.dogtagpki.server.tks.rest;
 
 import org.dogtagpki.server.rest.SystemConfigService;
 
-import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.system.ConfigurationRequest;
-import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.SubsystemInfo;
-import com.netscape.cmscore.selftests.SelfTestSubsystem;
-import com.netscape.tks.TKSAuthority;
-
 /**
  * @author alee
  *
  */
 public class TKSInstallerService extends SystemConfigService {
 
-    public TKSInstallerService() throws EBaseException {
-    }
-
-    @Override
-    public void initializeDatabase(ConfigurationRequest data) throws EBaseException {
-
-        super.initializeDatabase(data);
-
-        // Enable subsystems after database initialization.
-        CMSEngine engine = (CMSEngine) CMS.getCMSEngine();
-
-        SubsystemInfo si = engine.dynSubsystems.get(TKSAuthority.ID);
-        si.enabled = true;
-
-        si = engine.dynSubsystems.get(SelfTestSubsystem.ID);
-        si.enabled = true;
+    public TKSInstallerService() throws Exception {
     }
 }

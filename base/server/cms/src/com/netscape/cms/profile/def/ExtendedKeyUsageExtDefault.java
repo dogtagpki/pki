@@ -21,11 +21,10 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import netscape.security.extensions.ExtendedKeyUsageExtension;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.extensions.ExtendedKeyUsageExtension;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -33,6 +32,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -42,6 +42,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExtendedKeyUsageExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "exKeyUsageCritical";
     public static final String CONFIG_OIDS = "exKeyUsageOIDs";
@@ -140,7 +142,7 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
         try {
             replaceExtension(ExtendedKeyUsageExtension.OID, ext, info);
         } catch (EProfileException e) {
-            CMS.debug("ExtendedKeyUsageExtDefault: setValue " + e.toString());
+            logger.error("ExtendedKeyUsageExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -230,8 +232,7 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
         try {
             ext = new ExtendedKeyUsageExtension();
         } catch (Exception e) {
-            CMS.debug("ExtendedKeyUsageExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("ExtendedKeyUsageExtDefault: createExtension " + e.getMessage(), e);
         }
         if (ext == null)
             return null;

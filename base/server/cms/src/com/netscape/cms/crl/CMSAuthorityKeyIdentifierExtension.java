@@ -22,7 +22,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
@@ -31,17 +30,18 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.SerialNumber;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.SerialNumber;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * This represents an authority key identifier extension.

@@ -19,14 +19,12 @@ package com.netscape.cms.profile.input;
 
 import java.util.Locale;
 
-import netscape.security.pkcs.PKCS10;
-import netscape.security.util.DerInputStream;
-import netscape.security.x509.X509CertInfo;
-
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.DerInputStream;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.pkix.cmc.TaggedRequest;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -36,6 +34,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements the key generation input that
@@ -49,6 +48,8 @@ import com.netscape.cms.profile.common.EnrollProfile;
  * @version $Revision$, $Date$
  */
 public class KeyGenInput extends EnrollInput implements IProfileInput {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyGenInput.class);
 
     public static final String VAL_KEYGEN_REQUEST_TYPE =
             EnrollProfile.CTX_CERT_REQUEST_TYPE;
@@ -97,15 +98,14 @@ public class KeyGenInput extends EnrollInput implements IProfileInput {
                 request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         if (keygen_request_type == null) {
-            CMS.debug("KeyGenInput: populate - invalid cert request type " +
-                    "");
+            logger.error("KeyGenInput: populate - invalid cert request type");
             throw new EProfileException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
                             ""));
         }
         if (keygen_request == null) {
-            CMS.debug("KeyGenInput: populate - invalid certificate request");
+            logger.error("KeyGenInput: populate - invalid certificate request");
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
         }
@@ -159,9 +159,7 @@ public class KeyGenInput extends EnrollInput implements IProfileInput {
 
             mEnrollProfile.fillTaggedRequest(getLocale(request), msgs[seqNum.intValue()], info, request);
         } else {
-            // error
-            CMS.debug("DualKeyGenInput: populate - " +
-                    "invalid cert request type " + keygen_request_type);
+            logger.error("DualKeyGenInput: populate - invalid cert request type " + keygen_request_type);
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request),
                         "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",

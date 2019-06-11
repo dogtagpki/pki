@@ -26,7 +26,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthManagerProxy;
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -44,6 +43,8 @@ import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 
 /**
@@ -76,7 +77,8 @@ public class AuthAdminServlet extends AdminServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        mAuths = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        CMSEngine engine = CMS.getCMSEngine();
+        mAuths = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         AUTHZ_RES_NAME = "certServer.auth.configuration";
     }
 
@@ -178,10 +180,11 @@ public class AuthAdminServlet extends AdminServlet {
             }
         }
 
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             if (op.equals(OpDef.OP_AUTH)) {
                 if (scope.equals(ScopeDef.SC_AUTHTYPE)) {
-                    IConfigStore configStore = CMS.getConfigStore();
+                    IConfigStore configStore = engine.getConfigStore();
                     String val = configStore.getString("authType", "pwd");
                     NameValuePairs params = new NameValuePairs();
 
@@ -345,7 +348,8 @@ public class AuthAdminServlet extends AdminServlet {
         String user = combo.substring(0, semicolon);
         String pw = combo.substring(semicolon + 1);
 
-        CMS.putPasswordCache(user, pw);
+        CMSEngine engine = CMS.getCMSEngine();
+        engine.putPasswordCache(user, pw);
     }
 
     /**
@@ -550,8 +554,8 @@ public class AuthAdminServlet extends AdminServlet {
             AuthMgrPlugin plugin = new AuthMgrPlugin(id, classPath);
 
             mAuths.getPlugins().put(id, plugin);
-            mAuths.log(ILogger.LL_INFO,
-                    CMS.getLogMessage("ADMIN_SRVLT_PLUGIN_ADD", id));
+
+            logger.info("AuthAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_PLUGIN_ADD", id));
 
             NameValuePairs params = new NameValuePairs();
 
@@ -848,8 +852,7 @@ public class AuthAdminServlet extends AdminServlet {
             // inited and commited ok. now add manager instance to list.
             mAuths.add(id, authMgrInst);
 
-            mAuths.log(ILogger.LL_INFO,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_MGR_ADD", id));
+            logger.info("AuthAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_MGR_ADD", id));
 
             NameValuePairs params = new NameValuePairs();
 
@@ -1643,8 +1646,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             mAuths.add(id, newMgrInst);
 
-            mAuths.log(ILogger.LL_INFO,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_MGR_REPL", id));
+            logger.info("AuthAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTH_MGR_REPL", id));
 
             NameValuePairs params = new NameValuePairs();
 

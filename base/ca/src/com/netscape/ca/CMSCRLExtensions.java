@@ -25,7 +25,21 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLNumberExtension;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
+import org.mozilla.jss.netscape.security.x509.HoldInstructionExtension;
+import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
+import org.mozilla.jss.netscape.security.x509.IssuerAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.IssuingDistributionPointExtension;
+import org.mozilla.jss.netscape.security.x509.OIDMap;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.EPropertyNotFound;
@@ -39,24 +53,13 @@ import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
 import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.base.SubsystemRegistry;
-
-import netscape.security.extensions.AuthInfoAccessExtension;
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLNumberExtension;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.DeltaCRLIndicatorExtension;
-import netscape.security.x509.Extension;
-import netscape.security.x509.FreshestCRLExtension;
-import netscape.security.x509.HoldInstructionExtension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.IssuerAlternativeNameExtension;
-import netscape.security.x509.IssuingDistributionPointExtension;
-import netscape.security.x509.OIDMap;
-import netscape.security.x509.PKIXExtensions;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 public class CMSCRLExtensions implements ICMSCRLExtensions {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSCRLExtensions.class);
+
     public static final String PROP_ENABLE = "enable";
     public static final String PROP_EXTENSION = "extension";
     public static final String PROP_CLASS = "class";
@@ -195,12 +198,12 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     public CMSCRLExtensions(ICRLIssuingPoint crlIssuingPoint, IConfigStore config) {
         boolean modifiedConfig = false;
 
+        CMSEngine engine = CMS.getCMSEngine();
         mConfig = config;
         mCRLExtConfig = config.getSubStore(PROP_EXTENSION);
         mCRLIssuingPoint = crlIssuingPoint;
 
-        IConfigStore mFileConfig =
-                SubsystemRegistry.getInstance().get("MAIN").getConfigStore();
+        IConfigStore mFileConfig = engine.getConfigStore();
 
         IConfigStore crlExtConfig = mFileConfig;
         StringTokenizer st = new StringTokenizer(mCRLExtConfig.getName(), ".");
@@ -575,7 +578,9 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     public void setConfigParams(String id, NameValuePairs nvp, IConfigStore config) {
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+
+        CMSEngine engine = CMS.getCMSEngine();
+        ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         String ipId = nvp.get("id");
 
         ICRLIssuingPoint ip = null;
@@ -630,7 +635,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                             cmsCRLExtensions.isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME);
                 }
 
-                CMS.debug("issuingDistPointExtEnabled = " + issuingDistPointExtEnabled);
+                logger.debug("issuingDistPointExtEnabled = " + issuingDistPointExtEnabled);
 
                 if (!(value.equals(Constants.TRUE) || value.equals(Constants.FALSE))) {
                     continue;
@@ -639,7 +644,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 //Get value of caCertsOnly from CRLIssuingPoint
                 if ((ip != null) && (issuingDistPointExtEnabled == true)) {
                     crlCACertsOnly = ip.isCACertsOnly();
-                    CMS.debug("CRLCACertsOnly is: " + crlCACertsOnly);
+                    logger.debug("CRLCACertsOnly is: " + crlCACertsOnly);
                     crlIssuingPointPairs = new NameValuePairs();
 
                 }
@@ -649,7 +654,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 //If the CRLCACertsOnly prop is false change it to true to sync.
                 if (value.equals(Constants.TRUE) && (issuingDistPointExtEnabled == true)) {
                     if (crlCACertsOnly == false) {
-                        CMS.debug(" value = true and CRLCACertsOnly is already false.");
+                        logger.debug(" value = true and CRLCACertsOnly is already false.");
                         crlIssuingPointPairs.put(Constants.PR_CA_CERTS_ONLY, Constants.TRUE);
                         newValue = Constants.TRUE;
                         ip.updateConfig(crlIssuingPointPairs);
@@ -669,7 +674,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
                 if (modifiedCRLConfig == true) {
                     //Commit to this CRL IssuingPoint's config store
-                    ICertificateAuthority CA = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                    ICertificateAuthority CA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                     IConfigStore crlsSubStore = CA.getConfigStore();
                     crlsSubStore = crlsSubStore.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
                     crlsSubStore = crlsSubStore.getSubStore(ipId);

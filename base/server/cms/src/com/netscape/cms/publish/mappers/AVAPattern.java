@@ -32,20 +32,21 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import netscape.ldap.LDAPDN;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.Extension;
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNameInterface;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.OIDMap;
-import netscape.security.x509.SubjectAlternativeNameExtension;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.OIDMap;
+import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ECompSyntaxErr;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
+
+import netscape.ldap.LDAPDN;
 
 //////////////////////
 // class definition //
@@ -82,6 +83,9 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 class AVAPattern {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AVAPattern.class);
+
     ////////////////
     // parameters //
     ////////////////
@@ -491,8 +495,7 @@ class AVAPattern {
                                     }
                                 }
                             } catch (IOException e) {
-                                CMS.debug(
-                                        "AVAPattern: Publishing attr not formed " +
+                                logger.warn("AVAPattern: Publishing attr not formed " +
                                                 "from extension " +
                                                 "-- no attr : " +
                                                 mValue);
@@ -502,8 +505,7 @@ class AVAPattern {
                 }
             }
 
-            CMS.debug(
-                    "AVAPattern: Publishing:attr not formed " +
+            logger.debug("AVAPattern: Publishing:attr not formed " +
                             "from extension " +
                             "-- no attr : " +
                             mValue);

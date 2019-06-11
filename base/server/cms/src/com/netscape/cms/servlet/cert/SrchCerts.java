@@ -31,16 +31,15 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import netscape.security.provider.RSAPublicKey;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.CertificateX509Key;
-import netscape.security.x509.Extension;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509Key;
+import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -59,6 +58,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
@@ -68,9 +69,8 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  */
 public class SrchCerts extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SrchCerts.class);
+
     private static final long serialVersionUID = -5876805830088921643L;
     private final static String TPL_FILE = "srchCert.template";
     private final static String PROP_MAX_SEARCH_RETURNS = "maxSearchReturns";
@@ -103,18 +103,17 @@ public class SrchCerts extends CMSServlet {
         // override success to render own template.
         mTemplates.remove(ICMSRequest.SUCCESS);
 
-        if (mAuthority instanceof ISubsystem) {
-            ISubsystem sub = mAuthority;
-            IConfigStore authConfig = sub.getConfigStore();
+        ISubsystem sub = mAuthority;
+        IConfigStore authConfig = sub.getConfigStore();
 
-            if (authConfig != null) {
-                try {
-                    mMaxReturns = authConfig.getInteger(PROP_MAX_SEARCH_RETURNS, MAX_RESULTS);
-                } catch (EBaseException e) {
-                    // do nothing
-                }
+        if (authConfig != null) {
+            try {
+                mMaxReturns = authConfig.getInteger(PROP_MAX_SEARCH_RETURNS, MAX_RESULTS);
+            } catch (EBaseException e) {
+                // do nothing
             }
         }
+
         if (mAuthority instanceof ICertificateAuthority) {
             ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
 
@@ -302,8 +301,8 @@ public class SrchCerts extends CMSServlet {
         }
         Calendar from = Calendar.getInstance();
         from.setTimeInMillis(epoch);
-        CMS.debug("buildDateFilter epoch=" + req.getParameter(prefix));
-        CMS.debug("buildDateFilter from=" + from);
+        logger.debug("buildDateFilter epoch=" + req.getParameter(prefix));
+        logger.debug("buildDateFilter from=" + from);
         filter.append("(");
         filter.append(outStr);
         filter.append(Long.toString(from.getTimeInMillis() + adjustment));
@@ -470,13 +469,13 @@ public class SrchCerts extends CMSServlet {
         buildBasicConstraintsFilter(req, filter);
 
         if (mUseClientFilter) {
-            CMS.debug("useClientFilter=true");
+            logger.debug("useClientFilter=true");
         } else {
-            CMS.debug("useClientFilter=false");
-            CMS.debug("client queryCertFilter = " + queryCertFilter);
+            logger.debug("useClientFilter=false");
+            logger.debug("client queryCertFilter = " + queryCertFilter);
             queryCertFilter = "(&" + filter.toString() + ")";
         }
-        CMS.debug("queryCertFilter = " + queryCertFilter);
+        logger.debug("queryCertFilter = " + queryCertFilter);
         return queryCertFilter;
     }
 
@@ -516,8 +515,8 @@ public class SrchCerts extends CMSServlet {
         int maxResults = -1;
         int timeLimit = -1;
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         CMSTemplate form = null;
@@ -591,7 +590,7 @@ public class SrchCerts extends CMSServlet {
             Locale locale)
             throws EBaseException {
         try {
-            long startTime = CMS.getCurrentDate().getTime();
+            long startTime = new Date().getTime();
 
             if (filter.indexOf(CURRENT_TIME, 0) > -1) {
                 filter = insertCurrentTime(filter);
@@ -599,14 +598,14 @@ public class SrchCerts extends CMSServlet {
 
             // xxx the filter includes serial number range???
             if (maxResults == -1 || maxResults > mMaxReturns) {
-                CMS.debug("Resetting maximum of returned results from " + maxResults + " to " + mMaxReturns);
+                logger.debug("Resetting maximum of returned results from " + maxResults + " to " + mMaxReturns);
                 maxResults = mMaxReturns;
             }
             if (timeLimit == -1 || timeLimit > mTimeLimits) {
-                CMS.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
+                logger.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
-            CMS.debug("Start searching ... "
+            logger.debug("Start searching ... "
                     + "filter=" + filter + " maxreturns=" + maxResults + " timelimit=" + timeLimit);
 
             // Do the search with the optional sortAtribute field, giving an assured list of certs sorted by serialno
@@ -619,14 +618,14 @@ public class SrchCerts extends CMSServlet {
 
                 if (rec != null) {
                     count++;
-                    IArgBlock rarg = CMS.createArgBlock();
+                    ArgBlock rarg = new ArgBlock();
 
                     fillRecordIntoArg(rec, rarg);
                     argSet.addRepeatRecord(rarg);
                 }
             }
 
-            long endTime = CMS.getCurrentDate().getTime();
+            long endTime = new Date().getTime();
 
             header.addStringValue("op", req.getParameter("op"));
             if (mAuthName != null)

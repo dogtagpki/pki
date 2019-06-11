@@ -20,10 +20,10 @@ package com.netscape.cmstools;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import netscape.security.util.DerOutputStream;
-import netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.DerOutputStream;
+import org.mozilla.jss.netscape.security.util.DerValue;
 
-import com.netscape.cmsutil.util.Utils;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This program joins a sequence of extensions together

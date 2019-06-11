@@ -24,7 +24,9 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
@@ -32,6 +34,7 @@ import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
@@ -41,8 +44,6 @@ import netscape.ldap.LDAPModification;
 import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertImpl;
 
 /**
  * Interface for mapping a X509 certificate to a LDAP entry
@@ -52,6 +53,9 @@ import netscape.security.x509.X509CertImpl;
  * @version $Revision$, $Date$
  */
 public class LdapCertSubjPublisher implements ILdapPublisher {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCertSubjPublisher.class);
+
     public static final String LDAP_CERTSUBJNAME_ATTR = "certSubjectName";
     protected String mCertAttr = LdapUserCertPublisher.LDAP_USERCERT_ATTR;
     protected String mSubjNameAttr = LDAP_CERTSUBJNAME_ATTR;
@@ -276,12 +280,10 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
                         }
                     } catch (CertificateEncodingException e) {
                         // ignore this certificate.
-                        CMS.debug(
-                                "LdapCertSubjPublisher: unpublish: an invalid cert in dn entry encountered");
+                        logger.warn("LdapCertSubjPublisher: unpublish: an invalid cert in dn entry encountered: " + e.getMessage(), e);
                     } catch (CertificateException e) {
                         // ignore this certificate.
-                        CMS.debug(
-                                "LdapCertSubjPublisher: unpublish: an invalid cert in dn entry encountered");
+                        logger.warn("LdapCertSubjPublisher: unpublish: an invalid cert in dn entry encountered: " + e.getMessage(), e);
                     }
                 }
             }

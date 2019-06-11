@@ -21,12 +21,11 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IMailNotification;
-import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 import netscape.net.smtp.SmtpClient;
 
@@ -39,7 +38,8 @@ import netscape.net.smtp.SmtpClient;
  * @version $Revision$, $Date$
  */
 public class MailNotification implements IMailNotification {
-    private Logger mLogger = Logger.getLogger();
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MailNotification.class);
     protected final static String PROP_SMTP_SUBSTORE = "smtp";
     protected final static String PROP_HOST = "host";
 
@@ -54,11 +54,9 @@ public class MailNotification implements IMailNotification {
     public MailNotification() {
         if (mHost == null) {
             try {
-                IConfigStore mConfig =
-                        CMS.getConfigStore();
-
-                IConfigStore c =
-                        mConfig.getSubStore(PROP_SMTP_SUBSTORE);
+                CMSEngine engine = CMS.getCMSEngine();
+                IConfigStore config = engine.getConfigStore();
+                IConfigStore c = config.getSubStore(PROP_SMTP_SUBSTORE);
 
                 if (c == null) {
                     return;
@@ -68,7 +66,7 @@ public class MailNotification implements IMailNotification {
                 // log it
                 if (mHost !=null) {
                	    String msg =" using external SMTP host: "+mHost;
-               	    CMS.debug("MailNotification: "  + msg);
+               	    logger.debug("MailNotification: "  + msg);
                 }
             } catch (Exception e) {
                 // don't care
@@ -84,10 +82,10 @@ public class MailNotification implements IMailNotification {
         SmtpClient sc = null;
 
         if (mHost!=null && !mHost.equals("")) {
-            CMS.debug("MailNotification: sendNotification: host="  + mHost);
+            logger.debug("MailNotification: sendNotification: host="  + mHost);
             sc = new SmtpClient(mHost);
         } else {
-            CMS.debug("MailNotification: sendNotification: host not set");
+            logger.debug("MailNotification: sendNotification: host not set");
             sc = new SmtpClient();
         }
 
@@ -95,17 +93,17 @@ public class MailNotification implements IMailNotification {
         if ((mFrom != null) && (!mFrom.equals("")))
             sc.from(mFrom);
         else {
-            CMS.debug("MailNotification.sendNotification: missing sender");
+            logger.error("MailNotification.sendNotification: missing sender");
             throw new ENotificationException(
                     CMS.getUserMessage("CMS_NOTIFICATION_NO_SMTP_SENDER"));
         }
 
         // set "to"
         if ((mTo != null) && (!mTo.equals(""))) {
-            log(ILogger.LL_INFO, "mail to be sent to " + mTo);
+            logger.info("MailNotification: mail to be sent to " + mTo);
             sc.to(mTo);
         } else {
-            CMS.debug("MailNotification.sendNotification: missing receiver");
+            logger.error("MailNotification.sendNotification: missing receiver");
             throw new ENotificationException(
                     CMS.getUserMessage("CMS_NOTIFICATION_NO_SMTP_RECEIVER"));
         }
@@ -130,10 +128,9 @@ public class MailNotification implements IMailNotification {
         // send
         try {
             sc.closeServer();
-            CMS.debug("MailNotification.sendNotification: after closeServer");
+            logger.debug("MailNotification.sendNotification: after closeServer");
         } catch (IOException e) {
-            CMS.debug("MailNotification.sendNotification: send failed: " + e.toString());
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.error("MailNotification: Unable to send: " + e.getMessage(), e);
             throw new ENotificationException(
                     CMS.getUserMessage("CMS_NOTIFICATION_SMTP_SEND_FAILED", mTo));
         }
@@ -193,12 +190,4 @@ public class MailNotification implements IMailNotification {
     public void setTo(String to) {
         mTo = to;
     }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, "MailNotification: " + msg);
-    }
-
 }

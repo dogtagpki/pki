@@ -19,11 +19,17 @@ package com.netscape.cms.servlet.common;
 
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
+import com.netscape.certsrv.ocsp.IOCSPAuthority;
+import com.netscape.certsrv.ra.IRegistrationAuthority;
+import com.netscape.certsrv.tks.ITKSAuthority;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * A class represents a certificate server kernel. This
@@ -49,49 +55,50 @@ public class IndexTemplateFiller implements ICMSTemplateFiller {
 
     public CMSTemplateParams getTemplateParams(
             CMSRequest cmsReq, IAuthority mAuthority, Locale locale, Exception e) {
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(header, ctx);
 
-        ISubsystem ca = CMS.getSubsystem("ca");
-        ISubsystem ra = CMS.getSubsystem("ra");
-        ISubsystem kra = CMS.getSubsystem("kra");
-        ISubsystem ocsp = CMS.getSubsystem("ocsp");
-        ISubsystem tks = CMS.getSubsystem("tks");
+        CMSEngine engine = CMS.getCMSEngine();
+        ISubsystem ca = engine.getSubsystem(ICertificateAuthority.ID);
+        ISubsystem ra = engine.getSubsystem(IRegistrationAuthority.ID);
+        ISubsystem kra = engine.getSubsystem(IKeyRecoveryAuthority.ID);
+        ISubsystem ocsp = engine.getSubsystem(IOCSPAuthority.ID);
+        ISubsystem tks = engine.getSubsystem(ITKSAuthority.ID);
 
-        IArgBlock rarg = null;
+        ArgBlock rarg = null;
         int count = 0;
 
         if (ca != null) {
-            rarg = CMS.createArgBlock();
+            rarg = new ArgBlock();
             rarg.addStringValue(OUT_TYPE, "CertificateAuthority");
             rarg.addStringValue(OUT_ID, "ca");
             params.addRepeatRecord(rarg);
             count++;
         }
         if (ra != null) {
-            rarg = CMS.createArgBlock();
+            rarg = new ArgBlock();
             rarg.addStringValue(OUT_TYPE, "RegistrationAuthority");
             rarg.addStringValue(OUT_ID, "ra");
             params.addRepeatRecord(rarg);
             count++;
         }
         if (ocsp != null) {
-            rarg = CMS.createArgBlock();
+            rarg = new ArgBlock();
             rarg.addStringValue(OUT_TYPE, "OCSPAuthority");
             rarg.addStringValue(OUT_ID, "ocsp");
             params.addRepeatRecord(rarg);
             count++;
         }
         if (kra != null) {
-            rarg = CMS.createArgBlock();
+            rarg = new ArgBlock();
             rarg.addStringValue(OUT_TYPE, "KeyRecoveryAuthority");
             rarg.addStringValue(OUT_ID, "kra");
             params.addRepeatRecord(rarg);
             count++;
         }
         if (tks != null) {
-            rarg = CMS.createArgBlock();
+            rarg = new ArgBlock();
             rarg.addStringValue(OUT_TYPE, "TKSAuthority");
             rarg.addStringValue(OUT_ID, "tks");
             params.addRepeatRecord(rarg);

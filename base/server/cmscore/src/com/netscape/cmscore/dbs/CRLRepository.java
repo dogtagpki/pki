@@ -22,9 +22,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import netscape.security.x509.RevokedCertificate;
+import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBSSession;
@@ -45,6 +44,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLRepository;
  */
 public class CRLRepository extends Repository implements ICRLRepository {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRLRepository.class);
     private final String mLdapCRLIssuingPointName = "cn";
     private IDBSubsystem mDBService;
     private String mBaseDN;
@@ -123,13 +123,13 @@ public class CRLRepository extends Repository implements ICRLRepository {
         IDBSSession s = mDBService.createSession();
         try {
             String[] attrs = { ICRLIssuingPointRecord.ATTR_ID, "objectclass" };
-            String filter = "objectclass=" + CMS.getCRLIssuingPointRecordName();
+            String filter = "objectclass=" + CRLIssuingPointRecord.class.getName();
             IDBSearchResults res = s.search(getDN(), filter, attrs);
             Vector<String> v = new Vector<String>();
             while (res.hasMoreElements()) {
                 ICRLIssuingPointRecord nextelement =
                         (ICRLIssuingPointRecord) res.nextElement();
-                CMS.debug("CRLRepository getIssuingPointsNames(): name = "
+                logger.debug("CRLRepository getIssuingPointsNames(): name = "
                         + nextelement.getId());
                 v.addElement(nextelement.getId());
             }
@@ -146,20 +146,20 @@ public class CRLRepository extends Repository implements ICRLRepository {
      */
     public ICRLIssuingPointRecord readCRLIssuingPointRecord(String id)
             throws EBaseException {
-        IDBSSession s = mDBService.createSession();
+
+        IDBSSession s = null;
         CRLIssuingPointRecord rec = null;
 
         try {
-            String name = mLdapCRLIssuingPointName + "=" + id +
-                    "," + getDN();
+            s = mDBService.createSession();
 
-            if (s != null) {
-                rec = (CRLIssuingPointRecord) s.read(name);
-            }
+            String name = mLdapCRLIssuingPointName + "=" + id + "," + getDN();
+            rec = (CRLIssuingPointRecord) s.read(name);
+
         } finally {
-            if (s != null)
-                s.close();
+            if (s != null) s.close();
         }
+
         return rec;
     }
 

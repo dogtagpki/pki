@@ -20,6 +20,8 @@ package com.netscape.cmstools.cli;
 
 import java.util.Collection;
 
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.certsrv.account.AccountClient;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;

@@ -21,7 +21,10 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
@@ -33,10 +36,7 @@ import com.netscape.cms.profile.def.CAValidityDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
 import com.netscape.cms.profile.def.ValidityDefault;
-
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements the validity constraint.
@@ -46,6 +46,8 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class CAValidityConstraint extends CAEnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAValidityConstraint.class);
 
     private Date mDefNotBefore = null;
     private Date mDefNotAfter = null;
@@ -75,7 +77,7 @@ public class CAValidityConstraint extends CAEnrollConstraint {
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
         String method = "CAValidityConstraint: validate: ";
-        CMS.debug(method + "validate start");
+        logger.debug(method + "validate start");
         CertificateValidity v = null;
 
         try {
@@ -89,7 +91,7 @@ public class CAValidityConstraint extends CAEnrollConstraint {
         try {
             notBefore = (Date) v.get(CertificateValidity.NOT_BEFORE);
         } catch (IOException e) {
-            CMS.debug(method + "not before " + e.toString());
+            logger.error(method + "not before " + e.getMessage(), e);
             throw new ERejectException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_INVALID_NOT_BEFORE"));
         }
@@ -98,20 +100,20 @@ public class CAValidityConstraint extends CAEnrollConstraint {
         try {
             notAfter = (Date) v.get(CertificateValidity.NOT_AFTER);
         } catch (IOException e) {
-            CMS.debug(method + "not after " + e.toString());
+            logger.error(method + "not after " + e.getMessage(), e);
             throw new ERejectException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_INVALID_NOT_AFTER"));
         }
 
         if (mDefNotBefore != null) {
-            CMS.debug(method + "notBefore=" + notBefore +
+            logger.debug(method + "notBefore=" + notBefore +
                     " defNotBefore=" + mDefNotBefore);
             if (notBefore.before(mDefNotBefore)) {
                 throw new ERejectException(CMS.getUserMessage(
                             getLocale(request), "CMS_PROFILE_INVALID_NOT_BEFORE"));
             }
         }
-        CMS.debug(method + "notAfter=" + notAfter +
+        logger.debug(method + "notAfter=" + notAfter +
                 " defNotAfter=" + mDefNotAfter);
         if (notAfter.after(mDefNotAfter)) {
             throw new ERejectException(CMS.getUserMessage(
@@ -119,12 +121,12 @@ public class CAValidityConstraint extends CAEnrollConstraint {
         }
 
         if (notAfter.getTime() < notBefore.getTime()) {
-            CMS.debug(method + "notAfter (" + notAfter + ") < notBefore (" + notBefore + ")");
+            logger.error(method + "notAfter (" + notAfter + ") < notBefore (" + notBefore + ")");
             throw new ERejectException(CMS.getUserMessage(getLocale(request),
                         "CMS_PROFILE_NOT_AFTER_BEFORE_NOT_BEFORE"));
         }
 
-        CMS.debug(method + "validate end");
+        logger.debug(method + "validate end");
     }
 
     public String getText(Locale locale) {

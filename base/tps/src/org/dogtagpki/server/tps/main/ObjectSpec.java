@@ -4,12 +4,11 @@ import java.util.ArrayList;
 
 import org.dogtagpki.tps.main.TPSBuffer;
 import org.dogtagpki.tps.main.TPSException;
-
 import org.mozilla.jss.pkcs11.PKCS11Constants;
 
-import com.netscape.certsrv.apps.CMS;
-
 public class ObjectSpec {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ObjectSpec.class);
 
     public ObjectSpec()
     {
@@ -193,9 +192,7 @@ public class ObjectSpec {
                 found = true;
                 break;
             default:
-                CMS.debug("ObjectSpec.parseKeyBlob" +
-                        "skipped attribute_id = " +
-                        attribute_id);
+                logger.debug("ObjectSpec.parseKeyBlob skipped attribute_id = " + attribute_id);
                 break;
             }
 
@@ -337,8 +334,7 @@ public class ObjectSpec {
             parseCertificateBlob(objectID, o, b);
             break;
         default:
-            CMS.debug("ObjectSpec::ParseKeyBlob" +
-                    "unknown objectID = " + objectID.charAt(0));
+            logger.error("ObjectSpec::ParseKeyBlob unknown objectID = " + objectID.charAt(0));
             throw new TPSException("ObjectSpec parseFromToken data: Invalid object type, aborting..");
         }
 
@@ -378,8 +374,7 @@ public class ObjectSpec {
                 len = 4 + 1;
                 break;
             default:
-                CMS.debug("ObjectSpec::parse" +
-                        "unknown DataType = " + b.at(curpos + 4));
+                logger.error("ObjectSpec::parse unknown DataType = " + b.at(curpos + 4));
                 throw new TPSException("ObjectSpec parse: Invalid data type, aborting..");
             }
             TPSBuffer attr = b.substr(curpos, len);
@@ -580,7 +575,7 @@ public class ObjectSpec {
             index = Integer.parseInt(indexStr.trim());
         } catch (NumberFormatException nfe)
         {
-            CMS.debug("ObjectSpec.createObjectID(Str) bad object index string.");
+            logger.warn("ObjectSpec.createObjectID(Str) bad object index string: " + nfe.getMessage(), nfe);
             return 0;
         }
 

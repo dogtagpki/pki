@@ -25,9 +25,9 @@ import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.logging.AuditClient;
-import com.netscape.cmstools.cli.CLI;
 
 /**
  * @author Endi S. Dewata

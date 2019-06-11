@@ -38,7 +38,8 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.dogtagpki.common.CAInfo;
 import org.dogtagpki.common.CAInfoClient;
@@ -65,6 +66,12 @@ import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
@@ -81,14 +88,7 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.HMACDigest;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.util.WrappingParams;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.X500Name;
 
 /**
  * A command-line utility used to generate a Certificate Request Message
@@ -316,7 +316,7 @@ public class CRMFPopClient {
 
         String curve = cmd.getOptionValue("c", "nistp256");
         boolean sslECDH = Boolean.parseBoolean(cmd.getOptionValue("x", "false"));
-        boolean temporary = Boolean.parseBoolean(cmd.getOptionValue("t", "true"));
+        boolean temporary = Boolean.parseBoolean(cmd.getOptionValue("t", (algorithm.equals("rsa"))? "false":"true"));
         int sensitive = Integer.parseInt(cmd.getOptionValue("s", "-1"));
         int extractable = Integer.parseInt(cmd.getOptionValue("e", "-1"));
 
@@ -363,11 +363,6 @@ public class CRMFPopClient {
         if (algorithm.equals("rsa")) {
             if (cmd.hasOption("c")) {
                 printError("Illegal parameter for RSA: -c");
-                System.exit(1);
-            }
-
-            if (cmd.hasOption("t")) {
-                printError("Illegal parameter for RSA: -t");
                 System.exit(1);
             }
 
@@ -471,7 +466,7 @@ public class CRMFPopClient {
             if (verbose) System.out.println("Generating key pair");
             KeyPair keyPair;
             if (algorithm.equals("rsa")) {
-                keyPair = CryptoUtil.generateRSAKeyPair(token, keySize);
+                keyPair = CryptoUtil.generateRSAKeyPair(token, keySize, temporary);
             } else if (algorithm.equals("ec")) {
                 keyPair = client.generateECCKeyPair(token, curve, sslECDH, temporary, sensitive, extractable);
 
@@ -728,6 +723,11 @@ public class CRMFPopClient {
                 SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
                 KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_128_CBC_PAD,
                 kwAlg, ivps, ivps);
+        } else if (kwAlg == KeyWrapAlgorithm.AES_KEY_WRAP) {
+            return new WrappingParams(
+                SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
+                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.AES_128_CBC,
+                kwAlg, ivps, ivps);
         } else if (kwAlg == KeyWrapAlgorithm.DES3_CBC_PAD) {
             return new WrappingParams(
                     SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
@@ -853,9 +853,9 @@ public class CRMFPopClient {
 
         if (verbose) System.out.println("Opening " + url);
 
-        DefaultHttpClient client = new DefaultHttpClient();
-        HttpGet method = new HttpGet(url);
-        try {
+        try (CloseableHttpClient client = HttpClientBuilder.create().build()) {
+
+            HttpGet method = new HttpGet(url);
             HttpResponse response = client.execute(method);
 
             if (response.getStatusLine().getStatusCode() != 200) {
@@ -863,9 +863,6 @@ public class CRMFPopClient {
             }
 
             processResponse(response);
-
-        } finally {
-            method.releaseConnection();
         }
     }
 
@@ -979,7 +976,7 @@ public class CRMFPopClient {
         X500Name x500Name = new X500Name(dn);
         Name jssName = new Name();
 
-        for (netscape.security.x509.RDN rdn : x500Name.getNames()) {
+        for (org.mozilla.jss.netscape.security.x509.RDN rdn : x500Name.getNames()) {
 
             String rdnStr = rdn.toString();
             if (verbose) System.out.println("RDN: " + rdnStr);

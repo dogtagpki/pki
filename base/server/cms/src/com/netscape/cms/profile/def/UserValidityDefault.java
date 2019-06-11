@@ -21,10 +21,9 @@ import java.io.ByteArrayInputStream;
 import java.util.Date;
 import java.util.Locale;
 
-import netscape.security.x509.CertificateValidity;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateValidity;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IEnrollProfile;
@@ -33,6 +32,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -42,6 +42,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class UserValidityDefault extends EnrollDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserValidityDefault.class);
 
     public static final String VAL_NOT_BEFORE = "userValdityNotBefore";
     public static final String VAL_NOT_AFTER = "userValdityNotAfter";
@@ -97,7 +99,7 @@ public class UserValidityDefault extends EnrollDefault {
 
                 return notBefore.toString();
             } catch (Exception e) {
-                CMS.debug("UserValidityDefault: getValue " + e.toString());
+                logger.error("UserValidityDefault: getValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -111,7 +113,7 @@ public class UserValidityDefault extends EnrollDefault {
 
                 return notAfter.toString();
             } catch (Exception e) {
-                CMS.debug("UserValidityDefault: getValue " + e.toString());
+                logger.error("UserValidityDefault: getValue " + e.getMessage(), e);
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
@@ -143,7 +145,7 @@ public class UserValidityDefault extends EnrollDefault {
             }
             info.set(X509CertInfo.VALIDITY, certValidity);
         } catch (Exception e) {
-            CMS.debug("UserValidityDefault: populate " + e.toString());
+            logger.warn("UserValidityDefault: populate " + e.getMessage(), e);
         }
     }
 }

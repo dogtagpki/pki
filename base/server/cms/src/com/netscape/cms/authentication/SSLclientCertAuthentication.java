@@ -24,7 +24,9 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.BasicConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -41,9 +43,8 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.Certificates;
-
-import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Certificate server SSL client authentication.
@@ -54,6 +55,8 @@ import netscape.security.x509.X509CertImpl;
  */
 public class SSLclientCertAuthentication implements IAuthManager,
         IProfileAuthenticator {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SSLclientCertAuthentication.class);
 
     /* result auth token attributes */
     public static final String TOKEN_USERDN = "user";
@@ -128,8 +131,8 @@ public class SSLclientCertAuthentication implements IAuthManager,
     public IAuthToken authenticate(IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
 
-        CMS.debug("SSLclientCertAuthentication: start");
-        CMS.debug("authenticator instance name is " + getName());
+        logger.debug("SSLclientCertAuthentication: start");
+        logger.debug("authenticator instance name is " + getName());
 
         // force SSL handshake
         SessionContext context = SessionContext.getExistingContext();
@@ -137,18 +140,18 @@ public class SSLclientCertAuthentication implements IAuthManager,
                 context.get("sslClientCertProvider");
 
         if (provider == null) {
-            CMS.debug("SSLclientCertAuthentication: No SSL Client Cert Provider Found");
+            logger.error("SSLclientCertAuthentication: No SSL Client Cert Provider Found");
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
-        CMS.debug("SSLclientCertAuthentication: got provider");
-        CMS.debug("SSLclientCertAuthentication: retrieving client certificate");
+        logger.debug("SSLclientCertAuthentication: got provider");
+        logger.debug("SSLclientCertAuthentication: retrieving client certificate");
         X509Certificate[] allCerts = provider.getClientCertificateChain();
 
         if (allCerts == null) {
-            CMS.debug("SSLclientCertAuthentication: No SSL Client Certs Found");
+            logger.error("SSLclientCertAuthentication: No SSL Client Certs Found");
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
-        CMS.debug("SSLclientCertAuthentication: got certificates");
+        logger.debug("SSLclientCertAuthentication: got certificates");
 
         // retreive certificate from socket
         AuthToken authToken = new AuthToken(this);
@@ -170,10 +173,10 @@ public class SSLclientCertAuthentication implements IAuthManager,
                 // look for BasicConstraint extension
                 if (extBytes == null) {
                     // found leaf cert
-                    CMS.debug("SSLclientCertAuthentication: authenticate: found leaf cert");
+                    logger.debug("SSLclientCertAuthentication: authenticate: found leaf cert");
                     break;
                 } else {
-                    CMS.debug("SSLclientCertAuthentication: authenticate: found cert having BasicConstraints ext");
+                    logger.debug("SSLclientCertAuthentication: authenticate: found cert having BasicConstraints ext");
                     // it's got BasicConstraints extension
                     // so it's not likely to be a leaf cert,
                     // however, check the isCA field regardless
@@ -182,23 +185,22 @@ public class SSLclientCertAuthentication implements IAuthManager,
                                 new BasicConstraintsExtension(true, extBytes);
                         if (bce != null) {
                             if (!(Boolean) bce.get("is_ca")) {
-                                CMS.debug("SSLclientCertAuthentication: authenticate: found CA cert in chain");
+                                logger.debug("SSLclientCertAuthentication: authenticate: found CA cert in chain");
                                 break;
                             } // else found a ca cert, continue
                         }
                     } catch (Exception e) {
-                        CMS.debug("SSLclientCertAuthentication: authenticate: exception:" +
-                                 e.toString());
+                        logger.error("SSLclientCertAuthentication: authenticate: exception: " + e.getMessage(), e);
                         throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"), e);
                     }
                 }
             }
             if (clientCert == null) {
-                CMS.debug("SSLclientCertAuthentication: authenticate: client cert not found");
+                logger.error("SSLclientCertAuthentication: authenticate: client cert not found");
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
         } catch (CertificateException e) {
-            CMS.debug(e.toString());
+            logger.error("SSLclientCertAuthentication: " + e.getMessage(), e);
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"), e);
         }
 
@@ -210,8 +212,9 @@ public class SSLclientCertAuthentication implements IAuthManager,
             // do nothing; default to true
         }
         if (checkRevocation) {
-            if (CMS.isRevoked(ci)) {
-                CMS.debug("SSLclientCertAuthentication: certificate revoked");
+            CMSEngine engine = CMS.getCMSEngine();
+            if (engine.isRevoked(ci)) {
+                logger.error("SSLclientCertAuthentication: certificate revoked");
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
         }
@@ -232,7 +235,7 @@ public class SSLclientCertAuthentication implements IAuthManager,
         */
         authToken.set(CRED_CERT, certs);
 
-        CMS.debug("SSLclientCertAuthentication: authenticated ");
+        logger.debug("SSLclientCertAuthentication: authenticated ");
 
         return authToken;
     }
@@ -249,7 +252,7 @@ public class SSLclientCertAuthentication implements IAuthManager,
             String n = t.substring(0, i);
             if (n.equalsIgnoreCase("uid")) {
                 String v = t.substring(i + 1);
-                CMS.debug("SSLclientCertAuthentication: getUidFromDN(): uid found:" + v);
+                logger.debug("SSLclientCertAuthentication: getUidFromDN(): uid found:" + v);
                 return v;
             } else {
                 continue;

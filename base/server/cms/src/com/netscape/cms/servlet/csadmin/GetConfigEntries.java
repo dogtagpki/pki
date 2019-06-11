@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.w3c.dom.Node;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -41,14 +40,15 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class GetConfigEntries extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetConfigEntries.class);
+
     private static final long serialVersionUID = -7418561215631752315L;
     private final static String SUCCESS = "0";
     private final static String AUTH_FAILURE = "2";
@@ -64,7 +64,7 @@ public class GetConfigEntries extends CMSServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        CMS.debug("GetConfigEntries init");
+        logger.debug("GetConfigEntries init");
     }
 
     /**
@@ -79,12 +79,13 @@ public class GetConfigEntries extends CMSServlet {
     protected void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
+        CMSEngine engine = CMS.getCMSEngine();
         IAuthToken authToken = null;
 
         try {
             authToken = authenticate(cmsReq);
         } catch (Exception e) {
-            CMS.debug("GetConfigEntries authentication failed");
+            logger.warn("GetConfigEntries authentication failed: " + e.getMessage(), e);
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
                             e.toString()));
@@ -100,13 +101,13 @@ public class GetConfigEntries extends CMSServlet {
         String op = null;
 
         op = args.getValueAsString("op", null);
-        CMS.debug("GetConfigEntries process: op=" + op);
+        logger.debug("GetConfigEntries process: op=" + op);
 
         XMLObject xmlObj = null;
         try {
             xmlObj = new XMLObject();
         } catch (Exception e) {
-            CMS.debug("GetConfigEntries process: Exception: " + e.toString());
+            logger.error("GetConfigEntries process: Exception: " + e.getMessage(), e);
             throw new EBaseException(e.toString());
         }
 
@@ -135,7 +136,7 @@ public class GetConfigEntries extends CMSServlet {
         }
 
         if (op != null) {
-            IConfigStore config = CMS.getConfigStore();
+            IConfigStore config = engine.getConfigStore();
             String substores = args.getValueAsString("substores", "");
             StringTokenizer t = new StringTokenizer(substores, ",");
             while (t.hasMoreTokens()) {
@@ -166,9 +167,9 @@ public class GetConfigEntries extends CMSServlet {
                 String value = "";
 
                 try {
-                    CMS.debug("Retrieving config name=" + name);
+                    logger.debug("Retrieving config name=" + name);
                     value = config.getString(name);
-                    CMS.debug("Retrieving config value=" + value);
+                    logger.debug("Retrieving config value=" + value);
                     if (value.equals("localhost"))
                         value = config.getString("machineName", InetAddress.getLocalHost().getHostName());
                 } catch (Exception ee) {
@@ -194,8 +195,7 @@ public class GetConfigEntries extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("Failed to send the XML output: " + e);
-            e.printStackTrace();
+            logger.warn("Failed to send the XML output: " + e.getMessage(), e);
         }
     }
 
@@ -220,12 +220,14 @@ public class GetConfigEntries extends CMSServlet {
     }
 
     private String getLDAPPassword() throws EBaseException {
-        IPasswordStore pwdStore = CMS.getPasswordStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IPasswordStore pwdStore = engine.getPasswordStore();
         return pwdStore.getPassword("internaldb", 0);
     }
 
     private String getReplicationPassword() throws EBaseException {
-        IPasswordStore pwdStore = CMS.getPasswordStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IPasswordStore pwdStore = engine.getPasswordStore();
         return pwdStore.getPassword("replicationdb", 0);
     }
 

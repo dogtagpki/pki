@@ -19,7 +19,9 @@ package com.netscape.cms.profile.constraint;
 
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -32,10 +34,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.EnrollExtDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserExtensionDefault;
+import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertUtils;
-
-import netscape.security.x509.Extension;
-import netscape.security.x509.X509CertInfo;
 
 /**
  * This class implements the general extension constraint.
@@ -45,6 +45,8 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class ExtensionConstraint extends EnrollConstraint {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExtensionConstraint.class);
 
     public static final String CONFIG_CRITICAL = "extCritical";
     public static final String CONFIG_OID = "extOID";
@@ -64,9 +66,9 @@ public class ExtensionConstraint extends EnrollConstraint {
             throws EPropertyException {
 
         if (mConfig.getSubStore("params") == null) {
-            CMS.debug("ExtensionConstraint: mConfig.getSubStore is null");
+            logger.debug("ExtensionConstraint: mConfig.getSubStore is null");
         } else {
-            CMS.debug("ExtensionConstraint: setConfig name=" + name +
+            logger.debug("ExtensionConstraint: setConfig name=" + name +
                     " value=" + value);
 
             if (name.equals(CONFIG_OID)) {

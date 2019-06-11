@@ -20,14 +20,15 @@ package com.netscape.cmscore.dbs;
 import java.util.Arrays;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
+import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
@@ -47,6 +48,8 @@ import netscape.ldap.controls.LDAPVirtualListResponse;
  * @version $Revision$, $Date$
  */
 public class DBVirtualList<E> implements IDBVirtualList<E> {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBVirtualList.class);
 
     private IDBRegistry mRegistry = null;
     private LDAPConnection mConn = null;
@@ -93,7 +96,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
         mFilter = filter;
         mBase = base;
         mAttrs = attrs;
-        CMS.debug("In DBVirtualList filter attrs filter: " + filter
+        logger.debug("In DBVirtualList filter attrs filter: " + filter
                  + " attrs: " + Arrays.toString(attrs));
         mPageControls = new LDAPControl[2];
         try {
@@ -119,7 +122,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             String base, String filter, String attrs[], String sortKey[])
             throws EBaseException {
 
-        CMS.debug("In DBVirtualList filter attrs sotrKey[]  filter: " + filter
+        logger.debug("In DBVirtualList filter attrs sotrKey[]  filter: " + filter
                  + " attrs: " + Arrays.toString(attrs));
         mRegistry = registry;
         mFilter = filter;
@@ -150,7 +153,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             String base, String filter, String attrs[], String sortKey)
             throws EBaseException {
 
-        CMS.debug("In DBVirtualList filter attrs sortKey   filter: " + filter + " attrs: " + Arrays.toString(attrs));
+        logger.debug("In DBVirtualList filter attrs sortKey   filter: " + filter + " attrs: " + Arrays.toString(attrs));
         mRegistry = registry;
         mFilter = filter;
         try {
@@ -181,7 +184,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             String base, String filter, String attrs[], String sortKey[],
             int pageSize) throws EBaseException {
 
-        CMS.debug("In DBVirtualList filter attrs sortKey[] pageSize filter: "
+        logger.debug("In DBVirtualList filter attrs sortKey[] pageSize filter: "
                  + filter + " attrs: " + Arrays.toString(attrs)
                  + " pageSize " + pageSize);
         mRegistry = registry;
@@ -215,7 +218,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             String base, String filter, String attrs[], String sortKey,
             int pageSize) throws EBaseException {
 
-        CMS.debug("In DBVirtualList filter attrs sortKey pageSize filter: "
+        logger.debug("In DBVirtualList filter attrs sortKey pageSize filter: "
                  + filter + " attrs: " + Arrays.toString(attrs)
                  + " pageSize " + pageSize);
         mRegistry = registry;
@@ -238,7 +241,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             String startFrom, String sortKey,
             int pageSize) throws EBaseException {
 
-        CMS.debug("In DBVirtualList filter attrs startFrom sortKey pageSize "
+        logger.debug("In DBVirtualList filter attrs startFrom sortKey pageSize "
                  + "filter: " + filter
                  + " attrs: " + Arrays.toString(attrs)
                  + " pageSize " + pageSize + " startFrom " + startFrom);
@@ -285,7 +288,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
         mBeforeCount = 0; //mPageSize;
         mAfterCount = mPageSize; // mPageSize + mPageSize;
 
-        //CMS.debug("In setPageSize " + size + " mBeforeCount " + mBeforeCount + " mAfterCount " + mAfterCount);
+        //logger.debug("In setPageSize " + size + " mBeforeCount " + mBeforeCount + " mAfterCount " + mAfterCount);
     }
 
     /**
@@ -338,7 +341,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
      */
     public int getSize() {
 
-        //CMS.debug("DBVirtualList.getSize()");
+        //logger.debug("DBVirtualList.getSize()");
 
         if (!mInitialized) {
 
@@ -359,13 +362,13 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             LDAPVirtualListControl cont = null;
 
             if (mJumpTo == null) {
-                CMS.debug("DBVirtualList: searching for entry A");
+                logger.debug("DBVirtualList: searching for entry A");
                 cont = new LDAPVirtualListControl("A",
                             mBeforeCount,
                             mAfterCount);
 
             } else {
-                CMS.debug("DBVirtualList: searching for entry " + mJumpTo);
+                logger.debug("DBVirtualList: searching for entry " + mJumpTo);
 
                 if (mPageSize < 0) {
                     mBeforeCount = mPageSize * -1;
@@ -380,7 +383,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             getJumpToPage();
         }
 
-        CMS.debug("DBVirtualList: size: " + mSize);
+        logger.debug("DBVirtualList: size: " + mSize);
         return mSize;
     }
 
@@ -415,7 +418,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
 
     private synchronized boolean getEntries() {
 
-        CMS.debug("DBVirtualList.getEntries()");
+        logger.debug("DBVirtualList.getEntries()");
 
         // Specify necessary controls for vlist
         // LDAPSearchConstraints cons = mConn.getSearchConstraints();
@@ -434,6 +437,13 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             String ldapFilter = mRegistry.getFilter(mFilter);
             String ldapAttrs[] = null;
             LDAPSearchResults result;
+
+            Integer size_limit = (Integer) mConn.getOption(LDAPv2.SIZELIMIT);
+            if (size_limit == 0 ||
+                    (size_limit > 0 && mPageSize != 0 && Math.abs(mPageSize) < size_limit))
+            {
+                mConn.setOption(LDAPv2.SIZELIMIT, Math.abs(mPageSize));
+            }
 
             if (mAttrs != null) {
                 ldapAttrs = mRegistry.getLDAPAttributes(mAttrs);
@@ -471,7 +481,8 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
                     mEntries.addElement(o);
                 } catch (Exception e) {
 
-                    CMS.debug("Exception " + e);
+                    String message = CMS.getLogMessage("CMSCORE_DBS_VL_ADD", e.getMessage());
+                    logger.error(message, e);
 
                     /*LogDoc
                      *
@@ -479,8 +490,8 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
                      * @reason Failed to get enties.
                      * @message DBVirtualList: <exception thrown>
                      */
-                    mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_DBS_VL_ADD", e.toString()));
+                    mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE, message);
+
                     // #539044
                     damageCounter++;
                     if (damageCounter > 100) {
@@ -498,15 +509,15 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
              * @reason Failed to get enties.
              * @message DBVirtualList: <exception thrown>
              */
-            CMS.debug("getEntries: exception " + e);
+            String message = CMS.getLogMessage("OPERATION_ERROR", e.getMessage());
+            logger.error(message, e);
 
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE, message);
         }
         //System.out.println( "Returning " + mEntries.size() +
         //       " entries" );
 
-        CMS.debug("DBVirtualList: entries: " + mEntries.size());
+        logger.debug("DBVirtualList: entries: " + mEntries.size());
 
         return true;
     }
@@ -538,7 +549,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
                 mSelectedIndex = nextCont.getFirstPosition() - 1;
                 mTop = Math.max(0, mSelectedIndex - mBeforeCount);
 
-                CMS.debug("DBVirtualList: top: " + mTop);
+                logger.debug("DBVirtualList: top: " + mTop);
                 if (mJumpTo != null) {
                     mJumpToInitialIndex = mTop;
                 }
@@ -571,7 +582,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
      */
     public boolean getPage(int first) {
 
-        CMS.debug("DBVirtualList.getPage(" + first + ")");
+        logger.debug("DBVirtualList.getPage(" + first + ")");
 
         if (!mInitialized) {
             LDAPVirtualListControl cont = new LDAPVirtualListControl(0,
@@ -581,7 +592,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             mPageControls[1] = cont;
         }
 
-        //CMS.debug("about to set range first " + first + " mBeforeCount " + mBeforeCount + " mAfterCount " + mAfterCount);
+        //logger.debug("about to set range first " + first + " mBeforeCount " + mBeforeCount + " mAfterCount " + mAfterCount);
         ((LDAPVirtualListControl) mPageControls[1]).setRange(first, mBeforeCount, mAfterCount);
         return getPage();
     }
@@ -610,12 +621,12 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
         if (nextCont != null) {
             mSelectedIndex = nextCont.getFirstPosition() - 1;
             mTop = Math.max(0, mSelectedIndex - mBeforeCount);
-            //CMS.debug("New mTop: " + mTop + " mSelectedIndex " + mSelectedIndex);
+            //logger.debug("New mTop: " + mTop + " mSelectedIndex " + mSelectedIndex);
             // Now we know the total size of the virtual list box
             mSize = nextCont.getContentCount();
             ((LDAPVirtualListControl) mPageControls[1]).setListSize(mSize);
             mInitialized = true;
-            //System.out.println( "Virtual window: " + mTop +
+            //logger.debug( "Virtual window: " + mTop +
             //       ".." + (mTop+mEntries.size()-1) +
             //      " of " + mSize );
         } else {
@@ -670,11 +681,11 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             mSize = getSize();
         }
 
-        //CMS.debug("DBVirtualList: retrieving entry #" + index);
+        //logger.debug("DBVirtualList: retrieving entry #" + index);
 
         //System.out.println( "need entry " + index );
         if ((index < 0) || (index >= mSize)) {
-            CMS.debug("DBVirtualList: returning null");
+            logger.warn("DBVirtualList: returning null");
             return null;
         }
 
@@ -685,11 +696,11 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             else
                 mJumpToIndex++;
 
-            //CMS.debug("getElementAtJT: " + index  +  " mTop " + mTop + " mEntries.size() " + mEntries.size());
+            //logger.debug("getElementAtJT: " + index  +  " mTop " + mTop + " mEntries.size() " + mEntries.size());
 
             if ((mJumpToDirection > 0) && (mJumpToInitialIndex + index >= mSize)) // out of data in forward paging jumpto case
             {
-                CMS.debug("mJumpTo virtual list exhausted   mTop " + mTop + " mSize " + mSize);
+                logger.warn("mJumpTo virtual list exhausted   mTop " + mTop + " mSize " + mSize);
                 return null;
             }
 
@@ -702,11 +713,11 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
                 } else { //proceed backwards from hit point
                     if (mTop == 0) {
                         getPage(0);
-                        CMS.debug("asking for a page less than zero in reverse case, return null");
+                        logger.warn("asking for a page less than zero in reverse case, return null");
                         return null;
                     }
 
-                    CMS.debug("getting page reverse mJumptoIndex  " + mJumpToIndex + " mTop " + mTop);
+                    logger.debug("getting page reverse mJumptoIndex  " + mJumpToIndex + " mTop " + mTop);
                     getPage(mTop);
 
                 }
@@ -719,23 +730,23 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
             } else { // handle getting entry in reverse direction
                 int reverse_index = mEntries.size() - mJumpToIndex - 1;
 
-                //CMS.debug("reverse direction getting index " + reverse_index);
+                //logger.debug("reverse direction getting index " + reverse_index);
 
                 if (reverse_index < 0 || reverse_index >= mEntries.size()) {
-                    CMS.debug("reverse_index out of range " + reverse_index);
+                    logger.warn("reverse_index out of range " + reverse_index);
                     return null;
                 }
                 return mEntries.elementAt(reverse_index);
             }
         }
 
-        //CMS.debug("getElementAt noJumpto: " + index);
+        //logger.debug("getElementAt noJumpto: " + index);
 
         if ((index < mTop) || (index >= mTop + mEntries.size())) { // handle the non jumpto case
             //fetch a new page
             //System.out.println( "fetching a page starting at " +
             //        index );
-            //   CMS.debug("getElementAt noJumpto: getting page index: " + index + " mEntries.size() " + mEntries.size() + " mTop: " + mTop);
+            //   logger.debug("getElementAt noJumpto: getting page index: " + index + " mEntries.size() " + mEntries.size() + " mTop: " + mTop);
             getPage(index);
         }
 

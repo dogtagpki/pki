@@ -22,7 +22,8 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EInvalidCredentials;
 import com.netscape.certsrv.authentication.EMissingCredential;
@@ -41,10 +42,10 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.usrgrp.Certificates;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
-import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
-
-import netscape.security.x509.X509CertImpl;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
  * Certificate server agent authentication.
@@ -70,7 +71,7 @@ public class AgentCertAuthentication implements IAuthManager,
     private String mImplName = null;
     private IConfigStore mConfig = null;
 
-    private IUGSubsystem mUGSub = null;
+    private UGSubsystem mUGSub = null;
     private ICertUserLocator mCULocator = null;
 
     public AgentCertAuthentication() {
@@ -91,7 +92,8 @@ public class AgentCertAuthentication implements IAuthManager,
         mImplName = implName;
         mConfig = config;
 
-        mUGSub = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+        CMSEngine engine = CMS.getCMSEngine();
+        mUGSub = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
         mCULocator = mUGSub.getCertUserLocator();
     }
 
@@ -134,6 +136,8 @@ public class AgentCertAuthentication implements IAuthManager,
 
         logger.debug("AgentCertAuthentication: start");
         logger.debug("authenticator instance name is " + getName());
+
+        CMSEngine engine = CMS.getCMSEngine();
 
         // force SSL handshake
         SessionContext context = SessionContext.getExistingContext();
@@ -178,7 +182,7 @@ public class AgentCertAuthentication implements IAuthManager,
             // do nothing; default to true
         }
         if (checkRevocation) {
-            if (CMS.isRevoked(ci)) {
+            if (engine.isRevoked(ci)) {
                 logger.error("AgentCertAuthentication: certificate revoked");
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
@@ -204,7 +208,7 @@ public class AgentCertAuthentication implements IAuthManager,
         }
 
         // get group name from configuration file
-        IConfigStore sconfig = CMS.getConfigStore();
+        IConfigStore sconfig = engine.getConfigStore();
         String groupname = "";
         try {
             groupname = sconfig.getString("auths.instance." + getName() + ".agentGroup",
@@ -214,7 +218,7 @@ public class AgentCertAuthentication implements IAuthManager,
 
         if (!groupname.equals("")) {
             logger.debug("check if " + user.getUserID() + " is  in group " + groupname);
-            IUGSubsystem uggroup = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+            UGSubsystem uggroup = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
             if (!uggroup.isMemberOf(user, groupname)) {
                 logger.error(user.getUserID() + " is not in this group " + groupname);
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHORIZATION_ERROR"));

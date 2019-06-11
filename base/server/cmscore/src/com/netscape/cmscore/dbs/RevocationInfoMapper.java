@@ -21,20 +21,20 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import netscape.ldap.LDAPAttribute;
-import netscape.ldap.LDAPAttributeSet;
-import netscape.security.x509.CRLExtensions;
-import netscape.security.x509.CRLReasonExtension;
-import netscape.security.x509.Extension;
-import netscape.security.x509.InvalidityDateExtension;
-import netscape.security.x509.RevocationReason;
+import org.mozilla.jss.netscape.security.x509.CRLExtensions;
+import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.InvalidityDateExtension;
+import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.cmscore.util.Debug;
+import com.netscape.cmscore.apps.CMS;
+
+import netscape.ldap.LDAPAttribute;
+import netscape.ldap.LDAPAttributeSet;
 
 /**
  * A class represents a mapper to serialize
@@ -45,6 +45,8 @@ import com.netscape.cmscore.util.Debug;
  * @version $Revision$, $Date$
  */
 public class RevocationInfoMapper implements IDBAttrMapper {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RevocationInfoMapper.class);
 
     protected static Vector<String> mNames = new Vector<String>();
     static {
@@ -96,13 +98,13 @@ public class RevocationInfoMapper implements IDBAttrMapper {
                     value.append(";InvalidityDateExtension=" +
                             DateMapper.dateToDB(invalidityDate));
                 } else {
-                    Debug.trace("XXX skipped extension");
+                    logger.trace("XXX skipped extension");
                 }
             }
             attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_REVO_INFO,
                     value.toString()));
         } catch (Exception e) {
-            Debug.trace(e.toString());
+            logger.error("RevocationInfoMapper: " + e.getMessage(), e);
             throw new EDBException(
                     CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
@@ -116,7 +118,7 @@ public class RevocationInfoMapper implements IDBAttrMapper {
 
             if (attr == null)
                 return;
-            String value = (String) attr.getStringValues().nextElement();
+            String value = attr.getStringValues().nextElement();
             int i = value.indexOf(';'); // look for 1st ";"
             String str = null;
             CRLExtensions exts = new CRLExtensions();
@@ -154,7 +156,7 @@ public class RevocationInfoMapper implements IDBAttrMapper {
 
                         exts.set(InvalidityDateExtension.NAME, ext);
                     } else {
-                        Debug.trace("XXX skipped extension");
+                        logger.trace("XXX skipped extension");
                     }
                 } while (i != -1);
             }
@@ -162,7 +164,7 @@ public class RevocationInfoMapper implements IDBAttrMapper {
 
             parent.set(name, info);
         } catch (Exception e) {
-            Debug.trace(e.toString());
+            logger.error("RevocationInfoMapper: " + e.getMessage(), e);
             throw new EDBException(
                     CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name));
         }

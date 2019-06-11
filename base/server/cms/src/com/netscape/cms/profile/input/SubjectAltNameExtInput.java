@@ -21,7 +21,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
@@ -31,6 +30,8 @@ import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 
 /**
@@ -44,6 +45,8 @@ import com.netscape.certsrv.request.IRequest;
  *
  */
 public class SubjectAltNameExtInput extends EnrollInput implements IProfileInput {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectAltNameExtInput.class);
 
     public static final int DEF_REQ_ENTRIES = 4;
 
@@ -69,12 +72,13 @@ public class SubjectAltNameExtInput extends EnrollInput implements IProfileInput
     public void init(IProfile profile, IConfigStore config)
         throws EProfileException {
         super.init(profile, config);
+        CMSEngine engine = CMS.getCMSEngine();
         try {
             mSANentryNum =
-                CMS.getConfigStore().getInteger("ca.SAN.entryNum", DEF_REQ_ENTRIES);
+                engine.getConfigStore().getInteger("ca.SAN.entryNum", DEF_REQ_ENTRIES);
         } catch (EBaseException e) {
             /* mSANentryNum has default; ok */
-            CMS.debug("SubjectAltNameExtInput: init(): getting config failed on ca.SAN.entryNum");
+            logger.warn("SubjectAltNameExtInput: init(): getting config failed on ca.SAN.entryNum: " + e.getMessage(), e);
         }
     }
 

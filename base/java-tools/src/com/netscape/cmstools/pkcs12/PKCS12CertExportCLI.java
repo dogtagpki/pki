@@ -28,17 +28,16 @@ import java.util.Collection;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.codec.binary.Hex;
+import org.dogtagpki.cli.CLI;
 import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.util.Password;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
-import com.netscape.cmstools.cli.CLI;
-import com.netscape.cmsutil.util.Cert;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.pkcs.PKCS12;
-import netscape.security.pkcs.PKCS12CertInfo;
-import netscape.security.pkcs.PKCS12Util;
-import netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12CertInfo;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * @author Endi S. Dewata

@@ -27,7 +27,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
@@ -46,6 +45,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 
 /**
  * Search for certificates matching complex query filter
@@ -54,9 +55,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
  */
 public class SearchReqs extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SearchReqs.class);
     private static final long serialVersionUID = 2449481964851735051L;
     private final static String TPL_FILE = "queryReq.template";
     private final static String PROP_MAX_SEARCH_RETURNS = "maxSearchReqReturns";
@@ -90,18 +89,17 @@ public class SearchReqs extends CMSServlet {
         // override success to render own template.
         mTemplates.remove(ICMSRequest.SUCCESS);
 
-        if (mAuthority instanceof ISubsystem) {
-            ISubsystem sub = mAuthority;
-            IConfigStore authConfig = sub.getConfigStore();
+        ISubsystem sub = mAuthority;
+        IConfigStore authConfig = sub.getConfigStore();
 
-            if (authConfig != null) {
-                try {
-                    mMaxReturns = authConfig.getInteger(PROP_MAX_SEARCH_RETURNS, MAX_RESULTS);
-                } catch (EBaseException e) {
-                    // do nothing
-                }
+        if (authConfig != null) {
+            try {
+                mMaxReturns = authConfig.getInteger(PROP_MAX_SEARCH_RETURNS, MAX_RESULTS);
+            } catch (EBaseException e) {
+                // do nothing
             }
         }
+
         if (mAuthority instanceof ICertificateAuthority) {
             ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
             mQueue = ca.getRequestQueue();
@@ -178,8 +176,8 @@ public class SearchReqs extends CMSServlet {
         int maxResults = -1;
         int timeLimit = -1;
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock ctx = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock ctx = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
 
         CMSTemplate form = null;
@@ -248,7 +246,7 @@ public class SearchReqs extends CMSServlet {
             throws EBaseException {
 
         try {
-            long startTime = CMS.getCurrentDate().getTime();
+            long startTime = new Date().getTime();
 
             if (filter.indexOf(CURRENT_TIME, 0) > -1) {
                 filter = insertCurrentTime(filter);
@@ -271,11 +269,11 @@ public class SearchReqs extends CMSServlet {
             }
             // xxx the filter includes serial number range???
             if (maxResults == -1 || maxResults > mMaxReturns) {
-                CMS.debug("Resetting maximum of returned results from " + maxResults + " to " + mMaxReturns);
+                logger.debug("Resetting maximum of returned results from " + maxResults + " to " + mMaxReturns);
                 maxResults = mMaxReturns;
             }
             if (timeLimit == -1 || timeLimit > mTimeLimits) {
-                CMS.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
+                logger.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
             IRequestList list = (timeLimit > 0) ?
@@ -289,10 +287,10 @@ public class SearchReqs extends CMSServlet {
 
                 if (request != null) {
                     count++;
-                    IArgBlock rarg = CMS.createArgBlock();
+                    ArgBlock rarg = new ArgBlock();
                     mParser.fillRequestIntoArg(locale, request, argSet, rarg);
                     argSet.addRepeatRecord(rarg);
-                    long endTime = CMS.getCurrentDate().getTime();
+                    long endTime = new Date().getTime();
 
                     header.addIntegerValue(OUT_CURRENTCOUNT, count);
                     header.addStringValue("time", Long.toString(endTime - startTime));

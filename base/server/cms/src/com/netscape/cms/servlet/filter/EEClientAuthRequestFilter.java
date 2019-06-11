@@ -26,9 +26,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
-
 public class EEClientAuthRequestFilter implements Filter {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EEClientAuthRequestFilter.class);
+
     private static final String HTTPS_SCHEME = "https";
     private static final String HTTPS_PORT = "https_port";
     private static final String HTTPS_ROLE = "EE Client Auth";
@@ -61,7 +62,7 @@ public class EEClientAuthRequestFilter implements Filter {
         String param_active = null;
         String param_proxy_port = null;
 
-        // CMS.debug("Entering the EECA filter");
+        // logger.debug("Entering the EECA filter");
         param_active = config.getInitParameter("active");
 
         if (request instanceof HttpServletRequest) {
@@ -72,7 +73,7 @@ public class EEClientAuthRequestFilter implements Filter {
             if (!scheme.equals(HTTPS_SCHEME)) {
                 msg = "The scheme MUST be '" + HTTPS_SCHEME
                         + "', NOT '" + scheme + "'!";
-                CMS.debug(filterName + ":  " + msg);
+                logger.warn(filterName + ":  " + msg);
                 resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, msg);
                 return;
             }
@@ -86,7 +87,7 @@ public class EEClientAuthRequestFilter implements Filter {
             if (param_https_port == null) {
                 msg = "The <param-name> '" + HTTPS_PORT
                         + "' </param-name> " + "MUST be specified in 'web.xml'!";
-                CMS.debug(filterName + ":  " + msg);
+                logger.warn(filterName + ":  " + msg);
                 resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, msg);
                 return;
             }
@@ -112,10 +113,10 @@ public class EEClientAuthRequestFilter implements Filter {
                     bad_port = true;
                 }
                 if (bad_port) {
-                    CMS.debug(filterName + ":  " + msg);
-                    CMS.debug(filterName + ": uri is " + uri);
+                    logger.warn(filterName + ":  " + msg);
+                    logger.debug(filterName + ": uri is " + uri);
                     if ((param_active != null) && (param_active.equals("false"))) {
-                        CMS.debug("Filter is disabled .. continuing");
+                        logger.debug("Filter is disabled .. continuing");
                     } else {
                         resp.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
                         return;
@@ -123,7 +124,7 @@ public class EEClientAuthRequestFilter implements Filter {
                 }
             }
         }
-        // CMS.debug("exiting the EECA filter");
+        // logger.debug("exiting the EECA filter");
 
         chain.doFilter(request, response);
     }

@@ -21,11 +21,10 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -35,11 +34,14 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This plugin accepts subject DN from end user.
  */
 public class SubjectDNInput extends EnrollInput implements IProfileInput {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectDNInput.class);
 
     public static final String VAL_SUBJECT = "subject";
 
@@ -135,8 +137,7 @@ public class SubjectDNInput extends EnrollInput implements IProfileInput {
             req.setExtData(EnrollProfile.REQUEST_SUBJECT_NAME,
                     new CertificateSubjectName(subj));
         } catch (Exception e) {
-            CMS.debug("SubjectNameInput: parseSubject Name " +
-                    e.toString());
+            logger.warn("SubjectNameInput: parseSubject Name " + e.getMessage(), e);
         }
     }
 }

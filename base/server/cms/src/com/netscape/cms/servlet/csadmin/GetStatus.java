@@ -17,8 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.IOException;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
@@ -26,19 +26,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.xml.XMLObject;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 
 public class GetStatus extends CMSServlet {
 
@@ -71,11 +72,12 @@ public class GetStatus extends CMSServlet {
         logger.debug("GetStatus: process()");
 
         HttpServletResponse httpResp = cmsReq.getHttpResp();
-        IConfigStore config = CMS.getConfigStore();
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore config = engine.getConfigStore();
 
         String state = config.getString("cs.state", "");
         String type = config.getString("cs.type", "");
-        String status = CMS.getServerStatus();
+        String status = engine.getServerStatus();
         String version = GetStatus.class.getPackage().getImplementationVersion();
 
         try {
@@ -136,7 +138,7 @@ public class GetStatus extends CMSServlet {
         FileInputStream inputStream = null;
 
         if(StringUtils.isEmpty(versionFilePathName)) {
-            CMS.debug("Missing product version file path!");
+            logger.warn("Missing product version file path!");
             return null;
         }
 
@@ -145,11 +147,11 @@ public class GetStatus extends CMSServlet {
             String contents = IOUtils.toString(inputStream);
 
             if(contents != null) {
-                CMS.debug("Returning product version: " + version);
+                logger.debug("Returning product version: " + version);
                 version = contents.trim();
             }
         } catch (Exception e) {
-            CMS.debug("Failed to read product version String. " + e);
+            logger.warn("Failed to read product version String. " + e.getMessage(), e);
         }
         finally {
             if(inputStream != null) {

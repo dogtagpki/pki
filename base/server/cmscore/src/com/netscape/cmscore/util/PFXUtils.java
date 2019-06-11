@@ -36,8 +36,8 @@ import org.mozilla.jss.pkcs12.SafeBag;
 import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cmscore.apps.CMS;
 
 public class PFXUtils {
 

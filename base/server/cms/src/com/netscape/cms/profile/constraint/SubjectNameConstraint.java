@@ -20,11 +20,10 @@ package com.netscape.cms.profile.constraint;
 import java.io.IOException;
 import java.util.Locale;
 
-import netscape.security.x509.CertificateSubjectName;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -36,6 +35,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.SubjectNameDefault;
 import com.netscape.cms.profile.def.UserSubjectNameDefault;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements the subject name constraint.
@@ -46,8 +46,9 @@ import com.netscape.cms.profile.def.UserSubjectNameDefault;
  */
 public class SubjectNameConstraint extends EnrollConstraint {
 
-    public static final String CONFIG_PATTERN = "pattern";
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectNameConstraint.class);
 
+    public static final String CONFIG_PATTERN = "pattern";
 
     private static final int COMMON_NAME_MAX = 64;
     private static final int LOCALITY_NAME_MAX = 128;
@@ -88,12 +89,12 @@ public class SubjectNameConstraint extends EnrollConstraint {
      */
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
-        CMS.debug("SubjectNameConstraint: validate start");
+        logger.debug("SubjectNameConstraint: validate start");
         CertificateSubjectName sn = null;
 
         try {
             sn = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);
-            CMS.debug("SubjectNameConstraint: validate cert subject =" +
+            logger.debug("SubjectNameConstraint: validate cert subject =" +
                          sn.toString());
         } catch (Exception e) {
             throw new ERejectException(
@@ -110,17 +111,17 @@ public class SubjectNameConstraint extends EnrollConstraint {
                             "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
         }
         if (sn500 == null) {
-            CMS.debug("SubjectNameConstraint: validate() - sn500 is null");
+            logger.error("SubjectNameConstraint: validate() - sn500 is null");
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
         } else {
-            CMS.debug("SubjectNameConstraint: validate() - sn500 " +
+            logger.debug("SubjectNameConstraint: validate() - sn500 " +
                     CertificateSubjectName.DN_NAME + " = " +
                     sn500.toString());
         }
         if (!sn500.toString().matches(getConfig(CONFIG_PATTERN))) {
-            CMS.debug("SubjectNameConstraint: validate() - sn500 not matching pattern " + getConfig(CONFIG_PATTERN));
+            logger.error("SubjectNameConstraint: validate() - sn500 not matching pattern " + getConfig(CONFIG_PATTERN));
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_SUBJECT_NAME_NOT_MATCHED",
@@ -138,11 +139,11 @@ public class SubjectNameConstraint extends EnrollConstraint {
         }
         if ( commonName != null && commonName.length() > COMMON_NAME_MAX ) {
             fieldError = true;
-            incorrectFields += " Common Name "; 
+            incorrectFields += " Common Name ";
 
         }
 
-        try { 
+        try {
              country =  sn500.getCountry();
         } catch (Exception e) {
         }
@@ -163,7 +164,7 @@ public class SubjectNameConstraint extends EnrollConstraint {
             incorrectFields += " , Org Unit ";
         }
 
-        String o = null; 
+        String o = null;
         try {
             o = sn500.getOrganization();
         } catch (Exception e) {
@@ -185,7 +186,7 @@ public class SubjectNameConstraint extends EnrollConstraint {
             incorrectFields += " , Locality ";
         }
 
-        String state =  null; 
+        String state =  null;
         try {
             state = sn500.getState();
         } catch (Exception e) {
@@ -193,10 +194,10 @@ public class SubjectNameConstraint extends EnrollConstraint {
 
         if ( state != null && state.length() > STATE_NAME_MAX ) {
             fieldError = true;
-            incorrectFields += " , State "; 
+            incorrectFields += " , State ";
         }
 
-        String email =  null; 
+        String email =  null;
         try {
             email = sn500.getEmail();
         } catch (Exception e) {
@@ -212,11 +213,11 @@ public class SubjectNameConstraint extends EnrollConstraint {
             UID = sn500.getUserID();
         } catch (Exception e) {
         }
-        
+
         if ( UID != null && UID.length() > UID_NAME_MAX) {
              fieldError = true;
              incorrectFields += " , UID";
-        }   
+        }
 
         if ( fieldError == true ) {
             throw new ERejectException(

@@ -20,10 +20,10 @@ package com.netscape.cms.profile.input;
 import java.util.Locale;
 
 import org.mozilla.jss.asn1.SEQUENCE;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.pkix.cmc.PKIData;
 import org.mozilla.jss.pkix.cmc.TaggedRequest;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -33,8 +33,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
-
-import netscape.security.x509.X509CertInfo;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements the certificate request input.
@@ -47,6 +46,9 @@ import netscape.security.x509.X509CertInfo;
  * @version $Revision$, $Date$
  */
 public class CMCCertReqInput extends EnrollInput implements IProfileInput {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMCCertReqInput.class);
+
     public static final String VAL_CERT_REQUEST_TYPE =
             EnrollProfile.CTX_CERT_REQUEST_TYPE;
     public static final String VAL_CERT_REQUEST =
@@ -88,14 +90,14 @@ public class CMCCertReqInput extends EnrollInput implements IProfileInput {
     public void populate(IProfileContext ctx, IRequest request)
             throws EProfileException {
         String method = "CMCCertReqInput: populate: ";
-        CMS.debug(method + "begins");
+        logger.debug(method + "begins");
 
         String cert_request = ctx.get(VAL_CERT_REQUEST);
         X509CertInfo info =
                 request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         if (cert_request == null) {
-            CMS.debug(method + "invalid certificate request");
+            logger.error(method + "invalid certificate request");
             throw new EProfileException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
         }
@@ -105,7 +107,7 @@ public class CMCCertReqInput extends EnrollInput implements IProfileInput {
         PKIData pkiData = mEnrollProfile.getPKIDataFromCMCblob(getLocale(request), cert_request);
         SEQUENCE reqSeq = pkiData.getReqSequence();
         int nummsgs = reqSeq.size(); // for now we only handle one anyways
-        CMS.debug(method + "pkiData.getReqSequence() called; nummsgs =" + nummsgs);
+        logger.debug(method + "pkiData.getReqSequence() called; nummsgs =" + nummsgs);
         TaggedRequest[] msgs = new TaggedRequest[reqSeq.size()];
         for (int i = 0; i < nummsgs; i++) {
             msgs[i] = (TaggedRequest) reqSeq.elementAt(i);

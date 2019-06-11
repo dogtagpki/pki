@@ -22,14 +22,13 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import netscape.security.x509.GeneralName;
-import netscape.security.x509.GeneralNameInterface;
-import netscape.security.x509.GeneralNames;
-import netscape.security.x509.IssuerAlternativeNameExtension;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.GeneralName;
+import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
+import org.mozilla.jss.netscape.security.x509.GeneralNames;
+import org.mozilla.jss.netscape.security.x509.IssuerAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -37,6 +36,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -46,6 +46,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class IssuerAltNameExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IssuerAltNameExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "issuerAltNameExtCritical";
     public static final String CONFIG_TYPE = "issuerAltExtType";
@@ -180,11 +182,11 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
                     PKIXExtensions.IssuerAlternativeName_Id.toString(),
                     ext, info);
         } catch (IOException e) {
-            CMS.debug("IssuerAltNameExtDefault: setValue " + e.toString());
+            logger.error("IssuerAltNameExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
-            CMS.debug("IssuerAltNameExtDefault: setValue " + e.toString());
+            logger.error("IssuerAltNameExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -255,8 +257,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
-            CMS.debug("IssuerAltNameExtDefault: getValue " +
-                    e.toString());
+            logger.warn("IssuerAltNameExtDefault: getValue " + e.getMessage(), e);
         }
         return null;
     }
@@ -282,7 +283,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
             ext = createExtension(request);
 
         } catch (IOException e) {
-            CMS.debug("IssuerAltNameExtDefault: populate " + e.toString());
+            logger.warn("IssuerAltNameExtDefault: populate " + e.getMessage(), e);
         }
         addExtension(PKIXExtensions.IssuerAlternativeName_Id.toString(),
                 ext, info);
@@ -295,7 +296,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
         try {
             ext = new IssuerAlternativeNameExtension();
         } catch (Exception e) {
-            CMS.debug(e.toString());
+            logger.warn("IssuerAltNameExtDefault: " + e.getMessage(), e);
             throw new IOException(e.toString());
         }
         boolean critical = Boolean.valueOf(

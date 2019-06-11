@@ -25,8 +25,14 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -36,14 +42,8 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-
-import netscape.security.x509.AuthorityKeyIdentifierExtension;
-import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.KeyIdentifier;
-import netscape.security.x509.SubjectKeyIdentifierExtension;
-import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.apps.CMSEngine;
 
 /**
  * Authority Public Key Extension Policy
@@ -59,6 +59,9 @@ import netscape.security.x509.X509CertInfo;
  */
 public class AuthorityKeyIdentifierExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthorityKeyIdentifierExt.class);
+
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_ALT_KEYID_TYPE = "AltKeyIdType";
 
@@ -162,8 +165,9 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
         //CertificateChain caChain = certAuthority.getCACertChain();
         //X509Certificate caCert = caChain.getFirstCertificate();
         X509CertImpl caCert = certAuthority.getCACert();
-        if (caCert == null || CMS.isPreOpMode()) {
-            CMS.debug("AuthorityKeyIdentifierExt.init(): Abort due to missing CA certificate or in pre-op-mode");
+        CMSEngine engine = CMS.getCMSEngine();
+        if (caCert == null || engine.isPreOpMode()) {
+            logger.warn("AuthorityKeyIdentifierExt.init(): Abort due to missing CA certificate or in pre-op-mode");
             return;
         }
         KeyIdentifier keyId = formKeyIdentifier(caCert);
@@ -233,14 +237,12 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
             }
             if (authorityKeyIdExt != null) {
                 if (agentApproved(req)) {
-                    CMS.debug(
-                            "AuthorityKeyIdentifierKeyExt: agent approved request id " + req.getRequestId() +
+                    logger.debug("AuthorityKeyIdentifierKeyExt: agent approved request id " + req.getRequestId() +
                                     " already has authority key id extension with value " +
                                     authorityKeyIdExt);
                     return PolicyResult.ACCEPTED;
                 } else {
-                    CMS.debug(
-                            "AuthorityKeyIdentifierKeyExt: request id from user " + req.getRequestId() +
+                    logger.debug("AuthorityKeyIdentifierKeyExt: request id from user " + req.getRequestId() +
                                     " had authority key identifier - deleted");
                     extensions.delete(AuthorityKeyIdentifierExtension.NAME);
                 }
@@ -260,9 +262,10 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
             }
             extensions.set(
                     AuthorityKeyIdentifierExtension.NAME, mTheExtension);
-            CMS.debug(
-                    "AuthorityKeyIdentifierKeyExt: added authority key id ext to request " + req.getRequestId());
+
+            logger.debug("AuthorityKeyIdentifierKeyExt: added authority key id ext to request " + req.getRequestId());
             return PolicyResult.ACCEPTED;
+
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.toString()));
@@ -348,13 +351,15 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
 
         try {
             exts = (CertificateExtensions) certInfo.get(X509CertInfo.EXTENSIONS);
+
         } catch (IOException e) {
             // extension isn't there.
-            CMS.debug(NAME + ": " + "No extensions found. Error " + e);
+            logger.error(NAME + ": " + "No extensions found: " + e.getMessage(), e);
             return null;
+
         } catch (CertificateException e) {
             // extension isn't there.
-            CMS.debug(NAME + ": " + "No extensions found. Error " + e);
+            logger.error(NAME + ": " + "No extensions found: " + e.getMessage(), e);
             return null;
         }
         if (exts == null)
@@ -365,8 +370,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
                     exts.get(SubjectKeyIdentifierExtension.NAME);
         } catch (IOException e) {
             // extension isn't there.
-            CMS.debug(
-                    "AuthorityKeyIdentifierKeyExt: No Subject Key Identifier Extension found. Error: " + e);
+            logger.error("AuthorityKeyIdentifierKeyExt: No Subject Key Identifier Extension found: " + e.getMessage(), e);
             return null;
         }
         if (subjKeyIdExt == null)

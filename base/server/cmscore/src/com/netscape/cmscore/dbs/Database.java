@@ -23,8 +23,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.netscape.certsrv.apps.CMS;
-
 /**
  * This class implements in-memory database.
  *
@@ -32,6 +30,7 @@ import com.netscape.certsrv.apps.CMS;
  */
 public class Database<E> {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Database.class);
     public final static int DEFAULT_SIZE = 20;
 
     public String name;
@@ -41,7 +40,7 @@ public class Database<E> {
     public Database(String name) {
         this.name = name;
 
-        CMS.debug("Initializing " + name + " database");
+        logger.debug("Initializing " + name + " database");
     }
 
     /**

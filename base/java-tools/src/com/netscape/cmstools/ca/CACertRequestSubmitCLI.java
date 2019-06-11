@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.dogtagpki.cli.CLI;
 
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CACertClient;
@@ -20,12 +21,11 @@ import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 import netscape.ldap.util.DN;
 import netscape.ldap.util.RDN;
-import netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 public class CACertRequestSubmitCLI extends CLI {
 

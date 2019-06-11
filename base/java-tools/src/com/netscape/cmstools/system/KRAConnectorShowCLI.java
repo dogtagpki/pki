@@ -2,9 +2,10 @@ package com.netscape.cmstools.system;
 
 import java.util.Arrays;
 
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.certsrv.system.KRAConnectorClient;
 import com.netscape.certsrv.system.KRAConnectorInfo;
-import com.netscape.cmstools.cli.CLI;
 
 public class KRAConnectorShowCLI extends CLI {
 

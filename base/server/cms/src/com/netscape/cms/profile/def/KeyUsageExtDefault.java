@@ -20,11 +20,10 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
-import netscape.security.x509.KeyUsageExtension;
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -32,6 +31,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -41,6 +41,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class KeyUsageExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyUsageExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "keyUsageCritical";
     public static final String CONFIG_DIGITAL_SIGNATURE =
@@ -310,11 +312,11 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
 
             replaceExtension(PKIXExtensions.KeyUsage_Id.toString(), ext, info);
         } catch (IOException e) {
-            CMS.debug("KeyUsageExtDefault: setValue " + e.toString());
+            logger.error("KeyUsageExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
-            CMS.debug("KeyUsageExtDefault: setValue " + e.toString());
+            logger.error("KeyUsageExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -451,7 +453,7 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
-            CMS.debug("KeyUsageExtDefault: getValue " + e.toString());
+            logger.error("KeyUsageExtDefault: getValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -503,8 +505,7 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
         try {
             ext = new KeyUsageExtension(critical, bits);
         } catch (Exception e) {
-            CMS.debug("KeyUsageExtDefault: createKeyUsageExtension " +
-                    e.toString());
+            logger.warn("KeyUsageExtDefault: createKeyUsageExtension " + e.getMessage(), e);
         }
         return ext;
     }

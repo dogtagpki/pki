@@ -20,11 +20,10 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.util.Locale;
 
-import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.PolicyConstraintsExtension;
-import netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+import org.mozilla.jss.netscape.security.x509.PolicyConstraintsExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
@@ -32,6 +31,7 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This class implements an enrollment default policy
@@ -41,6 +41,8 @@ import com.netscape.certsrv.request.IRequest;
  * @version $Revision$, $Date$
  */
 public class PolicyConstraintsExtDefault extends EnrollExtDefault {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PolicyConstraintsExtDefault.class);
 
     public static final String CONFIG_CRITICAL = "policyConstraintsCritical";
     public static final String CONFIG_REQ_EXPLICIT_POLICY = "policyConstraintsReqExplicitPolicy";
@@ -159,11 +161,11 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
             replaceExtension(PKIXExtensions.PolicyConstraints_Id.toString(),
                     ext, info);
         } catch (EProfileException e) {
-            CMS.debug("PolicyConstraintsExtDefault: setValue " + e.toString());
+            logger.error("PolicyConstraintsExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (IOException e) {
-            CMS.debug("PolicyConstraintsExtDefault: setValue " + e.toString());
+            logger.error("PolicyConstraintsExtDefault: setValue " + e.getMessage(), e);
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
@@ -278,8 +280,7 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
             }
             ext = new PolicyConstraintsExtension(critical, reqNum, inhibitNum);
         } catch (Exception e) {
-            CMS.debug("PolicyConstraintsExtDefault: createExtension " +
-                    e.toString());
+            logger.warn("PolicyConstraintsExtDefault: createExtension " + e.getMessage(), e);
         }
 
         return ext;

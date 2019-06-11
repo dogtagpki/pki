@@ -29,7 +29,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -44,11 +46,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
-import com.netscape.cmsutil.util.Utils;
-
-import netscape.security.x509.CertificateChain;
 
 /**
  * Retrieve the Certificates comprising the CA Chain for this CA.
@@ -284,8 +285,8 @@ public class GetCAChain extends CMSServlet {
             return;
         }
 
-        IArgBlock header = CMS.createArgBlock();
-        IArgBlock fixed = CMS.createArgBlock();
+        ArgBlock header = new ArgBlock();
+        ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         String displayFormat = null;
@@ -347,7 +348,7 @@ public class GetCAChain extends CMSServlet {
 
                     CertPrettyPrint certDetails = new CertPrettyPrint(certs[i]);
 
-                    IArgBlock rarg = CMS.createArgBlock();
+                    ArgBlock rarg = new ArgBlock();
 
                     rarg.addStringValue("fingerprints", finger);
                     rarg.addStringValue("subjectdn", subjectdn);

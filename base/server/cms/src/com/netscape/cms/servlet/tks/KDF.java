@@ -1,9 +1,11 @@
 package com.netscape.cms.servlet.tks;
 
-import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 
 public class KDF {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KDF.class);
+
     /* DES KEY Parity conversion table. Takes each byte >> 1 as an index, returns
      * that byte with the proper parity bit set*/
     static final int parityTable[] =
@@ -46,7 +48,7 @@ public class KDF {
 
         String method = "KDF.getDiversificationData_EMV:";
 
-        CMS.debug(method + " entering ...");
+        logger.debug(method + " entering ...");
 
         if (context == null || type == null) {
             throw new EBaseException(method + "Invalid input parameters!");
@@ -100,7 +102,7 @@ public class KDF {
 
         String method = "KDF.getDiversificationData_VISA2:";
 
-        CMS.debug(method + " entering ...");
+        logger.debug(method + " entering ...");
 
         if (context == null || type == null) {
             throw new EBaseException(method + "Invalid input parameters!");
@@ -170,7 +172,7 @@ public class KDF {
 
         }
 
-        CMS.debug(method + "desKey: len: " + desKey.length);
+        logger.debug(method + "desKey: len: " + desKey.length);
 
         return desKey;
     }

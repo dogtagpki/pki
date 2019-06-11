@@ -17,10 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools.feature;
 
+import org.dogtagpki.cli.CLI;
+
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.Feature;
 import com.netscape.certsrv.system.FeatureClient;
-import com.netscape.cmstools.cli.CLI;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class FeatureCLI extends CLI {

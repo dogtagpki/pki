@@ -20,17 +20,18 @@ package com.netscape.cms.publish.mappers;
 import java.security.cert.CRLException;
 import java.util.Vector;
 
-import com.netscape.certsrv.apps.CMS;
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
+import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPConnection;
-import netscape.security.util.ObjectIdentifier;
-import netscape.security.x509.X500Name;
-import netscape.security.x509.X509CRLImpl;
 
 /**
  * Default crl mapper.
@@ -41,6 +42,8 @@ import netscape.security.x509.X509CRLImpl;
  */
 public class LdapCrlIssuerCompsMap
         extends LdapDNCompsMap implements ILdapMapper {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCrlIssuerCompsMap.class);
     Logger mLogger = Logger.getLogger();
 
     public LdapCrlIssuerCompsMap() {
@@ -127,7 +130,7 @@ public class LdapCrlIssuerCompsMap
             String result = null;
             X500Name issuerDN = (X500Name) crl.getIssuerDN();
 
-            CMS.debug("LdapCrlIssuerCompsMap: " + issuerDN.toString());
+            logger.debug("LdapCrlIssuerCompsMap: " + issuerDN);
 
             byte[] crlbytes = crl.getEncoded();
 
