@@ -44,6 +44,8 @@ DEFAULT_PKI_ENV_LIST = [
     '/etc/pki/pki.conf',
 ]
 
+logger = logging.getLogger(__name__)
+
 
 def replace_params(line, params=None):
     """
@@ -82,7 +84,7 @@ def replace_params(line, params=None):
 
         except KeyError:
             # undefined parameter, skip
-            logging.warning('Ignoring [%s] parameter', line[begin:end + 1])
+            logger.warning('Ignoring [%s] parameter', line[begin:end + 1])
 
         # find the next parameter in the remainder of the line
         begin = line.find('[', end + 1)
@@ -92,10 +94,10 @@ def replace_params(line, params=None):
 
 def makedirs(path, uid=-1, gid=-1, force=False):
 
-    logging.debug('Command: mkdir -p %s', path)
+    logger.debug('Command: mkdir -p %s', path)
 
     if force and os.path.exists(path):
-        logging.warning('Directory already exists: %s', path)
+        logger.warning('Directory already exists: %s', path)
         return
 
     os.makedirs(path)
@@ -104,10 +106,10 @@ def makedirs(path, uid=-1, gid=-1, force=False):
 
 def symlink(source, dest, uid=-1, gid=-1, force=False):
 
-    logging.debug('Command: ln -s %s %s', source, dest)
+    logger.debug('Command: ln -s %s %s', source, dest)
 
     if force and os.path.exists(dest):
-        logging.warning('Link already exists: %s', dest)
+        logger.warning('Link already exists: %s', dest)
         return
 
     os.symlink(source, dest)
@@ -155,11 +157,11 @@ def copyfile(source, dest, uid=-1, gid=-1, force=False):
     Copy a file or link while preserving its attributes.
     """
 
-    logging.debug('Command: cp %s %s', source, dest)
+    logger.debug('Command: cp %s %s', source, dest)
 
     # if dest already exists and not overwriting, do nothing
     if os.path.exists(dest):
-        logging.warning('File already exists: %s', dest)
+        logger.warning('File already exists: %s', dest)
 
         if not force:
             return
@@ -201,10 +203,10 @@ def copydirs(source, dest, uid=-1, gid=-1, force=False):
         sourceparent = os.path.dirname(source)
         copydirs(sourceparent, destparent, uid=uid, gid=gid, force=force)
 
-    logging.debug('Command: mkdir %s', dest)
+    logger.debug('Command: mkdir %s', dest)
 
     if force and os.path.exists(dest):
-        logging.warning('Directory already exists: %s', dest)
+        logger.warning('Directory already exists: %s', dest)
         return
 
     os.mkdir(dest)
@@ -255,10 +257,10 @@ def chmod(path, perms):
 
 def remove(path, force=False):
 
-    logging.debug('Command: rm -rf %s', path)
+    logger.debug('Command: rm -rf %s', path)
 
     if force and not os.path.exists(path):
-        logging.warning('File not found: %s', path)
+        logger.warning('File not found: %s', path)
         return
 
     os.remove(path)
@@ -266,10 +268,10 @@ def remove(path, force=False):
 
 def rmtree(path, force=False):
 
-    logging.debug('Command: rm -rf %s', path)
+    logger.debug('Command: rm -rf %s', path)
 
     if force and not os.path.exists(path):
-        logging.warning('Directory not found: %s', path)
+        logger.warning('Directory not found: %s', path)
         return
 
     shutil.rmtree(path)
@@ -277,10 +279,10 @@ def rmtree(path, force=False):
 
 def unlink(link, force=False):
 
-    logging.debug('Command: rm -rf %s', link)
+    logger.debug('Command: rm -rf %s', link)
 
     if force and not os.path.islink(link):
-        logging.warning('Link not found: %s', link)
+        logger.warning('Link not found: %s', link)
         return
 
     os.unlink(link)
