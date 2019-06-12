@@ -985,7 +985,7 @@ class ServerConfiguration(object):
     def get_sslhosts(self, connector):
         return list(connector.iter('SSLHostConfig'))
 
-    def get_sslhost(self, connector, hostname):
+    def get_sslhost(self, connector, hostname='_default_'):
         sslhosts = self.get_sslhosts(connector)
 
         for sslhost in sslhosts:
@@ -1013,7 +1013,7 @@ class ServerConfiguration(object):
     def get_sslcerts(self, sslhost):
         return list(sslhost.iter('Certificate'))
 
-    def get_sslcert(self, sslhost, certType):
+    def get_sslcert(self, sslhost, certType='UNDEFINED'):
         sslcerts = self.get_sslcerts(sslhost)
 
         for sslcert in sslcerts:
@@ -1256,12 +1256,24 @@ class PKIInstance(PKIServer):
             return f.readline().strip()
 
     def set_sslserver_cert_nickname(self, nickname, token=None):
+
         if pki.nssdb.normalize_token(token):
             nickname = token + ':' + nickname
+
+        # update serverCertNick.conf
         with open(self.server_cert_nick_conf, 'w') as f:
             f.write(nickname + '\n')
+
         os.chown(self.server_cert_nick_conf, self.uid, self.gid)
         os.chmod(self.server_cert_nick_conf, 0o0660)
+
+        # update server.xml
+        server_config = self.get_server_config()
+        connector = server_config.get_connector('Secure')
+        sslhost = server_config.get_sslhost(connector)
+        sslcert = server_config.get_sslcert(sslhost)
+        sslcert.set('certificateKeyAlias', nickname)
+        server_config.save()
 
     def get_subsystem(self, name):
         for subsystem in self.subsystems:
