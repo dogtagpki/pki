@@ -286,6 +286,15 @@ class PKIServer(object):
             if current_user != self.user:
                 preexec_fn = demote(self.uid, self.gid)
 
+        cmd = ['/usr/bin/pkidaemon', 'start', self.name]
+        logger.debug('Command: %s', ' '.join(cmd))
+
+        subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
+            cmd,
+            preexec_fn=preexec_fn,
+            env=self.config
+        )
+
         cmd = []
         if jdb:
             cmd.extend(['jdb'])
@@ -1119,6 +1128,10 @@ class PKIInstance(PKIServer):
         return os.path.join(PKIServer.LOG_DIR, self.name)
 
     @property
+    def custom_policy(self):
+        return os.path.join(self.conf_dir, 'custom.policy')
+
+    @property
     def service_conf(self):
         return os.path.join(SYSCONFIG_DIR, self.name)
 
@@ -1149,6 +1162,9 @@ class PKIInstance(PKIServer):
     def create(self, force=False):
 
         super(PKIInstance, self).create(force=force)
+
+        custom_policy = PKIServer.SHARE_DIR + '/server/conf/custom.policy'
+        self.copy(custom_policy, self.custom_policy, force=force)
 
         conf_dir = os.path.join(self.base_dir, 'conf')
         self.symlink(self.conf_dir, conf_dir, force=force)
