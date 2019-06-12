@@ -835,9 +835,6 @@ class PKIConfigParser:
             #     NOTE:  Master key == Slots key; Master value ==> Slots value
             self.mdict['PKI_INSTANCE_NAME_SLOT'] = \
                 self.mdict['pki_instance_name']
-            self.mdict['PKI_INSTANCE_INITSCRIPT_SLOT'] = \
-                os.path.join(self.mdict['pki_instance_path'],
-                             self.mdict['pki_instance_name'])
             self.mdict['PKI_REGISTRY_FILE_SLOT'] = \
                 os.path.join(self.mdict['pki_subsystem_registry_path'],
                              self.mdict['pki_instance_name'])
@@ -882,9 +879,6 @@ class PKIConfigParser:
                 self.mdict['pki_instance_path']
             self.mdict['PKI_INSTANCE_ROOT_SLOT'] = \
                 self.mdict['pki_path']
-            self.mdict['PKI_LOCKDIR_SLOT'] = \
-                os.path.join("/var/lock/pki",
-                             "tomcat")
             self.mdict['PKI_HOSTNAME_SLOT'] = \
                 self.mdict['pki_hostname']
             self.mdict['PKI_OPEN_SEPARATE_PORTS_SERVER_COMMENT_SLOT'] = \
