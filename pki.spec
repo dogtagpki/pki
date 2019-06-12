@@ -314,7 +314,7 @@ BuildRequires:    jss >= 4.4.0-11
 BuildRequires:    tomcatjss >= 7.2.1-4
 %else
 BuildRequires:    jss >= 4.6.0
-BuildRequires:    tomcatjss >= 7.4.0
+BuildRequires:    tomcatjss >= 7.4.1
 %endif
 BuildRequires:    systemd-units
 
@@ -697,7 +697,7 @@ Requires(pre):    shadow-utils
 %if 0%{?rhel} && 0%{?rhel} <= 7
 Requires:         tomcatjss >= 7.2.1-4
 %else
-Requires:         tomcatjss >= 7.4.0
+Requires:         tomcatjss >= 7.4.1
 %endif
 
 # https://pagure.io/freeipa/issue/7742
