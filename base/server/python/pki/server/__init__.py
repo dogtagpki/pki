@@ -63,6 +63,8 @@ class Tomcat(object):
     LIB_DIR = '/usr/share/java/tomcat'
     SHARE_DIR = '/usr/share/tomcat'
     EXECUTABLE = '/usr/sbin/tomcat'
+    UNIT_FILE = '/lib/systemd/system/tomcat@.service'
+    TOMCAT_CONF = CONF_DIR + '/tomcat.conf'
 
     @classmethod
     def get_version(cls):
@@ -91,7 +93,8 @@ class PKIServer(object):
     CONFIG_DIR = '/etc/pki'
     LOG_DIR = '/var/log/pki'
     SHARE_DIR = '/usr/share/pki'
-    REGISTRY_DIR = os.path.join(SYSCONFIG_DIR, 'pki')
+    REGISTRY_DIR = SYSCONFIG_DIR + '/pki'
+    TOMCAT_CONF = SHARE_DIR + '/etc/tomcat.conf'
 
     def __init__(self,
                  name,
@@ -249,6 +252,10 @@ class PKIServer(object):
 
     def run(self, jdb=False, as_current_user=False):
 
+        logger.debug('Environment variables:')
+        for name in self.config:
+            logger.debug('- %s: %s', name, self.config[name])
+
         java_home = self.config['JAVA_HOME']
         java_opts = self.config['JAVA_OPTS']
 
@@ -336,8 +343,7 @@ class PKIServer(object):
         server_xml = os.path.join(Tomcat.CONF_DIR, 'server.xml')
         self.copy(server_xml, self.server_xml, force=force)
 
-        tomcat_conf = os.path.join(Tomcat.CONF_DIR, 'tomcat.conf')
-        self.copy(tomcat_conf, self.tomcat_conf, force=force)
+        self.copy(Tomcat.TOMCAT_CONF, self.tomcat_conf, force=force)
 
         tomcat_users_xml = os.path.join(Tomcat.CONF_DIR, 'tomcat-users.xml')
         tomcat_users_xml_link = os.path.join(self.conf_dir, 'tomcat-users.xml')
@@ -521,15 +527,22 @@ class PKIServer(object):
 
         self.config.clear()
 
-        if os.path.exists(self.tomcat_conf):
+        logger.info('Loading global Tomcat config: %s', Tomcat.TOMCAT_CONF)
+        pki.util.load_properties(Tomcat.TOMCAT_CONF, self.config)
 
-            logger.info('Loading Tomcat config: %s', self.tomcat_conf)
+        logger.info('Loading PKI Tomcat config: %s', PKIServer.TOMCAT_CONF)
+        pki.util.load_properties(PKIServer.TOMCAT_CONF, self.config)
+
+        if os.path.exists(self.tomcat_conf):
+            logger.info('Loading instance Tomcat config: %s', self.tomcat_conf)
             pki.util.load_properties(self.tomcat_conf, self.config)
 
-            # strip quotes
-            for name, value in self.config.items():
-                if value.startswith('"') and value.endswith('"'):
-                    self.config[name] = value[1:-1]
+        # strip quotes
+        for name, value in self.config.items():
+            if value.startswith('"') and value.endswith('"'):
+                self.config[name] = value[1:-1]
+
+        self.config['NAME'] = self.name
 
     def load_passwords(self):
 
