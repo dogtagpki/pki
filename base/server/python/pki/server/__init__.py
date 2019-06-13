@@ -906,6 +906,10 @@ class ServerConfiguration(object):
         with open(self.filename, 'wb') as f:
             self.document.write(f, pretty_print=True, encoding='utf-8')
 
+    def get_port(self):
+        server = self.document.getroot()
+        return server.get('port')
+
     def get_listeners(self):
         server = self.document.getroot()
         return server.findall('Listener')
