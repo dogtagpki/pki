@@ -57,15 +57,6 @@ logger = logging.getLogger(__name__)
 parser = etree.XMLParser(remove_blank_text=True)
 
 
-def demote(uid, gid):
-
-    def result():
-        os.setgid(gid)
-        os.setuid(uid)
-
-    return result
-
-
 class Tomcat(object):
 
     BASE_DIR = '/var/lib/tomcats'
@@ -275,7 +266,7 @@ class PKIServer(object):
             '/usr/lib/java/commons-daemon.jar'
         ]
 
-        preexec_fn = None
+        prefix = []
 
         # by default run PKI server as systemd user
         if not as_current_user:
@@ -284,18 +275,17 @@ class PKIServer(object):
 
             # switch to systemd user if different from current user
             if current_user != self.user:
-                preexec_fn = demote(self.uid, self.gid)
+                prefix.extend(['sudo', '-u', self.user])
 
-        cmd = ['/usr/bin/pkidaemon', 'start', self.name]
+        cmd = prefix + ['/usr/bin/pkidaemon', 'start', self.name]
         logger.debug('Command: %s', ' '.join(cmd))
 
-        subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
+        subprocess.Popen(
             cmd,
-            preexec_fn=preexec_fn,
             env=self.config
         )
 
-        cmd = []
+        cmd = prefix
         if jdb:
             cmd.extend(['jdb'])
         else:
@@ -318,9 +308,8 @@ class PKIServer(object):
 
         logger.debug('Command: %s', ' '.join(cmd))
 
-        return subprocess.Popen(  # pylint: disable=subprocess-popen-preexec-fn
+        return subprocess.Popen(
             cmd,
-            preexec_fn=preexec_fn,
             env=self.config
         )
 
