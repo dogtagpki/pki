@@ -22,6 +22,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import getopt
 import logging
+import socket
 import sys
 
 import pki.cli
@@ -139,6 +140,170 @@ class PKIServerCLI(pki.cli.CLI):
     def print_status(instance):
         print('  Instance ID: %s' % instance.name)
         print('  Active: %s' % instance.is_active())
+
+        server_config = instance.get_server_config()
+
+        unsecurePort = None
+        securePort = None
+
+        for connector in server_config.get_connectors():
+            protocol = connector.get('protocol')
+            sslEnabled = connector.get('SSLEnabled')
+
+            if sslEnabled:
+                securePort = connector.get('port')
+                print('  Secure Port: %s' % securePort)
+
+            elif protocol.startswith('AJP/'):
+                ajpPort = connector.get('port')
+                print('  AJP Port: %s' % ajpPort)
+
+            else:
+                unsecurePort = connector.get('port')
+                print('  Unsecure Port: %s' % unsecurePort)
+
+        tomcatPort = server_config.get_port()
+        print('  Tomcat Port: %s' % tomcatPort)
+
+        hostname = socket.gethostname()
+
+        ca = instance.get_subsystem('ca')
+        if ca:
+            print()
+            print('  CA Subsystem:')
+
+            if ca.config['subsystem.select'] == 'Clone':
+                subsystem_type = 'CA Clone'
+            else:
+                subsystem_type = ca.config['hierarchy.select'] + ' CA'
+            if ca.config['securitydomain.select'] == 'new':
+                subsystem_type += ' (Security Domain)'
+            print('    Type:                %s' % subsystem_type)
+
+            url = 'https://%s:%s' % (
+                ca.config['securitydomain.host'],
+                ca.config['securitydomain.httpsadminport'])
+            print('    SD Registration URL: %s' % url)
+
+            enabled = ca.is_enabled()
+            print('    Enabled:             %s' % enabled)
+
+            if enabled:
+                url = 'http://%s:%s/ca' % (hostname, unsecurePort)
+                print('    Unsecure URL:        %s/ee/ca' % url)
+
+                url = 'https://%s:%s/ca' % (hostname, securePort)
+                print('    Secure Agent URL:    %s/agent/ca' % url)
+                print('    Secure EE URL:       %s/ee/ca' % url)
+                print('    Secure Admin URL:    %s/services' % url)
+                print('    PKI Console Command: pkiconsole %s' % url)
+
+        kra = instance.get_subsystem('kra')
+        if kra:
+            print()
+            print('  KRA Subsystem:')
+
+            subsystem_type = 'KRA'
+            if kra.config['subsystem.select'] == 'Clone':
+                subsystem_type += ' Clone'
+            elif kra.config['kra.standalone'] == 'true':
+                subsystem_type += ' (Standalone)'
+            print('    Type:                %s' % subsystem_type)
+
+            url = 'https://%s:%s' % (
+                kra.config['securitydomain.host'],
+                kra.config['securitydomain.httpsadminport'])
+            print('    SD Registration URL: %s' % url)
+
+            enabled = kra.is_enabled()
+            print('    Enabled:             %s' % enabled)
+
+            if enabled:
+                url = 'https://%s:%s/kra' % (hostname, securePort)
+                print('    Secure Agent URL:    %s/agent/kra' % url)
+                print('    Secure Admin URL:    %s/services' % url)
+                print('    PKI Console Command: pkiconsole %s' % url)
+
+        ocsp = instance.get_subsystem('ocsp')
+        if ocsp:
+            print()
+            print('  OCSP Subsystem:')
+
+            subsystem_type = 'OCSP'
+            if ocsp.config['subsystem.select'] == 'Clone':
+                subsystem_type += ' Clone'
+            elif ocsp.config['ocsp.standalone'] == 'true':
+                subsystem_type += ' (Standalone)'
+            print('    Type:                %s' % subsystem_type)
+
+            url = 'https://%s:%s' % (
+                ocsp.config['securitydomain.host'],
+                ocsp.config['securitydomain.httpsadminport'])
+            print('    SD Registration URL: %s' % url)
+
+            enabled = ocsp.is_enabled()
+            print('    Enabled:             %s' % enabled)
+
+            if enabled:
+                url = 'http://%s:%s/ocsp' % (hostname, unsecurePort)
+                print('    Unsecure URL:        %s/ee/ocsp/<ocsp request blob>' % url)
+
+                url = 'https://%s:%s/ocsp' % (hostname, securePort)
+                print('    Secure Agent URL:    %s/agent/ocsp' % url)
+                print('    Secure EE URL:       %s/ee/ocsp/<ocsp request blob>' % url)
+                print('    Secure Admin URL:    %s/services' % url)
+                print('    PKI Console Command: pkiconsole %s' % url)
+
+        tks = instance.get_subsystem('tks')
+        if tks:
+            print()
+            print('  TKS Subsystem:')
+
+            subsystem_type = 'TKS'
+            if tks.config['subsystem.select'] == 'Clone':
+                subsystem_type += ' Clone'
+            print('    Type:                %s' % subsystem_type)
+
+            url = 'https://%s:%s' % (
+                tks.config['securitydomain.host'],
+                tks.config['securitydomain.httpsadminport'])
+            print('    SD Registration URL: %s' % url)
+
+            enabled = tks.is_enabled()
+            print('    Enabled:             %s' % enabled)
+
+            if enabled:
+                url = 'https://%s:%s/tks' % (hostname, securePort)
+                print('    Secure Agent URL:    %s/agent/tks' % url)
+                print('    Secure Admin URL:    %s/services' % url)
+                print('    PKI Console Command: pkiconsole %s' % url)
+
+        tps = instance.get_subsystem('tps')
+        if tps:
+            print()
+            print('  TPS Subsystem:')
+
+            subsystem_type = 'TPS'
+            if tps.config['subsystem.select'] == 'Clone':
+                subsystem_type += ' Clone'
+            print('    Type:                %s' % subsystem_type)
+
+            url = 'https://%s:%s' % (
+                tps.config['securitydomain.host'],
+                tps.config['securitydomain.httpsadminport'])
+            print('    SD Registration URL: %s' % url)
+
+            enabled = tps.is_enabled()
+            print('    Enabled:             %s' % enabled)
+
+            if enabled:
+                url = 'http://%s:%s/tps' % (hostname, unsecurePort)
+                print('    Unsecure URL:        %s' % url)
+                print('    Unsecure PHONE HOME: %s/phoneHome' % url)
+
+                url = 'https://%s:%s/tps' % (hostname, securePort)
+                print('    Secure URL:          %s' % url)
+                print('    Secure PHONE HOME:   %s/phoneHome' % url)
 
 
 class CreateCLI(pki.cli.CLI):
@@ -316,6 +481,8 @@ class StatusCLI(pki.cli.CLI):
         if not instance.is_valid():
             print('ERROR: Invalid instance: %s' % instance_name)
             sys.exit(1)
+
+        instance.load()
 
         PKIServerCLI.print_status(instance)
 
