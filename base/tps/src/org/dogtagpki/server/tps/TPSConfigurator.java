@@ -152,6 +152,8 @@ public class TPSConfigurator extends Configurator {
     @Override
     public void setupAdmin(AdminSetupRequest request, AdminSetupResponse response) throws Exception {
 
+        super.setupAdmin(request, response);
+
         logger.debug("Adding all profiles to TPS admin user");
 
         CMSEngine engine = CMS.getCMSEngine();
