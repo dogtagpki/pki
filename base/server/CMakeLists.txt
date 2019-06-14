@@ -28,27 +28,6 @@ add_subdirectory(cmsbundle)
 add_subdirectory(cmscore)
 add_subdirectory(test)
 
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/share/etc/tomcat.conf.in
-    ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
-)
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-server.in
-    ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-server
-)
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-server-upgrade.in
-    ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-server-upgrade
-)
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pkidestroy.in
-    ${CMAKE_CURRENT_BINARY_DIR}/sbin/pkidestroy
-)
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pkispawn.in
-    ${CMAKE_CURRENT_BINARY_DIR}/sbin/pkispawn
-)
-
 # build server classes
 javac(pki-server-classes
     SOURCES
@@ -210,7 +189,7 @@ install(
 
 install(
     FILES
-         ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
+         ${CMAKE_CURRENT_SOURCE_DIR}/share/etc/tomcat.conf
     DESTINATION
         ${DATA_INSTALL_DIR}/etc/
 )
@@ -304,10 +283,10 @@ install(
 # install executables
 install(
     FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-server
-        ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-server-upgrade
-        ${CMAKE_CURRENT_BINARY_DIR}/sbin/pkidestroy
-        ${CMAKE_CURRENT_BINARY_DIR}/sbin/pkispawn
+        ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-server
+        ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-server-upgrade
+        ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pkidestroy
+        ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pkispawn
     DESTINATION
         ${SBIN_INSTALL_DIR}
     PERMISSIONS

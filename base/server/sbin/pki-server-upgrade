@@ -14,7 +14,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-# Copyright (C) 2017 Red Hat, Inc.
+# Copyright (C) 2018 Red Hat, Inc.
 # All rights reserved.
 # --- END COPYRIGHT BLOCK ---
 #
@@ -23,6 +23,11 @@
 # set NSS_DEFAULT_DB_TYPE.
 . /usr/share/pki/scripts/config
 
-@PYTHON_EXECUTABLE@ -m pki.server.pkidestroy "$@"
+if [ -n "${PKI_SERVER_UPGRADE_LOG}" ]; then
+    "Upgrading PKI server configuration at `/bin/date`." | tee --append "${PKI_SERVER_UPGRADE_LOG}"
+    ${PYTHON_EXECUTABLE} -m pki.server.cli.upgrade "$@" 2>&1 | tee --append "${PKI_SERVER_UPGRADE_LOG}"
+else
+    ${PYTHON_EXECUTABLE} -m pki.server.cli.upgrade "$@"
+fi
 
 exit $?

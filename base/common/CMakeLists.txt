@@ -1,19 +1,9 @@
 project(common NONE)
 
-# install common configuration files
+# Customize default pki.conf.
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/share/etc/pki.conf
     ${CMAKE_CURRENT_BINARY_DIR}/share/etc/pki.conf
-)
-
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/etc/pki.conf
-    ${CMAKE_CURRENT_BINARY_DIR}/etc/pki.conf
-)
-
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-upgrade.in
-    ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-upgrade
 )
 
 # Create /usr/share/pki/lib. This can be customized for different platforms in RPM spec.
@@ -84,7 +74,7 @@ install(
 
 install(
     FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/etc/pki.conf
+        ${CMAKE_CURRENT_SOURCE_DIR}/etc/pki.conf
     DESTINATION
         ${SYSCONF_INSTALL_DIR}/pki/
 )
@@ -92,7 +82,7 @@ install(
 # install executables
 install(
     FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/sbin/pki-upgrade
+        ${CMAKE_CURRENT_SOURCE_DIR}/sbin/pki-upgrade
     DESTINATION
         ${SBIN_INSTALL_DIR}
     PERMISSIONS

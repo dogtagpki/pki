@@ -1,10 +1,5 @@
 project(java-tools NONE)
 
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/bin/pki.in
-    ${CMAKE_CURRENT_BINARY_DIR}/bin/pki
-)
-
 add_custom_target(pki-tools-man ALL
     COMMENT "Creating PKI tools manuals")
 
@@ -77,7 +72,7 @@ install(
 
 install(
     FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/bin/pki
+        ${CMAKE_CURRENT_SOURCE_DIR}/bin/pki
     DESTINATION
         ${BIN_INSTALL_DIR}
     PERMISSIONS
