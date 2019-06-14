@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -128,32 +129,36 @@ public class GetStatus extends CMSServlet {
     }
 
     /**
-     * Return the product version if the file: /usr/share/pki/CS_SERVER_VERSION
-     * exists.
+     * Return the product version in /usr/share/pki/CS_SERVER_VERSION
+     * which is provided by the server theme package.
      *
      * Caller only cares if there is a string or not, exceptions handled here.
      */
-    private String getProductVersion(String versionFilePathName) {
-        String version = null;
+    private String getProductVersion(String versionFilePathName) throws IOException {
+
         FileInputStream inputStream = null;
 
-        if(StringUtils.isEmpty(versionFilePathName)) {
+        if (StringUtils.isEmpty(versionFilePathName)) {
             logger.warn("Missing product version file path!");
             return null;
         }
 
         try {
             inputStream = new FileInputStream(versionFilePathName);
-            String contents = IOUtils.toString(inputStream);
+            String version = IOUtils.toString(inputStream);
 
-            if(contents != null) {
+            if (version != null) {
+                version = version.trim();
                 logger.debug("Returning product version: " + version);
-                version = contents.trim();
             }
-        } catch (Exception e) {
-            logger.warn("Failed to read product version String. " + e.getMessage(), e);
-        }
-        finally {
+
+            return version;
+
+        } catch (FileNotFoundException e) {
+            // CS_SERVER_VERSION does not exist
+            return null;
+
+        } finally {
             if(inputStream != null) {
                 try {
                     inputStream.close();
@@ -161,6 +166,5 @@ public class GetStatus extends CMSServlet {
                 }
             }
         }
-        return version;
     }
 }
