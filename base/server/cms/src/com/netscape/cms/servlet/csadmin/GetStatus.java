@@ -151,7 +151,7 @@ public class GetStatus extends CMSServlet {
                 version = contents.trim();
             }
         } catch (Exception e) {
-            logger.warn("Failed to read product version String. " + e.getMessage(), e);
+            logger.warn("Not reading product version.");
         }
         finally {
             if(inputStream != null) {
