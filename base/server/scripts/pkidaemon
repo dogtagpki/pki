@@ -50,6 +50,7 @@ print_usage()
 # See how we were called.
 case $command in
     status)
+        (>&2 echo "WARNING: pkidaemon status has been deprecated. Use pki-server status instead.")
         registry_status
         exit $?
         ;;
