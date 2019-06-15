@@ -292,13 +292,16 @@ class PKIServer(object):
             cmd.extend([java_home + '/bin/java'])
 
         cmd.extend([
+            '-agentpath:/usr/lib/abrt-java-connector/libabrt-java-connector.so=abrt=on,',
             '-classpath', os.pathsep.join(classpath),
             '-Dcatalina.base=' + self.base_dir,
             '-Dcatalina.home=' + Tomcat.SHARE_DIR,
             '-Djava.endorsed.dirs=',
             '-Djava.io.tmpdir=' + self.temp_dir,
             '-Djava.util.logging.config.file=' + self.logging_properties,
-            '-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager'
+            '-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager',
+            '-Djava.security.manager',
+            '-Djava.security.policy==' + self.catalina_policy
         ])
 
         if java_opts:
