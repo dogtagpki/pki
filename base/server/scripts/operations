@@ -942,50 +942,30 @@ EOF
         /usr/sbin/pki-server subsystem-enable -i "$PKI_INSTANCE_NAME" --all
     fi
 
-    # We no longer start tomcat instances here.
-    # instead we rely on the tomcat unit scripts
-
-    # From the PKI point of view a returned error code of 6 implies
-    # that the program is not "configured". An error code of 1 implies
-    # that the program was "configured" but must still be restarted.
+    # Always create a backup of each PKI subsystem's 'CS.cfg' file
+    # within an instance.
     #
-    # If the return code is 6 return this value unchanged to the
-    # calling routine so that the total number of configuration errors
-    # may be counted. Other return codes are ignored.
+    # For every backup failure detected within a PKI subsystem within
+    # an instance, a warning message will be issued, and an error code
+    # of 1 will be returned.
     #
-    check_pki_configuration_status
-    rv=$?
-    if [ $rv -eq 6 ]; then
-        # 6 program is not configured
-        return 6
-    else
-        # 0 success
-
-        # Always create a backup of each PKI subsystem's 'CS.cfg' file
-        # within an instance.
-        #
-        # For every backup failure detected within a PKI subsystem within
-        # an instance, a warning message will be issued, and an error code
-        # of 1 will be returned.
-        #
-        # Note that until they have been resolved, every previous backup
-        # failures of any PKI subsystem within an instance will also issue
-        # a warning message and return an error code of 1.  Backups of that
-        # particular instance's PKI subsystem will be suspended until this
-        # error has been addressed.
-        #
-        # By default, unless they have been explicitly disabled,
-        # a timestamped archive of each PKI subsystem's 'CS.cfg' file
-        # within an instance will also be created. Note that a single
-        # timestamp will be utlized across each PKI subsystem within
-        # an instance for each invocation of this function.
-        #
-        # When enabled, any timestamped archive failures also issue a
-        # warning message and return an error code of 1.
-        #
-        backup_instance_configuration_files
-        return $?
-    fi
+    # Note that until they have been resolved, every previous backup
+    # failures of any PKI subsystem within an instance will also issue
+    # a warning message and return an error code of 1.  Backups of that
+    # particular instance's PKI subsystem will be suspended until this
+    # error has been addressed.
+    #
+    # By default, unless they have been explicitly disabled,
+    # a timestamped archive of each PKI subsystem's 'CS.cfg' file
+    # within an instance will also be created. Note that a single
+    # timestamp will be utlized across each PKI subsystem within
+    # an instance for each invocation of this function.
+    #
+    # When enabled, any timestamped archive failures also issue a
+    # warning message and return an error code of 1.
+    #
+    backup_instance_configuration_files
+    return $?
 }
 
 start()
