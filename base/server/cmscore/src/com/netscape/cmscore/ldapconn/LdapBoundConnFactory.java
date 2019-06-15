@@ -608,8 +608,10 @@ public class LdapBoundConnFactory implements ILdapConnFactory {
         logger.debug("Destroying LdapBoundConnFactory(" + id + ")");
 
         for (int i = 0; i < mNumConns; i++) {
-            mConns[i].close();
-            mConns[i] = null;
+            if (mConns[i] != null) {
+                mConns[i].close();
+                mConns[i] = null;
+            }
         }
 
         if (mMasterConn != null) {
