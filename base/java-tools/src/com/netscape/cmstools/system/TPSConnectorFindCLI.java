@@ -79,7 +79,7 @@ public class TPSConnectorFindCLI extends CLI {
         Integer size = s == null ? null : Integer.valueOf(s);
 
         TPSConnectorClient tpsConnectorClient = tpsConnectorCLI.getTPSConnectorClient();
-        TPSConnectorCollection result = tpsConnectorClient.findConnectors(start, size);
+        TPSConnectorCollection result = tpsConnectorClient.findConnectors(null, null, start, size);
 
         MainCLI.printMessage(result.getTotal() + " entries matched");
         if (result.getTotal() == 0) return;

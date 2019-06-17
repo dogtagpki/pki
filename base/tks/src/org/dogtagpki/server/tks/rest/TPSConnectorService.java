@@ -56,8 +56,11 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
     public UGSubsystem userGroupManager = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
     @Override
-    public Response findConnectors(Integer start, Integer size) {
+    public Response findConnectors(String host, String port, Integer start, Integer size) {
         try {
+            start = start == null ? 0 : start;
+            size = size == null ? DEFAULT_SIZE : size;
+
             String tpsList = cs.getString(TPS_LIST, "");
             Iterator<String> entries = Arrays.asList(StringUtils.split(tpsList, ",")).iterator();
 
@@ -70,7 +73,17 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
             // return entries up to the page size
             for (; i < start + size && entries.hasNext(); i++) {
-                response.addEntry(createTPSConnectorData(entries.next()));
+                TPSConnectorData connector = createTPSConnectorData(entries.next());
+
+                if (host != null && !host.equals(connector.getHost())) {
+                    continue;
+                }
+
+                if (port != null && !port.equals(connector.getPort())) {
+                    continue;
+                }
+
+                response.addEntry(connector);
             }
 
             // count the total entries
@@ -91,20 +104,23 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createOKResponse(response);
 
         } catch (EBaseException e) {
-            e.printStackTrace();
-            throw new PKIException("Unable to get TPS connection data: " + e);
+            logger.error("TPSConnectorService: Unable to find TPS connectors: " + e.getMessage(), e);
+            throw new PKIException("Unable to find TPS connectors: " + e.getMessage(), e);
         }
     }
 
     private TPSConnectorData createTPSConnectorData(String tpsID) throws EBaseException {
+
         TPSConnectorData data = new TPSConnectorData();
         data.setID(tpsID);
         data.setHost(cs.getString("tps." + tpsID + ".host", ""));
         data.setPort(cs.getString("tps." + tpsID + ".port", ""));
         data.setUserID(cs.getString("tps." + tpsID + ".userid", ""));
         data.setNickname(cs.getString("tps." + tpsID + ".nickname", ""));
+
         URI uri = uriInfo.getBaseUriBuilder().path(TPSCertResource.class).path("{id}").build(tpsID);
         data.setLink(new Link("self", uri));
+
         return data;
     }
 
@@ -125,30 +141,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createTPSConnectorData(id);
 
         } catch (EBaseException e) {
-            e.printStackTrace();
-            throw new PKIException("Unable to get TPS connection data" + e);
-        }
-    }
-
-    @Override
-    public Response getConnector(String host, String port) {
-
-        if (host == null)
-            throw new BadRequestException("TPS connector host is null.");
-        if (port == null)
-            throw new BadRequestException("TPS connector port is null.");
-
-        try {
-            String id = getConnectorID(host, port);
-            if (id == null)
-                throw new ResourceNotFoundException(
-                        "Connector not found for " + host + ":" + port);
-
-            return createOKResponse(createTPSConnectorData(id));
-
-        } catch (EBaseException e) {
-            e.printStackTrace();
-            throw new PKIException("Unable to get TPS connection data" + e);
+            logger.error("TPSConnectorService: Unable to get TPS connector: " + e.getMessage(), e);
+            throw new PKIException("Unable to get TPS connector: " + e.getMessage(), e);
         }
     }
 
@@ -184,8 +178,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createCreatedResponse(newData, newData.getLink().getHref());
 
         } catch (EBaseException e) {
-            logger.error("Unable to create new TPS Connector: " + e.getMessage(), e);
-            throw new PKIException("Unable to create  new TPS connector: " + e);
+            logger.error("TPSConnectorService: Unable to create new TPS connector: " + e.getMessage(), e);
+            throw new PKIException("Unable to create new TPS connector: " + e.getMessage(), e);
         }
     }
 
@@ -220,15 +214,15 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createOKResponse(curData);
 
         } catch (EBaseException e) {
-            logger.error("Unable to modify TPS Connector: " + e.getMessage(), e);
-            throw new PKIException("Unable to modify TPS Connector: " + e);
+            logger.error("TPSConnectorService: Unable to modify TPS connector: " + e.getMessage(), e);
+            throw new PKIException("Unable to modify TPS connector: " + e.getMessage(), e);
         }
     }
 
     private void saveClientData(TPSConnectorData newData) throws EBaseException {
         String id = newData.getID();
         if (StringUtils.isEmpty(id)) {
-            logger.warn("saveClientData: Attempt to save tps connection with null or empty id");
+            logger.warn("TPSConnectorService: Attempt to save tps connection with null or empty id");
             return;
         }
         String prefix = "tps." + id + ".";
@@ -260,8 +254,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createNoContentResponse();
 
         } catch (EBaseException e) {
-            e.printStackTrace();
-            throw new PKIException("Failed to delete TPS connection" + e);
+            logger.error("TPSConnectorService: Failed to delete TPS connector: " + e.getMessage(), e);
+            throw new PKIException("Failed to delete TPS connector: " + e.getMessage(), e);
         }
     }
 
@@ -278,8 +272,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             id = getConnectorID(host, port);
             deleteConnector(id);
         } catch (EBaseException e) {
-            e.printStackTrace();
-            throw new PKIException("Failed to delete TPS connector: " + e);
+            logger.error("TPSConnectorService: Failed to delete TPS connector: " + e.getMessage(), e);
+            throw new PKIException("Failed to delete TPS connector: " + e.getMessage(), e);
         }
 
         return createNoContentResponse();
@@ -338,8 +332,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createOKResponse(keyData);
 
         } catch (Exception  e) {
-            logger.error("Error in generating and exporting shared secret: " + e.getMessage(), e);
-            throw new PKIException("Error in generating and exporting shared secret: " + e, e);
+            logger.error("TPSConnectorService: Unable to generate and export shared secret: " + e.getMessage(), e);
+            throw new PKIException("Unable to generate and export shared secret: " + e.getMessage(), e);
         }
     }
 
@@ -406,8 +400,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createOKResponse(keyData);
 
         } catch (Exception e) {
-            logger.error("Error in replacing shared secret: " + e.getMessage(), e);
-            throw new PKIException("Error in replacing shared secret: " + e, e);
+            logger.error("TPSConnectorService: Unable to replace shared secret: " + e.getMessage(), e);
+            throw new PKIException("Unable to replace shared secret: " + e.getMessage(), e);
         }
     }
 
@@ -441,8 +435,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
 
         } catch (InvalidKeyException | IllegalStateException | EBaseException
                 | NotInitializedException | TokenException e) {
-            logger.error("Error in deleting shared secret: " + e.getMessage(), e);
-            throw new PKIException("Error in deleting shared secret: " + e);
+            logger.error("TPSConnectorService: Unable to delete shared secret: " + e.getMessage(), e);
+            throw new PKIException("Unable to delete shared secret: " + e.getMessage(), e);
         }
     }
 
@@ -488,8 +482,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             return createOKResponse(keyData);
 
         } catch (Exception e) {
-            logger.error("Error in obtaining shared secret: " + e.getMessage(), e);
-            throw new PKIException("Error in obtaining shared secret: " + e, e);
+            logger.error("TPSConnectorService: Unable to obtain shared secret: " + e.getMessage(), e);
+            throw new PKIException("Unable to obtain shared secret: " + e.getMessage(), e);
         }
     }
 
@@ -554,8 +548,8 @@ public class TPSConnectorService extends PKIService implements TPSConnectorResou
             tempKey = kg.generate();
         } catch (NoSuchAlgorithmException | TokenException | IllegalStateException | CharConversionException
                 | NotInitializedException e) {
-            logger.error("TPSConnectorService.createDes3SesisonKeyOnInternal: Can't generate temporary session key: " + e.getMessage(), e);
-            throw new EBaseException(e);
+            logger.error("TPSConnectorService: Unable to generate temporary session key: " + e.getMessage(), e);
+            throw new EBaseException("Unable to generate temporary session key: " + e.getMessage(), e);
         }
 
         return tempKey;

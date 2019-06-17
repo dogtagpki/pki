@@ -41,6 +41,8 @@ public interface TPSConnectorResource {
     @GET
     @ClientResponseType(entityType=TPSConnectorCollection.class)
     public Response findConnectors(
+            @QueryParam("host") String host,
+            @QueryParam("port") String port,
             @QueryParam("start") Integer start,
             @QueryParam("size") Integer size);
 
@@ -48,12 +50,6 @@ public interface TPSConnectorResource {
     @Path("{id}")
     @ClientResponseType(entityType=TPSConnectorData.class)
     public Response getConnector(@PathParam("id") String id);
-
-    @GET
-    @Path("search")
-    @ClientResponseType(entityType=TPSConnectorData.class)
-    public Response getConnector(@QueryParam("host") String host,
-            @QueryParam("port") String port);
 
     @POST
     @ClientResponseType(entityType=TPSConnectorData.class)
