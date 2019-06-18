@@ -27,11 +27,9 @@ import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.NotInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -129,17 +127,13 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: request: " + data);
         validateRequest(data);
 
-        logger.debug("=== Token Configuration ===");
-        String token = data.getToken();
-        configureToken(data, token);
-
         // configure security domain
         logger.debug("=== Security Domain Configuration ===");
         String domainXML = configurator.configureSecurityDomain(data);
 
         // configure subsystem
         logger.debug("=== Subsystem Configuration ===");
-        configurator.configureSubsystem(data, token, domainXML);
+        configurator.configureSubsystem(data, domainXML);
 
         // configure hierarchy
         logger.debug("=== Hierarchy Configuration ===");
@@ -424,7 +418,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         String tokenName = certData.getToken();
         if (StringUtils.isEmpty(tokenName)) {
-            tokenName = request.getToken();
+            tokenName = cs.getString("preop.module.token", null);
         }
 
         logger.debug("SystemConfigService: token: " + tokenName);
@@ -495,7 +489,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         String tag = certData.getTag();
         String tokenName = certData.getToken();
         if (StringUtils.isEmpty(tokenName)) {
-            tokenName = request.getToken();
+            tokenName = cs.getString("preop.module.token", null);
         }
 
         logger.debug("SystemConfigService.processCert(" + tag + ")");
@@ -608,12 +602,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     private void updateCloneConfiguration(
             ConfigurationRequest request,
             SystemCertData cdata,
-            String tag) throws NotInitializedException,
-            ObjectNotFoundException, TokenException {
+            String tag) throws Exception {
 
         String tokenName = cdata.getToken();
         if (StringUtils.isEmpty(tokenName)) {
-            tokenName = request.getToken();
+            tokenName = cs.getString("preop.module.token", null);
         }
 
         // TODO - some of these parameters may only be valid for RSA
@@ -653,10 +646,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("preop.cert." + tag + ".keytype", cdata.getKeyType());
     }
 
-    private void updateConfiguration(ConfigurationRequest data, SystemCertData cdata, String tag) {
+    private void updateConfiguration(ConfigurationRequest data, SystemCertData cdata, String tag) throws Exception {
+
         String tokenName = cdata.getToken();
         if (StringUtils.isEmpty(tokenName)) {
-            tokenName = data.getToken();
+            tokenName = cs.getString("preop.module.token", null);
         }
 
         if (CryptoUtil.isInternalToken(tokenName)) {
@@ -765,10 +759,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
     }
 
-    public void configureToken(ConfigurationRequest data, String token) {
-        cs.putString("preop.module.token", StringUtils.defaultString(token));
-    }
-
     private void validatePin(String pin) throws Exception {
 
         if (pin == null) {
@@ -862,7 +852,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("Invalid clone URI: " + cloneUri, e);
             }
 
-            if (CryptoUtil.isInternalToken(data.getToken())) {
+            String token = cs.getString("preop.module.token", null);
+
+            if (CryptoUtil.isInternalToken(token)) {
                 if (!data.getSystemCertsImported()) {
                     if (data.getP12File() == null) {
                         throw new BadRequestException("P12 filename not provided");

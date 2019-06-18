@@ -45,12 +45,6 @@ public class ConfigurationRequest {
     protected String pin;
 
     @XmlElement
-    protected String token;
-
-    @XmlElement
-    protected String tokenPassword;
-
-    @XmlElement
     protected String securityDomainType;
 
     @XmlElement
@@ -186,14 +180,6 @@ public class ConfigurationRequest {
         this.pin = pin;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public String getSecurityDomainType() {
         return securityDomainType;
     }
@@ -276,20 +262,6 @@ public class ConfigurationRequest {
      */
     public void setP12Password(String p12Password) {
         this.p12Password = p12Password;
-    }
-
-    /**
-     * @return the tokenPassword
-     */
-    public String getTokenPassword() {
-        return tokenPassword;
-    }
-
-    /**
-     * @param tokenPassword the tokenPassword to set
-     */
-    public void setTokenPassword(String tokenPassword) {
-        this.tokenPassword = tokenPassword;
     }
 
     /**
@@ -582,7 +554,6 @@ public class ConfigurationRequest {
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
-               ", token=" + token + ", tokenPassword=XXXX" +
                ", securityDomainType=" + securityDomainType +
                ", securityDomainUri=" + securityDomainUri +
                ", securityDomainName=" + securityDomainName +

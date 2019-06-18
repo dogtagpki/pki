@@ -3024,9 +3024,6 @@ class ConfigClient:
 
         # Miscellaneous Configuration Information
         data.pin = self.mdict['pki_one_time_pin']
-        if config.str2bool(self.mdict['pki_hsm_enable']):
-            data.token = self.mdict['pki_token_name']
-            data.tokenPassword = self.mdict['pki_token_password']
         data.subsystemName = self.mdict['pki_subsystem_name']
 
         # Process existing CA installation like external CA

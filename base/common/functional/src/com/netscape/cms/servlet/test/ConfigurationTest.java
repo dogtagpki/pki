@@ -244,7 +244,6 @@ public class ConfigurationTest {
         data.setSecurityDomainName("Testca2 security domain");
         data.setClone("false");
         data.setHierarchy("root");
-        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test ca subsystem");
 
         // create system certs
@@ -321,7 +320,6 @@ public class ConfigurationTest {
 
         data.setClone("false");
         data.setHierarchy("join");
-        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test subca subsystem");
 
         data.setIssuingCA("https://" + host + ":9224");
@@ -398,7 +396,6 @@ public class ConfigurationTest {
 
         data.setClone("false");
         data.setHierarchy("join");
-        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test external ca subsystem");
 
         data.setIssuingCA("External CA");
@@ -475,7 +472,6 @@ public class ConfigurationTest {
 
         data.setClone("false");
         data.setHierarchy("join");
-        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test external ca subsystem");
 
         data.setIssuingCA("External CA");
@@ -565,7 +561,6 @@ public class ConfigurationTest {
         data.setP12Password("redhat123");
 
         data.setHierarchy("root");
-        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test clone ca subsystem");
 
         // create system certs
@@ -597,7 +592,6 @@ public class ConfigurationTest {
         data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
-        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test kra subsystem");
 
         data.setIssuingCA("https://" + host + ":9224");
@@ -675,7 +669,6 @@ public class ConfigurationTest {
         data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
-        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test ocsp subsystem");
 
         data.setIssuingCA("https://" + host + ":9224");
@@ -742,7 +735,6 @@ public class ConfigurationTest {
         data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
-        data.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         data.setSubsystemName("test tks subsystem");
 
         data.setIssuingCA("https://" + host + ":9224");

@@ -679,8 +679,7 @@ public class Configurator {
         return false;
     }
 
-    public void configureSubsystem(ConfigurationRequest request,
-            String token, String domainXML) throws Exception {
+    public void configureSubsystem(ConfigurationRequest request, String domainXML) throws Exception {
 
         cs.putString("preop.subsystem.name", request.getSubsystemName());
 
@@ -692,11 +691,11 @@ public class Configurator {
         } else {
             cs.putString("preop.subsystem.select", "clone");
             cs.putString("subsystem.select", "Clone");
-            configureClone(request, token, domainXML);
+            configureClone(request, domainXML);
         }
     }
 
-    private void configureClone(ConfigurationRequest data, String token, String domainXML) throws Exception {
+    private void configureClone(ConfigurationRequest data, String domainXML) throws Exception {
 
         String value = cs.getString("preop.cert.list");
         String[] certList = value.split(",");
@@ -735,6 +734,8 @@ public class Configurator {
 
         logger.debug("SystemConfigService: get configuration entries from master");
         getConfigEntriesFromMaster();
+
+        String token = cs.getString("preop.module.token", null);
 
         if (CryptoUtil.isInternalToken(token)) {
             if (!data.getSystemCertsImported()) {

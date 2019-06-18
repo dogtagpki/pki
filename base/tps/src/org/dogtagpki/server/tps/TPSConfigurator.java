@@ -62,10 +62,9 @@ public class TPSConfigurator extends Configurator {
     }
 
     @Override
-    public void configureSubsystem(ConfigurationRequest request,
-            String token, String domainXML) throws Exception {
+    public void configureSubsystem(ConfigurationRequest request, String domainXML) throws Exception {
 
-        super.configureSubsystem(request, token, domainXML);
+        super.configureSubsystem(request, domainXML);
 
         SystemCertData subsystemCert = request.getSystemCert("subsystem");
 
