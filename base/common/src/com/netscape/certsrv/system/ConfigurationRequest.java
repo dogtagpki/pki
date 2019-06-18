@@ -256,6 +256,10 @@ public class ConfigurationRequest {
     @XmlElement
     protected Long securityDomainPostLoginSleepSeconds;
 
+    @XmlElement
+    protected String usePSSForRSASigningAlg;
+
+
     public ConfigurationRequest() {
         // required for JAXB
     }
@@ -1046,6 +1050,22 @@ public class ConfigurationRequest {
         securityDomainPostLoginSleepSeconds = d;
     }
 
+    public boolean getUsePSSForRSASigningAlg() {
+        if(usePSSForRSASigningAlg == null) {
+            return false;
+        }
+
+        if("true".equalsIgnoreCase(usePSSForRSASigningAlg)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public void setUsePSSForRSASigningAlg(String usePSS) {
+        this.usePSSForRSASigningAlg = usePSS;
+    }
+
     @Override
     public String toString() {
         return "ConfigurationRequest [pin=XXXX" +
@@ -1112,6 +1132,7 @@ public class ConfigurationRequest {
                ", startingCrlNumber=" + startingCRLNumber +
                ", createSigningCertRecord=" + createSigningCertRecord +
                ", signingCertSerialNumber=" + signingCertSerialNumber +
+               ", usePSSForRSASigningAlg=" + usePSSForRSASigningAlg +
                "]";
     }
 
