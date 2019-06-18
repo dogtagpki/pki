@@ -47,12 +47,15 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Finalizing subsystem creation')
 
+        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance.load()
+
         # Optionally, programmatically 'enable' the configured PKI instance
         # to be started upon system boot (default is True)
         if not config.str2bool(deployer.mdict['pki_enable_on_system_boot']):
-            deployer.systemd.disable()
+            instance.disable()
         else:
-            deployer.systemd.enable()
+            instance.enable()
 
         # Optionally, 'purge' the entire temporary client infrastructure
         # including the client NSS security databases and password files
@@ -66,6 +69,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                     deployer.mdict['pki_client_subsystem_dir']):
                 deployer.directory.delete(
                     deployer.mdict['pki_client_subsystem_dir'])
+
         # Log final process messages
         logger.info(log.PKISPAWN_END_MESSAGE_2,
                     deployer.mdict['pki_subsystem'],
@@ -82,7 +86,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # link to start configured PKI instances upon system reboot
         if deployer.mdict['pki_subsystem'] in config.PKI_SUBSYSTEMS and\
            deployer.instance.pki_instance_subsystems() == 0:
-            deployer.systemd.disable()
+            instance.disable()
 
         # Start this Tomcat PKI Process back if there are any subsystems still existing
         if len(deployer.instance.tomcat_instance_subsystems()) >= 1:

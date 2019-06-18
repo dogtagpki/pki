@@ -251,6 +251,16 @@ class PKIServer(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
+    def enable(self):
+        cmd = ['systemctl', 'enable', '%s.service' % self.service_name]
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
+    def disable(self):
+        cmd = ['systemctl', 'disable', '%s.service' % self.service_name]
+        logger.debug('Command: %s', ' '.join(cmd))
+        subprocess.check_call(cmd)
+
     def run(self, jdb=False, as_current_user=False):
 
         logger.debug('Environment variables:')
