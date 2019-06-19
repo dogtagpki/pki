@@ -737,15 +737,7 @@ public class Configurator {
 
         String token = cs.getString("preop.module.token", null);
 
-        if (CryptoUtil.isInternalToken(token)) {
-            if (!data.getSystemCertsImported()) {
-                logger.debug("SystemConfigService: restore certificates from P12 file");
-                String p12File = data.getP12File();
-                String p12Pass = data.getP12Password();
-                restoreCertsFromP12(p12File, p12Pass);
-            }
-
-        } else {
+        if (!CryptoUtil.isInternalToken(token)) {
             logger.debug("SystemConfigService: import certificates from HSM and set permission");
             importAndSetCertPermissionsFromHSM();
         }

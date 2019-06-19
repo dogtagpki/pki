@@ -3322,14 +3322,6 @@ class ConfigClient:
         data.isClone = "true"
         data.cloneUri = self.mdict['pki_clone_uri']
 
-        # Set these clone parameters for non-HSM clones only
-        if not config.str2bool(self.mdict['pki_hsm_enable']):
-            # If system certificates are already provided via pki_server_pkcs12
-            # there's no need to provide pki_clone_pkcs12.
-            if not self.mdict['pki_server_pkcs12_path']:
-                data.p12File = self.mdict['pki_clone_pkcs12_path']
-                data.p12Password = self.mdict['pki_clone_pkcs12_password']
-
         if config.str2bool(self.mdict['pki_clone_replicate_schema']):
             data.replicateSchema = "true"
         else:

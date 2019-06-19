@@ -852,28 +852,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("Invalid clone URI: " + cloneUri, e);
             }
 
-            String token = cs.getString("preop.module.token", null);
-
-            if (CryptoUtil.isInternalToken(token)) {
-                if (!data.getSystemCertsImported()) {
-                    if (data.getP12File() == null) {
-                        throw new BadRequestException("P12 filename not provided");
-                    }
-
-                    if (data.getP12Password() == null) {
-                        throw new BadRequestException("P12 password not provided");
-                    }
-                }
-            } else {
-                if (data.getP12File() != null) {
-                    throw new BadRequestException("P12 filename should not be provided since HSM clones must share their HSM master's private keys");
-                }
-
-                if (data.getP12Password() != null) {
-                    throw new BadRequestException("P12 password should not be provided since HSM clones must share their HSM master's private keys");
-                }
-            }
-
         } else {
             data.setClone("false");
         }

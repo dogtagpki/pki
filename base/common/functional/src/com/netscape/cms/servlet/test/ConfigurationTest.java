@@ -557,8 +557,6 @@ public class ConfigurationTest {
 
         data.setClone("true");
         data.setCloneUri("https://" + host + ":9224" );
-        data.setP12File("master.p12");
-        data.setP12Password("redhat123");
 
         data.setHierarchy("root");
         data.setSubsystemName("test clone ca subsystem");

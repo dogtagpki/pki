@@ -69,12 +69,6 @@ public class ConfigurationRequest {
     protected String subsystemName;
 
     @XmlElement
-    protected String p12File;
-
-    @XmlElement
-    protected String p12Password;
-
-    @XmlElement
     protected String hierarchy;
 
     @XmlElement
@@ -234,34 +228,6 @@ public class ConfigurationRequest {
 
     public void setCloneUri(String cloneUri) {
         this.cloneUri = cloneUri;
-    }
-
-    /**
-     * @return the p12File
-     */
-    public String getP12File() {
-        return p12File;
-    }
-
-    /**
-     * @param p12File the p12File to set
-     */
-    public void setP12File(String p12File) {
-        this.p12File = p12File;
-    }
-
-    /**
-     * @return the p12Password
-     */
-    public String getP12Password() {
-        return p12Password;
-    }
-
-    /**
-     * @param p12Password the p12Password to set
-     */
-    public void setP12Password(String p12Password) {
-        this.p12Password = p12Password;
     }
 
     /**
@@ -563,8 +529,6 @@ public class ConfigurationRequest {
                ", isClone=" + isClone +
                ", cloneUri=" + cloneUri +
                ", subsystemName=" + subsystemName +
-               ", p12File=" + p12File +
-               ", p12Password=XXXX" +
                ", hierarchy=" + hierarchy +
                ", replicateSchema=" + replicateSchema +
                ", masterReplicationPort=" + masterReplicationPort +
