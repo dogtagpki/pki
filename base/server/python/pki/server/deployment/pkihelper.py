@@ -3024,7 +3024,6 @@ class ConfigClient:
 
         # Miscellaneous Configuration Information
         data.pin = self.mdict['pki_one_time_pin']
-        data.subsystemName = self.mdict['pki_subsystem_name']
 
         # Process existing CA installation like external CA
         data.external = self.external or self.existing

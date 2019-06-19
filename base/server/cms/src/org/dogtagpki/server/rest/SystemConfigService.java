@@ -833,10 +833,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
         }
 
-        if ((data.getSubsystemName() == null) || (data.getSubsystemName().length() ==0)) {
-            throw new BadRequestException("Invalid or no subsystem name provided");
-        }
-
         if (data.isClone()) {
             String cloneUri = data.getCloneUri();
             if (cloneUri == null) {

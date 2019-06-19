@@ -21,6 +21,8 @@
 from __future__ import absolute_import
 import logging
 
+import pki.server
+
 # PKI Deployment Imports
 from .. import pkiconfig as config
 from .. import pkiscriptlet
@@ -130,6 +132,22 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         deployer.symlink.create(
             deployer.mdict['pki_instance_registry_path'],
             deployer.mdict['pki_subsystem_registry_link'])
+
+        instance = pki.server.PKIInstance(deployer.mdict['pki_instance_name'])
+        instance.load()
+
+        subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
+
+        subsystem.config['preop.subsystem.name'] = deployer.mdict['pki_subsystem_name']
+
+        if config.str2bool(deployer.mdict['pki_clone']):
+            subsystem.config['preop.subsystem.select'] = 'clone'
+            subsystem.config['subsystem.select'] = 'Clone'
+        else:
+            subsystem.config['preop.subsystem.select'] = 'new'
+            subsystem.config['subsystem.select'] = 'New'
+
+        subsystem.save()
 
     def destroy(self, deployer):
 

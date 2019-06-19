@@ -66,9 +66,6 @@ public class ConfigurationRequest {
     protected String cloneUri;
 
     @XmlElement
-    protected String subsystemName;
-
-    @XmlElement
     protected String hierarchy;
 
     @XmlElement
@@ -156,14 +153,6 @@ public class ConfigurationRequest {
 
     public ConfigurationRequest() {
         // required for JAXB
-    }
-
-    public String getSubsystemName() {
-        return subsystemName;
-    }
-
-    public void setSubsystemName(String subsystemName) {
-        this.subsystemName = subsystemName;
     }
 
     public String getPin() {
@@ -528,7 +517,6 @@ public class ConfigurationRequest {
                ", securityDomainPostLoginSleepSeconds=" + securityDomainPostLoginSleepSeconds +
                ", isClone=" + isClone +
                ", cloneUri=" + cloneUri +
-               ", subsystemName=" + subsystemName +
                ", hierarchy=" + hierarchy +
                ", replicateSchema=" + replicateSchema +
                ", masterReplicationPort=" + masterReplicationPort +

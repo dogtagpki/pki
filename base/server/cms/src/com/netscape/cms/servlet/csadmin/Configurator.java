@@ -681,16 +681,7 @@ public class Configurator {
 
     public void configureSubsystem(ConfigurationRequest request, String domainXML) throws Exception {
 
-        cs.putString("preop.subsystem.name", request.getSubsystemName());
-
-        // is this a clone of another subsystem?
-        if (!request.isClone()) {
-            cs.putString("preop.subsystem.select", "new");
-            cs.putString("subsystem.select", "New");
-
-        } else {
-            cs.putString("preop.subsystem.select", "clone");
-            cs.putString("subsystem.select", "Clone");
+        if (request.isClone()) {
             configureClone(request, domainXML);
         }
     }

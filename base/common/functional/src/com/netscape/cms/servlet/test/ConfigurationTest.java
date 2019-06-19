@@ -244,7 +244,6 @@ public class ConfigurationTest {
         data.setSecurityDomainName("Testca2 security domain");
         data.setClone("false");
         data.setHierarchy("root");
-        data.setSubsystemName("test ca subsystem");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -320,7 +319,6 @@ public class ConfigurationTest {
 
         data.setClone("false");
         data.setHierarchy("join");
-        data.setSubsystemName("test subca subsystem");
 
         data.setIssuingCA("https://" + host + ":9224");
 
@@ -396,7 +394,6 @@ public class ConfigurationTest {
 
         data.setClone("false");
         data.setHierarchy("join");
-        data.setSubsystemName("test external ca subsystem");
 
         data.setIssuingCA("External CA");
 
@@ -472,7 +469,6 @@ public class ConfigurationTest {
 
         data.setClone("false");
         data.setHierarchy("join");
-        data.setSubsystemName("test external ca subsystem");
 
         data.setIssuingCA("External CA");
 
@@ -559,7 +555,6 @@ public class ConfigurationTest {
         data.setCloneUri("https://" + host + ":9224" );
 
         data.setHierarchy("root");
-        data.setSubsystemName("test clone ca subsystem");
 
         // create system certs
         List<SystemCertData> systemCerts = new ArrayList<SystemCertData>();
@@ -590,7 +585,6 @@ public class ConfigurationTest {
         data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
-        data.setSubsystemName("test kra subsystem");
 
         data.setIssuingCA("https://" + host + ":9224");
 
@@ -667,7 +661,6 @@ public class ConfigurationTest {
         data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
-        data.setSubsystemName("test ocsp subsystem");
 
         data.setIssuingCA("https://" + host + ":9224");
 
@@ -733,7 +726,6 @@ public class ConfigurationTest {
         data.setSecurityDomainPassword("redhat123");
 
         data.setClone("false");
-        data.setSubsystemName("test tks subsystem");
 
         data.setIssuingCA("https://" + host + ":9224");
 
