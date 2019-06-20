@@ -19,6 +19,7 @@ package com.netscape.certsrv.system;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -138,6 +139,24 @@ public class SecurityDomainHost {
         this.domainManager = domainManager;
     }
 
+    public Object get(String name) throws Exception {
+
+        for (Method m : SecurityDomainHost.class.getMethods()) {
+
+            XmlAttribute attribute = m.getAnnotation(XmlAttribute.class);
+            if (attribute != null && attribute.name().equals(name)) {
+                return m.invoke(this);
+            }
+
+            XmlElement element = m.getAnnotation(XmlElement.class);
+            if (element != null && element.name().equals(name)) {
+                return m.invoke(this);
+            }
+        }
+
+        return null;
+    }
+
     public String toString() {
         try {
             StringWriter sw = new StringWriter();
@@ -252,5 +271,7 @@ public class SecurityDomainHost {
 
         SecurityDomainHost after = SecurityDomainHost.valueOf(string);
         System.out.println(before.equals(after));
+        System.out.println(after.get("id"));
+        System.out.println(after.get("SecurePort"));
     }
 }
