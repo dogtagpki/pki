@@ -299,10 +299,12 @@ class PKIServer(object):
         if jdb:
             cmd.extend(['jdb'])
         else:
-            cmd.extend([java_home + '/bin/java'])
+            cmd.extend([
+                java_home + '/bin/java',
+                '-agentpath:/usr/lib/abrt-java-connector/libabrt-java-connector.so=abrt=on,'
+            ])
 
         cmd.extend([
-            '-agentpath:/usr/lib/abrt-java-connector/libabrt-java-connector.so=abrt=on,',
             '-classpath', os.pathsep.join(classpath),
             '-Dcatalina.base=' + self.base_dir,
             '-Dcatalina.home=' + Tomcat.SHARE_DIR,
