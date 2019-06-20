@@ -42,6 +42,7 @@ import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
+import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
@@ -62,9 +63,9 @@ public class TPSConfigurator extends Configurator {
     }
 
     @Override
-    public void configureSubsystem(ConfigurationRequest request, String domainXML) throws Exception {
+    public void configureSubsystem(ConfigurationRequest request, DomainInfo domainInfo) throws Exception {
 
-        super.configureSubsystem(request, domainXML);
+        super.configureSubsystem(request, domainInfo);
 
         SystemCertData subsystemCert = request.getSystemCert("subsystem");
 

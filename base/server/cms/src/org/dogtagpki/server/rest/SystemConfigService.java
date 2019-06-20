@@ -42,6 +42,7 @@ import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.ConfigurationResponse;
+import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.KeyBackupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
@@ -129,18 +130,18 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // configure security domain
         logger.debug("=== Security Domain Configuration ===");
-        String domainXML = configurator.configureSecurityDomain(data);
+        DomainInfo domainInfo = configurator.configureSecurityDomain(data);
 
         // configure subsystem
         logger.debug("=== Subsystem Configuration ===");
-        configurator.configureSubsystem(data, domainXML);
+        configurator.configureSubsystem(data, domainInfo);
 
         // configure hierarchy
         logger.debug("=== Hierarchy Configuration ===");
         configureHierarchy(data);
 
         logger.debug("=== Configure CA Cert Chain ===");
-        configurator.configureCACertChain(data, domainXML);
+        configurator.configureCACertChain(data, domainInfo);
     }
 
     @Override

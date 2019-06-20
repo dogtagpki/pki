@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -136,8 +137,11 @@ import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
+import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
+import com.netscape.certsrv.system.SecurityDomainHost;
+import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
@@ -246,21 +250,19 @@ public class Configurator {
         this.serverXml = serverXml;
     }
 
-    public String configureSecurityDomain(ConfigurationRequest request) throws Exception {
-
-        String domainXML = null;
+    public DomainInfo configureSecurityDomain(ConfigurationRequest request) throws Exception {
 
         String securityDomainType = request.getSecurityDomainType();
         String securityDomainName = request.getSecurityDomainName();
 
         if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
             configureNewSecurityDomain(request, securityDomainName);
+            return null;
+        }
 
-        } else if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)){
+        if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)){
             logger.debug("Configuring new subordinate root CA");
             configureNewSecurityDomain(request, request.getSubordinateSecurityDomainName());
-            String securityDomainURL = request.getSecurityDomainUri();
-            domainXML = logIntoSecurityDomain(request, securityDomainURL);
 
         } else {
             logger.debug("Joining existing security domain");
@@ -269,14 +271,17 @@ public class Configurator {
             cs.putString("preop.cert.subsystem.type", "remote");
 
             String keyType = request.getSystemCertKeyType("subsystem");
-            cs.putString("preop.cert.subsystem.profile",
-                    getSystemCertProfileID(keyType, "subsystem", "caInternalAuthSubsystemCert"));
-
-            String securityDomainURL = request.getSecurityDomainUri();
-            domainXML = logIntoSecurityDomain(request, securityDomainURL);
+            String profileID = getSystemCertProfileID(keyType, "subsystem", "caInternalAuthSubsystemCert");
+            cs.putString("preop.cert.subsystem.profile", profileID);
         }
 
-        return domainXML;
+        String securityDomainURL = request.getSecurityDomainUri();
+        String domainXML = logIntoSecurityDomain(request, securityDomainURL);
+
+        try (InputStream is = new ByteArrayInputStream(domainXML.getBytes())) {
+            XMLObject xmlObject = new XMLObject(is);
+            return SecurityDomainProcessor.convertXMLObjectToDomainInfo(xmlObject);
+        }
     }
 
     private void configureNewSecurityDomain(ConfigurationRequest request, String securityDomainName) {
@@ -343,7 +348,7 @@ public class Configurator {
         return domainXML;
     }
 
-    public void configureCACertChain(ConfigurationRequest data, String domainXML) throws Exception {
+    public void configureCACertChain(ConfigurationRequest data, DomainInfo domainInfo) throws Exception {
 
         if (data.getHierarchy() != null && !data.getHierarchy().equals("join")) {
             return;
@@ -376,7 +381,7 @@ public class Configurator {
         String host = urlx.getHost();
         int port = urlx.getPort();
 
-        int admin_port = getPortFromSecurityDomain(domainXML,
+        int admin_port = getPortFromSecurityDomain(domainInfo,
                 host, port, "CA", "SecurePort", "SecureAdminPort");
 
         cs.putString("preop.ca.type", "sdca");
@@ -704,26 +709,22 @@ public class Configurator {
         return v;
     }
 
-    public boolean isValidCloneURI(String domainXML, String cloneHost, int clonePort) throws EPropertyNotFound,
-            EBaseException, SAXException, IOException, ParserConfigurationException {
+    public boolean isValidCloneURI(DomainInfo domainInfo, String cloneHost, int clonePort)
+            throws Exception {
 
         String csType = cs.getString("cs.type");
-        ByteArrayInputStream bis = new ByteArrayInputStream(domainXML.getBytes());
+        SecurityDomainSubsystem subsystem = domainInfo.getSubsystem(csType);
 
-        XMLObject parser = new XMLObject(bis);
-        Document doc = parser.getDocument();
-        NodeList nodeList = doc.getElementsByTagName(csType.toUpperCase());
+        for (SecurityDomainHost host : subsystem.getHosts()) {
 
-        int len = nodeList.getLength();
-        for (int i = 0; i < len; i++) {
-            String hostname = parser.getValuesFromContainer(nodeList.item(i), "Host").elementAt(0);
-            String secure_port = parser.getValuesFromContainer(nodeList.item(i), "SecurePort").elementAt(0);
+            String hostname = host.getHostname();
+            String securePort = host.getSecurePort();
+            String secureAdminPort = host.getSecureAdminPort();
 
-            if (hostname.equals(cloneHost) && secure_port.equals(clonePort + "")) {
-                cs.putString("preop.master.hostname", cloneHost);
-                cs.putInteger("preop.master.httpsport", clonePort);
-                cs.putString("preop.master.httpsadminport",
-                        parser.getValuesFromContainer(nodeList.item(i), "SecureAdminPort").elementAt(0));
+            if (hostname.equals(cloneHost) && securePort.equals(clonePort + "")) {
+                cs.putString("preop.master.hostname", hostname);
+                cs.putString("preop.master.httpsport", securePort);
+                cs.putString("preop.master.httpsadminport", secureAdminPort);
                 return true;
             }
         }
@@ -731,14 +732,14 @@ public class Configurator {
         return false;
     }
 
-    public void configureSubsystem(ConfigurationRequest request, String domainXML) throws Exception {
+    public void configureSubsystem(ConfigurationRequest request, DomainInfo domainInfo) throws Exception {
 
         if (request.isClone()) {
-            configureClone(request, domainXML);
+            configureClone(request, domainInfo);
         }
     }
 
-    private void configureClone(ConfigurationRequest data, String domainXML) throws Exception {
+    private void configureClone(ConfigurationRequest data, DomainInfo domainInfo) throws Exception {
 
         String value = cs.getString("preop.cert.list");
         String[] certList = value.split(",");
@@ -757,7 +758,7 @@ public class Configurator {
         int masterPort = url.getPort();
 
         logger.debug("SystemConfigService: validate clone URI: " + url);
-        boolean validCloneUri = isValidCloneURI(domainXML, masterHost, masterPort);
+        boolean validCloneUri = isValidCloneURI(domainInfo, masterHost, masterPort);
 
         if (!validCloneUri) {
             throw new BadRequestException(
@@ -767,7 +768,7 @@ public class Configurator {
         String csType = cs.getString("cs.type");
         if (csType.equals("CA") && !data.getSystemCertsImported()) {
             logger.debug("SystemConfigService: import certificate chain from master");
-            int masterAdminPort = getPortFromSecurityDomain(domainXML,
+            int masterAdminPort = getPortFromSecurityDomain(domainInfo,
                     masterHost, masterPort, "CA", "SecurePort", "SecureAdminPort");
 
             String certchain = getCertChain(masterHost, masterAdminPort,
@@ -2480,8 +2481,8 @@ public class Configurator {
             cs.putString("preop.cert.sslserver.type", "remote");
 
             String keyType = request.getSystemCertKeyType("sslserver");
-            cs.putString("preop.cert.sslserver.profile",
-                   getSystemCertProfileID(keyType, "sslserver", "caInternalAuthServerCert"));
+            String profileID = getSystemCertProfileID(keyType, "sslserver", "caInternalAuthServerCert");
+            cs.putString("preop.cert.sslserver.profile", profileID);
 
             // store original caType
             original_caType = caType;
@@ -2803,36 +2804,29 @@ public class Configurator {
         return nickname;
     }
 
-    public int getPortFromSecurityDomain(String domainXML, String host, int port, String csType,
-            String givenTag, String wantedTag) throws SAXException, IOException, ParserConfigurationException {
+    public int getPortFromSecurityDomain(DomainInfo domainInfo, String hostname, int port, String csType,
+            String givenTag, String wantedTag) throws Exception {
 
         logger.debug("Configurator: Searching for " + wantedTag + " in " + csType + " hosts");
 
-        ByteArrayInputStream bis = new ByteArrayInputStream(domainXML.getBytes());
-        XMLObject parser = new XMLObject(bis);
-        Document doc = parser.getDocument();
+        cs.putString("securitydomain.name", domainInfo.getName());
 
-        NodeList nodeList = doc.getElementsByTagName(csType);
+        SecurityDomainSubsystem subsystem = domainInfo.getSubsystem(csType);
 
-        // save domain name in cfg
-        cs.putString("securitydomain.name", parser.getValue("Name"));
+        for (SecurityDomainHost host : subsystem.getHosts()) {
 
-        int len = nodeList.getLength();
-        for (int i = 0; i < len; i++) {
-            Node node = nodeList.item(i);
-
-            String v_host = parser.getValuesFromContainer(node, "Host").elementAt(0);
+            String v_host = host.getHostname();
             logger.debug("Configurator: host: " + v_host);
 
-            String v_given_port = parser.getValuesFromContainer(node, givenTag).elementAt(0);
+            String v_given_port = (String) host.get(givenTag);
             logger.debug("Configurator: " + givenTag + " port: " + v_given_port);
 
-            if (!(v_host.equals(host) && v_given_port.equals(port + "")))
+            if (!(v_host.equals(hostname) && v_given_port.equals(port + "")))
                 continue;
 
             // v_host == host || v_given_port != port
 
-            String wanted_port = parser.getValuesFromContainer(node, wantedTag).elementAt(0);
+            String wanted_port = (String) host.get(wantedTag);
             logger.debug("Configurator: " + wantedTag + " port found: " + wanted_port);
 
             return Integer.parseInt(wanted_port);
