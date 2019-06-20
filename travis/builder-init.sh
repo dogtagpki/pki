@@ -21,7 +21,7 @@
 #
 set -e
 
-docker pull ${BASE_IMAGE}
+docker pull ${IMAGE}
 
 docker run \
     --detach \
@@ -47,7 +47,7 @@ docker run \
     --expose=8080 \
     --expose=8443 \
     -i \
-    ${BASE_IMAGE} "/usr/sbin/init"
+    ${IMAGE} "/usr/sbin/init"
 
 # Check whether the container is up
 docker ps -a
