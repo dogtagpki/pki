@@ -194,6 +194,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
         print()
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --silent                    Run in silent mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -202,7 +203,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'all',
-                'verbose', 'help'])
+                'verbose', 'silent', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -211,6 +212,7 @@ class SubsystemEnableCLI(pki.cli.CLI):
 
         instance_name = 'pki-tomcat'
         all_subsystems = False
+        silent = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -221,6 +223,9 @@ class SubsystemEnableCLI(pki.cli.CLI):
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+
+            elif o == '--silent':
+                silent = True
 
             elif o == '--help':
                 self.usage()
@@ -244,7 +249,8 @@ class SubsystemEnableCLI(pki.cli.CLI):
                 if not subsystem.is_enabled():
                     subsystem.enable()
 
-            self.print_message('Enabled all subsystems')
+            if not silent:
+                self.print_message('Enabled all subsystems')
 
             return
 
@@ -262,13 +268,16 @@ class SubsystemEnableCLI(pki.cli.CLI):
             sys.exit(1)
 
         if subsystem.is_enabled():
-            self.print_message('Subsystem "%s" is already '
-                               'enabled' % subsystem_name)
+            if not silent:
+                self.print_message(
+                    'Subsystem "%s" is already enabled' % subsystem_name)
         else:
             subsystem.enable()
-            self.print_message('Enabled "%s" subsystem' % subsystem_name)
+            if not silent:
+                self.print_message('Enabled "%s" subsystem' % subsystem_name)
 
-        SubsystemCLI.print_subsystem(subsystem)
+        if not silent:
+            SubsystemCLI.print_subsystem(subsystem)
 
 
 class SubsystemDisableCLI(pki.cli.CLI):

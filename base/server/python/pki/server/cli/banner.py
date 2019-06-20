@@ -107,6 +107,7 @@ class BannerValidateCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
         print('      --file <path>               Validate specified banner file.')
         print('  -v, --verbose                   Run in verbose mode.')
+        print('      --silent                    Run in silent mode.')
         print('      --help                      Show help message.')
         print()
 
@@ -115,7 +116,7 @@ class BannerValidateCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'file=',
-                'verbose', 'help'])
+                'verbose', 'silent', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -124,6 +125,7 @@ class BannerValidateCLI(pki.cli.CLI):
 
         instance_name = 'pki-tomcat'
         banner_file = None
+        silent = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
@@ -134,6 +136,9 @@ class BannerValidateCLI(pki.cli.CLI):
 
             elif o in ('-v', '--verbose'):
                 self.set_verbose(True)
+
+            elif o == '--silent':
+                silent = True
 
             elif o == '--help':
                 self.usage()
@@ -161,7 +166,8 @@ class BannerValidateCLI(pki.cli.CLI):
                 instance.load()
 
                 if not instance.banner_installed():
-                    self.print_message('Banner is not installed')
+                    if not silent:
+                        self.print_message('Banner is not installed')
                     return
 
                 banner = instance.get_banner()
@@ -176,4 +182,5 @@ class BannerValidateCLI(pki.cli.CLI):
             print('ERROR: Banner is empty')
             sys.exit(1)
 
-        self.print_message('Banner is valid')
+        if not silent:
+            self.print_message('Banner is valid')
