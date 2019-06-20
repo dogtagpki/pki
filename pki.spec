@@ -2,7 +2,7 @@
 Name:             pki
 ################################################################################
 
-%global           vendor dogtag
+%global           vendor_id dogtag
 %global           brand Dogtag
 
 Summary:          %{brand} PKI Package
@@ -355,7 +355,7 @@ BuildRequires:    nss-tools
 BuildRequires:    openssl
 
 # description for top-level package (if there is a separate meta package)
-%if "%{name}" != "%{vendor}-pki"
+%if "%{name}" != "%{vendor_id}-pki"
 %description
 
 %{brand} PKI is an enterprise software system designed
@@ -372,9 +372,9 @@ PKI consists of the following components:
 %endif
 
 %if %{with meta}
-%if "%{name}" != "%{vendor}-pki"
+%if "%{name}" != "%{vendor_id}-pki"
 ################################################################################
-%package -n       %{vendor}-pki
+%package -n       %{vendor_id}-pki
 ################################################################################
 
 Summary:          %{brand} PKI Package
@@ -382,8 +382,8 @@ Summary:          %{brand} PKI Package
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI theme packages
-Requires:         %{vendor}-pki-server-theme = %{version}
-Requires:         %{vendor}-pki-console-theme = %{version}
+Requires:         %{vendor_id}-pki-server-theme = %{version}
+Requires:         %{vendor_id}-pki-console-theme = %{version}
 
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL PKI core packages
@@ -407,10 +407,10 @@ Requires:         esc >= 1.1.1
 %endif
 
 # description for top-level package (unless there is a separate meta package)
-%if "%{name}" == "%{vendor}-pki"
+%if "%{name}" == "%{vendor_id}-pki"
 %description
 %else
-%description -n   %{vendor}-pki
+%description -n   %{vendor_id}-pki
 %endif
 
 %{brand} PKI is an enterprise software system designed
@@ -921,7 +921,7 @@ The PKI Console is a Java application used to administer PKI server.
 
 %if %{with theme}
 ################################################################################
-%package -n       %{vendor}-pki-server-theme
+%package -n       %{vendor_id}-pki-server-theme
 ################################################################################
 
 Summary:          %{brand} PKI Server Theme Package
@@ -935,12 +935,12 @@ Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-console-theme < %{version}
 Conflicts:        pki-javadoc < %{version}
 
-%description -n   %{vendor}-pki-server-theme
+%description -n   %{vendor_id}-pki-server-theme
 This PKI Server Theme Package contains
 %{brand} textual and graphical user interface for PKI Server.
 
 ################################################################################
-%package -n       %{vendor}-pki-console-theme
+%package -n       %{vendor_id}-pki-console-theme
 ################################################################################
 
 Summary:          %{brand} PKI Console Theme Package
@@ -954,7 +954,7 @@ Conflicts:        pki-symkey < %{version}
 Conflicts:        pki-server-theme < %{version}
 Conflicts:        pki-javadoc < %{version}
 
-%description -n   %{vendor}-pki-console-theme
+%description -n   %{vendor_id}-pki-console-theme
 This PKI Console Theme Package contains
 %{brand} textual and graphical user interface for PKI Console.
 
@@ -1005,7 +1005,7 @@ cd build
 %endif
     -DWITH_JAVADOC:BOOL=%{?with_javadoc:ON}%{!?with_javadoc:OFF} \
     -DBUILD_PKI_CONSOLE:BOOL=%{?with_console:ON}%{!?with_console:OFF} \
-    -DTHEME=%{?with_theme:%{vendor}} \
+    -DTHEME=%{?with_theme:%{vendor_id}} \
     ..
 
 ################################################################################
@@ -1282,9 +1282,9 @@ fi
 %endif # with server
 
 %if %{with meta}
-%if "%{name}" != "%{vendor}-pki"
+%if "%{name}" != "%{vendor_id}-pki"
 ################################################################################
-%files -n %{vendor}-pki
+%files -n %{vendor_id}-pki
 ################################################################################
 %else
 %files
@@ -1601,10 +1601,10 @@ fi
 
 %if %{with theme}
 ################################################################################
-%files -n %{vendor}-pki-server-theme
+%files -n %{vendor_id}-pki-server-theme
 ################################################################################
 
-%doc themes/%{vendor}/common-ui/LICENSE
+%doc themes/%{vendor_id}/common-ui/LICENSE
 %dir %{_datadir}/pki
 %{_datadir}/pki/CS_SERVER_VERSION
 %{_datadir}/pki/common-ui/
@@ -1619,10 +1619,10 @@ fi
 %{_datadir}/pki/server/webapps/pki/tks
 
 ################################################################################
-%files -n %{vendor}-pki-console-theme
+%files -n %{vendor_id}-pki-console-theme
 ################################################################################
 
-%doc themes/%{vendor}/console-ui/LICENSE
+%doc themes/%{vendor_id}/console-ui/LICENSE
 %{_javadir}/pki/pki-console-theme.jar
 
 %endif # with theme
