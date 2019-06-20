@@ -343,6 +343,58 @@ public class Configurator {
         return domainXML;
     }
 
+    public void configureCACertChain(ConfigurationRequest data, String domainXML) throws Exception {
+
+        if (data.getHierarchy() != null && !data.getHierarchy().equals("join")) {
+            return;
+        }
+
+        String csType = cs.getString("cs.type");
+        String url = data.getIssuingCA();
+
+        if (url.equals("External CA")) {
+
+            logger.debug("external CA selected");
+
+            cs.putString("preop.ca.type", "otherca");
+            cs.putString("preop.ca.pkcs7", "");
+            cs.putInteger("preop.ca.certchain.size", 0);
+
+            if (csType.equals("CA")) {
+                cs.putString("preop.cert.signing.type", "remote");
+            }
+
+            return;
+        }
+
+        logger.debug("local CA selected");
+
+        url = url.substring(url.indexOf("https"));
+        cs.putString("preop.ca.url", url);
+
+        URL urlx = new URL(url);
+        String host = urlx.getHost();
+        int port = urlx.getPort();
+
+        int admin_port = getPortFromSecurityDomain(domainXML,
+                host, port, "CA", "SecurePort", "SecureAdminPort");
+
+        cs.putString("preop.ca.type", "sdca");
+        cs.putString("preop.ca.hostname", host);
+        cs.putInteger("preop.ca.httpsport", port);
+        cs.putInteger("preop.ca.httpsadminport", admin_port);
+
+        if (!data.isClone() && !data.getSystemCertsImported()) {
+            String certchain = getCertChain(host, admin_port, "/ca/admin/ca/getCertChain");
+            importCertChain(certchain, "ca");
+        }
+
+        if (csType.equals("CA")) {
+            cs.putString("preop.cert.signing.type", "remote");
+            cs.putString("preop.cert.signing.profile","caInstallCACert");
+        }
+    }
+
     public String getCertChain(String host, int port, String serverPath)
             throws Exception {
 

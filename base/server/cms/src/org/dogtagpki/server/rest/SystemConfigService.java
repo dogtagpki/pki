@@ -140,7 +140,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         configureHierarchy(data);
 
         logger.debug("=== Configure CA Cert Chain ===");
-        configureCACertChain(data, domainXML);
+        configurator.configureCACertChain(data, domainXML);
     }
 
     @Override
@@ -710,51 +710,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 cs.putString("hierarchy.select", "Subordinate");
             } else {
                 throw new BadRequestException("Invalid hierarchy provided");
-            }
-        }
-    }
-
-    public void configureCACertChain(ConfigurationRequest data, String domainXML) {
-        if (data.getHierarchy() == null || data.getHierarchy().equals("join")) {
-            try {
-                String url = data.getIssuingCA();
-                if (url.equals("External CA")) {
-                    logger.debug("external CA selected");
-                    cs.putString("preop.ca.type", "otherca");
-                    cs.putString("preop.ca.pkcs7", "");
-                    cs.putInteger("preop.ca.certchain.size", 0);
-                    if (csType.equals("CA")) {
-                        cs.putString("preop.cert.signing.type", "remote");
-                    }
-
-                } else {
-                    logger.debug("local CA selected");
-                    url = url.substring(url.indexOf("https"));
-                    cs.putString("preop.ca.url", url);
-                    URL urlx = new URL(url);
-                    String host = urlx.getHost();
-                    int port = urlx.getPort();
-
-                    int admin_port = configurator.getPortFromSecurityDomain(domainXML,
-                            host, port, "CA", "SecurePort", "SecureAdminPort");
-
-                    cs.putString("preop.ca.type", "sdca");
-                    cs.putString("preop.ca.hostname", host);
-                    cs.putInteger("preop.ca.httpsport", port);
-                    cs.putInteger("preop.ca.httpsadminport", admin_port);
-
-                    if (!data.isClone() && !data.getSystemCertsImported()) {
-                        String certchain = configurator.getCertChain(host, admin_port, "/ca/admin/ca/getCertChain");
-                        configurator.importCertChain(certchain, "ca");
-                    }
-
-                    if (csType.equals("CA")) {
-                        cs.putString("preop.cert.signing.type", "remote");
-                        cs.putString("preop.cert.signing.profile","caInstallCACert");
-                    }
-                }
-            } catch (Exception e) {
-                throw new PKIException("Error in obtaining certificate chain from issuing CA: " + e);
             }
         }
     }
