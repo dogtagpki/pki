@@ -1,3 +1,3 @@
 #!/bin/bash -e
 
-pkispawn -vv -f ${BUILDDIR}/pki/travis/pki.cfg -s CA
+pkispawn -v -f ${BUILDDIR}/pki/travis/pki.cfg -s CA

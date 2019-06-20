@@ -1,3 +1,3 @@
 #!/bin/bash -e
 
-pkidestroy -v -i pkitest -s CA
+pkidestroy -i pkitest -s CA
