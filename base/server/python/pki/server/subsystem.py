@@ -936,6 +936,30 @@ class CASubsystem(PKISubsystem):
         return request
 
 
+class KRASubsystem(PKISubsystem):
+
+    def __init__(self, instance):
+        super(KRASubsystem, self).__init__(instance, 'kra')
+
+
+class OCSPSubsystem(PKISubsystem):
+
+    def __init__(self, instance):
+        super(OCSPSubsystem, self).__init__(instance, 'ocsp')
+
+
+class TKSSubsystem(PKISubsystem):
+
+    def __init__(self, instance):
+        super(TKSSubsystem, self).__init__(instance, 'tks')
+
+
+class TPSSubsystem(PKISubsystem):
+
+    def __init__(self, instance):
+        super(TPSSubsystem, self).__init__(instance, 'tps')
+
+
 class PKISubsystemFactory(object):
 
     @classmethod
@@ -943,5 +967,17 @@ class PKISubsystemFactory(object):
 
         if name == 'ca':
             return CASubsystem(instance)
+
+        if name == 'kra':
+            return KRASubsystem(instance)
+
+        if name == 'ocsp':
+            return OCSPSubsystem(instance)
+
+        if name == 'tks':
+            return TKSSubsystem(instance)
+
+        if name == 'tps':
+            return TPSSubsystem(instance)
 
         return PKISubsystem(instance, name)
