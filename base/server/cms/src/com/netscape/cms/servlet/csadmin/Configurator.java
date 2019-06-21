@@ -269,37 +269,27 @@ public class Configurator {
         }
 
         String securityDomainURL = request.getSecurityDomainUri();
-        return logIntoSecurityDomain(request, securityDomainURL);
+        URL url = new URL(securityDomainURL);
+        String hostname = url.getHost();
+        int port = url.getPort();
+
+        return logIntoSecurityDomain(request, hostname, port);
     }
 
-    private DomainInfo logIntoSecurityDomain(ConfigurationRequest request, String securityDomainURL) throws Exception {
+    private DomainInfo logIntoSecurityDomain(ConfigurationRequest request, String hostname, int port) throws Exception {
 
-        URL secdomainURL;
-        String host;
-        int port;
-
-        try {
-            logger.debug("Resolving security domain URL " + securityDomainURL);
-            secdomainURL = new URL(securityDomainURL);
-            host = secdomainURL.getHost();
-            port = secdomainURL.getPort();
-            cs.putString("securitydomain.host", host);
-            cs.putInteger("securitydomain.httpsadminport",port);
-
-        } catch (Exception e) {
-            logger.error("Failed to resolve security domain URL: " + e.getMessage(), e);
-            throw new PKIException("Failed to resolve security domain URL: " + e, e);
-        }
+        cs.putString("securitydomain.host", hostname);
+        cs.putInteger("securitydomain.httpsadminport", port);
 
         if (!request.getSystemCertsImported()) {
             logger.debug("Getting security domain cert chain");
-            String certchain = getCertChain(host, port, "/ca/admin/ca/getCertChain");
+            String certchain = getCertChain(hostname, port, "/ca/admin/ca/getCertChain");
             importCertChain(certchain, "securitydomain");
         }
 
-        getInstallToken(request, host, port);
+        getInstallToken(request, hostname, port);
 
-        DomainInfo domainInfo = getDomainInfo(host, port);
+        DomainInfo domainInfo = getDomainInfo(hostname, port);
 
         /* Sleep for a bit to allow security domain session to replicate
          * to other clones.  In the future we can use signed tokens
