@@ -659,56 +659,6 @@ public class Configurator {
         }
     }
 
-    public Vector<String> getUrlListFromSecurityDomain(
-            String type, String portType)
-            throws Exception {
-        Vector<String> v = new Vector<String>();
-
-        String hostname = cs.getString("securitydomain.host");
-        int httpsadminport = cs.getInteger("securitydomain.httpsadminport");
-
-        logger.debug("getUrlListFromSecurityDomain(): Getting domain.xml from CA...");
-        String c = getDomainXML(hostname, httpsadminport, true);
-
-        logger.debug("getUrlListFromSecurityDomain: Getting " + portType + " from Security Domain ...");
-        if (!portType.equals("UnSecurePort") &&
-                !portType.equals("SecureAgentPort") &&
-                !portType.equals("SecurePort") &&
-                !portType.equals("SecureAdminPort")) {
-            logger.debug("getUrlListFromSecurityDomain:  " +
-                    "unknown port type " + portType);
-            return v;
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-        XMLObject parser = new XMLObject(bis);
-        Document doc = parser.getDocument();
-        NodeList nodeList = doc.getElementsByTagName(type);
-
-        // save domain name in cfg
-        cs.putString("securitydomain.name", parser.getValue("Name"));
-
-        int len = nodeList.getLength();
-
-        logger.debug("Len " + len);
-        for (int i = 0; i < len; i++) {
-            Vector<String> v_name = parser.getValuesFromContainer(nodeList.item(i), "SubsystemName");
-            Vector<String> v_host = parser.getValuesFromContainer(nodeList.item(i), "Host");
-            Vector<String> v_port = parser.getValuesFromContainer(nodeList.item(i), portType);
-            Vector<String> v_admin_port = parser.getValuesFromContainer(nodeList.item(i), "SecureAdminPort");
-
-            if (v_host.elementAt(0).equals(hostname)
-                    && v_admin_port.elementAt(0).equals(new Integer(httpsadminport).toString())) {
-                // add security domain CA to the beginning of list
-                v.add(0, v_name.elementAt(0) + " - https://" + v_host.elementAt(0) + ":" + v_port.elementAt(0));
-            } else {
-                v.addElement(v_name.elementAt(0) + " - https://" + v_host.elementAt(0) + ":" + v_port.elementAt(0));
-            }
-        }
-
-        return v;
-    }
-
     public boolean isValidCloneURI(DomainInfo domainInfo, String cloneHost, int clonePort)
             throws Exception {
 
