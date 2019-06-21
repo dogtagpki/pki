@@ -1129,7 +1129,6 @@ class PKIConfigParser:
             #     The following variables are defined below:
             #
             #         self.mdict['pki_security_domain_type']
-            #         self.mdict['pki_security_domain_uri']
             #
             #     The following variables are established via the specified PKI
             #     deployment configuration file and are NOT redefined below:
@@ -1188,26 +1187,28 @@ class PKIConfigParser:
                 else:
                     self.mdict['pki_security_domain_user'] = "caadmin"
 
-            if not config.str2bool(self.mdict['pki_skip_configuration']) and\
-                    (config.str2bool(self.mdict['pki_standalone'])):
+            if not config.str2bool(self.mdict['pki_skip_configuration']) and \
+                    config.str2bool(self.mdict['pki_standalone']):
+
                 # Stand-alone PKI
                 self.mdict['pki_security_domain_type'] = "new"
                 self.mdict['pki_issuing_ca'] = "External CA"
-            elif (self.deployer.subsystem_name != "CA" or
-                    config.str2bool(self.mdict['pki_clone']) or
-                    config.str2bool(self.mdict['pki_subordinate'])):
+
+            elif self.deployer.subsystem_name != "CA" or \
+                    config.str2bool(self.mdict['pki_clone']) or \
+                    config.str2bool(self.mdict['pki_subordinate']):
+
                 # PKI KRA, PKI OCSP, PKI TKS, PKI TPS,
                 # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone
                 # Subordinate CA
                 self.mdict['pki_security_domain_type'] = "existing"
-                self.mdict['pki_security_domain_uri'] = \
-                    "https" + "://" + \
-                    self.mdict['pki_security_domain_hostname'] + ":" + \
-                    self.mdict['pki_security_domain_https_port']
+
             elif config.str2bool(self.mdict['pki_external']):
+
                 # External CA
                 self.mdict['pki_security_domain_type'] = "new"
                 self.mdict['pki_issuing_ca'] = "External CA"
+
             else:
                 # PKI CA (master)
                 self.mdict['pki_security_domain_type'] = "new"

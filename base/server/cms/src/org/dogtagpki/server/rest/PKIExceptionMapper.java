@@ -8,7 +8,6 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.cms.servlet.base.PKIService;
 
 @Provider
 public class PKIExceptionMapper implements ExceptionMapper<PKIException> {
