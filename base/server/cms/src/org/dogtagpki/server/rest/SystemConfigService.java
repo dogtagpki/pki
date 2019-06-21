@@ -142,6 +142,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         logger.debug("=== Configure CA Cert Chain ===");
         configurator.configureCACertChain(data, domainInfo);
+
+        cs.commit(false);
     }
 
     @Override
@@ -155,9 +157,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             if (csState.equals("1")) {
                 throw new BadRequestException("System already configured");
             }
-
-            configurator.configureDatabase(request);
-            cs.commit(false);
 
             configurator.initializeDatabase(request);
             configurator.reinitSubsystems();

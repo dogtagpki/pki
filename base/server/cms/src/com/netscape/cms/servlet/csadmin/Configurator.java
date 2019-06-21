@@ -1472,9 +1472,6 @@ public class Configurator {
         return null;
     }
 
-    public void configureDatabase(ConfigurationRequest request) throws EBaseException {
-    }
-
     public void initializeDatabase(ConfigurationRequest request) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();

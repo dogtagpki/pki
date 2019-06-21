@@ -123,22 +123,6 @@ public class TPSConfigurator extends Configurator {
     }
 
     @Override
-    public void configureDatabase(ConfigurationRequest request) throws EBaseException {
-
-        super.configureDatabase(request);
-
-        String dsHost = cs.getString("internaldb.ldapconn.host");
-        String dsPort = cs.getString("internaldb.ldapconn.port");
-        String baseDN = cs.getString("internaldb.basedn");
-
-        cs.putString("tokendb.activityBaseDN", "ou=Activities," + baseDN);
-        cs.putString("tokendb.baseDN", "ou=Tokens," + baseDN);
-        cs.putString("tokendb.certBaseDN", "ou=Certificates," + baseDN);
-        cs.putString("tokendb.userBaseDN", baseDN);
-        cs.putString("tokendb.hostport", dsHost + ":" + dsPort);
-    }
-
-    @Override
     public void initializeDatabase(ConfigurationRequest request) throws EBaseException {
 
         super.initializeDatabase(request);

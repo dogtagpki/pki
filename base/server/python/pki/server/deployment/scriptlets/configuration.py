@@ -616,6 +616,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 logger.debug('Setting ephemeral requests to true')
                 subsystem.config['kra.ephemeralRequests'] = 'true'
 
+        if subsystem.name == 'tps':
+            baseDN = subsystem.config['internaldb.basedn']
+            dsHost = subsystem.config['internaldb.ldapconn.host']
+            dsPort = subsystem.config['internaldb.ldapconn.port']
+
+            subsystem.config['tokendb.activityBaseDN'] = 'ou=Activities,' + baseDN
+            subsystem.config['tokendb.baseDN'] = 'ou=Tokens,' + baseDN
+            subsystem.config['tokendb.certBaseDN'] = 'ou=Certificates,' + baseDN
+            subsystem.config['tokendb.userBaseDN'] = baseDN
+            subsystem.config['tokendb.hostport'] = dsHost + ':' + dsPort
+
         subsystem.save()
 
         token = pki.nssdb.normalize_token(deployer.mdict['pki_token_name'])
