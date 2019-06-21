@@ -52,7 +52,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.context.Context;
@@ -324,7 +323,7 @@ public class Configurator {
 
         getInstallToken(request, host, port);
 
-        String domainXML = getDomainXML(host, port);
+        DomainInfo domainInfo = getDomainInfo(host, port);
 
         /* Sleep for a bit to allow security domain session to replicate
          * to other clones.  In the future we can use signed tokens
@@ -339,10 +338,7 @@ public class Configurator {
         logger.debug("Logged into security domain; sleeping for " + d + "s");
         Thread.sleep(d * 1000);
 
-        try (InputStream is = new ByteArrayInputStream(domainXML.getBytes())) {
-            XMLObject xmlObject = new XMLObject(is);
-            return SecurityDomainProcessor.convertXMLObjectToDomainInfo(xmlObject);
-        }
+        return domainInfo;
     }
 
     public void configureCACertChain(ConfigurationRequest data, DomainInfo domainInfo) throws Exception {
@@ -584,73 +580,70 @@ public class Configurator {
         return null;
     }
 
-    private String getDomainXML(String host, int port) {
-        logger.debug("Getting domain XML");
-        String domainXML = null;
+    private DomainInfo getDomainInfo(String host, int port) throws Exception {
+
+        logger.info("Getting security domain info");
+
+        DomainInfo domainInfo;
         try {
-            domainXML = getDomainXML(host, port, true);
-            getSecurityDomainPorts(domainXML, host, port);
+            domainInfo = getDomainInfo(host, port, true);
+            getSecurityDomainPorts(domainInfo, host, port);
+
         } catch (Exception e) {
-            logger.error("Failed to obtain security domain decriptor from security domain master: " + e.getMessage(), e);
-            throw new PKIException("Failed to obtain security domain decriptor from security domain master: " + e, e);
+            logger.error("Unable to get security domain info: " + e.getMessage(), e);
+            throw new PKIException("Unable to get security domain info: " + e.getMessage(), e);
         }
-        return domainXML;
+
+        return domainInfo;
     }
 
-    public String getDomainXML(String hostname, int https_admin_port, boolean https)
+    public DomainInfo getDomainInfo(String hostname, int https_admin_port, boolean https)
             throws Exception {
 
-        logger.debug("Configurator: getting domain info");
+        logger.debug("Configurator: Getting security domain info with " + (https ? "https" : "http"));
 
         String c = get(hostname, https_admin_port, https, "/ca/admin/ca/getDomainXML", null, null);
 
-        if (c != null) {
-
-            ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-            XMLObject parser = null;
-
-            parser = new XMLObject(bis);
-            String status = parser.getValue("Status");
-            logger.debug("Configurator: status: " + status);
-
-            if (status.equals(SUCCESS)) {
-                String domainInfo = parser.getValue("DomainInfo");
-                logger.debug("Configurator: domain info: " + domainInfo);
-                return domainInfo;
-
-            } else {
-                String error = parser.getValue("Error");
-                throw new IOException(error);
-            }
+        if (c == null) {
+            return null;
         }
 
-        return null;
+        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
+        XMLObject parser = null;
+
+        parser = new XMLObject(bis);
+        String status = parser.getValue("Status");
+        logger.debug("Configurator: status: " + status);
+
+        if (!status.equals(SUCCESS)) {
+            String error = parser.getValue("Error");
+            logger.debug("Configurator: error: " + error);
+            throw new IOException(error);
+        }
+
+        String domainXML = parser.getValue("DomainInfo");
+        logger.debug("Configurator: domain info: " + domainXML);
+
+        try (InputStream is = new ByteArrayInputStream(domainXML.getBytes())) {
+            XMLObject xmlObject = new XMLObject(is);
+            return SecurityDomainProcessor.convertXMLObjectToDomainInfo(xmlObject);
+        }
     }
 
-    public void getSecurityDomainPorts(String domainXML, String host, int port) throws SAXException,
-            IOException, ParserConfigurationException {
-        ByteArrayInputStream bis = new ByteArrayInputStream(domainXML.getBytes());
+    public void getSecurityDomainPorts(DomainInfo domainInfo, String hostname, int port) throws Exception {
 
-        XMLObject parser = new XMLObject(bis);
-        Document doc = parser.getDocument();
-        NodeList nodeList = doc.getElementsByTagName("CA");
+        SecurityDomainSubsystem subsystem = domainInfo.getSubsystem("CA");
 
-        int len = nodeList.getLength();
-        logger.debug("len is " + len);
-        for (int i = 0; i < len; i++) {
-            String hostname = parser.getValuesFromContainer(nodeList.item(i), "Host").elementAt(0);
-            String admin_port = parser.getValuesFromContainer(nodeList.item(i), "SecureAdminPort").elementAt(0);
-            logger.debug("hostname: <" + hostname + ">");
-            logger.debug("admin_port: <" + admin_port + ">");
+        for (SecurityDomainHost sdh : subsystem.getHosts()) {
+            String ca_hostname = sdh.getHostname();
+            String admin_port = sdh.getSecureAdminPort();
+            logger.debug("hostname: " + ca_hostname);
+            logger.debug("admin port: " + admin_port);
 
-            if (hostname.equals(host) && admin_port.equals(port + "")) {
-                cs.putString("securitydomain.httpport",
-                        parser.getValuesFromContainer(nodeList.item(i), "UnSecurePort").elementAt(0));
-                cs.putString("securitydomain.httpsagentport",
-                        parser.getValuesFromContainer(nodeList.item(i), "SecureAgentPort").elementAt(0));
-                cs.putString("securitydomain.httpseeport",
-                        parser.getValuesFromContainer(nodeList.item(i), "SecurePort").elementAt(0));
-
+            if (ca_hostname.equals(hostname) && admin_port.equals(port + "")) {
+                cs.putString("securitydomain.httpport", sdh.getPort());
+                cs.putString("securitydomain.httpsagentport", sdh.getSecureAgentPort());
+                cs.putString("securitydomain.httpseeport", sdh.getSecurePort());
                 break;
             }
         }
@@ -3615,39 +3608,34 @@ public class Configurator {
             updateDomainXML(sd_host, sd_agent_port, true, url, content, true);
         }
 
-        // Fetch the "updated" security domain and display it
-        logger.debug("updateSecurityDomain(): Dump contents of updated Security Domain . . .");
-        @SuppressWarnings("unused")
-        String c = getDomainXML(sd_host, sd_admin_port, true);
+        // Fetch the updated security domain
+        getDomainInfo(sd_host, sd_admin_port, true);
     }
 
     public boolean isSDHostDomainMaster() throws Exception {
+
+        logger.info("Checking whether security domain host is master");
 
         String dm = "false";
 
         String hostname = cs.getString("securitydomain.host");
         int httpsadminport = cs.getInteger("securitydomain.httpsadminport");
 
-        logger.debug("isSDHostDomainMaster(): Getting domain.xml from CA...");
-        String c = getDomainXML(hostname, httpsadminport, true);
+        DomainInfo domainInfo = getDomainInfo(hostname, httpsadminport, true);
 
-        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-        XMLObject parser = new XMLObject(bis);
-        Document doc = parser.getDocument();
-        NodeList nodeList = doc.getElementsByTagName("CA");
+        SecurityDomainSubsystem subsystem = domainInfo.getSubsystem("CA");
 
-        int len = nodeList.getLength();
-        for (int i = 0; i < len; i++) {
-            Vector<String> v_hostname = parser.getValuesFromContainer(nodeList.item(i), "Host");
-            Vector<String> v_https_admin_port = parser.getValuesFromContainer(nodeList.item(i), "SecureAdminPort");
-            Vector<String> v_domain_mgr = parser.getValuesFromContainer(nodeList.item(i), "DomainManager");
+        for (SecurityDomainHost host : subsystem.getHosts()) {
+            String v_hostname = host.getHostname();
+            String v_https_admin_port = host.getSecureAdminPort();
+            String v_domain_mgr = host.getDomainManager();
 
-            if (v_hostname.elementAt(0).equals(hostname) &&
-                    v_https_admin_port.elementAt(0).equals(Integer.toString(httpsadminport))) {
-                dm = v_domain_mgr.elementAt(0).toString();
+            if (v_hostname.equals(hostname) && v_https_admin_port.equals(httpsadminport + "")) {
+                dm = v_domain_mgr;
                 break;
             }
         }
+
         return dm.equalsIgnoreCase("true");
     }
 
