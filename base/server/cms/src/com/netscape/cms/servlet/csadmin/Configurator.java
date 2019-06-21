@@ -251,22 +251,17 @@ public class Configurator {
     public DomainInfo configureSecurityDomain(ConfigurationRequest request) throws Exception {
 
         String securityDomainType = request.getSecurityDomainType();
-        String securityDomainName = request.getSecurityDomainName();
 
         if (securityDomainType.equals(ConfigurationRequest.NEW_DOMAIN)) {
-            configureNewSecurityDomain(request, securityDomainName);
+            logger.info("Creating new security domain");
             return null;
         }
 
         if (securityDomainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)){
-            logger.debug("Configuring new subordinate root CA");
-            configureNewSecurityDomain(request, request.getSubordinateSecurityDomainName());
+            logger.info("Configuring new security subdomain");
 
         } else {
-            logger.debug("Joining existing security domain");
-            cs.putString("preop.securitydomain.select", "existing");
-            cs.putString("securitydomain.select", "existing");
-            cs.putString("preop.cert.subsystem.type", "remote");
+            logger.info("Joining existing security domain");
 
             String keyType = request.getSystemCertKeyType("subsystem");
             String profileID = getSystemCertProfileID(keyType, "subsystem", "caInternalAuthSubsystemCert");
@@ -275,25 +270,6 @@ public class Configurator {
 
         String securityDomainURL = request.getSecurityDomainUri();
         return logIntoSecurityDomain(request, securityDomainURL);
-    }
-
-    private void configureNewSecurityDomain(ConfigurationRequest request, String securityDomainName) {
-
-        logger.debug("Creating new security domain");
-
-        CMSEngine engine = CMS.getCMSEngine();
-        cs.putString("preop.securitydomain.select", "new");
-        cs.putString("securitydomain.select", "new");
-        cs.putString("preop.securitydomain.name", securityDomainName);
-        cs.putString("securitydomain.name", securityDomainName);
-        cs.putString("securitydomain.host", engine.getEENonSSLHost());
-        cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
-        cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
-        cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
-        cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
-
-        cs.putString("preop.cert.subsystem.type", "local");
-        cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
     }
 
     private DomainInfo logIntoSecurityDomain(ConfigurationRequest request, String securityDomainURL) throws Exception {
@@ -3458,34 +3434,19 @@ public class Configurator {
 
     public void setupSecurityDomain(String type, String name) throws Exception {
 
-        CMSEngine engine = CMS.getCMSEngine();
-
         if (type.equals(ConfigurationRequest.NEW_DOMAIN)) {
-
-            logger.debug("Creating new security domain");
+            logger.info("Creating new security domain");
             createSecurityDomain();
 
         } else if (type.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
-
-            logger.debug("Creating subordinate CA security domain");
-
-            // switch out security domain parameters from issuing CA security domain
-            // to subordinate CA hosted security domain
-            cs.putString("securitydomain.name", name);
-            cs.putString("securitydomain.host", engine.getEENonSSLHost());
-            cs.putString("securitydomain.httpport", engine.getEENonSSLPort());
-            cs.putString("securitydomain.httpsagentport", engine.getAgentPort());
-            cs.putString("securitydomain.httpseeport", engine.getEESSLPort());
-            cs.putString("securitydomain.httpsadminport", engine.getAdminPort());
+            logger.info("Configuring new security subdomain");
             createSecurityDomain();
 
         } else {
-            logger.debug("Updating existing security domain");
+            logger.info("Updating existing security domain");
             updateSecurityDomain();
         }
 
-        cs.putString("service.securityDomainPort", engine.getAgentPort());
-        cs.putString("securitydomain.store", "ldap");
         cs.commit(false);
     }
 

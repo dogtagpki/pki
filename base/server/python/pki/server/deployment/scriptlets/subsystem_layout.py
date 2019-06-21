@@ -138,8 +138,55 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         subsystem = instance.get_subsystem(deployer.mdict['pki_subsystem'].lower())
 
+        server_config = instance.get_server_config()
+
+        unsecurePort = None
+        securePort = None
+
+        for connector in server_config.get_connectors():
+            protocol = connector.get('protocol')
+            sslEnabled = connector.get('SSLEnabled')
+
+            if sslEnabled:
+                securePort = connector.get('port')
+            elif not protocol.startswith('AJP/'):
+                unsecurePort = connector.get('port')
+
         subsystem.config['preop.subsystem.name'] = deployer.mdict['pki_subsystem_name']
 
+        # configure security domain
+        if deployer.mdict['pki_security_domain_type'] == 'new':
+
+            if config.str2bool(deployer.mdict['pki_subordinate']) and \
+                    config.str2bool(deployer.mdict['pki_subordinate_create_new_security_domain']):
+                securityDomainName = deployer.mdict['pki_subordinate_security_domain_name']
+            else:
+                securityDomainName = deployer.mdict['pki_security_domain_name']
+
+            subsystem.config['preop.securitydomain.select'] = 'new'
+            subsystem.config['preop.securitydomain.name'] = securityDomainName
+
+            subsystem.config['securitydomain.select'] = 'new'
+            subsystem.config['securitydomain.name'] = securityDomainName
+            subsystem.config['securitydomain.host'] = deployer.mdict['pki_hostname']
+            subsystem.config['securitydomain.httpport'] = unsecurePort
+            subsystem.config['securitydomain.httpsagentport'] = securePort
+            subsystem.config['securitydomain.httpseeport'] = securePort
+            subsystem.config['securitydomain.httpsadminport'] = securePort
+
+            subsystem.config['preop.cert.subsystem.type'] = 'local'
+            subsystem.config['preop.cert.subsystem.profile'] = 'subsystemCert.profile'
+
+        else:  # deployer.mdict['pki_security_domain_type'] == 'existing':
+
+            subsystem.config['preop.securitydomain.select'] = 'existing'
+            subsystem.config['preop.cert.subsystem.type'] = 'remote'
+            subsystem.config['securitydomain.select'] = 'existing'
+
+        subsystem.config['service.securityDomainPort'] = securePort
+        subsystem.config['securitydomain.store'] = 'ldap'
+
+        # configure cloning
         if config.str2bool(deployer.mdict['pki_clone']):
             subsystem.config['preop.subsystem.select'] = 'clone'
             subsystem.config['subsystem.select'] = 'Clone'
