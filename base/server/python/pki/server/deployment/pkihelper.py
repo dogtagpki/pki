@@ -3041,13 +3041,16 @@ class ConfigClient:
 
         # Security Domain
         if self.security_domain_type != "new":
+            data.securityDomainType = "existingdomain"
             self.set_existing_security_domain(data)
         else:
             # PKI CA, External CA, or Stand-alone PKI
-            self.set_new_security_domain(data)
+            data.securityDomainType = "newdomain"
 
-        if self.subordinate:
-            self.set_subca_security_domain(data)
+        if self.subordinate and \
+                config.str2bool(self.mdict['pki_subordinate_create_new_security_domain']):
+            data.securityDomainType = "newsubdomain"
+            self.set_existing_security_domain(data)
 
         try:
             d = int(self.mdict['pki_security_domain_post_login_sleep_seconds'])
@@ -3350,22 +3353,10 @@ class ConfigClient:
                 data.hierarchy = "root"
 
     def set_existing_security_domain(self, data):
-        data.securityDomainType = "existingdomain"
         data.securityDomainUri = self.mdict['pki_security_domain_uri']
         data.securityDomainUser = self.mdict['pki_security_domain_user']
         data.securityDomainPassword = self.mdict[
             'pki_security_domain_password']
-
-    def set_new_security_domain(self, data):
-        data.securityDomainType = "newdomain"
-        data.securityDomainName = self.mdict['pki_security_domain_name']
-
-    def set_subca_security_domain(self, data):
-        if config.str2bool(
-                self.mdict['pki_subordinate_create_new_security_domain']):
-            data.securityDomainType = "newsubdomain"
-            data.subordinateSecurityDomainName = (
-                self.mdict['pki_subordinate_security_domain_name'])
 
     def set_backup_parameters(self, data):
         data.backupFile = self.mdict['pki_backup_keys_p12']

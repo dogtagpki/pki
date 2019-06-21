@@ -753,39 +753,34 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             if (!(data.getStandAlone() || csType.equals("CA"))) {
                 throw new BadRequestException("New Domain is only valid for stand-alone PKI or CA subsytems");
             }
-            if (data.getSecurityDomainName() == null) {
-                throw new BadRequestException("Security Domain Name is not provided");
+
+        } else if (domainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
+            if (!csType.equals("CA")) {
+                throw new BadRequestException("New Subdomain is only valid for CA subsytems");
             }
 
-        } else if (domainType.equals(ConfigurationRequest.EXISTING_DOMAIN) ||
-                   domainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
+        } else if (domainType.equals(ConfigurationRequest.EXISTING_DOMAIN)) {
             if (data.getStandAlone()) {
                 throw new BadRequestException("Existing security domains are not valid for stand-alone PKI subsytems");
             }
 
-            String domainURI = data.getSecurityDomainUri();
-            if (domainURI == null) {
-                throw new BadRequestException("Existing security domain requested, but no security domain URI provided");
-            }
-
-            try {
-                new URL(domainURI);
-            } catch (MalformedURLException e) {
-                throw new BadRequestException("Invalid security domain URI: " + domainURI, e);
-            }
-
-            if ((data.getSecurityDomainUser() == null) || (data.getSecurityDomainPassword() == null)) {
-                throw new BadRequestException("Security domain user or password not provided");
-            }
-
         } else {
-            throw new BadRequestException("Invalid security domain URI provided");
+            throw new BadRequestException("Invalid security domain type: " + domainType);
         }
 
-        // validate subordinate CA security domain settings
-        if (domainType.equals(ConfigurationRequest.NEW_SUBDOMAIN)) {
-            if (StringUtils.isEmpty(data.getSubordinateSecurityDomainName())) {
-                throw new BadRequestException("Subordinate CA security domain name not provided");
+        if (domainType.equals(ConfigurationRequest.NEW_SUBDOMAIN) ||
+                domainType.equals(ConfigurationRequest.EXISTING_DOMAIN)) {
+
+            if (data.getSecurityDomainUri() == null) {
+                throw new BadRequestException("Missing security domain URI");
+            }
+
+            if (data.getSecurityDomainUser() == null) {
+                throw new BadRequestException("Missing security domain user");
+            }
+
+            if (data.getSecurityDomainPassword() == null) {
+                throw new BadRequestException("Missing security domain password");
             }
         }
 

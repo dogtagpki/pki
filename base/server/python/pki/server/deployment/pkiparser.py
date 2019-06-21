@@ -1196,11 +1196,12 @@ class PKIConfigParser:
 
             elif self.deployer.subsystem_name != "CA" or \
                     config.str2bool(self.mdict['pki_clone']) or \
-                    config.str2bool(self.mdict['pki_subordinate']):
+                    config.str2bool(self.mdict['pki_subordinate']) and \
+                    not config.str2bool(self.mdict['pki_subordinate_create_new_security_domain']):
 
                 # PKI KRA, PKI OCSP, PKI TKS, PKI TPS,
                 # CA Clone, KRA Clone, OCSP Clone, TKS Clone, TPS Clone
-                # Subordinate CA
+                # Subordinate CA (existing)
                 self.mdict['pki_security_domain_type'] = "existing"
 
             elif config.str2bool(self.mdict['pki_external']):
@@ -1210,7 +1211,7 @@ class PKIConfigParser:
                 self.mdict['pki_issuing_ca'] = "External CA"
 
             else:
-                # PKI CA (master)
+                # PKI CA (master) and Subordinate CA (new)
                 self.mdict['pki_security_domain_type'] = "new"
 
             # 'External CA' Configuration name/value pairs

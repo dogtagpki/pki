@@ -273,13 +273,18 @@ public class Configurator {
         String hostname = url.getHost();
         int port = url.getPort();
 
-        return logIntoSecurityDomain(request, hostname, port);
+        DomainInfo domainInfo = logIntoSecurityDomain(request, hostname, port);
+
+        if (securityDomainType.equals(ConfigurationRequest.EXISTING_DOMAIN)) {
+            cs.putString("securitydomain.name", domainInfo.getName());
+            cs.putString("securitydomain.host", hostname);
+            cs.putInteger("securitydomain.httpsadminport", port);
+        }
+
+        return domainInfo;
     }
 
     private DomainInfo logIntoSecurityDomain(ConfigurationRequest request, String hostname, int port) throws Exception {
-
-        cs.putString("securitydomain.host", hostname);
-        cs.putInteger("securitydomain.httpsadminport", port);
 
         if (!request.getSystemCertsImported()) {
             logger.debug("Getting security domain cert chain");
@@ -2678,8 +2683,6 @@ public class Configurator {
             String givenTag, String wantedTag) throws Exception {
 
         logger.debug("Configurator: Searching for " + wantedTag + " in " + csType + " hosts");
-
-        cs.putString("securitydomain.name", domainInfo.getName());
 
         SecurityDomainSubsystem subsystem = domainInfo.getSubsystem(csType);
 
