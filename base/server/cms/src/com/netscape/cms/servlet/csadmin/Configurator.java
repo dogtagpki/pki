@@ -276,12 +276,7 @@ public class Configurator {
         }
 
         String securityDomainURL = request.getSecurityDomainUri();
-        String domainXML = logIntoSecurityDomain(request, securityDomainURL);
-
-        try (InputStream is = new ByteArrayInputStream(domainXML.getBytes())) {
-            XMLObject xmlObject = new XMLObject(is);
-            return SecurityDomainProcessor.convertXMLObjectToDomainInfo(xmlObject);
-        }
+        return logIntoSecurityDomain(request, securityDomainURL);
     }
 
     private void configureNewSecurityDomain(ConfigurationRequest request, String securityDomainName) {
@@ -303,7 +298,7 @@ public class Configurator {
         cs.putString("preop.cert.subsystem.profile", "subsystemCert.profile");
     }
 
-    private String logIntoSecurityDomain(ConfigurationRequest request, String securityDomainURL) throws Exception {
+    private DomainInfo logIntoSecurityDomain(ConfigurationRequest request, String securityDomainURL) throws Exception {
 
         URL secdomainURL;
         String host;
@@ -345,7 +340,10 @@ public class Configurator {
         logger.debug("Logged into security domain; sleeping for " + d + "s");
         Thread.sleep(d * 1000);
 
-        return domainXML;
+        try (InputStream is = new ByteArrayInputStream(domainXML.getBytes())) {
+            XMLObject xmlObject = new XMLObject(is);
+            return SecurityDomainProcessor.convertXMLObjectToDomainInfo(xmlObject);
+        }
     }
 
     public void configureCACertChain(ConfigurationRequest data, DomainInfo domainInfo) throws Exception {
