@@ -3425,7 +3425,7 @@ public class Configurator {
         }
     }
 
-    public void setupSecurityDomain(String type, String name) throws Exception {
+    public void setupSecurityDomain(String type) throws Exception {
 
         if (type.equals(ConfigurationRequest.NEW_DOMAIN)) {
             logger.info("Creating new security domain");

@@ -281,9 +281,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            configurator.setupSecurityDomain(
-                    request.getSecurityDomainType(),
-                    request.getSubordinateSecurityDomainName());
+            configurator.setupSecurityDomain(request.getSecurityDomainType());
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());

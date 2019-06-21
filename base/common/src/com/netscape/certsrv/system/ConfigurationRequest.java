@@ -51,9 +51,6 @@ public class ConfigurationRequest {
     protected String securityDomainUri;
 
     @XmlElement
-    protected String securityDomainName;
-
-    @XmlElement
     protected String securityDomainUser;
 
     @XmlElement
@@ -135,9 +132,6 @@ public class ConfigurationRequest {
     protected String generateSubsystemCert;
 
     @XmlElement
-    protected String subordinateSecurityDomainName;
-
-    @XmlElement
     protected String startingCRLNumber;
 
     @XmlElement
@@ -177,14 +171,6 @@ public class ConfigurationRequest {
 
     public void setSecurityDomainUri(String securityDomainUri) {
         this.securityDomainUri = securityDomainUri;
-    }
-
-    public String getSecurityDomainName() {
-        return securityDomainName;
-    }
-
-    public void setSecurityDomainName(String securityDomainName) {
-        this.securityDomainName = securityDomainName;
     }
 
     public String getSecurityDomainUser() {
@@ -458,14 +444,6 @@ public class ConfigurationRequest {
         this.generateSubsystemCert = generateSubsystemCert;
     }
 
-    public String getSubordinateSecurityDomainName() {
-        return subordinateSecurityDomainName;
-    }
-
-    public void setSubordinateSecurityDomainName(String subordinateSecurityDomainName) {
-        this.subordinateSecurityDomainName = subordinateSecurityDomainName;
-    }
-
     public String getStartingCRLNumber() {
         return startingCRLNumber;
     }
@@ -511,7 +489,6 @@ public class ConfigurationRequest {
         return "ConfigurationRequest [pin=XXXX" +
                ", securityDomainType=" + securityDomainType +
                ", securityDomainUri=" + securityDomainUri +
-               ", securityDomainName=" + securityDomainName +
                ", securityDomainUser=" + securityDomainUser +
                ", securityDomainPassword=XXXX" +
                ", securityDomainPostLoginSleepSeconds=" + securityDomainPostLoginSleepSeconds +
@@ -538,7 +515,6 @@ public class ConfigurationRequest {
                ", enableServerSideKeyGen=" + enableServerSideKeyGen +
                ", importSharedSecret=" + importSharedSecret +
                ", generateSubsystemCert=" + generateSubsystemCert +
-               ", subordinateSecurityDomainName=" + subordinateSecurityDomainName +
                ", startingCrlNumber=" + startingCRLNumber +
                ", createSigningCertRecord=" + createSigningCertRecord +
                ", signingCertSerialNumber=" + signingCertSerialNumber +

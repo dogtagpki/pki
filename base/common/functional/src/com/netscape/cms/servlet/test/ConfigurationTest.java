@@ -241,7 +241,6 @@ public class ConfigurationTest {
         ConfigurationRequest data = new ConfigurationRequest();
         data.setPin(pin);
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
-        data.setSecurityDomainName("Testca2 security domain");
         data.setClone("false");
         data.setHierarchy("root");
 
@@ -390,7 +389,6 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
-        data.setSecurityDomainName("External CA security domain");
 
         data.setClone("false");
         data.setHierarchy("join");
@@ -465,7 +463,6 @@ public class ConfigurationTest {
         data.setPin(pin);
 
         data.setSecurityDomainType(ConfigurationRequest.NEW_DOMAIN);
-        data.setSecurityDomainName("External CA security domain");
 
         data.setClone("false");
         data.setHierarchy("join");
