@@ -3030,11 +3030,11 @@ class ConfigClient:
         data.standAlone = self.standalone
 
         # Cloning parameters
-        if self.mdict['pki_instance_type'] == "Tomcat":
-            if self.clone:
-                self.set_cloning_parameters(data)
-            else:
-                data.isClone = "false"
+        if self.clone:
+            data.isClone = "true"
+            data.cloneUri = self.mdict['pki_clone_uri']
+        else:
+            data.isClone = "false"
 
         # Hierarchy
         self.set_hierarchy_parameters(data)
@@ -3058,9 +3058,6 @@ class ConfigClient:
                 data.securityDomainPostLoginSleepSeconds = d
         except (KeyError, ValueError):
             pass
-
-        # database
-        data.replicationPassword = self.mdict['pki_replication_password']
 
         # Issuing CA Information
         self.set_issuing_ca_parameters(data)
@@ -3345,23 +3342,6 @@ class ConfigClient:
                 systemCerts.append(cert7)
 
         data.systemCerts = systemCerts
-
-    def set_cloning_parameters(self, data):
-        data.isClone = "true"
-        data.cloneUri = self.mdict['pki_clone_uri']
-
-        if config.str2bool(self.mdict['pki_clone_replicate_schema']):
-            data.replicateSchema = "true"
-        else:
-            data.replicateSchema = "false"
-        data.replicationSecurity = \
-            self.mdict['pki_clone_replication_security']
-        if self.mdict['pki_clone_replication_master_port']:
-            data.masterReplicationPort = \
-                self.mdict['pki_clone_replication_master_port']
-        if self.mdict['pki_clone_replication_clone_port']:
-            data.cloneReplicationPort = \
-                self.mdict['pki_clone_replication_clone_port']
 
     def set_hierarchy_parameters(self, data):
         if self.subsystem == "CA":

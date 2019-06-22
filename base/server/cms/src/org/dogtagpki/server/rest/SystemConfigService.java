@@ -801,30 +801,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             data.setClone("false");
         }
 
-        String masterReplicationPort = data.getMasterReplicationPort();
-        if (masterReplicationPort != null && masterReplicationPort.length() > 0) {
-            try {
-                Integer.parseInt(masterReplicationPort); // check for errors
-            } catch (NumberFormatException e) {
-                throw new BadRequestException("Master replication port is invalid: " + masterReplicationPort, e);
-            }
-        }
-
-        String cloneReplicationPort = data.getCloneReplicationPort();
-        if (cloneReplicationPort != null && cloneReplicationPort.length() > 0) {
-            try {
-                Integer.parseInt(cloneReplicationPort); // check for errors
-            } catch (NumberFormatException e) {
-                throw new BadRequestException("Clone replication port is invalid: " + cloneReplicationPort, e);
-            }
-        }
-
-        if ((data.getReplicateSchema() != null) && (data.getReplicateSchema().equalsIgnoreCase("false"))) {
-            data.setReplicateSchema("false");
-        } else {
-            data.setReplicateSchema("true");
-        }
-
         if (csType.equals("CA") && (data.getHierarchy() == null)) {
             throw new BadRequestException("Hierarchy is required for CA, not provided");
         }

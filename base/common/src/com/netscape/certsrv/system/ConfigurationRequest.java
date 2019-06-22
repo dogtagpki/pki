@@ -66,21 +66,6 @@ public class ConfigurationRequest {
     protected String hierarchy;
 
     @XmlElement
-    protected String masterReplicationPort;
-
-    @XmlElement
-    protected String cloneReplicationPort;
-
-    @XmlElement
-    protected String replicateSchema;
-
-    @XmlElement
-    protected String replicationSecurity;
-
-    @XmlElement
-    protected String replicationPassword;
-
-    @XmlElement
     protected Boolean systemCertsImported;
 
     @XmlElement
@@ -220,56 +205,6 @@ public class ConfigurationRequest {
     }
 
     /**
-     * @return the masterReplicationPort
-     */
-    public String getMasterReplicationPort() {
-        return masterReplicationPort;
-    }
-
-    /**
-     * @param masterReplicationPort the masterReplicationPort to set
-     */
-    public void setMasterReplicationPort(String masterReplicationPort) {
-        this.masterReplicationPort = masterReplicationPort;
-    }
-
-    /**
-     * @return the cloneReplicationPort
-     */
-    public String getCloneReplicationPort() {
-        return cloneReplicationPort;
-    }
-
-    /**
-     * @param cloneReplicationPort the cloneReplicationPort to set
-     */
-    public void setCloneReplicationPort(String cloneReplicationPort) {
-        this.cloneReplicationPort = cloneReplicationPort;
-    }
-
-    /**
-     * @return the replicationSecurity
-     */
-    public String getReplicationSecurity() {
-        return replicationSecurity;
-    }
-
-    /**
-     * @param replicationSecurity the replicationSecurity to set
-     */
-    public void setReplicationSecurity(String replicationSecurity) {
-        this.replicationSecurity = replicationSecurity;
-    }
-
-    public String getReplicationPassword() {
-        return replicationPassword;
-    }
-
-    public void setReplicationPassword(String replicationPassword) {
-        this.replicationPassword = replicationPassword;
-    }
-
-    /**
      *
      * @return systemCertsImported
      */
@@ -346,14 +281,6 @@ public class ConfigurationRequest {
 
     public void setStandAlone(String standAlone) {
         this.standAlone = standAlone;
-    }
-
-    public String getReplicateSchema() {
-        return replicateSchema;
-    }
-
-    public void setReplicateSchema(String replicateSchema) {
-        this.replicateSchema = replicateSchema;
     }
 
     public String getGenerateServerCert() {
@@ -495,10 +422,6 @@ public class ConfigurationRequest {
                ", isClone=" + isClone +
                ", cloneUri=" + cloneUri +
                ", hierarchy=" + hierarchy +
-               ", replicateSchema=" + replicateSchema +
-               ", masterReplicationPort=" + masterReplicationPort +
-               ", cloneReplicationPort=" + cloneReplicationPort +
-               ", replicationSecurity=" + replicationSecurity +
                ", systemCertsImported=" + systemCertsImported +
                ", systemCerts=" + systemCerts +
                ", issuingCA=" + issuingCA +
