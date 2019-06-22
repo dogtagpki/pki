@@ -32,6 +32,7 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.system.ConfigurationRequest;
+import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -48,7 +49,7 @@ public class OCSPConfigurator extends Configurator {
     private static final int DEF_REFRESH_IN_SECS_FOR_CLONE = 14400; // CRL Publishing schedule
 
     @Override
-    public void initializeDatabase(ConfigurationRequest request) throws EBaseException {
+    public void initializeDatabase(DatabaseSetupRequest request) throws EBaseException {
 
         super.initializeDatabase(request);
 

@@ -233,6 +233,11 @@ class ConfigurationResponse(object):
         pass
 
 
+class DatabaseSetupRequest(object):
+    def __init__(self):
+        pass
+
+
 class AdminSetupRequest(object):
     def __init__(self):
         pass
@@ -297,8 +302,8 @@ class SystemConfigClient(object):
         """
         Set up database.
 
-        :param request: Configuration request
-        :type request: ConfigurationRequest
+        :param request: Database setup request
+        :type request: DatabaseSetupRequest
         """
         data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
@@ -428,6 +433,7 @@ class SystemStatusClient(object):
 
 pki.encoder.NOTYPES['ConfigurationRequest'] = ConfigurationRequest
 pki.encoder.NOTYPES['ConfigurationResponse'] = ConfigurationResponse
+pki.encoder.NOTYPES['DatabaseSetupRequest'] = DatabaseSetupRequest
 pki.encoder.NOTYPES['AdminSetupRequest'] = AdminSetupRequest
 pki.encoder.NOTYPES['AdminSetupResponse'] = AdminSetupResponse
 pki.encoder.NOTYPES['KeyBackupRequest'] = KeyBackupRequest

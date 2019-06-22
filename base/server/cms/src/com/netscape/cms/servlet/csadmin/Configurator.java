@@ -135,6 +135,7 @@ import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
+import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
@@ -1472,7 +1473,7 @@ public class Configurator {
         return null;
     }
 
-    public void initializeDatabase(ConfigurationRequest request) throws EBaseException {
+    public void initializeDatabase(DatabaseSetupRequest request) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
 

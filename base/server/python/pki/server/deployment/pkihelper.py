@@ -3088,6 +3088,32 @@ class ConfigClient:
 
         return data
 
+    def create_database_setup_request(self):
+
+        logger.info('Creating database setup request')
+
+        request = pki.system.DatabaseSetupRequest()
+
+        request.pin = self.mdict['pki_one_time_pin']
+
+        if self.clone:
+            request.isClone = "true"
+        else:
+            request.isClone = "false"
+
+        request.masterReplicationPort = self.mdict['pki_clone_replication_master_port']
+        request.cloneReplicationPort = self.mdict['pki_clone_replication_clone_port']
+
+        if config.str2bool(self.mdict['pki_clone_replicate_schema']):
+            request.replicateSchema = "true"
+        else:
+            request.replicateSchema = "false"
+
+        request.replicationSecurity = self.mdict['pki_clone_replication_security']
+        request.replicationPassword = self.mdict['pki_replication_password']
+
+        return request
+
     def create_admin_setup_request(self):
 
         logger.info('Creating admin setup request')

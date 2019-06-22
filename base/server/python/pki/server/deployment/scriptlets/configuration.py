@@ -722,7 +722,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         client.configure(request)
 
         logger.info('Setting up database')
-        client.setupDatabase(request)
+
+        database_setup_request = deployer.config_client.create_database_setup_request()
+        client.setupDatabase(database_setup_request)
 
         logger.info('Configuring certificates')
         response = client.configureCerts(request)

@@ -20,7 +20,7 @@ package org.dogtagpki.server.tks;
 import java.util.Collection;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.system.ConfigurationRequest;
+import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -34,7 +34,7 @@ public class TKSConfigurator extends Configurator {
     }
 
     @Override
-    public void initializeDatabase(ConfigurationRequest request) throws EBaseException {
+    public void initializeDatabase(DatabaseSetupRequest request) throws EBaseException {
 
         super.initializeDatabase(request);
 

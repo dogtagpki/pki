@@ -33,7 +33,7 @@ public interface SystemConfigResource {
 
     @POST
     @Path("setupDatabase")
-    public void setupDatabase(ConfigurationRequest request) throws Exception;
+    public void setupDatabase(DatabaseSetupRequest request) throws Exception;
 
     @POST
     @Path("configureCerts")

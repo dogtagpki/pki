@@ -42,6 +42,7 @@ import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
+import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.TPSConnectorClient;
@@ -123,7 +124,7 @@ public class TPSConfigurator extends Configurator {
     }
 
     @Override
-    public void initializeDatabase(ConfigurationRequest request) throws EBaseException {
+    public void initializeDatabase(DatabaseSetupRequest request) throws EBaseException {
 
         super.initializeDatabase(request);
 
