@@ -53,17 +53,13 @@ def enable_pki_logger(log_dir, log_name, log_level, console_log_level, name):
     # Configure console handler
     console = logging.StreamHandler()
     console.setLevel(console_log_level)
-    console_format = logging.Formatter('%(name)-14s: ' +
-                                       '%(levelname)-8s ' +
-                                       '%(message)s')
+    console_format = logging.Formatter('%(levelname)-8s: %(name)-14s %(message)s')
     console.setFormatter(console_format)
 
     # Configure file handler
     log_file = logging.FileHandler(log_dir + "/" + log_name, 'w')
     log_file.setLevel(log_level)
-    file_format = logging.Formatter('%(asctime)s %(name)-14s: ' +
-                                    '%(levelname)-8s ' +
-                                    '%(message)s',
+    file_format = logging.Formatter('%(levelname)-8s: %(name)-14s %(message)s',
                                     '%Y-%m-%d %H:%M:%S')
     log_file.setFormatter(file_format)
 
