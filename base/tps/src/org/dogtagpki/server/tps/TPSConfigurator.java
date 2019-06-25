@@ -43,7 +43,6 @@ import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
-import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.certsrv.user.UserResource;
@@ -124,14 +123,14 @@ public class TPSConfigurator extends Configurator {
 
         boolean keygen = request.getEnableServerSideKeyGen().equalsIgnoreCase("true");
 
-        SystemCertData subsystemCert = request.getSystemCert("subsystem");
+        String nickname = cs.getString("tps.subsystem.nickname");
+        String tokenname = cs.getString("tps.subsystem.tokenname");
 
-        String nickname;
-        if (CryptoUtil.isInternalToken(subsystemCert.getToken())) {
-            nickname = subsystemCert.getNickname();
-        } else {
-            nickname = subsystemCert.getToken() + ":" + subsystemCert.getNickname();
+        if (!CryptoUtil.isInternalToken(tokenname)) {
+            nickname = tokenname + ":" + nickname;
         }
+
+        logger.debug("TPSConfigurator: subsystem cert: " + nickname);
 
         logger.info("TPSConfigurator: Configuring CA connector");
         configureCAConnector(caURI, nickname);
