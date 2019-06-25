@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.common;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -131,22 +132,23 @@ public class CMSGateway {
         AuthCredentials creds = new AuthCredentials();
 
         try {
-            clientCert = new org.mozilla.jss.netscape.security.x509.X509CertImpl(clientCert.getEncoded());
-        } catch (Exception e) {
-            logger.warn("CMSGateway: getAuthCreds " + e.getMessage(), e);
+            if (clientCert != null) {
+                clientCert = new org.mozilla.jss.netscape.security.x509.X509CertImpl(clientCert.getEncoded());
+            }
+        } catch (CertificateException e) {
+            throw new EBaseException("Unable to parse client certificate: " + e.getMessage(), e);
         }
 
         for (int i = 0; i < reqCreds.length; i++) {
             String reqCred = reqCreds[i];
 
             if (reqCred.equals(IAuthManager.CRED_SSL_CLIENT_CERT)) {
-                // cert could be null;
-                creds.set(reqCred, new X509Certificate[] { clientCert }
-                        );
+                // cert could be null
+                creds.set(reqCred, new X509Certificate[] { clientCert });
+
             } else {
                 String value = argBlock.getValueAsString(reqCred);
-
-                creds.set(reqCred, value); // value could be null;
+                creds.set(reqCred, value); // value could be null
             }
         }
 
