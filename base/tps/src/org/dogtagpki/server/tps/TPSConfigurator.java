@@ -43,7 +43,6 @@ import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
-import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
@@ -63,51 +62,25 @@ public class TPSConfigurator extends Configurator {
         super(engine);
     }
 
-    @Override
-    public void configureSubsystem(ConfigurationRequest request, DomainInfo domainInfo) throws Exception {
-
-        super.configureSubsystem(request, domainInfo);
-
-        SystemCertData subsystemCert = request.getSystemCert("subsystem");
-
-        String nickname;
-        if (CryptoUtil.isInternalToken(subsystemCert.getToken())) {
-            nickname = subsystemCert.getNickname();
-        } else {
-            nickname = subsystemCert.getToken() + ":" + subsystemCert.getNickname();
-        }
-
-        // CA Info Panel
-        configureCAConnector(request, nickname);
-
-        // TKS Info Panel
-        configureTKSConnector(request, nickname);
-
-        //DRM Info Panel
-        configureKRAConnector(request, nickname);
-    }
-
-    public void configureCAConnector(ConfigurationRequest request, String nickname) {
+    public void configureCAConnector(URI caURI, String nickname) {
 
         // TODO: get installer from session
         TPSInstaller installer = new TPSInstaller();
-        installer.configureCAConnector(request.getCaUri(), nickname);
+        installer.configureCAConnector(caURI, nickname);
     }
 
-    public void configureTKSConnector(ConfigurationRequest request, String nickname) {
+    public void configureTKSConnector(URI tksURI, String nickname) {
 
         // TODO: get installer from session
         TPSInstaller installer = new TPSInstaller();
-        installer.configureTKSConnector(request.getTksUri(), nickname);
+        installer.configureTKSConnector(tksURI, nickname);
     }
 
-    public void configureKRAConnector(ConfigurationRequest request, String nickname) {
-
-        boolean keygen = request.getEnableServerSideKeyGen().equalsIgnoreCase("true");
+    public void configureKRAConnector(URI kraURI, String nickname, boolean keygen) {
 
         // TODO: get installer from session
         TPSInstaller installer = new TPSInstaller();
-        installer.configureKRAConnector(keygen, request.getKraUri(), nickname);
+        installer.configureKRAConnector(keygen, kraURI, nickname);
     }
 
     @Override
@@ -149,6 +122,26 @@ public class TPSConfigurator extends Configurator {
         URI tksURI = request.getTksUri();
         URI kraURI = request.getKraUri();
 
+        boolean keygen = request.getEnableServerSideKeyGen().equalsIgnoreCase("true");
+
+        SystemCertData subsystemCert = request.getSystemCert("subsystem");
+
+        String nickname;
+        if (CryptoUtil.isInternalToken(subsystemCert.getToken())) {
+            nickname = subsystemCert.getNickname();
+        } else {
+            nickname = subsystemCert.getToken() + ":" + subsystemCert.getNickname();
+        }
+
+        logger.info("TPSConfigurator: Configuring CA connector");
+        configureCAConnector(caURI, nickname);
+
+        logger.info("TPSConfigurator: Configuring TKS connector");
+        configureTKSConnector(tksURI, nickname);
+
+        logger.info("TPSConfigurator: Configuring KRA connector");
+        configureKRAConnector(kraURI, nickname, keygen);
+
         try {
             logger.info("TPSConfigurator: Registering TPS to CA: " + caURI);
             registerUser(secdomainURI, caURI, "ca");
@@ -169,7 +162,7 @@ public class TPSConfigurator extends Configurator {
             throw new PKIException(message, e);
         }
 
-        if (request.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
+        if (keygen) {
 
             try {
                 logger.info("TPSConfigurator: Registering TPS to KRA: " + kraURI);
