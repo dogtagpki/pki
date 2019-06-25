@@ -194,6 +194,17 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             subsystem.config['preop.subsystem.select'] = 'new'
             subsystem.config['subsystem.select'] = 'New'
 
+        # configure TPS
+        if subsystem.type == 'TPS':
+            subsystem.config['auths.instance.ldap1.ldap.basedn'] = \
+                deployer.mdict['pki_authdb_basedn']
+            subsystem.config['auths.instance.ldap1.ldap.ldapconn.host'] = \
+                deployer.mdict['pki_authdb_hostname']
+            subsystem.config['auths.instance.ldap1.ldap.ldapconn.port'] = \
+                deployer.mdict['pki_authdb_port']
+            subsystem.config['auths.instance.ldap1.ldap.ldapconn.secureConn'] = \
+                deployer.mdict['pki_authdb_secure_conn']
+
         subsystem.save()
 
     def destroy(self, deployer):

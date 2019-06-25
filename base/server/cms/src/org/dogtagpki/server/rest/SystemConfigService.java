@@ -824,25 +824,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 }
             }
 
-            if ((data.getAuthdbBaseDN()==null) || data.getAuthdbBaseDN().isEmpty()) {
-                throw new BadRequestException("Authentication Database baseDN not provided");
-            }
-            if ((data.getAuthdbHost()==null) || data.getAuthdbHost().isEmpty()) {
-                throw new BadRequestException("Authentication Database hostname not provided");
-            }
-            if ((data.getAuthdbPort()==null) || data.getAuthdbPort().isEmpty()) {
-                throw new BadRequestException("Authentication Database port not provided");
-            }
-            if ((data.getAuthdbSecureConn()==null) || data.getAuthdbSecureConn().isEmpty()) {
-                throw new BadRequestException("Authentication Database secure conn not provided");
-            }
-
-            try {
-                Integer.parseInt(data.getAuthdbPort()); // check for errors
-            } catch (NumberFormatException e) {
-                throw new BadRequestException("Authentication Database port is invalid: " + data.getAuthdbPort(), e);
-            }
-
             // TODO check connection with authdb
 
             if (data.getImportSharedSecret().equalsIgnoreCase("true")) {

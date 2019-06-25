@@ -85,11 +85,6 @@ public class TPSConfigurator extends Configurator {
 
         //DRM Info Panel
         configureKRAConnector(request, nickname);
-
-        //AuthDBPanel
-        updateAuthdbInfo(request.getAuthdbBaseDN(),
-                request.getAuthdbHost(), request.getAuthdbPort(),
-                request.getAuthdbSecureConn());
     }
 
     public void configureCAConnector(ConfigurationRequest request, String nickname) {
@@ -113,14 +108,6 @@ public class TPSConfigurator extends Configurator {
         // TODO: get installer from session
         TPSInstaller installer = new TPSInstaller();
         installer.configureKRAConnector(keygen, request.getKraUri(), nickname);
-    }
-
-    public void updateAuthdbInfo(String basedn, String host, String port, String secureConn) {
-
-        cs.putString("auths.instance.ldap1.ldap.basedn", basedn);
-        cs.putString("auths.instance.ldap1.ldap.ldapconn.host", host);
-        cs.putString("auths.instance.ldap1.ldap.ldapconn.port", port);
-        cs.putString("auths.instance.ldap1.ldap.ldapconn.secureConn", secureConn);
     }
 
     @Override

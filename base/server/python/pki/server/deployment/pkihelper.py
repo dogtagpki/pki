@@ -3524,16 +3524,16 @@ class ConfigClient:
             data.issuingCA = self.mdict['pki_issuing_ca']
 
     def set_tps_parameters(self, data):
+
         data.caUri = self.mdict['pki_ca_uri']
         data.tksUri = self.mdict['pki_tks_uri']
+
         data.enableServerSideKeyGen = \
             self.mdict['pki_enable_server_side_keygen']
+
         if config.str2bool(self.mdict['pki_enable_server_side_keygen']):
             data.kraUri = self.mdict['pki_kra_uri']
-        data.authdbHost = self.mdict['pki_authdb_hostname']
-        data.authdbPort = self.mdict['pki_authdb_port']
-        data.authdbBaseDN = self.mdict['pki_authdb_basedn']
-        data.authdbSecureConn = self.mdict['pki_authdb_secure_conn']
+
         data.importSharedSecret = self.mdict['pki_import_shared_secret']
 
     def create_system_cert(self, tag):

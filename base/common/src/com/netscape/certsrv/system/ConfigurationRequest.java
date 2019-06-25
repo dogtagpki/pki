@@ -84,18 +84,6 @@ public class ConfigurationRequest {
     protected String generateServerCert;
 
     @XmlElement
-    protected String authdbBaseDN;
-
-    @XmlElement
-    protected String authdbHost;
-
-    @XmlElement
-    protected String authdbPort;
-
-    @XmlElement(defaultValue="false")
-    protected String authdbSecureConn;
-
-    @XmlElement
     @XmlJavaTypeAdapter(URIAdapter.class)
     protected URI caUri;
 
@@ -291,38 +279,6 @@ public class ConfigurationRequest {
         this.generateServerCert = generateServerCert;
     }
 
-    public String getAuthdbBaseDN() {
-        return authdbBaseDN;
-    }
-
-    public void setAuthdbBaseDN(String authdbBaseDN) {
-        this.authdbBaseDN = authdbBaseDN;
-    }
-
-    public String getAuthdbHost() {
-        return authdbHost;
-    }
-
-    public void setAuthdbHost(String authdbHost) {
-        this.authdbHost = authdbHost;
-    }
-
-    public String getAuthdbPort() {
-        return authdbPort;
-    }
-
-    public void setAuthdbPort(String authdbPort) {
-        this.authdbPort = authdbPort;
-    }
-
-    public String getAuthdbSecureConn() {
-        return authdbSecureConn;
-    }
-
-    public void setAuthdbSecureConn(String authdbSecureConn) {
-        this.authdbSecureConn = authdbSecureConn;
-    }
-
     public URI getCaUri() {
         return caUri;
     }
@@ -428,10 +384,6 @@ public class ConfigurationRequest {
                ", generateServerCert=" + generateServerCert +
                ", external=" + external +
                ", standAlone=" + standAlone +
-               ", authdbBaseDN=" + authdbBaseDN +
-               ", authdbHost=" + authdbHost +
-               ", authdbPort=" + authdbPort +
-               ", authdbSecureConn=" + authdbSecureConn +
                ", caUri=" + caUri +
                ", kraUri=" + kraUri +
                ", tksUri=" + tksUri +
