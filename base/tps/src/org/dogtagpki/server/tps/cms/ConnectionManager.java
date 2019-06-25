@@ -28,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 import org.dogtagpki.server.tps.TPSSubsystem;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.cmscore.apps.CMS;
@@ -48,23 +49,23 @@ public class ConnectionManager
     private Hashtable<String, IConnector> connectors;
     List<String> caList;
 
-    public ConnectionManager() {
+    public ConnectionManager() throws EBaseException {
         // initialize the ca list for revocation routing:
         //    tps.connCAList=ca1,ca2...ca<n>
         CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem subsystem = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         IConfigStore conf = subsystem.getConfigStore();
         String caListString;
+
         try {
             caListString = conf.getString("connCAList");
-            logger.debug("ConnectionManager: ConnectionManager(): Initializing CA routing list");
-        } catch (EBaseException e) {
-            logger.warn("ConnectionManager: ConnectionManager(): no connCAList for ca discovery.  No revocation routing: " + e.getMessage(), e);
+            caList = Arrays.asList(caListString.split(","));
+            logger.info("Revocation routing: " + caListString);
+
+        } catch (EPropertyNotFound e) {
+            logger.warn("Revocation routing not configured");
             return;
         }
-
-        caList = Arrays.asList(caListString.split(","));
-        logger.debug("ConnectionManager: ConnectionManager(): CA routing list initialized.");
     }
 
     public List<String> getCAList() {
