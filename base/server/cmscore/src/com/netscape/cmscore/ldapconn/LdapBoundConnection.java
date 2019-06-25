@@ -93,21 +93,25 @@ public class LdapBoundConnection extends LDAPConnection {
             setOption(LDAPv2.REFERRALS_REBIND_PROC, rebindInfo);
         }
 
-        if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-            // will be bound to client auth cert mapped entry.
-            super.connect(connInfo.getHost(), connInfo.getPort());
-            logger.debug("Established LDAP connection with SSL client auth to " +
-                            connInfo.getHost() + ":" + connInfo.getPort());
-        } else { // basic auth
-            String binddn = authInfo.getBindDN();
-            String bindpw = authInfo.getBindPassword();
+        String hostname = connInfo.getHost();
+        int port = connInfo.getPort();
 
-            super.connect(connInfo.getVersion(),
-                    connInfo.getHost(), connInfo.getPort(), binddn, bindpw);
-            logger.debug("Established LDAP connection using basic authentication to" +
-                            " host " + connInfo.getHost() +
-                            " port " + connInfo.getPort() +
-                            " as " + binddn);
+        if (authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
+
+            logger.debug("LdapBoundConnection: Connecting to " +
+                    hostname + ":" + port + " with client cert auth");
+
+            super.connect(hostname, port);
+
+        } else {
+            int version = connInfo.getVersion();
+            String bindDN = authInfo.getBindDN();
+            String bindPassword = authInfo.getBindPassword();
+
+            logger.debug("LdapBoundConnection: Connecting to " +
+                    hostname + ":" + port + " with basic auth as " + bindDN);
+
+            super.connect(version, hostname, port, bindDN, bindPassword);
         }
     }
 
@@ -115,25 +119,34 @@ public class LdapBoundConnection extends LDAPConnection {
      * Instantiates a connection to a ldap server, secure or non-secure
      * connection with Ldap basic bind dn & pw authentication.
      */
-    public LdapBoundConnection(String host, int port, int version,
-            LDAPSocketFactory fac,
-            String bindDN, String bindPW)
+    public LdapBoundConnection(
+            String hostname,
+            int port,
+            int version,
+            LDAPSocketFactory factory,
+            String bindDN,
+            String bindPassword)
             throws LDAPException {
-        super(fac);
+
+        super(factory);
+
         if (bindDN != null) {
-            super.connect(version, host, port, bindDN, bindPW);
-            logger.debug("Established LDAP connection using basic authentication " +
-                            " as " + bindDN + " to " + host + ":" + port);
-        } else {
-            if (fac == null && bindDN == null) {
-                throw new IllegalArgumentException(
-                        "Ldap bound connection must have authentication info.");
-            }
-            // automatically authenticated if it's ssl client auth.
-            super.connect(version, host, port, null, null);
-            logger.debug("Established LDAP connection using SSL client authentication " +
-                            "to " + host + ":" + port);
+
+            logger.debug("LdapBoundConnection: Connecting to " +
+                    hostname + ":" + port + " with basic auth as " + bindDN);
+
+            super.connect(version, hostname, port, bindDN, bindPassword);
+            return;
         }
+
+        if (factory == null && bindDN == null) {
+            throw new IllegalArgumentException("Missing authentication info");
+        }
+
+        logger.debug("LdapBoundConnection: Connecting to " +
+                hostname + ":" + port + " with client cert auth");
+
+        super.connect(version, hostname, port, null, null);
     }
 
     /**
