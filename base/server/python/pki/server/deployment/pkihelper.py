@@ -3069,20 +3069,6 @@ class ConfigClient:
         # Create system certs
         self.set_system_certs(nssdb, data)
 
-        # TPS parameters
-        if self.subsystem == "TPS":
-            self.set_tps_parameters(data)
-
-        # Misc CA parameters
-        if self.subsystem == "CA":
-            data.startingCRLNumber = self.mdict['pki_ca_starting_crl_number']
-            data.createSigningCertRecord = (
-                self.mdict['pki_ca_signing_record_create'].lower()
-            )
-            data.signingCertSerialNumber = (
-                self.mdict['pki_ca_signing_serial_number'].lower()
-            )
-
         return data
 
     def create_database_setup_request(self):
@@ -3132,6 +3118,43 @@ class ConfigClient:
         request.pin = self.mdict['pki_one_time_pin']
 
         self.set_backup_parameters(request)
+
+        return request
+
+    def create_finalize_config_request(self):
+
+        logger.info('Creating finalize config request')
+
+        request = pki.system.FinalizeConfigRequest()
+
+        # Miscellaneous Configuration Information
+        request.pin = self.mdict['pki_one_time_pin']
+
+        request.standAlone = self.standalone
+
+        # Cloning parameters
+        if self.clone:
+            request.isClone = 'true'
+            request.cloneUri = self.mdict['pki_clone_uri']
+        else:
+            request.isClone = 'false'
+
+        # Security Domain
+        request.securityDomainUri = self.mdict['pki_security_domain_uri']
+
+        # CA parameters
+        if self.subsystem == 'CA':
+            request.startingCRLNumber = self.mdict['pki_ca_starting_crl_number']
+            request.createSigningCertRecord = (
+                self.mdict['pki_ca_signing_record_create'].lower()
+            )
+            request.signingCertSerialNumber = (
+                self.mdict['pki_ca_signing_serial_number'].lower()
+            )
+
+        # TPS parameters
+        if self.subsystem == 'TPS':
+            self.set_tps_parameters(request)
 
         return request
 

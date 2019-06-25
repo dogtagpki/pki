@@ -779,7 +779,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             client.setupDatabaseUser(request)
 
         logger.info('Finalizing %s configuration', subsystem.type)
-        client.finalizeConfiguration(request)
+        finalize_config_request = deployer.config_client.create_finalize_config_request()
+        client.finalizeConfiguration(finalize_config_request)
 
         logger.info('%s configuration complete', subsystem.type)
 

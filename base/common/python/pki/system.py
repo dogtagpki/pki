@@ -253,6 +253,11 @@ class KeyBackupRequest(object):
         pass
 
 
+class FinalizeConfigRequest(object):
+    def __init__(self):
+        pass
+
+
 class SystemCertData(object):
     """
     Class used to represent the data for a system certificate, which is
@@ -396,8 +401,8 @@ class SystemConfigClient(object):
         """
         Finalize server configuration.
 
-        :param request: Configuration request
-        :type request: ConfigurationRequest
+        :param request: Finalize configuration request
+        :type request: FinalizeConfigRequest
         """
         data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
@@ -437,4 +442,5 @@ pki.encoder.NOTYPES['DatabaseSetupRequest'] = DatabaseSetupRequest
 pki.encoder.NOTYPES['AdminSetupRequest'] = AdminSetupRequest
 pki.encoder.NOTYPES['AdminSetupResponse'] = AdminSetupResponse
 pki.encoder.NOTYPES['KeyBackupRequest'] = KeyBackupRequest
+pki.encoder.NOTYPES['FinalizeConfigRequest'] = FinalizeConfigRequest
 pki.encoder.NOTYPES['SystemCertData'] = SystemCertData

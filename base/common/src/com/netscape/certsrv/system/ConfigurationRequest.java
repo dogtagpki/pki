@@ -17,16 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * @author alee
@@ -83,35 +79,8 @@ public class ConfigurationRequest {
     @XmlElement(defaultValue = "true")
     protected String generateServerCert;
 
-    @XmlElement
-    @XmlJavaTypeAdapter(URIAdapter.class)
-    protected URI caUri;
-
-    @XmlElement
-    @XmlJavaTypeAdapter(URIAdapter.class)
-    protected URI tksUri;
-
-    @XmlElement
-    @XmlJavaTypeAdapter(URIAdapter.class)
-    protected URI kraUri;
-
-    @XmlElement(defaultValue="false")
-    protected String enableServerSideKeyGen;
-
-    @XmlElement(defaultValue="false")
-    protected String importSharedSecret;
-
     @XmlElement(defaultValue="true")
     protected String generateSubsystemCert;
-
-    @XmlElement
-    protected String startingCRLNumber;
-
-    @XmlElement
-    protected Boolean createSigningCertRecord;
-
-    @XmlElement
-    protected String signingCertSerialNumber;
 
     /** Seconds to sleep after logging into the Security Domain,
      * so that replication of the session data may complete. */
@@ -279,46 +248,6 @@ public class ConfigurationRequest {
         this.generateServerCert = generateServerCert;
     }
 
-    public URI getCaUri() {
-        return caUri;
-    }
-
-    public void setCaUri(URI caUri) {
-        this.caUri = caUri;
-    }
-
-    public URI getTksUri() {
-        return tksUri;
-    }
-
-    public void setTksUri(URI tksUri) {
-        this.tksUri = tksUri;
-    }
-
-    public URI getKraUri() {
-        return kraUri;
-    }
-
-    public void setKraUri(URI kraUri) {
-        this.kraUri = kraUri;
-    }
-
-    public String getEnableServerSideKeyGen() {
-        return enableServerSideKeyGen;
-    }
-
-    public void setEnableServerSideKeyGen(String enableServerSideKeyGen) {
-        this.enableServerSideKeyGen = enableServerSideKeyGen;
-    }
-
-    public String getImportSharedSecret() {
-        return importSharedSecret;
-    }
-
-    public void setImportSharedSecret(String importSharedSecret) {
-        this.importSharedSecret = importSharedSecret;
-    }
-
     public boolean getGenerateSubsystemCert() {
         return generateSubsystemCert != null && generateSubsystemCert.equalsIgnoreCase("true");
     }
@@ -327,36 +256,12 @@ public class ConfigurationRequest {
         this.generateSubsystemCert = generateSubsystemCert;
     }
 
-    public String getStartingCRLNumber() {
-        return startingCRLNumber;
-    }
-
-    public void setStartingCRLNumber(String startingCRLNumber) {
-        this.startingCRLNumber = startingCRLNumber;
-    }
-
     public String getIsClone() {
         return isClone;
     }
 
     public void setIsClone(String isClone) {
         this.isClone = isClone;
-    }
-
-    public Boolean createSigningCertRecord() {
-        return createSigningCertRecord;
-    }
-
-    public void setCreateSigningCertRecord(Boolean createSigningCertRecord) {
-        this.createSigningCertRecord = createSigningCertRecord;
-    }
-
-    public String getSigningCertSerialNumber() {
-        return signingCertSerialNumber;
-    }
-
-    public void setSigningCertSerialNumber(String signingCertSerialNumber) {
-        this.signingCertSerialNumber = signingCertSerialNumber;
     }
 
     public Long getSecurityDomainPostLoginSleepSeconds() {
@@ -384,26 +289,7 @@ public class ConfigurationRequest {
                ", generateServerCert=" + generateServerCert +
                ", external=" + external +
                ", standAlone=" + standAlone +
-               ", caUri=" + caUri +
-               ", kraUri=" + kraUri +
-               ", tksUri=" + tksUri +
-               ", enableServerSideKeyGen=" + enableServerSideKeyGen +
-               ", importSharedSecret=" + importSharedSecret +
                ", generateSubsystemCert=" + generateSubsystemCert +
-               ", startingCrlNumber=" + startingCRLNumber +
-               ", createSigningCertRecord=" + createSigningCertRecord +
-               ", signingCertSerialNumber=" + signingCertSerialNumber +
                "]";
-    }
-
-    public static class URIAdapter extends XmlAdapter<String, URI> {
-
-        public String marshal(URI uri) {
-            return uri == null ? null : uri.toString();
-        }
-
-        public URI unmarshal(String uri) throws URISyntaxException {
-            return uri == null ? null : new URI(uri);
-        }
     }
 }

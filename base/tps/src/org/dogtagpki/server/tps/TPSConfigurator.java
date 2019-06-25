@@ -41,8 +41,8 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
-import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
+import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.TPSConnectorClient;
 import com.netscape.certsrv.system.TPSConnectorData;
 import com.netscape.certsrv.user.UserResource;
@@ -114,7 +114,7 @@ public class TPSConfigurator extends Configurator {
     }
 
     @Override
-    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
+    public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
 
         URI secdomainURI = new URI(request.getSecurityDomainUri());
         URI caURI = request.getCaUri();

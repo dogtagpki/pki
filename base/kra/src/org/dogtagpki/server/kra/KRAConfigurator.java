@@ -27,8 +27,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
+import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -61,7 +61,7 @@ public class KRAConfigurator extends Configurator {
     }
 
     @Override
-    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
+    public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
 
         try {
             String ca_host = cs.getString("preop.ca.hostname", "");

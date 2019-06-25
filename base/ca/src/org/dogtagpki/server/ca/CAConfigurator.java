@@ -35,8 +35,8 @@ import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
-import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
+import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -177,7 +177,7 @@ public class CAConfigurator extends Configurator {
     }
 
     @Override
-    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
+    public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
 
         try {
             if (!request.isClone()) {

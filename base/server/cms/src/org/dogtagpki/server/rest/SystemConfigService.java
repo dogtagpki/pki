@@ -44,6 +44,7 @@ import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
+import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.KeyBackupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
@@ -318,7 +319,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     @Override
-    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
+    public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
 
         logger.info("SystemConfigService: finalizing configuration");
 
@@ -807,30 +808,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (data.getGenerateServerCert() == null) {
             data.setGenerateServerCert("true");
-        }
-
-        if (csType.equals("TPS")) {
-            if (data.getCaUri() == null) {
-                throw new BadRequestException("CA URI not provided");
-            }
-
-            if (data.getTksUri() == null) {
-                throw new BadRequestException("TKS URI not provided");
-            }
-
-            if (data.getEnableServerSideKeyGen().equalsIgnoreCase("true")) {
-                if (data.getKraUri() == null) {
-                    throw new BadRequestException("KRA URI required if server-side key generation requested");
-                }
-            }
-
-            // TODO check connection with authdb
-
-            if (data.getImportSharedSecret().equalsIgnoreCase("true")) {
-                data.setImportSharedSecret("true");
-            } else {
-                data.setImportSharedSecret("false");
-            }
         }
     }
 }

@@ -57,5 +57,5 @@ public interface SystemConfigResource {
 
     @POST
     @Path("finalizeConfiguration")
-    public void finalizeConfiguration(ConfigurationRequest request) throws Exception;
+    public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception;
 }

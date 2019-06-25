@@ -31,8 +31,8 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
+import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
@@ -66,7 +66,7 @@ public class OCSPConfigurator extends Configurator {
     }
 
     @Override
-    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
+    public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
 
         try {
             String ca_host = cs.getString("preop.ca.hostname", "");
@@ -195,7 +195,7 @@ public class OCSPConfigurator extends Configurator {
         }
     }
 
-    public void configureCloneRefresh(ConfigurationRequest request) {
+    public void configureCloneRefresh(FinalizeConfigRequest request) {
         //Set well know default value for OCSP clone
         cs.putInteger("ocsp.store.defStore.refreshInSec", DEF_REFRESH_IN_SECS_FOR_CLONE);
     }

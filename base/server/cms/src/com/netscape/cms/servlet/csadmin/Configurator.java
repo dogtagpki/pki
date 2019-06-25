@@ -137,6 +137,7 @@ import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
+import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.certsrv.system.SecurityDomainClient;
 import com.netscape.certsrv.system.SecurityDomainHost;
@@ -3939,7 +3940,7 @@ public class Configurator {
      *
      * @throws EBaseException
      */
-    public void finalizeConfiguration(ConfigurationRequest request) throws Exception {
+    public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
 
         String type = cs.getString("cs.type");
         String list = cs.getString("preop.cert.list", "");
