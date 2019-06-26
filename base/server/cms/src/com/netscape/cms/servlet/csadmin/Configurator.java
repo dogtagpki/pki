@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -297,6 +296,7 @@ public class Configurator {
         getInstallToken(request, hostname, port);
 
         DomainInfo domainInfo = getDomainInfo(hostname, port);
+        getSecurityDomainPorts(domainInfo, hostname, port);
 
         /* Sleep for a bit to allow security domain session to replicate
          * to other clones.  In the future we can use signed tokens
@@ -553,54 +553,28 @@ public class Configurator {
         return null;
     }
 
-    private DomainInfo getDomainInfo(String host, int port) throws Exception {
+    private DomainInfo getDomainInfo(String hostname, int port) throws Exception {
 
         logger.info("Getting security domain info");
 
-        DomainInfo domainInfo;
-        try {
-            domainInfo = getDomainInfo(host, port, true);
-            getSecurityDomainPorts(domainInfo, host, port);
+        ClientConfig config = new ClientConfig();
+        config.setServerURL("https://" + hostname + ":" + port);
 
-        } catch (Exception e) {
-            logger.error("Unable to get security domain info: " + e.getMessage(), e);
-            throw new PKIException("Unable to get security domain info: " + e.getMessage(), e);
-        }
+        PKIClient client = new PKIClient(config, null);
 
-        return domainInfo;
-    }
+        // Ignore the "UNTRUSTED_ISSUER" validity status
+        // during PKI instance creation since we are
+        // utilizing an untrusted temporary CA certificate.
+        client.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.UNTRUSTED_ISSUER);
 
-    public DomainInfo getDomainInfo(String hostname, int https_admin_port, boolean https)
-            throws Exception {
+        // Ignore the "CA_CERT_INVALID" validity status
+        // during PKI instance creation since we are
+        // utilizing an untrusted temporary CA certificate.
+        client.addIgnoredCertStatus(SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID);
 
-        logger.debug("Configurator: Getting security domain info with " + (https ? "https" : "http"));
+        SecurityDomainClient sdClient = new SecurityDomainClient(client, "ca");
 
-        String c = get(hostname, https_admin_port, https, "/ca/admin/ca/getDomainXML", null, null);
-
-        if (c == null) {
-            return null;
-        }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(c.getBytes());
-        XMLObject parser = null;
-
-        parser = new XMLObject(bis);
-        String status = parser.getValue("Status");
-        logger.debug("Configurator: status: " + status);
-
-        if (!status.equals(SUCCESS)) {
-            String error = parser.getValue("Error");
-            logger.debug("Configurator: error: " + error);
-            throw new IOException(error);
-        }
-
-        String domainXML = parser.getValue("DomainInfo");
-        logger.debug("Configurator: domain info: " + domainXML);
-
-        try (InputStream is = new ByteArrayInputStream(domainXML.getBytes())) {
-            XMLObject xmlObject = new XMLObject(is);
-            return SecurityDomainProcessor.convertXMLObjectToDomainInfo(xmlObject);
-        }
+        return sdClient.getDomainInfo();
     }
 
     public void getSecurityDomainPorts(DomainInfo domainInfo, String hostname, int port) throws Exception {
@@ -3506,8 +3480,7 @@ public class Configurator {
 
         // Fetch the "new" security domain and display it
         // logger.debug("createSecurityDomain(): Dump contents of new Security Domain . . .");
-        // @SuppressWarnings("unused")
-        // String c = getDomainXML(CMS.getEESSLHost(), Integer.parseInt(CMS.getAdminPort()), true);
+        // getDomainInfo(engine.getEESSLHost(), Integer.parseInt(engine.getAdminPort()));
     }
 
     public void updateSecurityDomain() throws Exception {
@@ -3562,7 +3535,7 @@ public class Configurator {
         }
 
         // Fetch the updated security domain
-        getDomainInfo(sd_host, sd_admin_port, true);
+        getDomainInfo(sd_host, sd_admin_port);
     }
 
     public boolean isSDHostDomainMaster() throws Exception {
@@ -3574,7 +3547,7 @@ public class Configurator {
         String hostname = cs.getString("securitydomain.host");
         int httpsadminport = cs.getInteger("securitydomain.httpsadminport");
 
-        DomainInfo domainInfo = getDomainInfo(hostname, httpsadminport, true);
+        DomainInfo domainInfo = getDomainInfo(hostname, httpsadminport);
 
         SecurityDomainSubsystem subsystem = domainInfo.getSubsystem("CA");
 
