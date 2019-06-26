@@ -721,12 +721,8 @@ class RunCLI(pki.cli.CLI):
 
         instance.load()
 
-        p = instance.run(jdb=jdb, as_current_user=as_current_user)
-
         try:
-            rc = p.wait()
-            if rc != 0:
-                raise Exception('Server failed. RC: %d' % rc)
+            instance.run(jdb=jdb, as_current_user=as_current_user)
 
         except KeyboardInterrupt:
             logging.debug('Server stopped')

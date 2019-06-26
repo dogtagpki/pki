@@ -261,20 +261,15 @@ class PKIServer(object):
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
 
-    def run(self, jdb=False, as_current_user=False):
+    def run(self, command='start', jdb=False, as_current_user=False):
+        p = self.execute(command, jdb=jdb, as_current_user=as_current_user)
+        p.wait()
+
+    def execute(self, command, jdb=False, as_current_user=False):
 
         logger.debug('Environment variables:')
         for name in self.config:
             logger.debug('- %s: %s', name, self.config[name])
-
-        java_home = self.config['JAVA_HOME']
-        java_opts = self.config['JAVA_OPTS']
-
-        classpath = [
-            Tomcat.SHARE_DIR + '/bin/bootstrap.jar',
-            Tomcat.SHARE_DIR + '/bin/tomcat-juli.jar',
-            '/usr/lib/java/commons-daemon.jar'
-        ]
 
         prefix = []
 
@@ -287,13 +282,21 @@ class PKIServer(object):
             if current_user != self.user:
                 prefix.extend(['sudo', '-u', self.user])
 
-        cmd = prefix + ['/usr/bin/pkidaemon', 'start', self.name]
-        logger.debug('Command: %s', ' '.join(cmd))
+        if command == 'start':
 
-        subprocess.Popen(
-            cmd,
-            env=self.config
-        )
+            cmd = prefix + ['/usr/bin/pkidaemon', 'start', self.name]
+            logger.debug('Command: %s', ' '.join(cmd))
+
+            subprocess.run(cmd, env=self.config)
+
+        java_home = self.config['JAVA_HOME']
+        java_opts = self.config['JAVA_OPTS']
+
+        classpath = [
+            Tomcat.SHARE_DIR + '/bin/bootstrap.jar',
+            Tomcat.SHARE_DIR + '/bin/tomcat-juli.jar',
+            '/usr/lib/java/commons-daemon.jar'
+        ]
 
         cmd = prefix
         if jdb:
@@ -319,14 +322,11 @@ class PKIServer(object):
         if java_opts:
             cmd.extend(java_opts.split())
 
-        cmd.extend(['org.apache.catalina.startup.Bootstrap', 'start'])
+        cmd.extend(['org.apache.catalina.startup.Bootstrap', command])
 
         logger.debug('Command: %s', ' '.join(cmd))
 
-        return subprocess.Popen(
-            cmd,
-            env=self.config
-        )
+        return subprocess.Popen(cmd, env=self.config)
 
     def makedirs(self, path, force=False):
         pki.util.makedirs(
