@@ -47,14 +47,11 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.xml.XMLObject;
 
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
-import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
 
 public class UpdateDomainXML extends CMSServlet {
@@ -77,45 +74,6 @@ public class UpdateDomainXML extends CMSServlet {
         logger.debug("UpdateDomainXML: initializing...");
         super.init(sc);
         logger.debug("UpdateDomainXML: done initializing...");
-    }
-
-    private String modify_ldap(String dn, LDAPModification mod) {
-        logger.debug("UpdateDomainXML: modify_ldap: starting dn: " + dn);
-        String status = SUCCESS;
-        LdapBoundConnFactory connFactory = null;
-        LDAPConnection conn = null;
-
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
-
-        try {
-            IConfigStore ldapConfig = cs.getSubStore("internaldb");
-            connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
-
-            conn = connFactory.getConn();
-            conn.modify(dn, mod);
-
-        } catch (LDAPException e) {
-            int resultCode = e.getLDAPResultCode();
-            if ((resultCode != LDAPException.NO_SUCH_OBJECT) &&
-                (resultCode != LDAPException.NO_SUCH_ATTRIBUTE)) {
-                status = FAILED;
-                logger.error("Failed to modify entry" + e.getMessage(), e);
-            }
-        } catch (Exception e) {
-            logger.warn("Failed to modify entry" + e.getMessage(), e);
-        } finally {
-            try {
-                if ((conn != null) && (connFactory != null)) {
-                    logger.debug("Releasing ldap connection");
-                    connFactory.returnConn(conn);
-                }
-            } catch (Exception e) {
-                logger.warn("Error releasing the ldap connection" + e.getMessage(), e);
-            }
-        }
-        return status;
     }
 
     /**
@@ -314,7 +272,7 @@ public class UpdateDomainXML extends CMSServlet {
                         dn = "cn=Subsystem Group, ou=groups," + basedn;
                         LDAPModification mod = new LDAPModification(LDAPModification.DELETE,
                                 new LDAPAttribute("uniqueMember", adminUserDN));
-                        status2 = modify_ldap(dn, mod);
+                        status2 = processor.modifyEntry(dn, mod);
                         if (status2.equals(SUCCESS)) {
 
                             audit(new ConfigRoleEvent(
