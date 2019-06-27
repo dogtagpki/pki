@@ -40,9 +40,11 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.PKIException;
+import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.base.UnauthorizedException;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.InstallToken;
@@ -380,6 +382,85 @@ public class SecurityDomainProcessor extends CAProcessor {
         return domain;
     }
 
+    public String removeHost(
+            String dn,
+            String type,
+            String hostname,
+            String securePort,
+            String agentSecurePort)
+            throws EBaseException {
+
+        logger.info("SecurityDomainProcessor: Removing host " + dn);
+
+        String auditSubjectID = auditSubjectID();
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+        String baseDN = cs.getString("internaldb.basedn");
+
+        String status = removeEntry(dn);
+
+        if (!status.equals(SUCCESS)) {
+            return status;
+        }
+
+        String adminUserDN;
+        if (agentSecurePort != null && !agentSecurePort.equals("")) {
+            adminUserDN = "uid=" + type + "-" + hostname + "-" + agentSecurePort + ",ou=People," + baseDN;
+        } else {
+            adminUserDN = "uid=" + type + "-" + hostname + "-" + securePort + ",ou=People," + baseDN;
+        }
+
+        logger.info("SecurityDomainProcessor: Removing admin " + adminUserDN);
+
+        String userAuditParams = "Scope;;users+Operation;;OP_DELETE+source;;SecurityDomainProcessor" +
+                                     "+resource;;" + adminUserDN;
+
+        status = removeEntry(adminUserDN);
+
+        if (!status.equals(SUCCESS)) {
+            signedAuditLogger.log(new ConfigRoleEvent(
+                    auditSubjectID,
+                    ILogger.FAILURE,
+                    userAuditParams));
+            return status;
+        }
+
+        signedAuditLogger.log(new ConfigRoleEvent(
+                               auditSubjectID,
+                               ILogger.SUCCESS,
+                               userAuditParams));
+
+        dn = "cn=Subsystem Group, ou=groups," + baseDN;
+
+        logger.info("SecurityDomainProcessor: Removing admin from group " + dn);
+
+        userAuditParams = "Scope;;groups+Operation;;OP_DELETE_USER" +
+                              "+source;;SecurityDomainProcessor" +
+                              "+resource;;Subsystem Group+user;;" + adminUserDN;
+
+        LDAPModification mod = new LDAPModification(
+                LDAPModification.DELETE,
+                new LDAPAttribute("uniqueMember", adminUserDN));
+
+        status = modifyEntry(dn, mod);
+
+        if (!status.equals(SUCCESS)) {
+            signedAuditLogger.log(new ConfigRoleEvent(
+                                   auditSubjectID,
+                                   ILogger.FAILURE,
+                                   userAuditParams));
+            return status;
+        }
+
+        signedAuditLogger.log(new ConfigRoleEvent(
+                auditSubjectID,
+                ILogger.SUCCESS,
+                userAuditParams));
+
+        return SUCCESS;
+    }
+
     public String addEntry(LDAPEntry entry) {
 
         logger.info("SecurityDomainProcessor: Adding entry " + entry.getDN());
@@ -520,6 +601,23 @@ public class SecurityDomainProcessor extends CAProcessor {
         }
 
         return status;
+    }
+
+    protected String auditSubjectID() {
+
+        SessionContext auditContext = SessionContext.getExistingContext();
+
+        if (auditContext == null) {
+            return ILogger.UNIDENTIFIED;
+        }
+
+        String subjectID = (String) auditContext.get(SessionContext.USER_ID);
+
+        if (subjectID == null) {
+            return ILogger.NONROLEUSER;
+        }
+
+        return subjectID.trim();
     }
 
     public static void main(String args[]) throws Exception {

@@ -40,7 +40,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.event.ConfigRoleEvent;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -52,7 +51,6 @@ import com.netscape.cmsutil.xml.XMLObject;
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPModification;
 
 public class UpdateDomainXML extends CMSServlet {
 
@@ -88,7 +86,6 @@ public class UpdateDomainXML extends CMSServlet {
     protected void process(CMSRequest cmsReq) throws EBaseException {
         logger.debug("UpdateDomainXML: processing...");
         String status = SUCCESS;
-        String status2 = SUCCESS;
 
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
@@ -246,56 +243,7 @@ public class UpdateDomainXML extends CMSServlet {
             entry = new LDAPEntry(dn, attrs);
 
             if ((operation != null) && (operation.equals("remove"))) {
-                status = processor.removeEntry(dn);
-                String adminUserDN;
-                if ((agentsport != null) && (!agentsport.equals(""))) {
-                    adminUserDN = "uid=" + type + "-" + host + "-" + agentsport + ",ou=People," + basedn;
-                } else {
-                    adminUserDN = "uid=" + type + "-" + host + "-" + sport + ",ou=People," + basedn;
-                }
-                String userAuditParams = "Scope;;users+Operation;;OP_DELETE+source;;UpdateDomainXML" +
-                                             "+resource;;" + adminUserDN;
-                if (status.equals(SUCCESS)) {
-                    // remove the user for this subsystem's admin
-                    status2 = processor.removeEntry(adminUserDN);
-                    if (status2.equals(SUCCESS)) {
-
-                        audit(new ConfigRoleEvent(
-                                               auditSubjectID,
-                                               ILogger.SUCCESS,
-                                               userAuditParams));
-
-                        // remove this user from the subsystem group
-                        userAuditParams = "Scope;;groups+Operation;;OP_DELETE_USER" +
-                                              "+source;;UpdateDomainXML" +
-                                              "+resource;;Subsystem Group+user;;" + adminUserDN;
-                        dn = "cn=Subsystem Group, ou=groups," + basedn;
-                        LDAPModification mod = new LDAPModification(LDAPModification.DELETE,
-                                new LDAPAttribute("uniqueMember", adminUserDN));
-                        status2 = processor.modifyEntry(dn, mod);
-                        if (status2.equals(SUCCESS)) {
-
-                            audit(new ConfigRoleEvent(
-                                                   auditSubjectID,
-                                                   ILogger.SUCCESS,
-                                                   userAuditParams));
-
-                        } else {
-
-                            audit(new ConfigRoleEvent(
-                                                   auditSubjectID,
-                                                   ILogger.FAILURE,
-                                                   userAuditParams));
-                        }
-
-                    } else { // error deleting user
-
-                        audit(new ConfigRoleEvent(
-                                               auditSubjectID,
-                                               ILogger.FAILURE,
-                                               userAuditParams));
-                    }
-                }
+                status = processor.removeHost(dn, type, host, sport, agentsport);
             } else {
                 status = processor.addEntry(entry);
             }
@@ -400,12 +348,6 @@ public class UpdateDomainXML extends CMSServlet {
                                auditParams);
         }
         audit(auditMessage);
-
-        if (status.equals(SUCCESS) && status2.equals(SUCCESS)) {
-            status = SUCCESS;
-        } else {
-            status = FAILED;
-        }
 
         try {
             // send success status back to the requestor
