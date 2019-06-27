@@ -60,6 +60,7 @@ import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
+import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
 
@@ -71,9 +72,10 @@ public class SecurityDomainProcessor extends CAProcessor {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SecurityDomainProcessor.class);
 
     public final static String[] TYPES = { "CA", "KRA", "OCSP", "TKS", "RA", "TPS" };
+    public final static String SUCCESS = "0";
+    public final static String FAILED = "1";
 
-    SecureRandom random = null;
-
+    SecureRandom random;
 
     public SecurityDomainProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
         super("securitydomain", locale);
@@ -375,6 +377,50 @@ public class SecurityDomainProcessor extends CAProcessor {
         }
 
         return domain;
+    }
+
+    public String removeEntry(String dn) {
+
+        logger.info("SecurityDomainProcessor: Removing entry " + dn);
+
+        String status = SUCCESS;
+        LdapBoundConnFactory connFactory = null;
+        LDAPConnection conn = null;
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
+        try {
+            IConfigStore ldapConfig = cs.getSubStore("internaldb");
+            connFactory = new LdapBoundConnFactory("UpdateDomainXML");
+            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
+
+            conn = connFactory.getConn();
+            conn.delete(dn);
+
+        } catch (LDAPException e) {
+            int resultCode = e.getLDAPResultCode();
+            if (resultCode != LDAPException.NO_SUCH_OBJECT) {
+                status = FAILED;
+                logger.error("SecurityDomainProcessor: Unable to delete entry: " + e.getMessage(), e);
+            }
+
+        } catch (Exception e) {
+            logger.warn("SecurityDomainProcessor: Unable to delete entry: " + e.getMessage(), e);
+
+        } finally {
+            try {
+                if (conn != null && connFactory != null) {
+                    logger.debug("SecurityDomainProcessor: Releasing LDAP connection");
+                    connFactory.returnConn(conn);
+                }
+
+            } catch (Exception e) {
+                logger.warn("SecurityDomainProcessor: Unable to release LDAP connection: " + e.getMessage(), e);
+            }
+        }
+
+        return status;
     }
 
     public static void main(String args[]) throws Exception {

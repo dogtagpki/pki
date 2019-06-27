@@ -79,44 +79,6 @@ public class UpdateDomainXML extends CMSServlet {
         logger.debug("UpdateDomainXML: done initializing...");
     }
 
-    private String remove_from_ldap(String dn) {
-        logger.debug("UpdateDomainXML: delete_from_ldap: starting dn: " + dn);
-        String status = SUCCESS;
-        LdapBoundConnFactory connFactory = null;
-        LDAPConnection conn = null;
-
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
-
-        try {
-            IConfigStore ldapConfig = cs.getSubStore("internaldb");
-            connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
-
-            conn = connFactory.getConn();
-            conn.delete(dn);
-
-        } catch (LDAPException e) {
-            int resultCode = e.getLDAPResultCode();
-            if (resultCode != LDAPException.NO_SUCH_OBJECT) {
-                status = FAILED;
-                logger.error("Failed to delete entry" + e.getMessage(), e);
-            }
-        } catch (Exception e) {
-            logger.warn("Failed to delete entry" + e.getMessage(), e);
-        } finally {
-            try {
-                if ((conn != null) && (connFactory != null)) {
-                    logger.debug("Releasing ldap connection");
-                    connFactory.returnConn(conn);
-                }
-            } catch (Exception e) {
-                logger.warn("Error releasing the ldap connection" + e.getMessage(), e);
-            }
-        }
-        return status;
-    }
-
     private String modify_ldap(String dn, LDAPModification mod) {
         logger.debug("UpdateDomainXML: modify_ldap: starting dn: " + dn);
         String status = SUCCESS;
@@ -326,6 +288,8 @@ public class UpdateDomainXML extends CMSServlet {
             logger.warn("Unable to determine security domain name or basedn. Please run the domaininfo migration script: " + e.getMessage(), e);
         }
 
+        SecurityDomainProcessor processor = new SecurityDomainProcessor(getLocale(cmsReq.getHttpReq()));
+
         if ((basedn != null) && (secstore != null) && (secstore.equals("ldap"))) {
             // update in ldap
 
@@ -370,7 +334,7 @@ public class UpdateDomainXML extends CMSServlet {
             entry = new LDAPEntry(dn, attrs);
 
             if ((operation != null) && (operation.equals("remove"))) {
-                status = remove_from_ldap(dn);
+                status = processor.removeEntry(dn);
                 String adminUserDN;
                 if ((agentsport != null) && (!agentsport.equals(""))) {
                     adminUserDN = "uid=" + type + "-" + host + "-" + agentsport + ",ou=People," + basedn;
@@ -381,7 +345,7 @@ public class UpdateDomainXML extends CMSServlet {
                                              "+resource;;" + adminUserDN;
                 if (status.equals(SUCCESS)) {
                     // remove the user for this subsystem's admin
-                    status2 = remove_from_ldap(adminUserDN);
+                    status2 = processor.removeEntry(adminUserDN);
                     if (status2.equals(SUCCESS)) {
 
                         audit(new ConfigRoleEvent(
