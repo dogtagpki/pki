@@ -144,16 +144,15 @@ public class HttpClient {
                     }
                     certname.append(nickname);
                     System.out.println("Certificate Nickname:" + " " + certname);
-
+                    String certnick = certname.toString();
                     X509Certificate cert =
-                        cm.findCertByNickname(certname.toString());
+                        cm.findCertByNickname(certnick);
 
                     if (cert == null)
                         System.out.println("client cert is null");
                     else
                         System.out.println("client cert is not null");
                     sslSocket.setUseClientMode(true);
-                    String certnick = certname.toString();
                     sslSocket.setClientCertNickname(certnick);
                 }
 
