@@ -586,6 +586,17 @@ client_main(
         }
         errExit("SSL_OptionSet SSL_SECURITY");
     }
+#ifdef SSL_ENABLE_POST_HANDSHAKE_AUTH
+    rv = SSL_OptionSet(model_sock,
+                       SSL_ENABLE_POST_HANDSHAKE_AUTH, PR_TRUE);
+    if (rv < 0) {
+        if( model_sock != NULL ) {
+            PR_Close( model_sock );
+            model_sock = NULL;
+        }
+        errExit("SSL_OptionSet SSL_ENABLE_POST_HANDSHAKE_AUTH");
+    }
+#endif
 
     SSL_SetURL(model_sock, hostName);
 
