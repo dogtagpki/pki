@@ -379,6 +379,60 @@ public class SecurityDomainProcessor extends CAProcessor {
         return domain;
     }
 
+    public String addEntry(LDAPEntry entry) {
+
+        logger.info("SecurityDomainProcessor: Adding entry " + entry.getDN());
+
+        String status = SUCCESS;
+        LdapBoundConnFactory connFactory = null;
+        LDAPConnection conn = null;
+
+        CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
+        try {
+            IConfigStore ldapConfig = cs.getSubStore("internaldb");
+            connFactory = new LdapBoundConnFactory("UpdateDomainXML");
+            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
+
+            conn = connFactory.getConn();
+            conn.add(entry);
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
+                logger.warn("SecurityDomainProcessor: Entry already exists");
+                try {
+                    conn.delete(entry.getDN());
+                    conn.add(entry);
+
+                } catch (LDAPException ee) {
+                    logger.error("SecurityDomainProcessor: Unable to replace entry: " + e.getMessage(), e);
+                    status = FAILED;
+                }
+
+            } else {
+                logger.error("SecurityDomainProcessor: Unable to add entry: " + e.getMessage(), e);
+                status = FAILED;
+            }
+
+        } catch (Exception e) {
+            logger.warn("SecurityDomainProcessor: Unable to add entry: " + e.getMessage(), e);
+
+        } finally {
+            try {
+                if (conn != null && connFactory != null) {
+                    logger.debug("SecurityDomainProcessor: Releasing LDAP connection");
+                    connFactory.returnConn(conn);
+                }
+
+            } catch (Exception e) {
+                logger.warn("SecurityDomainProcessor: Unable to release LDAP connection: " + e.getMessage(), e);
+            }
+        }
+
+        return status;
+    }
+
     public String removeEntry(String dn) {
 
         logger.info("SecurityDomainProcessor: Removing entry " + dn);

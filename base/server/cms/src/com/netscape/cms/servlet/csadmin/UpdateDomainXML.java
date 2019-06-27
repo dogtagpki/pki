@@ -118,52 +118,6 @@ public class UpdateDomainXML extends CMSServlet {
         return status;
     }
 
-    private String add_to_ldap(LDAPEntry entry, String dn) {
-        logger.debug("UpdateDomainXML: add_to_ldap: starting");
-        String status = SUCCESS;
-        LdapBoundConnFactory connFactory = null;
-        LDAPConnection conn = null;
-
-        CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
-
-        try {
-            IConfigStore ldapConfig = cs.getSubStore("internaldb");
-            connFactory = new LdapBoundConnFactory("UpdateDomainXML");
-            connFactory.init(cs, ldapConfig, engine.getPasswordStore());
-
-            conn = connFactory.getConn();
-            conn.add(entry);
-
-        } catch (LDAPException e) {
-            if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                logger.warn("UpdateDomainXML: Entry already exists");
-                try {
-                    conn.delete(dn);
-                    conn.add(entry);
-                } catch (LDAPException ee) {
-                    logger.error("UpdateDomainXML: Error when replacing existing entry " + ee.getMessage(), ee);
-                    status = FAILED;
-                }
-            } else {
-                logger.error("UpdateDomainXML: Failed to update ldap domain info. Exception: " + e.getMessage(), e);
-                status = FAILED;
-            }
-        } catch (Exception e) {
-            logger.warn("Failed to add entry" + e.getMessage(), e);
-        } finally {
-            try {
-                if ((conn != null) && (connFactory != null)) {
-                    logger.debug("Releasing ldap connection");
-                    connFactory.returnConn(conn);
-                }
-            } catch (Exception e) {
-                logger.warn("Error releasing the ldap connection" + e.getMessage(), e);
-            }
-        }
-        return status;
-    }
-
     /**
      * Process the HTTP request.
      * <ul>
@@ -385,7 +339,7 @@ public class UpdateDomainXML extends CMSServlet {
                     }
                 }
             } else {
-                status = add_to_ldap(entry, dn);
+                status = processor.addEntry(entry);
             }
         } else {
             // update the domain.xml file
