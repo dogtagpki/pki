@@ -424,7 +424,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         logger.debug("SystemConfigService: token: " + tokenName);
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
-        String keytype = certData.getKeyType() != null ? certData.getKeyType() : "rsa";
+        String keytype = cs.getString("preop.cert." + tag + ".keytype");
 
         String keyalgorithm = certData.getKeyAlgorithm();
         if (keyalgorithm == null) {
@@ -433,7 +433,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         String signingalgorithm = certData.getSigningAlgorithm() != null ? certData.getSigningAlgorithm() : keyalgorithm;
 
-        cs.putString("preop.cert." + tag + ".keytype", keytype);
         cs.putString("preop.cert." + tag + ".keyalgorithm", keyalgorithm);
         cs.putString("preop.cert." + tag + ".signingalgorithm", signingalgorithm);
 
@@ -621,7 +620,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         }
 
         boolean isECC = false;
-        String keyType = cdata.getKeyType();
+        String keyType = cs.getString("preop.cert." + tag + ".keytype");
 
         logger.debug("SystemConfigService:updateCloneConfiguration: keyType: " + keyType);
         if("ecc".equalsIgnoreCase(keyType)) {
@@ -643,7 +642,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         cs.putString("preop.cert." + tag + ".privkey.id", CryptoUtil.encodeKeyID(privk.getUniqueID()));
         cs.putString("preop.cert." + tag + ".keyalgorithm", cdata.getKeyAlgorithm());
-        cs.putString("preop.cert." + tag + ".keytype", cdata.getKeyType());
     }
 
     private void updateConfiguration(ConfigurationRequest data, SystemCertData cdata, String tag) throws Exception {

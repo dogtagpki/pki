@@ -194,14 +194,6 @@ public class ConfigurationRequest {
        return null;
    }
 
-   public String getSystemCertKeyType(String tag) {
-       SystemCertData cert = getSystemCert(tag);
-       if(cert == null)
-           return null;
-
-       return cert.getKeyType();
-   }
-
    /**
     *
     * @param systemCerts

@@ -264,7 +264,7 @@ public class Configurator {
         } else {
             logger.info("Joining existing security domain");
 
-            String keyType = request.getSystemCertKeyType("subsystem");
+            String keyType = cs.getString("preop.cert.subsystem.keytype");
             String profileID = getSystemCertProfileID(keyType, "subsystem", "caInternalAuthSubsystemCert");
             cs.putString("preop.cert.subsystem.profile", profileID);
         }
@@ -2328,7 +2328,7 @@ public class Configurator {
             cs.putString("preop.cert.signing.profile", "caInstallCACert");
             cs.putString("preop.cert.sslserver.type", "remote");
 
-            String keyType = request.getSystemCertKeyType("sslserver");
+            String keyType = cs.getString("preop.cert.sslserver.keytype");
             String profileID = getSystemCertProfileID(keyType, "sslserver", "caInternalAuthServerCert");
             cs.putString("preop.cert.sslserver.profile", profileID);
 
@@ -2435,7 +2435,7 @@ public class Configurator {
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
 
             logger.debug("configRemoteCert: subsystemCert: setting profileId to: " + profileId);
-            String keyType = request.getSystemCertKeyType(certTag);
+            String keyType = cs.getString("preop.cert." + certTag + ".keytype");
             String actualProfileId = getSystemCertProfileID(keyType, certTag, profileId);
             logger.debug("configRemoteCert: subsystemCert: calculated profileId: " + actualProfileId);
 
@@ -2487,7 +2487,7 @@ public class Configurator {
 
             //Get the correct profile id to send in case it's sslserver type:
             logger.debug("configRemoteCert: tag: " + certTag + " : setting profileId to: " + profileId);
-            String keyType = request.getSystemCertKeyType(certTag);
+            String keyType = cs.getString("preop.cert." + certTag + ".keytype");
             String actualProfileId = getSystemCertProfileID(keyType, certTag, profileId);
             logger.debug("configRemoteCert: tag: " + certTag + " calculated profileId: " + actualProfileId);
 

@@ -3564,7 +3564,6 @@ class ConfigClient:
         cert.tag = self.mdict["pki_%s_tag" % tag]
         cert.keyAlgorithm = self.mdict["pki_%s_key_algorithm" % tag]
         cert.keySize = self.mdict["pki_%s_key_size" % tag]
-        cert.keyType = self.mdict["pki_%s_key_type" % tag]
         cert.nickname = self.mdict["pki_%s_nickname" % tag]
         cert.subjectDN = self.mdict["pki_%s_subject_dn" % tag]
         cert.token = self.mdict["pki_%s_token" % tag]
@@ -3580,7 +3579,6 @@ class ConfigClient:
         cert.tag = self.mdict["pki_sslserver_tag"]
         cert.keyAlgorithm = self.mdict["pki_sslserver_key_algorithm"]
         cert.keySize = self.mdict["pki_sslserver_key_size"]
-        cert.keyType = self.mdict["pki_sslserver_key_type"]
         cert.nickname = cs_cfg.get(cstype + ".sslserver.nickname")
         cert.cert = cs_cfg.get(cstype + ".sslserver.cert")
         cert.request = cs_cfg.get(cstype + ".sslserver.certreq")
@@ -3595,7 +3593,6 @@ class ConfigClient:
         cert.tag = self.mdict["pki_subsystem_tag"]
         cert.keyAlgorithm = cs_cfg.get("cloning.subsystem.keyalgorithm")
         cert.keySize = self.mdict["pki_subsystem_key_size"]
-        cert.keyType = cs_cfg.get("cloning.subsystem.keytype")
         cert.nickname = cs_cfg.get(cstype + ".subsystem.nickname")
         cert.cert = cs_cfg.get(cstype + ".subsystem.cert")
         cert.request = cs_cfg.get(cstype + ".subsystem.certreq")
