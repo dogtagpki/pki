@@ -36,12 +36,8 @@ public class ConfigurationResponse {
     @XmlElement
     protected List<SystemCertData> systemCerts;
 
-    @XmlElement
-    protected SystemCertData adminCert;
-
     public ConfigurationResponse() {
         systemCerts = new ArrayList<SystemCertData>();
-        adminCert = new SystemCertData();
     }
 
     /**
@@ -56,19 +52,5 @@ public class ConfigurationResponse {
      */
     public void setSystemCerts(List<SystemCertData> systemCerts) {
         this.systemCerts = systemCerts;
-    }
-
-    /**
-     * @return the adminCert
-     */
-    public SystemCertData getAdminCert() {
-        return adminCert;
-    }
-
-    /**
-     * @param adminCert the adminCert to set
-     */
-    public void setAdminCert(SystemCertData adminCert) {
-        this.adminCert = adminCert;
     }
 }
