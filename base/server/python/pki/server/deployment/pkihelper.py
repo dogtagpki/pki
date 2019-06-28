@@ -3225,9 +3225,6 @@ class ConfigClient:
                     # PKI CA, Subordinate CA, or External CA
                     cert1 = self.create_system_cert("ca_signing")
 
-                    cert1.signingAlgorithm = \
-                        self.mdict['pki_ca_signing_signing_algorithm']
-
                     # generic extension support in CSR - for external CA
                     if self.add_req_ext:
                         cert1.req_ext_oid = \
@@ -3261,14 +3258,10 @@ class ConfigClient:
                 # Load the Stand-alone PKI OCSP 'OCSP Signing Certificate'
                 # (Step 2)
                 self.load_system_cert(nssdb, cert2)
-                cert2.signingAlgorithm = \
-                    self.mdict['pki_ocsp_signing_signing_algorithm']
                 systemCerts.append(cert2)
             elif self.subsystem == "CA" or self.subsystem == "OCSP":
                 # External CA, Subordinate CA, PKI CA, or PKI OCSP
                 cert2 = self.create_system_cert("ocsp_signing")
-                cert2.signingAlgorithm = \
-                    self.mdict['pki_ocsp_signing_signing_algorithm']
                 systemCerts.append(cert2)
 
         # Create 'SSL Server Certificate'
@@ -3332,13 +3325,9 @@ class ConfigClient:
                 cert5 = self.create_system_cert("audit_signing")
                 # Load the Stand-alone PKI 'Audit Signing Certificate' (Step 2)
                 self.load_system_cert(nssdb, cert5)
-                cert5.signingAlgorithm = \
-                    self.mdict['pki_audit_signing_signing_algorithm']
                 systemCerts.append(cert5)
             elif self.subsystem != "RA":
                 cert5 = self.create_system_cert("audit_signing")
-                cert5.signingAlgorithm = \
-                    self.mdict['pki_audit_signing_signing_algorithm']
                 systemCerts.append(cert5)
 
         # Create 'DRM Transport Certificate' and 'DRM Storage Certificate'

@@ -426,10 +426,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         String keytype = cs.getString("preop.cert." + tag + ".keytype");
         String keyalgorithm = cs.getString("preop.cert." + tag + ".keyalgorithm");
-
-        String signingalgorithm = certData.getSigningAlgorithm() != null ? certData.getSigningAlgorithm() : keyalgorithm;
-
-        cs.putString("preop.cert." + tag + ".signingalgorithm", signingalgorithm);
+        String signingalgorithm = cs.getString("preop.cert." + tag + ".signingalgorithm");
 
         // support injecting SAN into server cert
         if (tag.equals("sslserver") && certData.getServerCertSAN() != null) {

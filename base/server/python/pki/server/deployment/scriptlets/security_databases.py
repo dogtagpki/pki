@@ -242,6 +242,10 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             keyalgorithm = deployer.mdict['pki_%s_key_algorithm' % deploy_tag]
             subsystem.config['preop.cert.%s.keyalgorithm' % config_tag] = keyalgorithm
 
+            signingalgorithm = deployer.mdict.get(
+                'pki_%s_signing_algorithm' % deploy_tag, keyalgorithm)
+            subsystem.config['preop.cert.%s.signingalgorithm' % config_tag] = signingalgorithm
+
             # TODO: move more system cert params here
 
         # If specified in the deployment parameter, add generic CA signing cert

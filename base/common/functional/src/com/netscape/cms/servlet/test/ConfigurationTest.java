@@ -250,7 +250,6 @@ public class ConfigurationTest {
         cert1.setTag("signing");
         cert1.setKeySize("2048");
         cert1.setNickname("signingCert testca");
-        cert1.setSigningAlgorithm("SHA256withRSA");
         cert1.setSubjectDN("CN=CA Signing Certificate");
         cert1.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
 
@@ -260,7 +259,6 @@ public class ConfigurationTest {
         cert2.setTag("ocsp_signing");
         cert2.setKeySize("2048");
         cert2.setNickname("ocspSigningCert testca");
-        cert2.setSigningAlgorithm("SHA256withRSA");
         cert2.setSubjectDN("CN= CA OCSP Signing Certificate");
         cert2.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert2);
@@ -285,7 +283,6 @@ public class ConfigurationTest {
         cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testca");
-        cert5.setSigningAlgorithm("SHA256withRSA");
         cert5.setSubjectDN("CN=CA Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
@@ -317,7 +314,6 @@ public class ConfigurationTest {
         cert1.setTag("signing");
         cert1.setKeySize("2048");
         cert1.setNickname("signingCert testsubca");
-        cert1.setSigningAlgorithm("SHA256withRSA");
         cert1.setSubjectDN("CN=SubCA Signing Certificate");
         cert1.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
 
@@ -327,7 +323,6 @@ public class ConfigurationTest {
         cert2.setTag("ocsp_signing");
         cert2.setKeySize("2048");
         cert2.setNickname("ocspSigningCert testsubca");
-        cert2.setSigningAlgorithm("SHA256withRSA");
         cert2.setSubjectDN("CN= SubCA OCSP Signing Certificate");
         cert2.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert2);
@@ -352,7 +347,6 @@ public class ConfigurationTest {
         cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testsubca");
-        cert5.setSigningAlgorithm("SHA256withRSA");
         cert5.setSubjectDN("CN=SubCA Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
@@ -381,7 +375,6 @@ public class ConfigurationTest {
         cert1.setTag("signing");
         cert1.setKeySize("2048");
         cert1.setNickname("signingCert testexternalca");
-        cert1.setSigningAlgorithm("SHA256withRSA");
         cert1.setSubjectDN("CN=External CA Signing Certificate");
         cert1.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
 
@@ -391,7 +384,6 @@ public class ConfigurationTest {
         cert2.setTag("ocsp_signing");
         cert2.setKeySize("2048");
         cert2.setNickname("ocspSigningCert testexternalca");
-        cert2.setSigningAlgorithm("SHA256withRSA");
         cert2.setSubjectDN("CN= External CA OCSP Signing Certificate");
         cert2.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert2);
@@ -416,7 +408,6 @@ public class ConfigurationTest {
         cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testexternalca");
-        cert5.setSigningAlgorithm("SHA256withRSA");
         cert5.setSubjectDN("CN=SubCA Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
@@ -445,7 +436,6 @@ public class ConfigurationTest {
         cert1.setTag("signing");
         cert1.setKeySize("2048");
         cert1.setNickname("signingCert testexternalca");
-        cert1.setSigningAlgorithm("SHA256withRSA");
         cert1.setSubjectDN("CN=External CA Signing Certificate");
         cert1.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
 
@@ -463,7 +453,6 @@ public class ConfigurationTest {
         cert2.setTag("ocsp_signing");
         cert2.setKeySize("2048");
         cert2.setNickname("ocspSigningCert testexternalca");
-        cert2.setSigningAlgorithm("SHA256withRSA");
         cert2.setSubjectDN("CN= External CA OCSP Signing Certificate");
         cert2.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert2);
@@ -488,7 +477,6 @@ public class ConfigurationTest {
         cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testexternalca");
-        cert5.setSigningAlgorithm("SHA256withRSA");
         cert5.setSubjectDN("CN=SubCA Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
@@ -549,7 +537,6 @@ public class ConfigurationTest {
         cert1.setTag("transport");
         cert1.setKeySize("2048");
         cert1.setNickname("transportCert testkra");
-        cert1.setSigningAlgorithm("SHA256withRSA");
         cert1.setSubjectDN("CN=KRA Transport Certificate");
         cert1.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
 
@@ -559,7 +546,6 @@ public class ConfigurationTest {
         cert2.setTag("storage");
         cert2.setKeySize("2048");
         cert2.setNickname("storageCert testkra");
-        cert2.setSigningAlgorithm("SHA256withRSA");
         cert2.setSubjectDN("CN= KRA Storage Certificate");
         cert2.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert2);
@@ -584,7 +570,6 @@ public class ConfigurationTest {
         cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testkra");
-        cert5.setSigningAlgorithm("SHA256withRSA");
         cert5.setSubjectDN("CN=KRA Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
@@ -615,7 +600,6 @@ public class ConfigurationTest {
         cert1.setTag("signing");
         cert1.setKeySize("2048");
         cert1.setNickname("ocspSigningCert testocsp");
-        cert1.setSigningAlgorithm("SHA256withRSA");
         cert1.setSubjectDN("CN=OCSP Signing Certificate");
         cert1.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
 
@@ -641,7 +625,6 @@ public class ConfigurationTest {
         cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testocsp");
-        cert5.setSigningAlgorithm("SHA256withRSA");
         cert5.setSubjectDN("CN=OCSP Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
@@ -689,7 +672,6 @@ public class ConfigurationTest {
         cert5.setTag("audit_signing");
         cert5.setKeySize("2048");
         cert5.setNickname("auditSigningCert testtks");
-        cert5.setSigningAlgorithm("SHA256withRSA");
         cert5.setSubjectDN("CN=TKS Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
