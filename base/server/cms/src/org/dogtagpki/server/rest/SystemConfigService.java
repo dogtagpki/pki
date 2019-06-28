@@ -402,10 +402,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // make sure to commit changes here for step 1
         cs.commit(false);
-
-        if (request.isClone()) {
-            configurator.updateCloneConfig();
-        }
     }
 
     public void processKeyPair(

@@ -2682,45 +2682,6 @@ public class Configurator {
         return 0;
     }
 
-    public void updateCloneConfig() throws EBaseException, IOException {
-
-        String cstype = cs.getString("cs.type", null);
-        cstype = cstype.toLowerCase();
-
-        if (cstype.equals("kra")) {
-
-            String token = cs.getString("preop.module.token");
-
-            if (!CryptoUtil.isInternalToken(token)) {
-
-                logger.debug("Configurator: updating configuration for KRA clone with hardware token");
-
-                String subsystem = cs.getString(PCERT_PREFIX + "storage.subsystem");
-                String storageNickname = getNickname("storage");
-                String transportNickname = getNickname("transport");
-
-                cs.putString(subsystem + ".storageUnit.hardware", token);
-                cs.putString(subsystem + ".storageUnit.nickName", token + ":" + storageNickname);
-                cs.putString(subsystem + ".transportUnit.nickName", token + ":" + transportNickname);
-
-                cs.commit(false);
-
-            } else { // software token
-                // parameters already set
-            }
-        }
-
-        // audit signing cert
-        String nickname = cs.getString(cstype + ".audit_signing.nickname", "");
-        String token = cs.getString(cstype + ".audit_signing.tokenname", "");
-
-        if (!CryptoUtil.isInternalToken(token)) {
-            nickname = token + ":" + nickname;
-        }
-
-        cs.putString("log.instance.SignedAudit.signedAuditCertNickname", nickname);
-    }
-
     public byte[] loadCertRequest(String subsystem, String tag) throws Exception {
 
         logger.debug("Configurator.loadCertRequest(" + tag + ")");
