@@ -425,15 +425,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenName);
 
         String keytype = cs.getString("preop.cert." + tag + ".keytype");
-
-        String keyalgorithm = certData.getKeyAlgorithm();
-        if (keyalgorithm == null) {
-            keyalgorithm = keytype.equals("ecc") ? "SHA256withEC" : "SHA256withRSA";
-        }
+        String keyalgorithm = cs.getString("preop.cert." + tag + ".keyalgorithm");
 
         String signingalgorithm = certData.getSigningAlgorithm() != null ? certData.getSigningAlgorithm() : keyalgorithm;
 
-        cs.putString("preop.cert." + tag + ".keyalgorithm", keyalgorithm);
         cs.putString("preop.cert." + tag + ".signingalgorithm", signingalgorithm);
 
         // support injecting SAN into server cert
@@ -641,7 +636,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         PrivateKey privk = cryptoManager.findPrivKeyByCert(cert);
 
         cs.putString("preop.cert." + tag + ".privkey.id", CryptoUtil.encodeKeyID(privk.getUniqueID()));
-        cs.putString("preop.cert." + tag + ".keyalgorithm", cdata.getKeyAlgorithm());
     }
 
     private void updateConfiguration(ConfigurationRequest data, SystemCertData cdata, String tag) throws Exception {

@@ -3562,7 +3562,6 @@ class ConfigClient:
     def create_system_cert(self, tag):
         cert = pki.system.SystemCertData()
         cert.tag = self.mdict["pki_%s_tag" % tag]
-        cert.keyAlgorithm = self.mdict["pki_%s_key_algorithm" % tag]
         cert.keySize = self.mdict["pki_%s_key_size" % tag]
         cert.nickname = self.mdict["pki_%s_nickname" % tag]
         cert.subjectDN = self.mdict["pki_%s_subject_dn" % tag]
@@ -3577,7 +3576,6 @@ class ConfigClient:
         cstype = cs_cfg.get('cs.type').lower()
         cert = pki.system.SystemCertData()
         cert.tag = self.mdict["pki_sslserver_tag"]
-        cert.keyAlgorithm = self.mdict["pki_sslserver_key_algorithm"]
         cert.keySize = self.mdict["pki_sslserver_key_size"]
         cert.nickname = cs_cfg.get(cstype + ".sslserver.nickname")
         cert.cert = cs_cfg.get(cstype + ".sslserver.cert")
@@ -3591,7 +3589,6 @@ class ConfigClient:
         cstype = cs_cfg.get('cs.type').lower()
         cert = pki.system.SystemCertData()
         cert.tag = self.mdict["pki_subsystem_tag"]
-        cert.keyAlgorithm = cs_cfg.get("cloning.subsystem.keyalgorithm")
         cert.keySize = self.mdict["pki_subsystem_key_size"]
         cert.nickname = cs_cfg.get(cstype + ".subsystem.nickname")
         cert.cert = cs_cfg.get(cstype + ".subsystem.cert")

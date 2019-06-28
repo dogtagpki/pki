@@ -57,9 +57,6 @@ public class SystemCertData {
     protected String token;
 
     @XmlElement
-    protected String keyAlgorithm;
-
-    @XmlElement
     protected String signingAlgorithm;
 
     @XmlElement
@@ -97,7 +94,6 @@ public class SystemCertData {
         tag = form.getFirst(TAG);
         nickname = form.getFirst(NICKNAME);
         token = form.getFirst(TOKEN);
-        keyAlgorithm = form.getFirst(KEY_ALGORITHM);
         signingAlgorithm = form.getFirst(SIGNING_ALGORITHM);
         keySize = form.getFirst(KEY_SIZE);
         keyCurveName = form.getFirst(KEY_CURVENAME);
@@ -152,20 +148,6 @@ public class SystemCertData {
      */
     public void setToken(String token) {
         this.token = token;
-    }
-
-    /**
-     * @return the keyAlgorithm
-     */
-    public String getKeyAlgorithm() {
-        return keyAlgorithm;
-    }
-
-    /**
-     * @param keyAlgorithm the keyAlgorithm to set
-     */
-    public void setKeyAlgorithm(String keyAlgorithm) {
-        this.keyAlgorithm = keyAlgorithm;
     }
 
     /**
@@ -288,7 +270,6 @@ public class SystemCertData {
             + "tag=" + tag
             + ", nickname=" + nickname
             + ", token=" + token
-            + ", keyAlgorithm=" + keyAlgorithm
             + ", signingAlgorithm=" + signingAlgorithm
             + ", keySize=" + keySize
             + ", keyCurveName=" + keyCurveName
