@@ -253,6 +253,11 @@ class KeyBackupRequest(object):
         pass
 
 
+class SecurityDomainSetupRequest(object):
+    def __init__(self):
+        pass
+
+
 class DatabaseUserSetupRequest(object):
     def __init__(self):
         pass
@@ -376,8 +381,8 @@ class SystemConfigClient(object):
         """
         Setup security domain.
 
-        :param request: Configuration request
-        :type request: ConfigurationRequest
+        :param request: Security domain setup request
+        :type request: SecurityDomainSetupRequest
         """
         data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
@@ -447,6 +452,7 @@ pki.encoder.NOTYPES['DatabaseSetupRequest'] = DatabaseSetupRequest
 pki.encoder.NOTYPES['AdminSetupRequest'] = AdminSetupRequest
 pki.encoder.NOTYPES['AdminSetupResponse'] = AdminSetupResponse
 pki.encoder.NOTYPES['KeyBackupRequest'] = KeyBackupRequest
+pki.encoder.NOTYPES['SecurityDomainSetupRequest'] = SecurityDomainSetupRequest
 pki.encoder.NOTYPES['DatabaseUserSetupRequest'] = DatabaseUserSetupRequest
 pki.encoder.NOTYPES['FinalizeConfigRequest'] = FinalizeConfigRequest
 pki.encoder.NOTYPES['SystemCertData'] = SystemCertData

@@ -3121,6 +3121,26 @@ class ConfigClient:
 
         return request
 
+    def create_security_domain_setup_request(self):
+
+        logger.info('Creating security domain setup request')
+
+        request = pki.system.SecurityDomainSetupRequest()
+        request.pin = self.mdict['pki_one_time_pin']
+
+        if self.subordinate and \
+                config.str2bool(self.mdict['pki_subordinate_create_new_security_domain']):
+            request.securityDomainType = 'newsubdomain'
+
+        elif self.security_domain_type != 'new':
+            request.securityDomainType = 'existingdomain'
+
+        else:
+            # PKI CA, External CA, or Stand-alone PKI
+            request.securityDomainType = 'newdomain'
+
+        return request
+
     def create_database_user_setup_request(self):
 
         logger.info('Creating database user setup request')

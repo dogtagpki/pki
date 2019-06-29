@@ -772,7 +772,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             client.backupKeys(key_backup_request)
 
         logger.info('Setting up security domain')
-        client.setupSecurityDomain(request)
+        sd_setup_request = deployer.config_client.create_security_domain_setup_request()
+        client.setupSecurityDomain(sd_setup_request)
 
         if not config.str2bool(deployer.mdict['pki_share_db']):
             logger.info('Setting up database user')

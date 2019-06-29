@@ -49,7 +49,7 @@ public interface SystemConfigResource {
 
     @POST
     @Path("setupSecurityDomain")
-    public void setupSecurityDomain(ConfigurationRequest request) throws Exception;
+    public void setupSecurityDomain(SecurityDomainSetupRequest request) throws Exception;
 
     @POST
     @Path("setupDatabaseUser")

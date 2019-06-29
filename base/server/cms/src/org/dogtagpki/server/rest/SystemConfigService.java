@@ -47,6 +47,7 @@ import com.netscape.certsrv.system.DatabaseUserSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.KeyBackupRequest;
+import com.netscape.certsrv.system.SecurityDomainSetupRequest;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigResource;
 import com.netscape.cms.servlet.base.PKIService;
@@ -272,7 +273,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     @Override
-    public void setupSecurityDomain(ConfigurationRequest request) throws Exception {
+    public void setupSecurityDomain(SecurityDomainSetupRequest request) throws Exception {
 
         logger.info("SystemConfigService: setting up security domain");
 
