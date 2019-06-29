@@ -53,7 +53,7 @@ public interface SystemConfigResource {
 
     @POST
     @Path("setupDatabaseUser")
-    public void setupDatabaseUser(ConfigurationRequest request) throws Exception;
+    public void setupDatabaseUser(DatabaseUserSetupRequest request) throws Exception;
 
     @POST
     @Path("finalizeConfiguration")

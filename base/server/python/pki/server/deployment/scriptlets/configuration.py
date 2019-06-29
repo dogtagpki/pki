@@ -776,7 +776,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if not config.str2bool(deployer.mdict['pki_share_db']):
             logger.info('Setting up database user')
-            client.setupDatabaseUser(request)
+            db_user_setup_request = deployer.config_client.create_database_user_setup_request()
+            client.setupDatabaseUser(db_user_setup_request)
 
         logger.info('Finalizing %s configuration', subsystem.type)
         finalize_config_request = deployer.config_client.create_finalize_config_request()

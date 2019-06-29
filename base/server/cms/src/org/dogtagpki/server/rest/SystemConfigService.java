@@ -43,6 +43,7 @@ import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
+import com.netscape.certsrv.system.DatabaseUserSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
 import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.certsrv.system.KeyBackupRequest;
@@ -295,7 +296,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     @Override
-    public void setupDatabaseUser(ConfigurationRequest request) throws Exception {
+    public void setupDatabaseUser(DatabaseUserSetupRequest request) throws Exception {
 
         logger.info("SystemConfigService: setting up database user");
 

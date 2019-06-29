@@ -3121,6 +3121,15 @@ class ConfigClient:
 
         return request
 
+    def create_database_user_setup_request(self):
+
+        logger.info('Creating database user setup request')
+
+        request = pki.system.DatabaseUserSetupRequest()
+        request.pin = self.mdict['pki_one_time_pin']
+
+        return request
+
     def create_finalize_config_request(self):
 
         logger.info('Creating finalize config request')
