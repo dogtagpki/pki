@@ -17,6 +17,17 @@ class AuthPlugin(pki.cli.CLI):
         )
         self.parent = parent
         self.add_module(AuthPluginCLI(self))
+        self.add_module(AuthManagerCLI(self))
+
+
+class AuthManagerCLI(pki.cli.CLI):
+    def __init__(self, parent):
+        super(AuthManagerCLI, self).__init__(
+            'manager', 'CA Auth plugin manager')
+        self.parent = parent
+        self.add_module(AuthPluginManagerAddCLI(self))
+        self.add_module(AuthPluginManagerDelCLI(self))
+        self.add_module(AuthPluginManagerFindCLI(self))
 
 
 class AuthPluginCLI(pki.cli.CLI):
@@ -29,22 +40,12 @@ class AuthPluginCLI(pki.cli.CLI):
         self.add_module(AuthPluginDelCLI(self))
         self.add_module(AuthPluginShowCLI(self))
         self.add_module(AuthPluginFindCLI(self))
-        self.add_module(AuthPluginRegisterCLI(self))
-        self.add_module(AuthPluginDeregisterCLI(self))
 
     @staticmethod
-    def print_plugin(args, default=False):
-        if default:
-            print("  Default Plugins list")
-            print("  ====================")
-            for key, val in args.items():
-                if key.startswith("auths.impl"):
-                    print("   Plugin ID: {}".format(key.split('.')[2]))
-                    print("   Plugin Class: {}".format(val))
-                    print()
+    def print_plugin(args):
         keys = args.keys()
         for key in keys:
-            if not key.startswith("auths.impl"):
+            if not key.startswith("auths.impl."):
                 nest_keys = args[key]
                 print("    Instance Name: {}".format(key.split(".")[-1]))
                 if nest_keys.get('pluginName', None):
@@ -93,16 +94,16 @@ class AuthPluginCLI(pki.cli.CLI):
                 print()
 
 
-class AuthPluginRegisterCLI(pki.cli.CLI):
+class AuthPluginManagerAddCLI(pki.cli.CLI):
     def __init__(self, parent):
-        super(AuthPluginRegisterCLI, self).__init__(
-            'register', 'Register new auth plugin class'
+        super(AuthPluginManagerAddCLI, self).__init__(
+            'add', 'Register new auth plugin manager'
         )
 
         self.parent = parent
 
     def print_help(self):
-        print("Usages: pki-server %s-auth-plugin-register [OPTIONS]"
+        print("Usages: pki-server %s-auth-plugin-manager-add [OPTIONS]"
               % self.parent.parent.parent.name)
         print()
         print('  -t, --type                         Plugin type')
@@ -163,19 +164,19 @@ class AuthPluginRegisterCLI(pki.cli.CLI):
 
         subsystem.config['auths.impl.{}.class'.format(plugin_type)] = plugin_class
         subsystem.save()
-        print("Auth plugin registered.")
+        print("Auth plugin Manager registered.")
 
 
-class AuthPluginDeregisterCLI(pki.cli.CLI):
+class AuthPluginManagerDelCLI(pki.cli.CLI):
     def __init__(self, parent):
-        super(AuthPluginDeregisterCLI, self).__init__(
-            'deregister', 'Deregister auth plugin'
+        super(AuthPluginManagerDelCLI, self).__init__(
+            'del', 'Remove auth plugin manager'
         )
 
         self.parent = parent
 
     def print_help(self):
-        print("Usages: pki-server %s-auth-plugin-deregister <plugin_type>"
+        print("Usages: pki-server %s-auth-plugin-manager-del <manager_id>"
               % self.parent.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
@@ -193,7 +194,6 @@ class AuthPluginDeregisterCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
-        plugin_type = ''
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
@@ -221,14 +221,72 @@ class AuthPluginDeregisterCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
         deleted = False
         for key in list(subsystem.config.keys()):
-            if key.lower().startswith('auths.impl.{}'.format(plugin_type.lower())):
+            if key.startswith('auths.impl.{}.'.format(plugin_type)):
                 del subsystem.config[key]
                 deleted = True
-                subsystem.save()
-                print("Auth plugin {} deregistered.".format(plugin_type))
+        subsystem.save()
+        if deleted:
+            print("Auth plugin manager {} deleted.".format(plugin_type))
+        else:
+            print("ERROR: Auth plugin manager {} not found.".format(plugin_type))
+            sys.exit(1)
 
-        if not deleted:
-            print("ERROR: Auth plugin not found.")
+
+class AuthPluginManagerFindCLI(pki.cli.CLI):
+    def __init__(self, parent):
+        super(AuthPluginManagerFindCLI, self).__init__(
+            'find', 'Find auth plugin manager'
+        )
+        self.parent = parent
+
+    def print_help(self):
+        print("Usages: pki-server %s-auth-plugin-manager-find "
+              % self.parent.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:', [
+                'instance=', 'help'])
+
+        except getopt.GetoptError as e:
+            print('ERROR: ' + str(e))
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+            else:
+                print('ERROR: unknown option ' + o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+        if not instance.is_valid():
+            print('ERROR: Invalid instance %s.' % instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem_name = self.parent.parent.parent.name
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        print("  Configured Plugin Managers.")
+        print("  ===========================")
+        for key, val in subsystem.config.items():
+            if key.startswith("auths.impl.") and not key.startswith('auths.impl._'):
+                print("   Manager ID: {}".format(key.split('.')[2]))
+                print("   Manager Class: {}".format(val))
+                print()
 
 
 class AuthPluginAddCLI(pki.cli.CLI):
@@ -246,7 +304,7 @@ class AuthPluginAddCLI(pki.cli.CLI):
         print('  -i, --instance <instance ID>               Instance ID (default: pki-tomcat).')
         print('      --help                                 Show help message.')
         print('  -n, --pluginName                           Plugin Instance name.')
-        print('  -t, --pluginType                           Plugin Type')
+        print('  -t, --pluginManager                        Plugin Manger Type')
         print()
         print("   Directory server based authentication Plugin required common attributes. ")
         print('  -h, --host                                 LDAP Host.')
@@ -254,7 +312,7 @@ class AuthPluginAddCLI(pki.cli.CLI):
         print('      --dnPattern <pattern>                  DNPattern.')
         print('      --stringAttributes <attributes>        LDAP String Attributes. (Ex. mail)')
         print('      --byteAttributes <attributes>          LDAP Byte Attributes. (Ex. mail)')
-        print('      --secureConn <True|False>              Secure Connection.')
+        print('      --secureConn                           Enable Secure Connection.')
         print('      --connVersion <version>                LDAP Connection Version.(default: 3)')
         print('      --ldapBaseDN  <base_dn>                LDAP Base DN.')
         print('      --minConn <conn_no>                    LDAP Min connections')
@@ -277,15 +335,26 @@ class AuthPluginAddCLI(pki.cli.CLI):
         print('      --ldapAttrName <attr_name>            LDAP Attribute name')
         print('      --ldapAttrDesc <attr_desc>            LDAP Attribute description')
         print()
+        print('   Attributes for FlatFileAuth.')
+        print('      --authAttrib                          Authentication Attributes. '
+              '(Default PWD)')
+        print('      --deferOnFail                         Defer on Failure. (Default False).')
+        print('      --authFile                            Flat file name.')
+        print('      --keyAttrib                           Key Attributes. (Default UID)')
+        print()
+        print('  Attributes for AgentCertAuth, raCertAuth')
+        print('      --pluginGroup                         Plugin Group Name')
+        print()
 
     def execute(self, argv):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:f:h:p:n:t:', [
                 'instance=', 'file=', 'host=', 'port=', 'pluginName=', 'removePin=', 'dnPattern=',
-                'stringAttributes=', 'byteAttributes=', 'secureConn=', 'connVersion=', 'bindDN=',
+                'stringAttributes=', 'byteAttributes=', 'secureConn', 'connVersion=', 'bindDN=',
                 'password=', 'pass-file=', 'clientCertNick=', 'authType=', 'minConn=', 'maxConn=',
-                'pluginType=', 'ldapAttrName=', 'ldapAttrDesc=', 'attr=', 'ldapBaseDN=', 'verbose',
-                'help'])
+                'pluginManger=', 'ldapAttrName=', 'ldapAttrDesc=', 'attr=', 'ldapBaseDN=',
+                'authFile=', 'authAttrib=', 'keyAttrib=', 'pluginGroup=', 'verbose',
+                'deferOnFail', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -296,23 +365,28 @@ class AuthPluginAddCLI(pki.cli.CLI):
         host = ''
         port = ''
         plugin_name = ''
-        remove_pin = False
+        remove_pin = 'false'
         dn_pattern = ''
         string_attribute = ''
-        byte_attribute = ''
-        secure_conn = ''
+        byte_attribute = 'mail'
+        secure_conn = 'false'
         conn_version = 3
         bind_dn = ''
-        password = ''
+        # password = ''
         client_cert_nick = ''
         auth_type = ''
-        min_conn = ''
-        max_conn = ''
+        min_conn = 3
+        max_conn = 3
         plugin_type = ''
         pin_attr = ''
         base_dn = ''
         attr_desc = ''
         attr_name = ''
+        auth_attrib = 'PWD'
+        auth_file = ''
+        key_attrib = 'UID'
+        deferOnFail = 'false'
+        plugin_group = ''
 
         configure_plugin = {}
 
@@ -332,20 +406,36 @@ class AuthPluginAddCLI(pki.cli.CLI):
             elif o in ('-t', '--pluginType'):
                 plugin_type = a
             elif o in ('-h', '--host'):
+                if a in ['', None]:
+                    print("ERROR: Missing ldap hostname.")
+                    self.print_help()
+                    sys.exit(1)
                 host = a
             elif o in ('-p', '--port'):
+                if a in ['', None]:
+                    print("ERROR: Missing ldap port.")
+                    self.print_help()
+                    sys.exit(1)
                 port = a
             elif o == '--dnPattern':
+                if a in ['', None]:
+                    print("ERROR: Missing ldap DN Pattern.")
+                    self.print_help()
+                    sys.exit(1)
                 dn_pattern = a
             elif o == '--stringAttributes':
                 string_attribute = a
             elif o == '--byteAttributes':
                 byte_attribute = a
             elif o == '--secureConn':
-                secure_conn = a
+                secure_conn = 'true'
             elif o == '--connVersion':
                 conn_version = a
             elif o == '--ldapBaseDN':
+                if a in ['', None]:
+                    print("ERROR: Missing ldap basedn")
+                    self.print_help()
+                    sys.exit(1)
                 base_dn = a
             elif o == '--minConn':
                 min_conn = a
@@ -353,14 +443,14 @@ class AuthPluginAddCLI(pki.cli.CLI):
                 max_conn = a
             elif o == '--bindDN':
                 bind_dn = a
-            elif o == '--password' or o == '--pass-file':
-                password = a
-                if o == '--pass-file':
-                    with open(a) as f:
-                        password = f.read().strip()
+            # elif o == '--password' or o == '--pass-file':
+            #     password = a
+            #     if o == '--pass-file':
+            #         with open(a) as f:
+            #             password = f.read().strip()
 
             elif o == '--authType':
-                if a.lower() in ['sslclientauth', 'basicauth']:
+                if a in ['sslclientauth', 'basicauth']:
                     auth_type = a
                 else:
                     print("ERROR: Invalid auth type: {}".format(a))
@@ -368,13 +458,38 @@ class AuthPluginAddCLI(pki.cli.CLI):
             elif o == '--clientCertNick':
                 client_cert_nick = a
             elif o == '--removePin':
-                remove_pin = True
+                remove_pin = 'true'
             elif o == '--attr':
                 pin_attr = a
             elif o == '--ldapAttrName':
                 attr_name = a
             elif o == '--ldapAttrDesc':
                 attr_desc = a
+            elif o == '--authAttrib':
+                if a not in ['', None] and a.startswith('--'):
+                    print("ERROR: Invalid value for authAttrib")
+                    self.print_help()
+                    sys.exit(1)
+                else:
+                    auth_attrib = a
+            elif o == '--authFile':
+                if a not in ['', None] and a.startswith('--'):
+                    print("ERROR: Invalid value for AuthFile.")
+                    self.print_help()
+                    sys.exit(1)
+                else:
+                    auth_file = a
+            elif o == '--keyAttrib':
+                if a not in ['', None] and a.startswith('--'):
+                    print("ERROR:' Invalid value for keyAttrib.")
+                    self.print_help()
+                    sys.exit(1)
+                else:
+                    key_attrib = a
+            elif o == '--pluginGroup':
+                plugin_group = a
+            elif o == '--deferOnFail':
+                deferOnFail = True
             else:
                 print('ERROR: unknown option ' + o)
                 self.print_help()
@@ -395,14 +510,20 @@ class AuthPluginAddCLI(pki.cli.CLI):
                   % (subsystem_name.upper(), instance_name))
             sys.exit(1)
 
-        default_plugin_list = [i.split(".")[2].lower() for i, j in subsystem.config.items()
-                               if i.startswith('auths.impl')]
-
-        plugin_base = ''
+        default_manager_list = [i.split(".")[2] for i in subsystem.config.keys()
+                                if i.startswith('auths.impl.')]
 
         if not plugin_name:
             print("ERROR: Missing plugin name.")
             self.print_help()
+            sys.exit(1)
+
+        if subsystem.config.get('auths.instance.{}.pluginName'.format(plugin_name), None):
+            manager_name = subsystem.config.get('auths.instance.{}.pluginName'.format(plugin_name))
+            err_msg1 = "ERROR: Plugin name already exists."
+            err_msg2 = "Plugin {} is instance of {} manager.".format(plugin_name, manager_name)
+            print(err_msg1)
+            print(err_msg2)
             sys.exit(1)
         else:
             plugin_base = 'auths.instance.{}.'.format(plugin_name)
@@ -412,120 +533,68 @@ class AuthPluginAddCLI(pki.cli.CLI):
             self.print_help()
             sys.exit(1)
         else:
-            if plugin_type.lower() not in default_plugin_list:
+            if plugin_type not in default_manager_list:
                 print("ERROR: Not valid plugin type")
                 sys.exit(1)
             configure_plugin[plugin_base + 'pluginName'] = plugin_type
 
-        if plugin_type.lower() in ['uidpwddirauth', 'uidpwdpindirauth', 'sharedtoken']:
+        if plugin_type in ['UserPwdDirAuth', 'UidPwdPinDirAuth', 'SharedToken']:
 
-            if not host:
-                print("ERROR: Missing ldap hostname.")
-                self.print_help()
-                sys.exit(1)
-            else:
-                configure_plugin[plugin_base + 'ldap.ldapconn.host'] = host
+            configure_plugin[plugin_base + 'ldap.ldapconn.host'] = host
+            configure_plugin[plugin_base + 'ldap.ldapconn.port'] = port
+            configure_plugin[plugin_base + 'dnpattern'] = dn_pattern
+            configure_plugin[plugin_base + 'ldap.basedn'] = base_dn
+            configure_plugin[plugin_base + 'ldap.ldapconn.secureConn'] = secure_conn
+            configure_plugin[plugin_base + 'ldap.ldapconn.version'] = conn_version
+            configure_plugin[plugin_base + 'ldap.minConns'] = min_conn
+            configure_plugin[plugin_base + 'ldap.maxConns'] = max_conn
+            configure_plugin[plugin_base + 'ldapByteAttributes'] = byte_attribute
+            configure_plugin[plugin_base + 'ldapStringAttributes'] = string_attribute
 
-            if not port:
-                print("ERROR: Missing ldap port.")
-                self.print_help()
-                sys.exit(1)
-            else:
-                configure_plugin[plugin_base + 'ldap.ldapconn.port'] = port
+            if plugin_type in ['SharedToken', 'UidPwdPinDirAuth']:
+                configure_plugin[plugin_base + 'shrTokAttr'] = pin_attr
+                configure_plugin[plugin_base +
+                                 'ldap.ldapauth.clientcertNickname'] = client_cert_nick
+                configure_plugin[plugin_base + 'ldap.ldapauth.authType'] = auth_type
+                configure_plugin[plugin_base +
+                                 'ldap.ldapauth.bindPWPrompt'] = 'Rule {}'.format(plugin_name)
 
-            if not dn_pattern:
-                print("ERROR: Missing ldap DN Pattern.")
-                self.print_help()
-                sys.exit(1)
-            else:
-                configure_plugin[plugin_base + 'dnpattern'] = dn_pattern
-
-            if not base_dn:
-                print("ERROR: Missing ldap basedn")
-                self.print_help()
-                sys.exit(1)
-            else:
-                configure_plugin[plugin_base + 'ldap.basedn'] = base_dn
-
-            if not secure_conn:
-                configure_plugin[plugin_base + 'ldap.ldapconn.secureConn'] = 'false'
-            else:
-                configure_plugin[plugin_base + 'ldap.ldapconn.secureConn'] = 'true'
-
-            if not conn_version:
-                configure_plugin[plugin_base + 'ldap.ldapconn.version'] = 3
-            else:
-                configure_plugin[plugin_base + 'ldap.ldapconn.version'] = conn_version
-
-            if not min_conn:
-                configure_plugin[plugin_base + 'ldap.minConns'] = ''
-            else:
-                configure_plugin[plugin_base + 'ldap.minConns'] = min_conn
-
-            if not max_conn:
-                configure_plugin[plugin_base + 'ldap.maxConns'] = ''
-            else:
-                configure_plugin[plugin_base + 'ldap.maxConns'] = max_conn
-
-            if not byte_attribute:
-                configure_plugin[plugin_base + 'ldapByteAttributes'] = 'mail'
-            else:
-                configure_plugin[plugin_base + 'ldapByteAttributes'] = byte_attribute
-
-            if not string_attribute:
-                configure_plugin[plugin_base + 'ldapStringAttributes'] = 'mail'
-            else:
-                configure_plugin[plugin_base + 'ldapStringAttributes'] = string_attribute
-
-            if plugin_type.lower() in ['sharedtoken', 'uidpwdpindirauth']:
-                if not pin_attr:
-                    configure_plugin[plugin_base + 'shrTokAttr'] = 'mail'
-                else:
-                    configure_plugin[plugin_base + 'shrTokAttr'] = pin_attr
-
-                if not client_cert_nick:
-                    configure_plugin[plugin_base + 'ldap.ldapauth.clientcertNickname'] = ''
-                else:
-                    configure_plugin[plugin_base +
-                                     'ldap.ldapauth.clientcertNickname'] = client_cert_nick
-
-                if not auth_type:
-                    configure_plugin[plugin_base + 'ldap.ldapauth.authType'] = 'basicAuth'
-                else:
-                    configure_plugin[plugin_base + 'ldap.ldapauth.authType'] = auth_type
-
-                if not password:
-                    configure_plugin[plugin_base + 'ldap.ldapauth.bindPWPrompt'] = ''
-                else:
-                    configure_plugin[plugin_base +
-                                     'ldap.ldapauth.bindPWPrompt'] = 'Rule {}'.format(plugin_name)
-
-            if plugin_type.lower() == "sharedtoken":
+            if plugin_type == "SharedToken":
                 if not bind_dn:
                     print("ERROR: SharedToken required LDAP Bind DN.")
                     sys.exit(1)
                 else:
                     configure_plugin[plugin_base + 'ldap.ldapauth.bindDN'] = bind_dn
 
-            if plugin_type.lower() == 'uidpwdpindirauth':
-                if not remove_pin:
-                    configure_plugin[plugin_base + 'removePin'] = 'false'
-                else:
-                    configure_plugin[plugin_base + 'removePin'] = 'true'
+            if plugin_type == 'UidPwdPinDirAuth':
+                configure_plugin[plugin_base + 'removePin'] = remove_pin
 
-            if plugin_type.lower() == 'uidpwddirauth':
+            if plugin_type == 'UserPwdDirAuth':
                 if not attr_name:
-                    print("ERROR: UidPwdDirAuth required ldap.attrName")
+                    print("ERROR: UserPwdDirAuth required ldap.attrName")
                     self.print_help()
                     sys.exit(1)
                 else:
                     configure_plugin[plugin_base + 'ldap.attrName'] = attr_name
 
-                if not attr_desc:
-                    configure_plugin[plugin_base + 'ldap.attrDesc'] = ''
+                configure_plugin[plugin_base + 'ldap.attrDesc'] = attr_desc
 
-                else:
-                    configure_plugin[plugin_base + 'ldap.attrDesc'] = attr_desc
+        elif plugin_type in ['FlatFileAuth']:
+            configure_plugin[plugin_base + 'authAttributes'] = auth_attrib
+            configure_plugin[plugin_base + 'fileName'] = auth_file
+            configure_plugin[plugin_base + 'keyAttributes'] = key_attrib
+            configure_plugin[plugin_base + 'deferOnFailure'] = deferOnFail
+
+        elif plugin_type in ['AgentCertAuth']:
+            if not plugin_group:
+                print("ERROR: {} required Group option.".format(plugin_type))
+                self.print_help()
+                sys.exit(1)
+            configure_plugin[plugin_base + 'agentGroup'] = plugin_group
+
+        else:
+            print("Error: Invalid plugin manager.")
+            sys.exit(1)
         subsystem.config.update(configure_plugin)
         subsystem.save()
         print("Added plugin {}".format(plugin_name))
@@ -588,7 +657,7 @@ class AuthPluginDelCLI(pki.cli.CLI):
             sys.exit(1)
 
         for key in list(subsystem.config.keys()):
-            if key.lower().startswith("auths.instance.{}.".format(plugin_id.lower())):
+            if key.startswith("auths.instance.{}.".format(plugin_id)):
                 subsystem.config.pop(key)
         subsystem.save()
         print("Plugin {} removed from instance {}".format(plugin_id, instance_name))
@@ -604,7 +673,6 @@ class AuthPluginFindCLI(pki.cli.CLI):
     def print_help(self):
         print("Usages: pki-server %s-auth-plugin-find [OPTIONS]" % self.parent.parent.parent.name)
         print()
-        print('  -d, --default                      List the default available plugins')
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('      --help                         Show help message.')
         print()
@@ -612,8 +680,7 @@ class AuthPluginFindCLI(pki.cli.CLI):
     def execute(self, argv):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v:d', [
-                'instance=', 'default',
-                'verbose', 'help'])
+                'instance=', 'verbose', 'help'])
 
         except getopt.GetoptError as e:
             print('ERROR: ' + str(e))
@@ -621,7 +688,6 @@ class AuthPluginFindCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
-        show_default = False
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
@@ -629,9 +695,6 @@ class AuthPluginFindCLI(pki.cli.CLI):
             elif o == '--help':
                 self.print_help()
                 sys.exit()
-
-            elif o in ('-d', '--default'):
-                show_default = True
 
             else:
                 print('ERROR: unknown option ' + o)
@@ -654,15 +717,8 @@ class AuthPluginFindCLI(pki.cli.CLI):
             sys.exit(1)
         plugin_conf = {}
 
-        print(" Available plugins:")
-        print(" ==================")
-        if show_default:
-            for key, value in subsystem.config.items():
-                if key.startswith('auths.impl') and not key.startswith('auths.impl._'):
-                    plugin_conf[key] = value
-            AuthPluginCLI.print_plugin(plugin_conf, default=True)
-        print("  Configured Plugin instances.")
-        print("  ============================")
+        print("  Configured Plugin.")
+        print("  ==================")
         instances = []
         for i in subsystem.config.keys():
             if i.startswith('auths.instance.'):
@@ -743,7 +799,7 @@ class AuthPluginShowCLI(pki.cli.CLI):
         plugin_conf = {}
         instances = []
         for i in subsystem.config.keys():
-            if i.lower().startswith('auths.instance.{}'.format(plugin_id.lower())):
+            if i.startswith('auths.instance.{}'.format(plugin_id)):
                 instances.append(i.split(".")[2].strip())
         for instance in instances:
             plugin_conf['auths.instance.{}'.format(instance)] = {}
