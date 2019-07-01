@@ -25,7 +25,6 @@ import java.net.URISyntaxException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -59,7 +58,6 @@ import org.mozilla.jss.util.Password;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.system.ConfigurationRequest;
-import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.certsrv.system.SystemConfigClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -221,17 +219,7 @@ public class ConfigurationTest {
             System.exit(1);
         }
 
-        ConfigurationResponse response = client.configure(data);
-
-        List<SystemCertData> certs = response.getSystemCerts();
-        Iterator<SystemCertData> iterator = certs.iterator();
-        while (iterator.hasNext()) {
-            SystemCertData cdata = iterator.next();
-            System.out.println("tag: " + cdata.getTag());
-            System.out.println("cert: " + cdata.getCert());
-            System.out.println("request: " + cdata.getRequest());
-        }
-
+        client.configure(data);
     }
 
     private static ConfigurationRequest constructCAData(String host, String port, String pin, String db_dir,

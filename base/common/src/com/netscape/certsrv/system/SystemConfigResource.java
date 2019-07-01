@@ -29,7 +29,7 @@ public interface SystemConfigResource {
 
     @POST
     @Path("configure")
-    public ConfigurationResponse configure(ConfigurationRequest request) throws Exception;
+    public void configure(ConfigurationRequest request) throws Exception;
 
     @POST
     @Path("setupDatabase")

@@ -40,7 +40,7 @@ public class SystemConfigClient extends Client {
         configClient = createProxy(SystemConfigResource.class);
     }
 
-    public ConfigurationResponse configure(ConfigurationRequest data) throws Exception {
-        return configClient.configure(data);
+    public void configure(ConfigurationRequest request) throws Exception {
+        configClient.configure(request);
     }
 }

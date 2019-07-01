@@ -98,14 +98,36 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
      * @see com.netscape.cms.servlet.csadmin.SystemConfigurationResource#configure(com.netscape.cms.servlet.csadmin.data.ConfigurationData)
      */
     @Override
-    public ConfigurationResponse configure(ConfigurationRequest request) throws Exception {
+    public void configure(ConfigurationRequest request) throws Exception {
 
         logger.info("SystemConfigService: configuring subsystem");
 
         try {
-            ConfigurationResponse response = new ConfigurationResponse();
-            configure(request, response);
-            return response;
+            validatePin(request.getPin());
+
+            if (csState.equals("1")) {
+                throw new BadRequestException("System already configured");
+            }
+
+            logger.debug("SystemConfigService: request: " + request);
+            validateRequest(request);
+
+            // configure security domain
+            logger.debug("=== Security Domain Configuration ===");
+            DomainInfo domainInfo = configurator.configureSecurityDomain(request);
+
+            // configure subsystem
+            logger.debug("=== Subsystem Configuration ===");
+            configurator.configureSubsystem(request, domainInfo);
+
+            // configure hierarchy
+            logger.debug("=== Hierarchy Configuration ===");
+            configureHierarchy(request);
+
+            logger.debug("=== Configure CA Cert Chain ===");
+            configurator.configureCACertChain(request, domainInfo);
+
+            cs.commit(false);
 
         } catch (PKIException e) { // normal responses
             logger.error("Configuration failed: " + e.getMessage()); // log the response
@@ -119,35 +141,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.error("Configuration failed: " + e.getMessage(), e); // show stack trace for troubleshooting
             throw e;
         }
-    }
-
-    public void configure(ConfigurationRequest data, ConfigurationResponse response) throws Exception {
-
-        validatePin(data.getPin());
-
-        if (csState.equals("1")) {
-            throw new BadRequestException("System already configured");
-        }
-
-        logger.debug("SystemConfigService: request: " + data);
-        validateRequest(data);
-
-        // configure security domain
-        logger.debug("=== Security Domain Configuration ===");
-        DomainInfo domainInfo = configurator.configureSecurityDomain(data);
-
-        // configure subsystem
-        logger.debug("=== Subsystem Configuration ===");
-        configurator.configureSubsystem(data, domainInfo);
-
-        // configure hierarchy
-        logger.debug("=== Hierarchy Configuration ===");
-        configureHierarchy(data);
-
-        logger.debug("=== Configure CA Cert Chain ===");
-        configurator.configureCACertChain(data, domainInfo);
-
-        cs.commit(false);
     }
 
     @Override

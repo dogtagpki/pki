@@ -302,16 +302,14 @@ class SystemConfigClient(object):
         :param request: Configuration request containing all the input needed to
             configure the subsystem
         :type request: ConfigurationRequest
-        :return: ConfigurationResponse -- response from configuration servlet.
         """
         data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        response = self.connection.post(
+        self.connection.post(
             '/rest/installer/configure',
             data,
             headers)
-        return response.json()
 
     def setupDatabase(self, request):
         """
