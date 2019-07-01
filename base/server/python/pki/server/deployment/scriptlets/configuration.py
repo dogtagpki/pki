@@ -719,31 +719,25 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         database_setup_request = deployer.config_client.create_database_setup_request()
         client.setupDatabase(database_setup_request)
 
-        logger.info('Setting up certificates')
-
-        cert_setup_request = deployer.config_client.create_certificate_setup_request()
-        cert_setup_response = client.setupCerts(cert_setup_request)
-
-        try:
-            certs = cert_setup_response['systemCerts']
-        except KeyError:
-            # no system certs created
-            logger.debug('No new system certificates generated')
-            certs = []
-
-        if not isinstance(certs, list):
-            certs = [certs]
-
         sslserver = subsystem.get_subsystem_cert('sslserver')
+        cert_setup_request = deployer.config_client.create_certificate_setup_request()
 
-        for cdata in certs:
+        for tag in subsystem.config['preop.cert.list'].split(','):
 
-            if cdata['tag'] == 'sslserver':
-                sslserver['data'] = cdata['cert']
-                sslserver['request'] = cdata['request']
+            logger.info('Setting up %s certificate', tag)
 
-            logger.debug('%s cert: %s', cdata['tag'], cdata['cert'])
-            logger.debug('%s request: %s', cdata['tag'], cdata['request'])
+            cert_setup_request.tag = tag
+            cert = client.setupCert(cert_setup_request)
+
+            if not cert:
+                continue
+
+            logger.debug('- cert: %s', cert['cert'])
+            logger.debug('- request: %s', cert['request'])
+
+            if tag == 'sslserver':
+                sslserver['data'] = cert['cert']
+                sslserver['request'] = cert['request']
 
         if not clone:
 

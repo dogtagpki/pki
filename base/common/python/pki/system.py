@@ -322,21 +322,26 @@ class SystemConfigClient(object):
             data,
             headers)
 
-    def setupCerts(self, request):
+    def setupCert(self, request):
         """
-        Set up certificates.
+        Set up certificate.
 
         :param request: Certificate setup request
         :type request: CertificateSetupRequest
-        :return: CertificateSetupResponse
+        :return: SystemCertData
         """
         data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
+
         response = self.connection.post(
-            '/rest/installer/setupCerts',
+            '/rest/installer/setupCert',
             data,
             headers)
+
+        if not response.content:
+            return None
+
         return response.json()
 
     def setupAdmin(self, request):

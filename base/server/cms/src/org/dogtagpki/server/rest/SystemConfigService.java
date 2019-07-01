@@ -39,7 +39,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
 import com.netscape.certsrv.system.CertificateSetupRequest;
-import com.netscape.certsrv.system.CertificateSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DatabaseUserSetupRequest;
@@ -168,9 +167,10 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     @Override
-    public CertificateSetupResponse setupCerts(CertificateSetupRequest request) throws Exception {
+    public SystemCertData setupCert(CertificateSetupRequest request) throws Exception {
 
-        logger.info("SystemConfigService: setting up certificates");
+        String tag = request.getTag();
+        logger.info("SystemConfigService: setting up " + tag + " certificate");
 
         try {
             validatePin(request.getPin());
@@ -179,40 +179,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            CertificateSetupResponse response = new CertificateSetupResponse();
-
-            String value = cs.getString("preop.cert.list");
-            String[] certList = value.split(",");
-
-            for (String tag : certList) {
-
-                SystemCertData systemCert = setupCert(request, tag);
-                if (systemCert == null) continue;
-
-                response.getSystemCerts().add(systemCert);
-            }
-
-            return response;
-
-        } catch (PKIException e) { // normal response
-            logger.error("Configuration failed: " + e.getMessage());
-            throw e;
-
-        } catch (Throwable e) { // unexpected error
-            logger.error("Configuration failed: " + e.getMessage(), e);
-            throw e;
-        }
-    }
-
-    public SystemCertData setupCert(
-            CertificateSetupRequest request,
-            String tag) throws Exception {
-
-        logger.info("SystemConfigService: setting up " + tag + " certificate");
-
-        try {
             boolean enable = cs.getBoolean("preop.cert." + tag + ".enable", true);
-            if (!enable) return null;
+            if (!enable) {
+                logger.info("SystemConfigService: " + tag + " certificate is disabled");
+                return null;
+            }
 
             SystemCertData certData = request.getSystemCert(tag);
 
@@ -223,12 +194,15 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
             if (!generateServerCert && tag.equals("sslserver")) {
+                logger.info("SystemConfigService: not generating " + tag + " certificate");
                 updateConfiguration(certData, "sslserver");
                 return null;
             }
 
             boolean generateSubsystemCert = request.getGenerateSubsystemCert();
             if (!generateSubsystemCert && tag.equals("subsystem")) {
+                logger.info("SystemConfigService: not generating " + tag + " certificate");
+
                 // update the details for the shared subsystem cert here.
                 updateConfiguration(certData, "subsystem");
 
@@ -562,8 +536,8 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             return cert;
         }
 
-        // create and configure other system certificate
-        logger.info("SystemConfigService: creating new " + tag + " certificate");
+        // generate and configure other system certificate
+        logger.info("SystemConfigService: generating new " + tag + " certificate");
         configurator.configCert(cert);
 
         String certStr = cs.getString(subsystem + "." + tag + ".cert" );

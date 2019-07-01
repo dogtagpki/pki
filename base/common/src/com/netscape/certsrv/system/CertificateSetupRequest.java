@@ -36,6 +36,9 @@ public class CertificateSetupRequest {
     protected String pin;
 
     @XmlElement
+    protected String tag;
+
+    @XmlElement
     protected List<SystemCertData> systemCerts;
 
     @XmlElement
@@ -60,6 +63,14 @@ public class CertificateSetupRequest {
 
     public void setPin(String pin) {
         this.pin = pin;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     /**
@@ -122,6 +133,7 @@ public class CertificateSetupRequest {
     @Override
     public String toString() {
         return "CertificateSetupRequest [pin=XXXX" +
+               ", tag=" + tag +
                ", systemCerts=" + systemCerts +
                ", generateServerCert=" + generateServerCert +
                ", external=" + external +
