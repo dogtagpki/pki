@@ -18,10 +18,6 @@
 
 package com.netscape.cms.servlet.csadmin;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.netscape.certsrv.system.SystemCertData;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -46,13 +42,5 @@ public class SystemCertDataFactory {
 
         data.setTag(cert.getCertTag());
         return data;
-    }
-
-    public static List<SystemCertData> create(Collection<Cert> certs) throws Exception {
-        List<SystemCertData> result = new ArrayList<SystemCertData>();
-        for (Cert cert : certs) {
-            result.add(create(cert));
-        }
-        return result;
     }
 }

@@ -22,8 +22,6 @@ import java.net.URL;
 import java.security.KeyPair;
 import java.security.Principal;
 import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.jss.CryptoManager;
@@ -183,13 +181,78 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
             CertificateSetupResponse response = new CertificateSetupResponse();
 
-            logger.debug("=== Process Certs ===");
-            Collection<Cert> certs = new ArrayList<Cert>();
-            processCerts(request, certs);
+            String value = cs.getString("preop.cert.list");
+            String[] certList = value.split(",");
 
-            response.setSystemCerts(SystemCertDataFactory.create(certs));
+            for (String tag : certList) {
+
+                SystemCertData systemCert = setupCert(request, tag);
+                if (systemCert == null) continue;
+
+                response.getSystemCerts().add(systemCert);
+            }
 
             return response;
+
+        } catch (PKIException e) { // normal response
+            logger.error("Configuration failed: " + e.getMessage());
+            throw e;
+
+        } catch (Throwable e) { // unexpected error
+            logger.error("Configuration failed: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    public SystemCertData setupCert(
+            CertificateSetupRequest request,
+            String tag) throws Exception {
+
+        logger.info("SystemConfigService: setting up " + tag + " certificate");
+
+        try {
+            boolean enable = cs.getBoolean("preop.cert." + tag + ".enable", true);
+            if (!enable) return null;
+
+            SystemCertData certData = request.getSystemCert(tag);
+
+            if (certData == null) {
+                logger.error("SystemConfigService: missing certificate: " + tag);
+                throw new BadRequestException("Missing certificate: " + tag);
+            }
+
+            boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
+            if (!generateServerCert && tag.equals("sslserver")) {
+                updateConfiguration(certData, "sslserver");
+                return null;
+            }
+
+            boolean generateSubsystemCert = request.getGenerateSubsystemCert();
+            if (!generateSubsystemCert && tag.equals("subsystem")) {
+                // update the details for the shared subsystem cert here.
+                updateConfiguration(certData, "subsystem");
+
+                // get parameters needed for cloning
+                updateCloneConfiguration(certData, "subsystem");
+                return null;
+            }
+
+            processKeyPair(certData);
+
+            Cert cert = processCert(request, certData);
+
+            String subsystem = cert.getSubsystem();
+            configurator.handleCert(cert);
+
+            // make sure to commit changes here for step 1
+            cs.commit(false);
+
+            if (tag.equals("signing") && subsystem.equals("ca")) {
+                CMSEngine engine = CMS.getCMSEngine();
+                engine.reinit(ICertificateAuthority.ID);
+            }
+
+            return SystemCertDataFactory.create(cert);
 
         } catch (PKIException e) { // normal response
             logger.error("Configuration failed: " + e.getMessage());
@@ -336,64 +399,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.error("Configuration failed: " + e.getMessage(), e);
             throw e;
         }
-    }
-
-    public void processCerts(
-            CertificateSetupRequest request,
-            Collection<Cert> certs) throws Exception {
-
-        CMSEngine engine = CMS.getCMSEngine();
-
-        boolean generateServerCert = !request.getGenerateServerCert().equalsIgnoreCase("false");
-        boolean generateSubsystemCert = request.getGenerateSubsystemCert();
-
-        String value = cs.getString("preop.cert.list");
-        String[] certList = value.split(",");
-
-        for (String tag : certList) {
-
-            logger.info("SystemConfigService: processing " + tag + " cert");
-
-            boolean enable = cs.getBoolean("preop.cert." + tag + ".enable", true);
-            if (!enable) continue;
-
-            SystemCertData certData = request.getSystemCert(tag);
-
-            if (certData == null) {
-                logger.error("SystemConfigService: missing certificate: " + tag);
-                throw new BadRequestException("Missing certificate: " + tag);
-            }
-
-            if (!generateServerCert && tag.equals("sslserver")) {
-                updateConfiguration(certData, "sslserver");
-                continue;
-            }
-
-            if (!generateSubsystemCert && tag.equals("subsystem")) {
-                // update the details for the shared subsystem cert here.
-                updateConfiguration(certData, "subsystem");
-
-                // get parameters needed for cloning
-                updateCloneConfiguration(certData, "subsystem");
-                continue;
-            }
-
-            processKeyPair(certData);
-
-            Cert cert = processCert(request, certData);
-
-            certs.add(cert);
-
-            String subsystem = cert.getSubsystem();
-            configurator.handleCert(cert);
-
-            if (tag.equals("signing") && subsystem.equals("ca")) {
-                engine.reinit(ICertificateAuthority.ID);
-            }
-        }
-
-        // make sure to commit changes here for step 1
-        cs.commit(false);
     }
 
     public void processKeyPair(SystemCertData certData) throws Exception {
