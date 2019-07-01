@@ -721,12 +721,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         logger.info('Setting up certificates')
 
-        nssdb = instance.open_nssdb(token)
-        try:
-            cert_setup_request = deployer.config_client.create_certificate_setup_request(nssdb)
-        finally:
-            nssdb.close()
-
+        cert_setup_request = deployer.config_client.create_certificate_setup_request()
         cert_setup_response = client.setupCerts(cert_setup_request)
 
         try:

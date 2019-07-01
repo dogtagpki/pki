@@ -3092,7 +3092,7 @@ class ConfigClient:
 
         return request
 
-    def create_certificate_setup_request(self, nssdb):
+    def create_certificate_setup_request(self):
 
         logger.info('Creating certificate setup request')
 
@@ -3104,7 +3104,7 @@ class ConfigClient:
         request.standAlone = self.standalone
 
         # Create system certs
-        self.set_system_certs(nssdb, request)
+        self.set_system_certs(request)
 
         return request
 
@@ -3239,21 +3239,7 @@ class ConfigClient:
         # Print this certificate request
         logger.info('Request:\n%s', csr)
 
-    def load_system_cert(self, nssdb, cert, nickname=None):
-
-        if not nickname:
-            nickname = cert.nickname
-
-        logger.info('Loading system cert: %s', nickname)
-
-        certdata = nssdb.get_cert(
-            nickname=nickname,
-            output_format='base64',
-            output_text=True,  # JSON encoder needs text
-        )
-        cert.cert = certdata
-
-    def set_system_certs(self, nssdb, data):
+    def set_system_certs(self, data):
         systemCerts = []  # nopep8
 
         # Create 'CA Signing Certificate'
@@ -3276,12 +3262,6 @@ class ConfigClient:
 
                 if self.external and self.external_step_two:
                     # external/existing CA step 2
-
-                    # If specified, load the externally-signed CA cert
-                    if self.mdict['pki_cert_chain_nickname']:
-                        self.load_system_cert(
-                            nssdb, cert1, self.mdict['pki_cert_chain_nickname'])
-
                     systemCerts.append(cert1)
 
                 elif self.subsystem == "CA":
@@ -3295,9 +3275,6 @@ class ConfigClient:
                     self.external_step_two):
                 # Stand-alone PKI OCSP (Step 2)
                 cert2 = self.create_system_cert("ocsp_signing")
-                # Load the Stand-alone PKI OCSP 'OCSP Signing Certificate'
-                # (Step 2)
-                self.load_system_cert(nssdb, cert2)
                 systemCerts.append(cert2)
             elif self.subsystem == "CA" or self.subsystem == "OCSP":
                 # External CA, Subordinate CA, PKI CA, or PKI OCSP
@@ -3312,8 +3289,6 @@ class ConfigClient:
         if self.standalone and self.external_step_two:
             # Stand-alone PKI (Step 2)
             cert3 = self.create_system_cert("sslserver")
-            # Load the Stand-alone PKI 'SSL Server Certificate' (Step 2)
-            self.load_system_cert(nssdb, cert3)
             systemCerts.append(cert3)
         elif len(system_list) >= 2:
             # Existing PKI Instance
@@ -3338,8 +3313,6 @@ class ConfigClient:
                 data.generateSubsystemCert = "true"
                 # Stand-alone PKI (Step 2)
                 cert4 = self.create_system_cert("subsystem")
-                # Load the Stand-alone PKI 'Subsystem Certificate' (Step 2)
-                self.load_system_cert(nssdb, cert4)
                 systemCerts.append(cert4)
             elif len(system_list) >= 2:
                 # Existing PKI Instance
@@ -3363,8 +3336,6 @@ class ConfigClient:
             if self.standalone and self.external_step_two:
                 # Stand-alone PKI (Step 2)
                 cert5 = self.create_system_cert("audit_signing")
-                # Load the Stand-alone PKI 'Audit Signing Certificate' (Step 2)
-                self.load_system_cert(nssdb, cert5)
                 systemCerts.append(cert5)
             elif self.subsystem != "RA":
                 cert5 = self.create_system_cert("audit_signing")
@@ -3377,13 +3348,9 @@ class ConfigClient:
                     self.external_step_two):
                 # Stand-alone PKI KRA Transport Certificate (Step 2)
                 cert6 = self.create_system_cert("transport")
-                # Load the Stand-alone PKI KRA 'Transport Certificate' (Step 2)
-                self.load_system_cert(nssdb, cert6)
                 systemCerts.append(cert6)
                 # Stand-alone PKI KRA Storage Certificate (Step 2)
                 cert7 = self.create_system_cert("storage")
-                # Load the Stand-alone PKI KRA 'Storage Certificate' (Step 2)
-                self.load_system_cert(nssdb, cert7)
                 systemCerts.append(cert7)
             elif self.subsystem == "KRA":
                 # PKI KRA Transport Certificate
