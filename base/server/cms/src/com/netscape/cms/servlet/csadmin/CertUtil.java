@@ -27,12 +27,10 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.velocity.context.Context;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -79,7 +77,7 @@ public class CertUtil {
     static final int LINE_COUNT = 76;
 
     public static X509CertImpl createRemoteCert(String hostname,
-            int port, MultivaluedMap<String, String> content, HttpServletResponse response)
+            int port, MultivaluedMap<String, String> content)
             throws Exception {
 
         logger.debug("CertUtil: content: " + content);
@@ -120,8 +118,10 @@ public class CertUtil {
         }
     }
 
-    public static PKCS10 getPKCS10(IConfigStore config, String prefix,
-            Cert certObj, Context context) throws IOException {
+    public static PKCS10 getPKCS10(
+            IConfigStore config,
+            String prefix,
+            Cert certObj) throws IOException {
         String certTag = certObj.getCertTag();
 
         X509Key pubk = null;
@@ -175,9 +175,6 @@ public class CertUtil {
 
         } catch (Throwable e) {
             logger.error("CertUtil: getPKCS10: " + e, e);
-            if (context != null) {
-                context.put("errorString", e.toString());
-            }
             throw new IOException(e);
         }
     }

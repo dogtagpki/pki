@@ -364,26 +364,22 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             }
 
             if (!generateServerCert && tag.equals("sslserver")) {
-                updateConfiguration(request, certData, "sslserver");
+                updateConfiguration(certData, "sslserver");
                 continue;
             }
 
             if (!generateSubsystemCert && tag.equals("subsystem")) {
                 // update the details for the shared subsystem cert here.
-                updateConfiguration(request, certData, "subsystem");
+                updateConfiguration(certData, "subsystem");
 
                 // get parameters needed for cloning
-                updateCloneConfiguration(request, certData, "subsystem");
+                updateCloneConfiguration(certData, "subsystem");
                 continue;
             }
 
-            processKeyPair(
-                    request,
-                    certData);
+            processKeyPair(certData);
 
-            Cert cert = processCert(
-                    request,
-                    certData);
+            Cert cert = processCert(request, certData);
 
             certs.add(cert);
 
@@ -399,10 +395,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.commit(false);
     }
 
-    public void processKeyPair(
-            ConfigurationRequest request,
-            SystemCertData certData
-            ) throws Exception {
+    public void processKeyPair(SystemCertData certData) throws Exception {
 
         String tag = certData.getTag();
         logger.debug("SystemConfigService.processKeyPair(" + tag + ")");
@@ -565,7 +558,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         // create and configure other system certificate
         logger.info("SystemConfigService: creating new " + tag + " certificate");
-        configurator.configCert(request, null, null, cert);
+        configurator.configCert(cert);
 
         String certStr = cs.getString(subsystem + "." + tag + ".cert" );
         cert.setCert(CryptoUtil.base64Decode(certStr));
@@ -579,7 +572,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     private void updateCloneConfiguration(
-            ConfigurationRequest request,
             SystemCertData cdata,
             String tag) throws Exception {
 
@@ -623,7 +615,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         cs.putString("preop.cert." + tag + ".privkey.id", CryptoUtil.encodeKeyID(privk.getUniqueID()));
     }
 
-    private void updateConfiguration(ConfigurationRequest data, SystemCertData cdata, String tag) throws Exception {
+    private void updateConfiguration(SystemCertData cdata, String tag) throws Exception {
 
         String tokenName = cdata.getToken();
         if (StringUtils.isEmpty(tokenName)) {

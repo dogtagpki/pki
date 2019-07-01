@@ -47,13 +47,11 @@ import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.velocity.context.Context;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.NicknameConflictException;
 import org.mozilla.jss.NoSuchTokenException;
@@ -2293,11 +2291,7 @@ public class Configurator {
         }
     }
 
-    public void configCert(
-            ConfigurationRequest request,
-            HttpServletResponse response,
-            Context context,
-            Cert certObj) throws Exception {
+    public void configCert(Cert certObj) throws Exception {
 
         String caType = certObj.getType();
         logger.debug("configCert: caType is " + caType);
@@ -2351,9 +2345,6 @@ public class Configurator {
         if (caType.equals("remote")) {
 
             cert = configRemoteCert(
-                    request,
-                    response,
-                    context,
                     certObj,
                     cert,
                     certTag,
@@ -2367,7 +2358,7 @@ public class Configurator {
 
         } else { // not remote CA, ie, self-signed or local
 
-            cert = configLocalCert(context, certObj, caType, cert, certTag);
+            cert = configLocalCert(certObj, caType, cert, certTag);
 
             if (cert != null) {
                 if (certTag.equals("subsystem")) {
@@ -2391,9 +2382,6 @@ public class Configurator {
     }
 
     private X509CertImpl configRemoteCert(
-            ConfigurationRequest request,
-            HttpServletResponse response,
-            Context context,
             Cert certObj,
             X509CertImpl cert,
             String certTag,
@@ -2412,7 +2400,7 @@ public class Configurator {
 
         logger.debug("configCert: remote CA");
         logger.debug("confgCert: tag: " + certTag);
-        PKCS10 pkcs10 = CertUtil.getPKCS10(cs, PCERT_PREFIX, certObj, context);
+        PKCS10 pkcs10 = CertUtil.getPKCS10(cs, PCERT_PREFIX, certObj);
         byte[] binRequest = pkcs10.toByteArray();
         String b64Request = CryptoUtil.base64Encode(binRequest);
         certObj.setRequest(binRequest);
@@ -2445,7 +2433,7 @@ public class Configurator {
             content.putSingle("xmlOutput", "true");
             content.putSingle("sessionID", session_id);
 
-            cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port, content, response);
+            cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port, content);
 
             if (cert == null) {
                 throw new IOException("Error: remote certificate is null");
@@ -2497,7 +2485,7 @@ public class Configurator {
             content.putSingle("xmlOutput", "true");
             content.putSingle("sessionID", session_id);
 
-            cert = CertUtil.createRemoteCert(ca_hostname, ca_port, content, response);
+            cert = CertUtil.createRemoteCert(ca_hostname, ca_port, content);
 
             if (cert == null) {
                 throw new IOException("Error: remote certificate is null");
@@ -2530,7 +2518,6 @@ public class Configurator {
     }
 
     private X509CertImpl configLocalCert(
-            Context context,
             Cert certObj,
             String caType,
             X509CertImpl cert,
