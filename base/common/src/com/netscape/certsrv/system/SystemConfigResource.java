@@ -36,8 +36,8 @@ public interface SystemConfigResource {
     public void setupDatabase(DatabaseSetupRequest request) throws Exception;
 
     @POST
-    @Path("configureCerts")
-    public ConfigurationResponse configureCerts(ConfigurationRequest request) throws Exception;
+    @Path("setupCerts")
+    public CertificateSetupResponse setupCerts(CertificateSetupRequest request) throws Exception;
 
     @POST
     @Path("setupAdmin")

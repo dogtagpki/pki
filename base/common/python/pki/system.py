@@ -217,23 +217,19 @@ class ConfigurationRequest(object):
 
     def __init__(self):
         self.isClone = "false"
-        self.generateServerCert = "true"
 
 
-class ConfigurationResponse(object):
-    """
-    Class used to represent the response from the Java configuration
-    servlet during the execution of pkispawn.
-
-    This class is the python equivalent of the Java class:
-    com.netscape.certsrv.system.ConfigurationRequest
-    """
-
+class DatabaseSetupRequest(object):
     def __init__(self):
         pass
 
 
-class DatabaseSetupRequest(object):
+class CertificateSetupRequest(object):
+    def __init__(self):
+        self.generateServerCert = "true"
+
+
+class CertificateSetupResponse(object):
     def __init__(self):
         pass
 
@@ -326,19 +322,19 @@ class SystemConfigClient(object):
             data,
             headers)
 
-    def configureCerts(self, request):
+    def setupCerts(self, request):
         """
-        Configure certificates.
+        Set up certificates.
 
-        :param request: Configuration request
-        :type request: ConfigurationRequest
-        :return: ConfigurationResponse
+        :param request: Certificate setup request
+        :type request: CertificateSetupRequest
+        :return: CertificateSetupResponse
         """
         data = json.dumps(request, cls=pki.encoder.CustomTypeEncoder)
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
         response = self.connection.post(
-            '/rest/installer/configureCerts',
+            '/rest/installer/setupCerts',
             data,
             headers)
         return response.json()
@@ -445,8 +441,9 @@ class SystemStatusClient(object):
 
 
 pki.encoder.NOTYPES['ConfigurationRequest'] = ConfigurationRequest
-pki.encoder.NOTYPES['ConfigurationResponse'] = ConfigurationResponse
 pki.encoder.NOTYPES['DatabaseSetupRequest'] = DatabaseSetupRequest
+pki.encoder.NOTYPES['CertificateSetupRequest'] = CertificateSetupRequest
+pki.encoder.NOTYPES['CertificateSetupResponse'] = CertificateSetupResponse
 pki.encoder.NOTYPES['AdminSetupRequest'] = AdminSetupRequest
 pki.encoder.NOTYPES['AdminSetupResponse'] = AdminSetupResponse
 pki.encoder.NOTYPES['KeyBackupRequest'] = KeyBackupRequest

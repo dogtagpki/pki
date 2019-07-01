@@ -40,8 +40,9 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.system.AdminSetupRequest;
 import com.netscape.certsrv.system.AdminSetupResponse;
+import com.netscape.certsrv.system.CertificateSetupRequest;
+import com.netscape.certsrv.system.CertificateSetupResponse;
 import com.netscape.certsrv.system.ConfigurationRequest;
-import com.netscape.certsrv.system.ConfigurationResponse;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
 import com.netscape.certsrv.system.DatabaseUserSetupRequest;
 import com.netscape.certsrv.system.DomainInfo;
@@ -169,9 +170,9 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     @Override
-    public ConfigurationResponse configureCerts(ConfigurationRequest request) throws Exception {
+    public CertificateSetupResponse setupCerts(CertificateSetupRequest request) throws Exception {
 
-        logger.info("SystemConfigService: configuring certificates");
+        logger.info("SystemConfigService: setting up certificates");
 
         try {
             validatePin(request.getPin());
@@ -180,7 +181,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
                 throw new BadRequestException("System already configured");
             }
 
-            ConfigurationResponse response = new ConfigurationResponse();
+            CertificateSetupResponse response = new CertificateSetupResponse();
 
             logger.debug("=== Process Certs ===");
             Collection<Cert> certs = new ArrayList<Cert>();
@@ -338,7 +339,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     public void processCerts(
-            ConfigurationRequest request,
+            CertificateSetupRequest request,
             Collection<Cert> certs) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -458,7 +459,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     }
 
     public Cert processCert(
-            ConfigurationRequest request,
+            CertificateSetupRequest request,
             SystemCertData certData) throws Exception {
 
         String tag = certData.getTag();
@@ -773,10 +774,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
         if (csType.equals("CA") && (data.getHierarchy() == null)) {
             throw new BadRequestException("Hierarchy is required for CA, not provided");
-        }
-
-        if (data.getGenerateServerCert() == null) {
-            data.setGenerateServerCert("true");
         }
     }
 }

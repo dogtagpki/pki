@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.system;
 
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -65,22 +63,10 @@ public class ConfigurationRequest {
     protected Boolean systemCertsImported;
 
     @XmlElement
-    protected List<SystemCertData> systemCerts;
-
-    @XmlElement
     protected String issuingCA;
 
     @XmlElement
-    protected Boolean external;
-
-    @XmlElement
     protected String standAlone;
-
-    @XmlElement(defaultValue = "true")
-    protected String generateServerCert;
-
-    @XmlElement(defaultValue="true")
-    protected String generateSubsystemCert;
 
     /** Seconds to sleep after logging into the Security Domain,
      * so that replication of the session data may complete. */
@@ -177,31 +163,6 @@ public class ConfigurationRequest {
         this.systemCertsImported = systemCertsImported;
     }
 
-    /**
-    *
-    * @return systemCerts
-    */
-   public List<SystemCertData> getSystemCerts() {
-       return systemCerts;
-   }
-
-   public SystemCertData getSystemCert(String tag) {
-       for (SystemCertData systemCert : systemCerts) {
-           if (systemCert.getTag().equals(tag)) {
-               return systemCert;
-           }
-       }
-       return null;
-   }
-
-   /**
-    *
-    * @param systemCerts
-    */
-   public void setSystemCerts(List<SystemCertData> systemCerts) {
-       this.systemCerts = systemCerts;
-   }
-
    /**
      * @return the issuingCA
      */
@@ -216,36 +177,12 @@ public class ConfigurationRequest {
         this.issuingCA = issuingCA;
     }
 
-    public Boolean isExternal() {
-        return external;
-    }
-
-    public void setExternal(Boolean external) {
-        this.external = external;
-    }
-
     public boolean getStandAlone() {
         return (standAlone != null && standAlone.equalsIgnoreCase("true"));
     }
 
     public void setStandAlone(String standAlone) {
         this.standAlone = standAlone;
-    }
-
-    public String getGenerateServerCert() {
-        return generateServerCert;
-    }
-
-    public void setGenerateServerCert(String generateServerCert) {
-        this.generateServerCert = generateServerCert;
-    }
-
-    public boolean getGenerateSubsystemCert() {
-        return generateSubsystemCert != null && generateSubsystemCert.equalsIgnoreCase("true");
-    }
-
-    public void setGenerateSubsystemCert(String generateSubsystemCert) {
-        this.generateSubsystemCert = generateSubsystemCert;
     }
 
     public String getIsClone() {
@@ -276,12 +213,8 @@ public class ConfigurationRequest {
                ", cloneUri=" + cloneUri +
                ", hierarchy=" + hierarchy +
                ", systemCertsImported=" + systemCertsImported +
-               ", systemCerts=" + systemCerts +
                ", issuingCA=" + issuingCA +
-               ", generateServerCert=" + generateServerCert +
-               ", external=" + external +
                ", standAlone=" + standAlone +
-               ", generateSubsystemCert=" + generateSubsystemCert +
                "]";
     }
 }

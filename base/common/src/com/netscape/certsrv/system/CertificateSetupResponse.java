@@ -31,12 +31,12 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name="ConfigurationResponse")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ConfigurationResponse {
+public class CertificateSetupResponse {
 
     @XmlElement
     protected List<SystemCertData> systemCerts;
 
-    public ConfigurationResponse() {
+    public CertificateSetupResponse() {
         systemCerts = new ArrayList<SystemCertData>();
     }
 

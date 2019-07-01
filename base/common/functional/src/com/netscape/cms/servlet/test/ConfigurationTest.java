@@ -274,8 +274,6 @@ public class ConfigurationTest {
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
 
-        data.setSystemCerts(systemCerts);
-
         return data;
     }
 
@@ -338,8 +336,6 @@ public class ConfigurationTest {
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
 
-        data.setSystemCerts(systemCerts);
-
         return data;
     }
 
@@ -398,8 +394,6 @@ public class ConfigurationTest {
         cert5.setSubjectDN("CN=SubCA Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
-
-        data.setSystemCerts(systemCerts);
 
         return data;
     }
@@ -468,8 +462,6 @@ public class ConfigurationTest {
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
 
-        data.setSystemCerts(systemCerts);
-
         return data;
     }
 
@@ -497,8 +489,6 @@ public class ConfigurationTest {
         cert3.setSubjectDN("CN=" + host);
         cert3.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert3);
-
-        data.setSystemCerts(systemCerts);
 
         return data;
     }
@@ -561,8 +551,6 @@ public class ConfigurationTest {
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
 
-        data.setSystemCerts(systemCerts);
-
         return data;
     }
 
@@ -616,8 +604,6 @@ public class ConfigurationTest {
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
 
-        data.setSystemCerts(systemCerts);
-
         return data;
     }
 
@@ -662,8 +648,6 @@ public class ConfigurationTest {
         cert5.setSubjectDN("CN=TKS Audit Signing Certificate");
         cert5.setToken(CryptoUtil.INTERNAL_TOKEN_FULL_NAME);
         systemCerts.add(cert5);
-
-        data.setSystemCerts(systemCerts);
 
         return data;
     }

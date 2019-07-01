@@ -3016,7 +3016,7 @@ class ConfigClient:
             self.mdict['pki_client_admin_cert_p12'],
             config.PKI_DEPLOYMENT_DEFAULT_SECURITY_DATABASE_PERMISSIONS)
 
-    def create_config_request(self, nssdb):
+    def create_config_request(self):
 
         logger.info('Creating config request')
 
@@ -3025,8 +3025,6 @@ class ConfigClient:
         # Miscellaneous Configuration Information
         data.pin = self.mdict['pki_one_time_pin']
 
-        # Process existing CA installation like external CA
-        data.external = self.external or self.existing
         data.standAlone = self.standalone
 
         # Cloning parameters
@@ -3066,9 +3064,6 @@ class ConfigClient:
             self.mdict['pki_server_pkcs12_path'] != '' or \
             self.mdict['pki_clone_pkcs12_path'] != ''
 
-        # Create system certs
-        self.set_system_certs(nssdb, data)
-
         return data
 
     def create_database_setup_request(self):
@@ -3094,6 +3089,22 @@ class ConfigClient:
 
         request.replicationSecurity = self.mdict['pki_clone_replication_security']
         request.replicationPassword = self.mdict['pki_replication_password']
+
+        return request
+
+    def create_certificate_setup_request(self, nssdb):
+
+        logger.info('Creating certificate setup request')
+
+        request = pki.system.CertificateSetupRequest()
+        request.pin = self.mdict['pki_one_time_pin']
+
+        # Process existing CA installation like external CA
+        request.external = self.external or self.existing
+        request.standAlone = self.standalone
+
+        # Create system certs
+        self.set_system_certs(nssdb, request)
 
         return request
 

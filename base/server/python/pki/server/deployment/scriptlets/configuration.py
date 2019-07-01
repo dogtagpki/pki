@@ -701,14 +701,6 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
             config.wait_to_attach_an_external_java_debugger()
 
-        # Construct PKI Subsystem Configuration Data
-        nssdb = instance.open_nssdb(token)
-        try:
-            request = deployer.config_client.create_config_request(nssdb)
-
-        finally:
-            nssdb.close()
-
         connection = pki.client.PKIConnection(
             protocol='https',
             hostname=deployer.mdict['pki_hostname'],
@@ -719,6 +711,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         client = pki.system.SystemConfigClient(connection)
 
         logger.info('Configuring %s subsystem', subsystem.type)
+        request = deployer.config_client.create_config_request()
         client.configure(request)
 
         logger.info('Setting up database')
@@ -726,11 +719,18 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         database_setup_request = deployer.config_client.create_database_setup_request()
         client.setupDatabase(database_setup_request)
 
-        logger.info('Configuring certificates')
-        response = client.configureCerts(request)
+        logger.info('Setting up certificates')
+
+        nssdb = instance.open_nssdb(token)
+        try:
+            cert_setup_request = deployer.config_client.create_certificate_setup_request(nssdb)
+        finally:
+            nssdb.close()
+
+        cert_setup_response = client.setupCerts(cert_setup_request)
 
         try:
-            certs = response['systemCerts']
+            certs = cert_setup_response['systemCerts']
         except KeyError:
             # no system certs created
             logger.debug('No new system certificates generated')
