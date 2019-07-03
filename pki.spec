@@ -348,7 +348,11 @@ BuildRequires:    zlib
 BuildRequires:    zlib-devel
 
 # build dependency to build man pages
+%if 0%{?fedora} && 0%{?fedora} <= 30 || 0%{?rhel}
 BuildRequires:    go-md2man
+%else
+BuildRequires:    golang-github-cpuguy83-md2man
+%endif
 
 # PKICertImport depends on certutil and openssl
 BuildRequires:    nss-tools
