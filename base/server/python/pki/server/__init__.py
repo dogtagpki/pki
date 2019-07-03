@@ -282,13 +282,6 @@ class PKIServer(object):
             if current_user != self.user:
                 prefix.extend(['sudo', '-u', self.user])
 
-        if command == 'start':
-
-            cmd = prefix + ['/usr/bin/pkidaemon', 'start', self.name]
-            logger.debug('Command: %s', ' '.join(cmd))
-
-            subprocess.run(cmd, env=self.config)
-
         java_home = self.config['JAVA_HOME']
         java_opts = self.config['JAVA_OPTS']
         security_manager = self.config['SECURITY_MANAGER']
@@ -1171,6 +1164,28 @@ class PKIInstance(PKIServer):
     @property
     def unit_file(self):
         return PKIInstance.TARGET_WANTS + '/%s.service' % self.service_name
+
+    def execute(self, command, jdb=False, as_current_user=False):
+
+        if command == 'start':
+
+            prefix = []
+
+            # by default run pkidaemon as systemd user
+            if not as_current_user:
+
+                current_user = pwd.getpwuid(os.getuid()).pw_name
+
+                # switch to systemd user if different from current user
+                if current_user != self.user:
+                    prefix.extend(['sudo', '-u', self.user])
+
+            cmd = prefix + ['/usr/bin/pkidaemon', 'start', self.name]
+            logger.debug('Command: %s', ' '.join(cmd))
+
+            subprocess.run(cmd, env=self.config)
+
+        super(PKIInstance, self).execute(command, jdb=jdb, as_current_user=as_current_user)
 
     def create(self, force=False):
 
