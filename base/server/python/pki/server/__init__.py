@@ -291,6 +291,7 @@ class PKIServer(object):
 
         java_home = self.config['JAVA_HOME']
         java_opts = self.config['JAVA_OPTS']
+        security_manager = self.config['SECURITY_MANAGER']
 
         classpath = [
             Tomcat.SHARE_DIR + '/bin/bootstrap.jar',
@@ -314,10 +315,14 @@ class PKIServer(object):
             '-Djava.endorsed.dirs=',
             '-Djava.io.tmpdir=' + self.temp_dir,
             '-Djava.util.logging.config.file=' + self.logging_properties,
-            '-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager',
-            '-Djava.security.manager',
-            '-Djava.security.policy==' + self.catalina_policy
+            '-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager'
         ])
+
+        if security_manager == 'true':
+            cmd.extend([
+                '-Djava.security.manager',
+                '-Djava.security.policy==' + self.catalina_policy
+            ])
 
         if java_opts:
             cmd.extend(java_opts.split())
