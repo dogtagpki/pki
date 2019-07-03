@@ -1757,7 +1757,7 @@ public class TokenServlet extends CMSServlet {
             }
 
 
-            String newKeyInfoMap = "tks.mk_mappings." + rnewKeyInfo.substring(0,6); //#xx#xx
+            String newKeyInfoMap = "tks." + keySet + ".mk_mappings." + rnewKeyInfo.substring(0,6); //#xx#xx
             CMS.debug(method + " newKeyInfoMap: " + newKeyInfoMap);
             String newMappingValue = CMS.getConfigStore().getString(newKeyInfoMap, null);
             String newSelectedToken = null;

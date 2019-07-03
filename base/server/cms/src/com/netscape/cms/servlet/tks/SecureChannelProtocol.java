@@ -537,7 +537,7 @@ public class SecureChannelProtocol {
 
             masterKey = getSymKeyByName(token, keyNameStr);
 
-            if (NistSP800_108KDF.useThisKDF(nistSP800_108KdfOnKeyVersion, keyInfo[1])) {
+            if (NistSP800_108KDF.useThisKDF(nistSP800_108KdfOnKeyVersion, keyInfo[0])) {
                 CMS.debug(method + " ComputeSessionKey NistSP800_108KDF code: Using NIST SP800-108 KDF.");
 
                 NistSP800_108KDF nistKDF = new NistSP800_108KDF(this);
