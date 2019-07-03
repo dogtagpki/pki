@@ -181,17 +181,23 @@ add_custom_command(
     COMMAND go-md2man -in ${CMAKE_SOURCE_DIR}/docs/manuals/man8/pkispawn.8.md -out ${CMAKE_CURRENT_BINARY_DIR}/man/man8/pkispawn.8
 )
 
-install(
-    DIRECTORY
-    DESTINATION
-        ${VAR_INSTALL_DIR}/lib/pki
+# Customize default tomcat.conf.
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/share/etc/tomcat.conf
+    ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
 )
 
 install(
     FILES
-         ${CMAKE_CURRENT_SOURCE_DIR}/share/etc/tomcat.conf
+         ${CMAKE_CURRENT_BINARY_DIR}/share/etc/tomcat.conf
     DESTINATION
         ${DATA_INSTALL_DIR}/etc/
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${VAR_INSTALL_DIR}/lib/pki
 )
 
 install(
