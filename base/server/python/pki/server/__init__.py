@@ -1185,7 +1185,7 @@ class PKIInstance(PKIServer):
 
             subprocess.run(cmd, env=self.config)
 
-        super(PKIInstance, self).execute(command, jdb=jdb, as_current_user=as_current_user)
+        return super(PKIInstance, self).execute(command, jdb=jdb, as_current_user=as_current_user)
 
     def create(self, force=False):
 
