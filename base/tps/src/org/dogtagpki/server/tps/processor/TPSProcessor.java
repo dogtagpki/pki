@@ -1809,82 +1809,112 @@ public class TPSProcessor {
     ExternalRegAttrs processExternalRegAttrs(/*IAuthToken authToken,*/String authId) throws NumberFormatException, EBaseException {
         String method = "processExternalRegAttrs";
         String configName;
+        List<String> attributesToProcess = null;
         String tVal;
         String[] vals;
         ExternalRegAttrs erAttrs = new ExternalRegAttrs(authId);
         IConfigStore configStore = CMS.getConfigStore();
 
-        CMS.debug(method + ": getting from authToken:"
-                + erAttrs.ldapAttrNameTokenType);
-        vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenType);
-        if (vals == null) {
-            // get the default externalReg tokenType
-            configName = "externalReg.default.tokenType";
-            tVal = configStore.getString(configName,
-                    "externalRegAddToToken");
-            CMS.debug(method + ": set default tokenType:" + tVal);
-            erAttrs.setTokenType(tVal);
-        } else {
-            CMS.debug(method + ": retrieved tokenType:" + vals[0]);
-            erAttrs.setTokenType(vals[0]);
-        }
+        String attributesToProcessStr = configStore.getString(
+                "auths.instance." + authId +
+                ".externalReg.attributes", "");
 
-        CMS.debug(method + ": getting from authToken:"
-                + erAttrs.ldapAttrNameTokenCUID);
-        vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenCUID);
-        if (vals != null) {
-            CMS.debug(method + ": retrieved cuid:" + vals[0]);
-            erAttrs.setTokenCUID(vals[0]);
-        }
+        if(attributesToProcessStr.length() > 0)
+            attributesToProcess = Arrays.asList(attributesToProcessStr.split(","));
 
-        /*
-         * certs to be recovered for this user
-         *     - multi-valued
-         */
-        CMS.debug(method + ": getting from authToken:"
-                + erAttrs.ldapAttrNameCertsToRecover);
-        vals = authToken.getInStringArray(erAttrs.ldapAttrNameCertsToRecover);
-        if (vals != null) {
-            // if any cert is mis-configured, the whole thing will bail
-            for (String val : vals) {
-                CMS.debug(method + ": retrieved certsToRecover:" + val);
-                /*
-                 * Each cert is represented as
-                 *    (serial#, caID, keyID, kraID)
-                 * e.g.
-                 *    (1234, ca1, 81, kra1)
-                 *    note: numbers above are in decimal
-                 *    note: if keyID is less than or equal to 0, then recovery will be done by cert
-                 *          otherwise recovery is done by keyID
-                 *    note: if it only contains the serial# and caID (missing keyID and kraID)
-                 *          then it is used for retaining certs already existing on token
-                 */
-                String[] items = val.split(",");
-                if (items.length !=2 && items.length !=4)
-                    throw new EBaseException(method + ": certsToRecover format error");
-                ExternalRegCertToRecover erCert =
-                        new ExternalRegCertToRecover();
-                int i = 0;
-                for (i = 0; i < items.length; i++) {
-                    if (i == 0) {
-                        CMS.debug(method + "setting serial: " + items[i]);
-                        erCert.setSerial(new BigInteger(items[i]));
-                    } else if (i == 1)
-                        erCert.setCaConn(items[i]);
-                    else if (i == 2) {
-                        CMS.debug(method + "setting keyid: " + items[i]);
-                        erCert.setKeyid(new BigInteger(items[i]));
-                    } else if (i == 3)
-                        erCert.setKraConn(items[i]);
-                }
-                if (i<3) {
-                    erCert.setIsRetainable(true);
-                }
-                erAttrs.addCertToRecover(erCert);
+        if(attributesToProcess == null)
+            return erAttrs;
+
+        if(attributesToProcess.contains(erAttrs.ldapAttrNameTokenType)) {
+            CMS.debug(method + ": getting from authToken:"
+                    + erAttrs.ldapAttrNameTokenType);
+            vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenType);
+            if (vals == null) {
+                // get the default externalReg tokenType
+                configName = "externalReg.default.tokenType";
+                tVal = configStore.getString(configName,
+                        "externalRegAddToToken");
+                CMS.debug(method + ": set default tokenType:" + tVal);
+                erAttrs.setTokenType(tVal);
+            } else {
+                CMS.debug(method + ": retrieved tokenType:" + vals[0]);
+                erAttrs.setTokenType(vals[0]);
             }
-        } else {
-            CMS.debug(method + ": certsToRecover attribute " + erAttrs.ldapAttrNameCertsToRecover +
-                    " not found");
+        }
+        if(attributesToProcess.contains(erAttrs.ldapAttrNameTokenCUID)) {
+            CMS.debug(method + ": getting from authToken:"
+                    + erAttrs.ldapAttrNameTokenCUID);
+            vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenCUID);
+            if (vals != null) {
+                CMS.debug(method + ": retrieved cuid:" + vals[0]);
+                erAttrs.setTokenCUID(vals[0]);
+            }
+        }
+
+        if(attributesToProcess.contains(erAttrs.ldapAttrNameRegistrationType)) {
+            CMS.debug(method + ": getting from authToken:"
+                    + erAttrs.ldapAttrNameRegistrationType);
+            vals = authToken.getInStringArray(erAttrs.ldapAttrNameRegistrationType);
+            if(vals != null) {
+                CMS.debug(method + ": retrieved registrationType:" + vals[0]);
+                erAttrs.setRegistrationType(vals[0]);
+            } else {
+                CMS.debug(method + ": registrationType attribute not found.");
+                erAttrs.setRegistrationType(null);
+            }
+
+        }
+
+        if(attributesToProcess.contains(erAttrs.ldapAttrNameCertsToRecover)) {
+            /*
+             * certs to be recovered for this user
+             *     - multi-valued
+             */
+            CMS.debug(method + ": getting from authToken:"
+                    + erAttrs.ldapAttrNameCertsToRecover);
+            vals = authToken.getInStringArray(erAttrs.ldapAttrNameCertsToRecover);
+            if (vals != null) {
+                // if any cert is mis-configured, the whole thing will bail
+                for (String val : vals) {
+                    CMS.debug(method + ": retrieved certsToRecover:" + val);
+                    /*
+                     * Each cert is represented as
+                     *    (serial#, caID, keyID, kraID)
+                     * e.g.
+                     *    (1234, ca1, 81, kra1)
+                     *    note: numbers above are in decimal
+                     *    note: if keyID is less than or equal to 0, then recovery will be done by cert
+                     *          otherwise recovery is done by keyID
+                     *    note: if it only contains the serial# and caID (missing keyID and kraID)
+                     *          then it is used for retaining certs already existing on token
+                     */
+                    String[] items = val.split(",");
+                    if (items.length !=2 && items.length !=4)
+                        throw new EBaseException(method + ": certsToRecover format error");
+                    ExternalRegCertToRecover erCert =
+                            new ExternalRegCertToRecover();
+                    int i = 0;
+                    for (i = 0; i < items.length; i++) {
+                        if (i == 0) {
+                            CMS.debug(method + "setting serial: " + items[i]);
+                            erCert.setSerial(new BigInteger(items[i]));
+                        } else if (i == 1)
+                            erCert.setCaConn(items[i]);
+                        else if (i == 2) {
+                            CMS.debug(method + "setting keyid: " + items[i]);
+                            erCert.setKeyid(new BigInteger(items[i]));
+                        } else if (i == 3)
+                            erCert.setKraConn(items[i]);
+                    }
+                    if (i<3) {
+                        erCert.setIsRetainable(true);
+                    }
+                    erAttrs.addCertToRecover(erCert);
+                }
+            } else {
+                CMS.debug(method + ": certsToRecover attribute " + erAttrs.ldapAttrNameCertsToRecover +
+                        " not found");
+            }
         }
 
         /*

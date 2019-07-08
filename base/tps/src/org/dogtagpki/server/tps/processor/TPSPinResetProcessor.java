@@ -26,6 +26,7 @@ import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
+import org.dogtagpki.server.tps.main.ExternalRegAttrs;
 import org.dogtagpki.server.tps.mapping.BaseMappingResolver;
 import org.dogtagpki.server.tps.mapping.FilterMappingParams;
 import org.dogtagpki.tps.main.TPSException;
@@ -33,6 +34,8 @@ import org.dogtagpki.tps.msg.BeginOpMsg;
 import org.dogtagpki.tps.msg.EndOpMsg.TPSStatus;
 
 import com.netscape.certsrv.apps.CMS;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.event.TokenPinResetEvent;
 import com.netscape.certsrv.tps.token.TokenStatus;
 
@@ -69,6 +72,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         AppletInfo appletInfo = null;
         TokenRecord tokenRecord = null;
+        ExternalRegAttrs erAttrs = null;
 
         statusUpdate(10, "PROGRESS_START_PIN_RESET");
 
@@ -137,6 +141,53 @@ public class TPSPinResetProcessor extends TPSProcessor {
         checkProfileStateOK();
 
         checkAndAuthenticateUser(appletInfo, tokenType);
+
+        // Get authId for external reg attributes (e.g. "ldap1")
+        IConfigStore configStore = CMS.getConfigStore();
+        String configName = "externalReg.authId";
+        String authId;
+        try {
+            authId = configStore.getString(configName);
+        } catch (EBaseException e) {
+            CMS.debug(method + " Internal Error obtaining mandatory config values. Error: " + e);
+            logMsg = "TPS error getting config values from config store." + e.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                    "failure");
+
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+        
+        // Get and process external reg attributes
+        try {
+            erAttrs = processExternalRegAttrs(authId);
+        } catch (Exception ee) {
+            logMsg = "after processExternalRegAttrs: " + ee.toString();
+            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                    "failure");
+
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+        }
+        
+        // Check if the external reg parameter registrationType matches currentTokenOperation,
+        // otherwise stop the operation.
+        CMS.debug(method + " checking if record registrationtype matches currentTokenOperation.");
+        if(erAttrs.getRegistrationType() != null) {
+            if(!erAttrs.getRegistrationType().equalsIgnoreCase(currentTokenOperation)) {
+                CMS.debug(
+                        method + " Error: registrationType " + 
+                        erAttrs.getRegistrationType() + 
+                        " does not match currentTokenOperation " +
+                        currentTokenOperation);
+                logMsg = "Registration record is not a PIN reset type.";
+                tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_INVALID_REG_TYPE);
+            } else {
+                CMS.debug(method + " --> registrationtype matches currentTokenOperation");
+            }
+        } else {
+            CMS.debug(method + " --> registrationtype attribute disabled or not found, continuing.");
+        }
 
         TokenStatus status = tokenRecord.getTokenStatus();
 

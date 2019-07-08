@@ -197,6 +197,28 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
 
+            // Check if the external reg parameter registrationType matches currentTokenOperation,
+            // otherwise stop the operation.
+            CMS.debug(method + " checking if record registrationtype matches currentTokenOperation.");
+            if(erAttrs.getRegistrationType() != null) {
+                if(!erAttrs.getRegistrationType().equalsIgnoreCase(currentTokenOperation)) {
+                    CMS.debug(
+                            method + " Error: registrationType " +
+                            erAttrs.getRegistrationType() +
+                            " does not match currentTokenOperation " +
+                            currentTokenOperation);
+                    logMsg = "Registration record is not an enrollment type.";
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
+                            "failure");
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_INVALID_REG_TYPE);
+                } else {
+                    CMS.debug(method + ": --> registrationtype matches currentTokenOperation");
+                }
+            } else {
+                CMS.debug(method + ": --> registrationtype attribute disabled or not found, continuing.");
+            }
+
+
             /*
              * If cuid is provided on the user registration record, then
              * we have to compare that with the current token cuid;

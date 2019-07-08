@@ -67,7 +67,8 @@ public class EndOpMsg extends TPSMessage {
         STATUS_ERROR_REVOKE_CERTIFICATES_FAILED,
         STATUS_ERROR_NOT_TOKEN_OWNER,
         STATUS_ERROR_RENEWAL_IS_PROCESSED,
-        STATUS_ERROR_RENEWAL_FAILED
+        STATUS_ERROR_RENEWAL_FAILED,
+        STATUS_ERROR_INVALID_REG_TYPE
     };
 
 
@@ -224,6 +225,9 @@ public class EndOpMsg extends TPSMessage {
             break;
         case STATUS_ERROR_RENEWAL_FAILED:
             result = 45;
+            break;
+        case STATUS_ERROR_INVALID_REG_TYPE:
+            result = 46;
             break;
         default:
             break;
