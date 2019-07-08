@@ -47,3 +47,11 @@ dnf copr enable -y ${COPR_REPO}
 
 # update, container might be outdated
 dnf update -y --best --allowerasing
+
+# workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1727378
+# TODO: remove after the fix is available
+ds_version=`rpm -q 389-ds-base`
+if [[ $ds_version =~ 389-ds-base-1.4.0.24-1.fc29 ]]
+then
+    dnf downgrade -y 389-ds-base
+fi
