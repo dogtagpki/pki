@@ -59,7 +59,10 @@ class FixServerConfiguration(pki.server.upgrade.PKIServerUpgradeScriptlet):
             return
 
         self.backup(source)
-        os.remove(source)
+
+        # if source already exists, remove it
+        if os.path.exists(source):
+            os.remove(source)
 
         # link source to target
         os.symlink(target, source)
