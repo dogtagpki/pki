@@ -683,9 +683,22 @@ public class TPSTokendb {
             throw new TPSException("Missing token certificate");
         }
         if (cert.getStatus().equalsIgnoreCase(TokenCertStatus.REVOKED.toString())) {
-            throw new TPSException(
-                    method + "certificate " + cert.getSerialNumber() +
-                            " already revoked.");
+            String existingTokenReason = tokenRecord.getReason();
+            if( (existingTokenReason != null && existingTokenReason.equals(tokenReason)) ||
+                (existingTokenReason == null && tokenReason == null) )
+            {
+                throw new TPSException(
+                        method + "certificate " + cert.getSerialNumber() +
+                                " already revoked and reason has not changed.");
+            }
+            else {
+                CMS.debug(method + "Cert " + cert.getSerialNumber() +
+                        " already revoked, but reason has changed, so revoking again.");
+                CMS.debug(method + "Previous reason was: " +
+                        ((existingTokenReason == null) ? "(null)" : existingTokenReason));
+                CMS.debug(method + "New reason is: " +
+                        ((tokenReason == null) ? "(null)" : tokenReason));
+            }
         }
         CMS.debug(method + "begins: ");
 
