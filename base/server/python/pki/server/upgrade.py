@@ -314,6 +314,12 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
 
         return current_version
 
+    def validate(self):
+
+        if not self.is_complete():
+            log_file = '/var/log/pki/pki-server-upgrade-%s.log' % self.get_target_version()
+            raise Exception('Upgrade incomplete: see %s' % log_file)
+
     def show_tracker(self):
         for instance in self.instances():
 

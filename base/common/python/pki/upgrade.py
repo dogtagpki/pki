@@ -557,6 +557,12 @@ class PKIUpgrader(object):
 
         return current_version == target_version
 
+    def validate(self):
+
+        if not self.is_complete():
+            log_file = '/var/log/pki/pki-upgrade-%s.log' % self.get_target_version()
+            raise Exception('Upgrade incomplete: see %s' % log_file)
+
     def upgrade_version(self, version):
 
         if version == version.next:

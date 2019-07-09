@@ -45,6 +45,7 @@ def usage():
     print('  --silent                       Upgrade in silent mode.')
     print('  --status                       Show upgrade status only. Do not perform upgrade.')
     print('  --revert                       Revert the last version.')
+    print('  --validate                     Validate upgrade status.')
     print()
     print('  -X                             Show advanced options.')
     print('  -v, --verbose                  Run in verbose mode.')
@@ -71,7 +72,7 @@ def main(argv):
     try:
         opts, _ = getopt.getopt(argv[1:], 'hi:s:t:vX', [
             'scriptlet-version=', 'scriptlet-index=',
-            'silent', 'status', 'revert',
+            'silent', 'status', 'revert', 'validate',
             'remove-tracker', 'reset-tracker', 'set-tracker=',
             'verbose', 'debug', 'help'])
 
@@ -86,6 +87,7 @@ def main(argv):
     silent = False
     status = False
     revert = False
+    validate = False
 
     remove_tracker = False
     reset_tracker = False
@@ -107,6 +109,9 @@ def main(argv):
 
         elif o == '--revert':
             revert = True
+
+        elif o == '--validate':
+            validate = True
 
         elif o == '--remove-tracker':
             remove_tracker = True
@@ -153,6 +158,9 @@ def main(argv):
 
     elif revert:
         upgrader.revert()
+
+    elif validate:
+        upgrader.validate()
 
     elif remove_tracker:
         upgrader.remove_tracker()

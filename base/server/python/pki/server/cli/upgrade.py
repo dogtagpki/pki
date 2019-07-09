@@ -41,6 +41,7 @@ class UpgradeCLI(pki.cli.CLI):
         print('  --silent                       Upgrade in silent mode.')
         print('  --status                       Show upgrade status only. Do not perform upgrade.')
         print('  --revert                       Revert the last version.')
+        print('  --validate                     Validate upgrade status.')
         print()
         print('  -i, --instance <instance>      Upgrade a specific instance only.')
         print('  -s, --subsystem <subsystem>    Upgrade a specific subsystem in an instance only.')
@@ -69,7 +70,7 @@ class UpgradeCLI(pki.cli.CLI):
             opts, args = getopt.getopt(argv, 'hi:s:t:vX', [
                 'instance=', 'subsystem=', 'instance-type=',
                 'scriptlet-version=', 'scriptlet-index=',
-                'silent', 'status', 'revert',
+                'silent', 'status', 'revert', 'validate',
                 'remove-tracker', 'reset-tracker', 'set-tracker=',
                 'verbose', 'debug', 'help'])
 
@@ -88,6 +89,7 @@ class UpgradeCLI(pki.cli.CLI):
         silent = False
         status = False
         revert = False
+        validate = False
 
         remove_tracker = False
         reset_tracker = False
@@ -118,6 +120,9 @@ class UpgradeCLI(pki.cli.CLI):
 
             elif o == '--revert':
                 revert = True
+
+            elif o == '--validate':
+                validate = True
 
             elif o == '--remove-tracker':
                 remove_tracker = True
@@ -176,6 +181,9 @@ class UpgradeCLI(pki.cli.CLI):
         elif revert:
             logging.info('Reverting PKI server last upgrade')
             upgrader.revert()
+
+        elif validate:
+            upgrader.validate()
 
         elif remove_tracker:
             logging.info('Removing PKI server upgrade tracker')
