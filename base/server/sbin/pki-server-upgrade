@@ -23,6 +23,7 @@
 # set NSS_DEFAULT_DB_TYPE.
 . /usr/share/pki/scripts/config
 
+echo "WARNING: The pki-server-upgrade has been deprecated. Use pki-server upgrade instead."
 ${PYTHON_EXECUTABLE} -m pki.server.pkiserver upgrade "$@"
 
 exit $?

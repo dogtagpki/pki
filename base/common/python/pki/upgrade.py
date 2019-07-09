@@ -557,8 +557,10 @@ class PKIUpgrader(object):
 
     def upgrade_version(self, version):
 
-        print('Upgrading from version ' + str(version) + ' to ' +
-              str(version.next) + ':')
+        if version == version.next:
+            print('Upgrading version %s:' % version)
+        else:
+            print('Upgrading from version %s to %s:' % (version, version.next))
 
         scriptlets = self.scriptlets(version)
 

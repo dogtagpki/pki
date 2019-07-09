@@ -6,7 +6,7 @@ pki-server-upgrade - Tool for upgrading PKI server configuration.
 
 ## SYNOPSIS
 
-**pki-server-upgrade** [*OPTIONS*]
+**pki-server** [*CLI-options*] **upgrade** [*OPTIONS*]
 
 ## DESCRIPTION
 
@@ -17,7 +17,7 @@ and upgrading the server configuration files.
 When upgrading PKI server, the existing server configuration files (e.g. **server.xml**, **web.xml**)
 may need to be upgraded because the content may have changed from one version to another.
 The configuration upgrade is executed automatically during RPM upgrade.
-However, in case there is a problem, the process can also be run manually using **pki-server-upgrade**.
+However, in case there is a problem, the process can also be run manually using **pki-server upgrade**.
 
 The server upgrade process is done incrementally using upgrade scriptlets.
 A server consists of the server instance itself and the subsystems running in that instance.
@@ -119,11 +119,11 @@ scriptlet order or changing the tracker information.
 
 ### Interactive mode
 
-By default, **pki-server-upgrade** will run interactively to upgrade all server instances and subsystems on the machine.
+By default, **pki-server upgrade** will run interactively to upgrade all server instances and subsystems on the machine.
 It will ask for a confirmation before executing each scriptlet.
 
 ```
-$ pki-server-upgrade
+$ pki-server upgrade
 ```
 
 If there is an error, it will stop and show the error.
@@ -133,7 +133,7 @@ If there is an error, it will stop and show the error.
 The upgrade process can also be done silently without user interaction:
 
 ```
-$ pki-server-upgrade --silent
+$ pki-server upgrade --silent
 ```
 
 If there is an error, the upgrade process will stop for that particular instance/subsystem.
@@ -144,24 +144,24 @@ Other instances/subsystems will continue to be upgraded.
 It is possible to check the status of a running upgrade process.
 
 ```
-$ pki-server-upgrade --status
+$ pki-server upgrade --status
 ```
 
 ### Troubleshooting
 
 Check the scriptlet to see which operations are being executed.
-Once the error is identified and corrected, the upgrade can be resumed by re-running **pki-server-upgrade**.
+Once the error is identified and corrected, the upgrade can be resumed by re-running **pki-server upgrade**.
 
 If necessary, the upgrade can be run in verbose mode:
 
 ```
-$ pki-server-upgrade --verbose
+$ pki-server upgrade --verbose
 ```
 
 It is possible to rerun a failed script by itself, specifying the instance and subsystem, version, and scriptlet index:
 
 ```
-$ pki-server-upgrade --instance pki-tomcat --subsystem ca --scriptlet-version 10.0.1 --scriptlet-index 1
+$ pki-server upgrade --instance pki-tomcat --subsystem ca --scriptlet-version 10.0.1 --scriptlet-index 1
 ```
 
 ### Reverting an upgrade
@@ -169,15 +169,11 @@ $ pki-server-upgrade --instance pki-tomcat --subsystem ca --scriptlet-version 10
 If necessary, the upgrade can be reverted:
 
 ```
-$ pki-server-upgrade --revert
+$ pki-server upgrade --revert
 ```
 
 Files and folders that were created by the scriptlet will be removed.
 Files and folders that were modified or removed by the scriptlet will be restored.
-
-## FILES
-
-*/usr/sbin/pki-server-upgrade*
 
 ## AUTHORS
 
