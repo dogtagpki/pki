@@ -27,6 +27,7 @@ import traceback
 
 import pki.server.cli
 
+
 if __name__ == '__main__':
 
     logging.basicConfig(format='%(levelname)s: %(message)s')
@@ -36,14 +37,19 @@ if __name__ == '__main__':
     try:
         cli.execute(sys.argv)
 
-    except subprocess.CalledProcessError as e:
-        if cli.verbose:
+    except KeyboardInterrupt:
+        if logging.getLogger().isEnabledFor(logging.INFO):
             traceback.print_exc()
-        print('ERROR: Command: %s' % ' '.join(e.cmd))
+        sys.exit(1)
+
+    except subprocess.CalledProcessError as e:
+        if logging.getLogger().isEnabledFor(logging.INFO):
+            traceback.print_exc()
+        logging.error('Command: %s', ' '.join(e.cmd))
         sys.exit(e.returncode)
 
     except Exception as e:  # pylint: disable=broad-except
-        if cli.verbose:
+        if logging.getLogger().isEnabledFor(logging.INFO):
             traceback.print_exc()
-        print('ERROR: %s' % e)
+        logging.error(e)
         sys.exit(1)

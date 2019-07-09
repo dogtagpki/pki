@@ -41,8 +41,6 @@ import pki.cli
 import pki.nssdb
 import pki.server as server
 
-logger = logging.getLogger(__name__)
-
 
 class CertCLI(pki.cli.CLI):
     def __init__(self):
@@ -118,7 +116,7 @@ class CertFindCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            logger.error(e)
+            logging.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -146,14 +144,14 @@ class CertFindCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('option %s not recognized', o)
+                logging.error('option %s not recognized', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            logger.error('Invalid instance %s.', instance_name)
+            logging.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -210,7 +208,7 @@ class CertShowCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            logger.error(e)
+            logging.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -242,12 +240,12 @@ class CertShowCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('option %s not recognized', o)
+                logging.error('option %s not recognized', o)
                 self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            logger.error('Missing cert ID.')
+            logging.error('Missing cert ID.')
             self.print_help()
             sys.exit(1)
 
@@ -256,7 +254,7 @@ class CertShowCLI(pki.cli.CLI):
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            logger.error('Invalid instance %s.', instance_name)
+            logging.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -270,7 +268,7 @@ class CertShowCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            logger.error(
+            logging.error(
                 'No %s subsystem in instance %s.',
                 subsystem_name, instance_name)
             sys.exit(1)
@@ -315,7 +313,7 @@ class CertUpdateCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            logger.error(e)
+            logging.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -339,12 +337,12 @@ class CertUpdateCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('option %s not recognized', o)
+                logging.error('option %s not recognized', o)
                 self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            logger.error('Missing cert ID.')
+            logging.error('Missing cert ID.')
             self.print_help()
             sys.exit(1)
 
@@ -353,7 +351,7 @@ class CertUpdateCLI(pki.cli.CLI):
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            logger.error('Invalid instance %s.', instance_name)
+            logging.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -367,14 +365,14 @@ class CertUpdateCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            logger.error(
+            logging.error(
                 'No %s subsystem in instance %s.',
                 subsystem_name, instance_name)
             sys.exit(1)
 
         subsystem_cert = subsystem.get_subsystem_cert(cert_tag)
 
-        logger.info(
+        logging.info(
             'Retrieving certificate %s from %s',
             subsystem_cert['nickname'],
             subsystem_cert['token'])
@@ -393,12 +391,12 @@ class CertUpdateCLI(pki.cli.CLI):
         data = '\r\n'.join(lines) + '\r\n'
 
         # Get the cert request from LDAP database
-        logger.info('Retrieving certificate request from CA database')
+        logging.info('Retrieving certificate request from CA database')
 
         # TODO: add support for remote CA
         ca = instance.get_subsystem('ca')
         if not ca:
-            logger.error('No CA subsystem in instance %s.', instance_name)
+            logging.error('No CA subsystem in instance %s.', instance_name)
             sys.exit(1)
 
         results = ca.find_cert_requests(cert=data)
@@ -467,7 +465,7 @@ class CertCreateCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            logger.error(e)
+            logging.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -500,7 +498,7 @@ class CertCreateCLI(pki.cli.CLI):
 
             elif o == '-n':
                 if agent_username:
-                    logger.error('-n cannot be used with -u')
+                    logging.error('-n cannot be used with -u')
                     sys.exit(1)
                 client_cert = a
 
@@ -519,19 +517,19 @@ class CertCreateCLI(pki.cli.CLI):
 
             elif o == '-u':
                 if client_cert:
-                    logger.error('-u cannot be used with -n')
+                    logging.error('-u cannot be used with -n')
                     sys.exit(1)
                 agent_username = a
 
             elif o == '-w':
                 if agent_password_file:
-                    logger.error('-w cannot be used with -W')
+                    logging.error('-w cannot be used with -W')
                     sys.exit(1)
                 agent_password = a
 
             elif o == '-W':
                 if agent_password:
-                    logger.error('-W cannot be used with -w')
+                    logging.error('-W cannot be used with -w')
                     sys.exit(1)
                 agent_password_file = a
 
@@ -542,7 +540,7 @@ class CertCreateCLI(pki.cli.CLI):
                     if n < 1 or n > 65535:
                         raise ValueError
                 except ValueError:
-                    logger.error('-p, --port requires a valid port number as integer')
+                    logging.error('-p, --port requires a valid port number as integer')
                     sys.exit(1)
 
             elif o in ('-v', '--verbose'):
@@ -559,12 +557,12 @@ class CertCreateCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('option %s not recognized', o)
+                logging.error('option %s not recognized', o)
                 self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            logger.error('Missing cert ID.')
+            logging.error('Missing cert ID.')
             self.print_help()
             sys.exit(1)
 
@@ -576,7 +574,7 @@ class CertCreateCLI(pki.cli.CLI):
         if not temp_cert:
             # For permanent certificate, password of either NSS DB OR agent is required.
             if not client_nssdb_password and not client_nssdb_pass_file and not agent_password:
-                logger.error('NSS database or agent password is required.')
+                logging.error('NSS database or agent password is required.')
                 self.print_help()
                 sys.exit(1)
 
@@ -585,7 +583,7 @@ class CertCreateCLI(pki.cli.CLI):
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            logger.error('Invalid instance %s.', instance_name)
+            logging.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         # Load the instance. Default: pki-tomcat
@@ -601,7 +599,7 @@ class CertCreateCLI(pki.cli.CLI):
                 username=agent_username, password=agent_password, secure_port=port)
 
         except server.PKIServerException as e:
-            logger.error(str(e))
+            logging.error(str(e))
             sys.exit(1)
 
 
@@ -631,7 +629,7 @@ class CertImportCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            logger.error(e)
+            logging.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -659,12 +657,12 @@ class CertImportCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('option %s not recognized', o)
+                logging.error('option %s not recognized', o)
                 self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            logger.error('Missing cert ID.')
+            logging.error('Missing cert ID.')
             self.print_help()
             sys.exit(1)
 
@@ -673,7 +671,7 @@ class CertImportCLI(pki.cli.CLI):
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            logger.error('Invalid instance %s.', instance_name)
+            logging.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         # Load the instance. Default: pki-tomcat
@@ -684,7 +682,7 @@ class CertImportCLI(pki.cli.CLI):
             instance.cert_import(cert_id, cert_file)
 
         except server.PKIServerException as e:
-            logger.error(str(e))
+            logging.error(str(e))
             sys.exit(1)
 
 
@@ -742,7 +740,7 @@ class CertExportCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            logger.error(e)
+            logging.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -814,26 +812,26 @@ class CertExportCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('option %s not recognized', o)
+                logging.error('option %s not recognized', o)
                 self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            logger.error('Missing cert ID.')
+            logging.error('Missing cert ID.')
             self.print_help()
             sys.exit(1)
 
         cert_id = args[0]
 
         if not (cert_file or csr_file or pkcs12_file):
-            logger.error('missing output file')
+            logging.error('missing output file')
             self.print_help()
             sys.exit(1)
 
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            logger.error('Invalid instance %s.', instance_name)
+            logging.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -847,7 +845,7 @@ class CertExportCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            logger.error(
+            logging.error(
                 'No %s subsystem in instance %s.',
                 subsystem_name, instance_name)
             sys.exit(1)
@@ -855,7 +853,7 @@ class CertExportCLI(pki.cli.CLI):
         cert = subsystem.get_subsystem_cert(cert_tag)
 
         if not cert:
-            logger.error('missing %s certificate', cert_id)
+            logging.error('missing %s certificate', cert_id)
             self.print_help()
             sys.exit(1)
 
@@ -876,19 +874,19 @@ class CertExportCLI(pki.cli.CLI):
             nickname = cert['nickname']
             token = cert['token']
 
-        logger.info('Nickname: %s', nickname)
-        logger.info('Token: %s', token)
+        logging.info('Nickname: %s', nickname)
+        logging.info('Token: %s', token)
 
         nssdb = instance.open_nssdb(token)
 
         try:
             if cert_file:
 
-                logger.info('Exporting %s certificate into %s.', cert_id, cert_file)
+                logging.info('Exporting %s certificate into %s.', cert_id, cert_file)
 
                 cert_data = cert.get('data', None)
                 if cert_data is None:
-                    logger.error('Unable to find certificate data for %s', cert_id)
+                    logging.error('Unable to find certificate data for %s', cert_id)
                     sys.exit(1)
 
                 cert_data = pki.nssdb.convert_cert(cert_data, 'base64', 'pem')
@@ -897,11 +895,11 @@ class CertExportCLI(pki.cli.CLI):
 
             if csr_file:
 
-                logger.info('Exporting %s CSR into %s.', cert_id, csr_file)
+                logging.info('Exporting %s CSR into %s.', cert_id, csr_file)
 
                 cert_request = cert.get('request', None)
                 if cert_request is None:
-                    logger.error('Unable to find certificate request for %s', cert_id)
+                    logging.error('Unable to find certificate request for %s', cert_id)
                     sys.exit(1)
 
                 csr_data = pki.nssdb.convert_csr(cert_request, 'base64', 'pem')
@@ -910,12 +908,12 @@ class CertExportCLI(pki.cli.CLI):
 
             if pkcs12_file:
 
-                logger.info('Exporting %s certificate and key into %s.', cert_id, pkcs12_file)
+                logging.info('Exporting %s certificate and key into %s.', cert_id, pkcs12_file)
 
                 if not pkcs12_password and not pkcs12_password_file:
                     pkcs12_password = getpass.getpass(prompt='Enter password for PKCS #12 file: ')
 
-                logger.info('Friendly name: %s', friendly_name)
+                logging.info('Friendly name: %s', friendly_name)
 
                 nssdb.export_cert(
                     nickname=nickname,
@@ -961,7 +959,7 @@ class CertRemoveCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            logger.error(e)
+            logging.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -989,12 +987,12 @@ class CertRemoveCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('option %s not recognized', o)
+                logging.error('option %s not recognized', o)
                 self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            logger.error('Missing cert ID.')
+            logging.error('Missing cert ID.')
             self.print_help()
             sys.exit(1)
 
@@ -1003,13 +1001,13 @@ class CertRemoveCLI(pki.cli.CLI):
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            logger.error('Invalid instance %s.', instance_name)
+            logging.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         # Load the instance. Default: pki-tomcat
         instance.load()
 
-        logger.info('Removing %s certificate from NSS database', cert_id)
+        logging.info('Removing %s certificate from NSS database', cert_id)
         instance.cert_del(cert_id=cert_id, remove_key=remove_key)
 
 
@@ -1053,7 +1051,7 @@ class CertFixCLI(pki.cli.CLI):
             ])
 
         except getopt.GetoptError as e:
-            logger.error(e)
+            logging.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -1078,7 +1076,7 @@ class CertFixCLI(pki.cli.CLI):
                 try:
                     int(a)
                 except ValueError:
-                    logger.error('--extra-cert requires serial number as integer')
+                    logging.error('--extra-cert requires serial number as integer')
                     sys.exit(1)
                 all_certs = False
                 extra_certs.append(a)
@@ -1088,14 +1086,14 @@ class CertFixCLI(pki.cli.CLI):
 
             elif o == '--ldapi-socket':
                 if ldap_url is not None:
-                    logger.error('--ldapi-socket cannot be used with --ldap-url')
+                    logging.error('--ldapi-socket cannot be used with --ldap-url')
                     sys.exit(1)
                 use_ldapi = True
                 ldap_url = 'ldapi://{}'.format(quote(a, safe=''))
 
             elif o == '--ldap-url':
                 if use_ldapi:
-                    logger.error('--ldap-url cannot be used with --ldapi-socket')
+                    logging.error('--ldap-url cannot be used with --ldapi-socket')
                     sys.exit(1)
                 ldap_url = a
 
@@ -1106,7 +1104,7 @@ class CertFixCLI(pki.cli.CLI):
                     if n < 1 or n > 65535:
                         raise ValueError
                 except ValueError:
-                    logger.error('-p, --port requires a valid port number as integer')
+                    logging.error('-p, --port requires a valid port number as integer')
                     sys.exit(1)
 
             elif o in ('-v', '--verbose'):
@@ -1122,18 +1120,18 @@ class CertFixCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('option %s not recognized', o)
+                logging.error('option %s not recognized', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = server.PKIInstance(instance_name)
 
         if not instance.is_valid():
-            logger.error('Invalid instance %s.', instance_name)
+            logging.error('Invalid instance %s.', instance_name)
             sys.exit(1)
 
         if not agent_uid:
-            logger.error('Must specify --agent-uid')
+            logging.error('Must specify --agent-uid')
             sys.exit(1)
 
         instance.load()
@@ -1158,8 +1156,8 @@ class CertFixCLI(pki.cli.CLI):
 
                     fix_certs.append(cert['id'])
 
-        logger.info('Fixing the following system certs: %s', fix_certs)
-        logger.info('Renewing the following additional certs: %s', extra_certs)
+        logging.info('Fixing the following system certs: %s', fix_certs)
+        logging.info('Renewing the following additional certs: %s', extra_certs)
 
         # Get the CA subsystem and find out Base DN.
         ca_subsystem = instance.get_subsystem('ca')
@@ -1173,7 +1171,7 @@ class CertFixCLI(pki.cli.CLI):
             dm_pass = getpass.getpass(prompt='Enter Directory Manager password: ')
 
         # 2. Stop the server, if it's up
-        logger.info('Stopping the instance to proceed with system cert renewal')
+        logging.info('Stopping the instance to proceed with system cert renewal')
         instance.stop()
 
         # 3. Find the subsystem and disable Self-tests
@@ -1198,8 +1196,8 @@ class CertFixCLI(pki.cli.CLI):
 
                     # If the subsystem is wrong, stop the process
                     if not subsystem:
-                        logger.error('No %s subsystem in instance %s.',
-                                     subsystem_name, instance_name)
+                        logging.error('No %s subsystem in instance %s.',
+                                      subsystem_name, instance_name)
                         sys.exit(1)
 
                     target_subsys.add(subsystem)
@@ -1224,37 +1222,37 @@ class CertFixCLI(pki.cli.CLI):
                 try:
                     subprocess.check_output(cmd)
                 except subprocess.CalledProcessError:
-                    logger.error("Failed to connect/authenticate to LDAP at '%s'", ldap_url)
+                    logging.error("Failed to connect/authenticate to LDAP at '%s'", ldap_url)
                     sys.exit(1)
 
                 # Reset agent password
-                logger.info('Resetting password for %s', agent_dn)
+                logging.info('Resetting password for %s', agent_dn)
                 ldappasswd(ldap_url, use_ldapi, dm_pass_file, agent_dn, agent_pass_file)
 
                 # 4. Bring up the server using a temp SSL cert if the sslcert is expired
                 if 'sslserver' in fix_certs:
                     # 4a. Create temp SSL cert
-                    logger.info('Creating a temporary sslserver cert')
+                    logging.info('Creating a temporary sslserver cert')
                     instance.cert_create(cert_id='sslserver', temp_cert=True)
 
                     # 4b. Delete the existing SSL Cert
-                    logger.debug('Removing sslserver cert from instance')
+                    logging.debug('Removing sslserver cert from instance')
                     instance.cert_del('sslserver')
 
                     # 4d. Import the temp sslcert into the instance
-                    logger.debug('Importing temp sslserver cert')
+                    logging.debug('Importing temp sslserver cert')
                     instance.cert_import('sslserver')
 
                 with start_stop(instance):
                     # Place renewal request for all certs in fix_certs
                     for cert_id in fix_certs:
-                        logger.info('Requesting new cert for %s', cert_id)
+                        logging.info('Requesting new cert for %s', cert_id)
                         instance.cert_create(
                             cert_id=cert_id, renew=True,
                             username=agent_uid, password=agent_pass, secure_port=port)
                     for serial in extra_certs:
                         output = instance.cert_file('{}-renewed'.format(serial))
-                        logger.info(
+                        logging.info(
                             'Requesting new cert for %s; writing to %s',
                             serial, output)
                         try:
@@ -1262,22 +1260,22 @@ class CertFixCLI(pki.cli.CLI):
                                 serial=serial, renew=True, output=output,
                                 username=agent_uid, password=agent_pass, secure_port=port)
                         except pki.PKIException as e:
-                            logger.error("Failed to renew certificate %s: %s", serial, e)
+                            logging.error("Failed to renew certificate %s: %s", serial, e)
 
                 # 8. Delete existing certs and then import the renewed system cert(s)
                 for cert_id in fix_certs:
                     # Delete the existing cert from the instance
-                    logger.debug('Removing old %s cert from instance %s', cert_id, instance_name)
+                    logging.debug('Removing old %s cert from instance %s', cert_id, instance_name)
                     instance.cert_del(cert_id)
 
                     # Import this new cert into the instance
-                    logger.debug('Importing new %s cert into instance %s', cert_id, instance_name)
+                    logging.debug('Importing new %s cert into instance %s', cert_id, instance_name)
                     instance.cert_import(cert_id)
 
                 # If subsystem cert was renewed and server was using
                 # TLS auth, add the cert to pkidbuser entry
                 if dbuser_dn and 'subsystem' in fix_certs:
-                    logger.info('Importing new subsystem cert into %s', dbuser_dn)
+                    logging.info('Importing new subsystem cert into %s', dbuser_dn)
                     with NamedTemporaryFile(mode='w+b') as der_file:
                         # convert subsystem cert to DER
                         subprocess.check_call([
@@ -1299,11 +1297,11 @@ class CertFixCLI(pki.cli.CLI):
                             subprocess.check_call(cmd)
 
             # 10. Bring up the server
-            logger.info('Starting the instance with renewed certs')
+            logging.info('Starting the instance with renewed certs')
             instance.start()
 
         except server.PKIServerException as e:
-            logger.error(str(e))
+            logging.error(str(e))
             sys.exit(1)
 
 
@@ -1313,7 +1311,7 @@ def suppress_selftest(subsystems):
     for subsystem in subsystems:
         subsystem.set_startup_test_criticality(False)
         subsystem.save()
-    logger.info(
+    logging.info(
         'Selftests disabled for subsystems: %s',
         ', '.join(str(x.name) for x in subsystems))
     try:
@@ -1322,7 +1320,7 @@ def suppress_selftest(subsystems):
         for subsystem in subsystems:
             subsystem.set_startup_test_criticality(True)
             subsystem.save()
-        logger.info(
+        logging.info(
             'Selftests enabled for subsystems: %s',
             ', '.join(str(x.name) for x in subsystems))
 
@@ -1330,14 +1328,14 @@ def suppress_selftest(subsystems):
 @contextmanager
 def start_stop(instance):
     """Start the server, run the block, and guarantee stop afterwards."""
-    logger.info('Starting the instance')
+    logging.info('Starting the instance')
     instance.start()
-    logger.info('Sleeping for 10 seconds to allow server time to start...')
+    logging.info('Sleeping for 10 seconds to allow server time to start...')
     time.sleep(10)
     try:
         yield
     finally:
-        logger.info('Stopping the instance')
+        logging.info('Stopping the instance')
         instance.stop()
 
 
@@ -1366,7 +1364,7 @@ def ldap_password_authn(
     is ``None``.
 
     """
-    logger.info('Configuring LDAP password authentication')
+    logging.info('Configuring LDAP password authentication')
     orig = {}
     try:
         password = instance.passwords['internaldb']
@@ -1396,7 +1394,7 @@ def ldap_password_authn(
 
             # _now_ we can perform ldappasswd
             if not ldappasswd_performed:
-                logger.info('Setting pkidbuser password via ldappasswd')
+                logging.info('Setting pkidbuser password via ldappasswd')
                 with write_temp_file(password.encode('utf8')) as pwdfile:
                     ldappasswd(ldap_url, use_ldapi, dm_pass_file, bind_dn, pwdfile)
                 ldappasswd_performed = True
@@ -1413,7 +1411,7 @@ def ldap_password_authn(
         yield
 
     finally:
-        logger.info('Restoring previous LDAP configuration')
+        logging.info('Restoring previous LDAP configuration')
 
         for subsystem, cfg in orig.items():
             subsystem.set_db_config(cfg)

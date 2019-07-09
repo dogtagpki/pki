@@ -26,8 +26,6 @@ import sys
 
 import pki.cli
 
-logger = logging.getLogger(__name__)
-
 
 class SubsystemConfigCLI(pki.cli.CLI):
 
@@ -64,7 +62,7 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            logger.error(e)
+            logging.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -79,13 +77,13 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('Unknown option: %s', o)
+                logging.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            logger.error('Invalid instance: %s', instance_name)
+            logging.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -94,7 +92,7 @@ class SubsystemConfigFindCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            logger.error('No such subsystem: %s', subsystem_name.upper())
+            logging.error('No such subsystem: %s', subsystem_name.upper())
             sys.exit(1)
 
         for name, value in subsystem.config.items():
@@ -124,7 +122,7 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            logger.error(e)
+            logging.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -139,13 +137,13 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('Unknown option: %s', o)
+                logging.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            logger.error('Missing %s configuration parameter name',
-                         self.parent.parent.name.upper())
+            logging.error('Missing %s configuration parameter name',
+                          self.parent.parent.name.upper())
             self.print_help()
             sys.exit(1)
 
@@ -153,7 +151,7 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            logger.error('Invalid instance: %s', instance_name)
+            logging.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -162,7 +160,7 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            logger.error('No such subsystem: %s', subsystem_name.upper())
+            logging.error('No such subsystem: %s', subsystem_name.upper())
             sys.exit(1)
 
         if name in subsystem.config:
@@ -170,7 +168,7 @@ class SubsystemConfigShowCLI(pki.cli.CLI):
             print(value)
 
         else:
-            logger.error('No such parameter: %s', name)
+            logging.error('No such parameter: %s', name)
 
 
 class SubsystemConfigSetCLI(pki.cli.CLI):
@@ -196,7 +194,7 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            logger.error(e)
+            logging.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -211,19 +209,19 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('Unknown option: %s', o)
+                logging.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            logger.error('Missing %s configuration parameter name',
-                         self.parent.parent.name.upper())
+            logging.error('Missing %s configuration parameter name',
+                          self.parent.parent.name.upper())
             self.print_help()
             sys.exit(1)
 
         if len(args) < 2:
-            logger.error('Missing %s configuration parameter value',
-                         self.parent.parent.name.upper())
+            logging.error('Missing %s configuration parameter value',
+                          self.parent.parent.name.upper())
             self.print_help()
             sys.exit(1)
 
@@ -232,7 +230,7 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            logger.error('Invalid instance: %s', instance_name)
+            logging.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -241,7 +239,7 @@ class SubsystemConfigSetCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            logger.error('No such subsystem: %s', subsystem_name.upper())
+            logging.error('No such subsystem: %s', subsystem_name.upper())
             sys.exit(1)
 
         subsystem.config[name] = value
@@ -271,7 +269,7 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
                 'verbose', 'help'])
 
         except getopt.GetoptError as e:
-            logger.error(e)
+            logging.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -286,13 +284,13 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('Unknown option: %s', o)
+                logging.error('Unknown option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         if len(args) < 1:
-            logger.error('Missing %s configuration parameter name',
-                         self.parent.parent.name.upper())
+            logging.error('Missing %s configuration parameter name',
+                          self.parent.parent.name.upper())
             self.print_help()
             sys.exit(1)
 
@@ -300,7 +298,7 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            logger.error('Invalid instance: %s', instance_name)
+            logging.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -309,7 +307,7 @@ class SubsystemConfigUnsetCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            logger.error('No such subsystem: %s', subsystem_name.upper())
+            logging.error('No such subsystem: %s', subsystem_name.upper())
             sys.exit(1)
 
         subsystem.config.pop(name, None)

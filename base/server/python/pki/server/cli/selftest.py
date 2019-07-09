@@ -28,8 +28,6 @@ import logging
 import pki.cli
 import pki.server as server
 
-logger = logging.getLogger(__name__)
-
 
 class SelfTestCLI(pki.cli.CLI):
     def __init__(self):
@@ -115,7 +113,7 @@ class EnableSelfTestCLI(pki.cli.CLI):
                 subsys.save()
 
         except server.PKIServerException as e:
-            logger.error(str(e))
+            logging.error(str(e))
             sys.exit(1)
 
 
@@ -195,5 +193,5 @@ class DisableSelftestCLI(pki.cli.CLI):
                 subsys.save()
 
         except server.PKIServerException as e:
-            logger.error(str(e))
+            logging.error(str(e))
             sys.exit(1)
