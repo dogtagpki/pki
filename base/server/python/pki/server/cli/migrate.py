@@ -40,7 +40,7 @@ class MigrateCLI(pki.cli.CLI):
         self.parser = etree.XMLParser(remove_blank_text=True)
 
     def print_help(self):
-        print('Usage: pki-server migrate [OPTIONS]')
+        print('Usage: pki-server migrate [OPTIONS] [<instance ID>]')
         print()
         print('  -i, --instance <instance ID> Instance ID.')
         print('      --tomcat <version>       Use the specified Tomcat version.')
@@ -51,7 +51,7 @@ class MigrateCLI(pki.cli.CLI):
 
     def execute(self, argv):
         try:
-            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+            opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
                 'tomcat=', 'verbose', 'debug', 'help'])
 
@@ -88,6 +88,9 @@ class MigrateCLI(pki.cli.CLI):
 
         if not tomcat_version:
             tomcat_version = pki.server.Tomcat.get_version()
+
+        if len(args) > 0:
+            instance_name = args[0]
 
         if instance_name:
 

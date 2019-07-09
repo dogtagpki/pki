@@ -36,7 +36,7 @@ class UpgradeCLI(pki.cli.CLI):
         super(UpgradeCLI, self).__init__('upgrade', 'Upgrade PKI server')
 
     def usage(self):
-        print('Usage: pki-server upgrade [OPTIONS]')
+        print('Usage: pki-server upgrade [OPTIONS] [<instance ID>]')
         print()
         print('  --silent                       Upgrade in silent mode.')
         print('  --status                       Show upgrade status only. Do not perform upgrade.')
@@ -65,7 +65,7 @@ class UpgradeCLI(pki.cli.CLI):
     def execute(self, argv):
 
         try:
-            opts, _ = getopt.getopt(argv, 'hi:s:t:vX', [
+            opts, args = getopt.getopt(argv, 'hi:s:t:vX', [
                 'instance=', 'subsystem=', 'instance-type=',
                 'scriptlet-version=', 'scriptlet-index=',
                 'silent', 'status', 'revert',
@@ -147,6 +147,9 @@ class UpgradeCLI(pki.cli.CLI):
                 print('ERROR: unknown option ' + o)
                 self.usage()
                 sys.exit(1)
+
+        if len(args) > 0:
+            instanceName = args[0]
 
         if subsystemName and not instanceName:
             print('ERROR: --subsystem requires --instance')
