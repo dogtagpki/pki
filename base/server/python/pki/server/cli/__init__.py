@@ -47,6 +47,7 @@ import pki.server.cli.selftest
 import pki.server.cli.subsystem
 import pki.server.cli.tks
 import pki.server.cli.tps
+import pki.server.cli.upgrade
 import pki.server.cli.webapp
 import pki.util
 
@@ -90,6 +91,8 @@ class PKIServerCLI(pki.cli.CLI):
         self.add_module(pki.server.cli.nuxwdog.NuxwdogCLI())
         self.add_module(pki.server.cli.cert.CertCLI())
         self.add_module(pki.server.cli.selftest.SelfTestCLI())
+
+        self.add_module(pki.server.cli.upgrade.UpgradeCLI())
 
     def get_full_module_name(self, module_name):
         return module_name
