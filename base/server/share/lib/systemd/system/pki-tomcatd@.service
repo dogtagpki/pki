@@ -8,10 +8,13 @@ EnvironmentFile=/usr/share/pki/etc/tomcat.conf
 EnvironmentFile=/etc/tomcat/tomcat.conf
 Environment="NAME=%i"
 EnvironmentFile=-/etc/sysconfig/%i
+
+ExecStartPre=/usr/sbin/pki-server upgrade --validate %i
 ExecStartPre=/usr/sbin/pki-server migrate %i
 ExecStartPre=/usr/bin/pkidaemon start %i
 ExecStart=/usr/libexec/tomcat/server start
 ExecStop=/usr/libexec/tomcat/server stop
+
 SuccessExitStatus=143
 User=pkiuser
 Group=pkiuser
