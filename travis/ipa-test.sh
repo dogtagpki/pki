@@ -45,6 +45,14 @@ exit_handler() {
 # Print the version of installed components
 rpm -qa tomcat* pki-* freeipa-* nss* 389-ds* jss*| sort
 
+# workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1727378
+# TODO: remove after the fix is available
+ds_version=`rpm -q 389-ds-base`
+if [[ $ds_version =~ 389-ds-base-1.4.0.24-1.fc29 ]]
+then
+    dnf downgrade -y 389-ds-base
+fi
+
 # Disable IPV6
 sysctl net.ipv6.conf.lo.disable_ipv6=0
 
