@@ -21,6 +21,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import getopt
+import logging
 import signal
 import sys
 
@@ -47,6 +48,7 @@ def usage():
     print()
     print('  -X                             Show advanced options.')
     print('  -v, --verbose                  Run in verbose mode.')
+    print('      --debug                    Run in debug mode.')
     print('  -h, --help                     Show this help message.')
 
 
@@ -71,10 +73,10 @@ def main(argv):
             'scriptlet-version=', 'scriptlet-index=',
             'silent', 'status', 'revert',
             'remove-tracker', 'reset-tracker', 'set-tracker=',
-            'verbose', 'help'])
+            'verbose', 'debug', 'help'])
 
     except getopt.GetoptError as e:
-        print('ERROR: ' + str(e))
+        print('ERROR: %s' % e)
         usage()
         sys.exit(1)
 
@@ -117,6 +119,10 @@ def main(argv):
 
         elif o in ('-v', '--verbose'):
             pki.upgrade.verbose = True
+            logging.getLogger().setLevel(logging.INFO)
+
+        elif o == '--debug':
+            logging.getLogger().setLevel(logging.DEBUG)
 
         elif o in ('-h', '--help'):
             usage()
@@ -137,33 +143,30 @@ def main(argv):
         usage()
         sys.exit(1)
 
-    try:
-        upgrader = pki.upgrade.PKIUpgrader(
-            version=scriptlet_version,
-            index=scriptlet_index,
-            silent=silent)
+    upgrader = pki.upgrade.PKIUpgrader(
+        version=scriptlet_version,
+        index=scriptlet_index,
+        silent=silent)
 
-        if status:
-            upgrader.status()
+    if status:
+        upgrader.status()
 
-        elif revert:
-            upgrader.revert()
+    elif revert:
+        upgrader.revert()
 
-        elif remove_tracker:
-            upgrader.remove_tracker()
+    elif remove_tracker:
+        upgrader.remove_tracker()
 
-        elif reset_tracker:
-            upgrader.reset_tracker()
+    elif reset_tracker:
+        upgrader.reset_tracker()
 
-        elif tracker_version is not None:
-            upgrader.set_tracker(tracker_version)
+    elif tracker_version is not None:
+        upgrader.set_tracker(tracker_version)
 
-        else:
-            upgrader.upgrade()
-
-    except pki.PKIException as e:
-        print(e.message)
+    else:
+        upgrader.upgrade()
 
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(levelname)s: %(message)s')
     main(sys.argv)

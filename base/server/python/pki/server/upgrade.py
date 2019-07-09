@@ -38,8 +38,6 @@ BACKUP_DIR = pki.LOG_DIR + '/server/upgrade'
 INSTANCE_TRACKER = '%s/tomcat.conf'
 SUBSYSTEM_TRACKER = '%s/CS.cfg'
 
-logger = logging.getLogger(__name__)
-
 
 class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
@@ -73,7 +71,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
         for instance in self.upgrader.instances():
 
-            logger.info('Upgrading %s instance', instance.name)
+            logging.info('Upgrading %s instance', instance.name)
 
             self.upgrade_subsystems(instance)
 
@@ -118,7 +116,7 @@ class PKIServerUpgradeScriptlet(pki.upgrade.PKIUpgradeScriptlet):
 
         for subsystem in self.upgrader.subsystems(instance):
 
-            logger.info('Upgrading %s subsystem', subsystem.name)
+            logging.info('Upgrading %s subsystem', subsystem.name)
 
             if not self.can_upgrade_server(instance, subsystem):
                 if verbose:
@@ -311,6 +309,8 @@ class PKIServerUpgrader(pki.upgrade.PKIUpgrader):
         # if no instances defined, no upgrade required
         if not current_version:
             current_version = self.get_target_version()
+
+        logging.debug('Current version: %s', current_version)
 
         return current_version
 

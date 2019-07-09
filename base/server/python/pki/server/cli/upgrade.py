@@ -49,6 +49,7 @@ class UpgradeCLI(pki.cli.CLI):
         print()
         print('  -X                             Show advanced options.')
         print('  -v, --verbose                  Run in verbose mode.')
+        print('      --debug                    Run in debug mode.')
         print('  -h, --help                     Show this help message.')
 
     def advancedOptions(self):
@@ -73,7 +74,7 @@ class UpgradeCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            print('ERROR: %s' % e)
             self.usage()
             sys.exit(1)
 
@@ -170,7 +171,6 @@ class UpgradeCLI(pki.cli.CLI):
             silent=silent)
 
         if status:
-            logging.info('Getting PKI server upgrade status')
             upgrader.status()
 
         elif revert:

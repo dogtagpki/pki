@@ -37,7 +37,6 @@ UPGRADE_DIR = pki.SHARE_DIR + '/upgrade'
 BACKUP_DIR = pki.LOG_DIR + '/upgrade'
 SYSTEM_TRACKER = pki.CONF_DIR + '/pki.version'
 
-logger = logging.getLogger(__name__)
 verbose = False
 
 
@@ -427,10 +426,7 @@ class PKIUpgrader(object):
     def versions(self):
 
         current_version = self.get_current_version()
-        logger.debug('Current version: %s', current_version)
-
         target_version = self.get_target_version()
-        logger.debug('Target version: %s', target_version)
 
         upgrade_path = []
 
@@ -456,9 +452,9 @@ class PKIUpgrader(object):
         if not upgrade_path or upgrade_path[-1] != target_version:
             upgrade_path.append(target_version)
 
-        logger.debug('Upgrade path:')
+        logging.debug('Upgrade path:')
         for version in upgrade_path:
-            logger.debug(' - %s', version)
+            logging.debug(' - %s', version)
 
         versions = []
 
@@ -542,11 +538,17 @@ class PKIUpgrader(object):
 
     def get_current_version(self):
 
-        tracker = self.get_tracker()
-        return tracker.get_version()
+        current_version = self.get_tracker().get_version()
+        logging.debug('Current version: %s', current_version)
+
+        return current_version
 
     def get_target_version(self):
-        return pki.util.Version(pki.specification_version())
+
+        target_version = pki.util.Version(pki.specification_version())
+        logging.debug('Target version: %s', target_version)
+
+        return target_version
 
     def is_complete(self):
 
