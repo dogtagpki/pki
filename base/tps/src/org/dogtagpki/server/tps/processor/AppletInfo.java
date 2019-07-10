@@ -94,6 +94,26 @@ public class AppletInfo {
         return null;
     }
 
+    public String getCUIDHexStringHyphens() {
+        final String HEX_DIGITS = "0123456789ABCDEF";
+
+        if(cuid == null)
+            return null;
+
+        byte[] cuidBytes = cuid.toBytesArray();
+        StringBuffer cuidStr = new StringBuffer(cuidBytes.length + cuidBytes.length/2 - 1); // hyphen every 2 bytes
+
+        for(int i = 0; i < cuidBytes.length; i++) {
+            byte cuidByte = cuidBytes[i];
+            cuidStr.append(HEX_DIGITS.charAt((cuidByte & 0xF0) >> 4));
+            cuidStr.append(HEX_DIGITS.charAt(cuidByte & 0xF));
+            if(i % 2 == 1 && i != cuidBytes.length - 1)
+                cuidStr.append('-');
+        }
+
+        return cuidStr.toString();
+    }
+
     public String getMSNString() {
         if(msn != null) {
             return msn.toHexString();

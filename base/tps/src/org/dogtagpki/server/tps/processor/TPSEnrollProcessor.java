@@ -2659,13 +2659,13 @@ public class TPSEnrollProcessor extends TPSProcessor {
                     CMS.debug("TPSEnrollProcessor.enrollOneCertificate: isDelegation: Before calling enrolCertificate");
                     caEnrollResp = caRH.enrollCertificate(encodedParsedPubKey, userid,
                             subjectdn, sanNum, urlSanExt,
-                            aInfo.getCUIDhexString(), getSelectedTokenType(),
+                            aInfo.getCUIDHexStringHyphens(), getSelectedTokenType(),
                             cEnrollInfo.getKeyType());
                 } else {
                     CMS.debug(
                             "TPSEnrollProcessor.enrollOneCertificate: not isDelegation: Before calling enrolCertificate");
                     caEnrollResp = caRH.enrollCertificate(encodedParsedPubKey, userid,
-                            aInfo.getCUIDhexString(), getSelectedTokenType(),
+                            aInfo.getCUIDHexStringHyphens(), getSelectedTokenType(),
                             cEnrollInfo.getKeyType());
                 }
 
