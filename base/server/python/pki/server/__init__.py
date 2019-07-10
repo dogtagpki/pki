@@ -1180,10 +1180,17 @@ class PKIInstance(PKIServer):
                 if current_user != self.user:
                     prefix.extend(['sudo', '-u', self.user])
 
+            cmd = prefix + ['/usr/sbin/pki-server', 'upgrade', '--validate', self.name]
+            logger.debug('Command: %s', ' '.join(cmd))
+
+            cp = subprocess.run(cmd, env=self.config)
+            cp.check_returncode()
+
             cmd = prefix + ['/usr/bin/pkidaemon', 'start', self.name]
             logger.debug('Command: %s', ' '.join(cmd))
 
-            subprocess.run(cmd, env=self.config)
+            cp = subprocess.run(cmd, env=self.config)
+            cp.check_returncode()
 
         return super(PKIInstance, self).execute(command, jdb=jdb, as_current_user=as_current_user)
 
