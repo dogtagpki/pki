@@ -97,6 +97,10 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         if (pubKeybuf == null || uid == null || cuid == null) {
             throw new EBaseException("CARemoteRequestHandler: enrollCertificate(): input parameter null.");
         }
+        
+        // tokenType could be null. If it is, make it an empty string.
+        if(tokenType == null)
+            tokenType = "";
 
         IConfigStore conf = CMS.getConfigStore();
         String profileId =
@@ -134,7 +138,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                     "&" + IRemoteRequest.CA_ENROLL_publickey + "=" +
                     encodedPubKey +
                     "&" + IRemoteRequest.CA_ProfileId + "=" +
-                    profileId;
+                    profileId +
+                    "&" + IRemoteRequest.CA_ENROLL_tokentype + "=" +
+                    tokenType;
         } else {
             CMS.debug("CARemoteRequestHandler: enrollCertificate(): before send() with subjectdn and/or url_SAN_ext");
             if (subjectdn != null && sanNum == 0) {
@@ -151,7 +157,9 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                             "&" + IRemoteRequest.CA_ProfileId + "=" +
                             profileId +
                             "&" + IRemoteRequest.CA_ENROLL_subjectdn + "=" +
-                            urlSubjectdn;
+                            urlSubjectdn +
+                            "&" + IRemoteRequest.CA_ENROLL_tokentype + "=" +
+                            tokenType;
                 } catch (Exception e) {
                     CMS.debug("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e);
                     throw new EBaseException(
@@ -168,6 +176,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                         encodedPubKey +
                         "&" + IRemoteRequest.CA_ProfileId + "=" +
                         profileId +
+                        "&" + IRemoteRequest.CA_ENROLL_tokentype + "=" +
+                        tokenType +
                         "&" + urlSANext;
             } else if (subjectdn != null && sanNum != 0) {
                 try {
@@ -184,6 +194,8 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
                             profileId +
                             "&" + IRemoteRequest.CA_ENROLL_subjectdn + "=" +
                             urlSubjectdn +
+                            "&" + IRemoteRequest.CA_ENROLL_tokentype + "=" +
+                            tokenType +
                             "&" + urlSANext;
                 } catch (Exception e) {
                     CMS.debug("CARemoteRequestHandler: enrollCertificate(): uriEncode of pubkey failed: " + e);
