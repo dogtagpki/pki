@@ -110,6 +110,9 @@ var CertificatesPage = Page.extend({
             collection: self.collection
         });
 
-        table.render();
+        if (self.collection && self.collection.options && self.collection.options.tokenID)
+            table.render();
+        else
+            table.searchField.focus();
     }
 });

@@ -101,8 +101,10 @@ public class TPSCertService extends PKIService implements TPSCertResource {
 
         CMS.debug("TPSCertService.findCerts(" + filter + ", " + tokenID + ", " + start + ", " + size + ")");
 
-        if (filter != null && filter.length() < MIN_FILTER_LENGTH) {
-            throw new BadRequestException("Filter is too short.");
+        if(tokenID == null) {
+            if (filter == null || filter.length() < MIN_FILTER_LENGTH) {
+                throw new BadRequestException("Filter is too short. Must be at least " + MIN_FILTER_LENGTH + " characters.");
+            }
         }
 
         Map<String, String> attributes = new HashMap<String, String>();
