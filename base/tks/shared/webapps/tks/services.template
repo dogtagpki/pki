@@ -103,27 +103,6 @@ Certificate System TKS Services Page
 <td>&nbsp;</td>
 <td>&nbsp;</td>
 </tr>
-<script language=javascript>
-for (var i=0; i<result.recordSet.length; ++i) {
-    document.write('<tr valign="TOP">');
-    document.write('<td>');
-    document.write('<td>');
-    document.write('<font size=4 face="PrimaSans BT, Verdana, sans-serif">');
-    document.write('<li><a href="');
-    document.write(result.recordSet[i].prefix + "://" +
-      result.recordSet[i].host + ":" + result.recordSet[i].port + "/"+
-      result.recordSet[i].uri);
-    if (result.recordSet[i].type == "admin") {
-        document.write('">Admin Services</a></font>');
-    } else if (result.recordSet[i].type == "agent") {
-        document.write('">Agent Services</a></font>');
-    } else if (result.recordSet[i].type == "ee") {
-        document.write('">SSL End Users Services</a></font>');
-    }
-
-    document.write('</font></td></tr>');
-}
-</script>
 <tr valign="TOP">
 <td>&nbsp;</td>
 <td>&nbsp;</td>
