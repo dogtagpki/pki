@@ -372,10 +372,10 @@ class PKISubsystem(object):
             # /usr/share/pki/<subsystem>/webapps/<subsystem>
             doc_base = None
 
-        self.instance.deploy(self.name, self.context_xml_template, doc_base)
+        self.instance.deploy_webapp(self.name, self.context_xml_template, doc_base)
 
     def disable(self):
-        self.instance.undeploy(self.name)
+        self.instance.undeploy_webapp(self.name)
 
     def open_database(self, name='internaldb', bind_dn=None,
                       bind_password=None):

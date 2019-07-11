@@ -473,13 +473,24 @@ class PKIServer(object):
 
         return sorted(webapps, key=lambda webapp: webapp['id'])
 
+    def is_deployed(self, webapp_id):
+
+        context_xml = os.path.join(
+            self.conf_dir,
+            'Catalina',
+            'localhost',
+            webapp_id + '.xml')
+
+        return os.path.exists(context_xml)
+
     def deploy_webapp(self, webapp_id, descriptor, doc_base=None):
         """
         Deploy a web application into a Tomcat instance.
 
         This method will copy the specified deployment descriptor into
-        <instance>/conf/Catalina/localhost/<ID>.xml and point the docBase
-        to the specified location.
+        <instance>/conf/Catalina/localhost/<name>.xml and point the docBase
+        to the specified location. The web application will become available
+        under "/<name>" URL path.
 
         See also: https://tomcat.apache.org/tomcat-8.5-doc/config/context.html
 
@@ -490,22 +501,27 @@ class PKIServer(object):
         :param doc_base: Path to web application content.
         :type doc_base: str
         """
+
         context_xml = os.path.join(
             self.conf_dir,
             'Catalina',
             'localhost',
             webapp_id + '.xml')
 
+        # read deployment descriptor
         document = etree.parse(descriptor, parser)
-        context = document.getroot()
 
-        if doc_base is not None:
+        if doc_base:
+            # customize docBase
+            context = document.getroot()
             context.set('docBase', doc_base)
 
+        # write deployment descriptor
         with open(context_xml, 'wb') as f:
             # xml as UTF-8 encoded bytes
             document.write(f, pretty_print=True, encoding='utf-8')
 
+        # set deployment descriptor ownership and permission
         os.chown(context_xml, self.uid, self.gid)
         os.chmod(context_xml, 0o0660)
 
@@ -1396,55 +1412,6 @@ class PKIInstance(PKIServer):
             if name == subsystem.name:
                 return subsystem
         return None
-
-    def is_deployed(self, webapp_name):
-        context_xml = os.path.join(
-            self.conf_dir, 'Catalina', 'localhost', webapp_name + '.xml')
-        return os.path.exists(context_xml)
-
-    def deploy(self, webapp_name, descriptor, doc_base=None):
-        """
-        Deploy a web application into a Tomcat instance.
-
-        This method will copy the specified deployment descriptor into
-        <instance>/conf/Catalina/localhost/<name>.xml and point the docBase
-        to the specified location. The web application will become available
-        under "/<name>" URL path.
-
-        See also: http://tomcat.apache.org/tomcat-7.0-doc/config/context.html
-
-        :param webapp_name: Web application name.
-        :type webapp_name: str
-        :param descriptor: Path to deployment descriptor (context.xml).
-        :type descriptor: str
-        :param doc_base: Path to web application content.
-        :type doc_base: str
-        """
-
-        context_xml = os.path.join(
-            self.conf_dir, 'Catalina', 'localhost', webapp_name + '.xml')
-
-        # read deployment descriptor
-        document = etree.parse(descriptor, parser)
-
-        if doc_base:
-            # customize docBase
-            context = document.getroot()
-            context.set('docBase', doc_base)
-
-        # write deployment descriptor
-        with open(context_xml, 'wb') as f:
-            # xml as UTF-8 encoded bytes
-            document.write(f, pretty_print=True, encoding='utf-8')
-
-        # set deployment descriptor ownership and permission
-        os.chown(context_xml, self.uid, self.gid)
-        os.chmod(context_xml, 0o0660)
-
-    def undeploy(self, webapp_name):
-        context_xml = os.path.join(
-            self.conf_dir, 'Catalina', 'localhost', webapp_name + '.xml')
-        os.remove(context_xml)
 
     def banner_installed(self):
         return os.path.exists(self.banner_file)
