@@ -62,7 +62,19 @@ class PKISubsystem(object):
         self.conf_dir = os.path.join(self.base_dir, 'conf')
         self.cs_conf = os.path.join(self.conf_dir, 'CS.cfg')
 
-        self.context_xml_template = os.path.join(
+        self.config = {}
+        self.type = None  # e.g. CA, KRA
+        self.prefix = None  # e.g. ca, kra
+
+        self.default_doc_base = os.path.join(
+            pki.SHARE_DIR,
+            self.name,
+            'webapps',
+            self.name)
+
+        self.doc_base = os.path.join(instance.webapps_dir, self.name)
+
+        self.default_context_xml = os.path.join(
             pki.SHARE_DIR,
             self.name,
             'conf',
@@ -71,14 +83,10 @@ class PKISubsystem(object):
             self.name + '.xml')
 
         self.context_xml = os.path.join(
-            instance.conf_dir, 'Catalina', 'localhost', self.name + '.xml')
-
-        self.config = {}
-        self.type = None  # e.g. CA, KRA
-        self.prefix = None  # e.g. ca, kra
-
-        # custom subsystem location
-        self.doc_base = os.path.join(self.base_dir, 'webapps', self.name)
+            instance.conf_dir,
+            'Catalina',
+            'localhost',
+            self.name + '.xml')
 
     def __eq__(self, other):
         if not isinstance(other, PKISubsystem):
@@ -372,7 +380,7 @@ class PKISubsystem(object):
             # /usr/share/pki/<subsystem>/webapps/<subsystem>
             doc_base = None
 
-        self.instance.deploy_webapp(self.name, self.context_xml_template, doc_base)
+        self.instance.deploy_webapp(self.name, self.default_context_xml, doc_base)
 
     def disable(self):
         self.instance.undeploy_webapp(self.name)

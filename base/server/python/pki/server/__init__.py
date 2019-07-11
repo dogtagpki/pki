@@ -1115,6 +1115,50 @@ class PKIInstance(PKIServer):
         self.external_certs = []
         self.subsystems = []
 
+        self.default_root_doc_base = os.path.join(
+            pki.SHARE_DIR,
+            'server',
+            'webapps',
+            'ROOT')
+
+        self.root_doc_base = os.path.join(self.webapps_dir, 'ROOT')
+
+        self.default_root_xml = os.path.join(
+            pki.SHARE_DIR,
+            'server',
+            'conf',
+            'Catalina',
+            'localhost',
+            'ROOT.xml')
+
+        self.root_xml = os.path.join(
+            self.conf_dir,
+            'Catalina',
+            'localhost',
+            'ROOT.xml')
+
+        self.default_pki_doc_base = os.path.join(
+            pki.SHARE_DIR,
+            'server',
+            'webapps',
+            'pki')
+
+        self.pki_doc_base = os.path.join(self.webapps_dir, 'pki')
+
+        self.default_pki_xml = os.path.join(
+            pki.SHARE_DIR,
+            'server',
+            'conf',
+            'Catalina',
+            'localhost',
+            'pki.xml')
+
+        self.pki_xml = os.path.join(
+            self.conf_dir,
+            'Catalina',
+            'localhost',
+            'pki.xml')
+
     def __eq__(self, other):
         if not isinstance(other, PKIInstance):
             return NotImplemented
