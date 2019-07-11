@@ -1134,6 +1134,10 @@ class CertFixCLI(pki.cli.CLI):
             logging.error('Must specify --agent-uid')
             sys.exit(1)
 
+        if agent_uid == "pkidbuser":
+            logging.error('\'pkidbuser\' cannot be used.')
+            sys.exit(1)
+
         instance.load()
 
         # 1. Make a list of certs to fix OR use the list provided through CLI options
