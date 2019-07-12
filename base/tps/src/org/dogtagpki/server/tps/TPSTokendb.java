@@ -535,8 +535,7 @@ public class TPSTokendb {
                 throw new TPSException("error getting token entry for: " +
                         cert.getTokenID() + e.toString());
             }
-            if ((tokenRecord.getTokenStatus() == TokenStatus.ACTIVE) ||
-                    (tokenRecord.getTokenStatus() == TokenStatus.SUSPENDED)) {
+            if (tokenRecord.getTokenStatus() == TokenStatus.ACTIVE) {
                 CMS.debug(method + "token " + cert.getTokenID() + " contains the cert and has status: "
                         + tokenRecord.getTokenStatus() + "... returning false");
                 return false;
