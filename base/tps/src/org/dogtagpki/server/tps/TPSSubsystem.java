@@ -37,6 +37,7 @@ import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.dogtagpki.server.tps.mapping.MappingResolverManager;
+import org.dogtagpki.tps.TPSConnection;
 import org.dogtagpki.tps.main.TPSException;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.CryptoManager.NotInitializedException;
@@ -130,6 +131,8 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
         operationTransitions = loadAndValidateTokenStateTransitions(
                 defaultConfig, cs, TPSEngine.CFG_OPERATIONS_ALLOWED_TRANSITIONS);
+
+        configureTPSConnection(cs);
 
         tdb = new TPSTokendb(this);
 
@@ -260,6 +263,23 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public Collection<TokenStatus> getOperationNextTokenStates(TokenRecord tokenRecord) {
         TokenStatus currentState = tokenRecord.getTokenStatus();
         return operationTransitions.get(currentState);
+    }
+
+    public void configureTPSConnection(IConfigStore cs) {
+        String configValue = TPSEngine.CFG_CONNECTION_PREFIX + "." + TPSEngine.CFG_CONNECTION_MAX_MESSAGE_SIZE;
+        int configValueDefault = TPSConnection.MAX_MESSAGE_SIZE_DEFAULT;
+
+        CMS.debug("TPSConnection: Retrieving config value with name: " + configValue);
+        try {
+            // Try to set TPSConnection static variable to CS.cfg config value
+            TPSConnection.setMaxMessageSize(cs.getInteger(configValue));
+            CMS.debug("TPSConnection: " + TPSEngine.CFG_CONNECTION_MAX_MESSAGE_SIZE +
+                    " set to " + TPSConnection.getMaxMessageSize());
+        } catch(EBaseException e) {
+            // Set TPSConnection static variable to default value
+            TPSConnection.setMaxMessageSize(configValueDefault);
+            CMS.debug("TPSConnection: Could not find given config line. Defaulting to value: " + configValueDefault);
+        }
     }
 
     @Override

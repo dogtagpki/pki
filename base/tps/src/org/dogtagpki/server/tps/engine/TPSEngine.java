@@ -102,6 +102,8 @@ public class TPSEngine {
 
     public static final String CFG_PRINTBUF_FULL = "tps.printBufFull";
     public static final String CFG_RECV_BUF_SIZE = "tps.recvBufSize";
+    public static final String CFG_CONNECTION_PREFIX = "tps.connection";
+    public static final String CFG_CONNECTION_MAX_MESSAGE_SIZE = "maxMessageSize";
     public static final String CFG_AUTHS_ENABLE = "auth.enable";
     public static final String CFG_PROFILE_MAPPING_ORDER = "mapping.order";
     public static final String CFG_ALLOW_UNKNOWN_TOKEN = "allowUnkonwnToken";
