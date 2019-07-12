@@ -182,9 +182,14 @@ public class SecureChannelProtocol {
         final byte enc_constant = 0x04;
         final byte rmac_constant = 0x07;
 
+        final byte enc_constant_gpkmc = 0x01;
+        final byte mac_constant_gpkmc = 0x02;
+        final byte kek_constant_gpkmc = 0x03;
+
         boolean noDerive = false;
 
         byte constant = 0;
+        byte constant_gpkmc = 0;
 
         String method = "SecureChannelProtocol.computeSessionKey_SCP03:";
 
@@ -256,10 +261,12 @@ public class SecureChannelProtocol {
 
         if (keyType.equalsIgnoreCase(SecureChannelProtocol.encType)) {
             constant = enc_constant;
+            constant_gpkmc = enc_constant_gpkmc;
         }
 
         if (keyType.equalsIgnoreCase(SecureChannelProtocol.macType)) {
             constant = mac_constant;
+            constant_gpkmc = mac_constant_gpkmc;
         }
 
         if (keyType.equalsIgnoreCase(SecureChannelProtocol.rmacType)) {
@@ -268,6 +275,7 @@ public class SecureChannelProtocol {
 
         if (keyType.equalsIgnoreCase(SecureChannelProtocol.kekType)) {
             constant = 0;
+            constant_gpkmc = kek_constant_gpkmc;
         }
 
         String keyNameStr = null;
@@ -295,6 +303,7 @@ public class SecureChannelProtocol {
             CMS.debug(method + " Developer key set case: incoming dev key type: " + devKeyType);
             SymmetricKey devSymKey = returnDeveloperSymKey(token, finalKeyType, keySet, devKeyArray,devKeyType);
 
+            NistSP800_108KDF nistKdf = new NistSP800_108KDF(this);
             StandardKDF standard = new StandardKDF(this);
             SymmetricKey divKey = null;
 
@@ -310,26 +319,27 @@ public class SecureChannelProtocol {
             } else if (params.isVer1DiversVisa2()) {
                 CMS.debug(method + " Visa2 diversification requested.");
                 keyDiversified = KDF.getDiversificationData_VISA2(xKDD, keyType);
+            } else if (params.isVer1DiversGPKMC()) {
+                CMS.debug(method + " GPKMC diversification requested.");
             } else {
                 throw new EBaseException(method + " Invalid diversification method!");
             }
 
             //Obtain the card key,it may just be the raw developer key
-            if (noDivers == true || GPParams.AES.equalsIgnoreCase(devKeyType)) {
+            if (noDivers == true) {
                 divKey = devSymKey;
             } else {
-
-                // The g&d calls for computing the aes card key with DES, it will then be treated as aes
-                // Right now if the dev key type is AES, we do not support any diversification
-
                 if (GPParams.DES3.equalsIgnoreCase(devKeyType)) {
                     divKey = standard.computeCardKey_SCP03_WithDES3(devSymKey, keyDiversified, token);
+                } else if (GPParams.AES.equalsIgnoreCase(devKeyType)) {
+                    if(params.isVer1DiversGPKMC()) {
+                        divKey = nistKdf.diversifyAESKey(devSymKey, xCUID, constant_gpkmc, token);
+                    }
                 } else {
                     throw new EBaseException(method + " Invalid devolper key type. Does not support diversification: "+ devKeyType);
                 }
             }
 
-            NistSP800_108KDF nistKdf = new NistSP800_108KDF(this);
 
             //IN scp03, the kek key IS the card key
             if (constant == 0 /* kek key */) {
@@ -357,6 +367,7 @@ public class SecureChannelProtocol {
 
             CMS.debug(method + " Master key case: requested master key type: " + masterKeyType);
 
+            NistSP800_108KDF nistKdf = new NistSP800_108KDF(this);
             StandardKDF standard = new StandardKDF(this);
 
             byte[] keyDiversified = null;
@@ -378,12 +389,16 @@ public class SecureChannelProtocol {
 
             if(GPParams.AES.equalsIgnoreCase(masterKeyType)) {
                 CMS.debug(method + " master key case with AES type.");
-                divKey = masterKey;
+                if(params.isDiversGPKMC()) {
+                    CMS.debug(method + " GPKMC diversification requested.");
+                    divKey = nistKdf.diversifyAESKey(masterKey, xCUID, constant_gpkmc, token);
+                } else {
+                    divKey = masterKey;
+                }
             } else {
                 divKey = standard.computeCardKey_SCP03_WithDES3(masterKey, keyDiversified, token);
             }
 
-            NistSP800_108KDF nistKdf = new NistSP800_108KDF(this);
             // The kek session key does not call for derivation
             if (constant == 0 /* kek key */) {
                 sessionKey = divKey;
@@ -834,7 +849,11 @@ public class SecureChannelProtocol {
 
             KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
             keyWrap.initUnwrap(tempKey, new IVParameterSpec(iv));
-            finalAESKey = keyWrap.unwrapSymmetric(wrappedKey, SymmetricKey.AES, 16);
+
+            if(isPerm)
+                finalAESKey = keyWrap.unwrapSymmetricPerm(wrappedKey, SymmetricKey.AES, AES_128_BYTES);
+            else
+                finalAESKey = keyWrap.unwrapSymmetric(wrappedKey, SymmetricKey.AES, AES_128_BYTES);
 
         } catch (Exception e) {
             throw new EBaseException(method + " Can't unwrap key onto token!");
@@ -1033,13 +1052,37 @@ public class SecureChannelProtocol {
             throw new EBaseException(method + "Invalid input!");
         }
 
-        if (inputKeyArray == null || (inputKeyArray.length != DES3_LENGTH && inputKeyArray.length != DES2_LENGTH)) {
+        if (inputKeyArray == null) {
             throw new EBaseException(method + "No raw array to use to create key!");
         }
 
+        if(keyType == SymmetricKey.Type.AES) {
+           if(inputKeyArray.length != DEF_AES_KEYLENGTH)
+               throw new EBaseException(method + "Invalid length of raw input array.");
+        }
+        else if(keyType == SymmetricKey.Type.DES ||
+                keyType == SymmetricKey.Type.DES3) {
+            if(inputKeyArray.length != DES3_LENGTH && inputKeyArray.length != DES2_LENGTH)
+                throw new EBaseException(method + "Invalid length of raw input array.");
+        }
+
         try {
-            KeyWrapper keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.DES3_ECB);
-            keyWrap.initUnwrap(unwrappingKey, null);
+            KeyWrapper keyWrap;
+
+            if(unwrappingKey.getType() == SymmetricKey.Type.AES)
+            {
+                IVParameterSpec iv = new IVParameterSpec(new byte[EncryptionAlgorithm.AES_128_CBC.getIVLength()]);
+                keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.AES_CBC);
+                keyWrap.initUnwrap(unwrappingKey, iv);
+            }
+            else if(unwrappingKey.getType() == SymmetricKey.Type.DES ||
+                    unwrappingKey.getType() == SymmetricKey.Type.DES3)
+            {
+                keyWrap = token.getKeyWrapper(KeyWrapAlgorithm.DES3_ECB);
+                keyWrap.initUnwrap(unwrappingKey, null);
+            }
+            else
+                throw new EBaseException(method + " Unsupported transport key type.");
 
             if (isPerm) {
                 unwrapped = keyWrap.unwrapSymmetricPerm(inputKeyArray,

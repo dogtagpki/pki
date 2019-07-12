@@ -44,7 +44,10 @@ public class NistSP800_108KDF extends KDF {
     public static final byte CARD_CRYPTO_KDF_CONSTANT = 0x0;
     public static final byte HOST_CRYPTO_KDF_CONSTANT = 0x1;
 
-
+    static final int OFFSET_CHIP_BATCH = 4;
+    static final int LENGTH_CHIP_BATCH = 2;
+    static final int OFFSET_CHIP_SERIAL = 6;
+    static final int LENGTH_CHIP_SERIAL = 4;
 
     SecureChannelProtocol protocol = null;
 
@@ -210,6 +213,67 @@ public class NistSP800_108KDF extends KDF {
         }
 
         return output.toByteArray();
+    }
+
+    /**
+     *  Diversify the provided AES key using the GP KMC diversification method, which makes use
+     *  of the NIST SP800-108 KDF in Counter Mode but with a different ordering and length of the
+     *  input to the KDF.
+     */
+    public SymmetricKey diversifyAESKey(
+            SymmetricKey staticKey,
+            byte[] tokenCUID,
+            byte derivationConstant,
+            CryptoToken token) throws EBaseException {
+
+        String method = "NistSP800_108KDF.diversifyAESKey: ";
+
+        // Input checks
+        if(staticKey == null || staticKey.getType() != SymmetricKey.Type.AES ||
+           tokenCUID == null || tokenCUID.length < 10) {
+            throw new EBaseException(method + "Invalid input.");
+        }
+
+        // Assemble the diversification context
+        byte[] context = new byte[8];
+        context[0] = 0; // 2nd to last byte of card manager AID
+        context[1] = 0; // Last byte of card manager AID
+        System.arraycopy(tokenCUID, OFFSET_CHIP_SERIAL, context, 2, LENGTH_CHIP_SERIAL); // Chip serial number
+        System.arraycopy(tokenCUID, OFFSET_CHIP_BATCH, context, 2 + LENGTH_CHIP_SERIAL, LENGTH_CHIP_BATCH); // Chip batch number
+
+        //CMS.debug(method + "Diversification context: " + SecureChannelProtocol.getHexString(context));
+        //CMS.debug(method + "Derivation constant:     " + derivationConstant);
+
+        // Number of KDF iterations is based on the length of the static key
+        int iterations = staticKey.getLength() / AES_CMAC_BLOCK_SIZE;
+        if(staticKey.getLength() % AES_CMAC_BLOCK_SIZE != 0)
+            iterations++;
+
+        // Run CMAC the necessary number of times
+        ByteArrayOutputStream cmacOutput = new ByteArrayOutputStream(AES_CMAC_BLOCK_SIZE * iterations);
+        for(int i = 0; i < iterations; i++) {
+            byte[] cmacInput = new byte[16];
+
+            cmacInput[0] = (byte)(i + 1);       // Counter/iteration variable "i"
+            cmacInput[1] = 0;
+            cmacInput[2] = 0;
+            cmacInput[3] = 0;
+            cmacInput[4] = derivationConstant;  // Label (index 1-4)
+            cmacInput[5] = 0;                   // Separation indicator
+            System.arraycopy(context, 0, cmacInput, 6, context.length); // Context
+            cmacInput[14] = (byte)(staticKey.getLength() * 8 >> 8);     // Output bit length high byte
+            cmacInput[15] = (byte)(staticKey.getLength() * 8 & 0xFF);   // Output bit length low byte
+
+            try {
+                cmacOutput.write(computeAES_CMAC(staticKey, cmacInput));
+            } catch (IOException e) {
+                throw new EBaseException(method + "Error computing CMAC output.");
+            }
+        }
+
+        //CMS.debug(method + "Final diversified key: " + SecureChannelProtocol.getHexString(cmacOutput.toByteArray()));
+
+        return this.protocol.unwrapAESSymKeyOnToken(token, cmacOutput.toByteArray(), false);
     }
 
     /*******************************************************************************
