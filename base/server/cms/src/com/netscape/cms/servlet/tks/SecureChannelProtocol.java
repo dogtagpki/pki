@@ -518,7 +518,8 @@ public class SecureChannelProtocol {
 
         byte[] context = null;
 
-        if (nistSP800_108KdfUseCuidAsKdd == true) {
+        if (nistSP800_108KdfUseCuidAsKdd == true &&
+                NistSP800_108KDF.useThisKDF(nistSP800_108KdfOnKeyVersion, keyInfo[0])) {
             context = xCUID;
         } else {
             context = xKDD;
