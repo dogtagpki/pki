@@ -157,6 +157,8 @@ public final class SigningUnit implements ISigningUnit {
             mToken = CryptoUtil.getKeyStorageToken(tokenname);
             if (CryptoUtil.isInternalToken(tokenname)) {
                 setNewNickName(mNickname);
+            } else if (mNickname.startsWith(tokenname+":")){
+                setNewNickName(mNickname);
             } else {
                 mNickname = tokenname + ":" + mNickname;
                 setNewNickName(mNickname);
