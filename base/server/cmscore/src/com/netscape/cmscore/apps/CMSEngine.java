@@ -142,7 +142,7 @@ public class CMSEngine implements ISubsystem {
     private String mConfigSDSessionId = null;
     private Timer mSDTimer = null;
     private String mServerCertNickname = null;
-    private String serverStatus = null;
+    private boolean ready;
 
     private RequestSubsystem requestSubsystem = new RequestSubsystem();
 
@@ -416,7 +416,7 @@ public class CMSEngine implements ISubsystem {
         mConfig = config;
         int state = mConfig.getInteger("cs.state");
 
-        serverStatus = "starting";
+        ready = false;
 
         instanceDir = config.getString("instanceRoot");
         instanceId = config.getString("instanceId");
@@ -487,7 +487,7 @@ public class CMSEngine implements ISubsystem {
             mSDTimer.schedule(timertask, 5, (new Long(secdomain_check_interval)).longValue());
         }
 
-        serverStatus = "running";
+        ready = true;
     }
 
     public Configurator createConfigurator() throws Exception {
@@ -1574,8 +1574,8 @@ public class CMSEngine implements ISubsystem {
         return revoked;
     }
 
-    public String getServerStatus() {
-        return serverStatus;
+    public boolean isReady() {
+        return ready;
     }
 
     // for debug only
