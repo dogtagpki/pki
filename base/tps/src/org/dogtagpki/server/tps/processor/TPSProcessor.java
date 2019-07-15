@@ -2296,7 +2296,7 @@ public class TPSProcessor {
                         " to " + newState);
             }
         } else {
-            checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
+            checkAllowUnknownToken(TPSEngine.FORMAT_OP);
 
             tokenRecord.setTokenStatus(TokenStatus.UNFORMATTED);
             CMS.debug("TPSProcessor.format: token does not exist");

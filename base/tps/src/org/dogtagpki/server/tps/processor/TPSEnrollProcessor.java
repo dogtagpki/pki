@@ -351,7 +351,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             }
         } else {
             CMS.debug(method + " token does not exist");
-            checkAllowUnknownToken(TPSEngine.OP_FORMAT_PREFIX);
+            checkAllowUnknownToken(TPSEngine.ENROLL_OP);
             CMS.debug(method + "force a format");
             do_force_format = true;
         }

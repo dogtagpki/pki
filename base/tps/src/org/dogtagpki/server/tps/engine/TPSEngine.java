@@ -106,7 +106,7 @@ public class TPSEngine {
     public static final String CFG_CONNECTION_MAX_MESSAGE_SIZE = "maxMessageSize";
     public static final String CFG_AUTHS_ENABLE = "auth.enable";
     public static final String CFG_PROFILE_MAPPING_ORDER = "mapping.order";
-    public static final String CFG_ALLOW_UNKNOWN_TOKEN = "allowUnkonwnToken";
+    public static final String CFG_ALLOW_UNKNOWN_TOKEN = "allowUnknownToken";
     public static final String CFG_ALLOW_NO_APPLET = "update.applet.emptyToken.enable";
     public static final String CFG_APPLET_UPDATE_REQUIRED_VERSION = "update.applet.requiredVersion";
     public static final String CFG_APPLET_DIRECTORY = "update.applet.directory";
