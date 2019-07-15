@@ -29,8 +29,10 @@ import os
 import pwd
 import re
 import shutil
+import socket
 import subprocess
 import tempfile
+import xml.etree.ElementTree as ET
 
 import ldap
 import ldap.filter
@@ -369,6 +371,35 @@ class PKISubsystem(object):
 
     def is_enabled(self):
         return self.instance.is_deployed(self.name)
+
+    def is_ready(self, secure_connection=True, timeout=None):
+
+        server_config = self.instance.get_server_config()
+
+        if secure_connection:
+            protocol = 'https'
+            port = server_config.get_secure_port()
+
+        else:
+            protocol = 'http'
+            port = server_config.get_unsecure_port()
+
+        connection = pki.client.PKIConnection(
+            protocol=protocol,
+            hostname=socket.getfqdn(),
+            port=port,
+            subsystem=self.name,
+            accept='application/xml',
+            trust_env=False)
+
+        client = pki.system.SystemStatusClient(connection)
+        response = client.get_status(timeout=timeout)
+
+        root = ET.fromstring(response)
+        status = root.findtext('Status')
+
+        logger.info('Subsystem status: %s', status)
+        return status == 'running'
 
     def enable(self):
         if os.path.exists(self.doc_base):

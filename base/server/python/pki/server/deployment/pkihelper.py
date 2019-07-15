@@ -29,7 +29,6 @@ except ImportError:
 
 import errno
 import logging
-import socket
 import sys
 import os
 import re
@@ -42,7 +41,6 @@ from grp import getgrgid
 from grp import getgrnam
 from pwd import getpwnam
 from pwd import getpwuid
-import xml.etree.ElementTree as ET
 import zipfile
 
 # PKI Deployment Imports
@@ -945,18 +943,6 @@ class Instance:
             logger.error(log.PKI_OSERROR_1, exc)
             raise
 
-    def get_instance_status(self, connection, timeout=None):
-
-        client = pki.system.SystemStatusClient(connection)
-        response = client.get_status(timeout=timeout)
-
-        root = ET.fromstring(response)
-        status = root.findtext("Status")
-
-        logger.info('Server status: %s', status)
-
-        return status
-
     def wait_for_startup(
         self,
         subsystem,
@@ -973,38 +959,21 @@ class Instance:
 
         """
 
-        server_config = subsystem.instance.get_server_config()
-
-        if secure_connection:
-            pki_protocol = "https"
-            pki_port = server_config.get_secure_port()
-        else:
-            pki_protocol = "http"
-            pki_port = server_config.get_unsecure_port()
-
-        connection = pki.client.PKIConnection(
-            protocol=pki_protocol,
-            hostname=socket.getfqdn(),
-            port=pki_port,
-            subsystem=subsystem.name,
-            accept='application/xml',
-            trust_env=False)
-
         logger.info('Waiting for %s subsystem to start', subsystem.type)
 
         # must use 'http' protocol when FIPS mode is enabled
         secure_connection = not pki.FIPS.is_enabled()
 
         start_time = datetime.today()
-        status = None
+        ready = False
         counter = 0
 
-        while status != "running":
+        while not ready:
             try:
                 time.sleep(1)
 
-                status = self.get_instance_status(
-                    connection=connection,
+                ready = subsystem.is_ready(
+                    secure_connection=secure_connection,
                     timeout=request_timeout,
                 )
 
