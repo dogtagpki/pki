@@ -148,24 +148,14 @@ class PKIServerCLI(pki.cli.CLI):
 
         server_config = instance.get_server_config()
 
-        unsecurePort = None
-        securePort = None
+        unsecurePort = server_config.get_unsecure_port()
+        print('  Unsecure Port: %s' % unsecurePort)
 
-        for connector in server_config.get_connectors():
-            protocol = connector.get('protocol')
-            sslEnabled = connector.get('SSLEnabled')
+        securePort = server_config.get_secure_port()
+        print('  Secure Port: %s' % securePort)
 
-            if sslEnabled:
-                securePort = connector.get('port')
-                print('  Secure Port: %s' % securePort)
-
-            elif protocol.startswith('AJP/'):
-                ajpPort = connector.get('port')
-                print('  AJP Port: %s' % ajpPort)
-
-            else:
-                unsecurePort = connector.get('port')
-                print('  Unsecure Port: %s' % unsecurePort)
+        ajpPort = server_config.get_ajp_port()
+        print('  AJP Port: %s' % ajpPort)
 
         tomcatPort = server_config.get_port()
         print('  Tomcat Port: %s' % tomcatPort)

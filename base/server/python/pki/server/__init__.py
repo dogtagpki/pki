@@ -939,6 +939,39 @@ class ServerConfiguration(object):
         server = self.document.getroot()
         return server.get('port')
 
+    def get_unsecure_port(self):
+
+        for connector in self.get_connectors():
+
+            sslEnabled = connector.get('SSLEnabled')
+            protocol = connector.get('protocol')
+
+            if not sslEnabled and not protocol.startswith('AJP/'):
+                return connector.get('port')
+
+        return None
+
+    def get_secure_port(self):
+
+        for connector in self.get_connectors():
+
+            sslEnabled = connector.get('SSLEnabled')
+
+            if sslEnabled:
+                return connector.get('port')
+
+        return None
+
+    def get_ajp_port(self):
+
+        for connector in self.get_connectors():
+
+            protocol = connector.get('protocol')
+            if protocol.startswith('AJP/'):
+                return connector.get('port')
+
+        return None
+
     def get_listeners(self):
         server = self.document.getroot()
         return server.findall('Listener')
