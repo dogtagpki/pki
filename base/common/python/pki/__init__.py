@@ -81,6 +81,12 @@ ATTR_NAME_BY_OID = {
     cryptography.x509.ObjectIdentifier('0.9.2342.19200300.100.1.1'): 'UID',
 }
 
+# Retry-able connection errors, see https://pagure.io/dogtagpki/issue/2973
+RETRYABLE_EXCEPTIONS = (
+    requests.exceptions.ConnectionError,  # connection failed
+    requests.exceptions.Timeout,  # connection or read time out
+)
+
 
 def convert_x509_name_to_dn(name):
     """

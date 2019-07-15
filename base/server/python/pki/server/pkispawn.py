@@ -39,7 +39,6 @@ try:
     import pki
     from pki.server.deployment import pkiconfig as config
     from pki.server.deployment import pkimanifest as manifest
-    from pki.server.deployment.pkihelper import RETRYABLE_EXCEPTIONS
     from pki.server.deployment.pkiparser import PKIConfigParser
     from pki.server.deployment import pkilogging
     from pki.server.deployment import pkimessages as log
@@ -372,7 +371,7 @@ def main(argv):
                                             'pki_security_domain_name',
                                             info.name)
                         break
-                    except RETRYABLE_EXCEPTIONS as e:
+                    except pki.RETRYABLE_EXCEPTIONS as e:
                         parser.print_text('ERROR: ' + str(e))
 
                 while True:
@@ -403,7 +402,7 @@ def main(argv):
                         if status == 'running':
                             break
                         parser.print_text('ERROR: CA is not running')
-                    except RETRYABLE_EXCEPTIONS as e:
+                    except pki.RETRYABLE_EXCEPTIONS as e:
                         parser.print_text('ERROR: ' + str(e))
 
                 while True:
@@ -415,7 +414,7 @@ def main(argv):
                         if status == 'running':
                             break
                         parser.print_text('ERROR: TKS is not running')
-                    except RETRYABLE_EXCEPTIONS as e:
+                    except pki.RETRYABLE_EXCEPTIONS as e:
                         parser.print_text('ERROR: ' + str(e))
 
                 while True:
@@ -438,7 +437,7 @@ def main(argv):
                             if status == 'running':
                                 break
                             parser.print_text('ERROR: KRA is not running')
-                        except RETRYABLE_EXCEPTIONS as e:
+                        except pki.RETRYABLE_EXCEPTIONS as e:
                             parser.print_text('ERROR: ' + str(e))
                     else:
                         parser.set_property(deployer.subsystem_name,

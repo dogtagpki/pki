@@ -32,7 +32,7 @@ import logging
 import sys
 import os
 import re
-import requests.exceptions
+import requests
 import shutil
 import subprocess
 import time
@@ -66,12 +66,6 @@ if selinux.is_selinux_enabled():
         # sepolgen is missing.
         if sys.version_info.major == 2:
             raise
-
-# Retry-able connection errors, see https://pagure.io/dogtagpki/issue/2973
-RETRYABLE_EXCEPTIONS = (
-    requests.exceptions.ConnectionError,  # connection failed
-    requests.exceptions.Timeout,  # connection or read time out
-)
 
 logger = logging.getLogger('pkihelper')
 
@@ -1015,7 +1009,7 @@ class Instance:
                 logger.error('Server unreachable due to SSL error: %s', reason)
                 break
 
-            except RETRYABLE_EXCEPTIONS:
+            except pki.RETRYABLE_EXCEPTIONS:
 
                 stop_time = datetime.today()
                 counter = (stop_time - start_time).total_seconds()
