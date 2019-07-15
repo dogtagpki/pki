@@ -690,6 +690,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         # wait for startup
         status = deployer.instance.wait_for_startup(
+            subsystem,
             PKISPAWN_STARTUP_TIMEOUT_SECONDS,
             request_timeout=status_request_timeout,
         )
@@ -817,6 +818,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         if pki.FIPS.is_enabled():
             # must use 'http' protocol when FIPS mode is enabled
             status = deployer.instance.wait_for_startup(
+                subsystem,
                 PKISPAWN_STARTUP_TIMEOUT_SECONDS,
                 request_timeout=status_request_timeout,
                 secure_connection=False,
@@ -824,6 +826,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         else:
             status = deployer.instance.wait_for_startup(
+                subsystem,
                 PKISPAWN_STARTUP_TIMEOUT_SECONDS,
                 request_timeout=status_request_timeout,
                 secure_connection=True,

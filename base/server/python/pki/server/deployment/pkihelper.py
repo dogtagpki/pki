@@ -29,6 +29,7 @@ except ImportError:
 
 import errno
 import logging
+import socket
 import sys
 import os
 import re
@@ -958,6 +959,7 @@ class Instance:
 
     def wait_for_startup(
         self,
+        subsystem,
         timeout,
         secure_connection=True,
         request_timeout=None,
@@ -973,22 +975,24 @@ class Instance:
 
         """
 
+        server_config = subsystem.instance.get_server_config()
+
         if secure_connection:
             pki_protocol = "https"
-            pki_port = self.mdict['pki_https_port']
+            pki_port = server_config.get_secure_port()
         else:
             pki_protocol = "http"
-            pki_port = self.mdict['pki_http_port']
+            pki_port = server_config.get_unsecure_port()
 
         connection = pki.client.PKIConnection(
             protocol=pki_protocol,
-            hostname=self.mdict['pki_hostname'],
+            hostname=socket.getfqdn(),
             port=pki_port,
-            subsystem=self.mdict['pki_subsystem_type'],
+            subsystem=subsystem.name,
             accept='application/xml',
             trust_env=False)
 
-        logger.info('Checking server at %s', connection.serverURI)
+        logger.info('Waiting for %s subsystem to start', subsystem.type)
 
         start_time = datetime.today()
         status = None
@@ -1017,16 +1021,16 @@ class Instance:
                 if counter >= timeout:
 
                     logger.error(
-                        'Server did not start after %ds',
+                        '%s subsystem did not start after %ds',
+                        subsystem.type,
                         timeout)
 
                     break
 
                 logger.info(
-                    'Waiting for server to start (%ds)',
+                    'Waiting for %s subsystem to start (%ds)',
+                    subsystem.type,
                     int(round(counter)))
-
-                continue
 
         return status
 
