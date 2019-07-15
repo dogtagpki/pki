@@ -688,15 +688,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             if status_request_timeout <= 0:
                 raise ValueError("timeout must be greater than zero")
 
-        # wait for startup
-        status = deployer.instance.wait_for_startup(
+        deployer.instance.wait_for_startup(
             subsystem,
             PKISPAWN_STARTUP_TIMEOUT_SECONDS,
             request_timeout=status_request_timeout,
         )
-        if status is None:
-            logger.error('Server failed to restart')
-            raise Exception("server failed to restart")
 
         # Optionally wait for debugger to attach (e. g. - 'eclipse'):
         if config.str2bool(deployer.mdict['pki_enable_java_debugger']):
@@ -812,12 +808,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Optionally, programmatically 'restart' the configured PKI instance
             instance.restart()
 
-        # wait for startup
-        status = None
-
         if pki.FIPS.is_enabled():
             # must use 'http' protocol when FIPS mode is enabled
-            status = deployer.instance.wait_for_startup(
+            deployer.instance.wait_for_startup(
                 subsystem,
                 PKISPAWN_STARTUP_TIMEOUT_SECONDS,
                 request_timeout=status_request_timeout,
@@ -825,16 +818,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             )
 
         else:
-            status = deployer.instance.wait_for_startup(
+            deployer.instance.wait_for_startup(
                 subsystem,
                 PKISPAWN_STARTUP_TIMEOUT_SECONDS,
                 request_timeout=status_request_timeout,
                 secure_connection=True,
             )
-
-        if not status:
-            logger.error('Server failed to restart')
-            raise RuntimeError("server failed to restart")
 
     def destroy(self, deployer):
         pass

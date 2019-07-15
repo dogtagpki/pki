@@ -1010,29 +1010,21 @@ class Instance:
             except requests.exceptions.SSLError as exc:
                 max_retry_error = exc.args[0]
                 reason = getattr(max_retry_error, 'reason')
-                logger.error('Server unreachable due to SSL error: %s', reason)
-                break
+                raise Exception('Server unreachable due to SSL error: %s' % reason) from exc
 
-            except pki.RETRYABLE_EXCEPTIONS:
+            except pki.RETRYABLE_EXCEPTIONS as exc:
 
                 stop_time = datetime.today()
                 counter = (stop_time - start_time).total_seconds()
 
                 if counter >= timeout:
-
-                    logger.error(
-                        '%s subsystem did not start after %ds',
-                        subsystem.type,
-                        timeout)
-
-                    break
+                    raise Exception('%s subsystem did not start after %ds' %
+                                    (subsystem.type, timeout)) from exc
 
                 logger.info(
                     'Waiting for %s subsystem to start (%ds)',
                     subsystem.type,
                     int(round(counter)))
-
-        return status
 
 
 class Directory:
