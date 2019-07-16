@@ -142,6 +142,18 @@ public class NistSP800_108KDF extends KDF {
     }
 
     //Compute the AES based CMAC operation. Used to derive session keys and cryptograms
+    //
+  
+    // Stub version:
+
+     public byte[] kdf_AES_CMAC_SCP03(SymmetricKey masterKey, byte[] context, byte kdfConstant,
+            int kdfOutputSizeBytes) throws EBaseException {
+
+	    throw new EBaseException("Not Implemented!");
+     } 
+
+    // Comment out for now until can be moved
+    /*
     public byte[] kdf_AES_CMAC_SCP03(SymmetricKey masterKey, byte[] context, byte kdfConstant,
             int kdfOutputSizeBytes) throws EBaseException {
 
@@ -213,12 +225,22 @@ public class NistSP800_108KDF extends KDF {
 
         return output.toByteArray();
     }
+    */
 
     /*******************************************************************************
      Key Derivation Function in Counter Mode using PRF = SHA256HMAC (NIST SP 800-108)
        Calculates 384 bits of diversified output from the provided master key (K_I)
     *******************************************************************************/
 
+     // Stub:
+     private byte[] kdf_CM_SHA256_HMAC_L384(SymmetricKey masterKey, byte[] context, byte kdfLabel,
+            int kdfOutputSizeBytes, CryptoToken token) throws EBaseException {
+            throw new EBaseException("Not Implemented.");
+     }
+
+    // Comment out for now.
+
+    /*
     private byte[] kdf_CM_SHA256_HMAC_L384(SymmetricKey masterKey, byte[] context, byte kdfLabel,
             int kdfOutputSizeBytes, CryptoToken token) throws EBaseException {
 
@@ -279,7 +301,10 @@ public class NistSP800_108KDF extends KDF {
 
         return finalOutput;
     }
+    */
 
+
+    // This should be ok since it just uses the HMAC digest exposed by JSS from NSS.
     private byte[] sha256HMAC(SymmetricKey masterKey, // HMAC Secret Key (K_I)
             byte[] hmac_data_input, // HMAC Input (i||04||00||context||0180)
             int hMAC_DATA_INPUT_SIZE, // Input Length
@@ -316,6 +341,15 @@ public class NistSP800_108KDF extends KDF {
     // For now calling code only using 128
     // Will move later to common class used by both tks and tps
 
+    // Stub:
+
+     public static byte[] computeAES_CMAC(SymmetricKey aesKey, byte[] input) throws EBaseException {
+         throw new EBaseException("Not Implemented.");
+     }
+
+    //Comment out for now.
+
+    /*
     public static byte[] computeAES_CMAC(SymmetricKey aesKey, byte[] input) throws EBaseException {
 
         String method = "NistSP800_108KDF.computeAES_CMAC:";
@@ -441,8 +475,18 @@ public class NistSP800_108KDF extends KDF {
         return encData;
 
     }
-
+    */
     // SCP03 AES-CMAC support function
+    //
+    // Stub:
+
+    private static byte[] getAES_CMAC_SubKey(byte[] input) {
+        return null;
+    }
+
+    // Comment out for now.
+
+    /*
     private static byte[] getAES_CMAC_SubKey(byte[] input) {
 
         byte[] output = new byte[input.length];
@@ -459,6 +503,7 @@ public class NistSP800_108KDF extends KDF {
         }
         return output;
     }
+    */
 
     // Collection of informal invocations of api used to create various session keys
     // Done with test data.
