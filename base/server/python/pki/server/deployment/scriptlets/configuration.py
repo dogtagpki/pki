@@ -814,7 +814,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # wait for startup
         status = None
 
-        if deployer.fips.is_fips_enabled():
+        if pki.FIPS.is_enabled():
             # must use 'http' protocol when FIPS mode is enabled
             status = deployer.instance.wait_for_startup(
                 PKISPAWN_STARTUP_TIMEOUT_SECONDS,

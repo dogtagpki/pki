@@ -53,7 +53,6 @@ class PKIDeployer:
         self.symlink = None
         self.war = None
         self.password = None
-        self.fips = None
         self.hsm = None
         self.certutil = None
         self.modutil = None
@@ -99,7 +98,6 @@ class PKIDeployer:
         self.symlink = util.Symlink(self)
         self.war = util.War(self)
         self.password = util.Password(self)
-        self.fips = util.FIPS(self)
         self.hsm = util.HSM(self)
         self.certutil = util.Certutil(self)
         self.modutil = util.Modutil(self)

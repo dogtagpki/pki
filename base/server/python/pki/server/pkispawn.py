@@ -890,7 +890,7 @@ def print_final_install_information(mdict):
               "      is a clone." %
               (deployer.subsystem_name, mdict['pki_instance_name']))
 
-    if mdict['pki_fips_mode_enabled']:
+    if pki.FIPS.is_enabled():
         print()
         print("      This %s subsystem of the '%s' instance\n"
               "      has FIPS mode enabled on this operating system." %

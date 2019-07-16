@@ -25,11 +25,13 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 from functools import wraps
-import os
 import cryptography.x509
+import logging
+import os
 import random
 import re
 import string
+import subprocess
 import sys
 
 import requests
@@ -86,6 +88,8 @@ RETRYABLE_EXCEPTIONS = (
     requests.exceptions.ConnectionError,  # connection failed
     requests.exceptions.Timeout,  # connection or read time out
 )
+
+logger = logging.getLogger(__name__)
 
 
 def convert_x509_name_to_dn(name):
@@ -213,6 +217,31 @@ def generate_password():
     password = ''.join(chars)
 
     return password
+
+
+class FIPS:
+
+    @staticmethod
+    def is_enabled():
+
+        # Check if /proc/sys/crypto/fips_enabled exists
+        if not os.path.exists('/proc/sys/crypto/fips_enabled'):
+            logger.info('FIPS mode is not enabled')
+            return False
+
+        # Check to see if FIPS is enabled on this system
+        command = ['sysctl', 'crypto.fips_enabled', '-bn']
+
+        with open(os.devnull, 'w') as fnull:
+            output = subprocess.check_output(command, stderr=fnull, close_fds=True)
+
+        if output != '0':
+            logger.info('FIPS mode is enabled')
+            return True
+
+        else:
+            logger.info('FIPS mode is not enabled')
+            return False
 
 
 # pylint: disable=R0903

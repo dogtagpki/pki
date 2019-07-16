@@ -1827,48 +1827,6 @@ class Password:
         return token_pwd
 
 
-class FIPS:
-    """PKI Deployment FIPS class"""
-
-    def __init__(self, deployer):
-        self.mdict = deployer.mdict
-
-    def is_fips_enabled(self, critical_failure=False):
-        try:
-            # Always initialize FIPS mode as NOT enabled
-            self.mdict['pki_fips_mode_enabled'] = False
-
-            # Check if /proc/sys/crypto/fips_enabled exists
-            if not os.path.exists("/proc/sys/crypto/fips_enabled"):
-                logger.info(log.PKIHELPER_FIPS_MODE_IS_NOT_ENABLED)
-                return False
-
-            # Check to see if FIPS is enabled on this system
-            command = ["sysctl", "crypto.fips_enabled", "-bn"]
-
-            # Execute this "sysctl" command.
-            with open(os.devnull, "w") as fnull:
-                output = subprocess.check_output(command, stderr=fnull,
-                                                 close_fds=True)
-                if output != "0":
-                    # Set FIPS mode as enabled
-                    self.mdict['pki_fips_mode_enabled'] = True
-                    logger.info(log.PKIHELPER_FIPS_MODE_IS_ENABLED)
-                    return True
-                else:
-                    logger.info(log.PKIHELPER_FIPS_MODE_IS_NOT_ENABLED)
-                    return False
-        except subprocess.CalledProcessError as exc:
-            logger.error(log.PKI_SUBPROCESS_ERROR_1, exc)
-            if critical_failure:
-                raise
-        except OSError as exc:
-            logger.error(log.PKI_OSERROR_1, exc)
-            if critical_failure:
-                raise
-        return False
-
-
 class HSM:
     """PKI Deployment HSM class"""
 
