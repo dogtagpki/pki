@@ -23,6 +23,7 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -1874,6 +1875,9 @@ public class TPSProcessor {
                     + erAttrs.ldapAttrNameCertsToRecover);
             vals = authToken.getInStringArray(erAttrs.ldapAttrNameCertsToRecover);
             if (vals != null) {
+                // A temporary list to hold retainable certs.
+                ArrayList<ExternalRegCertToRecover> retainableCerts = new ArrayList<ExternalRegCertToRecover>();
+
                 // if any cert is mis-configured, the whole thing will bail
                 for (String val : vals) {
                     CMS.debug(method + ": retrieved certsToRecover:" + val);
@@ -1908,9 +1912,18 @@ public class TPSProcessor {
                     }
                     if (i<3) {
                         erCert.setIsRetainable(true);
+                        retainableCerts.add(erCert);
+                    } else {
+                        erAttrs.addCertToRecover(erCert);
                     }
-                    erAttrs.addCertToRecover(erCert);
                 }
+
+                // Add the retainable certs after the other certs. Because "un-retainable"
+                // (e.g. revoked encryption certs or active encryption certs from previous
+                // registrations) are processed before retainable certs, "un-retainable" certs
+                // must all come first in the list.
+                if(!retainableCerts.isEmpty())
+                    erAttrs.getCertsToRecover().addAll(retainableCerts);
             } else {
                 CMS.debug(method + ": certsToRecover attribute " + erAttrs.ldapAttrNameCertsToRecover +
                         " not found");
