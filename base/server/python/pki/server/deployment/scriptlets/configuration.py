@@ -750,9 +750,13 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         if config.str2bool(deployer.mdict['pki_backup_keys']):
 
-            logger.info(
-                'Backing up keys into %s',
-                deployer.mdict['pki_backup_keys_p12'])
+            # by default store the backup file in the NSS databases directory
+            if not deployer.mdict['pki_backup_file']:
+                deployer.mdict['pki_backup_file'] = \
+                    deployer.mdict['pki_server_database_path'] + '/' + \
+                    deployer.mdict['pki_subsystem'].lower() + '_backup_keys.p12'
+
+            logger.info('Backing up keys into %s', deployer.mdict['pki_backup_file'])
 
             key_backup_request = deployer.config_client.create_key_backup_request()
             client.backupKeys(key_backup_request)

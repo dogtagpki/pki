@@ -3302,7 +3302,7 @@ class ConfigClient:
             'pki_security_domain_password']
 
     def set_backup_parameters(self, data):
-        data.backupFile = self.mdict['pki_backup_keys_p12']
+        data.backupFile = self.mdict['pki_backup_file']
         data.backupPassword = self.mdict['pki_backup_password']
 
     def set_admin_parameters(self, data):

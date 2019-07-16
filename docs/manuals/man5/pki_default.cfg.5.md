@@ -201,9 +201,9 @@ For a CA, this defaults to **ca_admin_cert.p12** in the **pki_client_dir** direc
 
 ### BACKUP PARAMETERS
 
-**pki_backup_keys**, **pki_backup_password**  
-Set to True to back up the subsystem certificates and keys to a PKCS #12 file.
-This file will be located in /var/lib/pki/*instance_name*/alias.
+**pki_backup_keys**, **pki_backup_file**, **pki_backup_password**  
+Set **pki_backup_keys** to True to back up the subsystem certificates and keys to a PKCS #12 file
+specified in **pki_backup_file** (default is /etc/pki/*instance_name*/alias/*subsystem*_backup_keys.p12).
 **pki_backup_password** is the password of the PKCS#12 file.
 
 **Important:**

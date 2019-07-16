@@ -1227,26 +1227,6 @@ class PKIConfigParser:
             #        self.mdict['pki_external_step_two']
             #
 
-            # 'Backup' Configuration name/value pairs
-            #
-            #     Tomcat - [CA], [KRA], [OCSP], [TKS], [TPS]
-            #            - [External CA]
-            #            - [Subordinate CA]
-            #
-            #     The following variables are established via the specified PKI
-            #     deployment configuration file and are NOT redefined below:
-            #
-            #        self.mdict['pki_backup_password']
-            #        self.mdict['pki_backup_keys']
-            #
-            if config.str2bool(self.mdict['pki_backup_keys']):
-                # NOTE:  ALWAYS store the PKCS #12 backup keys file
-                #        in with the NSS "server" security databases
-                self.mdict['pki_backup_keys_p12'] = \
-                    self.mdict['pki_server_database_path'] + "/" + \
-                    self.mdict['pki_subsystem'].lower() + "_" + \
-                    "backup" + "_" + "keys" + "." + "p12"
-
             self.mdict['pki_admin_profile_id'] = "caAdminCert"
 
             if 'pki_import_admin_cert' not in self.mdict:
