@@ -961,13 +961,11 @@ class Instance:
         self,
         subsystem,
         timeout,
-        secure_connection=True,
         request_timeout=None,
     ):
         """
         Wait for Dogtag to start and become ready to serve requests.
 
-        :param secure_connection: Whether to use HTTPS (default: True)
         :param timeout: Absolute timeout.  Unsuccessful status requests will
             be retried until this timeout is exceeded
         :param request_timeout: connect/receive timeout for each individual
@@ -993,6 +991,9 @@ class Instance:
             trust_env=False)
 
         logger.info('Waiting for %s subsystem to start', subsystem.type)
+
+        # must use 'http' protocol when FIPS mode is enabled
+        secure_connection = not pki.FIPS.is_enabled()
 
         start_time = datetime.today()
         status = None

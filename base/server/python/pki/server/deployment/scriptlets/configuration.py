@@ -808,22 +808,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             # Optionally, programmatically 'restart' the configured PKI instance
             instance.restart()
 
-        if pki.FIPS.is_enabled():
-            # must use 'http' protocol when FIPS mode is enabled
-            deployer.instance.wait_for_startup(
-                subsystem,
-                PKISPAWN_STARTUP_TIMEOUT_SECONDS,
-                request_timeout=status_request_timeout,
-                secure_connection=False,
-            )
-
-        else:
-            deployer.instance.wait_for_startup(
-                subsystem,
-                PKISPAWN_STARTUP_TIMEOUT_SECONDS,
-                request_timeout=status_request_timeout,
-                secure_connection=True,
-            )
+        deployer.instance.wait_for_startup(
+            subsystem,
+            PKISPAWN_STARTUP_TIMEOUT_SECONDS,
+            request_timeout=status_request_timeout,
+        )
 
     def destroy(self, deployer):
         pass
