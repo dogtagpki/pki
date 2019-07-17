@@ -27,3 +27,6 @@ TimeoutStartSec=180
 User=pkiuser
 Group=pkiuser
 Restart=on-failure
+
+[Install]
+WantedBy=pki-tomcatd-nuxwdog.target

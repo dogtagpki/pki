@@ -18,3 +18,6 @@ ExecStop=/usr/libexec/tomcat/server stop
 SuccessExitStatus=143
 User=pkiuser
 Group=pkiuser
+
+[Install]
+WantedBy=pki-tomcatd.target
