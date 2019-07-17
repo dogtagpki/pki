@@ -221,7 +221,7 @@ def main(argv):
                           deployer.subsystem_name.lower() +\
                           "-" + "destroy" + "." +\
                           deployer.log_timestamp + "." + "log"
-    print('Log file: %s/%s' % (config.pki_log_dir, config.pki_log_name))
+    print('Uninstallation log: %s/%s' % (config.pki_log_dir, config.pki_log_name))
 
     pkilogging.enable_pki_logger(config.pki_log_dir,
                                  config.pki_log_name,

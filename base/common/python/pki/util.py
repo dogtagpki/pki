@@ -161,11 +161,9 @@ def copyfile(source, dest, slots=None, params=None, uid=None, gid=None, perms=No
     logger.debug('Command: cp %s %s', source, dest)
 
     # if dest already exists and not overwriting, do nothing
-    if os.path.exists(dest):
+    if os.path.exists(dest) and not force:
         logger.warning('File already exists: %s', dest)
-
-        if not force:
-            return
+        return
 
     # if source is a link, copy the link
     if os.path.islink(source):

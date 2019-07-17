@@ -63,8 +63,8 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             deployer.mdict['pki_default_deployment_cfg'],
             deployer.mdict['pki_default_deployment_cfg_replica'])
 
-        print("Storing deployment configuration into " +
-              deployer.mdict['pki_user_deployment_cfg_replica'] + ".")
+        logger.info('Storing deployment configuration into %s',
+                    deployer.mdict['pki_user_deployment_cfg_replica'])
 
         # Archive the user deployment configuration excluding the sensitive
         # parameters

@@ -673,9 +673,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             len(deployer.instance.tomcat_instance_subsystems())
 
         if tomcat_instance_subsystems == 1:
+            logger.info('Starting server')
             instance.start()
 
         elif tomcat_instance_subsystems > 1:
+            logger.info('Restarting server')
             instance.restart()
 
         # Configure status request timeout.  This is used for each
@@ -790,6 +792,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
         # If temp SSL server cert was created and there's a new perm cert,
         # replace it with the perm cert.
         if create_temp_sslserver_cert and sslserver and sslserver['data']:
+            logger.info('Stopping server')
             instance.stop()
 
             # Remove temp SSL server cert.
@@ -806,10 +809,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
                 self.import_perm_sslserver_cert(deployer, instance, sslserver)
 
+            logger.info('Starting server')
             instance.start()
 
         elif config.str2bool(deployer.mdict['pki_restart_configured_instance']):
-            # Optionally, programmatically 'restart' the configured PKI instance
+            logger.info('Restarting server')
             instance.restart()
 
         deployer.instance.wait_for_startup(

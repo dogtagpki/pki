@@ -670,7 +670,7 @@ def start_logging():
                           deployer.subsystem_name.lower() + \
                           "-" + "spawn" + "." + \
                           deployer.log_timestamp + "." + "log"
-    print('Log file: %s/%s' % (config.pki_log_dir, config.pki_log_name))
+    print('Installation log: %s/%s' % (config.pki_log_dir, config.pki_log_name))
 
     pkilogging.enable_pki_logger(config.pki_log_dir,
                                  config.pki_log_name,

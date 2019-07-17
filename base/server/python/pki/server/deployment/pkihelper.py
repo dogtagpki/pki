@@ -959,8 +959,6 @@ class Instance:
 
         """
 
-        logger.info('Waiting for %s subsystem to start', subsystem.type)
-
         # must use 'http' protocol when FIPS mode is enabled
         secure_connection = not pki.FIPS.is_enabled()
 
