@@ -118,10 +118,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             logger.debug("=== Subsystem Configuration ===");
             configurator.configureSubsystem(request, domainInfo);
 
-            // configure hierarchy
-            logger.debug("=== Hierarchy Configuration ===");
-            configureHierarchy(request);
-
             logger.debug("=== Configure CA Cert Chain ===");
             configurator.configureCACertChain(request, domainInfo);
 
@@ -644,22 +640,6 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         } catch (Throwable e) { // unexpected error
             logger.error("Configuration failed: " + e.getMessage(), e);
             throw e;
-        }
-    }
-
-    public void configureHierarchy(ConfigurationRequest data) {
-        if (csType.equals("CA") && !data.isClone()) {
-            if (data.getHierarchy().equals("root")) {
-                cs.putString("preop.hierarchy.select", "root");
-                cs.putString("hierarchy.select", "Root");
-                cs.putString("preop.ca.type", "sdca");
-            } else if (data.getHierarchy().equals("join")) {
-                cs.putString("preop.cert.signing.type", "remote");
-                cs.putString("preop.hierarchy.select", "join");
-                cs.putString("hierarchy.select", "Subordinate");
-            } else {
-                throw new BadRequestException("Invalid hierarchy provided");
-            }
         }
     }
 
