@@ -121,62 +121,64 @@ public class CertUtil {
     public static PKCS10 getPKCS10(
             IConfigStore config,
             String prefix,
-            Cert certObj) throws IOException {
+            Cert certObj) throws Exception {
+
         String certTag = certObj.getCertTag();
+        logger.info("CertUtil: Generating CSR for " + certTag);
 
-        X509Key pubk = null;
-        try {
-            String pubKeyType = config.getString(
-                        prefix + certTag + ".keytype");
-            String algorithm = config.getString(
-                        prefix + certTag + ".keyalgorithm");
-            if (pubKeyType.equals("rsa")) {
-                String pubKeyModulus = config.getString(
-                        prefix + certTag + ".pubkey.modulus");
-                String pubKeyPublicExponent = config.getString(
-                        prefix + certTag + ".pubkey.exponent");
-                pubk = CryptoUtil.getPublicX509Key(
-                        CryptoUtil.string2byte(pubKeyModulus),
-                        CryptoUtil.string2byte(pubKeyPublicExponent));
-            } else if (pubKeyType.equals("ecc")) {
-                String pubKeyEncoded = config.getString(
-                        prefix + certTag + ".pubkey.encoded");
-                pubk = CryptoUtil.getPublicX509ECCKey(
-                        CryptoUtil.string2byte(pubKeyEncoded));
-            } else {
-                logger.error("CertUtil: getPKCS10() - "
-                        + "public key type is unsupported: " + pubKeyType);
-                throw new IOException("Public key type is unsupported: " + pubKeyType);
-            }
+        String dn = config.getString(prefix + certTag + ".dn");
+        logger.debug("CertUtil: subject: " + dn);
 
-            if (pubk != null) {
-                logger.debug("CertUtil: got public key");
-            } else {
-                logger.error("CertUtil: error getting public key null");
-                throw new IOException("public key is null");
-            }
-            // get private key
-            String privKeyID = config.getString(prefix + certTag + ".privkey.id");
-            byte[] keyIDb = CryptoUtil.decodeKeyID(privKeyID);
+        String keyType = config.getString(prefix + certTag + ".keytype");
 
-            PrivateKey privk = CryptoUtil.findPrivateKeyFromID(keyIDb);
+        X509Key publicKey;
 
-            if (privk != null) {
-                logger.debug("CertUtil: got private key");
-            } else {
-                logger.warn("CertUtil: error getting private key null");
-            }
+        if (keyType.equals("rsa")) {
 
-            // construct cert request
-            String dn = config.getString(prefix + certTag + ".dn");
+            String pubKeyModulus = config.getString(prefix + certTag + ".pubkey.modulus");
+            String pubKeyPublicExponent = config.getString(prefix + certTag + ".pubkey.exponent");
 
-            return CryptoUtil.createCertificationRequest(dn, pubk,
-                    privk, algorithm);
+            publicKey = CryptoUtil.getPublicX509Key(
+                    CryptoUtil.string2byte(pubKeyModulus),
+                    CryptoUtil.string2byte(pubKeyPublicExponent));
 
-        } catch (Throwable e) {
-            logger.error("CertUtil: getPKCS10: " + e, e);
-            throw new IOException(e);
+        } else if (keyType.equals("ecc")) {
+
+            String pubKeyEncoded = config.getString(prefix + certTag + ".pubkey.encoded");
+
+            publicKey = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
+
+        } else {
+            logger.error("CertUtil: Unsupported public key type: " + keyType);
+            throw new IOException("Unsupported public key type: " + keyType);
         }
+
+        if (publicKey == null) {
+            logger.error("CertUtil: Unable to get public key for " + certTag);
+            throw new IOException("Unable to get public key for " + certTag);
+        }
+
+        logger.debug("CertUtil: public key: " + publicKey.getAlgorithm());
+
+        String privateKeyID = config.getString(prefix + certTag + ".privkey.id");
+        byte[] keyID = CryptoUtil.decodeKeyID(privateKeyID);
+
+        PrivateKey privateKey = CryptoUtil.findPrivateKeyFromID(keyID);
+
+        if (privateKey == null) {
+            logger.warn("CertUtil: Unable to get private key for " + certTag);
+            throw new IOException("Unable to get private key for " + certTag);
+        }
+
+        logger.debug("CertUtil: private key: " + privateKey.getAlgorithm());
+
+        String algorithm = config.getString(prefix + certTag + ".keyalgorithm");
+
+        return CryptoUtil.createCertificationRequest(
+                dn,
+                publicKey,
+                privateKey,
+                algorithm);
     }
 
 
