@@ -537,46 +537,35 @@ public class CertificateAuthority
 
         try {
             try {
-                try {
-                    logger.info("CertificateAuthority: initializing signing unit for CA");
-                    initSigUnit();
-                    initSigUnitSucceeded = true;
+                logger.info("CertificateAuthority: initializing signing unit for CA");
+                initSigUnit();
+                initSigUnitSucceeded = true;
 
-                } catch (CAMissingCertException | CAMissingKeyException e) {
-                    logger.warn("CertificateAuthority: CA signing key and cert not (yet) present in NSS database");
-                    signingUnitException = e;
+            } catch (CAMissingCertException | CAMissingKeyException e) {
+                logger.warn("CertificateAuthority: CA signing key and cert not (yet) present in NSS database");
+                signingUnitException = e;
 
-                    if (authorityID == null) {
-                        // Only the host authority should ever see a
-                        // null authorityID, e.g. during two-step
-                        // installation of externally-signed CA.
-                        logger.debug("null authorityID -> host authority; not starting KeyRetriever");
+                if (authorityID == null) {
+                    // Only the host authority should ever see a
+                    // null authorityID, e.g. during two-step
+                    // installation of externally-signed CA.
+                    logger.debug("null authorityID -> host authority; not starting KeyRetriever");
 
-                    } else if (!keyRetrieverThreads.containsKey(authorityID)) {
-                        logger.info("CertificateAuthority: starting KeyRetrieverRunner thread");
-                        Thread t = new Thread(
-                            new KeyRetrieverRunner(this, authorityID, mNickname, authorityKeyHosts),
-                            "KeyRetrieverRunner-" + authorityID);
-                        t.start();
-                        keyRetrieverThreads.put(authorityID, t);
+                } else if (!keyRetrieverThreads.containsKey(authorityID)) {
+                    logger.info("CertificateAuthority: starting KeyRetrieverRunner thread");
+                    Thread t = new Thread(
+                        new KeyRetrieverRunner(this, authorityID, mNickname, authorityKeyHosts),
+                        "KeyRetrieverRunner-" + authorityID);
+                    t.start();
+                    keyRetrieverThreads.put(authorityID, t);
 
-                    } else {
-                        logger.debug("KeyRetriever thread already running for authority " + authorityID);
-                    }
-                }
-
-                // init default CA attributes like cert version, validity.
-                initDefCaAttrs();
-
-            } catch (EBaseException e) {
-                if (engine.isPreOpMode()) {
-                    logger.warn("CertificateAuthority: " + e.getMessage(), e);
-                    logger.warn("CertificateAuthority: swallow exception in pre-op mode");
                 } else {
-                    logger.error("CertificateAuthority: " + e.getMessage(), e);
-                    throw e;
+                    logger.debug("KeyRetriever thread already running for authority " + authorityID);
                 }
             }
+
+            // init default CA attributes like cert version, validity.
+            initDefCaAttrs();
 
         } catch (EBaseException e) {
             if (engine.isPreOpMode()) {
