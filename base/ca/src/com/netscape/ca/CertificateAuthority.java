@@ -567,10 +567,10 @@ public class CertificateAuthority
             // init default CA attributes like cert version, validity.
             initDefCaAttrs();
 
-        } catch (EBaseException e) {
+        } catch (EPropertyNotFound e) {
             if (engine.isPreOpMode()) {
-                logger.warn("CertificateAuthority: " + e.getMessage(), e);
-                logger.warn("CertificateAuthority: swallow exception in pre-op mode");
+                logger.warn("CertificateAuthority: " + e.getMessage());
+                logger.warn("CertificateAuthority: Ignore exception in pre-op mode");
             } else {
                 logger.error("CertificateAuthority: " + e.getMessage(), e);
                 throw e;
