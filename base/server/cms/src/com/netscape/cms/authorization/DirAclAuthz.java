@@ -106,11 +106,8 @@ public class DirAclAuthz extends AAclAuthz
                 };
     }
 
-    /**
-     *
-     */
-    public void init(String name, String implName, IConfigStore config)
-            throws EBaseException {
+    public void init(String name, String implName, IConfigStore config) throws EBaseException {
+
         super.init(name, implName, config);
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -118,7 +115,6 @@ public class DirAclAuthz extends AAclAuthz
 
         searchBase = config.getString(PROP_SEARCHBASE, null);
 
-        // initialize LDAP connection factory
         IConfigStore ldapConfig = config.getSubStore("ldap");
 
         if (ldapConfig == null) {
@@ -134,7 +130,7 @@ public class DirAclAuthz extends AAclAuthz
         } catch (EBaseException e) {
             logger.warn("DirAclAuthz: " + e.getMessage(), e);
             if (engine.isPreOpMode()) {
-                logger.warn("DirAclAuthz.init(): Swallow exception in pre-op mode");
+                logger.warn("DirAclAuthz: Ignore exception in pre-op mode");
                 return;
             }
         }
@@ -153,36 +149,40 @@ public class DirAclAuthz extends AAclAuthz
             filter = "objectclass=CertACLs";
         }
 
-        logger.debug("DirAclAuthz: about to ldap search " + basedn + " (" + filter + ")");
+        logger.debug("DirAclAuthz: searching for " + basedn + " (" + filter + ")");
+
         try {
             conn = getConn();
-            LDAPSearchResults res = conn.search(
-                    basedn, LDAPv2.SCOPE_SUB, filter, null, false);
-
+            LDAPSearchResults res = conn.search(basedn, LDAPv2.SCOPE_SUB, filter, null, false);
             returnConn(conn);
+
             if (res.hasMoreElements()) {
-                logger.info("DirAclAuthz: ldap search found cn=aclResources");
 
                 LDAPEntry entry = (LDAPEntry) res.nextElement();
+                logger.info("DirAclAuthz: found " + entry.getDN());
+
                 LDAPAttribute aclRes = entry.getAttribute("resourceACLS");
 
-                @SuppressWarnings("unchecked")
                 Enumeration<String> en = aclRes.getStringValues();
 
-                for (; en != null && en.hasMoreElements();) {
+                while (en != null && en.hasMoreElements()) {
                     addACLs(en.nextElement());
                 }
-            } else {
-                logger.info("DirAclAuthz: ldap search found no cn=aclResources");
-            }
-        } catch (LDAPException e) {
-            logger.error("DirAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_INIT_ERROR", e.toString()), e);
-            throw new EACLsException(CMS.getUserMessage("CMS_ACL_CONNECT_LDAP_FAIL", mBaseDN));
-        } catch (EBaseException e) {
-            logger.warn("DirAclAuthz: " + CMS.getLogMessage("AUTHZ_EVALUATOR_INIT_ERROR", e.toString()), e);
-        }
 
-        logger.info("DirAclAuthz: initialization done");
+            } else {
+                logger.info("DirAclAuthz: no results");
+            }
+
+            logger.info("DirAclAuthz: initialization done");
+
+        } catch (LDAPException e) {
+            if (engine.isPreOpMode() && e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
+                logger.warn("DirAclAuthz: Unable to find base DN: " + basedn);
+                logger.warn("DirAclAuthz: Ignore missing base DN in pre-op mode");
+            } else {
+                throw new EACLsException(CMS.getUserMessage("CMS_ACL_CONNECT_LDAP_FAIL", e.getMessage()), e);
+            }
+        }
     }
 
     /**
