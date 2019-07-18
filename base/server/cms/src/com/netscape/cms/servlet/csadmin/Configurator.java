@@ -2348,12 +2348,16 @@ public class Configurator {
                     certObj,
                     cert,
                     certTag,
-                    preop_ca_type,
-                    preop_cert_signing_type,
-                    preop_cert_signing_profile,
-                    preop_cert_sslserver_type,
-                    preop_cert_sslserver_profile,
                     sign_clone_sslserver_cert_using_master);
+
+            if (sign_clone_sslserver_cert_using_master) {
+                // restore original 'CS.cfg' entries
+                cs.putString("preop.ca.type", preop_ca_type);
+                cs.putString("preop.cert.signing.type", preop_cert_signing_type);
+                cs.putString("preop.cert.signing.profile", preop_cert_signing_profile);
+                cs.putString("preop.cert.sslserver.type", preop_cert_sslserver_type);
+                cs.putString("preop.cert.sslserver.profile", preop_cert_sslserver_profile);
+            }
 
         } else { // not remote CA, ie, self-signed or local
 
@@ -2384,11 +2388,6 @@ public class Configurator {
             Cert certObj,
             X509CertImpl cert,
             String certTag,
-            String preop_ca_type,
-            String preop_cert_signing_type,
-            String preop_cert_signing_profile,
-            String preop_cert_sslserver_type,
-            String preop_cert_sslserver_profile,
             boolean sign_clone_sslserver_cert_using_master)
             throws Exception {
 
@@ -2486,15 +2485,6 @@ public class Configurator {
 
             if (cert == null) {
                 throw new IOException("Error: remote certificate is null");
-            }
-
-            if (sign_clone_sslserver_cert_using_master) {
-                // restore original 'CS.cfg' entries
-                cs.putString("preop.ca.type", preop_ca_type);
-                cs.putString("preop.cert.signing.type", preop_cert_signing_type);
-                cs.putString("preop.cert.signing.profile", preop_cert_signing_profile);
-                cs.putString("preop.cert.sslserver.type", preop_cert_sslserver_type);
-                cs.putString("preop.cert.sslserver.profile", preop_cert_sslserver_profile);
             }
 
         } else if (caType.equals("otherca")) {
