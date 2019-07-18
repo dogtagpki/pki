@@ -505,32 +505,34 @@ public class CertificateAuthority
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
         IConfigStore dbCfg = cs.getSubStore("internaldb");
+        IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
+
+        mOwner = owner;
+        mConfig = config;
+
+        if (isHostAuthority()) {
+            dbFactory.init(cs, dbCfg, engine.getPasswordStore());
+        }
+
+        logger.info("CertificateAuthority: initializing certificate database");
+        initCertDatabase();
+
+        logger.info("CertificateAuthority: initializing CRL database");
+        initCrlDatabase();
+
+        logger.debug("CertificateAuthority: initializing replica ID repository");
+        if (isHostAuthority()) {
+            String replicaReposDN = mConfig.getString(PROP_REPLICAID_DN, null);
+            if (replicaReposDN == null) {
+                replicaReposDN = "ou=Replica," + getDBSubsystem().getBaseDN();
+            }
+            mReplicaRepot = new ReplicaIDRepository(dbSubsystem, 1, replicaReposDN);
+
+        } else {
+            mReplicaRepot = hostCA.mReplicaRepot;
+        }
 
         try {
-            mOwner = owner;
-            mConfig = config;
-
-            if (isHostAuthority()) {
-                dbFactory.init(cs, dbCfg, engine.getPasswordStore());
-            }
-
-            // init cert & crl database
-            initCertDatabase();
-            initCrlDatabase();
-
-            // init replica id repository
-            if (isHostAuthority()) {
-                String replicaReposDN = mConfig.getString(PROP_REPLICAID_DN, null);
-                if (replicaReposDN == null) {
-                    replicaReposDN = "ou=Replica," + getDBSubsystem().getBaseDN();
-                }
-                mReplicaRepot = new ReplicaIDRepository(
-                        DBSubsystem.getInstance(), 1, replicaReposDN);
-                logger.debug("Replica Repot inited");
-            } else {
-                mReplicaRepot = hostCA.mReplicaRepot;
-            }
-
             // init signing unit & CA cert.
             boolean initSigUnitSucceeded = false;
             try {
