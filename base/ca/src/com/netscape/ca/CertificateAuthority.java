@@ -532,9 +532,10 @@ public class CertificateAuthority
             mReplicaRepot = hostCA.mReplicaRepot;
         }
 
+        // init signing unit & CA cert.
+        boolean initSigUnitSucceeded = false;
+
         try {
-            // init signing unit & CA cert.
-            boolean initSigUnitSucceeded = false;
             try {
                 try {
                     logger.info("CertificateAuthority: initializing signing unit for CA");
@@ -577,93 +578,6 @@ public class CertificateAuthority
                 }
             }
 
-            /* Don't try to update the cert unless we already have
-             * the cert and key. */
-            if (initSigUnitSucceeded)
-                checkForNewerCert();
-
-            mUseNonces = mConfig.getBoolean("enableNonces", true);
-            mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
-
-            // init request queue and related modules.
-            logger.debug("CertificateAuthority init: initRequestQueue");
-            initRequestQueue();
-            if (engine.isPreOpMode()) {
-                logger.debug("CertificateAuthority.init(): Abort in pre-op mode");
-                return;
-            }
-
-            /* The host CA owns these resources so skip these
-             * steps for lightweight CAs.
-             */
-            if (isHostAuthority()) {
-                /* These methods configure and start threads related to
-                 * CertificateRepository.  Ideally all of the config would
-                 * be pushed into CertificateRepository constructor and a
-                 * single 'start' method would start the threads.
-                 */
-                // set certificate status to 10 minutes
-                mCertRepot.setCertStatusUpdateInterval(
-                    mRequestQueue.getRequestRepository(),
-                    mConfig.getInteger("certStatusUpdateInterval", 10 * 60),
-                    mConfig.getBoolean("listenToCloneModifications", false));
-                mCertRepot.setConsistencyCheck(
-                    mConfig.getBoolean("ConsistencyCheck", false));
-                mCertRepot.setSkipIfInConsistent(
-                    mConfig.getBoolean("SkipIfInConsistent", false));
-
-                // set serial number update task to run every 10 minutes
-                mCertRepot.setSerialNumberUpdateInterval(
-                    mRequestQueue.getRequestRepository(),
-                    mConfig.getInteger("serialNumberUpdateInterval", 10 * 60));
-
-                mService.init(config.getSubStore("connector"));
-
-                initMiscellaneousListeners();
-            }
-
-            initCRLPublisher();
-
-            // initialize publisher processor (publish remote admin
-            // rely on this subsystem, so it has to be initialized)
-            initPublish();
-
-            // Initialize CRL issuing points.
-            // note CRL framework depends on DBS, CRYPTO and PUBLISHING
-            // being functional.
-            initCRL();
-
-            if (isHostAuthority() && haveLightweightCAsContainer()) {
-
-                authorityMonitor = new AuthorityMonitor(this);
-                new Thread(authorityMonitor, "AuthorityMonitor").start();
-
-                try {
-                    // block until the expected number of authorities
-                    // have been loaded (based on numSubordinates of
-                    // container entry), or watchdog times it out (in case
-                    // numSubordinates is larger than the number of entries
-                    // we can see, e.g. replication conflict entries).
-                    lwcaLoader.awaitLoadDone();
-                } catch (InterruptedException e) {
-                    logger.warn("CertificateAuthority: caught InterruptedException "
-                            + "while waiting for initial load of authorities.");
-                    logger.warn("You may have replication conflict entries or "
-                            + "extraneous data under " + authorityBaseDN());
-                }
-
-                if (!foundHostAuthority) {
-                    logger.debug("loadLightweightCAs: no entry for host authority");
-                    logger.debug("loadLightweightCAs: adding entry for host authority");
-                    caMap.put(addHostAuthorityEntry(), this);
-                }
-
-                logger.debug("CertificateAuthority: finished init of host authority");
-            }
-
-            // set up CA Issuance Protection Cert
-            if (initSigUnitSucceeded)
-                initIssuanceProtectionCert();
         } catch (EBaseException e) {
             if (engine.isPreOpMode()) {
                 logger.warn("CertificateAuthority: " + e.getMessage(), e);
@@ -673,6 +587,94 @@ public class CertificateAuthority
                 throw e;
             }
         }
+
+        /* Don't try to update the cert unless we already have
+         * the cert and key. */
+        if (initSigUnitSucceeded)
+            checkForNewerCert();
+
+        mUseNonces = mConfig.getBoolean("enableNonces", true);
+        mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
+
+        // init request queue and related modules.
+        logger.debug("CertificateAuthority init: initRequestQueue");
+        initRequestQueue();
+        if (engine.isPreOpMode()) {
+            logger.debug("CertificateAuthority.init(): Abort in pre-op mode");
+            return;
+        }
+
+        /* The host CA owns these resources so skip these
+         * steps for lightweight CAs.
+         */
+        if (isHostAuthority()) {
+            /* These methods configure and start threads related to
+             * CertificateRepository.  Ideally all of the config would
+             * be pushed into CertificateRepository constructor and a
+             * single 'start' method would start the threads.
+             */
+            // set certificate status to 10 minutes
+            mCertRepot.setCertStatusUpdateInterval(
+                mRequestQueue.getRequestRepository(),
+                mConfig.getInteger("certStatusUpdateInterval", 10 * 60),
+                mConfig.getBoolean("listenToCloneModifications", false));
+            mCertRepot.setConsistencyCheck(
+                mConfig.getBoolean("ConsistencyCheck", false));
+            mCertRepot.setSkipIfInConsistent(
+                mConfig.getBoolean("SkipIfInConsistent", false));
+
+            // set serial number update task to run every 10 minutes
+            mCertRepot.setSerialNumberUpdateInterval(
+                mRequestQueue.getRequestRepository(),
+                mConfig.getInteger("serialNumberUpdateInterval", 10 * 60));
+
+            mService.init(config.getSubStore("connector"));
+
+            initMiscellaneousListeners();
+        }
+
+        initCRLPublisher();
+
+        // initialize publisher processor (publish remote admin
+        // rely on this subsystem, so it has to be initialized)
+        initPublish();
+
+        // Initialize CRL issuing points.
+        // note CRL framework depends on DBS, CRYPTO and PUBLISHING
+        // being functional.
+        initCRL();
+
+        if (isHostAuthority() && haveLightweightCAsContainer()) {
+
+            authorityMonitor = new AuthorityMonitor(this);
+            new Thread(authorityMonitor, "AuthorityMonitor").start();
+
+            try {
+                // block until the expected number of authorities
+                // have been loaded (based on numSubordinates of
+                // container entry), or watchdog times it out (in case
+                // numSubordinates is larger than the number of entries
+                // we can see, e.g. replication conflict entries).
+                lwcaLoader.awaitLoadDone();
+            } catch (InterruptedException e) {
+                logger.warn("CertificateAuthority: caught InterruptedException "
+                        + "while waiting for initial load of authorities.");
+                logger.warn("You may have replication conflict entries or "
+                        + "extraneous data under " + authorityBaseDN());
+            }
+
+            if (!foundHostAuthority) {
+                logger.debug("loadLightweightCAs: no entry for host authority");
+                logger.debug("loadLightweightCAs: adding entry for host authority");
+                caMap.put(addHostAuthorityEntry(), this);
+            }
+
+            logger.debug("CertificateAuthority: finished init of host authority");
+        }
+
+        // set up CA Issuance Protection Cert
+        if (initSigUnitSucceeded)
+            initIssuanceProtectionCert();
     }
 
     private void generateSigningInfoAuditEvents()
