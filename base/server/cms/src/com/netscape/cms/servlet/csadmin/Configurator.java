@@ -2353,7 +2353,6 @@ public class Configurator {
                     preop_cert_signing_profile,
                     preop_cert_sslserver_type,
                     preop_cert_sslserver_profile,
-                    original_caType,
                     sign_clone_sslserver_cert_using_master);
 
         } else { // not remote CA, ie, self-signed or local
@@ -2390,13 +2389,11 @@ public class Configurator {
             String preop_cert_signing_profile,
             String preop_cert_sslserver_type,
             String preop_cert_sslserver_profile,
-            String original_caType,
             boolean sign_clone_sslserver_cert_using_master)
             throws Exception {
 
-        String caType;
         CMSEngine engine = CMS.getCMSEngine();
-        String v = cs.getString("preop.ca.type", "");
+        String caType = cs.getString("preop.ca.type", "");
 
         logger.debug("configCert: remote CA");
         logger.debug("confgCert: tag: " + certTag);
@@ -2439,7 +2436,7 @@ public class Configurator {
                 throw new IOException("Error: remote certificate is null");
             }
 
-        } else if (v.equals("sdca")) {
+        } else if (caType.equals("sdca")) {
 
             String ca_hostname = "";
             int ca_port = -1;
@@ -2498,16 +2495,9 @@ public class Configurator {
                 cs.putString("preop.cert.signing.profile", preop_cert_signing_profile);
                 cs.putString("preop.cert.sslserver.type", preop_cert_sslserver_type);
                 cs.putString("preop.cert.sslserver.profile", preop_cert_sslserver_profile);
-
-                // restore original 'caType'
-                caType = original_caType;
-
-                // reset master/clone signature flag
-                sign_clone_sslserver_cert_using_master = false;
             }
 
-        } else if (v.equals("otherca")) {
-
+        } else if (caType.equals("otherca")) {
             // external certs already imported in configuration.py
 
         } else {
