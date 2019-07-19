@@ -1005,9 +1005,15 @@ public class SecureChannelProtocol {
             encryptor.initEncrypt(encUnwrapKey);
 
             if (finalKeyArray != null) {
-                wrappedKey = encryptor.doFinal(finalKeyArray);
+                if(finalKeyType == SymmetricKey.Type.DES3 || finalKeyType == SymmetricKey.Type.DES)
+                    wrappedKey = encryptor.doFinal(KDF.getDesParity(finalKeyArray));
+                else
+                    wrappedKey = encryptor.doFinal(finalKeyArray);
             } else {
-                wrappedKey = encryptor.doFinal(inputKeyArray);
+                if(finalKeyType == SymmetricKey.Type.DES3 || finalKeyType == SymmetricKey.Type.DES)
+                    wrappedKey = encryptor.doFinal(KDF.getDesParity(inputKeyArray));
+                else
+                    wrappedKey = encryptor.doFinal(inputKeyArray);
             }
 
             CMS.debug(method + " done enrypting data");
