@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.dogtagpki.server.tps.TPSSession;
 import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.TPSTokenPolicy;
+import org.dogtagpki.server.tps.authentication.TPSAuthenticator;
 import org.dogtagpki.server.tps.channel.SecureChannel;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
@@ -54,6 +55,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
         }
         setBeginMessage(beginMsg);
         setCurrentTokenOperation(TPSEngine.PIN_RESET_OP);
+        checkIsExternalReg();
 
         resetPin();
 
@@ -91,6 +93,8 @@ public class TPSPinResetProcessor extends TPSProcessor {
         }
         appletInfo.setAid(getCardManagerAID());
 
+        CMS.debug(method + " token cuid: " + appletInfo.getCUIDhexStringPlain());
+
         tokenRecord = isTokenRecordPresent(appletInfo);
 
         if (tokenRecord == null) {
@@ -107,87 +111,150 @@ public class TPSPinResetProcessor extends TPSProcessor {
 
         TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
 
+        fillTokenRecord(tokenRecord, appletInfo);
         session.setTokenRecord(tokenRecord);
 
+        String cuid = appletInfo.getCUIDhexStringPlain();
         String tokenType = null;
 
-        try {
-            String resolverInstName = getResolverInstanceName();
+        if(isExternalReg) {
+            CMS.debug(method + " isExternalReg: ON");
 
-            if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
-                FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
-                        appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
-                        appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
-                TPSSubsystem subsystem =
-                        (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
-                BaseMappingResolver resolverInst =
-                        subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
-                tokenType = resolverInst.getResolvedMapping(mappingParams);
-                setSelectedTokenType(tokenType);
-                CMS.debug(method + " resolved tokenType: " + tokenType);
+            // Get authId for external reg attributes (e.g. "ldap1")
+            IConfigStore configStore = CMS.getConfigStore();
+            String configName = "externalReg.authId";
+            String authId;
+            try {
+                authId = configStore.getString(configName);
+            } catch (EBaseException e) {
+                CMS.debug(method + " Internal Error obtaining mandatory config values. Error: " + e);
+                logMsg = "TPS error getting config values from config store." + e.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
-        } catch (TPSException e) {
-            logMsg = e.toString();
-            auditPinResetFailure(session.getIpAddress(), userid, appletInfo, logMsg);
 
-            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
-                    "failure");
+            // Log in with user-provided ID and password
+            TPSAuthenticator userAuth = null;
+            try {
+                CMS.debug(method + " isExternalReg: calling requestUserId");
+                userAuth = getAuthentication(authId);
+                processAuthentication(TPSEngine.PIN_RESET_OP, userAuth, cuid, tokenRecord);
+                auditAuthSuccess(userid, currentTokenOperation, appletInfo, authId);
+            } catch (Exception e) {
+                auditAuthFailure(userid, currentTokenOperation, appletInfo,
+                        (userAuth != null) ? userAuth.getID() : null);
+                // all exceptions are considered login failure
+                CMS.debug(method + ": authentication exception thrown: " + e);
+                logMsg = "ExternalReg authentication failed, status = STATUS_ERROR_LOGIN";
 
-            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+                tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+
+                throw new TPSException(logMsg,
+                        TPSStatus.STATUS_ERROR_LOGIN);
+            }
+
+	    // Get and process external reg attributes
+            try {
+                erAttrs = processExternalRegAttrs(authId);
+            } catch (Exception ee) {
+                logMsg = "after processExternalRegAttrs: " + ee.toString();
+                tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+
+            // Check if the external reg parameter registrationType matches currentTokenOperation,
+            // otherwise stop the operation.
+            CMS.debug(method + " checking if record registrationtype matches currentTokenOperation.");
+            if(erAttrs.getRegistrationType() != null && erAttrs.getRegistrationType().length() > 0) {
+                if(!erAttrs.getRegistrationType().equalsIgnoreCase(currentTokenOperation)) {
+                    CMS.debug(
+                            method + " Error: registrationType " +
+                            erAttrs.getRegistrationType() +
+                            " does not match currentTokenOperation " +
+                            currentTokenOperation);
+                    logMsg = "Improper Use of CRI, Enrollment CRI used for PIN Reset";
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                            "failure");
+                    throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_LOGIN);
+                } else {
+                    CMS.debug(method + " --> registrationtype matches currentTokenOperation");
+                }
+            } else {
+                CMS.debug(method + " --> registrationtype attribute disabled or not found, continuing.");
+            }
+
+            session.setExternalRegAttrs(erAttrs);
+            setExternalRegSelectedTokenType(erAttrs);
+
+            CMS.debug(method + " isExternalReg: about to process keySet resolver");
+            /*
+             * Note: externalReg.mappingResolver=none indicates no resolver
+             *    plugin used
+             */
+
+            try {
+                String resolverInstName = getKeySetResolverInstanceName();
+
+                if (!resolverInstName.equals("none") && (selectedKeySet == null)) {
+                    FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
+                            appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
+                            appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
+                    TPSSubsystem subsystem =
+                            (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                    BaseMappingResolver resolverInst =
+                            subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
+                    String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet");
+                    setSelectedTokenType(keySet);
+                    CMS.debug(method + " resolved keySet: " + keySet);
+                }
+            } catch (TPSException e) {
+                logMsg = e.toString();
+                auditPinResetFailure(session.getIpAddress(), userid, appletInfo, logMsg);
+
+                tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+    
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
+	} else {
+            CMS.debug(method + " isExternalReg: OFF");
+
+            try {
+                String resolverInstName = getResolverInstanceName();
+
+                if (!resolverInstName.equals("none") && (selectedTokenType == null)) {
+                    FilterMappingParams mappingParams = createFilterMappingParams(resolverInstName,
+                            appletInfo.getCUIDhexStringPlain(), appletInfo.getMSNString(),
+                            appletInfo.getMajorVersion(), appletInfo.getMinorVersion());
+                    TPSSubsystem subsystem =
+                            (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+                    BaseMappingResolver resolverInst =
+                            subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
+                    tokenType = resolverInst.getResolvedMapping(mappingParams);
+                    setSelectedTokenType(tokenType);
+                    CMS.debug(method + " resolved tokenType: " + tokenType);
+                }
+            } catch (TPSException e) {
+                logMsg = e.toString();
+                auditPinResetFailure(session.getIpAddress(), userid, appletInfo, logMsg);
+                tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
+                        "failure");
+
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
+            }
         }
 
         statusUpdate(15, "PROGRESS_PIN_RESET_RESOLVE_PROFILE");
 
         checkProfileStateOK();
 
-        checkAndAuthenticateUser(appletInfo, tokenType);
-
-        // Get authId for external reg attributes (e.g. "ldap1")
-        IConfigStore configStore = CMS.getConfigStore();
-        String configName = "externalReg.authId";
-        String authId;
-        try {
-            authId = configStore.getString(configName);
-        } catch (EBaseException e) {
-            CMS.debug(method + " Internal Error obtaining mandatory config values. Error: " + e);
-            logMsg = "TPS error getting config values from config store." + e.toString();
-            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
-                    "failure");
-
-            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
-        }
-        
-        // Get and process external reg attributes
-        try {
-            erAttrs = processExternalRegAttrs(authId);
-        } catch (Exception ee) {
-            logMsg = "after processExternalRegAttrs: " + ee.toString();
-            tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
-                    "failure");
-
-            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
-        }
-        
-        // Check if the external reg parameter registrationType matches currentTokenOperation,
-        // otherwise stop the operation.
-        CMS.debug(method + " checking if record registrationtype matches currentTokenOperation.");
-        if(erAttrs.getRegistrationType() != null) {
-            if(!erAttrs.getRegistrationType().equalsIgnoreCase(currentTokenOperation)) {
-                CMS.debug(
-                        method + " Error: registrationType " + 
-                        erAttrs.getRegistrationType() + 
-                        " does not match currentTokenOperation " +
-                        currentTokenOperation);
-                logMsg = "Registration record is not a PIN reset type.";
-                tps.tdb.tdbActivity(ActivityDatabase.OP_PIN_RESET, tokenRecord, session.getIpAddress(), logMsg,
-                        "failure");
-                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_INVALID_REG_TYPE);
-            } else {
-                CMS.debug(method + " --> registrationtype matches currentTokenOperation");
-            }
-        } else {
-            CMS.debug(method + " --> registrationtype attribute disabled or not found, continuing.");
-        }
+	if(!isExternalReg)
+            checkAndAuthenticateUser(appletInfo, tokenType);
 
         TokenStatus status = tokenRecord.getTokenStatus();
 
@@ -198,7 +265,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
             auditPinResetFailure(session.getIpAddress(), userid, appletInfo, logMsg);
 
             throw new TPSException(method + " Attempt to reset pin of token not currently active!",
-                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+                    TPSStatus.STATUS_ERROR_NOT_PIN_RESETABLE);
 
         }
 
@@ -209,8 +276,8 @@ public class TPSPinResetProcessor extends TPSProcessor {
         if (pinResetAllowed == false) {
             auditPinResetFailure(session.getIpAddress(), userid, appletInfo, logMsg);
 
-            throw new TPSException(method + " Attempt to reset pin when token policy disallows it.!",
-                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+            throw new TPSException(method + " Attempt to reset pin when token policy disallows it!",
+                    TPSStatus.STATUS_ERROR_NOT_PIN_RESETABLE);
 
         }
 

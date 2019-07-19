@@ -143,7 +143,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         ExternalRegAttrs erAttrs = null;
 
         if (isExternalReg) {
-            CMS.debug("In TPSEnrollProcessor.enroll isExternalReg: ON");
+            CMS.debug(method + " isExternalReg: ON");
             /*
              * need to reach out to the Registration DB (authid)
              * Entire user entry should be retrieved and parsed, if needed
@@ -167,7 +167,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
             TPSAuthenticator userAuth = null;
             try {
-                CMS.debug("In TPSEnrollProcessor.enroll: isExternalReg: calling requestUserId");
+                CMS.debug(method + " isExternalReg: calling requestUserId");
                 userAuth = getAuthentication(authId);
                 processAuthentication(TPSEngine.ENROLL_OP, userAuth, cuid, tokenRecord);
                 auditAuthSuccess(userid, currentTokenOperation, appletInfo, authId);
@@ -248,7 +248,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             session.setExternalRegAttrs(erAttrs);
             setExternalRegSelectedTokenType(erAttrs);
 
-            CMS.debug("In TPSEnrollProcessor.enroll isExternalReg: about to process keySet resolver");
+            CMS.debug(method + " isExternalReg: about to process keySet resolver");
             /*
              * Note: externalReg.mappingResolver=none indicates no resolver
              *    plugin used
@@ -275,7 +275,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                 throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_MISCONFIGURATION);
             }
         } else {
-            CMS.debug("In TPSEnrollProcessor.enroll isExternalReg: OFF");
+            CMS.debug(method + " isExternalReg: OFF");
             /*
              * Note: op.enroll.mappingResolver=none indicates no resolver
              *    plugin used (tokenType resolved perhaps via authentication)
