@@ -26,9 +26,11 @@ import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.Key;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.PublicKey;
+import javax.crypto.Mac;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -88,7 +90,6 @@ import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.HMACDigest;
 
 /**
  * A command-line utility used to generate a Certificate Request Message
@@ -756,11 +757,12 @@ public class CRMFPopClient {
             0x6a, 0x12, 0x6b, 0x3c, 0x4c, 0x3f, 0x00, 0x14,
             0x51, 0x61, 0x15, 0x22, 0x23, 0x5f, 0x5e, 0x69
         };
-
-        MessageDigest digest2 = MessageDigest.getInstance("SHA1");
-        HMACDigest hmacDigest = new HMACDigest(digest2, key1);
-        hmacDigest.update(b);
-        byte[] finalDigest = hmacDigest.digest();
+       
+        Mac hmac = Mac.getInstance("HmacSHA1","Mozilla-JSS");
+        Key secKey = CryptoUtil.importHmacSha1Key(key1);
+        hmac.init(secKey);
+        hmac.update(b);
+        byte[] finalDigest = hmac.doFinal();
 
         return new OCTET_STRING(finalDigest);
     }

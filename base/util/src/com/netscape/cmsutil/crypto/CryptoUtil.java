@@ -42,6 +42,8 @@ import java.security.cert.CertificateException;
 import java.security.interfaces.DSAParams;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.Key;
+import javax.crypto.spec.IvParameterSpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -2748,6 +2750,47 @@ public class CryptoUtil {
         return hashAlg;
     }
 
+    /**
+    * importHmacSha1Key returns a key based on a byte array,
+    * which is originally a password. Used for the HMAC Digest algs.
+    *
+    * @param key the byte array representing the original password or secret.
+    * @return The JSS SymKey
+    *
+    */
+    public static Key importHmacSha1Key(byte[] key)
+        throws Exception {
+
+        final String WRAPPING_ALGORITHM = "AES/CBC/PKCS5Padding";
+
+        Key wrappingKey = null;
+
+        final String keyGenAlgorithm = "AES";
+        final int wrappingKeyLength = 256;
+
+	logger.debug("CryptoUtil.importHmacSha1Key: entering");
+
+        javax.crypto.KeyGenerator keyGen = javax.crypto.KeyGenerator.getInstance(keyGenAlgorithm, "Mozilla-JSS");
+        keyGen.init(wrappingKeyLength);
+        wrappingKey = keyGen.generateKey();
+
+        byte[] iv = new byte[16];
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+
+        javax.crypto.Cipher wrappingCipher = javax.crypto.Cipher.getInstance(WRAPPING_ALGORITHM, "Mozilla-JSS");
+        wrappingCipher.init(javax.crypto.Cipher.ENCRYPT_MODE, wrappingKey, ivParameterSpec);
+
+        byte[] wrappedKeyData = wrappingCipher.doFinal(key);
+
+        javax.crypto.Cipher unwrappingCipher = javax.crypto.Cipher.getInstance(WRAPPING_ALGORITHM, "Mozilla-JSS");
+        unwrappingCipher.init(javax.crypto.Cipher.UNWRAP_MODE, wrappingKey, ivParameterSpec);
+
+        return unwrappingCipher.unwrap(wrappedKeyData,
+                                                   SymmetricKey.SHA1_HMAC.toString(),
+                                                   javax.crypto.Cipher.SECRET_KEY);
+    }
+
+
     // The following are useful mapping functions
 
     /**
@@ -2838,6 +2881,26 @@ public class CryptoUtil {
             }
         }
         throw new NoSuchAlgorithmException();
+    }
+
+    /**
+    * Maps from HMACAlgorithm name to JSS Provider HMAC Alg name.
+    */
+    public static String getHMACAlgName(String name) {
+	logger.debug("CrytoUtil: getHMaCAlgName: name: " + name);
+        String mdName = "HmacSHA256";
+        if (name != null) {
+            if (name.equals("SHA-256-HMAC")) {
+                mdName = "HmacSHA256";
+            } else if (name.equals("SHA-384-HMAC")) {
+                mdName = "HmacSHAS384";
+            } else if (name.equals("SHA-512-HMAC")) {
+                mdName = "HmacSHA512";
+            }
+        }
+
+	logger.debug("CrytoUtil: getHMaCAlgName: returning: " +mdName);
+        return mdName;
     }
 
     /*

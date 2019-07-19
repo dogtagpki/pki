@@ -279,9 +279,12 @@ public class PKCS10Client {
                 0x6a, 0x12, 0x6b, 0x3c, 0x4c, 0x3f, 0x00, 0x14,
                 0x51, 0x61, 0x15, 0x22, 0x23, 0x5f, 0x5e, 0x69 };
 
-            HMACDigest hmacDigest = new HMACDigest(SHA1Digest, key1);
-            hmacDigest.update(b);
-            finalDigest = hmacDigest.digest();
+
+            Mac hmac = Mac.getInstance("HmacSHA1","Mozilla-JSS");
+            Key secKey = CryptoUtil.importHmacSha1Key(key1);
+            hmac.init(secKey);
+            hmac.update(b);
+            finalDigest = hmac.doFinal();
 
             OCTET_STRING ostr = new OCTET_STRING(finalDigest);
             Attribute attr = new Attribute(OBJECT_IDENTIFIER.id_cmc_idPOPLinkWitness, ostr);

@@ -33,10 +33,12 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.Key;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.StringTokenizer;
+import javax.crypto.Mac;
 
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ANY;
@@ -111,7 +113,6 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.HMACDigest;
 
 /**
  * Tool for creating CMC full request
@@ -1071,14 +1072,15 @@ public class CMCRequest {
             return -1;
         }
 
-        MessageDigest mac;
+	Mac hmac;
         try {
-            mac = MessageDigest.getInstance(CryptoUtil.getHMACtoMessageDigestName(macAlgString));
-            HMACDigest hmacDigest = new HMACDigest(mac, key);
-            hmacDigest.update(b);
-            finalDigest = hmacDigest.digest();
-        } catch (NoSuchAlgorithmException ex) {
-            System.out.println(method + "No such algorithm!");
+	    hmac = Mac.getInstance(CryptoUtil.getHMACAlgName(macAlgString),"Mozilla-JSS");
+            Key secKey = CryptoUtil.importHmacSha1Key(key);
+            hmac.init(secKey);
+            hmac.update(b);
+            finalDigest = hmac.doFinal();
+        } catch (Exception ex) {
+            System.out.println(method + "Can't calucualte hmac digest: " + ex);
             return -1;
         }
 
@@ -1126,14 +1128,16 @@ public class CMCRequest {
             return -1;
         }
 
+        Mac hmac;
         try {
-            MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
-            HMACDigest hmacDigest = new HMACDigest(SHA1Digest, key);
-            hmacDigest.update(b);
-            finalDigest = hmacDigest.digest();
-        } catch (NoSuchAlgorithmException ex) {
+            hmac = Mac.getInstance("HmacSHA1","Mozilla-JSS");
+            Key secKey = CryptoUtil.importHmacSha1Key(key);
+            hmac.init(secKey);
+            hmac.update(b);
+            finalDigest = hmac.doFinal();
+        } catch (Exception ex) {
             System.out.println("CMCRequest::addIdentityProofAttr() - "
-                    + "No such algorithm!");
+                    + "Can't calculate hmac Digest!");
             return -1;
         }
 
@@ -1547,16 +1551,16 @@ public class CMCRequest {
             return null;
         }
 
-        MessageDigest mac;
+	Mac hmac;
         // (3) compute MAC over R from (1) using key from (2)
         try {
-            mac = MessageDigest.getInstance(
-                    CryptoUtil.getHMACtoMessageDigestName(macAlgString));
-            HMACDigest hmacDigest = new HMACDigest(mac, key);
-            hmacDigest.update(random_R);
-            finalDigest = hmacDigest.digest();
-        } catch (NoSuchAlgorithmException ex) {
-            System.out.println(method + "No such algorithm!");
+            hmac = Mac.getInstance(CryptoUtil.getHMACAlgName(macAlgString),"Mozilla-JSS");
+            Key secKey = CryptoUtil.importHmacSha1Key(key);
+            hmac.init(secKey);
+            hmac.update(random_R);
+            finalDigest = hmac.doFinal();
+        } catch (Exception ex) {
+            System.out.println(method + "Can't calculate Hmac digest! " + ex);
             return null;
         }
 
@@ -1887,10 +1891,11 @@ public class CMCRequest {
             byte[] popProofValue = null;
             try {
                 System.out.println(method + "calculating POP Proof Value");
-                MessageDigest SHA2Digest = MessageDigest.getInstance("SHA256");
-                HMACDigest hmacDigest = new HMACDigest(SHA2Digest, challenge);
-                hmacDigest.update(ASN1Util.encode(request));
-                popProofValue = hmacDigest.digest();
+                Mac hmac = Mac.getInstance("HmacSHA256","Mozilla-JSS");
+                Key secKey = CryptoUtil.importHmacSha1Key(challenge);
+                hmac.init(secKey);
+                hmac.update(ASN1Util.encode(request));
+                popProofValue = hmac.doFinal();
                 System.out.println(method + "popProofValue length = " + popProofValue.length);
             } catch (Exception ex) {
                 CryptoUtil.obscureBytes(challenge, "random");

@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.security.Key;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -33,7 +34,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
-
+import javax.crypto.Mac;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
@@ -129,7 +130,6 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.cmsutil.util.HMACDigest;
 
 /**
  * This class implements a generic enrollment profile.
@@ -1257,9 +1257,15 @@ public abstract class EnrollProfile extends BasicProfile
                 logger.warn(msg);
                 return null;
             }
-            HMACDigest hmacDigest = new HMACDigest(digest, challenge_b);
-            hmacDigest.update(cmc_msg);
-            byte[] proofValue = hmacDigest.digest();
+
+            Mac hmac;
+            String hmacAlgName = CryptoUtil.getHMACAlgName(CryptoUtil.getDefaultHashAlgName() + "-HMAC");
+            hmac = Mac.getInstance(hmacAlgName,"Mozilla-JSS");
+            Key secKey = CryptoUtil.importHmacSha1Key(challenge_b);
+            hmac.init(secKey);
+            hmac.update(cmc_msg);
+            byte[] proofValue = hmac.doFinal();
+
             if (proofValue == null) {
                 msg = method + "proofValue null after hmacDigest.digest returned";
                 logger.warn(msg);
@@ -1618,11 +1624,20 @@ public abstract class EnrollProfile extends BasicProfile
         }
         key = hashAlg.digest(sharedSecret);
 
+	Mac hmac;
         byte[] finalDigest = null;
-        HMACDigest hmacDigest = new HMACDigest(macAlg, key);
-        hmacDigest.update(text);
 
-        finalDigest = hmacDigest.digest();
+        try {
+            hmac = Mac.getInstance(CryptoUtil.getHMACAlgName(macAlg.getAlgorithm() + "-HMAC"),"Mozilla-JSS");
+            Key secKey = CryptoUtil.importHmacSha1Key(key);
+            hmac.init(secKey);
+            hmac.update(text);
+            finalDigest = hmac.doFinal();
+        } catch (Exception e) {
+	    logger.debug(method + "hmac exception: " + e);
+            //Old code expected to get something for finalDigest, possibly null
+            finalDigest = null;
+        }
 
         if (finalDigest.length != bv.length) {
             logger.warn(method + " The length of two HMAC digest are not the same.");
