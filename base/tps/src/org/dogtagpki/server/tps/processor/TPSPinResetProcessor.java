@@ -51,7 +51,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
     public void process(BeginOpMsg beginMsg) throws TPSException, IOException {
         if (beginMsg == null) {
             throw new TPSException("TPSPinResetProcessor.process: invalid input data, not beginMsg provided.",
-                    TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
         setBeginMessage(beginMsg);
         setCurrentTokenOperation(TPSEngine.PIN_RESET_OP);
@@ -106,7 +106,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
                     "failure");
             CMS.debug(logMsg);
             throw new TPSException(logMsg +
-                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
+                    TPSStatus.STATUS_ERROR_UNKNOWN_TOKEN);
         }
 
         TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);

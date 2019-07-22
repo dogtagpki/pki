@@ -391,7 +391,8 @@ public class TPSProcessor {
 
         if (apdu_data.size() != 6) {
             CMS.debug("TPSProcessor.getAppletVersion: incorrect return data size!");
-            throw new TPSException("TPSProcessor.getAppletVersion: invalid applet version string returned!");
+            throw new TPSException("TPSProcessor.getAppletVersion: invalid applet version string returned!",
+                    TPSStatus.STATUS_ERROR_CANNOT_PERFORM_OPERATION);
         }
 
         TPSBuffer build_id = apdu_data.substr(0, 4);
@@ -1099,7 +1100,8 @@ public class TPSProcessor {
         if (!select.checkResult()) {
             String logMsg = "Can't selelect the card manager!";
             auditAppletUpgrade(appletInfo, "failure", null /*unavailable*/, new_version, logMsg);
-            throw new TPSException("TPSProcessor.upgradeApplet:" + logMsg);
+            throw new TPSException("TPSProcessor.upgradeApplet:" + logMsg,
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
         SecureChannel channel = setupSecureChannel((byte) defKeyVersion, (byte) defKeyIndex, connId, appletInfo);
@@ -1576,7 +1578,8 @@ public class TPSProcessor {
         try {
             id = configStore.getString(config);
         } catch (EBaseException e) {
-            throw new TPSException(method + " Internal error finding config value:" + config);
+            throw new TPSException(method + " Internal error finding config value:" + config,
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -1803,7 +1806,7 @@ public class TPSProcessor {
         try {
             ret = configStore.getBoolean(configName, true);
         } catch (EBaseException e) {
-            throw new TPSException(method + e.getMessage() , TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            throw new TPSException(method + e.getMessage() , TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
         return ret;
     }
@@ -2329,7 +2332,7 @@ public class TPSProcessor {
                 logMsg = logMsg + ":" + e.toString();
                 tps.tdb.tdbActivity(ActivityDatabase.OP_ADD, tokenRecord, session.getIpAddress(), logMsg,
                         "failure");
-                throw new TPSException(logMsg);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
             }
 
         }
@@ -2393,14 +2396,14 @@ public class TPSProcessor {
                 CMS.debug("TPSProcessor.format: " + logMsg);
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
-                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
             } catch (Exception ee) {
                 String failMsg = "revoke certificates failure";
                 logMsg = failMsg + ":" + ee.toString();
                 CMS.debug("TPSProcessor.format: " + logMsg);
                 tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
-                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+                throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_REVOKE_CERTIFICATES_FAILED);
             }
         }
 
@@ -2424,7 +2427,7 @@ public class TPSProcessor {
             tps.tdb.tdbActivity(ActivityDatabase.OP_FORMAT, tokenRecord, session.getIpAddress(), logMsg,
                     "failure");
 
-            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_UPDATE_TOKENDB_FAILED);
         }
 
         CMS.debug("TPSProcessor.format:: ends");
@@ -2495,7 +2498,8 @@ public class TPSProcessor {
         try {
             resolverInstName = configStore.getString(config, opDefault);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.getResolverInstanceName: Internal error finding config value.");
+            throw new TPSException("TPSProcessor.getResolverInstanceName: Internal error finding config value.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -2521,7 +2525,7 @@ public class TPSProcessor {
         try {
             resolverInstName = configStore.getString(config, "none");
         } catch (EBaseException e) {
-            throw new TPSException(e.getMessage());
+            throw new TPSException(e.getMessage(), TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
         if (resolverInstName.equals(""))
             resolverInstName = "none";
@@ -2589,13 +2593,14 @@ public class TPSProcessor {
         try {
             info = configStore.getString(config, null);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.getIssuerInfoValue: Internal error finding config value.");
+            throw new TPSException("TPSProcessor.getIssuerInfoValue: Internal error finding config value.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
         if (info == null) {
             throw new TPSException("TPSProcessor.getIssuerInfoValue: Can't find issuer info value in the config.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         CMS.debug("TPSProcessor.getIssuerInfoValue: returning: " + info);
@@ -2613,12 +2618,14 @@ public class TPSProcessor {
         } catch (EBaseException e) {
             //Default TPSException will return a "contact admin" error code.
             throw new TPSException(
-                    "TPSProcessor.checkProfileStateOK: internal error in getting profile state from config.");
+                    "TPSProcessor.checkProfileStateOK: internal error in getting profile state from config.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         if (!profileState.equals(Constants.CFG_ENABLED)) {
             CMS.debug("TPSProcessor.checkProfileStateOK: profile specifically disabled.");
-            throw new TPSException("TPSProcessor.checkProfileStateOK: profile disabled!");
+            throw new TPSException("TPSProcessor.checkProfileStateOK: profile disabled!",
+                    TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
         }
 
     }
@@ -2666,7 +2673,7 @@ public class TPSProcessor {
         } catch (EBaseException e1) {
             CMS.debug("TPS_Processor.checkIsExternalReg: Internal Error obtaining mandatory config values. Error: "
                     + e1);
-            throw new TPSException("TPS error getting config values from config store.");
+            throw new TPSException("TPS error getting config values from config store.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
     }
@@ -2682,7 +2689,8 @@ public class TPSProcessor {
         try {
             result = configStore.getBoolean(profileConfig, false);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor: checkServerSideKeyGen: Internal error obtaining config value!");
+            throw new TPSException("TPSProcessor: checkServerSideKeyGen: Internal error obtaining config value!",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         return result;
@@ -2698,12 +2706,13 @@ public class TPSProcessor {
         try {
             allow = configStore.getBoolean(noAppletConfig, true);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.checkAllowNoAppletToken: Internal error getting config param.");
+            throw new TPSException("TPSProcessor.checkAllowNoAppletToken: Internal error getting config param.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         if (!allow) {
             throw new TPSException("TPSProcessor.checkAllowNoAppletToken: token without applet not permitted!",
-                    TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+                    TPSStatus.STATUS_ERROR_DISABLED_TOKEN);
         }
 
     }
@@ -2720,8 +2729,8 @@ public class TPSProcessor {
             enabled = configStore.getBoolean(appletUpdate, false);
         } catch (EBaseException e) {
             throw new TPSException(
-                    "TPSProcessor.checkForAppleUpdateEnabled: Can't find applet Update Enable. Internal error obtaining value.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    "TPSProcessor.checkForAppletUpdateEnabled: Can't find applet Update Enable. Internal error obtaining value.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
         CMS.debug("TPSProcessor.checkForAppletUpdateEnabled: returning " + enabled);
@@ -2753,12 +2762,12 @@ public class TPSProcessor {
         } catch (EBaseException e) {
             throw new TPSException(
                     "TPSProcessor.checkForAppletUpgrade: Can't find applet required Version. Internal error obtaining version.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         if (requiredVersion == null) {
             throw new TPSException("TPSProcessor.checkForAppletUpgrade: Can't find applet required Version.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         CMS.debug("TPSProcessor.checkForAppletUpgrade: returning: " + requiredVersion);
@@ -2777,13 +2786,14 @@ public class TPSProcessor {
         try {
             allow = configStore.getBoolean(unknownConfig, true);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.checkAllowUnknownToken: Internal error getting config value.");
+            throw new TPSException("TPSProcessor.checkAllowUnknownToken: Internal error getting config value.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         if (allow == false) {
             throw new TPSException(
                     "TPSProcessor.checkAllowUnknownToken: Unknown tokens not allowed for this operation!",
-                    TPSStatus.STATUS_ERROR_TOKEN_DISABLED);
+                    TPSStatus.STATUS_ERROR_UNKNOWN_TOKEN);
         }
 
     }
@@ -2798,7 +2808,8 @@ public class TPSProcessor {
         try {
             id = configStore.getString(config, "tks1");
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.getTKSConnectorID: Internal error finding config value.");
+            throw new TPSException("TPSProcessor.getTKSConnectorID: Internal error finding config value.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -2819,7 +2830,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e1) {
             CMS.debug("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values. Error: " + e1);
-            throw new TPSException("TPS error getting config values from config store.");
+            throw new TPSException("TPS error getting config values from config store.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         TPSBuffer ret = new TPSBuffer(NetKeyAID);
@@ -2839,7 +2850,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e1) {
             CMS.debug("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values. Error: " + e1);
-            throw new TPSException("TPS error getting config values from config store.");
+            throw new TPSException("TPS error getting config values from config store.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         TPSBuffer ret = new TPSBuffer(NetKeyPAID);
@@ -2859,7 +2870,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e1) {
             CMS.debug("TPS_Processor.getNetkeyAID: Internal Error obtaining mandatory config values. Error: " + e1);
-            throw new TPSException("TPS error getting config values from config store.");
+            throw new TPSException("TPS error getting config values from config store.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         TPSBuffer ret = new TPSBuffer(cardMgrAID);
@@ -2875,7 +2886,7 @@ public class TPSProcessor {
         try {
             extension = configStore.getString(extensionConfig, "ijc");
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.getAppletExtension: Internal error finding config value.");
+            throw new TPSException("TPSProcessor.getAppletExtension: Internal error finding config value.", TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -2897,10 +2908,10 @@ public class TPSProcessor {
             directory = configStore.getString(directoryConfig);
         } catch (EPropertyNotFound e) {
             throw new TPSException("TPSProcessor.getAppletDirectory: Required config param missing.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getAppletDirectory: Internal error finding config value.",
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         CMS.debug("getAppletDirectory: returning: " + directory);
@@ -2915,7 +2926,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getChannelBlockSize: Internal error finding config value: " + e,
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -2933,7 +2944,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getChannelInstanceSize: Internal error finding config value: " + e,
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -2952,7 +2963,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getAppletMemorySize: Internal error finding config value: " + e,
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
         CMS.debug("TPSProcess.getAppletMemorySize: returning: " + memSize);
@@ -2968,7 +2979,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getChannelDefKeyVersion: Internal error finding config value: " + e,
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -2986,7 +2997,7 @@ public class TPSProcessor {
 
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.getChannelDefKeyIndex: Internal error finding config value: " + e,
-                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
 
         }
 
@@ -3192,7 +3203,8 @@ public class TPSProcessor {
         APDUResponse select = selectApplet((byte) 0x04, (byte) 0x00, aidBuf);
 
         if (!select.checkResult()) {
-            throw new TPSException("TPSProcessor.selectCardManager: Can't selelect the card manager applet!");
+            throw new TPSException("TPSProcessor.selectCardManager: Can't selelect the card manager applet!",
+                    TPSStatus.STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION);
         }
     }
 
@@ -3210,7 +3222,8 @@ public class TPSProcessor {
         try {
             result = configStore.getBoolean(symmConfig, true);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.checkSymmetricKeysEnabled: Internal error getting config value.");
+            throw new TPSException("TPSProcessor.checkSymmetricKeysEnabled: Internal error getting config value.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         return result;
@@ -3229,7 +3242,8 @@ public class TPSProcessor {
         try {
             version = configStore.getInteger(requiredVersionConfig, 0x0);
         } catch (EBaseException e) {
-            throw new TPSException("TPSProcessor.getSymmetricKeysRequired: Internal error getting config value.");
+            throw new TPSException("TPSProcessor.getSymmetricKeysRequired: Internal error getting config value.",
+                    TPSStatus.STATUS_ERROR_MISCONFIGURATION);
         }
 
         CMS.debug("TPSProcessor.getSymmetricKeysRequiredVersion: returning version: " + version);
@@ -3266,7 +3280,8 @@ public class TPSProcessor {
         */
 
         if(tokenRecord == null || appletInfo == null) {
-            throw new TPSException("TPSProcessor.checkAndUpgradeSymKeys: invalid input data!");
+            throw new TPSException("TPSProcessor.checkAndUpgradeSymKeys: invalid input data!",
+                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
         }
 
         SecureChannel channel = null;
@@ -3496,8 +3511,7 @@ public class TPSProcessor {
         String result = "";
 
         if (inPattern == null || map == null) {
-            throw new TPSException("TPSProcessor.mapPattern: Illegal input paramters!",
-                    TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            throw new TPSException("TPSProcessor.mapPattern: Illegal input paramters!");
         }
 
         final char delim = '$';
@@ -3579,7 +3593,7 @@ public class TPSProcessor {
          */
 
         if (aInfo == null) {
-            throw new TPSException("TPSProcessor.formatCurrentAppletVersion: ", TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            throw new TPSException("TPSProcessor.formatCurrentAppletVersion: ");
         }
 
         if (aInfo.getFinalAppletVersion() != null) {
@@ -3610,7 +3624,7 @@ public class TPSProcessor {
 
         if (channel == null) {
             throw new TPSException("TPSProcessor.checkAndHandlePinReset: invalid input data!",
-                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
         IConfigStore configStore = CMS.getConfigStore();

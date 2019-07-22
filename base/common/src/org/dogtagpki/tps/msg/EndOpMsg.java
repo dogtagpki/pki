@@ -28,9 +28,9 @@ public class EndOpMsg extends TPSMessage {
         STATUS_ERROR_CREATE_CARDMGR,
         STATUS_ERROR_MAC_RESET_PIN_PDU,
         STATUS_ERROR_MAC_CERT_PDU,
-        STATUS_ERROR_MAC_LIFESTYLE_PDU,
+        STATUS_ERROR_MAC_LIFECYCLE_PDU,
         STATUS_ERROR_MAC_ENROLL_PDU,
-        STATUS_ERROR_READ_OBJECT_PDU,
+        STATUS_ERROR_CANNOT_PERFORM_OPERATION,
         STATUS_ERROR_BAD_STATUS,
         STATUS_ERROR_CA_RESPONSE,
         STATUS_ERROR_READ_BUFFER_OVERFLOW,
@@ -38,7 +38,7 @@ public class EndOpMsg extends TPSMessage {
         STATUS_ERROR_CONNECTION,
         STATUS_ERROR_LOGIN,
         STATUS_ERROR_DB,
-        STATUS_ERROR_TOKEN_DISABLED,
+        STATUS_ERROR_UNKNOWN_TOKEN,
         STATUS_ERROR_SECURE_CHANNEL,
         STATUS_ERROR_MISCONFIGURATION,
         STATUS_ERROR_UPGRADE_APPLET,
@@ -57,7 +57,7 @@ public class EndOpMsg extends TPSMessage {
         STATUS_ERROR_UNUSABLE_TOKEN_KEYCOMPROMISE,
         STATUS_ERROR_INACTIVE_TOKEN_NOT_FOUND,
         STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN,
-        STATUS_ERROR_CONTACT_ADMIN,
+        STATUS_ERROR_TOKEN_TERMINATED,
         STATUS_ERROR_RECOVERY_IS_PROCESSED,
         STATUS_ERROR_RECOVERY_FAILED,
         STATUS_ERROR_NO_OPERATION_ON_LOST_TOKEN,
@@ -68,7 +68,7 @@ public class EndOpMsg extends TPSMessage {
         STATUS_ERROR_NOT_TOKEN_OWNER,
         STATUS_ERROR_RENEWAL_IS_PROCESSED,
         STATUS_ERROR_RENEWAL_FAILED,
-        STATUS_ERROR_INVALID_REG_TYPE
+        STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION
     };
 
 
@@ -106,13 +106,13 @@ public class EndOpMsg extends TPSMessage {
         case STATUS_ERROR_MAC_CERT_PDU:
             result = 5;
             break;
-        case STATUS_ERROR_MAC_LIFESTYLE_PDU:
+        case STATUS_ERROR_MAC_LIFECYCLE_PDU:
             result = 6;
             break;
         case STATUS_ERROR_MAC_ENROLL_PDU:
             result = 7;
             break;
-        case STATUS_ERROR_READ_OBJECT_PDU:
+        case STATUS_ERROR_CANNOT_PERFORM_OPERATION:
             result = 8;
             break;
         case STATUS_ERROR_BAD_STATUS:
@@ -136,7 +136,7 @@ public class EndOpMsg extends TPSMessage {
         case STATUS_ERROR_DB:
             result = 15;
             break;
-        case STATUS_ERROR_TOKEN_DISABLED:
+        case STATUS_ERROR_UNKNOWN_TOKEN:
             result = 16;
             break;
         case STATUS_ERROR_SECURE_CHANNEL:
@@ -193,13 +193,14 @@ public class EndOpMsg extends TPSMessage {
         case STATUS_ERROR_HAS_AT_LEAST_ONE_ACTIVE_TOKEN:
             result = 34;
             break;
-        case STATUS_ERROR_CONTACT_ADMIN:
+        case STATUS_ERROR_TOKEN_TERMINATED:
             result = 35;
             break;
         case STATUS_ERROR_RECOVERY_IS_PROCESSED:
             result = 36;
             break;
         case STATUS_ERROR_RECOVERY_FAILED:
+        case STATUS_ERROR_RENEWAL_FAILED:
             result = 37;
             break;
         case STATUS_ERROR_NO_OPERATION_ON_LOST_TOKEN:
@@ -223,11 +224,8 @@ public class EndOpMsg extends TPSMessage {
         case STATUS_ERROR_RENEWAL_IS_PROCESSED:
             result = 44;
             break;
-        case STATUS_ERROR_RENEWAL_FAILED:
+        case STATUS_ERROR_CANNOT_ESTABLISH_COMMUNICATION:
             result = 45;
-            break;
-        case STATUS_ERROR_INVALID_REG_TYPE:
-            result = 46;
             break;
         default:
             break;

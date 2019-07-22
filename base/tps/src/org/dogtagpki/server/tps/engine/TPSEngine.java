@@ -249,7 +249,8 @@ public class TPSEngine {
         int status = resp.getStatus();
         if (status != 0) {
             CMS.debug("TPSEngine.computeSessionKeySCP02: Non zero status result: " + status);
-            throw new TPSException("TPSEngine.computeSessionKeySCP02: invalid returned status: " + status);
+            throw new TPSException("TPSEngine.computeSessionKeySCP02: invalid returned status: " + status,
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
         }
 
@@ -290,7 +291,8 @@ public class TPSEngine {
         int status = resp.getStatus();
         if (status != 0) {
             CMS.debug("TPSEngine.computeSessionKeysSCP03: Non zero status result: " + status);
-            throw new TPSException("TPSEngine.computeSessionKeysSCP03: invalid returned status: " + status);
+            throw new TPSException("TPSEngine.computeSessionKeysSCP03: invalid returned status: " + status,
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
         }
 
@@ -331,7 +333,8 @@ public class TPSEngine {
         int status = resp.getStatus();
         if (status != 0) {
             CMS.debug("TPSEngine.computeSessionKey: Non zero status result: " + status);
-            throw new TPSException("TPSEngine.computeSessionKey: invalid returned status: " + status);
+            throw new TPSException("TPSEngine.computeSessionKey: invalid returned status: " + status,
+                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
 
         }
 
@@ -373,7 +376,7 @@ public class TPSEngine {
         }
 
         if (retrievedCertB64 == null) {
-            throw new TPSException(method + " Unable to get valid cert blob.", TPSStatus.STATUS_ERROR_CA_RESPONSE);
+            throw new TPSException(method + " Unable to get valid cert blob.", TPSStatus.STATUS_ERROR_RECOVERY_FAILED);
         }
 
         return retrieveResponse;
@@ -418,7 +421,7 @@ public class TPSEngine {
         }
 
         if (retrievedCertB64 == null) {
-            throw new TPSException(method + " Unable to get valid cert blob.", TPSStatus.STATUS_ERROR_CA_RESPONSE);
+            throw new TPSException(method + " Unable to get valid cert blob.", TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
         return renewResponse;
@@ -433,7 +436,7 @@ public class TPSEngine {
 
         if (newMasterVersion == null || oldVersion == null || cuid == null || kdd == null || connId == null) {
             throw new TPSException(method + " Invalid input data",
-                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
         TKSRemoteRequestHandler tks = null;
@@ -446,14 +449,14 @@ public class TPSEngine {
         } catch (EBaseException e) {
 
             throw new TPSException(method + " failure to get key set data from TKS",
-                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
         int status = resp.getStatus();
         if (status != 0) {
             CMS.debug(method + " Non zero status result: " + status);
             throw new TPSException(method + " invalid returned status: " + status,
-                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
 
         }
 
@@ -462,7 +465,7 @@ public class TPSEngine {
         if (keySetData == null) {
             CMS.debug(method + " No valid key set data returned.");
             throw new TPSException(method + " No valid key set data returned.",
-                    TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
 
         }
 

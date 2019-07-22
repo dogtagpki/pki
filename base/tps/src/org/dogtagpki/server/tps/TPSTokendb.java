@@ -209,7 +209,7 @@ public class TPSTokendb {
         } catch (EDBRecordNotFoundException e) {
             String logMsg = method + e;
             CMS.debug(logMsg);
-            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            throw new TPSException(logMsg);
         }
         // token found; modify
         CMS.debug(method + " token entry found; Modifying with status: " + tokenRecord.getTokenStatus());

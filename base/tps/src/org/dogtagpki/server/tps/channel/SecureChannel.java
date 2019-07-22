@@ -530,7 +530,8 @@ public class SecureChannel {
                 apdu.secureMessage(encSessionKey, (byte) 1);
                 //CMS.debug("SecureChannel.computeAPDU: After encryption data value: " + apdu.getData().toHexString());
             } catch (EBaseException e) {
-                throw new TPSException("SecureChannel.computeAPDU: Can't encrypt outgoing data! " + e);
+                throw new TPSException("SecureChannel.computeAPDU: Can't encrypt outgoing data! " + e,
+                        TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
             CMS.debug("SecureChannel.computeAPDU: Successfully encrypted apdu data.");
@@ -557,7 +558,8 @@ public class SecureChannel {
                 //CMS.debug("SecureChannel.computeAPDU_SCP03: After encryption data value: "
                 //        + apdu.getData().toHexString());
             } catch (EBaseException e) {
-                throw new TPSException("SecureChannel.computeAPDU_SCP03: Can't encrypt outgoing data! " + e);
+                throw new TPSException("SecureChannel.computeAPDU_SCP03: Can't encrypt outgoing data! " + e,
+                        TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
             CMS.debug("SecureChannel.computeAPDU_SCP03: Successfully encrypted apdu data.");
@@ -609,7 +611,8 @@ public class SecureChannel {
                 //CMS.debug("SecureChannel.computeAPDU_SCP02: After encryption data value: "
                 //        + apdu.getData().toHexString());
             } catch (EBaseException e) {
-                throw new TPSException("SecureChannel.computeAPDU_SCP02: Can't encrypt outgoing data! " + e);
+                throw new TPSException("SecureChannel.computeAPDU_SCP02: Can't encrypt outgoing data! " + e,
+                        TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
             }
 
             CMS.debug("SecureChannel.computeAPDU_SCP02: Successfully encrypted apdu data.");
@@ -740,7 +743,7 @@ public class SecureChannel {
     public void deleteFileX(TPSBuffer aid) throws TPSException, IOException {
         CMS.debug("SecureChannel.deleteFileX: entering...");
         if (aid == null) {
-            throw new TPSException("SecureChannel.deleteFileX: no input aid!");
+            throw new TPSException("SecureChannel.deleteFileX: no input aid!", TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
         if (isGP211()) {
@@ -771,8 +774,8 @@ public class SecureChannel {
                 + sdAID.toHexString() + " fileLength: " + fileLength);
 
         if (packageAID == null || sdAID == null || fileLength <= 0) {
-            throw new TPSException("SecureChannel.insallLoad bad input parameters!",
-                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+            throw new TPSException("SecureChannel.installLoad bad input parameters!",
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
         TPSBuffer emptySDAID = new TPSBuffer();
@@ -804,8 +807,8 @@ public class SecureChannel {
         CMS.debug("SecureChannel.installLoadGP211: entering ...");
 
         if (packageAID == null || sdAID == null || fileLength <= 0) {
-            throw new TPSException("SecureChannel.insallLoadGP211 bad input parameters!",
-                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+            throw new TPSException("SecureChannel.installLoadGP211 bad input parameters!",
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
         InstallLoadGP211APDU install = new InstallLoadGP211APDU(packageAID, sdAID,
@@ -937,7 +940,7 @@ public class SecureChannel {
         if (!response.checkResult()) {
             throw new TPSException(
                     "SecureChannel.loadFileSegment. Failed to perform loadFileSegmentInstallLoad operation.",
-                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
         CMS.debug("SecureChannel.loadFileSegment: ends");
@@ -955,7 +958,7 @@ public class SecureChannel {
 
         if (netkeyPAIDBuff == null || netkeyAIDBuff == null || channelInstanceSize < 0 || channelAppletMemSize < 0) {
             throw new TPSException("SecureChannel.installApplet. Invalid input parameters!",
-                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
 
         }
 
@@ -980,8 +983,8 @@ public class SecureChannel {
         }
 
         if (!response.checkResult()) {
-            throw new TPSException("SecureChannel.installApplett. Failed installApplet operation.",
-                    TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+            throw new TPSException("SecureChannel.installApplet. Failed installApplet operation.",
+                    TPSStatus.STATUS_ERROR_UPGRADE_APPLET);
         }
 
     }
@@ -1084,7 +1087,8 @@ public class SecureChannel {
         CMS.debug("SecureChannel.writeObject: entering ...");
 
         if (objectID == null || objectData == null) {
-            throw new TPSException("SecureChannel.writeObject: invalid input data.");
+            throw new TPSException("SecureChannel.writeObject: invalid input data.",
+                    TPSStatus.STATUS_ERROR_CANNOT_PERFORM_OPERATION);
         }
 
         final int MAX_WRITE_SIZE = 0xd0;
@@ -1115,7 +1119,7 @@ public class SecureChannel {
                 //Throw this return code because this happens during enrollment and we don't have
                 // a more specific error code.
                 throw new TPSException("SecureChannel.writeObject. Failed in middle of writeObject.",
-                        TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+                        TPSStatus.STATUS_ERROR_CANNOT_PERFORM_OPERATION);
             }
 
             offset += blockSize;
@@ -1135,7 +1139,7 @@ public class SecureChannel {
 
         if (objectID == null || len == 0) {
             throw new TPSException("SecureChannel.readObject: invalid input data.",
-                    TPSStatus.STATUS_ERROR_READ_OBJECT_PDU);
+                    TPSStatus.STATUS_ERROR_CANNOT_PERFORM_OPERATION);
         }
 
         final int MAX_READ_BUFFER_SIZE = 0xd0;
@@ -1164,8 +1168,8 @@ public class SecureChannel {
 
             if (!response.checkResult()) {
                 CMS.debug("SecureChannel.readObject: bad apdu return!");
-                throw new TPSException("SecureChannel.installApplett. Failed in middle of readObject.",
-                        TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
+                throw new TPSException("SecureChannel.installApplet. Failed in middle of readObject.",
+                        TPSStatus.STATUS_ERROR_CANNOT_PERFORM_OPERATION);
             }
 
             TPSBuffer resp = response.getResultDataNoCode();
@@ -1491,7 +1495,7 @@ public class SecureChannel {
         if (!response.checkResult()) {
              CMS.debug(method + "result.checkResult() returns false; Throwing exception!");
             throw new TPSException("SecureChannel.setLifecycleState. Failed to set Lifecycle State!.",
-                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
+                    TPSStatus.STATUS_ERROR_MAC_LIFECYCLE_PDU);
         }
 
         CMS.debug(method + "ends");
@@ -1502,8 +1506,8 @@ public class SecureChannel {
         CMS.debug("SecureChannel.createPin:  entering...");
 
         if (pin == null) {
-            throw new TPSException("SecureChannel.createPin: invalid intput data.",
-                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+            throw new TPSException("SecureChannel.createPin: invalid input data.",
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
         TPSBuffer pinBuf = new TPSBuffer(pin.getBytes());
@@ -1523,8 +1527,8 @@ public class SecureChannel {
         CMS.debug("SecureChannel.resetPin");
 
         if (new_pin == null) {
-            throw new TPSException("SecureChannel.resetPin: invalid intput data.",
-                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+            throw new TPSException("SecureChannel.resetPin: invalid input data.",
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
         TPSBuffer newPinBuf = new TPSBuffer(new_pin.getBytes());
@@ -1537,7 +1541,7 @@ public class SecureChannel {
 
         if (!response.checkResult()) {
             throw new TPSException("SecureChannel.resetPin: failed to reset pin.",
-                    TPSStatus.STATUS_ERROR_TOKEN_RESET_PIN_FAILED);
+                    TPSStatus.STATUS_ERROR_MAC_RESET_PIN_PDU);
         }
 
     }
@@ -1572,7 +1576,7 @@ public class SecureChannel {
 
         int kill = 0;
         if (kill == 1) {
-            throw new TPSException("putKeys end of progress.");
+            throw new TPSException("putKeys end of progress.", TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
         }
 
         APDUResponse response = processor.handleAPDURequest(putKey);
@@ -1606,7 +1610,7 @@ public class SecureChannel {
 
         if (data == null) {
             throw new TPSException("SecureChannel.importKeyEnc: Invalid input data!",
-                    TPSStatus.STATUS_ERROR_MAC_CERT_PDU);
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
         ImportKeyEncAPDU importKeyEnc = new ImportKeyEncAPDU((byte) pe1, (byte) pe2, data);
@@ -1617,7 +1621,7 @@ public class SecureChannel {
 
         if (!response.checkResult()) {
             throw new TPSException("SecureChannel.importKeyEnc: failed to import private key!",
-                    TPSStatus.STATUS_ERROR_MAC_CERT_PDU);
+                    TPSStatus.STATUS_ERROR_MAC_ENROLL_PDU);
         }
 
     }
