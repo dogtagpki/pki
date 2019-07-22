@@ -589,7 +589,6 @@ public class TPSProcessor {
         CMS.debug("TPSProcessor.setupSecureChannel: key info data: " + key_info_data.toHexString());
 
         TokenRecord tokenRecord = getTokenRecord();
-        tokenRecord.setKeyInfo(key_info_data.toHexStringPlain());
 
         TPSBuffer card_cryptogram = null;
         TPSBuffer sequenceCounter = null;
@@ -624,8 +623,6 @@ public class TPSProcessor {
             key_info_data.setAt(1, (byte) 0x1);
             CMS.debug("TPSProcessor.setupSecureChannel 02: key Info , after massage: " + key_info_data.toHexString());
 
-            tokenRecord.setKeyInfo(key_info_data.toHexStringPlain());
-
         } else if (platProtInfo.isSCP03()) {
             card_challenge = initUpdateResp.substr(CARD_CHALLENGE_OFFSET_GP211_SC03,CARD_CHALLENGE_SIZE);
             card_cryptogram = initUpdateResp.substr(CARD_CRYPTOGRAM_OFFSET_GP211_SC03, CARD_CRYPTOGRAM_SIZE);
@@ -646,6 +643,16 @@ public class TPSProcessor {
             channel = generateSecureChannel(connId, key_diversification_data, key_info_data, card_challenge,
                     card_cryptogram,
                     randomData, sequenceCounter,appletInfo);
+
+            // Placing this update to the token record's keyInfo here prevents a situation where a token could
+            // be locked out of the system after an unsuccessful format or enroll. If an operation failed in
+            // such a way that the token record didn't contain a keyInfo attribute, and validateCardKeyInfoAgainstTokenDB
+            // was activated, the TPS will refuse to generate a Secure Channel with the card. Having it here ensures
+            // that as soon as a Secure Channel can be established, a record of the keyInfo is kept for future connections
+            // to the card.
+            if(channel != null)
+                tokenRecord.setKeyInfo(key_info_data.toHexStringPlain());
+
         } catch (EBaseException e) {
             throw new TPSException("TPSProcessor.setupSecureChannel: Can't set up secure channel: " + e,
                     TPSStatus.STATUS_ERROR_SECURE_CHANNEL);
@@ -4093,8 +4100,19 @@ public class TPSProcessor {
             CMS.debug(method + " keyInfoFromTokenDB: " + keyInfoInDB);
             CMS.debug(method + " keyInfoFromToken: " +  keyInfoData);
 
+            if(keyInfoInDB == null) {
+                try {
+                    checkAllowUnknownToken(currentTokenOperation);
 
-            if(keyInfoData.compareToIgnoreCase(keyInfoInDB) != 0) {
+                    // checkAllowUnknownToken(..) does not throw an exception if allowUnknownToken = true
+                    result = true;
+                }
+                catch(TPSException e) {
+                    // checkAllowUnknownToken(..) throws an exception if allowUnknownToken = false
+                    result = false;
+                }
+            }
+            else if(keyInfoData.compareToIgnoreCase(keyInfoInDB) != 0) {
                 CMS.debug(method + " Key Info in the DB is NOT the same as the one from the token!");
                 result = false;
             } else {
