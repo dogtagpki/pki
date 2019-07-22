@@ -1665,7 +1665,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                     KRARecoverKeyResponse keyResponse = tps.getEngine().recoverKey(toBeRecovered.getId(),
                             toBeRecovered.getUserID(),
-                            channel.getDRMWrappedDesKey(), b64cert, getDRMConnectorID());
+                            channel.getDRMWrappedDesKey(), b64cert, getDRMConnectorID(toBeRecovered.getKeyType()));
 
                     //Try to write recovered cert to token
 
@@ -2009,7 +2009,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
                     KRARecoverKeyResponse keyResponse = tps.getEngine().recoverKey(toBeRecovered.getId(),
                             toBeRecovered.getUserID(),
-                            channel.getDRMWrappedDesKey(), b64cert, getDRMConnectorID());
+                            channel.getDRMWrappedDesKey(), b64cert, getDRMConnectorID(certToRecover.getKeyType()));
 
                     CertEnrollInfo cEnrollInfo = new CertEnrollInfo();
 
@@ -2449,7 +2449,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             CMS.debug(
                     "TPSEnrollProcessor.enrollOneCertificate: either generate private key on the server, or preform recovery or perform renewal.");
             boolean archive = checkForServerKeyArchival(cEnrollInfo);
-            String kraConnId = getDRMConnectorID();
+            String kraConnId = getDRMConnectorID(cEnrollInfo.getKeyType());
 
             String publicKeyStr = null;
             //Do this for JUST server side keygen
@@ -3517,12 +3517,15 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
     }
 
-    private String getDRMConnectorID() throws TPSException {
+    private String getDRMConnectorID(String keyType) throws TPSException {
+        if(keyType == null || keyType.isEmpty())
+            keyType = TPSEngine.CFG_ENCRYPTION;
+
         IConfigStore configStore = CMS.getConfigStore();
         String id = null;
 
-        String config = "op." + currentTokenOperation + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN_ENCRYPTION
-                + "." + TPSEngine.CFG_DRM_CONNECTOR;
+        String config = "op." + currentTokenOperation + "." + selectedTokenType + "." + TPSEngine.CFG_KEYGEN
+                + "." + keyType + "." + TPSEngine.CFG_DRM_CONNECTOR;
 
         CMS.debug("TPSEnrollProcessor.getDRMConnectorID: config value: " + config);
         try {
