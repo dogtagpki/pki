@@ -154,67 +154,57 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME):
             return
 
-        # A maximum of 10 tries to delete the SELinux contexts
-        counter = 1
-        max_tries = 10
-        while True:
-            try:
-                # remove SELinux contexts when removing the last subsystem
-                if len(deployer.instance.tomcat_instance_subsystems()) == 0:
+        # remove SELinux contexts when removing the last subsystem
+        if len(deployer.instance.tomcat_instance_subsystems()) == 0 and \
+                deployer.mdict['pki_instance_name'] != \
+                config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
+
+            context_to_delete = ['pki_instance_path', 'pki_instance_log_path',
+                                 'pki_instance_configuration_path', 'pki_server_database_path',
+                                 'ports']
+
+            # Delete SELinux contexts
+            for context in context_to_delete:
+
+                # A maximum of 10 tries to delete 1 SELinux context
+                max_tries = 10
+
+                for counter in range(1, max_tries):
+
                     trans = seobject.semanageRecords("targeted")
-                    trans.start()
+                    try:
+                        trans.start()
+                        # If a port context is specified
+                        if context == 'ports':
+                            port_records = seobject.portRecords(trans)
+                            for port in ports:
+                                logger.info("deleting selinux port %s", port)
+                                port_records.delete(port, "tcp")
 
-                    if deployer.mdict['pki_instance_name'] != \
-                            config.PKI_DEPLOYMENT_DEFAULT_TOMCAT_INSTANCE_NAME:
+                        # Else it's a file context
+                        else:
+                            fcon = seobject.fcontextRecords(trans)
 
-                        fcon = seobject.fcontextRecords(trans)
-
-                        logger.info(
-                            "deleting selinux fcontext \"%s\"",
-                            deployer.mdict['pki_instance_path'] + self.suffix)
-                        fcon.delete(
-                            deployer.mdict['pki_instance_path'] +
-                            self.suffix, "")
-
-                        logger.info(
-                            "deleting selinux fcontext \"%s\"",
-                            deployer.mdict['pki_instance_log_path'] +
-                            self.suffix)
-                        fcon.delete(
-                            deployer.mdict['pki_instance_log_path'] +
-                            self.suffix, "")
-
-                        logger.info(
-                            "deleting selinux fcontext \"%s\"",
-                            deployer.mdict['pki_instance_configuration_path'] +
-                            self.suffix)
-                        fcon.delete(
-                            deployer.mdict['pki_instance_configuration_path'] +
-                            self.suffix, "")
-
-                        logger.info(
-                            "deleting selinux fcontext \"%s\"",
-                            deployer.mdict['pki_server_database_path'] + self.suffix)
-                        fcon.delete(
-                            deployer.mdict['pki_server_database_path'] +
-                            self.suffix, "")
-
-                        port_records = seobject.portRecords(trans)
-                        for port in ports:
-                            logger.info("deleting selinux port %s", port)
-                            port_records.delete(port, "tcp")
-
-                    trans.finish()
-                break
-            except ValueError as e:
-                error_message = str(e)
-                logger.error(error_message)
-                if error_message.strip() == \
-                        "Could not start semanage transaction":
-                    counter += 1
-                    if counter >= max_tries:
-                        raise
-                    time.sleep(5)
-                    logger.debug("Retrying to remove selinux context ...")
-                else:
-                    raise
+                            logger.info(
+                                "deleting selinux fcontext \"%s\"",
+                                deployer.mdict[context] + self.suffix)
+                            fcon.delete(
+                                deployer.mdict[context] + self.suffix, "")
+                        break
+                    except ValueError as e:
+                        error_message = str(e)
+                        logger.error(error_message)
+                        if error_message.strip() == \
+                                "Could not start semanage transaction":
+                            if counter >= max_tries:
+                                raise
+                            time.sleep(5)
+                            logger.debug("Retrying to remove selinux context ...")
+                        else:
+                            # If it is a forced destroy, there won't be any se contexts to destroy
+                            if deployer.mdict['pki_force_destroy']:
+                                break
+                            else:
+                                raise
+                    finally:
+                        trans.finish()
