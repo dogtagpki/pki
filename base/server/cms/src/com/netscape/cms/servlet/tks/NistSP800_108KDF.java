@@ -56,7 +56,7 @@ public class NistSP800_108KDF extends KDF {
     }
 
     static public boolean useThisKDF(byte nistSP800_108KDFonKeyVersion, byte requestedKeyVersion) {
-        return (requestedKeyVersion >= nistSP800_108KDFonKeyVersion);
+        return ((requestedKeyVersion & 0xFF) >= (nistSP800_108KDFonKeyVersion & 0xFF));
     }
 
     /*******************************************************************************

@@ -483,7 +483,7 @@ public class SecureChannelProtocol {
         }
 
         CMS.debug(method + " entering. nickname: " + keyNickName + " selectedToken: " + selectedToken);
-        CMS.debug(method + " nistSP800_108kdfOnKeyVersion: " + nistSP800_108KdfOnKeyVersion);
+        CMS.debug(method + " nistSP800_108kdfOnKeyVersion: " + (nistSP800_108KdfOnKeyVersion & 0xFF));
 
         CryptoManager cm = null;
         CryptoToken token = null;
