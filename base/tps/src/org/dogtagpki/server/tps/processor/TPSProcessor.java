@@ -3284,6 +3284,7 @@ public class TPSProcessor {
                     TPSStatus.STATUS_ERROR_KEY_CHANGE_OVER);
         }
 
+        TPSSubsystem tps = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
         SecureChannel channel = null;
 
         int defKeyVersion = 0;
@@ -3390,6 +3391,8 @@ public class TPSProcessor {
 
                 try {
                     channel.putKeys(curVersion, curIndex, keySetData);
+                    tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
+                            "Sent new GP Key Set to token", "success");
                 } catch (TPSException e) {
 
                     CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: failed to put key, checking to see if this a SCP02 with 0xFF default key set.");
@@ -3407,6 +3410,8 @@ public class TPSProcessor {
                         CMS.debug("TPSProcessor.checkAndUpgradeSymKeys: We've only upgraded to the dev key set on key set #01, will have to try again to upgrade to #02");
 
                     } else {
+                        tps.tdb.tdbActivity(ActivityDatabase.OP_KEY_CHANGEOVER, tokenRecord, session.getIpAddress(),
+                                "Failed to send new GP Key Set to token", "failure");
                         throw e;
                     }
 

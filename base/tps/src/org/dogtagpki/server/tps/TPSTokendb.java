@@ -657,14 +657,14 @@ public class TPSTokendb {
             logMsg = "certificate unrevoked: " + cert.getSerialNumber();
             CMS.debug(method + ": " + logMsg);
 
-            tdbActivity(ActivityDatabase.OP_CERT_UNREVOCATION, tokenRecord,
+            tdbActivity(ActivityDatabase.OP_CERT_RESTORATION, tokenRecord,
                     ipAddress, logMsg, "success", remoteUser);
 
         } catch (Exception e) {
             logMsg = "certificate not unrevoked: " + cert.getSerialNumber() + " : " + e;
             CMS.debug(method + ": " + logMsg);
 
-            tdbActivity(ActivityDatabase.OP_CERT_UNREVOCATION, tokenRecord,
+            tdbActivity(ActivityDatabase.OP_CERT_RESTORATION, tokenRecord,
                     ipAddress, e.getMessage(), "failure", remoteUser);
 
             // continue unrevoking the next certificate

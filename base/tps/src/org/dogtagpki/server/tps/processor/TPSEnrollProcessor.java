@@ -207,7 +207,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
                             erAttrs.getRegistrationType() +
                             " does not match currentTokenOperation " +
                             currentTokenOperation);
-                    logMsg = "Registration record is not an enrollment type.";
+                    logMsg = "Improper Use of CRI, PIN Reset CRI used for Enrollment";
                     tps.tdb.tdbActivity(ActivityDatabase.OP_ENROLLMENT, tokenRecord, session.getIpAddress(), logMsg,
                             "failure");
                     throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_LOGIN);

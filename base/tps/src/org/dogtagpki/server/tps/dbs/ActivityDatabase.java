@@ -50,7 +50,9 @@ public class ActivityDatabase extends LDAPDatabase<ActivityRecord> {
     public final static String OP_TOKEN_STATUS_CHANGE = "token_status_change";
 
     public final static String OP_CERT_REVOCATION = "cert_revocation";
-    public final static String OP_CERT_UNREVOCATION = "cert_unrevocation";
+    public final static String OP_CERT_RESTORATION = "cert_restoration";
+
+    public final static String OP_KEY_CHANGEOVER = "key_changeover";
 
     public ActivityDatabase(IDBSubsystem dbSubsystem, String baseDN) throws EBaseException {
         super("Activity", dbSubsystem, baseDN, ActivityRecord.class);
