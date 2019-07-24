@@ -2685,16 +2685,9 @@ public class ConfigurationUtils {
             } catch (Exception ee) {
             }
 
-            String sslserver_extension = "";
-            Boolean injectSAN = config.getBoolean("service.injectSAN", false);
-            CMS.debug("ConfigurationUtils: injectSAN: " + injectSAN);
-
-            if (certTag.equals("sslserver") && injectSAN == true) {
-                sslserver_extension = CertUtil.buildSANSSLserverURLExtension(config);
-            }
-
             MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
+
             //Get the correct profile id to send in case it's sslserver type:
             CMS.debug("configRemoteCert: tag: " + certTag + " : setting profileId to: " + profileId);
             String actualProfileId = request.getSystemCertProfileID(certTag, profileId);
@@ -2705,6 +2698,13 @@ public class ConfigurationUtils {
             content.putSingle("cert_request", b64Request);
             content.putSingle("xmlOutput", "true");
             content.putSingle("sessionID", session_id);
+
+            Boolean injectSAN = config.getBoolean("service.injectSAN", false);
+            CMS.debug("ConfigurationUtils: injectSAN: " + injectSAN);
+
+            if (certTag.equals("sslserver") && injectSAN) {
+                CertUtil.buildSANSSLserverURLExtension(config, content);
+            }
 
             cert = CertUtil.createRemoteCert(ca_hostname, ca_port, content, response);
 
