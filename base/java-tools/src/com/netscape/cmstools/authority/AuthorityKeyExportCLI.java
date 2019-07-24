@@ -30,6 +30,8 @@ public class AuthorityKeyExportCLI extends CLI {
 
     private OBJECT_IDENTIFIER DES_EDE3_CBC_OID =
         new OBJECT_IDENTIFIER("1.2.840.113549.3.7");
+    private OBJECT_IDENTIFIER AES_128_CBC_OID =
+        new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.1.2");
 
     public AuthorityKeyExportCLI(AuthorityCLI authorityCLI) {
         super("key-export", "Export wrapped CA signing key", authorityCLI);
@@ -114,6 +116,19 @@ public class AuthorityKeyExportCLI extends CLI {
                 SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
                 KeyWrapAlgorithm.RSA, encAlg,
                 KeyWrapAlgorithm.DES3_CBC_PAD, ivps, ivps);
+
+            aid = new AlgorithmIdentifier(algOid, new OCTET_STRING(iv));
+        }
+
+        else if (algOid.equals(AES_128_CBC_OID)) {
+            EncryptionAlgorithm encAlg = EncryptionAlgorithm.AES_CBC_PAD;
+            byte iv[] = CryptoUtil.getNonceData(encAlg.getIVLength());
+            IVParameterSpec ivps = new IVParameterSpec(iv);
+
+            params = new WrappingParams(
+                SymmetricKey.AES, KeyGenAlgorithm.AES, 128,
+                KeyWrapAlgorithm.RSA, encAlg,
+                KeyWrapAlgorithm.AES_CBC_PAD, ivps, ivps);
 
             aid = new AlgorithmIdentifier(algOid, new OCTET_STRING(iv));
         }
