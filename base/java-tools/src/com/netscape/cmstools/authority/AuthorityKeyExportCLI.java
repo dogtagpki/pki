@@ -106,15 +106,16 @@ public class AuthorityKeyExportCLI extends CLI {
         WrappingParams params = null;
 
         if (algOid.equals(DES_EDE3_CBC_OID)) {
-            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+            EncryptionAlgorithm encAlg = EncryptionAlgorithm.DES3_CBC_PAD;
+            byte iv[] = CryptoUtil.getNonceData(encAlg.getIVLength());
             IVParameterSpec ivps = new IVParameterSpec(iv);
 
             params = new WrappingParams(
                 SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
-                KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
+                KeyWrapAlgorithm.RSA, encAlg,
                 KeyWrapAlgorithm.DES3_CBC_PAD, ivps, ivps);
 
-            aid = new AlgorithmIdentifier(algOid, new OCTET_STRING(ivps.getIV()));
+            aid = new AlgorithmIdentifier(algOid, new OCTET_STRING(iv));
         }
 
         else {
