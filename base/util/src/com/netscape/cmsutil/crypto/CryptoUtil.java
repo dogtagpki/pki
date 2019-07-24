@@ -2435,16 +2435,37 @@ public class CryptoUtil {
         BIT_STRING encSymKey = encVal.getEncSymmKey();
         BIT_STRING encPrivKey = encVal.getEncValue();
 
-        SymmetricKey sk = unwrap(
-                token, SymmetricKey.Type.DES3, 0, SymmetricKey.Usage.UNWRAP,
-                unwrappingKey, encSymKey.getBits(), KeyWrapAlgorithm.RSA);
+        OBJECT_IDENTIFIER oid = algId.getOID();
 
         ASN1Value v = algId.getParameters();
         v = ((ANY) v).decodeWith(new OCTET_STRING.Template());
         byte iv[] = ((OCTET_STRING) v).toByteArray();
         IVParameterSpec ivps = new IVParameterSpec(iv);
 
-        return unwrap(token, pubkey, false, sk, encPrivKey.getBits(), KeyWrapAlgorithm.DES3_CBC_PAD, ivps);
+        // des-ede3-cbc
+        if (oid.equals(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"))) {
+            SymmetricKey sk = unwrap(
+                token, SymmetricKey.Type.DES3, 0, SymmetricKey.Usage.UNWRAP,
+                unwrappingKey, encSymKey.getBits(), KeyWrapAlgorithm.RSA);
+            return unwrap(
+                token, pubkey, false, sk, encPrivKey.getBits(),
+                KeyWrapAlgorithm.DES3_CBC_PAD, ivps);
+
+        // aes128-cbc
+        } else if (oid.equals(new OBJECT_IDENTIFIER("2.16.840.1.101.3.4.1.2"))) {
+            SymmetricKey sk = unwrap(
+                token, SymmetricKey.Type.AES, 0, SymmetricKey.Usage.UNWRAP,
+                unwrappingKey, encSymKey.getBits(), KeyWrapAlgorithm.RSA);
+            return unwrap(
+                token, pubkey, false, sk, encPrivKey.getBits(),
+                KeyWrapAlgorithm.AES_CBC_PAD, ivps);
+
+        // unsupported algorithm
+        } else {
+            throw new IOException(
+                "PKIArchiveOptions symmetric algorithm " + oid.toString() + " not supported");
+        }
+
     }
 
     public static boolean sharedSecretExists(String nickname) throws NotInitializedException, TokenException {
