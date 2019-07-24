@@ -2416,6 +2416,9 @@ public class TPSProcessor {
             CMS.debug("TPSProcessor.format: " + logMsg);
         }
 
+       // Set token's userID attribute to null
+       tokenRecord.setUserID(null);
+
         // Update Token DB
         tokenRecord.setTokenStatus(TokenStatus.FORMATTED);
         logMsg = "token format operation";
