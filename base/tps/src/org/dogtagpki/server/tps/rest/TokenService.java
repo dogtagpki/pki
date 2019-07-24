@@ -36,10 +36,12 @@ import org.dogtagpki.server.tps.TPSSubsystem;
 import org.dogtagpki.server.tps.dbs.ActivityDatabase;
 import org.dogtagpki.server.tps.dbs.TokenDatabase;
 import org.dogtagpki.server.tps.dbs.TokenRecord;
+import org.dogtagpki.server.tps.engine.TPSEngine;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.BadRequestException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBVirtualList;
@@ -68,21 +70,38 @@ public class TokenService extends SubsystemService implements TokenResource {
             Map<String, String> auditModParams)
                     throws Exception {
         TPSSubsystem tps = (TPSSubsystem) CMS.getSubsystem(TPSSubsystem.ID);
+        IConfigStore config = CMS.getConfigStore();
 
         TokenStatus oldStatus = tokenRecord.getTokenStatus();
         String oldReason = tokenRecord.getReason();
         TokenStatus newStatus = tokenState;
         String newReason = null;
 
+        boolean clearOnUnformatUserID = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_USERID, true);
+        boolean clearOnUnformatType = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_TYPE, true);
+        boolean clearOnUnformatAppletID = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_APPLETID, true);
+        boolean clearOnUnformatKeyInfo = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_KEYINFO, true);
+        boolean clearOnUnformatPolicy = config.getBoolean(TPSEngine.CFG_TOKENSERVICE_UNFORMATTED_CLEAR_POLICY, true);
+
         auditModParams.put("UserID", tokenRecord.getUserID());
 
         switch (tokenState.getValue()) {
         case TokenStatus.TOKEN_UNFORMATTED:
-            tokenRecord.setUserID(null);
-            tokenRecord.setType(null);
-            tokenRecord.setAppletID(null);
-            tokenRecord.setKeyInfo(null);
-            tokenRecord.setPolicy(null);
+            if(clearOnUnformatUserID) {
+                tokenRecord.setUserID(null);
+            }
+            if(clearOnUnformatType) {
+                tokenRecord.setType(null);
+            }
+            if(clearOnUnformatAppletID) {
+                tokenRecord.setAppletID(null);
+            }
+            if(clearOnUnformatKeyInfo) {
+                tokenRecord.setKeyInfo(null);
+            }
+            if(clearOnUnformatPolicy) {
+                tokenRecord.setPolicy(null);
+            }
             tokenRecord.setTokenStatus(tokenState);
             tokenRecord.setReason(null);
             break;

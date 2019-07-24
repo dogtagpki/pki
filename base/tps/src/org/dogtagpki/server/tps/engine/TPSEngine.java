@@ -94,6 +94,11 @@ public class TPSEngine {
     public static final String CFG_TOKENDB = "tokendb";
     public static final String CFG_TOKENDB_ALLOWED_TRANSITIONS = "tokendb.allowedTransitions";
     public static final String CFG_OPERATIONS_ALLOWED_TRANSITIONS = "tps.operations.allowedTransitions";
+    public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_USERID = "tokenservice.status.unformatted.clearUserID";
+    public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_TYPE = "tokenservice.status.unformatted.clearType";
+    public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_APPLETID = "tokenservice.status.unformatted.clearAppletID";
+    public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_KEYINFO = "tokenservice.status.unformatted.clearKeyInfo";
+    public static final String CFG_TOKENSERVICE_UNFORMATTED_CLEAR_POLICY = "tokenservice.status.unformatted.clearPolicy";
 
     public static final String CFG_PRINTBUF_FULL = "tps.printBufFull";
     public static final String CFG_RECV_BUF_SIZE = "tps.recvBufSize";
