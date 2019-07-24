@@ -28,6 +28,9 @@ public class AuthorityKeyExportCLI extends CLI {
 
     public AuthorityCLI authorityCLI;
 
+    private OBJECT_IDENTIFIER DES_EDE3_CBC_OID =
+        new OBJECT_IDENTIFIER("1.2.840.113549.3.7");
+
     public AuthorityKeyExportCLI(AuthorityCLI authorityCLI) {
         super("key-export", "Export wrapped CA signing key", authorityCLI);
         this.authorityCLI = authorityCLI;
@@ -45,10 +48,18 @@ public class AuthorityKeyExportCLI extends CLI {
         option = new Option(null, "target-nickname", true, "Nickname of target key");
         option.setArgName("nickname");
         options.addOption(option);
+
+        option = new Option(null, "algorithm", true, "Symmetric encryption algorithm");
+        option.setArgName("OID");
+        options.addOption(option);
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + "--wrap-nickname NICKNAME --target-nickname NICKNAME -o FILENAME", options);
+        formatter.printHelp(
+            getFullName()
+                + " --wrap-nickname NICKNAME --target-nickname NICKNAME -o FILENAME"
+                + " [--algorithm OID]",
+            options);
     }
 
     public void execute(String[] args) throws Exception {
@@ -75,6 +86,14 @@ public class AuthorityKeyExportCLI extends CLI {
             throw new Exception("No target key nickname specified.");
         }
 
+        // Old servers only support DES and do not specify
+        // the algorithm to use, so default to DES.
+        OBJECT_IDENTIFIER algOid = DES_EDE3_CBC_OID;
+        String algOidString = cmd.getOptionValue("algorithm");
+        if (algOidString != null) {
+            algOid = new OBJECT_IDENTIFIER(algOidString);
+        }
+
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate wrapCert = cm.findCertByNickname(wrapNick);
         X509Certificate targetCert = cm.findCertByNickname(targetNick);
@@ -83,17 +102,24 @@ public class AuthorityKeyExportCLI extends CLI {
         PrivateKey toBeWrapped = cm.findPrivKeyByCert(targetCert);
         CryptoToken token = cm.getInternalKeyStorageToken();
 
-        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-        IVParameterSpec ivps = new IVParameterSpec(iv);
+        AlgorithmIdentifier aid = null;
+        WrappingParams params = null;
 
-        WrappingParams params = new WrappingParams(
+        if (algOid.equals(DES_EDE3_CBC_OID)) {
+            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+            IVParameterSpec ivps = new IVParameterSpec(iv);
+
+            params = new WrappingParams(
                 SymmetricKey.DES3, KeyGenAlgorithm.DES3, 168,
                 KeyWrapAlgorithm.RSA, EncryptionAlgorithm.DES3_CBC_PAD,
                 KeyWrapAlgorithm.DES3_CBC_PAD, ivps, ivps);
 
-        AlgorithmIdentifier aid = new AlgorithmIdentifier(
-                new OBJECT_IDENTIFIER("1.2.840.113549.3.7"),
-                new OCTET_STRING(ivps.getIV()));
+            aid = new AlgorithmIdentifier(algOid, new OCTET_STRING(ivps.getIV()));
+        }
+
+        else {
+            throw new Exception("Unsupported algorithm: " + algOid.toString());
+        }
 
         byte[] data = CryptoUtil.createEncodedPKIArchiveOptions(
                 token,
