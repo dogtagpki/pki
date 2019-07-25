@@ -25,6 +25,7 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
@@ -250,7 +251,19 @@ public class RequestQueue
             return null;
         }
 
-        String filter = "(" + "requeststate" + "=*" + ")";
+        String filter = null;
+
+        IConfigStore config = CMS.getConfigStore();
+        String csType = null;
+
+        try {
+            csType = config.getString("cs.type");
+        } catch (EBaseException e) { }
+
+        if("KRA".equals(csType))
+            filter = "(&(" + "requeststate" + "=*" + ")(!(realm=*)))";
+        else
+            filter = "(" + "requeststate" + "=*" + ")";
 
         RequestId fromId = new RequestId(reqId_upper_bound);
 
