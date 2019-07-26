@@ -71,7 +71,7 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
         String enable = null;
 
         try {
-            enable = profile.getConfigStore().getString(PROP_ENABLE);
+            enable = profile.getConfigStore().getString(PROP_ENABLE, "false");
         } catch (EBaseException e) {
         }
         return Boolean.valueOf(enable);

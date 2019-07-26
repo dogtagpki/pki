@@ -434,6 +434,9 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
 
     public SubjectAlternativeNameExtension createExtension(IRequest request)
             throws IOException, EProfileException {
+
+        logger.info("SubjectAltNameExtDefault: Creating SAN extension");
+
         SubjectAlternativeNameExtension ext = null;
         int num = getNumGNs();
 

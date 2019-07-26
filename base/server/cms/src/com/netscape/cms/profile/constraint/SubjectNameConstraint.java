@@ -121,7 +121,7 @@ public class SubjectNameConstraint extends EnrollConstraint {
                     sn500.toString());
         }
         if (!sn500.toString().matches(getConfig(CONFIG_PATTERN))) {
-            logger.error("SubjectNameConstraint: validate() - sn500 not matching pattern " + getConfig(CONFIG_PATTERN));
+            logger.error("SubjectNameConstraint: Subject name \"" + sn500 + "\" does not match \"" + getConfig(CONFIG_PATTERN) + "\" pattern");
             throw new ERejectException(
                     CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_SUBJECT_NAME_NOT_MATCHED",

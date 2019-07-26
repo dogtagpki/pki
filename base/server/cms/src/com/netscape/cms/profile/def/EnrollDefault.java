@@ -334,36 +334,51 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     }
 
     protected Extension getExtension(String name, X509CertInfo info) {
-        CertificateExtensions exts = null;
 
         if (info == null) {
-            logger.error("EnrollDefault: getExtension(), info == null");
+            logger.error("EnrollDefault: Missing certificate info");
             return null;
         }
 
+        CertificateExtensions exts = null;
+
         try {
-            exts = (CertificateExtensions)
-                    info.get(X509CertInfo.EXTENSIONS);
+            exts = (CertificateExtensions) info.get(X509CertInfo.EXTENSIONS);
         } catch (Exception e) {
             logger.warn("EnrollDefault: getExtension " + e.getMessage(), e);
         }
-        if (exts == null)
+
+        if (exts == null) {
+            logger.info("EnrollDefault: Unable to find extensions");
             return null;
+        }
+
         return getExtension(name, exts);
     }
 
     protected Extension getExtension(String name, CertificateExtensions exts) {
-        if (exts == null)
+
+        logger.info("EnrollDefault: Searching for " + name + " extension");
+
+        if (exts == null) {
+            logger.error("EnrollDefault: Missing certificate extensions");
             return null;
+        }
+
         Enumeration<Extension> e = exts.getAttributes();
 
+        logger.debug("EnrollDefault: Extensions:");
         while (e.hasMoreElements()) {
             Extension ext = e.nextElement();
+            logger.debug("EnrollDefault: - " + ext.getExtensionId());
 
             if (ext.getExtensionId().toString().equals(name)) {
+                logger.info("EnrollDefault: Found extension " + name);
                 return ext;
             }
         }
+
+        logger.info("EnrollDefault: Extension " + name + " not found");
         return null;
     }
 

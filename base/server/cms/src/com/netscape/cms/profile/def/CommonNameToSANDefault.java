@@ -63,6 +63,7 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
 
     public void populate(IRequest _req, X509CertInfo info)
             throws EProfileException {
+
         // examine the Subject DN
         CertificateSubjectName subjectName;
         try {
@@ -71,6 +72,9 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
             logger.error(LOG_PREFIX + "failed to read Subject DN: " + e.getMessage(), e);
             return;
         }
+
+        logger.info(LOG_PREFIX + "Subject Name: " + subjectName);
+
         X500Name sdn;
         try {
             sdn = (X500Name) subjectName.get(CertificateSubjectName.DN_NAME);
@@ -78,6 +82,9 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
             logger.error(LOG_PREFIX + "failed to retrieve SDN X500Name: " + e.getMessage(), e);
             return;
         }
+
+        logger.info(LOG_PREFIX + "Subject DN: " + sdn);
+
         List<String> cns;
         try {
             cns = sdn.getAttributesForOid(X500Name.commonName_oid);
@@ -87,6 +94,7 @@ public class CommonNameToSANDefault extends EnrollExtDefault {
             logger.error(LOG_PREFIX + "failed to decode CN: " + e.getMessage(), e);
             return;
         }
+
         if (cns.size() < 1) {
             logger.debug(LOG_PREFIX + "No CN in Subject DN; done");
             return;  // no Common Name; can't do anything
