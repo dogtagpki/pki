@@ -1,0 +1,6 @@
+<ACMEMetadata>
+    <termsOfService>https://example.com/acme/docs/tos.pdf</termsOfService>
+    <website>https://www.example.com/</website>
+    <caaIdentities>example.com</caaIdentities>
+    <externalAccountRequired>false</externalAccountRequired>
+</ACMEMetadata>

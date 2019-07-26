@@ -29,21 +29,47 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.dogtagpki.acme.ACMEOrder;
 import org.dogtagpki.acme.JWS;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.ca.CACertClient;
+import com.netscape.certsrv.ca.CAClient;
+import com.netscape.certsrv.cert.CertEnrollmentRequest;
+import com.netscape.certsrv.cert.CertRequestInfo;
+import com.netscape.certsrv.cert.CertRequestInfos;
+import com.netscape.certsrv.cert.CertReviewResponse;
+import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.certsrv.profile.ProfileAttribute;
+import com.netscape.certsrv.profile.ProfileInput;
+import com.netscape.certsrv.request.RequestId;
 
 @Path("order/{id}/finalize")
 public class ACMEFinalizeOrderService {
 
+    ACMEConfiguration acmeConfig;
+
     @Context
     UriInfo uriInfo;
+
+    public ACMEConfiguration getACMEConfig() {
+        return acmeConfig;
+    }
+
+    public void setACMEConfig(ACMEConfiguration config) {
+        this.acmeConfig = config;
+    }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response handlePOST(@PathParam("id") String orderID, JWS jws) throws Exception {
+
+        System.out.println("Finalizing an order");
 
         System.out.println("Order ID: " + orderID);
 
@@ -59,9 +85,12 @@ public class ACMEFinalizeOrderService {
         ObjectMapper mapper = new ObjectMapper();
         ACMEOrder request = mapper.readValue(payload, ACMEOrder.class);
 
-        System.out.println("CSR: " + request.getCSR());
+        String csr = request.getCSR();
+        System.out.println("CSR: " + csr);
 
-        String certID = RandomStringUtils.randomAlphanumeric(10);
+        CertId id = generateCertificate(csr);
+
+        String certID = Base64.encodeBase64String(id.toBigInteger().toByteArray());
         URI certURL = uriInfo.getBaseUriBuilder().path("cert").path(certID).build();
 
         order.setStatus("valid");
@@ -77,5 +106,78 @@ public class ACMEFinalizeOrderService {
         builder.entity(order);
 
         return builder.build();
+    }
+
+    public CertId generateCertificate(String csr) throws Exception {
+
+        System.out.println("Submitting certificate request");
+
+        String serverURL = acmeConfig.getServerURL();
+        System.out.println(" - server URL: " + serverURL);
+
+        String profileID = acmeConfig.getProfileID();
+        System.out.println(" - profile ID: " + profileID);
+
+        String nickname = acmeConfig.getNickname();
+        System.out.println(" - nickname: " + nickname);
+
+        String username = acmeConfig.getUsername();
+        System.out.println(" - username: " + username);
+
+        String password = acmeConfig.getPassword();
+
+        AuthorityID aid = null;
+        X500Name adn = null;
+
+        ClientConfig clientConfig = new ClientConfig();
+        clientConfig.setServerURL(serverURL);
+        clientConfig.setCertNickname(nickname);
+        //clientConfig.setUsername(username);
+        //clientConfig.setPassword(password);
+
+        PKIClient pkiClient = new PKIClient(clientConfig);
+        CAClient caClient = new CAClient(pkiClient);
+        CACertClient certClient = new CACertClient(caClient);
+        CertEnrollmentRequest certEnrollmentRequest = certClient.getEnrollmentTemplate(profileID);
+
+        for (ProfileInput input : certEnrollmentRequest.getInputs()) {
+
+            ProfileAttribute typeAttr = input.getAttribute("cert_request_type");
+            if (typeAttr != null) {
+                typeAttr.setValue("pkcs10");
+            }
+
+            ProfileAttribute csrAttr = input.getAttribute("cert_request");
+            if (csrAttr != null) {
+                csrAttr.setValue(csr);
+            }
+        }
+
+        System.out.println(certEnrollmentRequest);
+
+        CertRequestInfos infos = certClient.enrollRequest(certEnrollmentRequest, aid, adn);
+
+        System.out.println("Responses:");
+        CertRequestInfo info = infos.getEntries().iterator().next();
+
+        RequestId requestId = info.getRequestId();
+
+        System.out.println(" - Request ID: " + requestId);
+        System.out.println("   Type: " + info.getRequestType());
+        System.out.println("   Request Status: " + info.getRequestStatus());
+        System.out.println("   Operation Result: " + info.getOperationResult());
+
+        String error = info.getErrorMessage();
+        if (error != null) {
+            throw new Exception("Unable to generate certificate: " + error);
+        }
+
+        CertReviewResponse reviewInfo = certClient.reviewRequest(requestId);
+        certClient.approveRequest(requestId, reviewInfo);
+
+        info = certClient.getRequest(requestId);
+        System.out.println("Generated certificate " + info.getCertId().toHexString());
+
+        return info.getCertId();
     }
 }

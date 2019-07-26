@@ -88,8 +88,11 @@ public class CertRequestService extends PKIService implements CertRequestResourc
      */
     @Override
     public Response getRequestInfo(RequestId id) {
+
+        logger.info("Retrieving certificate request " + id);
+
         if (id == null) {
-            String message = "Unable to get cert request info: Missing request ID";
+            String message = "Unable to get certificate request info: Missing request ID";
             logger.error(message);
             throw new BadRequestException(message);
         }
@@ -113,6 +116,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
 
     @Override
     public Response enrollCert(CertEnrollmentRequest data, String aidString, String adnString) {
+
+        logger.info("Receiving certificate request");
+
         if (data == null) {
             String message = "Unable to create enrollment request: Missing input data";
             logger.error(message);
@@ -123,8 +129,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             throw new BadRequestException("Cannot provide both issuer-id and issuer-dn");
 
         CMSEngine engine = CMS.getCMSEngine();
-        AuthorityID aid = null;
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
+
+        AuthorityID aid = null;
         if (aidString != null) {
             try {
                 aid = new AuthorityID(aidString);
@@ -135,6 +142,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
             if (ca == null)
                 throw new ResourceNotFoundException("CA not found: " + aidString);
         }
+
         if (adnString != null) {
             X500Name adn = null;
             try {
@@ -147,6 +155,7 @@ public class CertRequestService extends PKIService implements CertRequestResourc
                 throw new ResourceNotFoundException("CA not found: " + adnString);
             aid = ca.getAuthorityID();
         }
+
         if (!ca.getAuthorityEnabled())
             throw new ConflictingOperationException("CA not enabled: " + aid.toString());
 
@@ -194,42 +203,63 @@ public class CertRequestService extends PKIService implements CertRequestResourc
 
     @Override
     public Response approveRequest(RequestId id, CertReviewResponse data) {
+
+        logger.info("Approving certificate request " + id);
+
         changeRequestState(id, data, "approve");
         return createNoContentResponse();
     }
 
     @Override
     public Response rejectRequest(RequestId id, CertReviewResponse data) {
+
+        logger.info("Rejecting certificate request " + id);
+
         changeRequestState(id, data, "reject");
         return createNoContentResponse();
     }
 
     @Override
     public Response cancelRequest(RequestId id, CertReviewResponse data) {
+
+        logger.info("Canceling certificate request " + id);
+
         changeRequestState(id, data, "cancel");
         return createNoContentResponse();
     }
 
     @Override
     public Response updateRequest(RequestId id, CertReviewResponse data) {
+
+        logger.info("Updating certificate request " + id);
+
         changeRequestState(id, data, "update");
         return createNoContentResponse();
     }
 
     @Override
     public Response validateRequest(RequestId id, CertReviewResponse data) {
+
+        logger.info("Validating certificate request " + id);
+
         changeRequestState(id, data, "validate");
         return createNoContentResponse();
     }
 
     @Override
     public Response unassignRequest(RequestId id, CertReviewResponse data) {
+
+        logger.info("Unassigning certificate request " + id);
+
         changeRequestState(id, data, "unassign");
         return createNoContentResponse();
     }
 
     @Override
     public Response assignRequest(RequestId id, CertReviewResponse data) {
+
+        logger.info("Assigning certificate request " + id);
+
         changeRequestState(id, data, "assign");
         return createNoContentResponse();
     }
@@ -301,6 +331,9 @@ public class CertRequestService extends PKIService implements CertRequestResourc
 
     @Override
     public Response reviewRequest(@PathParam("id") RequestId id) {
+
+        logger.info("Reviewing certificate request " + id);
+
         if (id == null) {
             String message = "Unable to review cert request: Missing request ID";
             logger.error(message);

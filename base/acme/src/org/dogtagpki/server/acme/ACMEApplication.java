@@ -17,28 +17,56 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.acme;
 
+import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+
 @ApplicationPath("")
 public class ACMEApplication extends Application {
+
+    ACMEConfiguration config;
 
     private Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
     private Set<Object> singletons = new LinkedHashSet<Object>();
 
-    public ACMEApplication() {
+    public ACMEApplication() throws Exception {
+
+        String catalinaBase = System.getProperty("catalina.base");
+        String confDir = catalinaBase + File.separator + "conf";
+        String acmeConfDir = confDir + File.separator + "acme";
+        File acmeConfigFile = new File(acmeConfDir + File.separator + "ACME.conf");
+
+        if (acmeConfigFile.exists()) {
+
+            System.out.println("Loading " + acmeConfigFile);
+
+            XmlMapper mapper = new XmlMapper();
+            config = mapper.readValue(acmeConfigFile, ACMEConfiguration.class);
+
+        } else {
+            config = new ACMEConfiguration();
+        }
+
         classes.add(ACMEDirectoryService.class);
         classes.add(ACMENewNonceService.class);
         classes.add(ACMENewAccountService.class);
         classes.add(ACMENewOrderService.class);
         classes.add(ACMEAuthorizationService.class);
         classes.add(ACMEChallengeService.class);
-        classes.add(ACMEFinalizeOrderService.class);
         classes.add(ACMEOrderService.class);
-        classes.add(ACMECertificateService.class);
+
+        ACMEFinalizeOrderService finalizeOrderService = new ACMEFinalizeOrderService();
+        finalizeOrderService.setACMEConfig(config);
+        singletons.add(finalizeOrderService);
+
+        ACMECertificateService certificateService = new ACMECertificateService();
+        certificateService.setACMEConfig(config);
+        singletons.add(certificateService);
     }
 
     public Set<Class<?>> getClasses() {

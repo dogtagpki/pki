@@ -17,7 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package org.dogtagpki.server.acme;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.math.BigInteger;
 import java.net.URI;
+import java.security.cert.X509Certificate;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -29,11 +33,34 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.codec.binary.Base64;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+
+import com.netscape.certsrv.ca.CACertClient;
+import com.netscape.certsrv.ca.CAClient;
+import com.netscape.certsrv.cert.CertData;
+import com.netscape.certsrv.client.ClientConfig;
+import com.netscape.certsrv.client.PKIClient;
+import com.netscape.certsrv.dbs.certdb.CertId;
+import com.netscape.cmsutil.crypto.CryptoUtil;
+
 @Path("cert/{id}")
 public class ACMECertificateService {
 
+    ACMEConfiguration acmeConfig;
+
     @Context
     UriInfo uriInfo;
+
+    public ACMEConfiguration getACMEConfig() {
+        return acmeConfig;
+    }
+
+    public void setACMEConfig(ACMEConfiguration config) {
+        this.acmeConfig = config;
+    }
 
     @GET
     @Produces("application/pem-certificate-chain")
@@ -47,55 +74,59 @@ public class ACMECertificateService {
         return getCertificate(certID);
     }
 
-    public Response getCertificate(String certID) {
+    public Response getCertificate(String certID) throws Exception {
 
-        StringBuilder sb = new StringBuilder();
+        CertId id = new CertId(new BigInteger(1, Base64.decodeBase64(certID)));
+        System.out.println("Retrieving certificate " + id.toHexString());
 
-        sb.append(
-                "-----BEGIN CERTIFICATE-----\n" +
-                "MIIDbDCCAlSgAwIBAgICf7wwDQYJKoZIhvcNAQELBQAwMzEQMA4GA1UEChMHRVhB\n" +
-                "TVBMRTEfMB0GA1UEAxMWQ0EgU2lnbmluZyBDZXJ0aWZpY2F0ZTAeFw0xOTA1MTUx\n" +
-                "NzIwNTFaFw0xOTA4MTUxNzIwNTFaMC8xEDAOBgNVBAoTB0VYQU1QTEUxGzAZBgNV\n" +
-                "BAMTEnNlcnZlci5leGFtcGxlLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCC\n" +
-                "AQoCggEBALXUPO4Q+j+t1RAXAgncAoe4CrB3+Vsqrc54m12VRauuz/xkol2/oQE0\n" +
-                "rroeAKIGrdTAMBf3yPEi42WMYgpCSPvBl8jjBE7F0YoNAJ5v+CPkISkNG00us1QF\n" +
-                "giYJfhhu1fJa+Ws3nIY0YhxE8jcYJDJ0hFdEDY+OJk7zbBzVMPRlTdODzd/wiQH/\n" +
-                "Nq8Cf93Ey6meykN9Z4IRcyOvReBlHNGvbXrc50E8/XXjzyRsQ418JFvP2CWjHwnS\n" +
-                "BWMmvZEN1pqesPhvhe7t8cHlhb6pYERKaL70g/OjTbiFSfk8sJ+vyuM4/Z2GSZWc\n" +
-                "yMO4JZjUklvjtdLbuTro9sGPL74aclUCAwEAAaOBjTCBijBCBggrBgEFBQcBAQQ2\n" +
-                "MDQwMgYIKwYBBQUHMAGGJmh0dHA6Ly9zZXJ2ZXIuZXhhbXBsZS5jb206ODA4MC9j\n" +
-                "YS9vY3NwMB8GA1UdIwQYMBaAFJHLDJqpFNfqQBo1Rldmn7/can+1MBMGA1UdJQQM\n" +
-                "MAoGCCsGAQUFBwMBMA4GA1UdDwEB/wQEAwIE8DANBgkqhkiG9w0BAQsFAAOCAQEA\n" +
-                "lZ6Gt8eFdJ8RO2n2Aw31zdslexmznf8wMPwwwZeasI1UZgrDlMt0y1MsBRZPfmGJ\n" +
-                "8eZnqX1gdxDOEziqZw6hON5QqqrDQ3jyH9yqGngM5LTIpgtv/Gd3Hlefsx4O6XA5\n" +
-                "FEL3obC6LvFEhVRRWKWjv3E3XqbA3OqDVraRWgWIY2o0QEEkbXmhLgZaBT1eDhUD\n" +
-                "Yh8RH7WMitgEx9JlmlKP1sDUxdvgUEeBGMiRirzR0xfjsN4LP8fcddXu/wJgPa3G\n" +
-                "dH0OK8kKZF1vu5tVgqY2l00IBh8KZXzEfGFZINQnw/Nd8f8Au0ibN2GvFlEDCQh+\n" +
-                "LvUSERJv7Rkui3x/9qF7UQ==\n" +
-                "-----END CERTIFICATE-----\n");
+        String serverURL = acmeConfig.getServerURL();
+        System.out.println(" - server URL: " + serverURL);
 
-        sb.append(
-                "-----BEGIN CERTIFICATE-----\n" +
-                "MIIDizCCAnOgAwIBAgICAJEwDQYJKoZIhvcNAQELBQAwMzEQMA4GA1UEChMHRVhB\n" +
-                "TVBMRTEfMB0GA1UEAxMWQ0EgU2lnbmluZyBDZXJ0aWZpY2F0ZTAeFw0xOTA1MTUx\n" +
-                "NzE4MDdaFw0xOTA4MTUxNzE4MDdaMDMxEDAOBgNVBAoTB0VYQU1QTEUxHzAdBgNV\n" +
-                "BAMTFkNBIFNpZ25pbmcgQ2VydGlmaWNhdGUwggEiMA0GCSqGSIb3DQEBAQUAA4IB\n" +
-                "DwAwggEKAoIBAQC53iuB0f90kXPkHv2/V3B+MPG70lXBZioJCaI+03xHbjwAOHnn\n" +
-                "XTVGoNN3xpRdMkrNpRyy81WnsjmEJm0MSQhUGs+qyS3GYiCJtQCplw2VLQ7DhmeH\n" +
-                "bemTpSoNq+OmXjJ+KPLkp5ildPmqPGHbmrDA9Sr3BHmUZxXMQIguuY8scTACJmCz\n" +
-                "u8IDQok0wtvY4oo2/ZzYYRcA2HBS4++6TzpWFCjxoWFGJvbtifh0U/WC8kZl2pMj\n" +
-                "O+78TjmTB+K89LeuDCRJl5FP4d+/68RFAjMVzOlz1cCVarR+w9Eka7ecP6FaHGnQ\n" +
-                "Jwdf2Dk2ukhDUJt3GGQURwMJFROJTZAukG3pAgMBAAGjgagwgaUwQgYIKwYBBQUH\n" +
-                "AQEENjA0MDIGCCsGAQUFBzABhiZodHRwOi8vc2VydmVyLmV4YW1wbGUuY29tOjgw\n" +
-                "ODAvY2Evb2NzcDAdBgNVHQ4EFgQUkcsMmqkU1+pAGjVGV2afv9xqf7UwHwYDVR0j\n" +
-                "BBgwFoAUkcsMmqkU1+pAGjVGV2afv9xqf7UwDwYDVR0TAQH/BAUwAwEB/zAOBgNV\n" +
-                "HQ8BAf8EBAMCAcYwDQYJKoZIhvcNAQELBQADggEBADYANGtbFTz+RoSZdpQh+elV\n" +
-                "hEPdR+g/MEUne4KN9p6LjMtXIvXblW0lXGI/3zqfCyNVctfM+bQfDki0yfnjE0+k\n" +
-                "9ndeeAR2IhVtQoaod3NbnaYJXDHbfW1WP4N5K3IVHvmC1XuotLtOSN2FL4/RdVgc\n" +
-                "PadZWbimJXB+sAUUoLlLETbxpvYvH28RbwkViZm62qTVO9JA4mGZt/ScQrDRDhid\n" +
-                "mJNNW+SzWXsDW+HSlB3prfVJ7akF8ShXSfzgED1oq/UMSIZZqTqDgGocKS/yl2Fx\n" +
-                "tC/onhIpPUczrbUm5xfD6VJal0fm4M8FkVvuBNMi1EsCz+qcx2xR9nLKeF1cN3w=\n" +
-                "-----END CERTIFICATE-----\n");
+        String profileID = acmeConfig.getProfileID();
+        System.out.println(" - profile ID: " + profileID);
+
+        String nickname = acmeConfig.getNickname();
+        System.out.println(" - nickname: " + nickname);
+
+        String username = acmeConfig.getUsername();
+        System.out.println(" - username: " + username);
+
+        String password = acmeConfig.getPassword();
+
+        ClientConfig clientConfig = new ClientConfig();
+        clientConfig.setServerURL(serverURL);
+        clientConfig.setCertNickname(nickname);
+        //clientConfig.setUsername(username);
+        //clientConfig.setPassword(password);
+
+        PKIClient pkiClient = new PKIClient(clientConfig);
+        CAClient caClient = new CAClient(pkiClient);
+        CACertClient certClient = new CACertClient(caClient);
+
+        CertData certData = certClient.getCert(id);
+
+        String certChain = certData.getPkcs7CertChain();
+        System.out.println("Cert chain: " + certChain);
+
+        PKCS7 pkcs7 = new PKCS7(Utils.base64decode(certChain));
+        X509Certificate[] certs = pkcs7.getCertificates();
+
+        if (certs == null || certs.length == 0) {
+            throw new Error("PKCS #7 data contains no certificates");
+        }
+
+        // sort certs from leaf to root
+        certs = CryptoUtil.sortCertificateChain(certs, true);
+
+        StringWriter sw = new StringWriter();
+
+        try (PrintWriter out = new PrintWriter(sw, true)) {
+            for (X509Certificate cert : certs) {
+                out.println(Cert.HEADER);
+                out.print(Utils.base64encode(cert.getEncoded(), true));
+                out.println(Cert.FOOTER);
+            }
+        }
 
         ResponseBuilder builder = Response.ok();
 
@@ -104,7 +135,7 @@ public class ACMECertificateService {
         URI link = uriInfo.getBaseUriBuilder().path("directory").build();
         builder.link(link, "index");
 
-        builder.entity(sb.toString());
+        builder.entity(sw.toString());
 
         return builder.build();
     }

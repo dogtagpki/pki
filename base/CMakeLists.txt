@@ -129,6 +129,14 @@ find_file(JACKSON2_DATABIND_JAR
         /usr/share/java
 )
 
+find_file(JACKSON2_DATAFORMAT_XML_JAR
+    NAMES
+        jackson-dataformat-xml.jar
+    PATHS
+        /usr/share/java/jackson-dataformats
+        /usr/share/java
+)
+
 find_file(JACKSON2_ANNOTATIONS_JAR
     NAMES
         jackson-annotations.jar
@@ -210,6 +218,13 @@ find_file(RESTEASY_CLIENT_JAR
         resteasy-client.jar
     PATHS
         ${RESTEASY_LIB}
+)
+
+find_file(STAX2_API_JAR
+    NAMES
+        stax2-api.jar
+    PATHS
+        /usr/share/java
 )
 
 find_file(SYMKEY_JAR
