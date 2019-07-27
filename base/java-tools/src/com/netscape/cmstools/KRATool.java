@@ -688,6 +688,10 @@ public class KRATool {
     private static final String PROCESS_REQUESTS_AND_KEY_RECORDS_ONLY =
             "-process_requests_and_key_records_only";
 
+    private static final String KEY_UNWRAP_ALGORITHM = "-unwrap_algorithm";
+
+    private static final String KEY_UNWRAP_ALGORITHM_DESCRIPTION = "  <key unwrap algorithm> (default: DES3)";
+
     // Constants:  KRATOOL Config File
     private static final String KRATOOL_CFG_PREFIX = "kratool.ldif";
     private static final String KRATOOL_CFG_ENROLLMENT = "caEnrollmentRequest";
@@ -891,7 +895,7 @@ public class KRATool {
 
     // Constants:  KRA LDIF Record Messages
     private static final String KRA_LDIF_REWRAP_MESSAGE = "REWRAPPED the '"
-                                                         + "existing DES3 "
+                                                         + "existing "
                                                          + "symmetric "
                                                          + "session key"
                                                          + "' with the '";
@@ -975,6 +979,7 @@ public class KRATool {
     private static PrivateKey mUnwrapPrivateKey = null;
     private static PublicKey mWrapPublicKey = null;
     private static int mPublicKeySize = 0;
+    private static SymmetricKey.Type mKeyUnwrapAlgorithm = null;
 
     // Variables:  KRA LDIF Record Messages
     private static String mSourcePKISecurityDatabasePwdfileMessage = null;
@@ -1104,6 +1109,14 @@ public class KRATool {
                           + NEWLINE
                           + "        "
                           + TARGET_KRA_NAMING_CONTEXT_DESCRIPTION
+                          + "]"
+                          + NEWLINE
+                          + "        "
+                          + "["
+                          + KEY_UNWRAP_ALGORITHM
+                          + NEWLINE
+                          + "        "
+                          + KEY_UNWRAP_ALGORITHM_DESCRIPTION
                           + "]"
                           + NEWLINE
                           + "        "
@@ -1838,7 +1851,7 @@ public class KRATool {
                                  KeyWrapAlgorithm.RSA);
             source_rsaWrap.initUnwrap(mUnwrapPrivateKey, null);
             sk = source_rsaWrap.unwrapSymmetric(source_session,
-                                                 SymmetricKey.DES3,
+                                                 mKeyUnwrapAlgorithm,
                                                  SymmetricKey.Usage.DECRYPT,
                                                  0);
             if (mDebug) {
@@ -4446,6 +4459,7 @@ public class KRATool {
         String process_kra_naming_context_fields = null;
         String process_requests_and_key_records_only = null;
         String use_PKI_security_database_pwdfile = null;
+        String keyUnwrapAlgorithmName = null;
         File cfgFile = null;
         File sourceFile = null;
         File sourceDBPath = null;
@@ -4464,6 +4478,7 @@ public class KRATool {
                 (args.length != (ID_OFFSET_ARGS + 1)) &&
                 (args.length != (ID_OFFSET_ARGS + 4)) &&
                 (args.length != (ID_OFFSET_ARGS + 5)) &&
+                (args.length != (ID_OFFSET_ARGS + 7)) &&
                 (args.length != REWRAP_ARGS) &&
                 (args.length != (REWRAP_ARGS + 1)) &&
                 (args.length != (REWRAP_ARGS + 2)) &&
@@ -4472,6 +4487,7 @@ public class KRATool {
                 (args.length != (REWRAP_ARGS + 5)) &&
                 (args.length != (REWRAP_ARGS + 6)) &&
                 (args.length != (REWRAP_ARGS + 7)) &&
+                (args.length != (REWRAP_ARGS + 9)) &&
                 (args.length != REWRAP_AND_ID_OFFSET_ARGS) &&
                 (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 1)) &&
                 (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 2)) &&
@@ -4479,7 +4495,8 @@ public class KRATool {
                 (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 4)) &&
                 (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 5)) &&
                 (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 6)) &&
-                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 7))) {
+                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 7)) &&
+                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 9))) {
             System.err.println("ERROR:  Incorrect number of arguments!"
                               + NEWLINE);
             printUsage();
@@ -4530,6 +4547,8 @@ public class KRATool {
             } else if (args[i].equals(PROCESS_REQUESTS_AND_KEY_RECORDS_ONLY)) {
                 mProcessRequestsAndKeyRecordsOnlyFlag = true;
                 i -= 1;
+            } else if (args[i].contentEquals(KEY_UNWRAP_ALGORITHM)) {
+                keyUnwrapAlgorithmName = args[i + 1];
             } else {
                 System.err.println("ERROR:  Unknown argument '"
                                   + args[i]
@@ -4872,6 +4891,18 @@ public class KRATool {
             mKraNamingContextMessage = "";
         }
 
+        // Check for the Key Unwrap Algorithm provided by user.
+        // If unprovided, choose DES3 as the default (to maintain consistency with old code)
+        if (keyUnwrapAlgorithmName == null || keyUnwrapAlgorithmName.equalsIgnoreCase("DES3")) {
+            mKeyUnwrapAlgorithm = SymmetricKey.DES3;
+        } else if (keyUnwrapAlgorithmName.equalsIgnoreCase("AES")) {
+            mKeyUnwrapAlgorithm = SymmetricKey.AES;
+        } else {
+            System.err.println("ERROR:  Unsupported key unwrap algorithm '"
+                    + keyUnwrapAlgorithmName + "'"
+                    + NEWLINE);
+        }
+
         // Check for OPTIONAL "Process Requests and Key Records ONLY" option
         if (mProcessRequestsAndKeyRecordsOnlyFlag) {
             process_requests_and_key_records_only = SPACE
@@ -4911,6 +4942,8 @@ public class KRATool {
                     + append_id_offset
                     + process_kra_naming_context_fields
                     + process_requests_and_key_records_only
+                    + KEY_UNWRAP_ALGORITHM + SPACE
+                    + keyUnwrapAlgorithmName
                     + "\" . . ."
                     + NEWLINE, true);
         } else if (mRewrapFlag && mRemoveIdOffsetFlag) {
