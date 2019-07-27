@@ -979,7 +979,7 @@ public class KRATool {
     private static PrivateKey mUnwrapPrivateKey = null;
     private static PublicKey mWrapPublicKey = null;
     private static int mPublicKeySize = 0;
-    private static SymmetricKey.Type mKeyUnwrapAlgorithm = null;
+    private static SymmetricKey.Type keyUnwrapAlgorithm = SymmetricKey.DES3;
 
     // Variables:  KRA LDIF Record Messages
     private static String mSourcePKISecurityDatabasePwdfileMessage = null;
@@ -1851,7 +1851,7 @@ public class KRATool {
                                  KeyWrapAlgorithm.RSA);
             source_rsaWrap.initUnwrap(mUnwrapPrivateKey, null);
             sk = source_rsaWrap.unwrapSymmetric(source_session,
-                                                 mKeyUnwrapAlgorithm,
+                                                 keyUnwrapAlgorithm,
                                                  SymmetricKey.Usage.DECRYPT,
                                                  0);
             if (mDebug) {
@@ -4893,14 +4893,15 @@ public class KRATool {
 
         // Check for the Key Unwrap Algorithm provided by user.
         // If unprovided, choose DES3 as the default (to maintain consistency with old code)
-        if (keyUnwrapAlgorithmName == null || keyUnwrapAlgorithmName.equalsIgnoreCase("DES3")) {
-            mKeyUnwrapAlgorithm = SymmetricKey.DES3;
+        if (keyUnwrapAlgorithmName.equalsIgnoreCase("DES3")) {
+            keyUnwrapAlgorithm = SymmetricKey.DES3;
         } else if (keyUnwrapAlgorithmName.equalsIgnoreCase("AES")) {
-            mKeyUnwrapAlgorithm = SymmetricKey.AES;
+            keyUnwrapAlgorithm = SymmetricKey.AES;
         } else {
             System.err.println("ERROR:  Unsupported key unwrap algorithm '"
                     + keyUnwrapAlgorithmName + "'"
                     + NEWLINE);
+            System.exit(1);
         }
 
         // Check for OPTIONAL "Process Requests and Key Records ONLY" option
