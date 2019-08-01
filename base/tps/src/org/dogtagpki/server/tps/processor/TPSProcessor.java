@@ -3930,9 +3930,6 @@ public class TPSProcessor {
     boolean checkCardGPKeyVersionIsInRange(String CUID, String KDD, String keyInfoData) throws TPSException {
         boolean result = true;
 
-        //ToDo : Add Audit messages .
-
-
         String method = "checkCardGPKeyVersionIsInRange: ";
 
         CMS.debug(method + " entering: keyInfoData: " + keyInfoData);
@@ -3941,6 +3938,7 @@ public class TPSProcessor {
             throw new TPSException(method + " Invalid input data!");
         }
 
+	TPSSubsystem tps = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
         IConfigStore configStore = CMS.getConfigStore();
 
         String checkBoundedGPKeyVersionConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
@@ -4007,10 +4005,62 @@ public class TPSProcessor {
                     CMS.debug(method + " Version : " + keyInfoVer + " is in range of: " + minVersion + " and: "
                             + maxVersion);
                     result = true;
+		    String logMsg = "Token GP key version is within GP key version range.";
+                    auditKeySanityCheck(
+                            userid,
+                            CUID,
+                            KDD,
+                            "success",
+                            keyInfoVer,
+                            null, // newKeyVersion
+                            null, // tokenDBKeyVersion
+                            logMsg);
                 } else {
                     result = false;
                     CMS.debug(method + " Version : " + keyInfoVer + " is NOT in range of: " + minVersion + " and: "
                             + maxVersion);
+
+                    if(versionMinCompare < 0) {
+                        // the token's key version is less than the minimum version
+                        String logMsg = "Token key version " + keyInfoVer + " is less than minimum GP key version " +
+                                minVersion;
+                        auditKeySanityCheck(
+                                userid,
+                                CUID,
+                                KDD,
+                                "failure",
+                                keyInfoVer,
+                                null, // newKeyVersion
+                                null, // tokenDBKeyVersion
+                                logMsg);
+                        tps.tdb.tdbActivity(
+                                currentTokenOperation,
+                                session.getTokenRecord(),
+                                session.getIpAddress(),
+                                logMsg,
+                                "failure");
+                    }
+
+                    if(versionMaxCompare > 0) {
+                     // the token's key version is greater than the maximum version
+                        String logMsg = "Token key version " + keyInfoVer + " is greater than maximum GP key version " +
+                                maxVersion;
+                        auditKeySanityCheck(
+                                userid,
+                                CUID,
+                                KDD,
+                                "failure",
+                                keyInfoVer,
+                                null, // newKeyVersion
+                                null, // tokenDBKeyVersion
+                                logMsg);
+                        tps.tdb.tdbActivity(
+                                currentTokenOperation,
+                                session.getTokenRecord(),
+                                session.getIpAddress(),
+                                logMsg,
+                                "failure");
+                    }
                 }
             }
 
@@ -4035,6 +4085,7 @@ public class TPSProcessor {
             throw new TPSException(method + " invalid input data!");
         }
 
+	TPSSubsystem tps = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
         IConfigStore configStore = CMS.getConfigStore();
 
         String checkCUIDMatchesKDDConfig = "op." + currentTokenOperation + "." + selectedTokenType + "."
@@ -4059,6 +4110,21 @@ public class TPSProcessor {
             } else {
                 CMS.debug(method + " CUID and KDD values differ!");
                 result = false;
+                auditKeySanityCheck(
+                        userid,
+                        CUID,
+                        KDD,
+                        "failure",
+                        null, // tokenKeyVersion
+                        null, // newKeyVersion
+                        null, // tokenDBKeyVersion
+                        "CUID does not equal KDD");
+                tps.tdb.tdbActivity(
+                        currentTokenOperation,
+                        session.getTokenRecord(),
+                        session.getIpAddress(),
+                        "CUID: " + CUID + " does not equal KDD: " + KDD,
+                        "failure");
             }
         } else {
             //Configured to ignore, report success.
@@ -4099,6 +4165,7 @@ public class TPSProcessor {
 
         boolean result = true;
 
+	TPSSubsystem tps = (TPSSubsystem)CMS.getSubsystem(TPSSubsystem.ID);
         IConfigStore configStore = CMS.getConfigStore();
 
         String checkValidateVersion = "op." + currentTokenOperation + "." + selectedTokenType + "."
@@ -4134,14 +4201,53 @@ public class TPSProcessor {
                 catch(TPSException e) {
                     // checkAllowUnknownToken(..) throws an exception if allowUnknownToken = false
                     result = false;
+
+                    String logMsg = "getKeyInfoFromTokenDB returned null but token CUID is present in database";
+                    auditKeySanityCheck(
+                            userid,
+                            CUID,
+                            KDD,
+                            "failure",
+                            keyInfoData,
+                            null, // newKeyVersion
+                            null, // tokenDBKeyVersion
+                            logMsg);
                 }
             }
             else if(keyInfoData.compareToIgnoreCase(keyInfoInDB) != 0) {
                 CMS.debug(method + " Key Info in the DB is NOT the same as the one from the token!");
                 result = false;
+
+                String logMsg = "Card claimed key info: " + keyInfoData + " does not match Card DB key info: " + keyInfoInDB;
+                auditKeySanityCheck(
+                        userid,
+                        CUID,
+                        KDD,
+                        "failure",
+                        keyInfoData,
+                        null, // newKeyInfo
+                        keyInfoInDB,
+                        logMsg);
+                tps.tdb.tdbActivity(
+                        currentTokenOperation,
+                        session.getTokenRecord(),
+                        session.getIpAddress(),
+                        logMsg,
+                        "failure");
             } else {
                 CMS.debug(method + " Key Info in the DB IS the same as the one from the token!");
                 result = true;
+
+                String logMsg = "Card GP key info matches TokenDB GP key info.";
+                auditKeySanityCheck(
+                        userid,
+                        CUID,
+                        KDD,
+                        "success",
+                        keyInfoData,
+                        null, // newKeyInfo
+                        keyInfoInDB,
+                        logMsg);
             }
 
         } else {
@@ -4360,6 +4466,40 @@ public class TPSProcessor {
                 info);
 
         signedAuditLogger.log(event);
+    }
+
+    protected void auditKeySanityCheck(
+            String subjectID,
+            String cuid,
+            String kdd,
+            String status,
+            String tokenKeyVersion,
+            String newKeyVersion,
+            String tokenDBKeyVersion,
+            String info) {
+
+        String auditType;
+        switch(status) {
+        case "success":
+            auditType = AuditEvent.TOKEN_KEY_SANITY_CHECK_SUCCESS;
+            break;
+        default:
+            auditType = AuditEvent.TOKEN_KEY_SANITY_CHECK_FAILURE;
+        }
+
+        String auditMessage = CMS.getLogMessage(
+                auditType,
+                session.getIpAddress(),
+                subjectID,
+                cuid,
+                kdd,
+                status,
+                tokenKeyVersion,
+                newKeyVersion,
+                tokenDBKeyVersion,
+                info);
+
+        audit(auditMessage);
     }
 
     /*
