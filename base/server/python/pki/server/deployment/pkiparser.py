@@ -263,11 +263,17 @@ class PKIConfigParser:
             )
         return dbtype
 
-    def init_config(self):
+    def init_config(self, pki_instance_name=None):
         self.deployer.nss_db_type = self.get_nss_db_type()
         java_home = self._getenv('JAVA_HOME').strip()
 
-        default_instance_name = 'pki-tomcat'
+        # Check if a instance name is provided before assigning a default
+        # instance_name
+        if pki_instance_name:
+            default_instance_name = pki_instance_name
+        else:
+            default_instance_name = 'pki-tomcat'
+
         default_http_port = '8080'
         default_https_port = '8443'
 
