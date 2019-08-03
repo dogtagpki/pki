@@ -3503,4 +3503,3 @@ fi
 
 * Wed Dec 1 2010 Matthew Harmsen <mharmsen@redhat.com> 9.0.0-1
 - Initial revision. (kwright@redhat.com & mharmsen@redhat.com)
-
