@@ -263,6 +263,12 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
         config.pki_log.info(log.SECURITY_DATABASES_DESTROY_1, __name__,
                             extra=config.PKI_INDENTATION_LEVEL_1)
+
+        # Remove NSS DB when uninstalling the last subsystem
+        #
+        # NOTE: We check for 0 subsystems to exist at this point as
+        # /var/lib/pki/<instance>/<subsystem> dir should
+        # be removed as part of subsystem_layout scriptlet
         if len(deployer.instance.tomcat_instance_subsystems()) == 0:
 
             if deployer.directory.exists(deployer.mdict['pki_client_dir']):

@@ -213,7 +213,7 @@ def main(argv):
         config.user_deployment_cfg = None
 
     parser.validate()
-    parser.init_config()
+    parser.init_config(pki_instance_name=config.pki_deployed_instance_name)
 
     # Enable 'pkidestroy' logging.
     config.pki_log_dir = \

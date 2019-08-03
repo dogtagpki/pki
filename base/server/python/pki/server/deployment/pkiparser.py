@@ -303,7 +303,7 @@ class PKIConfigParser:
                 os.putenv('NSS_DEFAULT_DB_TYPE', 'dbm')
         return default
 
-    def init_config(self):
+    def init_config(self, pki_instance_name=None):
 
         nss_default_db_type = self.set_nss_default_db_type()
 
@@ -333,7 +333,13 @@ class PKIConfigParser:
         # workaround for pylint error E1103
         jni_jar_dir = jni_jar_dir.strip()
 
-        default_instance_name = 'pki-tomcat'
+        # Check if a instance name is provided before assigning a default
+        # instance_name
+        if pki_instance_name:
+            default_instance_name = pki_instance_name
+        else:
+            default_instance_name = 'pki-tomcat'
+
         default_http_port = '8080'
         default_https_port = '8443'
 
