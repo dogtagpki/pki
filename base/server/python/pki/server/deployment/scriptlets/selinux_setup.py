@@ -55,7 +55,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
 
     # Helper function to check if a given `context_value` exists in the given
     # set of `records`. This method can process both port contexts and file contexts
-    def is_exist(self, records, context_value):
+    def context_exists(self, records, context_value):
         for keys in records.keys():
             for key in keys:
                 if str(key) == context_value:
@@ -178,9 +178,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         fcon = seobject.fcontextRecords(trans)
                         file_records = fcon.get_all()
 
-                        if self.is_exist(file_records,
-                                         deployer.mdict['pki_instance_path'] +
-                                         self.suffix):
+                        if self.context_exists(file_records,
+                                               deployer.mdict['pki_instance_path'] +
+                                               self.suffix):
                             logger.info(
                                 "deleting selinux fcontext \"%s\"",
                                 deployer.mdict['pki_instance_path'] + self.suffix)
@@ -188,9 +188,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                 deployer.mdict['pki_instance_path'] +
                                 self.suffix, "")
 
-                        if self.is_exist(file_records,
-                                         deployer.mdict['pki_instance_log_path'] +
-                                         self.suffix):
+                        if self.context_exists(file_records,
+                                               deployer.mdict['pki_instance_log_path'] +
+                                               self.suffix):
                             logger.info(
                                 "deleting selinux fcontext \"%s\"",
                                 deployer.mdict['pki_instance_log_path'] +
@@ -199,9 +199,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                 deployer.mdict['pki_instance_log_path'] +
                                 self.suffix, "")
 
-                        if self.is_exist(file_records,
-                                         deployer.mdict['pki_instance_configuration_path'] +
-                                         self.suffix):
+                        if self.context_exists(file_records,
+                                               deployer.mdict['pki_instance_configuration_path'] +
+                                               self.suffix):
                             logger.info(
                                 "deleting selinux fcontext \"%s\"",
                                 deployer.mdict['pki_instance_configuration_path'] +
@@ -210,9 +210,9 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                                 deployer.mdict['pki_instance_configuration_path'] +
                                 self.suffix, "")
 
-                        if self.is_exist(file_records,
-                                         deployer.mdict['pki_server_database_path'] +
-                                         self.suffix):
+                        if self.context_exists(file_records,
+                                               deployer.mdict['pki_server_database_path'] +
+                                               self.suffix):
                             logger.info(
                                 "deleting selinux fcontext \"%s\"",
                                 deployer.mdict['pki_server_database_path'] + self.suffix)
@@ -223,7 +223,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                         port_records = seobject.portRecords(trans)
                         port_record_values = port_records.get_all()
                         for port in ports:
-                            if self.is_exist(port_record_values, port):
+                            if self.context_exists(port_record_values, port):
                                 logger.info("deleting selinux port %s", port)
                                 port_records.delete(port, "tcp")
 
