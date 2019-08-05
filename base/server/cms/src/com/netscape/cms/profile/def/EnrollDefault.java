@@ -123,13 +123,13 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     public String getConfig(String name, String defval) {
 
         if (mConfig == null) {
-            logger.error("Error: Missing profile configuration");
+            logger.error("Missing profile configuration");
             return null;
         }
 
         IConfigStore params = mConfig.getSubStore("params");
         if (params == null) {
-            logger.error("Error: Missing constraint parameters");
+            logger.error("Missing constraint parameters");
             return null;
         }
 
@@ -137,7 +137,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             return params.getString(name, defval);
 
         } catch (EBaseException e) {
-            logger.error("EnrollDefault: " + e.getMessage(), e);
+            logger.warn("EnrollDefault: " + e.getMessage(), e);
             return null;
         }
     }
@@ -334,36 +334,51 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     }
 
     protected Extension getExtension(String name, X509CertInfo info) {
-        CertificateExtensions exts = null;
 
         if (info == null) {
-            logger.error("EnrollDefault: getExtension(), info == null");
+            logger.error("Missing certificate info");
             return null;
         }
 
+        CertificateExtensions exts = null;
+
         try {
-            exts = (CertificateExtensions)
-                    info.get(X509CertInfo.EXTENSIONS);
+            exts = (CertificateExtensions) info.get(X509CertInfo.EXTENSIONS);
         } catch (Exception e) {
             logger.warn("EnrollDefault: getExtension " + e.getMessage(), e);
         }
-        if (exts == null)
+
+        if (exts == null) {
+            logger.debug("EnrollDefault: Unable to find extensions");
             return null;
+        }
+
         return getExtension(name, exts);
     }
 
     protected Extension getExtension(String name, CertificateExtensions exts) {
-        if (exts == null)
+
+        logger.debug("EnrollDefault: Searching for " + name + " extension");
+
+        if (exts == null) {
+            logger.error("Missing certificate extensions");
             return null;
+        }
+
         Enumeration<Extension> e = exts.getAttributes();
 
+        logger.debug("EnrollDefault: Extensions:");
         while (e.hasMoreElements()) {
             Extension ext = e.nextElement();
+            logger.debug("EnrollDefault: - " + ext.getExtensionId());
 
             if (ext.getExtensionId().toString().equals(name)) {
+                logger.debug("EnrollDefault: Found extension " + name);
                 return ext;
             }
         }
+
+        logger.debug("EnrollDefault: Extension " + name + " not found");
         return null;
     }
 
@@ -378,7 +393,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
 
         if (alreadyPresentExtension != null) {
             String eName = ext.toString();
-            logger.error("EnrollDefault.addExtension: duplicate extension attempted! Name:  " + eName);
+            logger.error("Duplicate extension: " + eName);
             throw new EProfileException(CMS.getUserMessage("CMS_PROFILE_DUPLICATE_EXTENSION", eName));
         }
 
@@ -616,7 +631,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
                     logger.debug("OID: " + on_oid + " Value:" + on_value);
                     return new OtherName(new ObjectIdentifier(on_oid), getBytes(on_value));
                 } else {
-                    logger.error("Invalid OID " + on_oid);
+                    logger.error("Invalid OID: " + on_oid);
                     return null;
                 }
             } else {
@@ -727,8 +742,8 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             int pos = token.indexOf(":");
 
             if (pos <= 0) {
-                logger.error("parseRecords: No colon found in the input line");
-                throw new EPropertyException("Bad Input Format");
+                logger.error("Missing colon");
+                throw new EPropertyException("Missing colon");
             } else {
                 if (pos == (token.length() - 1)) {
                     nvps.put(token.substring(0, pos), "");
