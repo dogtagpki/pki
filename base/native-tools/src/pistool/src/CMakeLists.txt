@@ -14,27 +14,9 @@ set(PISTOOL_PRIVATE_INCLUDE_DIRS
   ${NSS_INCLUDE_DIRS}
 )
 
-find_library(SOFTOKN3_LIBRARY
-  NAMES
-    softokn3
-  PATHS
-    ${_NSS_LIBDIR}
-    /usr/lib
-    /usr/local/lib
-    /opt/local/lib
-    /sw/lib
-)
-
-if (SOFTOKN3_LIBRARY)
-  set(FIPS_LIBRARIES
-      ${SOFTOKN3_LIBRARY}
-  )
-endif (SOFTOKN3_LIBRARY)
-
 set(PISTOOL_LINK_LIBRARIES
   ${NSPR_LIBRARIES}
   ${NSS_LIBRARIES}
-  ${FIPS_LIBRARIES}
 )
 
 add_definitions(-DXP_UNIX)
