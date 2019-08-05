@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
@@ -419,7 +418,9 @@ public class CAProcessor extends Processor {
         }
 
         credentials.set("clientHost", request.getRemoteHost());
+
         IAuthToken authToken = authenticator.authenticate(credentials);
+        logger.debug("CAProcessor: Token: " + authToken);
 
         SessionContext sc = SessionContext.getContext();
         if (sc != null) {
@@ -559,16 +560,18 @@ public class CAProcessor extends Processor {
         try {
             ArgBlock httpArgs = new ArgBlock(toHashtable(httpReq));
             SessionContext ctx = SessionContext.getContext();
+
             String ip = httpReq.getRemoteAddr();
             logger.debug("IP: " + ip);
-
             if (ip != null) {
                 ctx.put(SessionContext.IPADDRESS, ip);
             }
+
+            logger.debug("AuthMgrName: " + authMgrName);
             if (authMgrName != null) {
-                logger.debug("AuthMgrName: " + authMgrName);
                 ctx.put(SessionContext.AUTH_MANAGER_ID, authMgrName);
             }
+
             // put locale into session context
             ctx.put(SessionContext.LOCALE, locale);
 
@@ -577,8 +580,9 @@ public class CAProcessor extends Processor {
             //
             X509Certificate clientCert = null;
 
+            logger.debug("processor." + id + ".getClientCert: " + getClientCert);
             if (getClientCert != null && getClientCert.equals("true")) {
-                logger.debug("CMSServlet: retrieving SSL certificate");
+                logger.debug("CAProcessor: retrieving SSL certificate");
                 clientCert = getSSLClientCertificate(httpReq);
             }
 
@@ -594,16 +598,16 @@ public class CAProcessor extends Processor {
                 // audit message called LOGGING_SIGNED_AUDIT_AUTH_FAIL has
                 // been removed.
 
-                logger.error("CMSServlet: no authMgrName");
+                logger.error("CAProcessor: no authMgrName");
                 return null;
             } else {
                 // save the "Subject DN" of this certificate in case it
                 // must be audited as an authentication failure
                 if (clientCert == null) {
-                    logger.warn("CMSServlet: no client certificate found");
+                    logger.debug("CAProcessor: no client certificate found");
                 } else {
                     String certUID = clientCert.getSubjectDN().getName();
-                    logger.debug("CMSServlet: certUID=" + certUID);
+                    logger.debug("CAProcessor: cert UID: " + certUID);
 
                     if (certUID != null) {
                         certUID = certUID.trim();
@@ -618,16 +622,16 @@ public class CAProcessor extends Processor {
                 // reset the "auditAuthMgrID"
                 auditAuthMgrID = authMgrName;
             }
-            AuthToken authToken = CMSGateway.checkAuthManager(httpReq,
+            IAuthToken authToken = CMSGateway.checkAuthManager(httpReq,
                     httpArgs,
                     clientCert,
                     authMgrName);
             if (authToken == null) {
                 return null;
             }
-            String userid = authToken.getInString(IAuthToken.USER_ID);
 
-            logger.debug("CMSServlet: userid=" + userid);
+            String userid = authToken.getInString(IAuthToken.USER_ID);
+            logger.debug("CAProcessor: user ID: " + userid);
 
             if (userid != null) {
                 ctx.put(SessionContext.USER_ID, userid);
@@ -665,7 +669,7 @@ public class CAProcessor extends Processor {
             String n = t.substring(0, i);
             if (n.equalsIgnoreCase("uid")) {
                 String v = t.substring(i + 1);
-                logger.debug("CAProcessor:: getUidFromDN(): uid found:" + v);
+                logger.debug("CAProcessor: UID found:" + v);
                 return v;
             } else {
                 continue;
@@ -771,7 +775,7 @@ public class CAProcessor extends Processor {
             if (authManagerId != null && authManagerId.equals("TokenAuth")) {
                 if (auditSubjectID.equals(ILogger.NONROLEUSER) ||
                         auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
-                    logger.debug("CMSServlet: in authorize... TokenAuth auditSubjectID unavailable, changing to auditGroupID");
+                    logger.debug("CAProcessor: in authorize... TokenAuth auditSubjectID unavailable, changing to auditGroupID");
                     auditID = auditGroupID;
                 }
             }
@@ -893,18 +897,18 @@ public class CAProcessor extends Processor {
 
     protected String auditSubjectID() {
 
-        logger.debug("CMSServlet: in auditSubjectID");
+        logger.debug("CAProcessor: in auditSubjectID");
         String subjectID = null;
 
         // Initialize subjectID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        logger.debug("CMSServlet: auditSubjectID auditContext " + auditContext);
+        logger.debug("CAProcessor: auditSubjectID auditContext " + auditContext);
         if (auditContext != null) {
             subjectID = (String)
                     auditContext.get(SessionContext.USER_ID);
 
-            logger.debug("CMSServlet auditSubjectID: subjectID: " + subjectID);
+            logger.debug("CAProcessor auditSubjectID: subjectID: " + subjectID);
             if (subjectID != null) {
                 subjectID = subjectID.trim();
             } else {
@@ -919,18 +923,18 @@ public class CAProcessor extends Processor {
 
     protected String auditGroupID() {
 
-        logger.debug("CMSServlet: in auditGroupID");
+        logger.debug("CAProcessor: in auditGroupID");
         String groupID = null;
 
         // Initialize groupID
         SessionContext auditContext = SessionContext.getExistingContext();
 
-        logger.debug("CMSServlet: auditGroupID auditContext " + auditContext);
+        logger.debug("CAProcessor: auditGroupID auditContext " + auditContext);
         if (auditContext != null) {
             groupID = (String)
                     auditContext.get(SessionContext.GROUP_ID);
 
-            logger.debug("CMSServlet auditGroupID: groupID: " + groupID);
+            logger.debug("CAProcessor auditGroupID: groupID: " + groupID);
             if (groupID != null) {
                 groupID = groupID.trim();
             } else {
