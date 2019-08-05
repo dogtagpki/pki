@@ -27,9 +27,7 @@ import com.netscape.certsrv.authentication.IPasswdUserDBAuthentication;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUser;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.DBSubsystem;
@@ -64,7 +62,6 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
     private String mImplName = null;
     private IConfigStore mConfig;
     private LdapAnonConnFactory mAnonConnFactory = null;
-    private Logger mLogger = Logger.getLogger();
 
     public PasswdUserDBAuthentication() {
     }
@@ -95,7 +92,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         mAnonConnFactory = new LdapAnonConnFactory("PasswdUserDBAuthentication", 3, 20, ldapinfo);
         mAnonConnFactory.init(cs);
 
-        log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_AUTH_INIT_AUTH", mName));
+        logger.info(CMS.getLogMessage("CMSCORE_AUTH_INIT_AUTH", mName));
     }
 
     /**
@@ -121,21 +118,22 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
 
         // make sure the required credentials are provided
         String uid = (String) authCred.get(CRED_UID);
-        logger.debug("PasswdUserDBAuthentication: UID: " + uid);
+        logger.info("PasswdUserDBAuthentication: authenticating UID: " + uid);
+
         if (uid == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_MISSING_UID"));
+            logger.error(CMS.getLogMessage("CMSCORE_AUTH_MISSING_UID"));
             throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_UID));
         }
 
         String pwd = (String) authCred.get(CRED_PWD);
         if (pwd == null) {
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSCORE_AUTH_ADMIN_NULL_PW", uid));
+            logger.error(CMS.getLogMessage("CMSCORE_AUTH_ADMIN_NULL_PW", uid));
             throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_PWD));
         }
 
         // don't allow anonymous binding
-        if (pwd == "") {
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSCORE_AUTH_ADMIN_EMPTY_PW", uid));
+        if (pwd.equals("")) {
+            logger.error(CMS.getLogMessage("CMSCORE_AUTH_ADMIN_EMPTY_PW", uid));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
@@ -145,10 +143,8 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         try {
             user = ug.getUser(uid);
         } catch (EBaseException e) {
-            // not a user in our user/group database.
             logger.error("Unable to authenticate user: " + e.getMessage(), e);
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSCORE_AUTH_UID_NOT_FOUND", uid, e.toString()));
-            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + " " + e.getMessage());
+            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + " " + e.getMessage(), e);
         }
 
         if (user == null) {
@@ -158,7 +154,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         }
 
         String userdn = user.getUserDN();
-        logger.debug("PasswdUserDBAuthentication: DN: " + userdn);
+        logger.info("PasswdUserDBAuthentication: DN: " + userdn);
 
         LDAPConnection anonConn = null;
 
@@ -167,8 +163,8 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
             anonConn.authenticate(userdn, pwd);
 
         } catch (LDAPException e) {
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("CMSCORE_AUTH_AUTH_FAILED", uid, e.toString()));
-            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            logger.error(CMS.getLogMessage("CMSCORE_AUTH_AUTH_FAILED", uid, e.toString()), e);
+            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"), e);
 
         } finally {
             if (anonConn != null)
@@ -181,7 +177,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         authToken.set(TOKEN_USERDN, user.getUserDN());
         authToken.set(TOKEN_USERID, user.getUserID());
 
-        log(ILogger.LL_INFO, CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", uid));
+        logger.info(CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", uid));
 
         return authToken;
     }
@@ -209,7 +205,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
      * @return attribute names in Vector
      */
     public String[] getRequiredCreds() {
-        return (mRequiredCred);
+        return mRequiredCred;
     }
 
     /**
@@ -219,7 +215,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
      * @return String array of configuration parameters.
      */
     public String[] getConfigParams() {
-        return (mConfigParams);
+        return mConfigParams;
     }
 
     /**
@@ -230,7 +226,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
             // disconnect all outstanding connections in the factory
             if (mAnonConnFactory != null) mAnonConnFactory.reset();
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, e.toString());
+            logger.error("Unable to disconnect LDAP connections: " + e.getMessage(), e);
         }
     }
 
@@ -242,18 +238,5 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
      */
     public IConfigStore getConfigStore() {
         return mConfig;
-    }
-
-    /**
-     * Log a message.
-     *
-     * @param level The logging level.
-     * @param msg The message to log.
-     */
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
-                level, msg);
     }
 }
