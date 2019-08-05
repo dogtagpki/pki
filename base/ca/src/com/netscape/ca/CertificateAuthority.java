@@ -30,6 +30,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.security.interfaces.RSAKey;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
@@ -2861,9 +2862,19 @@ public class CertificateAuthority
             CryptoManager cryptoManager = CryptoManager.getInstance();
             // TODO read PROP_TOKEN_NAME config
             CryptoToken token = cryptoManager.getInternalKeyStorageToken();
-            // TODO algorithm parameter
+
+            // Key size of sub-CA shall be key size of this CA.
+            // If the key is not RSA (e.g. EC) default to 3072 bits.
+            //
+            // TODO key generation parameters
             KeyPairGenerator gen = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
-            gen.initialize(2048);
+            int keySize = 3072;
+            PublicKey thisPub = mSigningUnit.getPublicKey();
+            if (thisPub instanceof RSAKey) {
+                keySize = ((RSAKey) thisPub).getModulus().bitLength();
+            }
+            gen.initialize(keySize);
+
             KeyPair keypair = gen.genKeyPair();
             PublicKey pub = keypair.getPublic();
             X509Key x509key = CryptoUtil.convertPublicKeyToX509Key(pub);
