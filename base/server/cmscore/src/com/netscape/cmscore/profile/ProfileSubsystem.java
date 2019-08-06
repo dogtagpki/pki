@@ -48,18 +48,18 @@ public class ProfileSubsystem
      * <P>
      *
      * @param owner owner of this subsystem
-     * @param config configuration store
+     * @param cs configuration store
      * @exception EBaseException failed to initialize
      */
-    public void init(ISubsystem owner, IConfigStore config)
+    public void init(ISubsystem owner, IConfigStore cs)
             throws EBaseException {
 
-        logger.debug("ProfileSubsystem: start init");
+        logger.debug("ProfileSubsystem: initialization");
 
         CMSEngine engine = CMS.getCMSEngine();
         IPluginRegistry registry = (IPluginRegistry) engine.getSubsystem(IPluginRegistry.ID);
 
-        mConfig = config;
+        mConfig = cs;
         mOwner = owner;
 
         // Configuration File Format:
@@ -70,30 +70,32 @@ public class ProfileSubsystem
         // *.profile2.config=config/profiles/profile2.cfg
 
         // read profile id, implementation, and its configuration files
-        String ids = config.getString(PROP_LIST, "");
+        String ids = cs.getString(PROP_LIST, "");
         StringTokenizer st = new StringTokenizer(ids, ",");
 
         while (st.hasMoreTokens()) {
             String id = st.nextToken();
-            IConfigStore subStore = config.getSubStore(id);
+            logger.info("Creating profile: " + id);
+
+            IConfigStore subStore = cs.getSubStore(id);
             String classid = subStore.getString(PROP_CLASS_ID);
+            logger.debug("- class ID: " + classid);
+
             IPluginInfo info = registry.getPluginInfo("profile", classid);
             if (info == null) {
-                throw new EBaseException("No plugins for type : profile, with id " + classid);
+                throw new EBaseException("Missing plugin info: " + classid);
             }
 
-            logger.debug("Start Profile Creation - " + id + " " + classid + " " + info.getClassName());
+            logger.debug("- class name: " + info.getClassName());
             createProfile(id, classid, info.getClassName(), false);
-
-            logger.debug("Done Profile Creation - " + id);
         }
 
+        logger.info("Registered profiles:");
         Enumeration<String> ee = getProfileIds();
 
         while (ee.hasMoreElements()) {
             String id = ee.nextElement();
-
-            logger.debug("Registered Confirmation - " + id);
+            logger.info("- " + id);
         }
     }
 
@@ -108,22 +110,28 @@ public class ProfileSubsystem
 
     private IProfile createProfile(String id, String classid, String className,
             boolean isNew) throws EProfileException {
+
+        logger.info("ProfileSubsystem: Creating " + id + " profile");
+
         IProfile profile = null;
 
         CMSEngine engine = CMS.getCMSEngine();
+        IConfigStore cs = engine.getConfigStore();
+
         String configPath;
         try {
             configPath = engine.getConfigStore().getString("instanceRoot")
                 + "/ca/profiles/ca/" + id + ".cfg";
         } catch (EBaseException e) {
-            throw new EProfileException("CMS_PROFILE_DELETE_ERROR");
+            throw new EProfileException("CMS_PROFILE_DELETE_ERROR", e);
         }
 
         try {
+            logger.info("ProfileSubsystem: Loading " + configPath);
             IConfigStore subStoreConfig = engine.createFileConfigStore(configPath);
             profile = (IProfile) Class.forName(className).newInstance();
 
-            logger.debug("ProfileSubsystem: initing " + className);
+            logger.debug("ProfileSubsystem: initializing " + className);
             profile.setId(id);
             profile.init(this, subStoreConfig);
             mProfiles.put(id, profile);
@@ -131,10 +139,12 @@ public class ProfileSubsystem
             if (isNew)
                 createProfileConfig(id, classid);
             return profile;
+
         } catch (Exception e) {
             // throw exceptions
-            logger.warn("Unable to create profile: " + e.getMessage(), e);
+            logger.warn("Unable to create profile: " + id + ": " + e.getMessage(), e);
         }
+
         return null;
     }
 
@@ -177,7 +187,7 @@ public class ProfileSubsystem
         File file1 = new File(configPath);
 
         if (!file1.delete()) {
-            logger.warn("ProfileSubsystem: deleteProfile: Cannot delete the configuration file : " + configPath);
+            logger.warn("ProfileSubsystem: Unable to delete configuration: " + configPath);
         }
         mProfiles.remove(id);
         mProfileClassIds.remove(id);
