@@ -35,6 +35,7 @@ import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
@@ -161,7 +162,7 @@ public class CMSGateway {
 
     protected final static String AUTHMGR_PARAM = "authenticator";
 
-    public static AuthToken checkAuthManager(
+    public static IAuthToken checkAuthManager(
             HttpServletRequest httpReq, IArgBlock httpParams,
             X509Certificate cert, String authMgrName)
             throws EBaseException {

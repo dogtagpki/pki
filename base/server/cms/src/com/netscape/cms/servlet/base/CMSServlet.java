@@ -57,7 +57,6 @@ import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.w3c.dom.Node;
 
-import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
@@ -1769,7 +1768,7 @@ public abstract class CMSServlet extends HttpServlet {
                 // reset the "auditAuthMgrID"
                 auditAuthMgrID = authMgrName;
             }
-            AuthToken authToken = CMSGateway.checkAuthManager(httpReq,
+            IAuthToken authToken = CMSGateway.checkAuthManager(httpReq,
                     httpArgs,
                     clientCert,
                     authMgrName);
