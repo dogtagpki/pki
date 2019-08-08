@@ -271,8 +271,9 @@ public class RenewalProcessor extends CertProcessor {
             Principal principal = request.getUserPrincipal();
             if (principal instanceof PKIPrincipal)
                 authToken = ((PKIPrincipal) principal).getAuthToken();
-            if (authToken == null)
+            if (authToken == null && authenticator != null) {
                 authToken = authenticate(request, origReq, authenticator, context, true, credentials);
+            }
 
             // authentication success, now authorize
             authorize(profileId, renewProfile, authToken);

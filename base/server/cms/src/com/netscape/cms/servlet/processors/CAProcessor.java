@@ -441,77 +441,80 @@ public class CAProcessor extends Processor {
             SessionContext context,
             boolean isRenewal,
             AuthCredentials credentials) throws EBaseException {
+
         startTiming("profile_authentication");
 
-        IAuthToken authToken = null;
-        if (authenticator != null) {
-            logger.debug("authenticate: authentication required.");
-            String uid_cred = "Unidentified";
-            String uid_attempted_cred = "Unidentified";
-            Enumeration<String> authIds = authenticator.getValueNames();
-            //Attempt to possibly fetch attempted uid, may not always be available.
-            if (authIds != null) {
-                while (authIds.hasMoreElements()) {
-                    String authName = authIds.nextElement();
-                    String value = request.getParameter(authName);
-                    if (value != null) {
-                        if (authName.equals("uid")) {
-                            uid_attempted_cred = value;
-                        }
+        logger.debug("authenticate: authentication required.");
+        String uid_cred = "Unidentified";
+        String uid_attempted_cred = "Unidentified";
+
+        Enumeration<String> authIds = authenticator.getValueNames();
+        //Attempt to possibly fetch attempted uid, may not always be available.
+        if (authIds != null) {
+            while (authIds.hasMoreElements()) {
+                String authName = authIds.nextElement();
+                String value = request.getParameter(authName);
+                if (value != null) {
+                    if (authName.equals("uid")) {
+                        uid_attempted_cred = value;
                     }
                 }
             }
-
-            String authSubjectID = auditSubjectID();
-            String authMgrID = authenticator.getName();
-
-            try {
-                if (isRenewal) {
-                    authToken = authenticate(authenticator, request, origReq, context, credentials);
-                } else {
-                    authToken = authenticate(authenticator, request, credentials);
-                }
-
-            } catch (EAuthException e) {
-                logger.error("CAProcessor: authentication error: " + e.getMessage(), e);
-
-                authSubjectID += " : " + uid_cred;
-
-                signedAuditLogger.log(AuthEvent.createFailureEvent(
-                        authSubjectID,
-                        authMgrID,
-                        uid_attempted_cred));
-
-                throw e;
-
-            } catch (EBaseException e) {
-                logger.error("CAProcessor: " + e.getMessage(), e);
-
-                authSubjectID += " : " + uid_cred;
-
-                signedAuditLogger.log(AuthEvent.createFailureEvent(
-                        authSubjectID,
-                        authMgrID,
-                        uid_attempted_cred));
-
-                throw e;
-            }
-
-            //Log successful authentication
-            //Attempt to get uid from authToken, most tokens respond to the "uid" cred.
-            uid_cred = authToken.getInString("uid");
-
-            if (uid_cred == null || uid_cred.length() == 0) {
-                uid_cred = "Unidentified";
-            }
-
-            authSubjectID = authSubjectID + " : " + uid_cred;
-
-            signedAuditLogger.log(AuthEvent.createSuccessEvent(
-                    authSubjectID,
-                    authMgrID));
         }
+
+        String authSubjectID = auditSubjectID();
+        String authMgrID = authenticator.getName();
+
+        IAuthToken authToken = null;
+
+        try {
+            if (isRenewal) {
+                authToken = authenticate(authenticator, request, origReq, context, credentials);
+            } else {
+                authToken = authenticate(authenticator, request, credentials);
+            }
+
+        } catch (EAuthException e) {
+            logger.error("CAProcessor: authentication error: " + e.getMessage(), e);
+
+            authSubjectID += " : " + uid_cred;
+
+            signedAuditLogger.log(AuthEvent.createFailureEvent(
+                    authSubjectID,
+                    authMgrID,
+                    uid_attempted_cred));
+
+            throw e;
+
+        } catch (EBaseException e) {
+            logger.error("CAProcessor: " + e.getMessage(), e);
+
+            authSubjectID += " : " + uid_cred;
+
+            signedAuditLogger.log(AuthEvent.createFailureEvent(
+                    authSubjectID,
+                    authMgrID,
+                    uid_attempted_cred));
+
+            throw e;
+        }
+
+        //Log successful authentication
+        //Attempt to get uid from authToken, most tokens respond to the "uid" cred.
+        uid_cred = authToken.getInString("uid");
+
+        if (uid_cred == null || uid_cred.length() == 0) {
+            uid_cred = "Unidentified";
+        }
+
+        authSubjectID = authSubjectID + " : " + uid_cred;
+
+        signedAuditLogger.log(AuthEvent.createSuccessEvent(
+                authSubjectID,
+                authMgrID));
+
         endTiming("profile_authentication");
+
         return authToken;
     }
 

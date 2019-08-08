@@ -175,8 +175,9 @@ public class EnrollmentProcessor extends CertProcessor {
             logger.debug("EnrollmentProcessor: set sslClientCertProvider");
 
             // before creating the request, authenticate the request
-            if (authToken == null)
+            if (authToken == null && authenticator != null) {
                 authToken = authenticate(request, null, authenticator, context, false, credentials);
+            }
 
             // authentication success, now authorize
             authorize(profileId, profile, authToken);
