@@ -71,8 +71,8 @@ public class RequestProcessor extends CertProcessor {
         super(id, locale);
     }
 
-    public CertReviewResponse processRequest(CMSRequest cmsReq, IRequest request, String op) throws EBaseException {
-        HttpServletRequest req = cmsReq.getHttpReq();
+    public CertReviewResponse processRequest(CMSRequest cmsReq, String op) throws EBaseException {
+        HttpServletRequest request = cmsReq.getHttpReq();
         IRequest ireq = cmsReq.getIRequest();
 
         String profileId = ireq.getExtDataInString(IRequest.PROFILE_ID);
@@ -80,7 +80,7 @@ public class RequestProcessor extends CertProcessor {
         CertReviewResponse data = CertReviewResponseFactory.create(
                 cmsReq, profile, authority.noncesEnabled(), locale);
 
-        processRequest(req, data, request, op);
+        processRequest(request, data, ireq, op);
         return data;
     }
 

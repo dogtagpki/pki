@@ -109,7 +109,7 @@ public class ProfileProcessServlet extends ProfileServlet {
 
         CertReviewResponse data = null;
         try {
-            data = processor.processRequest(cmsReq, req, op);
+            data = processor.processRequest(cmsReq, op);
 
         } catch (ForbiddenException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
