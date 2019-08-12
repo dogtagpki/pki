@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
+import java.security.Principal;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,6 +45,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestNotFoundException;
+import com.netscape.cms.realm.PKIPrincipal;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
@@ -231,8 +233,14 @@ public class CertRequestDAO extends CMSRequestDAO {
 
         IAuthToken authToken = null;
 
+        Principal principal = request.getUserPrincipal();
+        if (principal instanceof PKIPrincipal) {
+            logger.debug("CertRequestDAO: getting auth token from user principal");
+            authToken = ((PKIPrincipal) principal).getAuthToken();
+        }
+
         String authMgr = processor.getAuthenticationManager();
-        if (authMgr != null) {
+        if (authToken == null && authMgr != null) {
             logger.debug("CertRequestDAO: getting auth token from " + authMgr);
             authToken = processor.authenticate(request);
         }
