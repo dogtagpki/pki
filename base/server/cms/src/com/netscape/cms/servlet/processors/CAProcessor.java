@@ -191,6 +191,10 @@ public class CAProcessor extends Processor {
         return ps;
     }
 
+    public String getAuthenticationManager() {
+        return authMgr;
+    }
+
     /******************************************
      * Stats - to be moved to Stats module
      ******************************************/

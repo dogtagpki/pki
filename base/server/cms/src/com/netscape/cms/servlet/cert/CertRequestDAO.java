@@ -28,6 +28,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriInfo;
 
+import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -227,7 +228,18 @@ public class CertRequestDAO extends CMSRequestDAO {
         }
 
         RequestProcessor processor = new RequestProcessor("caProfileProcess", locale);
-        processor.processRequest(request, data, ireq, op);
+
+        IAuthToken authToken = null;
+
+        String authMgr = processor.getAuthenticationManager();
+        if (authMgr != null) {
+            logger.debug("CertRequestDAO: getting auth token from " + authMgr);
+            authToken = processor.authenticate(request);
+        }
+
+        logger.debug("CertRequestDAO: auth token: " + authToken);
+
+        processor.processRequest(request, authToken, data, ireq, op);
     }
 
     @Override

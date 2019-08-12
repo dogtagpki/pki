@@ -72,6 +72,7 @@ public class RequestProcessor extends CertProcessor {
     }
 
     public CertReviewResponse processRequest(CMSRequest cmsReq, String op) throws EBaseException {
+
         HttpServletRequest request = cmsReq.getHttpReq();
         IRequest ireq = cmsReq.getIRequest();
 
@@ -80,25 +81,27 @@ public class RequestProcessor extends CertProcessor {
         CertReviewResponse data = CertReviewResponseFactory.create(
                 cmsReq, profile, authority.noncesEnabled(), locale);
 
-        processRequest(request, data, ireq, op);
+        IAuthToken authToken = null;
+
+        if (authMgr != null) {
+            logger.debug("RequestProcessor: getting auth token from " + authMgr);
+            authToken = authenticate(request);
+        }
+
+        processRequest(request, authToken, data, ireq, op);
+
         return data;
     }
 
-    public void processRequest(HttpServletRequest request, CertReviewResponse data, IRequest req, String op)
+    public void processRequest(HttpServletRequest request, IAuthToken authToken, CertReviewResponse data, IRequest req, String op)
             throws EBaseException {
         try {
             startTiming("approval");
-
-            IAuthToken authToken = null;
 
             if (logger.isDebugEnabled()) {
                 HashMap<String, String> params = data.toParams();
                 printParameterValues(params);
                 logger.debug("processRequest op is " + op);
-            }
-
-            if (authMgr != null) {
-                authToken = authenticate(request);
             }
 
             AuthzToken authzToken = authorize(aclMethod, authToken, authzResourceName, "approve");
