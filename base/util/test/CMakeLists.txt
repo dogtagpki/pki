@@ -27,16 +27,6 @@ add_junit_test(test-pki-util
         ${CMAKE_BINARY_DIR}/test/classes
     TESTS
         com.netscape.cmsutil.crypto.KeyIDCodecTest
-        com.netscape.security.util.BMPStringTest
-        com.netscape.security.util.IA5StringTest
-        com.netscape.security.util.PrintableStringTest
-        com.netscape.security.util.TeletexStringTest
-        com.netscape.security.util.UniversalStringTest
-        com.netscape.security.util.UTF8StringTest
-        # com.netscape.security.x509.DirStrConverterTest
-        com.netscape.security.x509.GenericValueConverterTest
-        com.netscape.security.x509.IA5StringConverterTest
-        com.netscape.security.x509.PrintableConverterTest
     REPORTS_DIR
         reports
     DEPENDS
