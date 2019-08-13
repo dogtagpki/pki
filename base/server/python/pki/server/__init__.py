@@ -384,13 +384,7 @@ class PKIServer(object):
         conf_d_dir = os.path.join(self.conf_dir, 'conf.d')
         self.makedirs(conf_d_dir, force=force)
 
-        lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'lib')
-        self.symlink(lib_dir, self.lib_dir, force=force)
-
-        self.makedirs(self.common_dir, force=force)
-
-        common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
-        self.symlink(common_lib_dir, self.common_lib_dir, force=force)
+        self.create_libs(force=force)
 
         self.makedirs(self.temp_dir, force=force)
         self.makedirs(self.webapps_dir, force=force)
@@ -415,6 +409,20 @@ class PKIServer(object):
 
         with open(self.service_conf, 'a') as f:
             print('CATALINA_BASE="%s"' % self.base_dir, file=f)
+
+    def create_libs(self, force=False):
+
+        logger.info('Creating %s', self.lib_dir)
+
+        lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'lib')
+        self.symlink(lib_dir, self.lib_dir, force=force)
+
+        logger.info('Creating %s', self.common_lib_dir)
+
+        self.makedirs(self.common_dir, force=force)
+
+        common_lib_dir = os.path.join(PKIServer.SHARE_DIR, 'server', 'common', 'lib')
+        self.symlink(common_lib_dir, self.common_lib_dir, force=force)
 
     def create_nssdb(self, force=False):
 
@@ -542,12 +550,18 @@ class PKIServer(object):
         pki.util.rmtree(self.work_dir, force=force)
         pki.util.rmtree(self.webapps_dir, force=force)
         pki.util.rmtree(self.temp_dir, force=force)
-        pki.util.unlink(self.common_lib_dir, force=force)
-        pki.util.rmtree(self.common_dir, force=force)
-        pki.util.unlink(self.lib_dir, force=force)
+
+        self.remove_libs(force=force)
+
         pki.util.rmtree(self.conf_dir, force=force)
         pki.util.unlink(self.bin_dir, force=force)
         pki.util.rmtree(self.base_dir, force=force)
+
+    def remove_libs(self, force=False):
+
+        pki.util.unlink(self.common_lib_dir, force=force)
+        pki.util.rmtree(self.common_dir, force=force)
+        pki.util.unlink(self.lib_dir, force=force)
 
     def remove_nssdb(self, force=False):
 
