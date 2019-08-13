@@ -148,17 +148,7 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
                 "localhost",
                 "pki.xml"))
 
-        logger.info('Creating %s', deployer.mdict['pki_instance_lib'])
-        # Link /var/lib/pki/<instance>/lib to /usr/share/pki/server/lib
-        deployer.symlink.create(
-            '/usr/share/pki/server/lib',
-            deployer.mdict['pki_instance_lib'])
-
-        logger.info('Creating %s', deployer.mdict['pki_tomcat_common_path'])
-        # Link /var/lib/pki/<instance>/common to /usr/share/pki/server/common
-        deployer.symlink.create(
-            '/usr/share/pki/server/common',
-            deployer.mdict['pki_tomcat_common_path'])
+        instance.create_libs()
 
         deployer.directory.create(deployer.mdict['pki_tomcat_tmpdir_path'])
 
