@@ -120,9 +120,12 @@ class PKINSSDBTests(unittest.TestCase):
             str(cm.exception)
         )
 
-        for name in ('key4.db', 'pkcs11.txt'):
-            with open(os.path.join(self.tmpdir, name), 'w') as f:
-                f.write('testfile')
+        with open(os.path.join(self.tmpdir, 'key4.db'), 'w') as f:
+            f.write('testfile')
+        self.assertEqual(db.get_dbtype(), 'dbm')
+
+        with open(os.path.join(self.tmpdir, 'pkcs11.txt'), 'w') as f:
+            f.write('testfile')
         self.assertEqual(db.get_dbtype(), 'sql')
 
     def test_convertdb(self):

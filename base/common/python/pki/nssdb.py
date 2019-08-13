@@ -273,21 +273,24 @@ class NSSDatabase(object):
             return os.path.isfile(os.path.join(self.directory, filename))
 
         if dbexists('cert9.db'):
-            if not dbexists('key4.db') or not dbexists('pkcs11.txt'):
+            if not dbexists('key4.db'):
                 raise RuntimeError(
                     "{} contains an incomplete NSS database in SQL "
                     "format".format(self.directory)
                 )
-            return 'sql'
-        elif dbexists('cert8.db'):
+
+            # secmod.db is not auto converted at NSS_INIT_NOMODDB
+            if dbexists('pkcs11.txt'):
+                return 'sql'
+
+        if dbexists('cert8.db'):
             if not dbexists('key3.db') or not dbexists('secmod.db'):
                 raise RuntimeError(
                     "{} contains an incomplete NSS database in DBM "
                     "format".format(self.directory)
                 )
             return 'dbm'
-        else:
-            return None
+        return None
 
     def needs_conversion(self):
         # Only attempt to convert if target format is SQL and DB is DBM
