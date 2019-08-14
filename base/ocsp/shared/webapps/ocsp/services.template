@@ -106,7 +106,7 @@ Certificate System OCSP Services Page
 <tr valign="TOP">
 <td>
 <td>
-<li><font size=4 face="PrimaSans BT, Verdana, sans-serif"><a href="ee/ocsp">SSL End Users Services</a></font>
+<li><font size=4 face="PrimaSans BT, Verdana, sans-serif"><a href="agent/ocsp">Agent Services</a></font>
 </font>
 </td>
 </tr>
