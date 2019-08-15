@@ -540,10 +540,11 @@ public class CARemoteRequestHandler extends RemoteRequestHandler
         } else {
             CMS.debug("CARemoteRequestHandler: revokeCertificate(): using default ca ID:" + connid);
         }
-        CMS.debug("CARemoteRequestHandler: revokeCertificate(): begins on serial#:" + serialno);
+        CMS.debug("CARemoteRequestHandler: revokeCertificate(): begins");
         if (serialno == null || reason == null) {
             throw new EBaseException("CARemoteRequestHandler: revokeCertificate(): input parameter null.");
         }
+        CMS.debug("CARemoteRequestHandler: revokeCertificate(): revoking serial#:" + serialno + "; reason String:" + reason.toString() + "; reason code:" + reason.getCode());
 
         // IConfigStore conf = CMS.getConfigStore();
 

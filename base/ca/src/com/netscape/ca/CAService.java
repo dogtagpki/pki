@@ -981,7 +981,7 @@ public class CAService implements ICAService, IService {
         CRLExtensions crlentryexts = crlentry.getExtensions();
         String msg = "";
 
-        CMS.debug("CAService.revokeCert: revokeCert begins");
+        CMS.debug("CAService.revokeCert: revokeCert begins: serial:" + serialno.toString());
 
         // Get the revocation reason
         Enumeration enum1 = crlentryexts.getElements();
@@ -1000,6 +1000,7 @@ public class CAService implements ICAService, IService {
                     CMS.getUserMessage("CMS_CA_MISSING_REV_REASON",
                             "0x" + serialno.toString(16)));
         }
+        CMS.debug("CAService.revokeCert: revocaton request revocation reason: " + revReason.toString());
 
         CertRecord certRec = (CertRecord) mCA.getCertificateRepository().readCertificateRecord(serialno);
 
@@ -1026,6 +1027,7 @@ public class CAService implements ICAService, IService {
                 CMS.debug("CAService.revokeCert: " + msg);
                 throw new EBaseException(msg);
             }
+            CMS.debug("CAService.revokeCert: already revoked cert with existing revocation reason:" + recRevReason.toString());
         }
 
         // for cert already revoked, also check whether revocation reason is changed from SUPERSEDED to KEY_COMPROMISE
@@ -1044,11 +1046,11 @@ public class CAService implements ICAService, IService {
         try {
             // if cert has already revoked, update the revocation info only
             CMS.debug("CAService.revokeCert: about to call markAsRevoked");
-            if (certStatus.equals(ICertRecord.STATUS_REVOKED) && certRec.isCertOnHold()) {
+            if (certStatus.equals(ICertRecord.STATUS_REVOKED)) {
                 mCA.getCertificateRepository().markAsRevoked(serialno,
                         new RevocationInfo(revdate, crlentryexts),
                         true /*isAlreadyRevoked*/);
-                CMS.debug("CAService.revokeCert: on_hold cert marked revoked");
+                CMS.debug("CAService.revokeCert: Already-revoked cert marked revoked");
                 mCA.log(ILogger.LL_INFO,
                         CMS.getLogMessage("CMSCORE_CA_CERT_REVO_INFO_UPDATE",
                                 recRevReason.toString(),
