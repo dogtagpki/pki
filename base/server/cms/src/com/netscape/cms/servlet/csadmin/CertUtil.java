@@ -229,34 +229,32 @@ public class CertUtil {
     //              embed a certificate extension into
     //              a PKCS #10 certificate request.
     //
-    public static String buildSANSSLserverURLExtension(IConfigStore config)
+    public static void buildSANSSLserverURLExtension(IConfigStore config, MultivaluedMap<String, String> content)
            throws Exception {
-        String url = "";
-        String entries = "";
 
         logger.debug("CertUtil: buildSANSSLserverURLExtension() " +
                   "building SAN SSL Server Certificate URL extension . . .");
-        int i = 0;
+
         if (config == null) {
             throw new EBaseException("injectSANextensionIntoRequest: parameter config cannot be null");
         }
+
         String sanHostnames = config.getString("service.sslserver.san");
         String sans[] = StringUtils.split(sanHostnames, ",");
+
+        int i = 0;
         for (String san : sans) {
             logger.debug("CertUtil: buildSANSSLserverURLExtension() processing " +
                       "SAN hostname: " + san);
             // Add the DNSName for all SANs
-            entries = entries +
-                      "&req_san_pattern_" + i + "=" + san;
+            content.putSingle("req_san_pattern_" + i, san);
             i++;
         }
 
-        url = "&req_san_entries=" + i + entries;
+        content.putSingle("req_san_entries", "" + i);
 
         logger.debug("CertUtil: buildSANSSLserverURLExtension() " + "placed " +
                   i + " SAN entries into SSL Server Certificate URL.");
-
-        return url;
     }
 
 

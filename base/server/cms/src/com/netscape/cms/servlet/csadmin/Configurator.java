@@ -2458,14 +2458,6 @@ public class Configurator {
             } catch (Exception ee) {
             }
 
-            String sslserver_extension = "";
-            Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
-            logger.debug("Configurator: injectSAN: " + injectSAN);
-
-            if (certTag.equals("sslserver") && injectSAN == true) {
-                sslserver_extension = CertUtil.buildSANSSLserverURLExtension(cs);
-            }
-
             MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
             content.putSingle("requestor_name", sysType + "-" + machineName + "-" + securePort);
 
@@ -2480,6 +2472,13 @@ public class Configurator {
             content.putSingle("cert_request", b64Request);
             content.putSingle("xmlOutput", "true");
             content.putSingle("sessionID", session_id);
+
+            Boolean injectSAN = cs.getBoolean("service.injectSAN", false);
+            logger.debug("Configurator: injectSAN: " + injectSAN);
+
+            if (certTag.equals("sslserver") && injectSAN) {
+                CertUtil.buildSANSSLserverURLExtension(cs, content);
+            }
 
             cert = CertUtil.createRemoteCert(ca_hostname, ca_port, content);
 
