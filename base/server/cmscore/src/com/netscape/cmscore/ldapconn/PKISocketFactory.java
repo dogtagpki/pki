@@ -23,6 +23,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
@@ -48,6 +50,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     private String mClientAuthCertNickname;
     private boolean mClientAuth;
     private boolean keepAlive;
+    private static boolean external = false;
     PKIClientSocketListener sockListener = null;
 
     public PKISocketFactory() {
@@ -65,22 +68,34 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         init();
     }
 
+    public PKISocketFactory(String certNickname, boolean external) {
+        this.secure = true;
+        PKISocketFactory.external = external;
+        mClientAuthCertNickname = certNickname;
+        init();
+    }
+
     public void init() {
         try {
-            IConfigStore cs = CMS.getConfigStore();
-            keepAlive = cs.getBoolean("tcp.keepAlive", true);
-            CMS.debug("TCP Keep-Alive: " + keepAlive);
+            if(!external){
+                IConfigStore cs = CMS.getConfigStore();
+                keepAlive = cs.getBoolean("tcp.keepAlive", true);
+            } else {
+                keepAlive = true;
+            }
+
+            log(Level.INFO, "TCP Keep-Alive: " + keepAlive, null);
             sockListener = new PKIClientSocketListener();
 
         } catch (Exception e) {
-            CMS.debug(e);
+            log(Level.SEVERE, null, e);
             throw new RuntimeException("Unable to read TCP configuration: " + e, e);
         }
     }
 
     public SSLSocket makeSSLSocket(String host, int port) throws UnknownHostException, IOException {
         String method = "ldapconn/PKISocketFactory.makeSSLSocket: ";
-        CMS.debug(method + "begins");
+        log(Level.INFO, method + "begins", null);
 
         /*
          * let inherit TLS range and cipher settings
@@ -115,8 +130,8 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
         if (mClientAuthCertNickname != null) {
             mClientAuth = true;
-            CMS.debug("LdapJssSSLSocket: set client auth cert nickname " +
-                    mClientAuthCertNickname);
+            log(Level.INFO, method + " set client auth cert nickname " +
+                    mClientAuthCertNickname, null);
 
             //We have already established the manual cert selection callback
             //Doing it this way will provide some debugging info on the candidate certs
@@ -127,6 +142,8 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     }
 
     public Socket makeSocket(String host, int port) throws LDAPException {
+        String method = "ldapconn/PKISocketFactory.makeSocket: ";
+        log(Level.INFO, method + "begins", null);
         Socket s = null;
 
         try {
@@ -145,7 +162,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
                 try {
                     s.close();
                 } catch (IOException e1) {
-                    CMS.debug(e1);
+                    log(Level.SEVERE, null, e1);
                 }
             }
             throw new LDAPException("Unable to create socket: " + e);
@@ -165,6 +182,20 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
     public void log(int level, String msg) {
     }
 
+    private static void log(Level level, String msg, Exception e) {
+        if(!external && e != null){
+            CMS.debug(e);
+        } else if (!external) {
+            CMS.debug(msg);
+        } else {
+            if(e != null){
+                Logger.getLogger("PKISocketFactory").log(level, e.getMessage());
+            } else {
+                Logger.getLogger("PKISocketFactory").log(level, msg);
+            }
+        }
+    }
+
     static class ClientHandshakeCB implements SSLHandshakeCompletedListener {
         Object sc;
 
@@ -173,7 +204,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         }
 
         public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
-            CMS.debug("SSL handshake happened");
+            log(Level.INFO, "SSL handshake happened", null);
         }
     }
 
@@ -181,14 +212,14 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
         String desiredCertName = null;
 
         public SSLClientCertificateSelectionCB(String clientAuthCertNickname) {
-            CMS.debug("SSLClientCertificateSelectionCB: Setting desired cert nickname to: " + clientAuthCertNickname);
+            log(Level.INFO, "SSLClientCertificateSelectionCB: Setting desired cert nickname to: " + clientAuthCertNickname, null);
             desiredCertName = clientAuthCertNickname;
         }
 
         @Override
         public String select(Vector certs) {
 
-            CMS.debug("SSLClientCertificatSelectionCB: Entering!");
+            log(Level.INFO, "SSLClientCertificatSelectionCB: Entering!", null);
 
             if(desiredCertName == null) {
                 return null;
@@ -200,15 +231,15 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
             while(itr.hasNext()){
                 String candidate = itr.next();
-                CMS.debug("Candidate cert: " + candidate);
+                log(Level.INFO, "Candidate cert: " + candidate, null);
                 if(desiredCertName.equalsIgnoreCase(candidate)) {
                     selection = candidate;
-                    CMS.debug("SSLClientCertificateSelectionCB: desired cert found in list: " + desiredCertName);
+                    log(Level.INFO, "SSLClientCertificateSelectionCB: desired cert found in list: " + desiredCertName, null);
                     break;
                 }
             }
 
-            CMS.debug("SSLClientCertificateSelectionCB: returning: " + selection);
+            log(Level.INFO, "SSLClientCertificateSelectionCB: returning: " + selection, null);
             return selection;
 
         }
