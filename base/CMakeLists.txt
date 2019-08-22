@@ -390,13 +390,11 @@ if (BUILD_PKI_CORE OR BUILD_PKI_CONSOLE)
 
         list(APPEND PKI_JAVADOC_CLASSPATH
             ${PKI_TOMCAT_JAR}
-            ${PKI_CMS_JAR}
-            ${PKI_CMSCORE_JAR})
+            ${PKI_CMS_JAR})
 
         list(APPEND PKI_JAVADOC_DEPENDS
             pki-tomcat-jar
             pki-cms-jar
-            pki-cmscore-jar
             pki-ca-jar
             pki-kra-jar
             pki-ocsp-jar

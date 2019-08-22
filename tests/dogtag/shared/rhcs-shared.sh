@@ -192,9 +192,9 @@ set_javapath(){
         if [ $? -eq 0 ] ; then
 		echo $arch | grep "x86_64"
                 if [ $? -eq 0 ] ; then
-                        classpath="./:/usr/lib/java/jss4.jar:/usr/share/java/ldapjdk.jar:/usr/share/java/pki/pki-certsrv.jar:/usr/share/java/pki/pki-cmscore.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/pki/pki-tools.jar:/usr/share/java/xml-commons-resolver.jar:/usr/share/java/xerces-j2.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/pki/pki-silent.jar:/opt/rhqa_pki/java/generateCRMFRequest.jar:"
+                        classpath="./:/usr/lib/java/jss4.jar:/usr/share/java/ldapjdk.jar:/usr/share/java/pki/pki-certsrv.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/pki/pki-tools.jar:/usr/share/java/xml-commons-resolver.jar:/usr/share/java/xerces-j2.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/pki/pki-silent.jar:/opt/rhqa_pki/java/generateCRMFRequest.jar:"
                 else
-                        classpath="./:/usr/lib/java/jss4.jar:/usr/share/java/ldapjdk.jar:/usr/share/java/pki/pki-certsrv.jar:/usr/share/java/pki/pki-cmscore.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/pki/pki-tools.jar:/usr/share/java/xml-commons-resolver.jar:/usr/share/java/xerces-j2.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/pki/pki-silent.jar:/opt/rhqa_pki/java/generateCRMFRequest.jar:"
+                        classpath="./:/usr/lib/java/jss4.jar:/usr/share/java/ldapjdk.jar:/usr/share/java/pki/pki-certsrv.jar:/usr/share/java/pki/pki-nsutil.jar:/usr/share/java/pki/pki-cmsutil.jar:/usr/share/java/pki/pki-tools.jar:/usr/share/java/xml-commons-resolver.jar:/usr/share/java/xerces-j2.jar:/usr/share/java/apache-commons-codec.jar:/usr/share/java/pki/pki-silent.jar:/opt/rhqa_pki/java/generateCRMFRequest.jar:"
                 fi
 		echo "export CLASSPATH=$classpath" >> /opt/rhqa_pki/env.sh
                 return 0

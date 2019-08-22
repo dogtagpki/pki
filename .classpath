@@ -9,8 +9,6 @@
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/common/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/common/functional/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/java-tools/src"/>
-	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/cms/src"/>
-	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/cmscore/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/server/test"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/ca/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/ca/functional/src"/>
@@ -22,6 +20,7 @@
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/common/examples/java"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/console/src"/>
 	<classpathentry kind="src" path="base/server/tomcat-8.5/src"/>
+	<classpathentry kind="src" path="base/server/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-cli.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-logging.jar"/>
