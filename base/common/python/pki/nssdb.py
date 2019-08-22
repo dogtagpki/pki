@@ -459,7 +459,16 @@ class NSSDatabase(object):
         logger.debug('Command: %s', ' '.join(map(str, cmd)))
         subprocess.check_call(cmd)
 
-    def create_noise(self, noise_file, size=2048):
+    def create_noise(self, noise_file, size=2048, key_type='rsa'):
+        # Under EC keys, key_size parameter is actually the name of a curve.
+        # This curve maps to a specific size, but EC keys require less entropy
+        # to generate than RSA keys. We can either maintain a mapping of
+        # curve name -> key size (and note that the openssl rand command takes
+        # the number of bytes, not the number of bits), or we can hard-code
+        # some safe value. We choose the latter.
+        if key_type.lower() in ('ec', 'ecc'):
+            size = 1024
+
         cmd = [
             'openssl',
             'rand',
@@ -576,7 +585,7 @@ class NSSDatabase(object):
                 if noise_file is None:
                     noise_file = os.path.join(tmpdir, 'noise')
                     size = key_size if key_size else 2048
-                    self.create_noise(noise_file=noise_file, size=size)
+                    self.create_noise(noise_file=noise_file, size=size, key_type=key_type)
                 key_args.extend(['-z', noise_file])
 
             cmd.extend(key_args)
@@ -739,7 +748,7 @@ class NSSDatabase(object):
             fd, noise_file = tempfile.mkstemp()
             os.close(fd)
             size = key_size if key_size else 2048
-            self.create_noise(noise_file=noise_file, size=size)
+            self.create_noise(noise_file=noise_file, size=size, key_type=key_type)
         cmd.extend(['-z', noise_file])
 
         try:
