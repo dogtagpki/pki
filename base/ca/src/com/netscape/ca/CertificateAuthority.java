@@ -30,10 +30,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
-import java.security.interfaces.RSAKey;
 import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
+import java.security.interfaces.RSAKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -860,12 +860,15 @@ public class CertificateAuthority
 
                     mCRLPublisher = pc.newInstance();
                     mCRLPublisher.init(this, cpStore);
+
                 } catch (ClassNotFoundException ee) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
+                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()), ee);
+
                 } catch (IllegalAccessException ee) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
+                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()), ee);
+
                 } catch (InstantiationException ee) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
+                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()), ee);
                 }
             }
         }
@@ -1347,8 +1350,7 @@ public class CertificateAuthority
             try {
                 mCRLRepot.deleteCRLIssuingPointRecord(id);
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("FAILED_REMOVING_CRL_IP_2", id, e.toString()));
+                logger.warn(CMS.getLogMessage("FAILED_REMOVING_CRL_IP_2", id, e.toString()), e);
             }
         }
     }
@@ -1473,22 +1475,27 @@ public class CertificateAuthority
             } else {
                 logger.warn("Failed to add signature to CRL object.");
             }
+
         } catch (CRLException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()));
+                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
+
         } catch (X509ExtensionException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()));
+                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
+
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()));
+                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()), e);
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()));
+                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()), e);
+
         } finally {
             if (statsSub != null) {
                 statsSub.endTiming("signing");
@@ -1526,7 +1533,7 @@ public class CertificateAuthority
                 DerOutputStream tmp = new DerOutputStream()) {
 
             if (certInfo == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_CERTINFO"));
+                logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NO_CERTINFO"));
                 return null;
             }
 
@@ -1553,7 +1560,7 @@ public class CertificateAuthority
 
             // Wrap the signed data in a SEQUENCE { data, algorithm, sig }
             out.write(DerValue.tag_Sequence, tmp);
-            //log(ILogger.LL_INFO, "CertificateAuthority: done signing");
+            //logger.info("CertificateAuthority: done signing");
 
             switch (mFastSigning) {
             case FASTSIGNING_DISABLED:
@@ -1567,18 +1574,22 @@ public class CertificateAuthority
             default:
                 break;
             }
+
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()));
+                    CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()), e);
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()));
+                    CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()), e);
+
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()), e);
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()));
+                    CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()), e);
+
         } finally {
             if (statsSub != null) {
                 statsSub.endTiming("signing");
@@ -1720,14 +1731,12 @@ public class CertificateAuthority
             }
 
         } catch (CertificateException e) {
-            logger.error("Unable to initialize signing unit: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
 
         } catch (IOException e) {
-            logger.error("Unable to initialize signing unit: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
         }
@@ -1761,8 +1770,7 @@ public class CertificateAuthority
                 IConfigStore chainStore = caSigningCfg.getSubStore(PROP_CA_CHAIN);
 
                 if (chainStore == null) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN",
+                    logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN",
                                     "ca cert chain config error"));
                     throw new ECAException(
                             CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED",
@@ -1780,7 +1788,7 @@ public class CertificateAuthority
                     logger.debug(" - file: " + certFileName);
 
                     if ((certFileName == null) || certFileName.equals("")) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", "cert file config error"));
+                        logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", "cert file config error"));
                         throw new ECAException(
                                 CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED",
                                         "cert file config error"));
@@ -1870,30 +1878,26 @@ public class CertificateAuthority
             logger.debug("in init - got CA name " + mName);
 
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGNING", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGNING", e.toString()), e);
             throw new ECAException(CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"), e);
 
         } catch (CertificateException e) {
-            logger.error("Unable to build cert chain: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
 
         } catch (FileNotFoundException e) {
-            logger.error("Unable to build cert chain: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
 
         } catch (IOException e) {
-            logger.error("Unable to build cert chain: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
 
         } catch (TokenException e) {
-            logger.error("Unable to build cert chain: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()), e);
         }
@@ -2029,7 +2033,7 @@ public class CertificateAuthority
             }
         } catch (ELdapException e) {
             // exception not thrown - not seen as a fatal error.
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_PUBLISH", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_PUBLISH", e.toString()), e);
         }
     }
 
@@ -2053,13 +2057,13 @@ public class CertificateAuthority
                 mPublisherProcessor.init(this, c);
                 logger.debug("Publishing inited");
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISH"));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISH"));
                 throw new ECAException(
                         CMS.getUserMessage("CMS_CA_INIT_PUBLISH_MODULE_FAILED"));
             }
 
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_ERROR_PUBLISH_MODULE", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_ERROR_PUBLISH_MODULE", e.toString()), e);
             //throw new ECAException(
             //	CAResources.INIT_PUBLISH_MODULE_FAILED, e);
         }
@@ -2102,7 +2106,7 @@ public class CertificateAuthority
                     ListenerPlugin plugin = mListenerPlugins.get(implName);
 
                     if (plugin == null) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_ERROR_LISTENER", implName));
+                        logger.error(CMS.getLogMessage("CMSCORE_CA_CA_ERROR_LISTENER", implName));
                         throw new Exception("Cannot initialize");
                     }
                     String className = plugin.getClassPath();
@@ -2116,12 +2120,10 @@ public class CertificateAuthority
                         //listener.init(id, implName, iConfig);
                         listener.init(this, iConfig);
                         // registerRequestListener(id, (IRequestListener) listener);
-                        //log(ILogger.LL_INFO,
-                        //   "Listener instance " + id + " added");
+                        //logger.info("Listener instance " + id + " added");
 
                     } catch (Exception e) {
-                        logger.error("Unable to add listener instance: " + e, e);
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_INIT_LISTENER", id, e.toString()));
+                        logger.error(CMS.getLogMessage("CMSCORE_CA_CA_INIT_LISTENER", id, e.toString()), e);
                         throw e;
                     }
                 }
@@ -2129,7 +2131,7 @@ public class CertificateAuthority
             }
 
         } catch (Exception e) {
-            log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_CA_FAILED_LISTENER", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_FAILED_LISTENER", e.toString()), e);
         }
 
     }
@@ -2154,8 +2156,7 @@ public class CertificateAuthority
                             (IRequestListener) Class.forName(certificateIssuedListenerClassName).newInstance();
                     mCertIssuedListener.init(this, nc);
                 } catch (Exception e1) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_CA_CA_REGISTER_LISTENER", certificateIssuedListenerClassName));
+                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_REGISTER_LISTENER", certificateIssuedListenerClassName), e1);
                 }
 
                 // Initialize Revoke Request notification listener
@@ -2169,8 +2170,7 @@ public class CertificateAuthority
                             (IRequestListener) Class.forName(certificateRevokedListenerClassName).newInstance();
                     mCertRevokedListener.init(this, nc);
                 } catch (Exception e1) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_CA_CA_REGISTER_LISTENER", certificateRevokedListenerClassName));
+                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_REGISTER_LISTENER", certificateRevokedListenerClassName), e1);
                 }
 
                 // Initialize Request In Queue notification listener
@@ -2182,16 +2182,14 @@ public class CertificateAuthority
                     mReqInQListener = (IRequestListener) Class.forName(requestInQListenerClassName).newInstance();
                     mReqInQListener.init(this, nc);
                 } catch (Exception e1) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_CA_CA_REGISTER_REQ_LISTENER", requestInQListenerClassName));
+                    logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_REGISTER_REQ_LISTENER", requestInQListenerClassName), e1);
                 }
 
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NOTIFY_NONE"));
+                logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NOTIFY_NONE"));
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NOTIFY_FAILED"));
+            logger.warn(CMS.getLogMessage("CMSCORE_CA_CA_NOTIFY_FAILED"), e);
             //			throw e;
         }
     }
@@ -2230,7 +2228,7 @@ public class CertificateAuthority
             mRequestQueue = reqSub.getRequestQueue(
                             getId(), reqdb_inc, mPolicy, mService, mNotify, mPNotify);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_QUEUE_FAILED", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_QUEUE_FAILED", e.toString()), e);
             throw e;
         }
 
@@ -2277,14 +2275,14 @@ public class CertificateAuthority
         IConfigStore crlConfig = mConfig.getSubStore(PROP_CRL_SUBSTORE);
 
         if ((crlConfig == null) || (crlConfig.size() <= 0)) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL"));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL"));
             //throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
             return;
         }
         Enumeration<String> issuePointIdEnum = crlConfig.getSubStoreNames();
 
         if (issuePointIdEnum == null || !issuePointIdEnum.hasMoreElements()) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL_SUBSTORE"));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL_SUBSTORE"));
             //throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
             return;
         }
@@ -2332,11 +2330,11 @@ public class CertificateAuthority
 
         /*
          if (mMasterCRLIssuePoint == null) {
-         log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_FULL_CRL", PROP_MASTER_CRL));
+         logger.error(CMS.getLogMessage("CMSCORE_CA_CA_NO_FULL_CRL", PROP_MASTER_CRL));
          throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
          }
          */
-        log(ILogger.LL_INFO, "CRL Issuing Points inited");
+        logger.info("CRL Issuing Points inited");
     }
 
     public String getOfficialName() {
@@ -2410,8 +2408,7 @@ public class CertificateAuthority
 
         TBSRequest tbsReq = request.getTBSRequest();
         if (tbsReq.getRequestCount() == 0) {
-            logger.error("CertificateAuthority: No request found");
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
+            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
             throw new EBaseException("OCSP request is empty");
         }
 
@@ -2467,7 +2464,7 @@ public class CertificateAuthority
         long startTime = new Date().getTime();
 
         try {
-            //log(ILogger.LL_INFO, "start OCSP request");
+            //logger.info("start OCSP request");
 
             // (3) look into database to check the
             //     certificate's status
@@ -2551,14 +2548,14 @@ public class CertificateAuthority
                     new ResponseBytes(ResponseBytes.OCSP_BASIC,
                             new OCTET_STRING(ASN1Util.encode(basicRes))));
 
-            //log(ILogger.LL_INFO, "done OCSP request");
+            //logger.info("done OCSP request");
             long endTime = new Date().getTime();
             mTotalTime += endTime - startTime;
 
             return response;
 
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_REQUEST", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_REQUEST", e.toString()), e);
             throw e;
         }
     }
@@ -2600,9 +2597,7 @@ public class CertificateAuthority
 
             return response;
         } catch (Exception e) {
-            e.printStackTrace();
-            // error e
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGN", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGN", e.toString()), e);
             throw new EBaseException(e.toString());
         }
     }
@@ -3255,8 +3250,7 @@ public class CertificateAuthority
     void deleteAuthorityNSSDB() throws ECAException {
         if (isHostAuthority()) {
             String msg = "Attempt to delete host authority signing key; not proceeding";
-            log(ILogger.LL_WARN, msg);
-            logger.debug(msg);
+            logger.warn(msg);
             return;
         }
 
@@ -3361,7 +3355,7 @@ public class CertificateAuthority
             logger.debug("readAuthority: no entryUSN");
             if (!entryUSNPluginEnabled()) {
                 logger.warn("readAuthority: dirsrv USN plugin is not enabled; skipping entry");
-                log(ILogger.LL_FAILURE, "Lightweight authority entry has no"
+                logger.warn("Lightweight authority entry has no"
                         + " entryUSN attribute and USN plugin not enabled;"
                         + " skipping.  Enable dirsrv USN plugin.");
                 return;
