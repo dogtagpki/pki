@@ -188,7 +188,8 @@ public class EnrollmentService implements IService {
         String agentId = (String) sContext.get(SessionContext.USER_ID);
         AuthToken authToken = (AuthToken) sContext.get(SessionContext.AUTH_TOKEN);
 
-        mKRA.log(ILogger.LL_INFO, "KRA services enrollment request");
+        logger.info("KRA services enrollment request");
+
         // unwrap user key with transport
         byte unwrapped[] = null;
         byte tmp_unwrapped[] = null;
@@ -239,7 +240,8 @@ public class EnrollmentService implements IService {
                 if (statsSub != null) {
                     statsSub.startTiming("decrypt_user_key");
                 }
-                mKRA.log(ILogger.LL_INFO, "KRA decrypts external private");
+
+                logger.info("KRA decrypts external private");
                 logger.debug("EnrollmentService::about to decryptExternalPrivate");
 
                 try {
@@ -250,7 +252,7 @@ public class EnrollmentService implements IService {
                             opts.getEncValue(),
                             tCert);
                 } catch (Exception e) {
-                    mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_UNWRAP_USER_KEY"));
+                    logger.error(CMS.getLogMessage("CMSCORE_KRA_UNWRAP_USER_KEY"), e);
 
                     signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                             auditSubjectID,
@@ -290,7 +292,7 @@ public class EnrollmentService implements IService {
 
             if (publicKeyData == null) {
                 String message = CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND");
-                mKRA.log(ILogger.LL_FAILURE, message);
+                logger.error(message);
 
                 signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
@@ -332,8 +334,7 @@ public class EnrollmentService implements IService {
                             pubkey,
                             tCert);
                 } catch (Exception e) {
-                    mKRA.log(ILogger.LL_DEBUG, e.getMessage());
-                    mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_WRAP_USER_KEY"));
+                    logger.error(CMS.getLogMessage("CMSCORE_KRA_WRAP_USER_KEY"), e);
 
                     signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                             auditSubjectID,
@@ -364,7 +365,6 @@ public class EnrollmentService implements IService {
 
                     JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(unwrapped);
-                    mKRA.log(ILogger.LL_FAILURE, e.toString());
 
                     signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
@@ -392,7 +392,7 @@ public class EnrollmentService implements IService {
 
             if (owner == null) {
                 String message = CMS.getLogMessage("CMSCORE_KRA_OWNER_NAME_NOT_FOUND");
-                mKRA.log(ILogger.LL_FAILURE, message);
+                logger.error(message);
 
                 signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
@@ -413,7 +413,7 @@ public class EnrollmentService implements IService {
             //                       encKey OCTET_STRING,
             //                    }
             //
-            mKRA.log(ILogger.LL_INFO, "KRA encrypts internal private");
+            logger.info("KRA encrypts internal private");
             if (statsSub != null) {
                 statsSub.startTiming("encrypt_user_key");
             }
@@ -429,8 +429,7 @@ public class EnrollmentService implements IService {
                 }
 
             } catch (Exception e) {
-                mKRA.log(ILogger.LL_DEBUG, e.getMessage());
-                mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_WRAP_USER_KEY"));
+                logger.error(CMS.getLogMessage("CMSCORE_KRA_WRAP_USER_KEY"), e);
 
                 signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
@@ -515,7 +514,7 @@ public class EnrollmentService implements IService {
             // if record already has a serial number, yell out.
             if (rec.getSerialNumber() != null) {
                 String message = CMS.getLogMessage("CMSCORE_KRA_INVALID_SERIAL_NUMBER", rec.getSerialNumber().toString());
-                mKRA.log(ILogger.LL_FAILURE, message);
+                logger.error(message);
 
                 signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
@@ -539,7 +538,7 @@ public class EnrollmentService implements IService {
             try {
                 rec.setWrappingParams(params, allowEncDecrypt_archival);
             } catch (Exception e) {
-                mKRA.log(ILogger.LL_FAILURE, "Failed to store wrapping parameters");
+                logger.error("Failed to store wrapping parameters", e);
                 // TODO(alee) Set correct audit message here
                 signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
@@ -559,7 +558,7 @@ public class EnrollmentService implements IService {
 
             if (serialNo == null) {
                 String message = CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL");
-                mKRA.log(ILogger.LL_FAILURE, message);
+                logger.error(message);
 
                 signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                         auditSubjectID,
@@ -581,7 +580,8 @@ public class EnrollmentService implements IService {
                 request.setExtData(ATTR_KEY_RECORD + i, serialNo);
             }
 
-            mKRA.log(ILogger.LL_INFO, "KRA adding key record " + serialNo);
+            logger.info("KRA adding key record " + serialNo);
+
             if (statsSub != null) {
                 statsSub.startTiming("store_key");
             }
@@ -593,7 +593,7 @@ public class EnrollmentService implements IService {
             logger.debug("EnrollmentService: key record 0x" + serialNo.toString(16)
                         + " (" + owner + ") archived");
 
-            mKRA.log(ILogger.LL_INFO, "key record 0x" +
+            logger.info("key record 0x" +
                     serialNo.toString(16)
                     + " (" + owner + ") archived");
 
@@ -667,7 +667,7 @@ public class EnrollmentService implements IService {
         request.setExtData("delayLDAPCommit", "false");
 
         // update request
-        mKRA.log(ILogger.LL_INFO, "KRA updating request");
+        logger.info("KRA updating request");
         mKRA.getRequestQueue().updateRequest(request);
 
         if (statsSub != null) {
@@ -835,31 +835,34 @@ public class EnrollmentService implements IService {
         if (certInfo == null) {
             throw new EBaseException(CMS.getLogMessage("CMS_BASE_CERT_NOT_FOUND"));
         }
+
         try {
             pX509Key = (CertificateX509Key)
                     certInfo[i].get(X509CertInfo.KEY);
+
         } catch (IOException e) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
-                    "[" + X509CertInfo.KEY + "]" + e.toString()));
+                    "[" + X509CertInfo.KEY + "]" + e.toString()), e);
+
         } catch (CertificateException e) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
-                    "[" + X509CertInfo.KEY + "]" + e.toString()));
+                    "[" + X509CertInfo.KEY + "]" + e.toString()), e);
         }
+
         X509Key pKey = null;
 
         try {
             pKey = (X509Key) pX509Key.get(
                         CertificateX509Key.KEY);
+
         } catch (IOException e) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "["
-                    + CertificateX509Key.KEY + "]" + e.toString()));
+                    + CertificateX509Key.KEY + "]" + e.toString()), e);
         }
+
         return pKey;
     }
 
@@ -893,17 +896,18 @@ public class EnrollmentService implements IService {
         try {
             pSub = (CertificateSubjectName)
                     certInfo[0].get(X509CertInfo.SUBJECT);
+
         } catch (IOException e) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_GET_OWNER_NAME", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_GET_OWNER_NAME", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "["
-                    + X509CertInfo.SUBJECT + "]" + e.toString()));
+                    + X509CertInfo.SUBJECT + "]" + e.toString()), e);
+
         } catch (CertificateException e) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_GET_OWNER_NAME", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_GET_OWNER_NAME", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "["
-                    + X509CertInfo.SUBJECT + "]" + e.toString()));
+                    + X509CertInfo.SUBJECT + "]" + e.toString()), e);
         }
+
         String owner = pSub.toString();
 
         return owner;
