@@ -248,7 +248,7 @@ public class CAService implements ICAService, IService {
                 return connector;
             } catch (Exception e) {
                 // ignore external class if error
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_LOAD_CONNECTOR", extConnector, e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_CA_LOAD_CONNECTOR", extConnector, e.toString()), e);
             }
         }
 
@@ -264,11 +264,11 @@ public class CAService implements ICAService, IService {
             if (authority == null) {
                 String msg = "local authority " + id + " not found.";
 
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_AUTHORITY_NOT_FOUND", id));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_AUTHORITY_NOT_FOUND", id));
                 throw new EBaseException(msg);
             }
             connector = new LocalConnector((ICertAuthority) mCA, authority);
-            // log(ILogger.LL_INFO, "local Connector to "+id+" inited");
+            // logger.info("local Connector to "+id+" inited");
         } else {
             String host = config.getString("host");
             int port = config.getInteger("port");
@@ -301,8 +301,7 @@ public class CAService implements ICAService, IService {
                                 config, timeout);
             // Change end
 
-            // log(ILogger.LL_INFO, "remote authority "+
-            //	host+":"+port+" "+uri+" inited");
+            // logger.info("remote authority " + host+":"+port+" "+uri+" inited");
         }
         return connector;
     }
@@ -402,7 +401,7 @@ public class CAService implements ICAService, IService {
         IServant servant = mServants.get(type);
 
         if (servant == null) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_INVALID_REQUEST_TYPE", type));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_INVALID_REQUEST_TYPE", type));
             request.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
             request.setExtData(IRequest.ERROR,
                     new ECAException(CMS.getUserMessage("CMS_CA_UNRECOGNIZED_REQUEST_TYPE", type)));
@@ -620,7 +619,7 @@ public class CAService implements ICAService, IService {
             if (certi.get(X509CertInfo.SUBJECT) == null ||
                     certi.get(X509CertInfo.KEY) == null) {
 
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_MISSING_ATTR"));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_MISSING_ATTR"));
                 // XXX how do you reject a request in the service object ?
                 throw new ECAException(
                         CMS.getUserMessage("CMS_CA_MISSING_REQD_FIELDS_IN_CERTISSUE"));
@@ -693,7 +692,7 @@ public class CAService implements ICAService, IService {
                     ca.getSigningUnit().getCertImpl().getNotAfter();
 
             if (begin.after(caNotAfter)) {
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_PAST_VALIDITY"));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_PAST_VALIDITY"));
                 throw new ECAException(CMS.getUserMessage("CMS_CA_CERT_BEGIN_AFTER_CA_VALIDITY"));
             }
 
@@ -710,7 +709,8 @@ public class CAService implements ICAService, IService {
                 } else {
                     logger.debug("CAService: issueX509Cert: CA cert issuance past CA's NOT_AFTER.");
                 } //!is_ca
-                mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_PAST_NOT_AFTER"));
+
+                logger.info(CMS.getLogMessage("CMSCORE_CA_PAST_NOT_AFTER"));
             }
 
             // check algorithm in certinfo.
@@ -731,21 +731,18 @@ public class CAService implements ICAService, IService {
 
         } catch (CertificateException e) {
             String message = CMS.getLogMessage("CMSCORE_CA_BAD_FIELD", e.toString());
-            mCA.log(ILogger.LL_FAILURE, message);
             logger.error(message, e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_ERROR_GETTING_FIELDS_IN_ISSUE"));
 
         } catch (IOException e) {
             String message = CMS.getLogMessage("CMSCORE_CA_BAD_FIELD", e.toString());
-            mCA.log(ILogger.LL_FAILURE, message);
             logger.error(message, e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_ERROR_GETTING_FIELDS_IN_ISSUE"));
 
         } catch (NoSuchAlgorithmException e) {
             String message = CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname);
-            mCA.log(ILogger.LL_FAILURE, message);
             logger.error(message, e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname));
@@ -758,7 +755,7 @@ public class CAService implements ICAService, IService {
                         certi.get(X509CertInfo.SERIAL_NUMBER);
 
                 if (serialno == null) {
-                    mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NULL_SERIAL_NUMBER"));
+                    logger.error(CMS.getLogMessage("CMSCORE_CA_NULL_SERIAL_NUMBER"));
                     throw new ECAException(
                             CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
                 }
@@ -766,18 +763,18 @@ public class CAService implements ICAService, IService {
                         serialno.get(CertificateSerialNumber.NUMBER);
 
                 if (serialnum == null) {
-                    mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NULL_SERIAL_NUMBER"));
+                    logger.error(CMS.getLogMessage("CMSCORE_CA_NULL_SERIAL_NUMBER"));
                     throw new ECAException(
                             CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
                 }
             } catch (CertificateException e) {
                 // not possible
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NO_ORG_SERIAL", e.getMessage()));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_NO_ORG_SERIAL", e.getMessage()));
                 throw new ECAException(
                         CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
             } catch (IOException e) {
                 // not possible.
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NO_ORG_SERIAL", e.getMessage()));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_NO_ORG_SERIAL", e.getMessage()));
                 throw new ECAException(
                         CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
             }
@@ -790,18 +787,21 @@ public class CAService implements ICAService, IService {
 
             certi.set(X509CertInfo.SERIAL_NUMBER,
                     new CertificateSerialNumber(serialNo));
-            mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_SIGN_SERIAL", serialNo.toString(16)));
+            logger.info(CMS.getLogMessage("CMSCORE_CA_SIGN_SERIAL", serialNo.toString(16)));
+
         } catch (EBaseException e) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NO_NEXT_SERIAL", e.toString()));
-            throw new ECAException(CMS.getUserMessage("CMS_CA_NOSERIALNO", rid));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_NO_NEXT_SERIAL", e.toString()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_NOSERIALNO", rid), e);
+
         } catch (CertificateException e) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SET_SERIAL", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SET_SERIAL", e.toString()), e);
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SET_SERIALNO_FAILED", rid));
+                    CMS.getUserMessage("CMS_CA_SET_SERIALNO_FAILED", rid), e);
+
         } catch (IOException e) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SET_SERIAL", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SET_SERIAL", e.toString()), e);
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_SET_SERIALNO_FAILED", rid));
+                    CMS.getUserMessage("CMS_CA_SET_SERIALNO_FAILED", rid), e);
         }
 
         try {
@@ -817,11 +817,11 @@ public class CAService implements ICAService, IService {
                         new CertificateIssuerName(ca.getX500Name()));
             }
         } catch (CertificateException e) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SET_ISSUER", e.toString()));
-            throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SET_ISSUER", e.toString()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid), e);
         } catch (IOException e) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SET_ISSUER", e.toString()));
-            throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SET_ISSUER", e.toString()), e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid), e);
         }
 
         byte[] utf8_encodingOrder = { DerValue.tag_UTF8String };
@@ -838,11 +838,11 @@ public class CAService implements ICAService, IService {
                                 new LdapV3DNStrConverter(X500NameAttrMap.getDirDefault(), true), utf8_encodingOrder)));
 
             } catch (CertificateException e) {
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SET_SUBJECT", e.toString()));
-                throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_SET_SUBJECT", e.toString()), e);
+                throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid), e);
             } catch (IOException e) {
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SET_SUBJECT", e.toString()));
-                throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_SET_SUBJECT", e.toString()), e);
+                throw new ECAException(CMS.getUserMessage("CMS_CA_SET_ISSUER_FAILED", rid), e);
             }
         }
 
@@ -884,7 +884,8 @@ public class CAService implements ICAService, IService {
             mCA.getCertificateRepository().addCertificateRecord(
                     new CertRecord(newSerialNo, cert, metaInfo));
 
-            mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_STORE_SERIAL", cert.getSerialNumber().toString(16)));
+            logger.info(CMS.getLogMessage("CMSCORE_CA_STORE_SERIAL", cert.getSerialNumber().toString(16)));
+
             if (renewal) {
 
                 /*
@@ -931,8 +932,9 @@ public class CAService implements ICAService, IService {
                 modSet.add(ICertRecord.ATTR_META_INFO,
                         Modification.MOD_REPLACE, oldMeta);
                 mCA.getCertificateRepository().modifyCertificateRecord(oldSerialNo, modSet);
-                mCA.log(ILogger.LL_INFO,
-                        CMS.getLogMessage("CMSCORE_CA_MARK_SERIAL", oldSerialNo.toString(16), newSerialNo.toString(16)));
+
+                logger.info(CMS.getLogMessage("CMSCORE_CA_MARK_SERIAL", oldSerialNo.toString(16), newSerialNo.toString(16)));
+
                 if (logger.isDebugEnabled()) {
                     CertRecord check = (CertRecord)
                             mCA.getCertificateRepository().readCertificateRecord(oldSerialNo);
@@ -946,9 +948,9 @@ public class CAService implements ICAService, IService {
                     }
                 }
             }
+
         } catch (EBaseException e) {
             String message = CMS.getLogMessage("CMSCORE_CA_NO_STORE_SERIAL", cert.getSerialNumber().toString(16));
-            mCA.log(ILogger.LL_FAILURE, message);
             logger.error(message, e);
             throw e;
         }
@@ -982,8 +984,7 @@ public class CAService implements ICAService, IService {
             }
         }
         if (revReason == null) {
-            logger.error("CAService.revokeCert: missing revocation reason");
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_MISSING_REV_REASON=", serialno.toString(16)));
+            logger.error("CAService: " + CMS.getLogMessage("CMSCORE_CA_MISSING_REV_REASON", serialno.toString(16)));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_MISSING_REV_REASON",
                             "0x" + serialno.toString(16)));
@@ -992,8 +993,7 @@ public class CAService implements ICAService, IService {
         CertRecord certRec = (CertRecord) mCA.getCertificateRepository().readCertificateRecord(serialno);
 
         if (certRec == null) {
-            logger.debug("CAService.revokeCert: cert record not found");
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CERT_NOT_FOUND", serialno.toString(16)));
+            logger.error("CAService: " + CMS.getLogMessage("CMSCORE_CA_CERT_NOT_FOUND", serialno.toString(16)));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
                             "0x" + serialno.toString(16)));
@@ -1036,9 +1036,10 @@ public class CAService implements ICAService, IService {
                 mCA.getCertificateRepository().markAsRevoked(serialno,
                         new RevocationInfo(revdate, crlentryexts),
                         true /*isAlreadyRevoked*/);
+
                 logger.debug("CAService.revokeCert: on_hold cert marked revoked");
-                mCA.log(ILogger.LL_INFO,
-                        CMS.getLogMessage("CMSCORE_CA_CERT_REVO_INFO_UPDATE",
+
+                logger.info(CMS.getLogMessage("CMSCORE_CA_CERT_REVO_INFO_UPDATE",
                                 recRevReason.toString(),
                                 revReason.toString(),
                                 serialno.toString(16)));
@@ -1047,9 +1048,9 @@ public class CAService implements ICAService, IService {
                         new RevocationInfo(revdate, crlentryexts));
             }
 
-            logger.debug("CAService.revokeCert: cert now revoked");
-            mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_CERT_REVOKED",
+            logger.info(CMS.getLogMessage("CMSCORE_CA_CERT_REVOKED",
                     serialno.toString(16)));
+
             // inform all CRLIssuingPoints about revoked certificate
             Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
 
@@ -1079,9 +1080,8 @@ public class CAService implements ICAService, IService {
                 }
             }
         } catch (EBaseException e) {
-            logger.error("CAService.revokeCert: " + e, e);
             String message = CMS.getLogMessage("CMSCORE_CA_ERROR_REVOCATION", serialno.toString(), e.toString());
-            mCA.log(ILogger.LL_FAILURE, message);
+            logger.error(message, e);
             throw e;
         }
         return;
@@ -1100,7 +1100,7 @@ public class CAService implements ICAService, IService {
         CertRecord certRec = (CertRecord) mCA.getCertificateRepository().readCertificateRecord(serialNo);
 
         if (certRec == null) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CERT_NOT_FOUND", serialNo.toString(16)));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_NOT_FOUND", serialNo.toString(16)));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
                             "0x" + serialNo.toString(16)));
@@ -1110,7 +1110,7 @@ public class CAService implements ICAService, IService {
         CRLReasonExtension reasonext = null;
 
         if (revInfo == null) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CERT_ON_HOLD", serialNo.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_ON_HOLD", serialNo.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_IS_NOT_ON_HOLD",
                     serialNo.toString()));
         }
@@ -1120,12 +1120,12 @@ public class CAService implements ICAService, IService {
                 reasonext = (CRLReasonExtension)
                         exts.get(CRLReasonExtension.NAME);
             } catch (X509ExtensionException e) {
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CERT_ON_HOLD", serialNo.toString()));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_ON_HOLD", serialNo.toString()), e);
                 throw new ECAException(CMS.getUserMessage("CMS_CA_IS_NOT_ON_HOLD",
-                        serialNo.toString()));
+                        serialNo.toString()), e);
             }
         } else {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CERT_ON_HOLD", serialNo.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_ON_HOLD", serialNo.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_IS_NOT_ON_HOLD",
                     serialNo.toString()));
         }
@@ -1137,7 +1137,9 @@ public class CAService implements ICAService, IService {
             try {
                 mCA.getCertificateRepository().unmarkRevoked(serialNo, revInfo,
                         certRec.getRevokedOn(), certRec.getRevokedBy());
-                mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_CERT_UNREVOKED", serialNo.toString(16)));
+
+                logger.info(CMS.getLogMessage("CMSCORE_CA_CERT_UNREVOKED", serialNo.toString(16)));
+
                 // inform all CRLIssuingPoints about unrevoked certificate
                 Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
 
@@ -1167,11 +1169,11 @@ public class CAService implements ICAService, IService {
                     }
                 }
             } catch (EBaseException e) {
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CERT_ERROR_UNREVOKE", serialNo.toString(16)));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_ERROR_UNREVOKE", serialNo.toString(16)), e);
                 throw e;
             }
         } else {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CERT_ON_HOLD", serialNo.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_ON_HOLD", serialNo.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_IS_NOT_ON_HOLD",
                     "0x" + serialNo.toString(16)));
         }
@@ -1285,8 +1287,7 @@ class serviceIssue implements IServant {
                 request.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
         if (certinfos == null || certinfos[0] == null) {
-            mCA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CERT_REQUEST_NOT_FOUND", request.getRequestId().toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_REQUEST_NOT_FOUND", request.getRequestId().toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_ISSUEREQ"));
         }
         String challengePassword =
@@ -1300,8 +1301,7 @@ class serviceIssue implements IServant {
             try {
                 certs[i] = mService.issueX509Cert(rid, certinfos[i]);
             } catch (EBaseException e) {
-                mCA.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_ISSUE_ERROR", Integer.toString(i), rid, e.toString()));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_ISSUE_ERROR", Integer.toString(i), rid, e.toString()), e);
                 throw e;
             }
         }
@@ -1313,7 +1313,6 @@ class serviceIssue implements IServant {
                 mService.storeX509Cert(rid, certs[i], crmfReqId, challengePassword);
             } catch (EBaseException e) {
                 String message = CMS.getLogMessage("CMSCORE_CA_STORE_ERROR", Integer.toString(i), rid, e.toString());
-                mCA.log(ILogger.LL_FAILURE, message);
                 logger.warn(message, e);
                 ex = e; // save to throw later.
                 break;
@@ -1329,8 +1328,7 @@ class serviceIssue implements IServant {
                 try {
                     mCA.getCertificateRepository().deleteCertificateRecord(serialNo);
                 } catch (EBaseException e) {
-                    mCA.log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_CA_DELETE_CERT_ERROR", serialNo.toString(), e.toString()));
+                    logger.warn(CMS.getLogMessage("CMSCORE_CA_DELETE_CERT_ERROR", serialNo.toString(), e.toString()), e);
                 }
             }
             throw ex;
@@ -1361,8 +1359,7 @@ class serviceRenewal implements IServant {
                 request.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
         if (certinfos == null || certinfos[0] == null) {
-            mCA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CERT_REQUEST_NOT_FOUND", request.getRequestId().toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CERT_REQUEST_NOT_FOUND", request.getRequestId().toString()));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
         }
@@ -1386,7 +1383,7 @@ class serviceRenewal implements IServant {
                             certinfos[i].get(X509CertInfo.SERIAL_NUMBER);
 
                     if (serialno == null) {
-                        mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NULL_SERIAL_NUMBER"));
+                        logger.error(CMS.getLogMessage("CMSCORE_CA_NULL_SERIAL_NUMBER"));
                         throw new ECAException(
                                 CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
                     }
@@ -1395,21 +1392,19 @@ class serviceRenewal implements IServant {
 
                 } catch (IOException e) {
                     String message = CMS.getLogMessage("CMSCORE_CA_ERROR_GET_CERT", e.toString());
-                    mCA.log(ILogger.LL_FAILURE, message);
                     logger.error(message, e);
                     throw new ECAException(
                             CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
 
                 } catch (CertificateException e) {
                     String message = CMS.getLogMessage("CMSCORE_CA_ERROR_GET_CERT", e.toString());
-                    mCA.log(ILogger.LL_FAILURE, message);
                     logger.error(message, e);
                     throw new ECAException(
                             CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
                 }
 
                 if (serialnum == null) {
-                    mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ERROR_GET_CERT", ""));
+                    logger.error(CMS.getLogMessage("CMSCORE_CA_ERROR_GET_CERT", ""));
                     throw new ECAException(
                             CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_RENEWREQ"));
                 }
@@ -1421,7 +1416,7 @@ class serviceRenewal implements IServant {
                         mCA.getCertificateRepository().readCertificateRecord(oldSerialNo);
 
                 if (certRecord == null) {
-                    mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NOT_FROM_CA", oldSerialNo.toString()));
+                    logger.error(CMS.getLogMessage("CMSCORE_CA_NOT_FROM_CA", oldSerialNo.toString()));
                     svcerrors[i] = new ECAException(
                             CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
                                     oldSerialNo.toString())).toString();
@@ -1433,7 +1428,7 @@ class serviceRenewal implements IServant {
 
                 if (certStatus.equals(ICertRecord.STATUS_REVOKED) ||
                         certStatus.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
-                    mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_RENEW_REVOKED", oldSerialNo.toString()));
+                    logger.error(CMS.getLogMessage("CMSCORE_CA_RENEW_REVOKED", oldSerialNo.toString()));
                     svcerrors[i] = new ECAException(
                             CMS.getUserMessage("CMS_CA_CANNOT_RENEW_REVOKED_CERT",
                                     "0x" + oldSerialNo.toString(16))).toString();
@@ -1454,8 +1449,7 @@ class serviceRenewal implements IServant {
 
                         if (cert == null) {
                             // something wrong
-                            mCA.log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSCORE_CA_MISSING_RENEWED", serial.toString()));
+                            logger.error(CMS.getLogMessage("CMSCORE_CA_MISSING_RENEWED", serial.toString()));
                             svcerrors[i] = new ECAException(
                                     CMS.getUserMessage("CMS_CA_ERROR_GETTING_RENEWED_CERT",
                                             oldSerialNo.toString(), serial.toString())).toString();
@@ -1466,7 +1460,7 @@ class serviceRenewal implements IServant {
                                 mCA.getCertificateRepository().readCertificateRecord(serial);
 
                         if (cRecord == null) {
-                            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NOT_FROM_CA", serial.toString()));
+                            logger.error(CMS.getLogMessage("CMSCORE_CA_NOT_FROM_CA", serial.toString()));
                             svcerrors[i] = new ECAException(
                                     CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
                                             serial.toString())).toString();
@@ -1493,8 +1487,8 @@ class serviceRenewal implements IServant {
                 mService.storeX509Cert(rid, issuedCerts[i], true, oldSerialNo);
             } catch (ECAException e) {
                 svcerrors[i] = e.toString();
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CANNOT_RENEW", Integer.toString(i), request
-                        .getRequestId().toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_CA_CANNOT_RENEW", Integer.toString(i), request
+                        .getRequestId().toString()), e);
             }
         }
 
@@ -1508,7 +1502,7 @@ class serviceRenewal implements IServant {
             ;
         if (l >= 0) {
             request.setExtData(IRequest.SVCERRORS, svcerrors);
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_NO_RENEW", request.getRequestId().toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_NO_RENEW", request.getRequestId().toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_RENEW_FAILED"));
         }
         return true;
@@ -1602,7 +1596,7 @@ class serviceCheckChallenge implements IServant {
         try {
             mSHADigest = MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException e) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
         }
     }
 
@@ -1729,8 +1723,7 @@ class serviceRevoke implements IServant {
                 crlentries.length == 0 ||
                 crlentries[0] == null) {
             // XXX should this be an error ?
-            mCA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CRL_NOT_FOUND", request.getRequestId().toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CRL_NOT_FOUND", request.getRequestId().toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_REVREQ"));
         }
 
@@ -1743,8 +1736,8 @@ class serviceRevoke implements IServant {
                 mService.revokeCert(crlentries[i], request.getRequestId().toString());
                 revokedCerts[i] = crlentries[i];
             } catch (ECAException e) {
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CANNOT_REVOKE", Integer.toString(i), request
-                        .getRequestId().toString(), e.toString()));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_CANNOT_REVOKE", Integer.toString(i), request
+                        .getRequestId().toString(), e.toString()), e);
                 revokedCerts[i] = null;
                 if (svcerrors == null) {
                     svcerrors = new String[revokedCerts.length];
@@ -1802,6 +1795,9 @@ class serviceRevoke implements IServant {
 }
 
 class serviceUnrevoke implements IServant {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceUnrevoke.class);
+
     private ICertificateAuthority mCA;
     private CAService mService;
 
@@ -1817,7 +1813,7 @@ class serviceUnrevoke implements IServant {
                 request.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
 
         if (oldSerialNo == null || oldSerialNo.length < 1) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_UNREVOKE_MISSING_SERIAL"));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_UNREVOKE_MISSING_SERIAL"));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_MISSING_SERIAL_NUMBER"));
         }
@@ -1834,7 +1830,7 @@ class serviceUnrevoke implements IServant {
         for (int i = 0; i < oldSerialNo.length; i++) {
             try {
                 if (oldSerialNo[i].compareTo(new BigInteger("0")) < 0) {
-                    mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_UNREVOKE_MISSING_SERIAL"));
+                    logger.error(CMS.getLogMessage("CMSCORE_CA_UNREVOKE_MISSING_SERIAL"));
                     throw new ECAException(
                             CMS.getUserMessage("CMS_CA_MISSING_SERIAL_NUMBER"));
                 }
@@ -1846,8 +1842,8 @@ class serviceUnrevoke implements IServant {
                 }
                 mService.unrevokeCert(oldSerialNo[i], request.getRequestId().toString());
             } catch (ECAException e) {
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_UNREVOKE_FAILED", oldSerialNo[i].toString(),
-                        request.getRequestId().toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_CA_UNREVOKE_FAILED", oldSerialNo[i].toString(),
+                        request.getRequestId().toString()), e);
                 if (svcerrors == null) {
                     svcerrors = new String[oldSerialNo.length];
                 }
@@ -1888,6 +1884,9 @@ class serviceUnrevoke implements IServant {
 }
 
 class serviceGetCAChain implements IServant {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceGetCAChain.class);
+
     private ICertificateAuthority mCA;
     private CAService mService;
 
@@ -1902,8 +1901,8 @@ class serviceGetCAChain implements IServant {
         try {
             certChain.encode(certChainOut);
         } catch (IOException e) {
-            mCA.log(ILogger.LL_FAILURE, e.toString());
-            throw new EBaseException(e.toString());
+            logger.error(e.toString(), e);
+            throw new EBaseException(e.toString(), e);
         }
         request.setExtData(IRequest.CACERTCHAIN, certChainOut.toByteArray());
         return true;
@@ -1911,6 +1910,9 @@ class serviceGetCAChain implements IServant {
 }
 
 class serviceGetCRL implements IServant {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceGetCRL.class);
+
     private ICertificateAuthority mCA;
     private CAService mService;
 
@@ -1928,20 +1930,22 @@ class serviceGetCRL implements IServant {
             X509CRLImpl crl = new X509CRLImpl(crlRec.getCRL());
 
             request.setExtData(IRequest.CRL, crl.getEncoded());
+
         } catch (EBaseException e) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_GETCRL_FIND_CRL"));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_GETCRL_FIND_CRL"), e);
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_NOT_FOUND", e.toString()));
+                    CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_NOT_FOUND", e.toString()), e);
+
         } catch (CRLException e) {
-            mCA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_GETCRL_INST_CRL", ICertificateAuthority.PROP_MASTER_CRL));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_GETCRL_INST_CRL", ICertificateAuthority.PROP_MASTER_CRL), e);
             throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_NOGOOD", ICertificateAuthority.PROP_MASTER_CRL));
+                    CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_NOGOOD", ICertificateAuthority.PROP_MASTER_CRL), e);
+
         } catch (X509ExtensionException e) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_GETCRL_NO_ISSUING_REC"));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_GETCRL_NO_ISSUING_REC"), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_CRL_ISSUEPT_EXT_NOGOOD",
-                            ICertificateAuthority.PROP_MASTER_CRL));
+                            ICertificateAuthority.PROP_MASTER_CRL), e);
         }
         return true;
     }
@@ -2018,6 +2022,9 @@ class serviceGetCertificates implements IServant {
 }
 
 class serviceCert4Crl implements IServant {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceCert4Crl.class);
+
     private ICertificateAuthority mCA;
     private CAService mService;
 
@@ -2034,8 +2041,7 @@ class serviceCert4Crl implements IServant {
                 IRequest.REVOKED_CERT_RECORDS);
         if (revokedCertIds == null ||
                 revokedCertIds.length == 0) {
-            mCA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CERT4CRL_NO_ENTRY", request.getRequestId().toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CERT4CRL_NO_ENTRY", request.getRequestId().toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_CLAREQ"));
         }
 
@@ -2050,8 +2056,7 @@ class serviceCert4Crl implements IServant {
                 revokedCertRecs.length == 0 ||
                 revokedCertRecs[0] == null) {
             // XXX should this be an error ?
-            mCA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CERT4CRL_NO_ENTRY", request.getRequestId().toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_CERT4CRL_NO_ENTRY", request.getRequestId().toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_MISSING_INFO_IN_CLAREQ"));
         }
 
@@ -2082,8 +2087,8 @@ class serviceCert4Crl implements IServant {
                 }
 
             } catch (ECAException e) {
-                mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CERT4CRL_NO_REC", Integer.toString(i),
-                        request.getRequestId().toString(), e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_CA_CERT4CRL_NO_REC", Integer.toString(i),
+                        request.getRequestId().toString(), e.toString()), e);
                 recordedCerts[i] = null;
                 if (svcerrors == null) {
                     svcerrors = new String[recordedCerts.length];
@@ -2103,6 +2108,9 @@ class serviceCert4Crl implements IServant {
 }
 
 class serviceUnCert4Crl implements IServant {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(serviceUnCert4Crl.class);
+
     private ICertificateAuthority mCA;
     private CAService mService;
 
@@ -2117,7 +2125,7 @@ class serviceUnCert4Crl implements IServant {
                 request.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
 
         if (oldSerialNo == null || oldSerialNo.length < 1) {
-            mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_UNREVOKE_MISSING_SERIAL"));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_UNREVOKE_MISSING_SERIAL"));
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_MISSING_SERIAL_NUMBER"));
         }
@@ -2139,8 +2147,7 @@ class serviceUnCert4Crl implements IServant {
                     }
                 }
             } catch (EBaseException e) {
-                mCA.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_DELETE_CERT_ERROR", oldSerialNo[i].toString(), e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_CA_DELETE_CERT_ERROR", oldSerialNo[i].toString(), e.toString()), e);
                 if (svcerrors == null) {
                     svcerrors = new String[oldSerialNo.length];
                 }
