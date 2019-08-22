@@ -24,23 +24,21 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
-
-import com.netscape.certsrv.authentication.IAuthToken;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cmscore.apps.CMS;
-
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.RFC822Name;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.authentication.IAuthToken;
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  *
@@ -68,6 +66,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  */
 public class SubjAltNameExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjAltNameExt.class);
+
     // for future use. currently always allow.
     protected static final String PROP_AGENT_OVERR = "allowAgentOverride";
     protected static final String PROP_EE_OVERR = "AllowEEOverride";
@@ -223,12 +224,12 @@ public class SubjAltNameExt extends APolicyRule
                     subjAltNameExt);
 
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
+            logger.error(CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, e.getMessage());
             return PolicyResult.REJECTED; // unrecoverable error.
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("CA_CERT_INFO_ERROR", e.toString()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, "Certificate Info Error");
             return PolicyResult.REJECTED; // unrecoverable error.
