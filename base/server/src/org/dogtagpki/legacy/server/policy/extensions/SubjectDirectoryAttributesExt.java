@@ -25,16 +25,6 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
-
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cmscore.apps.CMS;
-
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.x509.AVAValueConverter;
@@ -44,6 +34,14 @@ import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.SubjectDirAttributesExtension;
 import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Policy to add the subject directory attributes extension.
@@ -58,6 +56,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  */
 public class SubjectDirectoryAttributesExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SubjectDirectoryAttributesExt.class);
+
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_ATTRIBUTE = "attribute";
     protected static final String PROP_NUM_ATTRIBUTES = "numAttributes";
@@ -99,7 +100,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
             EBaseException ex = new EBaseException(
                     CMS.getUserMessage("CMS_BASE_MUST_BE_POSITIVE_NUMBER", PROP_NUM_ATTRIBUTES));
 
-            log(ILogger.LL_FAILURE, NAME + " Error: " + ex.toString());
+            logger.error(NAME + " Error: " + ex.toString(), ex);
             throw ex;
         }
         mAttributes = new AttributeConfig[mNumAttributes];
@@ -113,10 +114,10 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
             try {
                 mExt = formExt(null);
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE, NAME + " Error: " + e.getMessage());
+                logger.error(NAME + " Error: " + e.getMessage(), e);
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
                             "Error forming Subject Directory Attributes Extension. " +
-                                    "See log file for details."));
+                                    "See log file for details."), e);
             }
         }
         setInstanceParams();
@@ -175,13 +176,13 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
             }
             return PolicyResult.ACCEPTED;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
+            logger.error(CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()), e);
 
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, "Certificate Info Error");
             return PolicyResult.REJECTED; // unrecoverable error.
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
+            logger.error(CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, "IOException Error");
             return PolicyResult.REJECTED;
