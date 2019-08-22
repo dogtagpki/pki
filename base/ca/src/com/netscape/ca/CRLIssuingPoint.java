@@ -728,7 +728,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mTimeListSize = getTimeListSize(mDailyUpdates);
         if (mDailyUpdates == null || mDailyUpdates.isEmpty() || mTimeListSize == 0) {
             mEnableDailyUpdates = false;
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_INVALID_TIME_LIST"));
+            logger.warn(CMS.getLogMessage("CMSCORE_CA_INVALID_TIME_LIST"));
         }
 
         // Get auto update interval in minutes.
@@ -820,12 +820,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             crlRecord = mCRLRepository.readCRLIssuingPointRecord(mId);
 
         } catch (EDBNotAvailException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_INST_CRL", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_ISSUING_INST_CRL", e.toString()), e);
             mInitialized = CRLIssuingPointStatus.InitializationFailed;
             return;
 
         } catch (EDBRecordNotFoundException e) {
-            logger.debug("CRLIssuingPoint: CRL issuing point not found: " + mId);
+            logger.warn("CRLIssuingPoint: CRL issuing point not found: " + mId);
         }
 
         if (crlRecord != null) {
@@ -884,12 +884,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     if (mEnableCRLCache || mPublishOnStart) {
                         try {
                             x509crl = new X509CRLImpl(crl);
+
                         } catch (Exception e) {
                             clearCRLCache();
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_DECODE_CRL", e.toString()));
+                            logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_DECODE_CRL", e.toString()), e);
+
                         } catch (OutOfMemoryError e) {
                             clearCRLCache();
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_DECODE_CRL", e.toString()));
+                            logger.error(CMS.getLogMessage("CMSCORE_CA_ISSUING_DECODE_CRL", e.toString()), e);
                             mInitialized = CRLIssuingPointStatus.InitializationFailed;
                             return;
                         }
@@ -926,16 +928,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             try {
                                 publishCRL(x509crl);
                                 x509crl = null;
+
                             } catch (EBaseException e) {
                                 x509crl = null;
-                                log(ILogger.LL_FAILURE,
-                                        CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(),
-                                                e.toString()));
+                                logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(),
+                                                e.toString()), e);
+
                             } catch (OutOfMemoryError e) {
                                 x509crl = null;
-                                log(ILogger.LL_FAILURE,
-                                        CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(),
-                                                e.toString()));
+                                logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(),
+                                                e.toString()), e);
                             }
                         }
                     }
@@ -992,7 +994,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
 
             } catch (EBaseException ex) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_CREATE_CRL", ex.toString()));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_ISSUING_CREATE_CRL", ex.toString()), ex);
                 mInitialized = CRLIssuingPointStatus.InitializationFailed;
                 return;
             }
@@ -1081,7 +1083,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     }
                     if (mDailyUpdates == null || mDailyUpdates.isEmpty() || mTimeListSize == 0) {
                         mEnableDailyUpdates = false;
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_INVALID_TIME_LIST"));
+                        logger.warn(CMS.getLogMessage("CMSCORE_CA_INVALID_TIME_LIST"));
                     }
                 }
 
@@ -1299,7 +1301,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     }
                     if (mProfileList == null || mProfileList.isEmpty()) {
                         mProfileCertsOnly = false;
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_INVALID_PROFILE_LIST"));
+                        logger.warn(CMS.getLogMessage("CMSCORE_CA_INVALID_PROFILE_LIST"));
                     }
                 }
             }
@@ -1516,8 +1518,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         (mEnableUpdateFreq && mAutoUpdateInterval > 0) ||
                         (mInitialized == CRLIssuingPointStatus.NotInitialized) ||
                         mDoLastAutoUpdate || mDoManualUpdate)))) {
+
+            logger.info(CMS.getLogMessage("CMSCORE_CA_ISSUING_START_CRL", mId));
+
             mUpdateThread = new Thread(this, "CRLIssuingPoint-" + mId);
-            log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_ISSUING_START_CRL", mId));
             mUpdateThread.setDaemon(true);
             mUpdateThread.start();
         }
@@ -1891,7 +1895,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             logger.debug("CRLIssuingPoint:run(): unexpectedFailure occurred:" + e);
                             unexpectedFailure = true;
                             timeOfUnexpectedFailure = System.currentTimeMillis();
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_CRL",
+                            logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_CRL",
                                     (doCacheUpdate) ? "update CRL cache" : "update CRL", e.toString()));
                             logger.warn((doCacheUpdate) ? "update CRL cache" : "update CRL" + " error " + e, e);
                         }
@@ -2095,9 +2099,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             }
                         }
                     } else {
-                        logger.error("Revocation Request : Revoked Certificates is a Null or has Invalid Values");
-                        log(ILogger.LL_FAILURE, "Revoked Certificates is a Null or has Invalid Values");
-                        throw new EBaseException("Revocation Request : Revoked Certificates is a Null or has Invalid Values");
+                        logger.error("Revocation Request: Revoked Certificates is a Null or has Invalid Values");
+                        throw new EBaseException("Revocation Request: Revoked Certificates is a Null or has Invalid Values");
                     }
                 } else if (IRequest.UNREVOCATION_REQUEST.equals(request.getRequestType())) {
                     BigInteger serialNo[] = request.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
@@ -2108,9 +2111,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             updateRevokedCert(UNREVOKED_CERT, serialNo[j], null);
                         }
                     } else {
-                        logger.error("Unrevocation Request : Serial Numbers is a Null or has Invalid Values");
-                        log(ILogger.LL_FAILURE, "Unrevocation Request : Serial Numbers is a Null or has Invalid Values");
-                        throw new EBaseException("Unrevocation Request : Serial Numbers is a Null or has Invalid Values");
+                        logger.error("Unrevocation Request: Serial Numbers is a Null or has Invalid Values");
+                        throw new EBaseException("Unrevocation Request: Serial Numbers is a Null or has Invalid Values");
                     }
                 }
             }
@@ -2120,7 +2122,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
                 mCRLCacheIsCleared = false;
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()), e);
             }
         } else {
             clearCRLCache();
@@ -2232,7 +2234,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 try {
                     mCRLRepository.updateFirstUnsaved(mId, mFirstUnsaved);
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()));
+                    logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()), e);
                 }
             }
             if (certType == REVOKED_CERT) {
@@ -2297,8 +2299,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     mCRLRepository.updateRevokedCerts(mId, mRevokedCerts, mUnrevokedCerts);
                     mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_REVOKED_CERT", mId, e.toString()));
+                    logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_REVOKED_CERT", mId, e.toString()), e);
                 }
             }
         }
@@ -2320,8 +2321,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     mCRLRepository.updateRevokedCerts(mId, mRevokedCerts, mUnrevokedCerts);
                     mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_UNREVOKED_CERT", mId, e.toString()));
+                    logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_UNREVOKED_CERT", mId, e.toString()), e);
                 }
             }
         }
@@ -2351,8 +2351,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 try {
                     mCRLRepository.updateExpiredCerts(mId, mExpiredCerts);
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_EXPIRED_CERT", mId, e.toString()));
+                    logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_EXPIRED_CERT", mId, e.toString()), e);
                 }
             }
         }
@@ -2367,7 +2366,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         mRevokedCerts, mUnrevokedCerts, mExpiredCerts);
                 mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()), e);
             }
         }
     }
@@ -2805,7 +2804,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         } catch (EBaseException e) {
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA", e.toString());
             logger.error(message, e);
-            log(ILogger.LL_FAILURE, message);
             mDeltaCRLSize = -1;
             signedAuditLogger.log(DeltaCRLGenerationEvent.createFailureEvent(
                     getAuditSubjectID(),
@@ -2815,7 +2813,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         } catch (Throwable e) {
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString());
             logger.error(message, e);
-            log(ILogger.LL_FAILURE, message);
             mDeltaCRLSize = -1;
             signedAuditLogger.log(DeltaCRLGenerationEvent.createFailureEvent(
                     getAuditSubjectID(),
@@ -2833,7 +2830,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         } catch (Throwable e) {
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString());
             logger.error(message, e);
-            log(ILogger.LL_FAILURE, message);
             signedAuditLogger.log(new DeltaCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
         }
     }
@@ -2962,7 +2958,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mUpdatingCRL = CRL_UPDATE_DONE;
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_CRL", e.toString());
             logger.error(message, e);
-            log(ILogger.LL_FAILURE, message);
             signedAuditLogger.log(FullCRLGenerationEvent.createFailureEvent(
                     getAuditSubjectID(),
                     e.getMessage()));
@@ -2972,7 +2967,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mUpdatingCRL = CRL_UPDATE_DONE;
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString());
             logger.error(message, e);
-            log(ILogger.LL_FAILURE, message);
             signedAuditLogger.log(FullCRLGenerationEvent.createFailureEvent(
                     getAuditSubjectID(),
                     e.getMessage()));
@@ -2991,7 +2985,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mUpdatingCRL = CRL_UPDATE_DONE;
             String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString());
             logger.error(message, e);
-            log(ILogger.LL_FAILURE, message);
             signedAuditLogger.log(new FullCRLPublishingEvent(getAuditSubjectID(), mCRLNumber, e.getMessage()));
             throw new ECAException(message, e);
         }
@@ -3150,6 +3143,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     if (mPublisherProcessor != null) {
                         r.setExtData(mCrlPublishStatus, IRequest.RES_SUCCESS);
                     }
+
                 } catch (EErrorPublishCRL e) {
                     // error already logged in updateCRLNow();
                     r.setExtData(mCrlUpdateStatus, IRequest.RES_SUCCESS);
@@ -3157,13 +3151,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         r.setExtData(mCrlPublishStatus, IRequest.RES_ERROR);
                         r.setExtData(mCrlPublishError, e);
                     }
+
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()));
+                    logger.warn(CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()), e);
                     r.setExtData(mCrlUpdateStatus, IRequest.RES_ERROR);
                     r.setExtData(mCrlUpdateError, e);
+
                 } catch (Exception e) {
                     String message = CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString());
-                    log(ILogger.LL_FAILURE, message);
                     logger.warn(message, e);
                     r.setExtData(mCrlUpdateStatus, IRequest.RES_ERROR);
                     r.setExtData(mCrlUpdateError,
