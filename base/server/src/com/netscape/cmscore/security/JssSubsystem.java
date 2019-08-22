@@ -93,10 +93,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.ICryptoSubsystem;
 import com.netscape.certsrv.security.KeyCertData;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
@@ -123,7 +121,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
     private static final String mId = ID;
     protected IConfigStore mConfig = null;
     private boolean mInited = false;
-    private Logger mLogger = null;
     private CryptoManager mCryptoManager = null;
     private SecureRandom random;
     private String obscureMethod = "zeroes";
@@ -275,8 +272,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
             throws EBaseException {
 
         logger.debug("JssSubsystem: initializing JSS subsystem");
-
-        mLogger = Logger.getLogger();
 
         if (mInited) {
             // This used to throw an exeception (e.g. - on Solaris).
@@ -547,10 +542,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
             }
         } catch (Exception e) {
         }
-    }
-
-    public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level, "JSS " + msg);
     }
 
     public String getInternalTokenName() throws EBaseException {
