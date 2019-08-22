@@ -159,12 +159,15 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
                         mDefStore = store;
                     }
                 }
+
             } catch (ClassNotFoundException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_SIGNING_UNIT", e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_OCSP_SIGNING_UNIT", e.toString()), e);
+
             } catch (InstantiationException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_SIGNING_UNIT", e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_OCSP_SIGNING_UNIT", e.toString()), e);
+
             } catch (IllegalAccessException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_SIGNING_UNIT", e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_OCSP_SIGNING_UNIT", e.toString()), e);
             }
 
         } catch (EBaseException e) {
@@ -196,7 +199,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         try {
             return mConfig.getString(PROP_STORE + "." + id + ".class", null);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_CLASSPATH", id, e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_OCSP_CLASSPATH", id, e.toString()), e);
             return null;
         }
     }
@@ -252,7 +255,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         try {
             caPubKey = (X509Key) mCert.get(X509CertImpl.PUBLIC_KEY);
         } catch (CertificateParsingException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_RETRIEVE_KEY", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_OCSP_RETRIEVE_KEY", e.toString()), e);
         }
         if (caPubKey == null) {
             return null; // something seriously wrong.
@@ -313,16 +316,13 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             logger.debug("in init - got CA name " + mName);
 
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_OCSP_SIGNING", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_OCSP_SIGNING", e.toString()), e);
+
         } catch (CertificateException e) {
-            logger.warn("OCSPAuthority: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()), e);
+
         } catch (TokenException e) {
-            logger.warn("OCSPAuthority: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()), e);
         }
     }
 
@@ -447,7 +447,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             return response;
 
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_SIGN_RESPONSE", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_OCSP_SIGN_RESPONSE", e.toString()), e);
             throw new EBaseException(e);
         }
 
@@ -520,7 +520,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * throws EBaseException
      * {
      * try {
-     * log(ILogger.LL_INFO, "start OCSP request");
+     * logger.info("start OCSP request");
      * TBSRequest tbsReq = request.getTBSRequest();
      *
      * Vector singleResponses = new Vector();
@@ -551,10 +551,10 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * new ResponseBytes(ResponseBytes.OCSP_BASIC,
      * new OCTET_STRING(ASN1Util.encode(basicRes))));
      *
-     * log(ILogger.LL_INFO, "done OCSP request");
+     * logger.info("done OCSP request");
      * return response;
      * } catch (Exception e) {
-     * log(ILogger.LL_FAILURE, "request processing failure " + e);
+     * logger.warn("request processing failure: " + e.getMessage(), e);
      * return null;
      * }
      * }
