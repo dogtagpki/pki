@@ -37,7 +37,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -126,7 +125,7 @@ public class PolicyMappingsExt extends APolicyRule
         mNumPolicyMappings = mConfig.getInteger(
                     PROP_NUM_POLICYMAPPINGS, DEF_NUM_POLICYMAPPINGS);
         if (mNumPolicyMappings < 1) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_ATTR_VALUE_2", NAME, ""));
+            logger.error(CMS.getLogMessage("BASE_INVALID_ATTR_VALUE_2", NAME, ""));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
                         PROP_NUM_POLICYMAPPINGS,
                         "value must be greater than or equal to 1"));
@@ -140,8 +139,7 @@ public class PolicyMappingsExt extends APolicyRule
             try {
                 mPolicyMaps[i] = new PolicyMap(subtreeName, mConfig, mEnabled);
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, NAME + ": " +
-                        CMS.getLogMessage("POLICY_ERROR_CREATE_MAP", e.toString()));
+                logger.error(NAME + ": " + CMS.getLogMessage("POLICY_ERROR_CREATE_MAP", e.toString()), e);
                 throw e;
             }
         }
@@ -245,13 +243,12 @@ public class PolicyMappingsExt extends APolicyRule
                     PolicyMappingsExtension.NAME, mPolicyMappingsExtension);
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_PROCESS_POLICYMAP_EXT", e.getMessage()));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_PROCESS_POLICYMAP_EXT", e.getMessage()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, e.getMessage());
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("CA_CERT_INFO_ERROR", e.toString()), e);
 
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, "Certificate Info Error");
