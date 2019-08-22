@@ -29,10 +29,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -65,8 +63,6 @@ public class AttributePresentConstraints extends APolicyRule
 
     protected String mName = null;
     protected String mImplName = null;
-
-    private Logger mLogger = Logger.getLogger();
 
     private IConfigStore mConfig = null;
     private IConfigStore mLdapConfig = null;
@@ -283,7 +279,7 @@ public class AttributePresentConstraints extends APolicyRule
             String uid = r.getExtDataInString(IRequest.HTTP_PARAMS, "uid");
 
             if (uid == null) {
-                log(ILogger.LL_INFO, "did not find UID parameter in request " + r.getRequestId());
+                logger.error("did not find UID parameter in request " + r.getRequestId());
                 setError(r, CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"), "");
                 return PolicyResult.REJECTED;
             }
@@ -297,7 +293,7 @@ public class AttributePresentConstraints extends APolicyRule
                                 LDAPv2.SCOPE_SUB, "(uid=" + uid + ")", attrs, false);
 
                 if (!searchResult.hasMoreElements()) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
+                    logger.error(CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
                     setError(r, CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"), "");
                     return PolicyResult.REJECTED;
                 }
@@ -310,7 +306,7 @@ public class AttributePresentConstraints extends APolicyRule
 
                 /* if attribute not present, reject the request */
                 if (attr == null) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", userdn));
+                    logger.error(CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", userdn));
                     setError(r, CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"), "");
                     return PolicyResult.REJECTED;
                 }
@@ -327,7 +323,7 @@ public class AttributePresentConstraints extends APolicyRule
                         }
                     }
                     if (matches == 0) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", userdn));
+                        logger.error(CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", userdn));
                         setError(r, CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"), "");
                         return PolicyResult.REJECTED;
                     }
@@ -336,7 +332,7 @@ public class AttributePresentConstraints extends APolicyRule
                 logger.debug("AttributePresentConstraints: Attribute is present for user: \"" + userdn + "\"");
 
             } catch (LDAPException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_PIN_UNAUTHORIZED"));
+                logger.error(CMS.getLogMessage("POLICY_PIN_UNAUTHORIZED"), e);
                 setError(r, CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"), "");
                 return PolicyResult.REJECTED;
             }
@@ -396,13 +392,4 @@ public class AttributePresentConstraints extends APolicyRule
          params.addElement("ldap.maxConns=5");
          */
     }
-
-    protected void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, "AttributePresentConstraints: " + msg);
-    }
-
 }
