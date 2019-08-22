@@ -189,23 +189,23 @@ public final class SigningUnit implements ISigningUnit {
             mInited = true;
 
         } catch (java.security.cert.CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_CA_CERT", e.getMessage()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_CA_CERT", e.getMessage()), e);
             throw new ECAException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
 
         } catch (NotInitializedException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_TOKEN_INIT", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_TOKEN_INIT", e.toString()), e);
             throw new ECAException(CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"), e);
 
         } catch (NoSuchTokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_TOKEN_NOT_FOUND", tokenname, e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_TOKEN_NOT_FOUND", tokenname, e.toString()), e);
             throw new ECAException(CMS.getUserMessage("CMS_CA_TOKEN_NOT_FOUND", tokenname), e);
 
         } catch (CAMissingCertException | CAMissingKeyException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_CERT_NOT_FOUND", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_CERT_NOT_FOUND", e.toString()), e);
             throw e;  // re-throw
 
         } catch (TokenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
             throw new ECAException(CMS.getUserMessage("CMS_CA_TOKEN_ERROR"), e);
         }
     }
@@ -226,7 +226,7 @@ public final class SigningUnit implements ISigningUnit {
 
             sigalg = mapAlgorithmToJss(algname);
             if (sigalg == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, ""));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, ""));
                 throw new ECAException(
                         CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname));
             }
@@ -234,17 +234,20 @@ public final class SigningUnit implements ISigningUnit {
 
             signer.initSign(mPrivk);
             return sigalg;
+
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, e.toString()), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
+
         } catch (TokenException e) {
             // from get signature context or from initSign
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, e.toString()), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
+
         } catch (InvalidKeyException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, e.toString()), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED_FOR_KEY", algname), e);
         }
@@ -296,21 +299,24 @@ public final class SigningUnit implements ISigningUnit {
             }
 
             return signer.sign();
+
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname), e);
+
         } catch (TokenException e) {
             // from get signature context or from initSign
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
             // XXX fix this exception later.
             throw new EBaseException(e);
+
         } catch (InvalidKeyException e) {
             // XXX fix this exception later.
             throw new EBaseException(e);
+
         } catch (SignatureException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            logger.error("SigningUnit.sign: " + e.getMessage(), e);
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
 
             //For this one case, show the eventual erorr message that will be written to the system error
             //log in case of a Signature failure.
@@ -333,7 +339,7 @@ public final class SigningUnit implements ISigningUnit {
             SignatureAlgorithm signAlg = mapAlgorithmToJss(algname);
 
             if (signAlg == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, ""));
+                logger.error(CMS.getLogMessage("CMSCORE_CA_SIGNING_ALG_NOT_SUPPORTED", algname, ""));
                 throw new ECAException(
                         CMS.getUserMessage("CMS_CA_SIGNING_ALGOR_NOT_SUPPORTED", algname));
             }
@@ -343,21 +349,25 @@ public final class SigningUnit implements ISigningUnit {
             signer.initVerify(mPubk);
             signer.update(data);
             return signer.verify(signature);
+
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
             // XXX fix this exception later.
             throw new EBaseException(e);
+
         } catch (TokenException e) {
             // from get signature context or from initSign
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
             // XXX fix this exception later.
             throw new EBaseException(e);
+
         } catch (InvalidKeyException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
             // XXX fix this exception later.
             throw new EBaseException(e);
+
         } catch (SignatureException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             engine.checkForAndAutoShutdown();
             // XXX fix this exception later.
             throw new EBaseException(e);
@@ -385,8 +395,7 @@ public final class SigningUnit implements ISigningUnit {
     public void setDefaultAlgorithm(String algorithm) throws EBaseException {
         mConfig.putString(PROP_DEFAULT_SIGNALG, algorithm);
         mDefSigningAlgname = algorithm;
-        log(ILogger.LL_INFO,
-                "Default signing algorithm is set to " + algorithm);
+        logger.info("Default signing algorithm is set to " + algorithm);
     }
 
     /**
@@ -401,7 +410,7 @@ public final class SigningUnit implements ISigningUnit {
         } catch (java.security.InvalidKeyException e) {
             String msg = "Invalid encoding in CA signing key.";
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", msg));
+            logger.error(CMS.getLogMessage("OPERATION_ERROR", msg), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg), e);
         }
 
