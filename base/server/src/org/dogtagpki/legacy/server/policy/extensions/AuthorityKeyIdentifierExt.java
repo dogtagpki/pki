@@ -39,7 +39,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -138,8 +137,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
         else if (mAltKeyIdType.equalsIgnoreCase(ALT_KEYID_TYPE_NONE))
             mAltKeyIdType = ALT_KEYID_TYPE_NONE;
         else {
-            log(ILogger.LL_FAILURE, NAME +
-                    CMS.getLogMessage("CA_UNKNOWN_ALT_KEY_ID_TYPE", mAltKeyIdType));
+            logger.error(NAME + CMS.getLogMessage("CA_UNKNOWN_ALT_KEY_ID_TYPE", mAltKeyIdType));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", PROP_ALT_KEYID_TYPE,
                         "value must be one of " + ALT_KEYID_TYPE_SPKISHA1 + ", " + ALT_KEYID_TYPE_NONE));
         }
@@ -153,12 +151,11 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
             String msg = NAME + ": " +
                     "Cannot find the Certificate Manager or Registration Manager";
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
+            logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg));
         }
         if (!(certAuthority instanceof ICertificateAuthority)) {
-            log(ILogger.LL_FAILURE, NAME +
-                    CMS.getLogMessage("POLICY_INVALID_POLICY", NAME));
+            logger.error(NAME + CMS.getLogMessage("POLICY_INVALID_POLICY", NAME));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
                         NAME + " policy can only be used in a Certificate Authority."));
         }
@@ -180,8 +177,8 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
                 String msg = NAME + ": " +
                         "Error forming Authority Key Identifier extension: " + e;
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_ERROR_AUTHORITY_KEY_ID_1", NAME));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg));
+                logger.error(CMS.getLogMessage("POLICY_ERROR_AUTHORITY_KEY_ID_1", NAME), e);
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg), e);
             }
         } else {
         }
@@ -267,14 +264,12 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
             return PolicyResult.ACCEPTED;
 
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.toString()));
+            logger.error(CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.toString()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR",
                     NAME, e.getMessage()), "");
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("BASE_INVALID_CERT", e.getMessage()));
+            logger.error(CMS.getLogMessage("BASE_INVALID_CERT", e.getMessage()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR",
                     NAME, "Certificate Info Error"), "");
             return PolicyResult.REJECTED;
@@ -304,14 +299,13 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
                 String msg = "Bad CA certificate encountered. " +
                         "TBS Certificate missing.";
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_CERT_FORMAT"));
+                logger.error(CMS.getLogMessage("BASE_INVALID_CERT_FORMAT"));
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", NAME + ": " + msg));
             }
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, NAME + ": " +
-                    CMS.getLogMessage("BASE_DECODE_CERT_FAILED_1", e.toString()));
+            logger.error(NAME + ": " + CMS.getLogMessage("BASE_DECODE_CERT_FAILED_1", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                        NAME + " Error decoding the CA Certificate: " + e));
+                        NAME + " Error decoding the CA Certificate: " + e), e);
         }
 
         // get Key Id from CA's Subject Key Id extension in CA's CertInfo.
@@ -384,8 +378,8 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
             String msg = NAME + ": " +
                     "Bad Subject Key Identifier Extension found. Error: " + e;
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_ERROR_AUTHORITY_KEY_ID_1", NAME));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_AUTHORITY_KEY_ID_1", NAME), e);
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", msg), e);
         }
         return keyId;
     }
