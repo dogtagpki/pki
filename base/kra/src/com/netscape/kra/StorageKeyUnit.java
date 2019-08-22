@@ -66,7 +66,6 @@ import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IJoinShares;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IShare;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.cms.servlet.key.KeyRecordParser;
@@ -244,7 +243,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             mManager = CryptoManager.getInstance();
             mToken = getToken();
         } catch (NotInitializedException e) {
-            mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_STORAGE_INIT", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_STORAGE_INIT", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
 
@@ -271,9 +270,9 @@ public class StorageKeyUnit extends EncryptionUnit implements
                     // pick up cert by nickName
 
                 } catch (IOException e) {
-                    mKRA.log(ILogger.LL_INFO,
-                            CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
+                    logger.error(CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()), e);
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+
                 } finally {
                     try {
                         if (fi != null)
@@ -291,19 +290,20 @@ public class StorageKeyUnit extends EncryptionUnit implements
                             mCert = certs[i];
                         }
                     }
+
                     if (mCert == null) {
-                        mKRA.log(ILogger.LL_FAILURE,
-                                "Storage Cert could not be initialized. No cert in token matched kra-cert file");
+                        logger.error("Storage Cert could not be initialized. No cert in token matched kra-cert file");
                         throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", "mCert == null"));
                     } else {
-                        mKRA.log(ILogger.LL_INFO, "Using Storage Cert " + mCert.getSubjectDN());
+                        logger.info("Using Storage Cert " + mCert.getSubjectDN());
                     }
+
                 } catch (CertificateEncodingException e) {
-                    mKRA.log(ILogger.LL_FAILURE, "Error encoding cert ");
+                    logger.error("Error encoding cert: " + e.getMessage(), e);
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+
                 } catch (TokenException e) {
-                    mKRA.log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
+                    logger.error(CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()), e);
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
                 }
             }
@@ -331,26 +331,26 @@ public class StorageKeyUnit extends EncryptionUnit implements
                     mCert = mManager.findCertByNickname(
                             config.getString(PROP_NICKNAME));
                 }
+
             } catch (IOException e) {
-                mKRA.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+                logger.error(CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()), e);
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()), e);
+
             } catch (TokenException e) {
-                mKRA.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+                logger.error(CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()), e);
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()), e);
+
             } catch (ObjectNotFoundException e) {
-                mKRA.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
+                logger.error(CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()), e);
                 // XXX - this import wont work
                 try {
                     mCert = mManager.importCertPackage(certData,
                                 "kraStorageCert");
                 } catch (Exception ex) {
-                    mKRA.log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_KRA_STORAGE_IMPORT_CERT", e.toString()));
+                    logger.error(CMS.getLogMessage("CMSCORE_KRA_STORAGE_IMPORT_CERT", e.toString()), ex);
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ex.toString()));
                 }
+
             } finally {
                 if (fi != null) {
                     try {
@@ -373,9 +373,9 @@ public class StorageKeyUnit extends EncryptionUnit implements
                     fi.read(mPrivateKeyData);
 
                 } catch (IOException e) {
-                    mKRA.log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_PRIVATE", e.toString()));
+                    logger.error(CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_PRIVATE", e.toString()), e);
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", e.toString()));
+
                 } finally {
                     if (fi != null) {
                         try {
@@ -396,11 +396,8 @@ public class StorageKeyUnit extends EncryptionUnit implements
                 // read m, n and no of identifier
                 mStorageConfig = engine.createFileConfigStore(mTokenFile);
             } catch (EBaseException e) {
-                mKRA.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_MN",
-                                e.toString()));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
-
+                logger.error(CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_MN", e.toString()), e);
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"), e);
             }
         }
 
@@ -412,9 +409,8 @@ public class StorageKeyUnit extends EncryptionUnit implements
                 logger.debug("mCert = " + mCert);
             }
         } catch (Exception e) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()), e);
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()), e);
         }
 
     }
@@ -566,7 +562,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
                     }
                 }
             } catch (Exception e) {
-                mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGIN", e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGIN", e.toString()), e);
             }
 
         } else {
@@ -576,7 +572,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
                 mPrivateKey = unwrapStorageKey(mToken, sk,
                             mPrivateKeyData, getPublicKey());
             } catch (Exception e) {
-                mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGIN", e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGIN", e.toString()), e);
             }
             if (mPrivateKey == null) {
                 mPrivateKey = getPrivateKey();
@@ -605,7 +601,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
                 }
             }
         } catch (Exception e) {
-            mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGOUT", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGOUT", e.toString()), e);
 
         }
         mPrivateKey = null;
@@ -735,8 +731,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             mStorageConfig.commit(false);
             return true;
         } catch (EBaseException e) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_CHANGE_MN", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_KRA_STORAGE_CHANGE_MN", e.toString()), e);
         }
         return false;
     }
@@ -1075,10 +1070,9 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
             return pwd;
         } catch (Exception ee) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_RECONSTRUCT", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_STORAGE_RECONSTRUCT", e.toString()), ee);
             throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PASSWORD",
-                        ee.toString()));
+                        ee.toString()), ee);
         }
     }
 
