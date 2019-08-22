@@ -163,8 +163,7 @@ public class RecoveryService implements IService {
             statsSub.startTiming("recovery", true /* main action */);
         }
 
-        logger.debug("KRA services recovery request");
-        mKRA.log(ILogger.LL_INFO, "KRA services recovery request");
+        logger.info("KRA services recovery request");
 
         // byte publicKey[] = (byte[])request.get(ATTR_PUBLIC_KEY_DATA);
         // X500Name owner = (X500Name)request.get(ATTR_OWNER_NAME);
@@ -180,7 +179,8 @@ public class RecoveryService implements IService {
         // retrieve based on serial no
         BigInteger serialno = request.getExtDataInBigInteger(ATTR_SERIALNO);
 
-        mKRA.log(ILogger.LL_INFO, "KRA reading key record");
+        logger.info("KRA reading key record");
+
         if (statsSub != null) {
             statsSub.startTiming("get_key");
         }
@@ -199,13 +199,13 @@ public class RecoveryService implements IService {
         byte inputPubData[] = x509cert.getPublicKey().getEncoded();
 
         if (inputPubData.length != pubData.length) {
-            mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
             throw new EKRAException(
                     CMS.getUserMessage("CMS_KRA_PUBLIC_KEY_NOT_MATCHED"));
         }
         for (int i = 0; i < pubData.length; i++) {
             if (pubData[i] != inputPubData[i]) {
-                mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
+                logger.error(CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
                 throw new EKRAException(
                         CMS.getUserMessage("CMS_KRA_PUBLIC_KEY_NOT_MATCHED"));
             }
@@ -254,8 +254,7 @@ public class RecoveryService implements IService {
                 if (verifyKeyPair(pubData, privateKeyData) == false) {
                     JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(privateKeyData);
-                    mKRA.log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
+                    logger.error(CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
                     throw new EKRAException(
                             CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
                 }
@@ -314,9 +313,8 @@ public class RecoveryService implements IService {
                 mKRA.getStorageKeyUnit().logout();
             }
         }
-        mKRA.log(ILogger.LL_INFO, "key " +
-                serialno.toString() +
-                " recovered");
+
+        logger.info("key " + serialno + " recovered");
 
         // for audit log
         String authMgr = AuditFormat.NOAUTH;
@@ -434,7 +432,7 @@ public class RecoveryService implements IService {
                         true /* temporary */,
                         keyRecord.getWrappingParams(mKRA.getStorageKeyUnit().getOldWrappingParams()));
             } catch (Exception e) {
-                mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"));
+                logger.error(CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"), e);
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
                         "private key unwrapping failure"), e);
             }
@@ -473,9 +471,8 @@ public class RecoveryService implements IService {
             }
             String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
 
-            // add certificate
-            mKRA.log(ILogger.LL_INFO, "KRA adds certificate to P12");
-            logger.debug("RecoverService: createPFX() adds certificate to P12");
+            logger.info("KRA adds certificate to P12");
+
             SEQUENCE encSafeContents = new SEQUENCE();
             ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
             String nickname = request.getExtDataInString(ATTR_NICKNAME);
@@ -493,9 +490,8 @@ public class RecoveryService implements IService {
 
             encSafeContents.addElement(certBag);
 
-            // add key
-            mKRA.log(ILogger.LL_INFO, "KRA adds key to P12");
-            logger.debug("RecoverService: createPFX() adds key to P12");
+            logger.info("KRA adds key to P12");
+
             char[] pwdChar = pwd.toCharArray();
             pass = new
                     org.mozilla.jss.util.Password(
@@ -593,7 +589,7 @@ public class RecoveryService implements IService {
             logger.debug("RecoverService: createPFX() completed.");
 
         } catch (Exception e) {
-            mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_CONSTRUCT_P12", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_CONSTRUCT_P12", e.toString()), e);
             logger.error("RecoverService: createPFX() exception caught:" + e, e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1", e.toString()));
 
@@ -620,7 +616,8 @@ public class RecoveryService implements IService {
 
             mStorageUnit.login(creds);
         }
-        mKRA.log(ILogger.LL_INFO, "KRA decrypts internal private");
+
+        logger.info("KRA decrypts internal private");
 
         try {
              byte[] privateKeyData = mStorageUnit.decryptInternalPrivate(
@@ -633,7 +630,7 @@ public class RecoveryService implements IService {
 
              return privateKeyData;
         } catch (Exception e) {
-            mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"), e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "no private key"));
         }
     }
@@ -662,8 +659,8 @@ public class RecoveryService implements IService {
             }
             String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
 
-            // add certificate
-            mKRA.log(ILogger.LL_INFO, "KRA adds certificate to P12");
+            logger.info("KRA adds certificate to P12");
+
             SEQUENCE encSafeContents = new SEQUENCE();
             ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
             String nickname = request.getExtDataInString(ATTR_NICKNAME);
@@ -682,7 +679,7 @@ public class RecoveryService implements IService {
             encSafeContents.addElement(certBag);
 
             // add key
-            mKRA.log(ILogger.LL_INFO, "KRA adds key to P12");
+            logger.info("KRA adds key to P12");
             char[] pwdChars = pwd.toCharArray();
             pass = new org.mozilla.jss.util.Password(
                     pwdChars);
@@ -757,9 +754,11 @@ public class RecoveryService implements IService {
 
             // put final PKCS12 into volatile request
             params.put(ATTR_PKCS12, fos.toByteArray());
+
         } catch (Exception e) {
-            mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_CONSTRUCT_P12", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_CONSTRUCT_P12", e.toString()), e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1", e.toString()));
+
         } finally {
             if(pass != null)
                 pass.clear();
@@ -783,13 +782,13 @@ public class RecoveryService implements IService {
 
             md.update(certDer);
             return md.digest();
+
         } catch (CertificateEncodingException e) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_CREAT_KEY_ID", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_CREAT_KEY_ID", e.toString()), e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_KEYID_FAILED_1", e.toString()));
+
         } catch (NoSuchAlgorithmException e) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_CREAT_KEY_ID", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_CREAT_KEY_ID", e.toString()), e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_KEYID_FAILED_1", e.toString()));
         }
     }
@@ -818,9 +817,9 @@ public class RecoveryService implements IService {
             localKeyAttr.addElement(localKeySet);
             attrs.addElement(localKeyAttr);
             return attrs;
+
         } catch (CharConversionException e) {
-            mKRA.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_CREAT_KEY_BAG", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_CREAT_KEY_BAG", e.toString()), e);
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_KEYBAG_FAILED_1", e.toString()));
         }
     }
