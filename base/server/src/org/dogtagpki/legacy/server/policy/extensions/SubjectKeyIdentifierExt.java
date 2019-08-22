@@ -40,7 +40,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -137,8 +136,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
         else if (mKeyIdType.equalsIgnoreCase(KEYID_TYPE_SPKISHA1))
             mKeyIdType = KEYID_TYPE_SPKISHA1;
         else {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("KRA_UNKNOWN_KEY_ID_TYPE", mKeyIdType));
+            logger.error(CMS.getLogMessage("KRA_UNKNOWN_KEY_ID_TYPE", mKeyIdType));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
                         PROP_KEYID_TYPE,
                         "value must be one of " +
@@ -236,13 +234,12 @@ public class SubjectKeyIdentifierExt extends APolicyRule
             logger.debug("SubjectKeyIdentifierExt: added subject key id ext to request " + req.getRequestId());
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR,NAME", e.getMessage()));
+            logger.error(CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR,NAME", e.getMessage()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, e.getMessage());
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
+            logger.error(CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, "Certificate Info Error");
             return PolicyResult.REJECTED;
@@ -298,22 +295,20 @@ public class SubjectKeyIdentifierExt extends APolicyRule
                     (CertificateX509Key) certInfo.get(X509CertInfo.KEY);
 
             if (certKey == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_MISSING_KEY_1", NAME));
+                logger.error(CMS.getLogMessage("POLICY_MISSING_KEY_1", NAME));
                 throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_MISSING_KEY", NAME));
             }
             key = (X509Key) certKey.get(CertificateX509Key.KEY);
             if (key == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_MISSING_KEY_1", NAME));
+                logger.error(CMS.getLogMessage("POLICY_MISSING_KEY_1", NAME));
                 throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_MISSING_KEY", NAME));
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_GET_KEY_FROM_CERT", e.toString()));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_GET_KEY_FROM_CERT", e.toString()), e);
             throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
+                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME), e);
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_GET_KEY_FROM_CERT", e.toString()));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_GET_KEY_FROM_CERT", e.toString()), e);
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
         }
@@ -328,10 +323,9 @@ public class SubjectKeyIdentifierExt extends APolicyRule
             octetString[0] &= (0x08f & octetString[0]);
             keyId = new KeyIdentifier(octetString);
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME), e);
             throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
+                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME), e);
         }
         return keyId;
     }
