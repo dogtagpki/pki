@@ -36,7 +36,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -54,6 +53,8 @@ import com.netscape.cmscore.apps.CMS;
  */
 public class PrivateKeyUsagePeriodExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PrivateKeyUsagePeriodExt.class);
 
     private final static String PROP_NOT_BEFORE = "notBefore";
     private final static String PROP_NOT_AFTER = "notAfter";
@@ -211,8 +212,7 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
         } catch (Exception e) {
             if (e instanceof RuntimeException)
                 throw (RuntimeException) e;
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_CREATE_PRIVATE_KEY_EXT", e.toString()));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_CREATE_PRIVATE_KEY_EXT", e.toString()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR"), NAME);
             return PolicyResult.REJECTED;
         }

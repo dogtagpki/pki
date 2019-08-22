@@ -34,7 +34,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -146,11 +145,10 @@ public class PolicyConstraintsExt extends APolicyRule
             logger.debug("PolicyConstraintsExt: Created Policy Constraints Extension: " +
                             mPolicyConstraintsExtension);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_CANT_INIT_POLICY_CONST_EXT", e.toString()));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_CANT_INIT_POLICY_CONST_EXT", e.toString()), e);
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                            "Could not init Policy Constraints Extension. Error: " + e));
+                            "Could not init Policy Constraints Extension. Error: " + e), e);
         }
 
         // form instance params
@@ -233,13 +231,12 @@ public class PolicyConstraintsExt extends APolicyRule
             logger.debug("PolicyConstraintsExt: added our policy constraints extension");
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_CANT_PROCESS_POLICY_CONST_EXT", e.toString()));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_CANT_PROCESS_POLICY_CONST_EXT", e.toString()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, e.getMessage());
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("CA_CERT_INFO_ERROR", e.toString()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, "Certificate Info Error");
             return PolicyResult.REJECTED;
