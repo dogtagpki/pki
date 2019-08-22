@@ -28,22 +28,20 @@ import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
-
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cmscore.apps.CMS;
-
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Authority Information Access extension policy.
@@ -82,6 +80,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  */
 public class AuthInfoAccessExt extends APolicyRule implements
         IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthInfoAccessExt.class);
+
     protected static final String PROP_CRITICAL =
             "critical";
     protected static final String PROP_AD =
@@ -235,7 +236,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
 
             certInfo = ci[j];
             if (certInfo == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, ""));
+                logger.error(CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, ""));
                 setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR",
                         NAME, "Configuration Info Error"), "");
                 return PolicyResult.REJECTED; // unrecoverable error.
@@ -263,9 +264,9 @@ public class AuthInfoAccessExt extends APolicyRule implements
                     // check to see if AIA is already exist
                     try {
                         extensions.delete(AuthInfoAccessExtension.NAME);
-                        log(ILogger.LL_WARN,
-                                "Previous extension deleted: " + AuthInfoAccessExtension.NAME);
+                        logger.warn("Previous extension deleted: " + AuthInfoAccessExtension.NAME);
                     } catch (IOException ex) {
+                        logger.warn("Unable to delete extension: " + AuthInfoAccessExtension.NAME, ex);
                     }
                 }
 
@@ -284,17 +285,17 @@ public class AuthInfoAccessExt extends APolicyRule implements
                 extensions.set(AuthInfoAccessExtension.NAME, aiaExt);
 
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()));
+                logger.error(CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()), e);
                 setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR",
                         NAME, e.getMessage()), "");
                 return PolicyResult.REJECTED; // unrecoverable error.
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()));
+                logger.error(CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()), e);
                 setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR",
                         NAME, "Configuration Info Error"), "");
                 return PolicyResult.REJECTED; // unrecoverable error.
             } catch (CertificateException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()));
+                logger.error(CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()), e);
                 setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR",
                         NAME, "Certificate Info Error"), "");
                 return PolicyResult.REJECTED; // unrecoverable error.
