@@ -203,11 +203,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         }
         logger.debug("KeyRecoveryAuthority Entropy bits = " + mEntropyBitsPerKeyPair);
         if (mEntropyBitsPerKeyPair == 0) {
-            //log(ILogger.LL_INFO,
-            //CMS.getLogMessage("CMSCORE_KRA_ENTROPY_COLLECTION_DISABLED"));
+            //logger.info(CMS.getLogMessage("CMSCORE_KRA_ENTROPY_COLLECTION_DISABLED"));
         } else {
-            //log(ILogger.LL_INFO,
-            //CMS.getLogMessage("CMSCORE_KRA_ENTROPY_COLLECTION_ENABLED"));
+            //logger.info(CMS.getLogMessage("CMSCORE_KRA_ENTROPY_COLLECTION_ENABLED"));
             logger.debug("KeyRecoveryAuthority about to add Entropy");
             addEntropy(false);
             logger.debug("KeyRecoveryAuthority back from add Entropy");
@@ -228,8 +226,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         } catch (Exception e) {
             logger.warn("KeyRecoveryAuthority: " + e.getMessage(), e);
             if (logflag) {
-                log(ILogger.LL_INFO,
-                        CMS.getLogMessage("CMSCORE_KRA_ENTROPY_ERROR",
+                logger.warn(CMS.getLogMessage("CMSCORE_KRA_ENTROPY_ERROR",
                                 e.getMessage()));
             }
         }
@@ -242,8 +239,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             logger.debug("KeyRecoveryAuthority returning - warning - entropy took too long (ms=" +
                     duration + ")");
             if (logflag) {
-                log(ILogger.LL_INFO,
-                        CMS.getLogMessage("CMSCORE_KRA_ENTROPY_BLOCKED_WARNING",
+                logger.warn(CMS.getLogMessage("CMSCORE_KRA_ENTROPY_BLOCKED_WARNING",
                                 "" + (int) duration));
             }
         }
@@ -356,7 +352,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         initEntropy(mConfig);
         logger.debug("KeyRecoveryAuthority: completed init of entropy");
 
-        systemLogger.log(ILogger.LL_INFO, mName.toString() + " is started");
+        logger.info(mName.toString() + " is started");
 
         // setup the KRA request queue
         IService service = new KRAService(this);
@@ -464,7 +460,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             mKeyDB.shutdown();
         }
 
-        systemLogger.log(ILogger.LL_INFO, mName.toString() + " is stopped");
+        logger.info(mName + " is stopped");
 
         mInitialized = false;
     }
@@ -1263,8 +1259,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             r.setExtData(RecoveryService.ATTR_ENCRYPTION_CERTS,
                     certChainOut.toByteArray());
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    "Error encoding certificate chain");
+            logger.warn("Error encoding certificate chain", e);
         }
 
         r.setExtData(RecoveryService.ATTR_SIGNING_CERT, signingCert);
@@ -1276,8 +1271,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             r.setExtData(RecoveryService.ATTR_OWNER_NAME,
                     ownerNameOut.toByteArray());
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    "Error encoding X500Name for owner name");
+            logger.warn("Error encoding X500Name for owner name", e);
         }
 
         queue.processRequest(r);
@@ -1441,22 +1435,20 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                     mReqInQListener = (IRequestListener) Class.forName(requestInQListenerClassName).newInstance();
                     mReqInQListener.init(this, nc);
                 } catch (Exception e1) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_KRA_REGISTER_LISTENER", requestInQListenerClassName));
+                    logger.warn(CMS.getLogMessage("CMSCORE_KRA_REGISTER_LISTENER", requestInQListenerClassName), e1);
                 }
             } else {
-                log(ILogger.LL_INFO,
-                        "No KRA notification Module configuration found");
+                logger.warn("No KRA notification Module configuration found");
             }
+
         } catch (EPropertyNotFound e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_NOTIFY_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_KRA_NOTIFY_ERROR", e.toString()), e);
+
         } catch (EListenersException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_NOTIFY_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_KRA_NOTIFY_ERROR", e.toString()), e);
+
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_NOTIFY_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_KRA_NOTIFY_ERROR", e.toString()), e);
         }
     }
 
@@ -1474,15 +1466,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             if (raname != null) {
                 radn = new X500Name(raname);
             }
+
         } catch (IOException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_KRA,
-                ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSCORE_KRA_INVALID_RA_NAME", raname, e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_KRA_INVALID_RA_NAME", raname, e.toString()), e);
+
         } catch (EBaseException e) {
             // ignore - set to null.
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_KRA,
-                ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSCORE_KRA_INVALID_RA_SETUP", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_KRA_INVALID_RA_SETUP", e.toString()), e);
         }
         return new X500Name[] { radn };
     }
