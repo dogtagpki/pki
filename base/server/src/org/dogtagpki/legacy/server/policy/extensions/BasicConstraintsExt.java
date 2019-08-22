@@ -40,7 +40,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
@@ -113,13 +112,12 @@ public class BasicConstraintsExt extends APolicyRule
 
         if (certAuthority == null) {
             // should never get here.
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
+            logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
                         "Cannot find the Certificate Manager or Registration Manager"));
         }
         if (certAuthority instanceof IRegistrationAuthority) {
-            log(ILogger.LL_WARN,
-                    "default basic constraints extension path len to -1.");
+            logger.warn("default basic constraints extension path len to -1.");
             mCAPathLen = -1;
         } else {
             CertificateChain caChain = certAuthority.getCACertChain();
@@ -141,8 +139,7 @@ public class BasicConstraintsExt extends APolicyRule
             mDefaultMaxPathLen = mCAPathLen - 1;
         else // (mCAPathLen == 0)
         {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("POLICY_PATHLEN_ZERO"));
+            logger.warn(CMS.getLogMessage("POLICY_PATHLEN_ZERO"));
             //return;
         }
 
@@ -154,8 +151,7 @@ public class BasicConstraintsExt extends APolicyRule
             mIsCA = config.getBoolean(PROP_IS_CA, true);
             mMaxPathLen = config.getInteger(PROP_MAXPATHLEN);
             if (mMaxPathLen < 0) {
-                log(ILogger.LL_MISCONF,
-                        CMS.getLogMessage("POLICY_INVALID_MAXPATHLEN_4", "",
+                logger.error(CMS.getLogMessage("POLICY_INVALID_MAXPATHLEN_4", "",
                                 String.valueOf(mMaxPathLen)));
                 throw new EPolicyException(
                         CMS.getUserMessage("CMS_POLICY_INVALID_MAXPATHLEN_1",
@@ -165,8 +161,7 @@ public class BasicConstraintsExt extends APolicyRule
         } catch (EBaseException e) {
             if (!(e instanceof EPropertyNotFound) &&
                     !(e instanceof EPropertyNotDefined)) {
-                log(ILogger.LL_MISCONF,
-                        CMS.getLogMessage("POLICY_INVALID_MAXPATHLEN"));
+                logger.error(CMS.getLogMessage("POLICY_INVALID_MAXPATHLEN"));
                 throw e;
             }
 
@@ -188,16 +183,14 @@ public class BasicConstraintsExt extends APolicyRule
                         String.valueOf(mMaxPathLen) + "(unlimited)" :
                         String.valueOf(mMaxPathLen);
 
-                log(ILogger.LL_MISCONF,
-                        CMS.getLogMessage("POLICY_MAXPATHLEN_TOO_BIG_3", "",
+                logger.error(CMS.getLogMessage("POLICY_MAXPATHLEN_TOO_BIG_3", "",
                                 maxStr,
                                 String.valueOf(mCAPathLen)));
                 throw new EPolicyException(
                         CMS.getUserMessage("CMS_POLICY_MAXPATHLEN_TOO_BIG_1",
                                 NAME, maxStr, Integer.toString(mCAPathLen)));
             } else if (mCAPathLen == 0 && mMaxPathLen != 0) {
-                log(ILogger.LL_MISCONF,
-                        CMS.getLogMessage("POLICY_INVALID_MAXPATHLEN_2", "", String.valueOf(mMaxPathLen)));
+                logger.error(CMS.getLogMessage("POLICY_INVALID_MAXPATHLEN_2", "", String.valueOf(mMaxPathLen)));
                 throw new EPolicyException(
                         CMS.getUserMessage("CMS_POLICY_INVALID_MAXPATHLEN",
                                 NAME, String.valueOf(mMaxPathLen)));
@@ -295,9 +288,7 @@ public class BasicConstraintsExt extends APolicyRule
             try {
                 critExt = new BasicConstraintsExtension(isCA, mCritical, mMaxPathLen);
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("POLICY_ERROR_BASIC_CONSTRAINTS_2",
-                                e.toString()));
+                logger.error(CMS.getLogMessage("POLICY_ERROR_BASIC_CONSTRAINTS_2", e.toString()), e);
                 setError(req,
                         CMS.getUserMessage("CMS_POLICY_BASIC_CONSTRAINTS_ERROR", NAME), "");
                 return PolicyResult.REJECTED; // unrecoverable error.
@@ -319,8 +310,7 @@ public class BasicConstraintsExt extends APolicyRule
         if (mCAPathLen == 0) {
             // reject all subordinate CA cert requests because CA's
             // path length is 0.
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_NO_SUB_CA_CERTS_ALLOWED_1", NAME));
+            logger.error(CMS.getLogMessage("POLICY_NO_SUB_CA_CERTS_ALLOWED_1", NAME));
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_SUB_CA_CERTS_ALLOWED", NAME), "");
             return PolicyResult.REJECTED;
         }
@@ -334,8 +324,7 @@ public class BasicConstraintsExt extends APolicyRule
 
                 if (mMaxPathLen > -1) {
                     if (pathLen > mMaxPathLen || pathLen < 0) {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("POLICY_MAXPATHLEN_TOO_BIG_3", NAME, "unlimited",
+                        logger.error(CMS.getLogMessage("POLICY_MAXPATHLEN_TOO_BIG_3", NAME, "unlimited",
                                         String.valueOf(pathLen)));
                         if (pathLen < 0)
                             setError(req, CMS.getUserMessage("CMS_POLICY_MAXPATHLEN_TOO_BIG",
@@ -374,8 +363,7 @@ public class BasicConstraintsExt extends APolicyRule
                     try {
                         critExt = new BasicConstraintsExtension(isCA, mCritical, pathLen);
                     } catch (IOException e) {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("POLICY_ERROR_BASIC_CONSTRAINTS_1", NAME));
+                        logger.error(CMS.getLogMessage("POLICY_ERROR_BASIC_CONSTRAINTS_1", NAME), e);
                         setError(req,
                                 CMS.getUserMessage("CMS_POLICY_BASIC_CONSTRAINTS_ERROR", NAME), "");
                         return PolicyResult.REJECTED; // unrecoverable error.
@@ -423,8 +411,7 @@ public class BasicConstraintsExt extends APolicyRule
                             ((reqPathLen < 0) ?
                                     reqPathLenStr + "(unlimited)" : reqPathLenStr);
 
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("POLICY_PATHLEN_TOO_BIG_3", plenStr,
+                    logger.error(CMS.getLogMessage("POLICY_PATHLEN_TOO_BIG_3", plenStr,
                                     String.valueOf(mMaxPathLen)));
                     setError(req,
                             CMS.getUserMessage("CMS_POLICY_PATHLEN_TOO_BIG",
@@ -432,8 +419,7 @@ public class BasicConstraintsExt extends APolicyRule
                     return PolicyResult.REJECTED;
                 }
             } catch (NumberFormatException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("POLICY_INVALID_PATHLEN_FORMAT_2", NAME, reqPathLenStr));
+                logger.error(CMS.getLogMessage("POLICY_INVALID_PATHLEN_FORMAT_2", NAME, reqPathLenStr));
                 setError(req, CMS.getUserMessage("CMS_POLICY_INVALID_PATHLEN_FORMAT",
                         NAME, reqPathLenStr), "");
                 return PolicyResult.REJECTED;
@@ -444,8 +430,7 @@ public class BasicConstraintsExt extends APolicyRule
         try {
             newExt = new BasicConstraintsExtension(isCA, mCritical, reqPathLen);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_BASIC_CONSTRAINTS_2", e.toString()));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_BASIC_CONSTRAINTS_2", e.toString()), e);
             setError(req,
                     CMS.getUserMessage("CMS_POLICY_BASIC_CONSTRAINTS_ERROR", NAME), "");
             return PolicyResult.REJECTED; // unrecoverable error.
