@@ -23,16 +23,14 @@ set(APACHE_SUBSYSTEMS
 
 add_subdirectory(${APP_SERVER})
 add_subdirectory(tomcat)
-add_subdirectory(cms)
+add_subdirectory(src)
 add_subdirectory(cmsbundle)
-add_subdirectory(cmscore)
 add_subdirectory(test)
 
 # build server classes
 javac(pki-server-classes
     SOURCES
-        cms/src/*.java
-        cmscore/src/*.java
+        src/*.java
     CLASSPATH
         ${SLF4J_API_JAR} ${JAXB_API_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_HTTPCLIENT_JAR} ${COMMONS_IO_JAR} ${COMMONS_LANG_JAR}
@@ -58,30 +56,15 @@ jar(pki-cms-jar
     OPTIONS
         m
     PARAMS
-        ${CMAKE_CURRENT_BINARY_DIR}/cms/src/pki-cms.mf
+        ${CMAKE_CURRENT_BINARY_DIR}/src/pki-cms.mf
     INPUT_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/classes
     FILES
         com/netscape/cms/*
-        org/dogtagpki/legacy/server/policy/*
-        org/dogtagpki/server/*
-    DEPENDS
-        pki-server-classes
-)
-
-# build pki-cmscore.jar
-jar(pki-cmscore-jar
-    CREATE
-        ${CMAKE_BINARY_DIR}/dist/pki-cmscore.jar
-    OPTIONS
-        m
-    PARAMS
-        ${CMAKE_CURRENT_BINARY_DIR}/cmscore/src/pki-cmscore.mf
-    INPUT_DIR
-        ${CMAKE_CURRENT_BINARY_DIR}/classes
-    FILES
         com/netscape/cmscore/*
         org/dogtagpki/legacy/core/policy/*
+        org/dogtagpki/legacy/server/policy/*
+        org/dogtagpki/server/*
     DEPENDS
         pki-server-classes
 )
@@ -150,7 +133,6 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${SLF4J_JDK14_JAR} webapp/lib/slf4j-jdk14.jar
     COMMAND ln -sf /usr/share/java/pki/pki-certsrv.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-certsrv.jar
     COMMAND ln -sf /usr/share/java/pki/pki-cms.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cms.jar
-    COMMAND ln -sf /usr/share/java/pki/pki-cmscore.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmscore.jar
     COMMAND ln -sf /usr/share/java/pki/pki-cmsbundle.jar ${CMAKE_CURRENT_BINARY_DIR}/webapp/lib/pki-cmsbundle.jar
 )
 

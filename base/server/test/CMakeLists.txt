@@ -7,7 +7,7 @@ javac(pki-server-test-classes
         *.java
     CLASSPATH
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
-        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${PKI_CMSBUNDLE_JAR}
+        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSBUNDLE_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
         ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR}
         ${HAMCREST_JAR} ${JUNIT_JAR} ${COMMONS_IO_JAR}
@@ -17,7 +17,7 @@ javac(pki-server-test-classes
     DEPENDS
         pki-test-classes
         pki-nsutil-jar pki-cmsutil-jar
-        pki-certsrv-jar pki-cms-jar pki-cmscore-jar pki-cmsbundle-jar
+        pki-certsrv-jar pki-cms-jar pki-cmsbundle-jar
 )
 
 # create test target
@@ -27,7 +27,7 @@ add_junit_test(test-pki-server
     CLASSPATH
         ${SLF4J_API_JAR} ${SLF4J_SIMPLE_JAR}
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
-        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${PKI_CMSBUNDLE_JAR}
+        ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSBUNDLE_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR}
         ${COMMONS_CODEC_JAR} ${COMMONS_LANG_JAR}
         ${JSS_JAR} ${SYMKEY_JAR}

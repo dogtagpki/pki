@@ -1474,7 +1474,6 @@ fi
 %attr(644,-,-) %{_unitdir}/pki-tomcatd-nuxwdog.target
 %{_javadir}/pki/pki-cms.jar
 %{_javadir}/pki/pki-cmsbundle.jar
-%{_javadir}/pki/pki-cmscore.jar
 %{_javadir}/pki/pki-tomcat.jar
 %dir %{_sharedstatedir}/pki
 %{_mandir}/man1/pkidaemon.1.gz
