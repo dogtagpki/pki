@@ -21,20 +21,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Locale;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ca.ICMSCRLExtension;
-import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.util.Utils;
-
 import org.mozilla.jss.netscape.security.util.DerValue;
 import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.DNSName;
 import org.mozilla.jss.netscape.security.x509.EDIPartyName;
 import org.mozilla.jss.netscape.security.x509.Extension;
@@ -48,6 +37,14 @@ import org.mozilla.jss.netscape.security.x509.RFC822Name;
 import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ca.ICMSCRLExtension;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.cmscore.apps.CMS;
+
 /**
  * This represents a issuer alternative name extension.
  *
@@ -55,6 +52,9 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
  */
 public class CMSIssuerAlternativeNameExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSIssuerAlternativeNameExtension.class);
+
     private static final String PROP_RFC822_NAME = "rfc822Name";
     private static final String PROP_DNS_NAME = "dNSName";
     private static final String PROP_DIR_NAME = "directoryName";
@@ -63,8 +63,6 @@ public class CMSIssuerAlternativeNameExtension
     private static final String PROP_IP_NAME = "iPAddress";
     private static final String PROP_OID_NAME = "OID";
     private static final String PROP_OTHER_NAME = "otherName";
-
-    private Logger mLogger = Logger.getLogger();
 
     public CMSIssuerAlternativeNameExtension() {
     }
@@ -79,8 +77,9 @@ public class CMSIssuerAlternativeNameExtension
                     .get(IssuerAlternativeNameExtension.ISSUER_NAME);
             issuerAltNameExt = new IssuerAlternativeNameExtension(Boolean.valueOf(critical), names);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_ALT_NAME_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_ISSUER_ALT_NAME_EXT", e.toString()), e);
         }
+
         return issuerAltNameExt;
     }
 
@@ -93,8 +92,9 @@ public class CMSIssuerAlternativeNameExtension
         try {
             numNames = config.getInteger("numNames", 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_NUM_NAMES", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_NUM_NAMES", e.toString()), e);
         }
+
         if (numNames > 0) {
             GeneralNames names = new GeneralNames();
 
@@ -103,12 +103,12 @@ public class CMSIssuerAlternativeNameExtension
 
                 try {
                     nameType = config.getString("nameType" + i);
+
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CRL_CREATE_ISSUER_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_ISSUER_UNDEFINED_TYPE", Integer.toString(i), e.toString()), e);
+
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", Integer.toString(i), e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", Integer.toString(i), e.toString()), e);
                 }
 
                 if (nameType != null && nameType.length() > 0) {
@@ -116,12 +116,13 @@ public class CMSIssuerAlternativeNameExtension
 
                     try {
                         name = config.getString("name" + i);
+
                     } catch (EPropertyNotFound e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_UNDEFINED_TYPE",
-                                Integer.toString(i), e.toString()));
+                        logger.warn(CMS.getLogMessage("CRL_CREATE_ISSUER_UNDEFINED_TYPE",
+                                Integer.toString(i), e.toString()), e);
+
                     } catch (EBaseException e) {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", Integer.toString(i), e.toString()));
+                        logger.warn(CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", Integer.toString(i), e.toString()), e);
                     }
 
                     if (name != null && name.length() > 0) {
@@ -131,7 +132,7 @@ public class CMSIssuerAlternativeNameExtension
 
                                 names.addElement(dirName);
                             } catch (IOException e) {
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()));
+                                logger.warn(CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()), e);
                             }
                         } else if (nameType.equalsIgnoreCase(PROP_RFC822_NAME)) {
                             RFC822Name rfc822Name = new RFC822Name(name);
@@ -166,11 +167,12 @@ public class CMSIssuerAlternativeNameExtension
                                 GeneralName generalName = new GeneralName(derVal);
 
                                 names.addElement(generalName);
+
                             } catch (IOException e) {
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_OTHER_NAME", e.toString()));
+                                logger.warn(CMS.getLogMessage("CRL_INVALID_OTHER_NAME", e.toString()), e);
                             }
                         } else {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", nameType, ""));
+                            logger.warn(CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", nameType, ""));
                         }
                     }
                 }
@@ -181,7 +183,7 @@ public class CMSIssuerAlternativeNameExtension
                     issuerAltNameExt = new IssuerAlternativeNameExtension(
                                 Boolean.valueOf(critical), names);
                 } catch (IOException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_ALT_NAME_EXT", e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_ISSUER_ALT_NAME_EXT", e.toString()), e);
                 }
             }
         }
@@ -199,9 +201,9 @@ public class CMSIssuerAlternativeNameExtension
         try {
             numNames = config.getInteger("numNames", 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, "Invalid numNames property for CRL " +
-                    "IssuerAlternativeName extension - " + e);
+            logger.warn("Invalid numNames property for CRL IssuerAlternativeName extension: " + e.getMessage(), e);
         }
+
         nvp.put("numNames", String.valueOf(numNames));
 
         for (int i = 0; i < numNames; i++) {
@@ -209,12 +211,12 @@ public class CMSIssuerAlternativeNameExtension
 
             try {
                 nameType = config.getString("nameType" + i);
+
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE, "Undefined nameType" + i + " property for " +
-                        "CRL IssuerAlternativeName extension - " + e);
+                logger.warn("Undefined nameType" + i + " property for CRL IssuerAlternativeName extension: " + e.getMessage(), e);
+
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, "Invalid nameType" + i + " property for " +
-                        "CRL IssuerAlternativeName extension - " + e);
+                logger.warn("Invalid nameType" + i + " property for CRL IssuerAlternativeName extension: " + e.getMessage(), e);
             }
 
             if (nameType != null && nameType.length() > 0) {
@@ -227,12 +229,12 @@ public class CMSIssuerAlternativeNameExtension
 
             try {
                 name = config.getString("name" + i);
+
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE, "Undefined name" + i + " property for " +
-                        "CRL IssuerAlternativeName extension - " + e);
+                logger.warn("Undefined name" + i + " property for CRL IssuerAlternativeName extension: " + e.getMessage(), e);
+
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, "Invalid name" + i + " property for " +
-                        "CRL IssuerAlternativeName extension - " + e);
+                logger.warn("Invalid name" + i + " property for CRL IssuerAlternativeName extension: " + e.getMessage(), e);
             }
 
             if (name != null && name.length() > 0) {
@@ -277,10 +279,5 @@ public class CMSIssuerAlternativeNameExtension
             };
 
         return params;
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
-                "CMSIssuerAlternativeNameExtension - " + msg);
     }
 }
