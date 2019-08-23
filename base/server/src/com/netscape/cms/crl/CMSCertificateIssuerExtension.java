@@ -20,22 +20,20 @@ package com.netscape.cms.crl;
 import java.io.IOException;
 import java.util.Locale;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ca.ICMSCRLExtension;
-import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.apps.CMS;
-
 import org.mozilla.jss.netscape.security.x509.CertificateIssuerExtension;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ca.ICMSCRLExtension;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This represents a certificate issuer extension.
@@ -44,7 +42,8 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
  */
 public class CMSCertificateIssuerExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
-    private Logger mLogger = Logger.getLogger();
+
+    public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSCertificateIssuerExtension.class);
 
     public CMSCertificateIssuerExtension() {
     }
@@ -60,8 +59,9 @@ public class CMSCertificateIssuerExtension
             certIssuerExt = new CertificateIssuerExtension(Boolean.valueOf(critical),
                         names);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_CERT_ISSUER_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_CERT_ISSUER_EXT", e.toString()), e);
         }
+
         return certIssuerExt;
     }
 
@@ -74,8 +74,9 @@ public class CMSCertificateIssuerExtension
         try {
             numNames = config.getInteger("numNames", 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_NUM_NAMES", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_INVALID_NUM_NAMES", e.toString()), e);
         }
+
         if (numNames > 0) {
             GeneralNames names = new GeneralNames();
 
@@ -84,12 +85,12 @@ public class CMSCertificateIssuerExtension
 
                 try {
                     nameType = config.getString("nameType" + i);
+
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()), e);
+
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()), e);
                 }
 
                 if (nameType != null) {
@@ -97,12 +98,12 @@ public class CMSCertificateIssuerExtension
 
                     try {
                         name = config.getString("name" + i);
+
                     } catch (EPropertyNotFound e) {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
+                        logger.warn(CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()), e);
+
                     } catch (EBaseException e) {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()));
+                        logger.warn(CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()), e);
                     }
 
                     if (name != null && name.length() > 0) {
@@ -112,14 +113,15 @@ public class CMSCertificateIssuerExtension
 
                                 names.addElement(dirName);
                             } catch (IOException e) {
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()));
+                                logger.warn(CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()), e);
                             }
+
                         } else if (nameType.equalsIgnoreCase("URI")) {
                             URIName uriName = new URIName(name);
 
                             names.addElement(uriName);
                         } else {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_NAME_TYPE", nameType));
+                            logger.warn(CMS.getLogMessage("CRL_CREATE_INVALID_NAME_TYPE", nameType));
                         }
                     }
                 }
@@ -130,7 +132,7 @@ public class CMSCertificateIssuerExtension
                     certIssuerExt = new CertificateIssuerExtension(
                                 Boolean.valueOf(critical), names);
                 } catch (IOException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_CERT_ISSUER_EXT", e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_CERT_ISSUER_EXT", e.toString()), e);
                 }
             }
         }
@@ -148,8 +150,9 @@ public class CMSCertificateIssuerExtension
         try {
             numNames = config.getInteger("numNames", 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_NUM_NAMES", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_INVALID_NUM_NAMES", e.toString()), e);
         }
+
         nvp.put("numNames", String.valueOf(numNames));
 
         for (int i = 0; i < numNames; i++) {
@@ -157,11 +160,12 @@ public class CMSCertificateIssuerExtension
 
             try {
                 nameType = config.getString("nameType" + i);
+
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()), e);
+
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()), e);
             }
 
             if (nameType != null && nameType.length() > 0) {
@@ -174,11 +178,12 @@ public class CMSCertificateIssuerExtension
 
             try {
                 name = config.getString("name" + i);
+
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()), e);
+
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()), e);
             }
 
             if (name != null && name.length() > 0) {
@@ -217,9 +222,5 @@ public class CMSCertificateIssuerExtension
             };
 
         return params;
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level, msg);
     }
 }
