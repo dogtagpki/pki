@@ -95,7 +95,7 @@ public class ACLAdminServlet extends AdminServlet {
         String op = super.getParameter(req, Constants.OP_TYPE);
 
         if (op == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_INVALID_PROTOCOL"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_INVALID_PROTOCOL"));
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
                     null, resp);
@@ -105,7 +105,7 @@ public class ACLAdminServlet extends AdminServlet {
         try {
             super.authenticate(req);
         } catch (IOException e) {
-            log(ILogger.LL_SECURITY, CMS.getLogMessage("ADMIN_SRVLT_FAIL_AUTHS"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_FAIL_AUTHS"));
             sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHS_FAILED"),
                     null, resp);
             return;
@@ -181,20 +181,22 @@ public class ACLAdminServlet extends AdminServlet {
                     return;
                 }
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_INVALID_OP_SCOPE"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_INVALID_OP_SCOPE"));
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
                         null, resp);
                 return;
             }
+
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, e.toString());
+            logger.error("ACLAdminServlet: " + e.getMessage(), e);
             sendResponse(ERROR, e.toString(getLocale(req)),
                     null, resp);
             return;
+
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, e.toString());
-            log(ILogger.LL_DEBUG, "SRVLT_FAIL_PERFORM 2");
+            logger.error("ACLAdminServlet: " + e.getMessage(), e);
+            logger.debug("SRVLT_FAIL_PERFORM 2");
 
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
@@ -202,7 +204,7 @@ public class ACLAdminServlet extends AdminServlet {
             return;
         }
 
-        log(ILogger.LL_DEBUG, "SRVLT_FAIL_PERFORM 3");
+        logger.debug("SRVLT_FAIL_PERFORM 3");
 
         sendResponse(ERROR,
                 CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
@@ -246,7 +248,7 @@ public class ACLAdminServlet extends AdminServlet {
         String resourceId = super.getParameter(req, Constants.RS_ID);
 
         if (resourceId == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
                     null, resp);
@@ -295,7 +297,7 @@ public class ACLAdminServlet extends AdminServlet {
             return;
 
         } else {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ACLS_SRVLT_RESOURCE_NOT_FOUND"));
+            logger.error(CMS.getLogMessage("ACLS_SRVLT_RESOURCE_NOT_FOUND"));
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ACL_RESOURCE_NOT_FOUND"),
                     null, resp);
@@ -331,7 +333,7 @@ public class ACLAdminServlet extends AdminServlet {
             String resourceId = super.getParameter(req, Constants.RS_ID);
 
             if (resourceId == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -369,8 +371,9 @@ public class ACLAdminServlet extends AdminServlet {
 
                 sendResponse(SUCCESS, null, params, resp);
                 return;
+
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, e.toString());
+                logger.error("ACLAdminServlet: " + e.getMessage(), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -506,7 +509,7 @@ public class ACLAdminServlet extends AdminServlet {
 
                 audit(auditMessage);
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 sendResponse(ERROR,
                         CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
                         null, resp);
@@ -517,7 +520,7 @@ public class ACLAdminServlet extends AdminServlet {
             /*
              if (!mACLs.isTypeUnique(type)) {
              String infoMsg = "replacing existing type: "+ type;
-             log(ILogger.LL_WARN, infoMsg);
+             logger.warn(infoMsg);
              }
              */
 
@@ -536,8 +539,7 @@ public class ACLAdminServlet extends AdminServlet {
                 newImpl = Class.forName(classPath);
             } catch (ClassNotFoundException e) {
                 String errMsg = "class " + classPath + " not found";
-
-                log(ILogger.LL_FAILURE, errMsg);
+                logger.error(errMsg, e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -560,7 +562,7 @@ public class ACLAdminServlet extends AdminServlet {
                     String errMsg = "class not com.netscape.certsrv.evaluators.IAccessEvaluator" +
                             classPath;
 
-                    log(ILogger.LL_FAILURE, errMsg);
+                    logger.error(errMsg);
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
@@ -579,8 +581,7 @@ public class ACLAdminServlet extends AdminServlet {
             } catch (Exception e) {
                 String errMsg = "class not com.netscape.certsrv.evaluators.IAccessEvaluator" +
                         classPath;
-
-                log(ILogger.LL_FAILURE, errMsg);
+                logger.error(errMsg, e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -605,7 +606,7 @@ public class ACLAdminServlet extends AdminServlet {
             try {
                 mConfig.commit(true);
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ACLS_SRVLT_FAIL_COMMIT"));
+                logger.error(CMS.getLogMessage("ACLS_SRVLT_FAIL_COMMIT"), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -628,7 +629,7 @@ public class ACLAdminServlet extends AdminServlet {
             try {
                 evaluator = (IAccessEvaluator) Class.forName(classPath).newInstance();
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, e.toString());
+                logger.error("ACLAdminServlet: " + e.getMessage(), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -734,7 +735,7 @@ public class ACLAdminServlet extends AdminServlet {
             String id = req.getParameter(Constants.RS_ID);
 
             if (id == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -755,7 +756,7 @@ public class ACLAdminServlet extends AdminServlet {
             Hashtable<String, IAccessEvaluator> mEvaluators = mAuthzMgr.getAccessEvaluators();
 
             if (mEvaluators.containsKey(id) == false) {
-                log(ILogger.LL_FAILURE, "evaluator attempted to be removed not found");
+                logger.error("evaluator attempted to be removed not found");
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -790,7 +791,7 @@ public class ACLAdminServlet extends AdminServlet {
             try {
                 mConfig.commit(true);
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ACLS_SRVLT_FAIL_COMMIT"));
+                logger.error(CMS.getLogMessage("ACLS_SRVLT_FAIL_COMMIT"), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -881,11 +882,4 @@ public class ACLAdminServlet extends AdminServlet {
      sendResponse(SUCCESS, null, params, resp);
      }
      */
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_ACLS,
-                level, "ACLAdminServlet: " + msg);
-    }
 }
