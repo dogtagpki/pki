@@ -73,7 +73,6 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.authentication.HashAuthentication;
@@ -162,9 +161,7 @@ public class HashEnrollServlet extends CMSServlet {
 
             init_testbed_hack(mConfig);
         } catch (Exception e) {
-            // this should never happen.
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(), mId));
+            logger.warn(CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(), mId));
         }
     }
 
@@ -251,8 +248,7 @@ public class HashEnrollServlet extends CMSServlet {
         try {
             form = getTemplate(formPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", formPath, e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", formPath, e.toString()), e);
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(ICMSRequest.ERROR);
@@ -265,9 +261,7 @@ public class HashEnrollServlet extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(ICMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM",
-                            e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", e.toString()), e);
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(ICMSRequest.ERROR);
@@ -315,14 +309,12 @@ public class HashEnrollServlet extends CMSServlet {
                 } else if (certauthEnrollType.equals("single")) {
                     logger.debug("HashEnrollServlet: certauthEnrollType is single");
                 } else {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_INVALID_CERTAUTH_ENROLL_TYPE_1", certauthEnrollType));
+                    logger.error(CMS.getLogMessage("CMSGW_INVALID_CERTAUTH_ENROLL_TYPE_1", certauthEnrollType));
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_INVALID_CERTAUTH_ENROLL_TYPE"));
                 }
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_MISSING_CERTAUTH_ENROLL_TYPE"));
+                logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTAUTH_ENROLL_TYPE"));
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_MISSING_CERTAUTH_ENROLL_TYPE"));
             }
@@ -363,7 +355,7 @@ public class HashEnrollServlet extends CMSServlet {
         if (certAuthEnroll == true) {
             sslClientCert = getSSLClientCertificate(httpReq);
             if (sslClientCert == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_MISSING_SSL_CLIENT_CERT"));
+                logger.error(CMS.getLogMessage("CMSGW_MISSING_SSL_CLIENT_CERT"));
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_MISSING_SSL_CLIENT_CERT"));
             }
@@ -375,8 +367,7 @@ public class HashEnrollServlet extends CMSServlet {
                         ((X509CertImpl) sslClientCert).get(
                                 X509CertImpl.NAME + "." + X509CertImpl.INFO);
             } catch (CertificateParsingException ex) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_MISSING_CERTINFO_ENCRYPT_CERT"));
+                logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTINFO_ENCRYPT_CERT"), ex);
                 throw new ECMSGWException(
                         CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_CERTINFO"));
             }
@@ -408,8 +399,7 @@ public class HashEnrollServlet extends CMSServlet {
             // don't store agent token in request.
             // agent currently used for bulk issuance.
             // if (!authMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
-            log(ILogger.LL_INFO,
-                    "Enrollment request was authenticated by " +
+            logger.info("Enrollment request was authenticated by " +
                             authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME));
             fillCertInfoFromAuthToken(certInfo, authToken);
             // save authtoken attrs to request directly (for policy use)
@@ -440,8 +430,7 @@ public class HashEnrollServlet extends CMSServlet {
             // for dual certs
             if (certauthEnrollType.equals(CERT_AUTH_DUAL)) {
                 if (mCa == null) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_NOT_A_CA"));
+                    logger.error(CMS.getLogMessage("CMSGW_NOT_A_CA"));
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_NOT_A_CA"));
                 }
@@ -452,8 +441,7 @@ public class HashEnrollServlet extends CMSServlet {
                         CertUtils.isSigningCert((X509CertImpl) sslClientCert) &&
                         CertUtils.isEncryptionCert((X509CertImpl) sslClientCert)) {
                     // either it's not a signing cert, or it's a dual cert
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_INVALID_CERT_TYPE"));
+                    logger.error(CMS.getLogMessage("CMSGW_INVALID_CERT_TYPE"));
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_INVALID_CERT_TYPE"));
                 }
@@ -464,15 +452,13 @@ public class HashEnrollServlet extends CMSServlet {
                 try {
                     certInfo.set(X509CertInfo.KEY, new CertificateX509Key(key));
                 } catch (CertificateException e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
+                    logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
                     throw new ECMSGWException(
-                            CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
+                            CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
                 } catch (IOException e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
+                    logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
                     throw new ECMSGWException(
-                            CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
+                            CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
                 }
 
                 String filter =
@@ -512,24 +498,21 @@ public class HashEnrollServlet extends CMSServlet {
                                             X509CertImpl.NAME + "." + X509CertImpl.INFO);
 
                         } catch (CertificateParsingException ex) {
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_MISSING_CERTINFO_ENCRYPT_CERT"));
+                            logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTINFO_ENCRYPT_CERT"), ex);
                             throw new ECMSGWException(
-                                    CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_CERTINFO"));
+                                    CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_CERTINFO"), ex);
                         }
 
                         try {
                             encCertInfo.set(X509CertInfo.KEY, new CertificateX509Key(key));
                         } catch (CertificateException e) {
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
+                            logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
                             throw new ECMSGWException(
-                                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
+                                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
                         } catch (IOException e) {
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
+                            logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
                             throw new ECMSGWException(
-                                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
+                                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
                         }
                         fillCertInfoFromAuthToken(encCertInfo, authToken);
 
@@ -542,8 +525,7 @@ public class HashEnrollServlet extends CMSServlet {
 
                 if (gotEncCert == false) {
                     // encryption cert not found, bail
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_ENCRYPTION_CERT_NOT_FOUND"));
+                    logger.error(CMS.getLogMessage("CMSGW_ENCRYPTION_CERT_NOT_FOUND"));
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_ENCRYPTION_CERT_NOT_FOUND"));
                 }
@@ -554,8 +536,7 @@ public class HashEnrollServlet extends CMSServlet {
                         CertUtils.isSigningCert((X509CertImpl) sslClientCert) &&
                         CertUtils.isEncryptionCert((X509CertImpl) sslClientCert)) {
                     // either it's not a signing cert, or it's a dual cert
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_INVALID_CERT_TYPE"));
+                    logger.error(CMS.getLogMessage("CMSGW_INVALID_CERT_TYPE"));
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_INVALID_CERT_TYPE"));
                 }
@@ -569,8 +550,7 @@ public class HashEnrollServlet extends CMSServlet {
                             sslClientCert.getIssuerDN().toString());
                     logger.debug("HashEnrollServlet: sslClientCert issuerDN = " + sslClientCert.getIssuerDN());
                 } else {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
+                    logger.error(CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
                     throw new ECMSGWException(CMS.getUserMessage(getLocale(httpReq),
                             "CMS_GW_MISSING_KEYGEN_INFO"));
                 }
@@ -580,19 +560,18 @@ public class HashEnrollServlet extends CMSServlet {
                 if (crmf != null && crmf != "") {
                     certInfoArray = fillCRMF(crmf, authToken, httpParams, req);
                 } else {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
+                    logger.error(CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
                     throw new ECMSGWException(CMS.getUserMessage(getLocale(httpReq),
                             "CMS_GW_MISSING_KEYGEN_INFO"));
                 }
+
                 req.setExtData(CLIENT_ISSUER,
                         sslClientCert.getIssuerDN().toString());
             }
         } else if (crmf != null && crmf != "") {
             certInfoArray = fillCRMF(crmf, authToken, httpParams, req);
         } else {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
+            logger.error(CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
             throw new ECMSGWException(CMS.getUserMessage(getLocale(httpReq),
                     "CMS_GW_MISSING_KEYGEN_INFO"));
         }
@@ -683,13 +662,14 @@ public class HashEnrollServlet extends CMSServlet {
                             ""
                     );
                 }
+
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING", e.toString()));
+                logger.error(CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING", e.toString()), e);
+
             } catch (CertificateException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING", e.toString()));
+                logger.warn(CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING", e.toString()), e);
             }
+
             return;
         }
         // if service error use standard error templates.
@@ -722,14 +702,12 @@ public class HashEnrollServlet extends CMSServlet {
                                     certInfo.get(X509CertInfo.SUBJECT),
                                     ""
                             );
+
                         } catch (IOException e) {
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
-                                            e.toString()));
+                            logger.warn(CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING", e.toString()), e);
+
                         } catch (CertificateException e) {
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
-                                            e.toString()));
+                            logger.warn(CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING", e.toString()), e);
                         }
                     }
                 }
@@ -767,12 +745,13 @@ public class HashEnrollServlet extends CMSServlet {
             renderTemplate(cmsReq, mEnrollSuccessTemplate,
                     mEnrollSuccessFiller);
             cmsReq.setStatus(ICMSRequest.SUCCESS);
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_TEMP_REND_ERR", mEnrollSuccessFiller.toString(), e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_TEMP_REND_ERR", mEnrollSuccessFiller.toString(), e.toString()), e);
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_RETURNING_RESULT_ERROR"));
+                    CMS.getUserMessage("CMS_GW_RETURNING_RESULT_ERROR"), e);
         }
+
         return;
     }
 
@@ -798,20 +777,18 @@ public class HashEnrollServlet extends CMSServlet {
                 CertificateSubjectName certSubject = new CertificateSubjectName(new X500Name(subjectname));
 
                 certInfo.set(X509CertInfo.SUBJECT, certSubject);
-                log(ILogger.LL_INFO,
-                        "cert subject set to " + certSubject + " from authtoken");
+                logger.info("cert subject set to " + certSubject + " from authtoken");
             }
+
         } catch (CertificateException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()), e);
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"), e);
+
         } catch (IOException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1",
-                            e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()), e);
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"), e);
         }
 
         // validity
@@ -825,20 +802,18 @@ public class HashEnrollServlet extends CMSServlet {
             if (notBefore != null && notAfter != null) {
                 validity = new CertificateValidity(notBefore, notAfter);
                 certInfo.set(X509CertInfo.VALIDITY, validity);
-                log(ILogger.LL_INFO,
-                        "cert validity set to " + validity + " from authtoken");
+                logger.info("cert validity set to " + validity + " from authtoken");
             }
+
         } catch (CertificateException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1",
-                            e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()), e);
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"), e);
+
         } catch (IOException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()), e);
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"), e);
         }
 
         // extensions
@@ -848,19 +823,18 @@ public class HashEnrollServlet extends CMSServlet {
 
             if (extensions != null) {
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
-                log(ILogger.LL_INFO, "cert extensions set from authtoken");
+                logger.info("cert extensions set from authtoken");
             }
+
         } catch (CertificateException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()), e);
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"), e);
+
         } catch (IOException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1",
-                            e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()), e);
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"), e);
         }
     }
 
@@ -938,8 +912,7 @@ public class HashEnrollServlet extends CMSServlet {
                 } else if (authToken == null ||
                         authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) == null) {
                     // No subject name - error!
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
+                    logger.error(CMS.getLogMessage("CMSGW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
                 }
@@ -1017,28 +990,26 @@ public class HashEnrollServlet extends CMSServlet {
             do_testbed_hack(nummsgs, certInfoArray, httpParams);
 
             return certInfoArray;
+
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1",
-                            e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
+
         } catch (InvalidBERException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
+
         } catch (InvalidKeyException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1",
-                            e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
         }
     }
 
