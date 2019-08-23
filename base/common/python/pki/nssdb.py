@@ -1498,23 +1498,45 @@ class NSSDatabase(object):
 
         """
         args = []
+        is_ec = key_type and key_type.lower() in ('ec', 'ecc')
 
         if key_type:
-            if key_type.lower() == 'ecc':
-                key_type = 'ec'
-            args.extend(['-k', key_type])
+            # The -k parameter is either a key type or an identifer of a key
+            # to reuse. Make sure to handle ec correctly: the type should be
+            # "ec" not "ecc".
+            if is_ec:
+                args.extend(['-k', 'ec'])
+            else:
+                args.extend(['-k', key_type])
 
-        if key_type.lower() == 'ec':
+        if is_ec:
             # This is fix for Bugzilla 1544843
             args.extend([
                 '--keyOpFlagsOn', 'sign',
                 '--keyOpFlagsOff', 'derive',
             ])
 
-        if key_size:
-            args.extend(['-g', str(key_size)])
+            # When we want to generate a new EC key, we have to know the curve
+            # we want to use. This is either passed via the curve parameter or
+            # via the key_size parameter. If neither is specified, we have a
+            # problem. If both are specified and differ, we're confused. The
+            # reason is because the curve determines the size of the key;
+            # after that you don't have a choice.
+            if not curve and not key_size:
+                msg = "Must specify the curve to use when generating an "
+                msg += "elliptic curve key."
+                raise ValueError(msg)
+            if curve and key_size and curve != key_size:
+                msg = "Specified both curve (%s) and key size (%s) when "
+                msg += "generating an elliptic curve key, but they differ."
+                raise ValueError(msg % (curve, key_size))
 
-        if curve:
-            args.extend(['-q', curve])
+            if curve:
+                args.extend(['-q', str(curve)])
+            else:
+                args.extend(['-q', str(key_size)])
+        else:
+            if key_size:
+                args.extend(['-g', str(key_size)])
 
         return args
