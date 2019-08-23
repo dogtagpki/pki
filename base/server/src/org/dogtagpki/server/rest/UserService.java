@@ -190,8 +190,7 @@ public class UserService extends SubsystemService implements UserResource {
     public UserData getUserData(String userID) {
         try {
             if (userID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
@@ -206,8 +205,7 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             if (user == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
-
+                logger.error(CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
                 throw new UserNotFoundException(userID);
             }
 
@@ -276,6 +274,7 @@ public class UserService extends SubsystemService implements UserResource {
 
         CMSEngine engine = CMS.getCMSEngine();
         IConfigStore cs = engine.getConfigStore();
+
         String userID = userData.getUserID();
         logger.debug("User ID: " + userID);
 
@@ -283,19 +282,19 @@ public class UserService extends SubsystemService implements UserResource {
         // to the signed audit log and stored as failures
         try {
             if (userID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             if (userID.indexOf(BACK_SLASH) != -1) {
                 // backslashes (BS) are not allowed
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_RS_ID_BS"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_RS_ID_BS"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_RS_ID_BS", headers));
             }
 
             if (userID.equals(SYSTEM_USER)) {
                 // backslashes (BS) are not allowed
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_SPECIAL_ID", userID));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_SPECIAL_ID", userID));
                 throw new ForbiddenException(getUserMessage("CMS_ADMIN_SRVLT_SPECIAL_ID", headers, userID));
             }
 
@@ -303,10 +302,10 @@ public class UserService extends SubsystemService implements UserResource {
 
             String fname = userData.getFullName();
             logger.debug("Full name: " + fname);
+
             if (fname == null || fname.length() == 0) {
                 String msg = getUserMessage("CMS_USRGRP_USER_ADD_FAILED_1", headers, "full name");
-
-                log(ILogger.LL_FAILURE, msg);
+                logger.error(msg);
                 throw new BadRequestException(msg);
 
             } else {
@@ -315,6 +314,7 @@ public class UserService extends SubsystemService implements UserResource {
 
             String email = userData.getEmail();
             logger.debug("Email: " + email);
+
             if (email != null) {
                 user.setEmail(email);
             } else {
@@ -323,6 +323,7 @@ public class UserService extends SubsystemService implements UserResource {
 
             String pword = userData.getPassword();
             logger.debug("Password: " + (pword == null ? null : "********"));
+
             if (pword != null && !pword.equals("")) {
                 IPasswordCheck passwdCheck = engine.getPasswordChecker();
 
@@ -337,6 +338,7 @@ public class UserService extends SubsystemService implements UserResource {
 
             String phone = userData.getPhone();
             logger.debug("Phone: " + phone);
+
             if (phone != null) {
                 user.setPhone(phone);
             } else {
@@ -345,6 +347,7 @@ public class UserService extends SubsystemService implements UserResource {
 
             String type = userData.getType();
             logger.debug("Type: " + type);
+
             if (type != null) {
                 user.setUserType(type);
             } else {
@@ -353,6 +356,7 @@ public class UserService extends SubsystemService implements UserResource {
 
             String state = userData.getState();
             logger.debug("State: " + state);
+
             if (state != null) {
                 user.setState(state);
             }
@@ -419,7 +423,7 @@ public class UserService extends SubsystemService implements UserResource {
         IConfigStore cs = engine.getConfigStore();
         try {
             if (userID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
@@ -510,7 +514,7 @@ public class UserService extends SubsystemService implements UserResource {
         IConfigStore cs = engine.getConfigStore();
         try {
             if (userID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
@@ -612,7 +616,7 @@ public class UserService extends SubsystemService implements UserResource {
         // to the signed audit log and stored as failures
         try {
             if (userID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
@@ -677,7 +681,7 @@ public class UserService extends SubsystemService implements UserResource {
             size = size == null ? DEFAULT_SIZE : size;
 
             if (userID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
@@ -690,7 +694,7 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             if (user == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
+                logger.error(CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
                 throw new UserNotFoundException(userID);
             }
 
@@ -744,8 +748,7 @@ public class UserService extends SubsystemService implements UserResource {
 
         try {
             if (userID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
-
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
@@ -758,7 +761,7 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             if (user == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
+                logger.error(CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
                 throw new UserNotFoundException(userID);
             }
 
@@ -822,7 +825,7 @@ public class UserService extends SubsystemService implements UserResource {
         // to the signed audit log and stored as failures
         try {
             if (userID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
@@ -922,7 +925,7 @@ public class UserService extends SubsystemService implements UserResource {
 
                         if (leafCert == null) {
                             logger.warn("UserService: missing leaf certificate");
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NULL"));
+                            logger.error(CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NULL"));
                         } else {
                             logger.debug("UserService: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
                         }
@@ -933,7 +936,7 @@ public class UserService extends SubsystemService implements UserResource {
                                             InternalCertificate.TRUSTED_CA |
                                             InternalCertificate.TRUSTED_CLIENT_CA);
                         } else {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NOT_INTERNAL_CERT",
+                            logger.error(CMS.getLogMessage("ADMIN_SRVLT_NOT_INTERNAL_CERT",
                                     String.valueOf(p7certs[j].getSubjectDN())));
                         }
                     }
@@ -942,16 +945,16 @@ public class UserService extends SubsystemService implements UserResource {
                     } catch (CryptoManager.UserCertConflictException e) {
                         // got a "user cert" in the chain, most likely the CA
                         // cert of this instance, which has a private key.  Ignore
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_PKS7_IGNORED", e.toString()));
+                        logger.error(CMS.getLogMessage("ADMIN_SRVLT_PKS7_IGNORED", e.toString()));
                     */
                 } catch (PKIException e) {
                     logger.error("UserService: Unable to import user certificate from PKCS #7 data: " + e);
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", e.toString()));
+                    logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", e.toString()));
                     throw e;
 
                 } catch (Exception e) {
                     logger.error("UserService: " + e.getMessage(), e);
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", e.toString()));
+                    logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", e.toString()));
                     throw new PKIException("Unable to import user certificate from PKCS #7 data: " + e.getMessage(), e);
                 }
             }
@@ -979,13 +982,13 @@ public class UserService extends SubsystemService implements UserResource {
 
             } catch (CertificateExpiredException e) {
                 logger.error("UserService: Certificate expired: " + e.getMessage(), e);
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
                         String.valueOf(cert.getSubjectDN())));
                 throw new BadRequestException("Certificate expired: " + e.getMessage(), e);
 
             } catch (CertificateNotYetValidException e) {
                 logger.error("UserService: Certificate not yet valid: " + e.getMessage(), e);
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
+                logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
                         String.valueOf(cert.getSubjectDN())));
                 throw new BadRequestException("Certificate not yet valid: " + e.getMessage(), e);
             }
@@ -997,7 +1000,6 @@ public class UserService extends SubsystemService implements UserResource {
 
         } catch (Exception e) {
             logger.error("UserService: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, e.toString());
             auditAddUserCert(userID, userCertData, ILogger.FAILURE);
             throw new PKIException("Unable to import user certificate: " + e.getMessage(), e);
         }
@@ -1044,7 +1046,7 @@ public class UserService extends SubsystemService implements UserResource {
         // to the signed audit log and stored as failures
         try {
             if (userID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
@@ -1068,7 +1070,7 @@ public class UserService extends SubsystemService implements UserResource {
             throw e;
 
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, e.toString());
+            logger.error("Error: " + e.getMessage(), e);
             auditDeleteUserCert(userID, userCertData, ILogger.FAILURE);
             throw new PKIException(getUserMessage("CMS_USRGRP_USER_MOD_FAILED", headers));
         }
@@ -1099,7 +1101,7 @@ public class UserService extends SubsystemService implements UserResource {
         logger.debug("UserService.findUserMemberships(" + userID + ", " + filter + ")");
 
         if (userID == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
             throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
         }
 
@@ -1114,7 +1116,7 @@ public class UserService extends SubsystemService implements UserResource {
             IUser user = userGroupManager.getUser(userID);
 
             if (user == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
+                logger.error(CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
                 throw new UserNotFoundException(userID);
             }
 
@@ -1205,10 +1207,6 @@ public class UserService extends SubsystemService implements UserResource {
             e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
-    }
-
-    public void log(int level, String message) {
-        log(ILogger.S_USRGRP, level, message);
     }
 
     public void auditAddUser(String id, UserData userData, String status) {
