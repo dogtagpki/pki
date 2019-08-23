@@ -33,8 +33,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -45,6 +43,9 @@ import com.netscape.cmscore.apps.CMSEngine;
  */
 public class CMSAuthInfoAccessExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSAuthInfoAccessExtension.class);
+
     public static final String PROP_NUM_ADS = "numberOfAccessDescriptions";
     public static final String PROP_ACCESS_METHOD = "accessMethod";
     public static final String PROP_ACCESS_LOCATION_TYPE = "accessLocationType";
@@ -54,8 +55,6 @@ public class CMSAuthInfoAccessExtension
     private static final String PROP_ACCESS_METHOD_CAISSUERS = "caIssuers";
     private static final String PROP_DIRNAME = "DirectoryName";
     private static final String PROP_URINAME = "URI";
-
-    private Logger mLogger = Logger.getLogger();
 
     public CMSAuthInfoAccessExtension() {
     }
@@ -78,7 +77,7 @@ public class CMSAuthInfoAccessExtension
         try {
             numberOfAccessDescriptions = config.getInteger(PROP_NUM_ADS, 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_INVALID_NUM_ADS", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_AIA_INVALID_NUM_ADS", e.toString()), e);
         }
 
         if (numberOfAccessDescriptions > 0) {
@@ -91,10 +90,12 @@ public class CMSAuthInfoAccessExtension
 
                 try {
                     accessMethod = config.getString(PROP_ACCESS_METHOD + i);
+
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_UNDEFINED", e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_UNDEFINED", e.toString()), e);
+
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_INVALID", e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_INVALID", e.toString()), e);
                 }
 
                 if (accessMethod != null && accessMethod.equals(PROP_ACCESS_METHOD_OCSP)) {
@@ -103,18 +104,22 @@ public class CMSAuthInfoAccessExtension
 
                 try {
                     accessLocationType = config.getString(PROP_ACCESS_LOCATION_TYPE + i);
+
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_UNDEFINED", e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_UNDEFINED", e.toString()), e);
+
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_INVALID", e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_INVALID", e.toString()), e);
                 }
 
                 try {
                     accessLocation = config.getString(PROP_ACCESS_LOCATION + i);
+
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()), e);
+
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()), e);
                 }
 
                 if (accessLocationType != null && accessLocation != null && accessLocation.length() > 0) {
@@ -123,13 +128,13 @@ public class CMSAuthInfoAccessExtension
                             X500Name dirName = new X500Name(accessLocation);
                             authInfoAccessExt.addAccessDescription(method, new GeneralName(dirName));
                         } catch (IOException e) {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()));
+                            logger.warn(CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()), e);
                         }
                     } else if (accessLocationType.equalsIgnoreCase(PROP_URINAME)) {
                         URIName uriName = new URIName(accessLocation);
                         authInfoAccessExt.addAccessDescription(method, new GeneralName(uriName));
                     } else {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_POTINT_TYPE", accessLocation));
+                        logger.warn(CMS.getLogMessage("CRL_INVALID_POTINT_TYPE", accessLocation));
                     }
                 } else {
                     accessLocationType = PROP_URINAME;
@@ -160,8 +165,9 @@ public class CMSAuthInfoAccessExtension
         try {
             numberOfAccessDescriptions = config.getInteger(PROP_NUM_ADS, 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_INVALID_NUM_ADS", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_AIA_INVALID_NUM_ADS", e.toString()), e);
         }
+
         nvp.put(PROP_NUM_ADS, String.valueOf(numberOfAccessDescriptions));
 
         for (int i = 0; i < numberOfAccessDescriptions; i++) {
@@ -171,10 +177,12 @@ public class CMSAuthInfoAccessExtension
 
             try {
                 accessMethod = config.getString(PROP_ACCESS_METHOD + i);
+
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_UNDEFINED", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_UNDEFINED", e.toString()), e);
+
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_INVALID", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_INVALID", e.toString()), e);
             }
 
             if (accessMethod != null && accessMethod.length() > 0) {
@@ -185,10 +193,12 @@ public class CMSAuthInfoAccessExtension
 
             try {
                 accessLocationType = config.getString(PROP_ACCESS_LOCATION_TYPE + i);
+
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_UNDEFINED", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_UNDEFINED", e.toString()), e);
+
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_INVALID", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_INVALID", e.toString()), e);
             }
 
             if (accessLocationType != null && accessLocationType.length() > 0) {
@@ -199,10 +209,12 @@ public class CMSAuthInfoAccessExtension
 
             try {
                 accessLocation = config.getString(PROP_ACCESS_LOCATION + i);
+
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_AL_UNDEFINED", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_AIA_AD_AL_UNDEFINED", e.toString()), e);
+
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_AL_INVALID", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_AIA_AD_AL_INVALID", e.toString()), e);
             }
 
             if (accessLocation != null && accessLocation.length() > 0) {
@@ -254,10 +266,5 @@ public class CMSAuthInfoAccessExtension
             };
 
         return params;
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
-                "CMSAuthInfoAccessExtension - " + msg);
     }
 }
