@@ -683,8 +683,9 @@ class NSSDatabase(object):
             rc = p.wait()
 
             if rc:
-                raise Exception(
-                    'Failed to generate certificate request. RC: %d' % rc)
+                msg = "Failed to generate certificate request. Return code: %d\n"
+                msg += "Command: %s"
+                raise Exception(msg % (rc, cmd))
 
             # encode binary request in base-64
             b64_request_file = os.path.join(tmpdir, 'request.b64')
