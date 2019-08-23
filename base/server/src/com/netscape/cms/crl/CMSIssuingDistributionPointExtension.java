@@ -38,8 +38,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -51,6 +49,7 @@ public class CMSIssuingDistributionPointExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSIssuingDistributionPointExtension.class);
+
     public static final String PROP_POINTTYPE = "pointType";
     public static final String PROP_POINTNAME = "pointName";
     public static final String PROP_DIRNAME = "DirectoryName";
@@ -69,8 +68,6 @@ public class CMSIssuingDistributionPointExtension
             "cessationOfOperation",
             "certificateHold",
             "privilegeWithdrawn" };
-
-    private Logger mLogger = Logger.getLogger();
 
     public CMSIssuingDistributionPointExtension() {
     }
@@ -100,10 +97,12 @@ public class CMSIssuingDistributionPointExtension
 
         try {
             pointType = config.getString(PROP_POINTTYPE);
+
         } catch (EPropertyNotFound e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()), e);
+
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()), e);
         }
 
         if (pointType != null) {
@@ -111,10 +110,12 @@ public class CMSIssuingDistributionPointExtension
 
             try {
                 pointName = config.getString(PROP_POINTNAME);
+
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()), e);
+
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()), e);
             }
 
             if (pointName != null && pointName.length() > 0) {
@@ -122,7 +123,7 @@ public class CMSIssuingDistributionPointExtension
                     try {
                         rdnName = new RDN(pointName);
                     } catch (IOException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_RDN", e.toString()));
+                        logger.warn(CMS.getLogMessage("CRL_CREATE_RDN", e.toString()), e);
                     }
                 } else if (pointType.equalsIgnoreCase(PROP_DIRNAME)) {
                     try {
@@ -130,14 +131,14 @@ public class CMSIssuingDistributionPointExtension
 
                         names.addElement(dirName);
                     } catch (IOException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()));
+                        logger.warn(CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()), e);
                     }
                 } else if (pointType.equalsIgnoreCase(PROP_URINAME)) {
                     URIName uriName = new URIName(pointName);
 
                     names.addElement(uriName);
                 } else {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_POTINT_TYPE", pointType));
+                    logger.warn(CMS.getLogMessage("CRL_INVALID_POTINT_TYPE", pointType));
                 }
             }
         }
@@ -147,10 +148,12 @@ public class CMSIssuingDistributionPointExtension
         } else if (names.size() > 0) {
             try {
                 issuingDPoint.setFullName(names);
+
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CANNOT_SET_NAME", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CANNOT_SET_NAME", e.toString()), e);
+
             } catch (GeneralNamesException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CANNOT_SET_NAME", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CANNOT_SET_NAME", e.toString()), e);
             }
         }
 
@@ -159,8 +162,9 @@ public class CMSIssuingDistributionPointExtension
         try {
             reasons = config.getString(PROP_REASONS, null);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", PROP_REASONS, e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_INVALID_PROPERTY", PROP_REASONS, e.toString()), e);
         }
+
         if (reasons != null && reasons.length() > 0) {
 
             boolean[] bits = { false, false, false, false, false, false, false };
@@ -192,7 +196,7 @@ public class CMSIssuingDistributionPointExtension
             if (caCertsOnly)
                 issuingDPoint.setOnlyContainsCACerts(caCertsOnly);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "caCertsOnly", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_INVALID_PROPERTY", "caCertsOnly", e.toString()), e);
         }
         try {
             boolean userCertsOnly = config.getBoolean(PROP_USERCERTS, false);
@@ -200,7 +204,7 @@ public class CMSIssuingDistributionPointExtension
             if (userCertsOnly)
                 issuingDPoint.setOnlyContainsUserCerts(userCertsOnly);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "userCertsOnly", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_INVALID_PROPERTY", "userCertsOnly", e.toString()), e);
         }
         try {
             boolean indirectCRL = config.getBoolean(PROP_INDIRECT, false);
@@ -208,7 +212,7 @@ public class CMSIssuingDistributionPointExtension
             if (indirectCRL)
                 issuingDPoint.setIndirectCRL(indirectCRL);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "indirectCRL", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_INVALID_PROPERTY", "indirectCRL", e.toString()), e);
         }
 
         issuingDPointExt = new IssuingDistributionPointExtension(issuingDPoint);
@@ -226,11 +230,14 @@ public class CMSIssuingDistributionPointExtension
 
         try {
             pointType = config.getString(PROP_POINTTYPE);
+
         } catch (EPropertyNotFound e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()), e);
+
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()), e);
         }
+
         if (pointType != null && pointType.length() > 0) {
             nvp.put("pointType", pointType);
         } else {
@@ -241,11 +248,14 @@ public class CMSIssuingDistributionPointExtension
 
         try {
             pointName = config.getString(PROP_POINTNAME);
+
         } catch (EPropertyNotFound e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()), e);
+
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()), e);
         }
+
         if (pointName != null && pointName.length() > 0) {
             nvp.put("pointName", pointName);
         } else {
@@ -257,8 +267,9 @@ public class CMSIssuingDistributionPointExtension
         try {
             reasons = config.getString(PROP_REASONS, null);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", PROP_REASONS, e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_INVALID_PROPERTY", PROP_REASONS, e.toString()), e);
         }
+
         if (reasons != null && reasons.length() > 0) {
             nvp.put(PROP_REASONS, reasons);
         } else {
@@ -269,10 +280,12 @@ public class CMSIssuingDistributionPointExtension
             boolean caCertsOnly = config.getBoolean(PROP_CACERTS, false);
 
             nvp.put(PROP_CACERTS, String.valueOf(caCertsOnly));
+
         } catch (EBaseException e) {
             nvp.put(PROP_CACERTS, "false");
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "caCertsOnly", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_INVALID_PROPERTY", "caCertsOnly", e.toString()), e);
         }
+
         // Disable these for now unitl we support them fully
         /*
                 try {
@@ -281,7 +294,7 @@ public class CMSIssuingDistributionPointExtension
                     nvp.add(PROP_USERCERTS, String.valueOf(userCertsOnly));
                 } catch (EBaseException e) {
                     nvp.add(PROP_USERCERTS, "false");
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "userCertsOnly", e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_INVALID_PROPERTY", "userCertsOnly", e.toString()), e);
                 }
 
                 try {
@@ -290,7 +303,7 @@ public class CMSIssuingDistributionPointExtension
                     nvp.add(PROP_INDIRECT, String.valueOf(indirectCRL));
                 } catch (EBaseException e) {
                     nvp.add(PROP_INDIRECT, "false");
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "indirectCRL", e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_INVALID_PROPERTY", "indirectCRL", e.toString()), e);
                 }
         */
     }
@@ -326,10 +339,5 @@ public class CMSIssuingDistributionPointExtension
             };
 
         return params;
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
-                "CMSIssuingDistributionPointExtension - " + msg);
     }
 }
