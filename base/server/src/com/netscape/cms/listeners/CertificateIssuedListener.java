@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.listeners.EListenersException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IEmailResolver;
@@ -41,7 +40,6 @@ import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.notification.EmailFormProcessor;
@@ -91,7 +89,6 @@ public class CertificateIssuedListener implements IRequestListener {
     protected final static String REJECT_FILE_NAME = "certRequestRejected";
 
     private boolean mEnabled = false;
-    private Logger mLogger = Logger.getLogger();
     private String mSenderEmail = null;
     private String mSubject = null;
     private String mSubject_Success = null;
@@ -230,41 +227,38 @@ public class CertificateIssuedListener implements IRequestListener {
                     keys.set(IEmailResolverKeys.KEY_REQUEST, r);
                     keys.set(IEmailResolverKeys.KEY_CERT,
                             issuedCert[0]);
+
                 } catch (EBaseException e) {
                     logger.warn("CertificateIssuedListener: setting email resolver: "+ e.getMessage(), e);
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
+                    logger.warn(CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
                 }
 
                 IEmailResolver er = new ReqCertSANameEmailResolver();
 
                 try {
                     mEmail = er.getEmail(keys);
+
                 } catch (ENotificationException e) {
                     logger.warn("CertificateIssuedListener: getting email: " + e.getMessage(), e);
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
-                                    e.toString()));
+                    logger.warn(CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION", e.toString()));
+
                 } catch (EBaseException e) {
                     logger.warn("CertificateIssuedListener: getting email: " + e.getMessage(), e);
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
-                                    e.toString()));
+                    logger.warn(CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION", e.toString()));
+
                 } catch (Exception e) {
                     logger.warn("CertificateIssuedListener: getting email: " + e.getMessage(), e);
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
-                                    e.toString()));
+                    logger.warn(CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION", e.toString()));
                 }
 
                 // now we can mail
                 if ((mEmail != null) && (!mEmail.equals(""))) {
                     logger.debug("CertificateIssuedListener: found email: "+ mEmail);
                     mailIt(mEmail, issuedCert);
+
                 } else {
                     logger.warn("CertificateIssuedListener: failed finding email");
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_NOTIFY_ERROR",
+                    logger.warn(CMS.getLogMessage("LISTENERS_CERT_ISSUED_NOTIFY_ERROR",
                                     issuedCert[0].getSerialNumber().toString(), mReqId.toString()));
                     // send failure notification to "sender"
                     logger.debug("CertificateIssuedListener: notifying sender...");
@@ -306,13 +300,14 @@ public class CertificateIssuedListener implements IRequestListener {
 
         try {
             mn.sendNotification();
+
         } catch (ENotificationException e) {
-            logger.error("CertificateIssuedListener: mailIt: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.warn("CertificateIssuedListener: mailIt: " + e.getMessage(), e);
+            logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()));
 
         } catch (IOException e) {
-            logger.error("CertificateIssuedListener: mailIt: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.warn("CertificateIssuedListener: mailIt: " + e.getMessage(), e);
+            logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()));
         }
     }
 
@@ -324,20 +319,22 @@ public class CertificateIssuedListener implements IRequestListener {
         try {
             keys.set(IEmailResolverKeys.KEY_REQUEST, r);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
+            logger.warn(CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()), e);
         }
 
         IEmailResolver er = new ReqCertSANameEmailResolver();
 
         try {
             mEmail = er.getEmail(keys);
+
         } catch (ENotificationException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
         }
 
         // now we can mail
@@ -374,17 +371,17 @@ public class CertificateIssuedListener implements IRequestListener {
 
             try {
                 mn.sendNotification();
+
             } catch (ENotificationException e) {
                 // already logged, lets audit
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+                logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
 
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+                logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
             }
-        } else {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("LISTENERS_CERT_ISSUED_REJECTION_NOTIFICATION", mReqId.toString()));
 
+        } else {
+            logger.warn(CMS.getLogMessage("LISTENERS_CERT_ISSUED_REJECTION_NOTIFICATION", mReqId.toString()));
         }
     }
 
@@ -440,15 +437,7 @@ public class CertificateIssuedListener implements IRequestListener {
         } else if (name.equalsIgnoreCase(PROP_EMAIL_TEMPLATE)) {
             mFormPath = val;
         } else {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET"));
+            logger.warn(CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET"));
         }
     }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, msg);
-    }
-
 }
