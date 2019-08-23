@@ -148,13 +148,13 @@ public class GroupService extends SubsystemService implements GroupResource {
 
         try {
             if (groupID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
                 throw new GroupNotFoundException(groupID);
             }
 
@@ -192,7 +192,7 @@ public class GroupService extends SubsystemService implements GroupResource {
         // to the signed audit log and stored as failures
         try {
             if (groupID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
@@ -248,7 +248,7 @@ public class GroupService extends SubsystemService implements GroupResource {
         // to the signed audit log and stored as failures
         try {
             if (groupID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
@@ -309,7 +309,7 @@ public class GroupService extends SubsystemService implements GroupResource {
         // to the signed audit log and stored as failures
         try {
             if (groupID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID", headers));
             }
 
@@ -417,10 +417,6 @@ public class GroupService extends SubsystemService implements GroupResource {
             e.printStackTrace();
             throw new PKIException(e.getMessage(), e);
         }
-    }
-
-    public void log(int level, String message) {
-        log(ILogger.S_USRGRP, level, message);
     }
 
     public void auditAddGroup(String groupID, GroupData groupData, String status) {
