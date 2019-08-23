@@ -20,16 +20,6 @@ package com.netscape.cms.crl;
 import java.io.IOException;
 import java.util.Locale;
 
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ca.ICMSCRLExtension;
-import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.apps.CMS;
-
 import org.mozilla.jss.netscape.security.x509.CRLDistributionPoint;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.FreshestCRLExtension;
@@ -39,6 +29,14 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.EPropertyNotFound;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ca.ICMSCRLExtension;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.cmscore.apps.CMS;
+
 /**
  * This represents a freshest CRL extension.
  *
@@ -46,13 +44,14 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
  */
 public class CMSFreshestCRLExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
+
+    public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSFreshestCRLExtension.class);
+
     public static final String PROP_NUM_POINTS = "numPoints";
     public static final String PROP_POINTTYPE = "pointType";
     public static final String PROP_POINTNAME = "pointName";
     public static final String PROP_DIRNAME = "DirectoryName";
     public static final String PROP_URINAME = "URI";
-
-    private Logger mLogger = Logger.getLogger();
 
     public CMSFreshestCRLExtension() {
     }
@@ -75,7 +74,7 @@ public class CMSFreshestCRLExtension
         try {
             numPoints = config.getInteger("numPoints", 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_NUM_NAMES", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_NUM_NAMES", e.toString()), e);
         }
 
         if (numPoints > 0) {
@@ -87,10 +86,12 @@ public class CMSFreshestCRLExtension
 
                 try {
                     pointType = config.getString(PROP_POINTTYPE + i);
+
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()), e);
+
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
+                    logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()), e);
                 }
 
                 if (pointType != null) {
@@ -98,10 +99,12 @@ public class CMSFreshestCRLExtension
 
                     try {
                         pointName = config.getString(PROP_POINTNAME + i);
+
                     } catch (EPropertyNotFound e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
+                        logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()), e);
+
                     } catch (EBaseException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
+                        logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()), e);
                     }
 
                     if (pointName != null && pointName.length() > 0) {
@@ -111,14 +114,14 @@ public class CMSFreshestCRLExtension
 
                                 names.addElement(dirName);
                             } catch (IOException e) {
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()));
+                                logger.warn(CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()), e);
                             }
                         } else if (pointType.equalsIgnoreCase(PROP_URINAME)) {
                             URIName uriName = new URIName(pointName);
 
                             names.addElement(uriName);
                         } else {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_POTINT_TYPE", pointType));
+                            logger.warn(CMS.getLogMessage("CRL_INVALID_POTINT_TYPE", pointType));
                         }
                     }
                 }
@@ -126,10 +129,12 @@ public class CMSFreshestCRLExtension
                 if (names.size() > 0) {
                     try {
                         crlDP.setFullName(names);
+
                     } catch (IOException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CANNOT_SET_NAME", e.toString()));
+                        logger.warn(CMS.getLogMessage("CRL_CANNOT_SET_NAME", e.toString()), e);
+
                     } catch (GeneralNamesException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CANNOT_SET_NAME", e.toString()));
+                        logger.warn(CMS.getLogMessage("CRL_CANNOT_SET_NAME", e.toString()), e);
                     }
                 }
 
@@ -155,9 +160,9 @@ public class CMSFreshestCRLExtension
         try {
             numPoints = config.getInteger(PROP_NUM_POINTS, 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, "Invalid numPoints property for CRL " +
-                    "Freshest CRL extension - " + e);
+            logger.warn("Invalid numPoints property for CRL Freshest CRL extension: " + e.getMessage(), e);
         }
+
         nvp.put(PROP_NUM_POINTS, String.valueOf(numPoints));
 
         for (int i = 0; i < numPoints; i++) {
@@ -165,10 +170,12 @@ public class CMSFreshestCRLExtension
 
             try {
                 pointType = config.getString(PROP_POINTTYPE + i);
+
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()), e);
+
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()), e);
             }
 
             if (pointType != null && pointType.length() > 0) {
@@ -181,10 +188,12 @@ public class CMSFreshestCRLExtension
 
             try {
                 pointName = config.getString(PROP_POINTNAME + i);
+
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()), e);
+
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()), e);
             }
 
             if (pointName != null && pointName.length() > 0) {
@@ -224,10 +233,5 @@ public class CMSFreshestCRLExtension
             };
 
         return params;
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
-                "CMSFreshestCRLExtension - " + msg);
     }
 }
