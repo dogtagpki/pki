@@ -678,7 +678,7 @@ public class TokenKeyRecoveryService implements IService {
                 privKey = mStorageUnit.unwrap(
                         keyRecord.getPrivateKeyData(),
                         pubkey,
-                        false,
+                        true,
                         keyRecord.getWrappingParams(mStorageUnit.getOldWrappingParams()));
             } catch (Exception e) {
                 CMS.debug("TokenKeyRecoveryService: recoverKey() - recovery failure");

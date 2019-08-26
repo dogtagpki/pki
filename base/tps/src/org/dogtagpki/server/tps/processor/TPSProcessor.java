@@ -1294,12 +1294,12 @@ public class TPSProcessor {
             throws EBaseException, TPSException {
 
         String logMsg = null;
-        CMS.debug("TPSProcessor.authenticateUser");
         if (op.isEmpty() || userAuth == null || userCred == null) {
             logMsg = "TPSProcessor.authenticateUser: missing parameter(s): op, userAuth, or userCred";
             CMS.debug(logMsg);
             throw new EBaseException(logMsg);
         }
+        CMS.debug("TPSProcessor.authenticateUser: op: " + op);
         IAuthManager auth = userAuth.getAuthManager();
 
         try {
@@ -1311,6 +1311,12 @@ public class TPSProcessor {
                 while (n.hasMoreElements()) {
                     String name = n.nextElement();
                     CMS.debug("TPSProcessor.authenticateUser: got authToken val name:" + name);
+                    /* debugging authToken content vals
+                    String[] vals = authToken.getInStringArray(name);
+                    if (vals != null) {
+                        CMS.debug("TPSProcessor.authenticateUser: got authToken val :" + vals[0]);
+                    }
+                    */
                 }
                 return authToken;
             } else {
@@ -1811,6 +1817,21 @@ public class TPSProcessor {
         return ret;
     }
 
+   /*
+    * listCaseInsensitiveContains - case insensitive contain check
+    * @param s the string checked if contained in list
+    * @param list the list
+    * @returns true if list contains s; false otherwise
+    */
+    public boolean listCaseInsensitiveContains(String s, List<String> list){
+        for (String element : list){
+            if (element.equalsIgnoreCase(s)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     /*
      * processExternalRegAttrs :
      * - retrieve from authToken relevant attributes for externalReg
@@ -1836,7 +1857,7 @@ public class TPSProcessor {
         if(attributesToProcess == null)
             return erAttrs;
 
-        if(attributesToProcess.contains(erAttrs.ldapAttrNameTokenType)) {
+        if(listCaseInsensitiveContains(erAttrs.ldapAttrNameTokenType, attributesToProcess)) {
             CMS.debug(method + ": getting from authToken:"
                     + erAttrs.ldapAttrNameTokenType);
             vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenType);
@@ -1852,17 +1873,20 @@ public class TPSProcessor {
                 erAttrs.setTokenType(vals[0]);
             }
         }
-        if(attributesToProcess.contains(erAttrs.ldapAttrNameTokenCUID)) {
+        if(listCaseInsensitiveContains(erAttrs.ldapAttrNameTokenCUID, attributesToProcess)) {
             CMS.debug(method + ": getting from authToken:"
                     + erAttrs.ldapAttrNameTokenCUID);
             vals = authToken.getInStringArray(erAttrs.ldapAttrNameTokenCUID);
             if (vals != null) {
                 CMS.debug(method + ": retrieved cuid:" + vals[0]);
                 erAttrs.setTokenCUID(vals[0]);
+            } else {
+                CMS.debug(method + ": " + erAttrs.ldapAttrNameTokenCUID +
+                        " attribute not found");
             }
         }
 
-        if(attributesToProcess.contains(erAttrs.ldapAttrNameRegistrationType)) {
+        if(listCaseInsensitiveContains(erAttrs.ldapAttrNameRegistrationType, attributesToProcess)) {
             CMS.debug(method + ": getting from authToken:"
                     + erAttrs.ldapAttrNameRegistrationType);
             vals = authToken.getInStringArray(erAttrs.ldapAttrNameRegistrationType);
@@ -1876,7 +1900,7 @@ public class TPSProcessor {
 
         }
 
-        if(attributesToProcess.contains(erAttrs.ldapAttrNameCertsToRecover)) {
+        if(listCaseInsensitiveContains(erAttrs.ldapAttrNameCertsToRecover, attributesToProcess)) {
             /*
              * certs to be recovered for this user
              *     - multi-valued

@@ -200,7 +200,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
             // Check if the external reg parameter registrationType matches currentTokenOperation,
             // otherwise stop the operation.
             CMS.debug(method + " checking if record registrationtype matches currentTokenOperation.");
-            if(erAttrs.getRegistrationType() != null) {
+            if(erAttrs.getRegistrationType() != null && erAttrs.getRegistrationType().length() > 0) {
                 if(!erAttrs.getRegistrationType().equalsIgnoreCase(currentTokenOperation)) {
                     CMS.debug(
                             method + " Error: registrationType " +
