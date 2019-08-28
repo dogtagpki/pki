@@ -4172,7 +4172,7 @@ public class TPSProcessor {
 
         keyInfo = tokenRecord.getKeyInfo();
 
-        CMS.debug("TPProcessor.getKeyInfioFromTokenDB: returning: " + keyInfo);
+        CMS.debug("TPProcessor.getKeyInfoFromTokenDB: returning: " + keyInfo);
 
         return keyInfo;
 
