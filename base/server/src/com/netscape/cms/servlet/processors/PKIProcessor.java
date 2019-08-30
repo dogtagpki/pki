@@ -36,7 +36,6 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.logging.Logger;
@@ -123,21 +122,14 @@ public class PKIProcessor implements IPKIProcessor {
                 CertificateSubjectName certSubject = new CertificateSubjectName(new X500Name(subjectname));
 
                 certInfo.set(X509CertInfo.SUBJECT, certSubject);
-                log(ILogger.LL_INFO,
-                        "cert subject set to " + certSubject + " from authtoken");
+                logger.info("PKIProcessor: cert subject set to " + certSubject + " from authtoken");
             }
         } catch (CertificateException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1",
-                            e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"), e);
         } catch (IOException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME",
-                            e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"), e);
         }
 
         // validity
@@ -151,19 +143,14 @@ public class PKIProcessor implements IPKIProcessor {
             if (notBefore != null && notAfter != null) {
                 validity = new CertificateValidity(notBefore, notAfter);
                 certInfo.set(X509CertInfo.VALIDITY, validity);
-                log(ILogger.LL_INFO,
-                        "cert validity set to " + validity + " from authtoken");
+                logger.info("PKIProcessor: cert validity set to " + validity + " from authtoken");
             }
         } catch (CertificateException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"), e);
         } catch (IOException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"), e);
         }
 
         // extensions
@@ -173,18 +160,14 @@ public class PKIProcessor implements IPKIProcessor {
 
             if (extensions != null) {
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
-                log(ILogger.LL_INFO, "cert extensions set from authtoken");
+                logger.info("PKIProcessor: cert extensions set from authtoken");
             }
         } catch (CertificateException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"), e);
         } catch (IOException e) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"), e);
         }
     }
 
@@ -215,22 +198,15 @@ public class PKIProcessor implements IPKIProcessor {
 
             fillValidityFromForm(certInfo, httpParams);
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"), e);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"), e);
         } catch (IllegalArgumentException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_REQ_ILLEGAL_CHARACTERS"));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CONVERT_DN_TO_X500NAME_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()), e);
+            logger.error(CMS.getLogMessage("CMSGW_REQ_ILLEGAL_CHARACTERS"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CONVERT_DN_TO_X500NAME_ERROR"), e);
         }
 
         // requested extensions.
@@ -266,35 +242,17 @@ public class PKIProcessor implements IPKIProcessor {
                     if (notBefore != null && notAfter != null) {
                         validity = new CertificateValidity(notBefore, notAfter);
                         certInfo.set(X509CertInfo.VALIDITY, validity);
-                        log(ILogger.LL_INFO,
-                                "cert validity set to " + validity + " from authtoken");
+                        logger.info("PKIProcessor: cert validity set to " + validity + " from authtoken");
                     }
                 }
             }
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"), e);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"), e);
         }
-    }
-
-    /**
-     * log according to authority category.
-     */
-    public static void log(LogCategory event, int level, String msg) {
-        Logger.getLogger().log(event, ILogger.S_OTHER, level,
-                "PKIProcessor " + ": " + msg);
-    }
-
-    public static void log(int level, String msg) {
-        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level,
-                "PKIProcessor " + ": " + msg);
     }
 
     /**
