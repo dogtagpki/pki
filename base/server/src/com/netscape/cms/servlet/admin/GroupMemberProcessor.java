@@ -107,13 +107,13 @@ public class GroupMemberProcessor extends Processor {
             size = size == null ? DEFAULT_SIZE : size;
 
             if (groupID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
                 throw new GroupNotFoundException(groupID);
             }
 
@@ -161,13 +161,13 @@ public class GroupMemberProcessor extends Processor {
     public GroupMemberData getGroupMember(String groupID, String memberID) {
         try {
             if (groupID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
                 throw new GroupNotFoundException(groupID);
             }
 
@@ -186,8 +186,8 @@ public class GroupMemberProcessor extends Processor {
             throw e;
 
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, e.toString());
-            throw new PKIException(e.getMessage());
+            logger.error("GroupMemberProcessor: " + e.getMessage(), e);
+            throw new PKIException(e.getMessage(), e);
         }
     }
 
@@ -196,13 +196,13 @@ public class GroupMemberProcessor extends Processor {
         CMSEngine engine = CMS.getCMSEngine();
         try {
             if (groupID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
                 throw new GroupNotFoundException(groupID);
             }
 
@@ -259,9 +259,9 @@ public class GroupMemberProcessor extends Processor {
             throw e;
 
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, e.toString());
+            logger.error("GroupMemberProcessor: " + e.getMessage(), e);
             auditAddGroupMember(groupID, groupMemberData, ILogger.FAILURE);
-            throw new PKIException(getUserMessage("CMS_USRGRP_GROUP_MODIFY_FAILED"));
+            throw new PKIException(getUserMessage("CMS_USRGRP_GROUP_MODIFY_FAILED"), e);
         }
     }
 
@@ -350,13 +350,13 @@ public class GroupMemberProcessor extends Processor {
         String groupID = groupMemberData.getGroupID();
         try {
             if (groupID == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 throw new BadRequestException(getUserMessage("CMS_ADMIN_SRVLT_NULL_RS_ID"));
             }
 
             IGroup group = userGroupManager.getGroupFromName(groupID);
             if (group == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
+                logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
                 throw new GroupNotFoundException(groupID);
             }
 
@@ -381,14 +381,10 @@ public class GroupMemberProcessor extends Processor {
             throw e;
 
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, e.toString());
+            logger.error("GroupMemberProcessor: " + e.getMessage(), e);
             auditDeleteGroupMember(groupID, groupMemberData, ILogger.FAILURE);
             throw new PKIException(getUserMessage("CMS_USRGRP_GROUP_MODIFY_FAILED"));
         }
-    }
-
-    public void log(int level, String message) {
-        log(ILogger.S_USRGRP, level, message);
     }
 
     public void auditAddGroupMember(String groupID, GroupMemberData groupMemberData, String status) {
