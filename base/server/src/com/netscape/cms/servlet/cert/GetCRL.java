@@ -41,7 +41,6 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -101,11 +100,9 @@ public class GetCRL extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -117,7 +114,7 @@ public class GetCRL extends CMSServlet {
         IArgBlock args = cmsReq.getHttpParams();
 
         if (!(mAuthority instanceof ICertificateAuthority)) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
+            logger.error(CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
             cmsReq.setStatus(ICMSRequest.ERROR);
@@ -131,8 +128,7 @@ public class GetCRL extends CMSServlet {
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(ICMSRequest.ERROR);
@@ -150,14 +146,14 @@ public class GetCRL extends CMSServlet {
         op = args.getValueAsString("op", null);
         crlId = args.getValueAsString("crlIssuingPoint", null);
         if (op == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_NO_OPTIONS_SELECTED"));
+            logger.error(CMS.getLogMessage("CMSGW_NO_OPTIONS_SELECTED"));
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_NO_OPTIONS_SELECTED")));
             cmsReq.setStatus(ICMSRequest.ERROR);
             return;
         }
         if (crlId == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT"));
+            logger.error(CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT"));
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_NO_CRL_SELECTED")));
             cmsReq.setStatus(ICMSRequest.ERROR);
@@ -173,16 +169,14 @@ public class GetCRL extends CMSServlet {
         try {
             crlRecord = ca.getCRLRepository().readCRLIssuingPointRecord(crlId);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT_FOUND", crlId));
+            logger.error(CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT_FOUND", crlId), e);
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_CRL_NOT_FOUND")));
             cmsReq.setStatus(ICMSRequest.ERROR);
             return;
         }
         if (crlRecord == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlId));
+            logger.error(CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlId));
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_CRL_NOT_UPDATED")));
             cmsReq.setStatus(ICMSRequest.ERROR);
@@ -233,8 +227,7 @@ public class GetCRL extends CMSServlet {
         if (crlbytes == null && (!op.equals("checkCRLcache")) &&
                 (!(op.equals("displayCRL") && crlDisplayType != null &&
                 crlDisplayType.equals("cachedCRL")))) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlId));
+            logger.error(CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlId));
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_CRL_NOT_UPDATED")));
             cmsReq.setStatus(ICMSRequest.ERROR);
@@ -259,7 +252,7 @@ public class GetCRL extends CMSServlet {
                     crl = new X509CRLImpl(crlbytes);
                 }
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_FAILED_DECODE_CRL_1", e.toString()));
+                logger.error(CMS.getLogMessage("CMSGW_FAILED_DECODE_CRL_1", e.toString()), e);
                 cmsReq.setError(new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_DECODE_CRL_FAILED")));
                 cmsReq.setStatus(ICMSRequest.ERROR);
@@ -273,7 +266,7 @@ public class GetCRL extends CMSServlet {
                             crlRecord.getDeltaCRLNumber().compareTo(crlRecord.getCRLNumber()) < 0 ||
                             crlRecord.getDeltaCRLSize() == null ||
                     crlRecord.getDeltaCRLSize().longValue() == -1))) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_NO_DELTA_CRL_1"));
+                logger.error(CMS.getLogMessage("CMSGW_ERR_NO_DELTA_CRL_1"));
                 cmsReq.setError(new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_CRL_NOT_UPDATED")));
                 cmsReq.setStatus(ICMSRequest.ERROR);
@@ -427,8 +420,7 @@ public class GetCRL extends CMSServlet {
                 form.renderOutput(out, argSet);
                 cmsReq.setStatus(ICMSRequest.SUCCESS);
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
+                logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()), e);
                 cmsReq.setError(new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
                 cmsReq.setStatus(ICMSRequest.ERROR);
@@ -448,9 +440,8 @@ public class GetCRL extends CMSServlet {
             httpResp.setHeader("Content-disposition",
                     "attachment; filename=delta-" + crlId + ".crl");
         } else {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_OPTIONS_SELECTED"));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_INVALID_OPTIONS_SELECTED"));
+            logger.error(CMS.getLogMessage("CMSGW_INVALID_OPTIONS_SELECTED"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_OPTIONS_SELECTED"));
         }
 
         try {
@@ -462,9 +453,8 @@ public class GetCRL extends CMSServlet {
             httpResp.getOutputStream().write(bytes);
             httpResp.getOutputStream().flush();
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_DISPLAYING_CRLINFO"));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAYING_CRLINFO_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_DISPLAYING_CRLINFO"), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAYING_CRLINFO_ERROR"), e);
         }
         //		cmsReq.setResult(null);
         cmsReq.setStatus(ICMSRequest.SUCCESS);
