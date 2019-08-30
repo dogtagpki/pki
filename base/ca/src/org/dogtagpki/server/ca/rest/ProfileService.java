@@ -214,8 +214,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     @Override
-    public Response retrieveProfileRaw(String profileId)
-            throws ProfileNotFoundException {
+    public Response retrieveProfileRaw(String profileId) throws Exception {
         IProfile profile = getProfile(profileId);
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         // add profileId and classId "virtual" properties

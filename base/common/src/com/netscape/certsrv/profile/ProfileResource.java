@@ -35,7 +35,7 @@ public interface ProfileResource {
     @Path("{id}/raw")
     @ClientResponseType(entityType=byte[].class)
     @ACLMapping("profiles.read")
-    public Response retrieveProfileRaw(@PathParam("id") String id);
+    public Response retrieveProfileRaw(@PathParam("id") String id) throws Exception;
 
     @POST
     @ClientResponseType(entityType=ProfileData.class)

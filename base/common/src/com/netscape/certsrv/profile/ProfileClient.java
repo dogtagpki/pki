@@ -45,7 +45,7 @@ public class ProfileClient extends Client {
         return client.getEntity(response, ProfileData.class);
     }
 
-    public byte[] retrieveProfileRaw(String id) {
+    public byte[] retrieveProfileRaw(String id) throws Exception {
         Response response = profileClient.retrieveProfileRaw(id);
         return client.getEntity(response, byte[].class);
     }
