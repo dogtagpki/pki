@@ -58,30 +58,19 @@ public class FileConfigStore extends PropConfigStore implements
      * @param fileName file name
      * @exception EBaseException failed to create file configuration
      */
-    public FileConfigStore(String fileName) throws EBaseException {
+    public FileConfigStore(String fileName) throws Exception {
         mFile = new File(fileName);
-        if (!mFile.exists()) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_CONFIG_FILE",
-                        mFile.getPath()));
-        }
-        load(fileName);
     }
 
-    /**
-     * Loads property file into memory.
-     * <P>
-     *
-     * @param fileName file name
-     * @exception EBaseException failed to load configuration
-     */
-    public void load(String fileName) throws EBaseException {
-        try {
-            FileInputStream fi = new FileInputStream(fileName);
-            BufferedInputStream bis = new BufferedInputStream(fi);
+    public void load() throws Exception {
 
-            super.load(bis);
-        } catch (IOException e) {
-            throw new EBaseException("input stream error " + fileName, e);
+        if (!mFile.exists()) {
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_CONFIG_FILE", mFile.getPath()));
+        }
+
+        try (FileInputStream fi = new FileInputStream(mFile);
+                BufferedInputStream bis = new BufferedInputStream(fi)) {
+            load(bis);
         }
     }
 

@@ -531,11 +531,15 @@ public class CMSEngine implements ISubsystem {
             /* if the file is not there, create one */
             File f = new File(path);
             f.createNewFile();
-        } catch (IOException e) {
+
+            FileConfigStore cs = new FileConfigStore(path);
+            cs.load();
+            return cs;
+
+        } catch (Exception e) {
             logger.error("Cannot create file: " + path + ": " + e.getMessage(), e);
             throw new EBaseException("Cannot create file: " + path + ": " + e.getMessage(), e);
         }
-        return new FileConfigStore(path);
     }
 
     public boolean isPreOpMode() {

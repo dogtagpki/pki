@@ -130,7 +130,13 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         profileDatabase = new ProfileDatabase();
         profileMappingDatabase = new ProfileMappingDatabase();
 
-        FileConfigStore defaultConfig = new FileConfigStore("/usr/share/pki/tps/conf/CS.cfg");
+        FileConfigStore defaultConfig;
+        try {
+            defaultConfig = new FileConfigStore("/usr/share/pki/tps/conf/CS.cfg");
+            defaultConfig.load();
+        } catch (Exception e) {
+            throw new EBaseException("Unable to load default TPS configuration: " + e.getMessage(), e);
+        }
 
         uiTransitions = loadAndValidateTokenStateTransitions(
                 defaultConfig, cs, TPSEngine.CFG_TOKENDB_ALLOWED_TRANSITIONS);

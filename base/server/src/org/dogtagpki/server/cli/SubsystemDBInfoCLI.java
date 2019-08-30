@@ -97,6 +97,8 @@ public class SubsystemDBInfoCLI extends CLI {
 
         logger.info("Loading " + configFile);
         FileConfigStore cs = new FileConfigStore(configFile);
+        cs.load();
+
         IConfigStore ldapConfig = cs.getSubStore("internaldb");
 
         String instanceId = cs.getString("instanceId");
