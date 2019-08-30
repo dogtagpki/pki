@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.KeyGenInfo;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
@@ -78,22 +77,17 @@ public class KeyGenProcessor extends PKIProcessor {
 
         key = keyGenInfo.getSPKI();
         if (key == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_MISSING_KEY_IN_KEYGENINFO"));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_MISSING_KEY_IN_KEYGENINFO"));
+            logger.error(CMS.getLogMessage("CMSGW_MISSING_KEY_IN_KEYGENINFO"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_KEY_IN_KEYGENINFO"));
         }
         try {
             certInfo.set(X509CertInfo.KEY, new CertificateX509Key(key));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    "Could not set key into certInfo from keygen. Error " + e);
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_KEYGEN_FAILED", e.toString()));
+            logger.error("KeyGenProcessor: Could not set key into certInfo from keygen: " + e.getMessage(), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_KEY_FROM_KEYGEN_FAILED", e.toString()), e);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_KEYGEN_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_KEYGEN_FAILED", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_KEYGEN_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_KEY_FROM_KEYGEN_FAILED", e.toString()), e);
         }
 
         String authMgr = mServlet.getAuthMgr();
@@ -108,10 +102,8 @@ public class KeyGenProcessor extends PKIProcessor {
                 // and bulk issuance.
                 if (!authMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID) &&
                         !authMgr.equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID)) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
-                    throw new ECMSGWException(
-                            CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
+                    logger.error(CMS.getLogMessage("CMSGW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
+                    throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
                 }
                 fillCertInfoFromForm(certInfo, httpParams);
             } else {
