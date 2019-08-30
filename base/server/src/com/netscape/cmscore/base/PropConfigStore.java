@@ -39,7 +39,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.ISourceConfigStore;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -78,7 +77,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     /**
      * The source data for this substore
      */
-    protected ISourceConfigStore mSource;
+    protected SourceConfigStore mSource;
 
     public PropConfigStore() {
         mSource = new SourceConfigStore();
@@ -87,7 +86,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     /**
      * Constructs a property configuration store. This must
      * be a brand new store without properties. The subclass
-     * must be a ISourceConfigStore.
+     * must be a SourceConfigStore.
      * <P>
      *
      * @param storeName property store name
@@ -109,7 +108,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param prop list of properties
      * @exception EBaseException failed to create configuration
      */
-    protected PropConfigStore(String name, ISourceConfigStore source) {
+    protected PropConfigStore(String name, SourceConfigStore source) {
         mStoreName = name;
         mSource = source;
     }
@@ -168,7 +167,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name property name
      */
     public void remove(String name) {
-        ((SourceConfigStore) mSource).remove(getFullName(name));
+        mSource.remove(getFullName(name));
     }
 
     /**
@@ -701,7 +700,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @return source configuration store
      */
-    public ISourceConfigStore getSourceConfigStore() {
+    public SourceConfigStore getSourceConfigStore() {
         return mSource;
     }
 

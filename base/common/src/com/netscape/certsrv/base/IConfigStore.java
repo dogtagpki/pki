@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Map;
@@ -59,7 +62,56 @@ import java.util.Map;
  *
  * @version $Revision$, $Date$
  */
-public interface IConfigStore extends ISourceConfigStore {
+public interface IConfigStore {
+
+    /**
+     * Gets a property.
+     * <P>
+     *
+     * @param name The property name
+     * @return property value
+     */
+    public String get(String name);
+
+    /**
+     * Retrieves a property.
+     * <P>
+     *
+     * @param name The property name
+     * @param value The property value
+     */
+    public String put(String name, String value);
+
+    /**
+     * Returns an enumeration of the config store's keys.
+     * <P>
+     *
+     * @return a list of keys
+     * @see java.util.Hashtable#elements
+     * @see java.util.Enumeration
+     */
+    public Enumeration<String> keys();
+
+    /**
+     * Clear the config store.
+     */
+    public void clear();
+
+    /**
+     * Reads a config store from an input stream.
+     *
+     * @param in input stream where the properties are located
+     * @exception IOException If an IO error occurs while loading from input.
+     */
+    public void load(InputStream in) throws IOException;
+
+    /**
+     * Stores this config store to the specified output stream.
+     *
+     * @param out output stream where the properties should be serialized
+     * @param header optional header to be serialized
+     */
+    public void save(OutputStream out, String header);
 
     /**
      * Gets the name of this Configuration Store.
