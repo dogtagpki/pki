@@ -57,7 +57,6 @@ import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -103,15 +102,17 @@ public class DisplayBySerial extends CMSServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
         if (mAuthority instanceof ICertificateAuthority) {
             mCertDB = ((ICertificateAuthority) mAuthority).getCertificateRepository();
         }
+
         try {
             mCACerts = ((ICertAuthority) mAuthority).getCACertChain().getChain();
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_CA_CHAIN_NOT_AVAILABLE"));
+            logger.warn(CMS.getLogMessage("CMSGW_CA_CHAIN_NOT_AVAILABLE"), e);
         }
+
         // coming from ee
         mForm1Path = "/" + mAuthority.getId() + "/" + TPL_FILE1;
 
@@ -150,8 +151,7 @@ public class DisplayBySerial extends CMSServlet {
                 authzToken = authorize(mAclMethod, authToken,
                             mAuthzResourceName, "read");
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             }
 
             if (authzToken == null) {
@@ -165,18 +165,18 @@ public class DisplayBySerial extends CMSServlet {
             if (certType[0].equalsIgnoreCase("x509")) {
                 form = getTemplate(mForm1Path, req, locale);
             }
-        } catch (NumberFormatException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT_1", String.valueOf(serialNumber)));
 
-            error = new ECMSGWException(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
+        } catch (NumberFormatException e) {
+            logger.error(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT_1", String.valueOf(serialNumber)), e);
+            error = new ECMSGWException(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"), e);
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mForm1Path, e.toString()));
-            throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mForm1Path, e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
+
         } catch (EDBRecordNotFoundException e) {
             throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", "0x" + serialNumber.toString(16)));
+                    CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", "0x" + serialNumber.toString(16)), e);
         }
 
         ArgBlock header = new ArgBlock();
@@ -212,9 +212,8 @@ public class DisplayBySerial extends CMSServlet {
                 cmsReq.setError(error);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", e.toString()));
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
         }
 
     }
@@ -237,8 +236,7 @@ public class DisplayBySerial extends CMSServlet {
                 return;
             }
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_DISP_BY_SERIAL", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_DISP_BY_SERIAL", e.toString()), e);
             throw e;
         }
 
@@ -329,8 +327,7 @@ public class DisplayBySerial extends CMSServlet {
                 header.addBooleanValue("noCertImport", noCertImport);
 
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_ERROR_PARSING_EXTENS", e.toString()));
+                logger.warn(CMS.getLogMessage("CMSGW_ERROR_PARSING_EXTENS", e.toString()), e);
             }
 
             byte[] ba = cert.getEncoded();
@@ -383,9 +380,9 @@ public class DisplayBySerial extends CMSServlet {
                 try {
                     certFingerprints = CertUtils.getFingerPrints(cert);
                 } catch (Exception e) {
-                    log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_ERR_DIGESTING_CERT", e.toString()));
+                    logger.warn(CMS.getLogMessage("CMSGW_ERR_DIGESTING_CERT", e.toString()), e);
                 }
+
                 if (certFingerprints.length() > 0)
                     header.addStringValue("certFingerprint", certFingerprints);
             }
@@ -441,21 +438,18 @@ public class DisplayBySerial extends CMSServlet {
                 } catch (Exception e) {
                     //p7Str = "PKCS#7 B64 Encoding error - " + e.toString()
                     //+ "; Please contact your administrator";
-                    log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_ERROR_FORMING_PKCS7_1", e.toString()));
-                    throw new ECMSGWException(
-                        CMS.getLogMessage("CMSGW_ERROR_FORMING_PKCS7"));
+                    logger.error(CMS.getLogMessage("CMSGW_ERROR_FORMING_PKCS7_1", e.toString()), e);
+                    throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_FORMING_PKCS7"), e);
                 }
             }
+
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("MSGW_ERR_DISP_BY_SERIAL", e.toString()));
+            logger.error(CMS.getLogMessage("MSGW_ERR_DISP_BY_SERIAL", e.toString()), e);
             throw e;
+
         } catch (CertificateEncodingException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_ENCODE_CERT", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_ERROR_ENCODING_ISSUED_CERT"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_ENCODE_CERT", e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_ENCODING_ISSUED_CERT"), e);
         }
 
         return;
@@ -474,8 +468,7 @@ public class DisplayBySerial extends CMSServlet {
                 return rec;
             }
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_DISP_BY_SERIAL", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_DISP_BY_SERIAL", e.toString()), e);
             throw e;
         }
 
