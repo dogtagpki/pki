@@ -45,7 +45,6 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
@@ -172,7 +171,7 @@ public class AddCRLServlet extends CMSServlet {
                     }
                 }
             }
-            log(ILogger.LL_INFO, "AddCRLServlet");
+            logger.info("AddCRLServlet");
             String b64 = cmsReq.getHttpReq().getParameter("crl");
             logger.debug("AddCRLServlet: b64=" + b64);
 
@@ -208,9 +207,7 @@ public class AddCRLServlet extends CMSServlet {
                     form = getTemplate(mFormPath, req, locale);
                 }
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath,
-                                      e.toString()));
+                logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -230,8 +227,7 @@ public class AddCRLServlet extends CMSServlet {
             CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
             if (b64.indexOf(BEGIN_HEADER) == -1) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_MISSING_CRL_HEADER"));
+                logger.error(CMS.getLogMessage("CMSGW_MISSING_CRL_HEADER"));
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -246,8 +242,7 @@ public class AddCRLServlet extends CMSServlet {
                                           "CMS_GW_MISSING_CRL_HEADER"));
             }
             if (b64.indexOf(END_HEADER) == -1) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_MISSING_CRL_FOOTER"));
+                logger.error(CMS.getLogMessage("CMSGW_MISSING_CRL_FOOTER"));
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -312,8 +307,7 @@ public class AddCRLServlet extends CMSServlet {
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_DECODING_CRL_ERROR"));
             }
-            log(ILogger.LL_INFO, "AddCRLServlet: CRL Issuer DN " +
-                    crl.getIssuerDN().getName());
+            logger.info("AddCRLServlet: CRL Issuer DN " + crl.getIssuerDN().getName());
 
             ICRLIssuingPointRecord pt = null;
 
@@ -321,9 +315,7 @@ public class AddCRLServlet extends CMSServlet {
                 pt = defStore.readCRLIssuingPoint(
                             crl.getIssuerDN().getName());
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT_FOUND",
-                                crl.getIssuerDN().getName()));
+                logger.error(CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT_FOUND", crl.getIssuerDN().getName()), e);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -336,8 +328,7 @@ public class AddCRLServlet extends CMSServlet {
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_DECODING_CRL_ERROR"));
             }
-            log(ILogger.LL_INFO, "AddCRLServlet: IssuingPoint " +
-                    pt.getThisUpdate());
+            logger.info("AddCRLServlet: IssuingPoint " + pt.getThisUpdate());
 
             // verify CRL
             CryptoManager cmanager = null;
@@ -390,9 +381,7 @@ public class AddCRLServlet extends CMSServlet {
                     CRLValidated = true;
                 } catch (Exception e) {
                     logger.error("AddCRLServlet: failed to verify CRL: " + e.getMessage(), e);
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT_FOUND",
-                                    crl.getIssuerDN().getName()));
+                    logger.error(CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT_FOUND", crl.getIssuerDN().getName()), e);
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
@@ -414,11 +403,9 @@ public class AddCRLServlet extends CMSServlet {
             if ((pt.getThisUpdate() != null) &&
                     (pt.getThisUpdate().getTime() >=
                     crl.getThisUpdate().getTime())) {
-                // error, the uploaded CRL is older than the current
-                logger.debug("AddCRLServlet: no update, CRL is older");
-                log(ILogger.LL_INFO,
-                        "AddCRLServlet: no update, received CRL is older " +
-                                "than current CRL");
+
+                logger.warn("AddCRLServlet: no update, received CRL is older than current CRL");
+
                 if (noUI) {
                     try {
                         resp.setContentType("application/text");
@@ -450,9 +437,9 @@ public class AddCRLServlet extends CMSServlet {
             }
 
             if (crl.isDeltaCRL()) {
-                logger.debug("AddCRLServlet: no update, Delta CRLs are not supported.");
-                log(ILogger.LL_INFO, "AddCRLServlet: no update, " +
-                        CMS.getUserMessage("CMS_GW_DELTA_CRL_NOT_SUPPORTED"));
+
+                logger.warn("AddCRLServlet: no update, " + CMS.getUserMessage("CMS_GW_DELTA_CRL_NOT_SUPPORTED"));
+
                 if (noUI) {
                     try {
                         resp.setContentType("application/text");
@@ -470,8 +457,7 @@ public class AddCRLServlet extends CMSServlet {
                 }
             }
 
-            logger.debug("AddCRLServlet: strt committing CRL");
-            log(ILogger.LL_INFO, "AddCRLServlet: Start Committing CRL");
+            logger.info("AddCRLServlet: Start Committing CRL");
 
             // *****************************************************
             // The commit transaction may take long time and
@@ -487,13 +473,12 @@ public class AddCRLServlet extends CMSServlet {
                         crl.getIssuerDN().getName(),
                         Long.toString(crl.getThisUpdate().getTime()),
                         repRec);
-                log(ILogger.EV_AUDIT, AuditFormat.LEVEL, "Added CRL Updated " +
-                        Long.toString(crl.getThisUpdate().getTime()));
+                logger.info("AddCRLServlet: Added CRL Updated " + Long.toString(crl.getThisUpdate().getTime()));
             } catch (Exception e) {
                 logger.warn("AddCRLServlet: add repository: " + e.getMessage(), e);
             }
-            log(ILogger.LL_INFO, "AddCRLServlet: Created CRL Repository " +
-                    Long.toString(crl.getThisUpdate().getTime()));
+
+            logger.info("AddCRLServlet: Created CRL Repository " + Long.toString(crl.getThisUpdate().getTime()));
 
             if (defStore.waitOnCRLUpdate()) {
                 defStore.updateCRL(crl);
@@ -526,18 +511,14 @@ public class AddCRLServlet extends CMSServlet {
                     }
                 }
             } catch (IOException e) {
-                logger.error("AddCRLServlet: return result error=" + e.getMessage(), e);
-                mOCSPAuthority.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE",
-                                e.toString()));
+                logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
 
                 // NOTE:  The signed audit events
                 //        LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL and
                 //        LOGGING_SIGNED_AUDIT_CRL_VALIDATION have
                 //        already been logged at this point!
 
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
             }
         } catch (EBaseException eAudit1) {
             if (!CRLFetched) {
