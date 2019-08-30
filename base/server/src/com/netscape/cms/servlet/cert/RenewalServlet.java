@@ -48,7 +48,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -111,10 +110,7 @@ public class RenewalServlet extends CMSServlet {
                     mRenewalSuccessFiller = filler;
             }
         } catch (Exception e) {
-            // this should never happen.
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(),
-                            mId));
+            logger.warn(CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(), mId), e);
         }
 
     }
@@ -152,11 +148,9 @@ public class RenewalServlet extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "renew");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -238,15 +232,11 @@ public class RenewalServlet extends CMSServlet {
             req.setExtData(IRequest.CERT_INFO, new X509CertInfo[] { new_certInfo }
                     );
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_SETTING_RENEWAL_VALIDITY_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SETTING_RENEWAL_VALIDITY_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SETTING_RENEWAL_VALIDITY_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SETTING_RENEWAL_VALIDITY_ERROR"), e);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_SETTING_RENEWAL_VALIDITY_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SETTING_RENEWAL_VALIDITY_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_SETTING_RENEWAL_VALIDITY_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SETTING_RENEWAL_VALIDITY_ERROR"), e);
         }
 
         saveHttpHeaders(httpReq, req);
@@ -406,11 +396,8 @@ public class RenewalServlet extends CMSServlet {
                 renderTemplate(cmsReq,
                         mRenewalSuccessTemplate, mRenewalSuccessFiller);
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGE_ERROR_DISPLAY_TEMPLATE_1",
-                                mRenewalSuccessTemplate, e.toString()));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                logger.error(CMS.getLogMessage("CMSGE_ERROR_DISPLAY_TEMPLATE_1", mRenewalSuccessTemplate, e.toString()), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
             }
         }
         return;
@@ -423,19 +410,16 @@ public class RenewalServlet extends CMSServlet {
         MetaInfo meta = certRec.getMetaInfo();
 
         if (meta == null) {
-            log(ILogger.LL_INFO,
-                    "no meta info in cert serial 0x" + certRec.getSerialNumber().toString(16));
+            logger.warn("RenewalServlet: no meta info in cert serial 0x" + certRec.getSerialNumber().toString(16));
             return null;
         }
         serial = (String) meta.get(ICertRecord.META_RENEWED_CERT);
         if (serial == null) {
-            log(ILogger.LL_INFO,
-                    "no renewed cert in cert 0x" + certRec.getSerialNumber().toString(16));
+            logger.warn("RenewalServlet: no renewed cert in cert 0x" + certRec.getSerialNumber().toString(16));
             return null;
         }
         renewedCert = new BigInteger(serial);
-        log(ILogger.LL_INFO,
-                "renewed cert serial 0x" + renewedCert.toString(16) + "found for 0x" +
+        logger.info("RenewalServlet: renewed cert serial 0x" + renewedCert.toString(16) + "found for 0x" +
                         certRec.getSerialNumber().toString(16));
         return renewedCert;
     }
@@ -452,19 +436,15 @@ public class RenewalServlet extends CMSServlet {
         // get serial no
         serialno = httpParams.getValueAsBigInteger(SERIAL_NO, null);
         if (serialno == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_RENEW"));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_MISSING_SERIALNO_FOR_RENEW"));
+            logger.error(CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_RENEW"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_SERIALNO_FOR_RENEW"));
         }
         // get cert from db if we're cert authority.
         if (mAuthority instanceof ICertificateAuthority) {
             cert = getX509Certificate(serialno);
             if (cert == null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_RENEW_1", serialno.toString(16)));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_RENEWAL"));
+                logger.error(CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_RENEW_1", serialno.toString(16)));
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_RENEWAL"));
             }
         }
         certContainer[0] = cert;
@@ -481,17 +461,13 @@ public class RenewalServlet extends CMSServlet {
                 authToken.getInCert(AuthToken.TOKEN_CERT);
 
         if (cert == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_MISSING_CERTS_RENEW_FROM_AUTHMGR"));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_MISSING_CERTS_RENEW_FROM_AUTHMGR"));
+            logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTS_RENEW_FROM_AUTHMGR"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_CERTS_RENEW_FROM_AUTHMGR"));
         }
         if (mAuthority instanceof ICertificateAuthority &&
                 !isCertFromCA(cert)) {
-            log(ILogger.LL_FAILURE, "certficate from auth manager for " +
-                    " renewal is not from this ca.");
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_RENEWAL"));
+            logger.error("RenewalServlet: certficate from auth manager for renewal is not from this ca");
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_RENEWAL"));
         }
         certContainer[0] = cert;
         BigInteger serialno = ((X509Certificate) cert).getSerialNumber();
