@@ -47,7 +47,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
@@ -68,9 +67,8 @@ import com.netscape.cmscore.cert.CertUtils;
  */
 public class UpdateDir extends CMSServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateDir.class);
+
     private static final long serialVersionUID = 3063889978908136789L;
     private final static String TPL_FILE = "updateDir.template";
     private final static int UPDATE_ALL = 0;
@@ -147,11 +145,9 @@ public class UpdateDir extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "update");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -171,10 +167,8 @@ public class UpdateDir extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         try {
@@ -219,10 +213,8 @@ public class UpdateDir extends CMSServlet {
                 cmsReq.setError(error);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.warn(CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
     }
 
@@ -242,12 +234,11 @@ public class UpdateDir extends CMSServlet {
                 crlRecord = mCRLRepository.readCRLIssuingPointRecord(crlIssuingPointId);
             }
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_GET_CRL_RECORD", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSGW_ERR_GET_CRL_RECORD", e.toString()), e);
         }
 
         if (crlRecord == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlIssuingPointId));
+            logger.warn(CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlIssuingPointId));
             header.addStringValue("crlPublished", "Failure");
             header.addStringValue("crlError",
                     new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_CRL_NOT_YET_UPDATED")).toString());
@@ -256,8 +247,7 @@ public class UpdateDir extends CMSServlet {
             byte[] crlbytes = crlRecord.getCRL();
 
             if (crlbytes == null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", ""));
+                logger.warn(CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", ""));
                 header.addStringValue("crlPublished", "Failure");
                 header.addStringValue("crlError",
                         new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_CRL_NOT_YET_UPDATED")).toString());
@@ -267,7 +257,7 @@ public class UpdateDir extends CMSServlet {
                 try {
                     crl = new X509CRLImpl(crlbytes);
                 } catch (Exception e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_DECODE_CRL", e.toString()));
+                    logger.warn(CMS.getLogMessage("CMSGW_ERR_DECODE_CRL", e.toString()), e);
                 }
 
                 if (crl == null) {
@@ -285,7 +275,7 @@ public class UpdateDir extends CMSServlet {
                     } catch (ELdapException e) {
                         header.addStringValue("crlPublished", "Failure");
                         header.addStringValue("crlError", e.toString(locale));
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("LDAP_ERROR_PUBLISH_CRL", e.toString()));
+                        logger.warn(CMS.getLogMessage("LDAP_ERROR_PUBLISH_CRL", e.toString()), e);
                     }
                 }
             }
@@ -300,7 +290,7 @@ public class UpdateDir extends CMSServlet {
                 try {
                     deltaCrl = new X509CRLImpl(deltaCrlBytes);
                 } catch (Exception e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_DECODE_DELTA_CRL", e.toString()));
+                    logger.warn(CMS.getLogMessage("CMSGW_ERR_DECODE_DELTA_CRL", e.toString()), e);
                 }
 
                 boolean goodDelta = false;
@@ -325,7 +315,7 @@ public class UpdateDir extends CMSServlet {
                             mPublisherProcessor.publishCRL(deltaCrl, crlIssuingPointId);
                         }
                     } catch (ELdapException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_PUBLISH_DELTA_CRL", e.toString()));
+                        logger.warn(CMS.getLogMessage("CMSGW_ERR_PUBLISH_DELTA_CRL", e.toString()), e);
                     }
                 }
             }
@@ -400,8 +390,7 @@ public class UpdateDir extends CMSServlet {
                 mPublisherProcessor.publishCACert(caCert);
                 header.addStringValue("caCertPublished", "Success");
             } catch (ELdapException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("LDAP_ERROR_PUBLISH_CACERT_1",
-                        caCert.getSerialNumber().toString(16), e.toString()));
+                logger.warn(CMS.getLogMessage("LDAP_ERROR_PUBLISH_CACERT_1", caCert.getSerialNumber().toString(16), e.toString()));
                 header.addStringValue("caCertPublished", "Failure");
                 header.addStringValue("caCertError", e.toString(locale));
             }
@@ -456,9 +445,7 @@ public class UpdateDir extends CMSServlet {
                             // ca's self signed signing cert and
                             // server cert has no related request and
                             // have no metaInfo
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
-                                            cert.getSerialNumber().toString(16)));
+                            logger.warn(CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD", cert.getSerialNumber().toString(16)));
                         } else {
                             ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
                         }
@@ -490,8 +477,7 @@ public class UpdateDir extends CMSServlet {
                             }
                             i++;
                         } catch (Exception e) {
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_FAIL_PUBLISH_CERT",
+                            logger.warn(CMS.getLogMessage("CMSGW_FAIL_PUBLISH_CERT",
                                             certRecord.getSerialNumber().toString(16),
                                             e.toString()));
                             validCertsError +=
@@ -573,8 +559,7 @@ public class UpdateDir extends CMSServlet {
                             // ca's self signed signing cert and
                             // server cert has no related request and
                             // have no metaInfo
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
+                            logger.warn(CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
                                             cert.getSerialNumber().toString(16)));
                         } else {
                             ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
@@ -597,8 +582,7 @@ public class UpdateDir extends CMSServlet {
                             }
                             i++;
                         } catch (Exception e) {
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("LDAP_ERROR_UNPUBLISH_CERT",
+                            logger.warn(CMS.getLogMessage("LDAP_ERROR_UNPUBLISH_CERT",
                                             certRecord.getSerialNumber().toString(16),
                                             e.toString()));
                             expiredCertsError.append(
@@ -681,8 +665,7 @@ public class UpdateDir extends CMSServlet {
                             // ca's self signed signing cert and
                             // server cert has no related request and
                             // have no metaInfo
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
+                            logger.warn(CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
                                             cert.getSerialNumber().toString(16)));
                         } else {
                             ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
@@ -705,8 +688,7 @@ public class UpdateDir extends CMSServlet {
                             }
                             i++;
                         } catch (Exception e) {
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("LDAP_ERROR_UNPUBLISH_CERT",
+                            logger.warn(CMS.getLogMessage("LDAP_ERROR_UNPUBLISH_CERT",
                                             certRecord.getSerialNumber().toString(16),
                                             e.toString()));
                             revokedCertsError +=
