@@ -56,9 +56,8 @@ import com.netscape.cmscore.apps.CMSEngine;
  */
 public class CAAdminServlet extends AdminServlet {
 
-    /**
-     *
-     */
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CAAdminServlet.class);
+
     private static final long serialVersionUID = 6200983242040946840L;
 
     public final static String PROP_EMAIL_TEMPLATE = "emailTemplate";
@@ -345,7 +344,7 @@ public class CAAdminServlet extends AdminServlet {
 
                 if ((!template.exists()) || (!template.canRead())
                         || (template.isDirectory())) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_INVALID_PATH"));
+                    logger.error(CMS.getLogMessage("ADMIN_SRVLT_INVALID_PATH"));
 
                     sendResponse(ERROR,
                             CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PATH"),
@@ -397,7 +396,7 @@ public class CAAdminServlet extends AdminServlet {
 
                 if ((!template.exists()) || (!template.canRead())
                         || (template.isDirectory())) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_INVALID_PATH"));
+                    logger.error(CMS.getLogMessage("ADMIN_SRVLT_INVALID_PATH"));
 
                     sendResponse(ERROR,
                             CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PATH"),
@@ -1566,12 +1565,5 @@ public class CAAdminServlet extends AdminServlet {
             sendResponse(RESTART, null, null, resp);
         else
             sendResponse(SUCCESS, null, null, resp);
-    }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, "CAAdminServlet: " + msg);
     }
 }
