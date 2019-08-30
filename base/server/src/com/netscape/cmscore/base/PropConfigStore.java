@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -251,10 +252,15 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * Stores this config store to the specified output stream.
      *
      * @param out outputstream where the properties are saved
-     * @param header optional header information to be saved
      */
-    public synchronized void save(OutputStream out, String header) {
-        mSource.save(out, header);
+    public synchronized void store(OutputStream out) throws Exception {
+        try (PrintWriter pw = new PrintWriter(out)) {
+            Map<String, String> map = getProperties();
+            for (String name : map.keySet()) {
+                String value = map.get(name);
+                pw.println(name + "=" + value);
+            }
+        }
     }
 
     /**

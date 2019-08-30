@@ -123,9 +123,8 @@ public interface IConfigStore {
      * Stores this config store to the specified output stream.
      *
      * @param out output stream where the properties should be serialized
-     * @param header optional header to be serialized
      */
-    public void save(OutputStream out, String header);
+    public void store(OutputStream out) throws Exception;
 
     /**
      * Gets the name of this Configuration Store.

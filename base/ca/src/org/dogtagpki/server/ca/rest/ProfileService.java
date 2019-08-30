@@ -220,7 +220,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         // add profileId and classId "virtual" properties
         profile.getConfigStore().put("profileId", profileId);
         profile.getConfigStore().put("classId", ps.getProfileClassId(profileId));
-        profile.getConfigStore().save(data, null);
+        profile.getConfigStore().store(data);
         return createOKResponse(data.toByteArray());
     }
 

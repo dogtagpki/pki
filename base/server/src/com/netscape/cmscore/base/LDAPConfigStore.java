@@ -19,9 +19,6 @@
 package com.netscape.cmscore.base;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.Map;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -81,16 +78,6 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
         this.attr = attr;
     }
 
-    @Override
-    public void save(OutputStream out, String header) {
-        try (PrintWriter writer = new PrintWriter(out)) {
-            Map<String, String> map = getProperties();
-            for (String k : map.keySet()) {
-                writer.println(k + "=" + map.get(k));
-            }
-        }
-    }
-
     /**
      * Commit the configuration to the database.
      *
@@ -115,7 +102,12 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
     public LDAPEntry commitReturn(boolean createBackup, String[] attrs)
             throws EBaseException {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
-        save(data, null);
+
+        try {
+            store(data);
+        } catch (Exception e) {
+            throw new EBaseException(e);
+        }
 
         LDAPAttribute configAttr = new LDAPAttribute(attr, data.toByteArray());
 
