@@ -18,7 +18,7 @@
 package com.netscape.kra;
 
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.request.ARequestNotifier;
+import com.netscape.cmscore.request.ARequestNotifier;
 
 /**
  * A class represents a KRA request queue notify. This

@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.request;
+package com.netscape.cmscore.request;
 
 import java.math.BigInteger;
 import java.util.Enumeration;
@@ -27,6 +27,12 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.IRequestListener;
+import com.netscape.certsrv.request.IRequestNotifier;
+import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.IRequestVirtualList;
+import com.netscape.certsrv.request.RequestId;
 
 /**
  * The ARequestNotifier class implements the IRequestNotifier interface,
