@@ -170,11 +170,11 @@ public class DoRevokeTPS extends CMSServlet {
             @SuppressWarnings("unused")
             CMSTemplate form = getTemplate(mFormPath, req, locale); // check for errors
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
         } catch (Exception e) {
             logger.error("DoRevokeTPS getTemplate failed: " + e.getMessage(), e);
-            throw new EBaseException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            throw new EBaseException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
         }
 
         logger.debug("DoRevokeTPS after getTemplate");
@@ -213,11 +213,9 @@ public class DoRevokeTPS extends CMSServlet {
                 authzToken = authorize(mAclMethod, authToken,
                             mAuthzResourceName, "revoke");
             } catch (EAuthzAccessDenied e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             }
 
             if (authzToken == null) {
@@ -246,9 +244,8 @@ public class DoRevokeTPS extends CMSServlet {
                         resp, revokeAll, totalRecordCount, comments, locale[0]);
             }
         } catch (NumberFormatException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
-            error = new EBaseException(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
+            logger.error(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"), e);
+            error = new EBaseException(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"), e);
         } catch (EBaseException e) {
             error = e;
         }
@@ -270,9 +267,8 @@ public class DoRevokeTPS extends CMSServlet {
             os.write(b);
             os.flush();
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
         }
     }
 
@@ -470,7 +466,7 @@ public class DoRevokeTPS extends CMSServlet {
 
                 errorString = "error=No certificates are revoked.";
                 o_status = "status=2";
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REV_CERTS_ZERO"));
+                logger.error(CMS.getLogMessage("CMSGW_REV_CERTS_ZERO"));
 
                 audit(new CertStatusChangeRequestEvent(
                             auditSubjectID,
@@ -515,7 +511,7 @@ public class DoRevokeTPS extends CMSServlet {
 
         } catch (EBaseException e) {
 
-            log(ILogger.LL_FAILURE, "error " + e);
+            logger.error("DoRevokeTPS: " + e.getMessage(), e);
 
             audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
@@ -527,8 +523,7 @@ public class DoRevokeTPS extends CMSServlet {
 
         } catch (Exception e) {
 
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()), e);
 
             audit(new CertStatusChangeRequestEvent(
                         auditSubjectID,
@@ -790,7 +785,7 @@ public class DoRevokeTPS extends CMSServlet {
 
         } catch (EBaseException e) {
 
-            log(ILogger.LL_FAILURE, "error " + e);
+            logger.error("DoRevokeTPS: " + e.getMessage(), e);
 
             // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
             // message in the signed audit log file
@@ -814,8 +809,7 @@ public class DoRevokeTPS extends CMSServlet {
 
         } catch (Exception e) {
 
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED_1", e.toString()), e);
 
             // store a "CERT_STATUS_CHANGE_REQUEST_PROCESSED" failure
             // message in the signed audit log file
