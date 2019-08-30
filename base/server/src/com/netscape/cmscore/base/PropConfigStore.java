@@ -77,10 +77,10 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     /**
      * The source data for this substore
      */
-    protected SourceConfigStore mSource;
+    protected SimpleProperties mSource;
 
     public PropConfigStore() {
-        mSource = new SourceConfigStore();
+        mSource = new SimpleProperties();
     }
 
     /**
@@ -93,7 +93,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @exception EBaseException failed to create configuration
      */
     public PropConfigStore(String storeName) {
-        mSource = new SourceConfigStore();
+        mSource = new SimpleProperties();
         mStoreName = storeName;
     }
 
@@ -108,7 +108,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param prop list of properties
      * @exception EBaseException failed to create configuration
      */
-    protected PropConfigStore(String name, SourceConfigStore source) {
+    protected PropConfigStore(String name, SimpleProperties source) {
         mStoreName = name;
         mSource = source;
     }
@@ -700,7 +700,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      *
      * @return source configuration store
      */
-    public SourceConfigStore getSourceConfigStore() {
+    public SimpleProperties getSource() {
         return mSource;
     }
 
@@ -746,7 +746,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
             PropConfigStore that = (PropConfigStore) super.clone();
 
             mStoreName = getName();
-            mSource = new SourceConfigStore();
+            mSource = new SimpleProperties();
             Enumeration<String> subs = getSubStoreNames();
 
             while (subs.hasMoreElements()) {
