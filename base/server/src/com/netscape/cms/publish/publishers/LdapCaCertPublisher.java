@@ -27,9 +27,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
@@ -64,7 +62,6 @@ public class LdapCaCertPublisher
     protected String mObjAdded = "";
     protected String mObjDeleted = "";
 
-    private Logger mLogger = Logger.getLogger();
     private boolean mInited = false;
     protected IConfigStore mConfig = null;
 
@@ -165,7 +162,7 @@ public class LdapCaCertPublisher
     public void publish(LDAPConnection conn, String dn, Object certObj)
             throws ELdapException {
         if (conn == null) {
-            log(ILogger.LL_INFO, "LdapCaCertPublisher: no LDAP connection");
+            logger.warn("LdapCaCertPublisher: no LDAP connection");
             return;
         }
 
@@ -206,9 +203,9 @@ public class LdapCaCertPublisher
                 conn = altConn;
             }
         } catch (LDAPException e) {
-            logger.warn("Failed to create alt connection " + e.getMessage(), e);
+            logger.warn("LdapCaCertPublisher: Unable to create alt connection: " + e.getMessage(), e);
         } catch (EBaseException e) {
-            logger.warn("Failed to create alt connection " + e.getMessage(), e);
+            logger.warn("LdapCaCertPublisher: Unable to create alt connection: " + e.getMessage(), e);
         }
 
         if (!(certObj instanceof X509Certificate))
@@ -241,7 +238,7 @@ public class LdapCaCertPublisher
             LDAPModificationSet modSet = new LDAPModificationSet();
 
             if (hasCert) {
-                log(ILogger.LL_INFO, "publish: CA " + dn + " already has Cert");
+                logger.warn("publish: CA " + dn + " already has Cert");
             } else {
                 /*
                  fix for 360458 - if no cert, use add, if has cert but
@@ -250,11 +247,11 @@ public class LdapCaCertPublisher
                 if (certs == null) {
                     modSet.add(LDAPModification.ADD,
                             new LDAPAttribute(mCaCertAttr, certEnc));
-                    log(ILogger.LL_INFO, "CA cert added");
+                    logger.info("LdapCaCertPublisher: CA cert added");
                 } else {
                     modSet.add(LDAPModification.REPLACE,
                             new LDAPAttribute(mCaCertAttr, certEnc));
-                    log(ILogger.LL_INFO, "CA cert replaced");
+                    logger.info("LdapCaCertPublisher: CA cert replaced");
                 }
             }
 
@@ -265,7 +262,7 @@ public class LdapCaCertPublisher
                 String oc = oclist[i].trim();
                 boolean hasoc = LdapUserCertPublisher.StringValueExists(ocs, oc);
                 if (!hasoc) {
-                    log(ILogger.LL_INFO, "adding CA objectclass " + oc + " to " + dn);
+                    logger.info("LdapCaCertPublisher: Adding CA objectclass " + oc + " to " + dn);
                     modSet.add(LDAPModification.ADD,
                             new LDAPAttribute("objectclass", oc));
 
@@ -296,7 +293,7 @@ public class LdapCaCertPublisher
                         }
                     }
                     if (!match && hasoc) {
-                        log(ILogger.LL_INFO, "deleting CA objectclass " + deloc + " from " + dn);
+                        logger.info("LdapCaCertPublisher: Deleting CA objectclass " + deloc + " from " + dn);
                         modSet.add(LDAPModification.DELETE,
                                 new LDAPAttribute("objectclass", deloc));
                     }
@@ -312,26 +309,25 @@ public class LdapCaCertPublisher
                 try {
                     mConfig.commit(false);
                 } catch (Exception e) {
-                    log(ILogger.LL_INFO, "Failure in updating mObjAdded and mObjDeleted");
+                    logger.warn("LdapCaCertPublisher: Failure in updating mObjAdded and mObjDeleted", e);
                 }
             }
 
             if (modSet.size() > 0)
                 conn.modify(dn, modSet);
         } catch (CertificateEncodingException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_CANT_DECODE_CERT", dn));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
+            logger.error(CMS.getLogMessage("PUBLISH_CANT_DECODE_CERT", dn), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
-                        + conn.getPort()));
+                        + conn.getPort()), e);
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISHER_EXCEPTION", "", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CACERT_ERROR", e.toString()));
+                logger.error(CMS.getLogMessage("PUBLISH_PUBLISHER_EXCEPTION", "", e.toString()), e);
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CACERT_ERROR", e.toString()), e);
             }
         } finally {
             if (altConn != null) {
@@ -379,7 +375,7 @@ public class LdapCaCertPublisher
                     LdapUserCertPublisher.ByteValueExists(certs, certEnc);
 
             if (!hasCert) {
-                log(ILogger.LL_INFO, "unpublish: " + dn + " has not cert already");
+                logger.warn("unpublish: " + dn + " has not cert already");
                 //throw new ELdapException(
                 //		  LdapResources.ALREADY_UNPUBLISHED_1, dn);
                 return;
@@ -397,7 +393,7 @@ public class LdapCaCertPublisher
                     String oc = oclist[i].trim();
                     boolean hasOC = LdapUserCertPublisher.StringValueExists(ocs, oc);
                     if (hasOC) {
-                        log(ILogger.LL_INFO, "unpublish: deleting CA oc" + oc + " from " + dn);
+                        logger.info("unpublish: deleting CA oc" + oc + " from " + dn);
                         modSet.add(LDAPModification.DELETE,
                                 new LDAPAttribute("objectclass", oc));
                     }
@@ -411,24 +407,14 @@ public class LdapCaCertPublisher
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
-                        + conn.getPort()));
+                        + conn.getPort()), e);
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_CACERT_ERROR", e.toString()));
+                logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()), e);
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_CACERT_ERROR", e.toString()), e);
             }
         }
         return;
     }
-
-    /**
-     * handy routine for logging in this class.
-     */
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "LdapCaPublisher: " + msg);
-    }
-
 }
