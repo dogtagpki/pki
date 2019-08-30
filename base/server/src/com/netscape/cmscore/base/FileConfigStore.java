@@ -21,10 +21,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.util.Map;
 
 import org.mozilla.jss.netscape.security.util.Utils;
 
@@ -119,44 +115,19 @@ public class FileConfigStore extends PropConfigStore implements
 
         // Overwrite the contents of the original file
         // to preserve the original file permissions.
-        save(mFile.getPath());
 
-        try {
+        try (FileOutputStream out = new FileOutputStream(mFile)) {
+
+            store(out);
+
             // Make certain that the original file retains
             // the correct permissions.
             if (!Utils.isNT()) {
                 Utils.exec("chmod 00660 " + mFile.getCanonicalPath());
             }
+
         } catch (Exception e) {
-        }
-    }
-
-    /**
-     * Saves in-memory properties to a specified file.
-     * <P>
-     * Note that the superclass's save is synchronized. It means no properties can be altered (inserted) at the saving
-     * time.
-     * <P>
-     *
-     * @param fileName filename
-     * @exception EBaseException failed to save configuration
-     */
-    public void save(String fileName) throws EBaseException {
-        try {
-            Map<String, String> map = getProperties();
-
-            FileOutputStream fo = new FileOutputStream(fileName);
-            PrintWriter writer = new PrintWriter(new OutputStreamWriter(fo));
-
-            for (String name : map.keySet()) {
-                String value = map.get(name);
-                writer.println(name + "=" + value);
-            }
-
-            writer.close();
-            fo.close();
-        } catch (IOException e) {
-            throw new EBaseException("output stream error " + fileName, e);
+            throw new EBaseException("Unable to save configuration: " + e.getMessage(), e);
         }
     }
 }
