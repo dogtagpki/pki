@@ -29,10 +29,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPConnection;
@@ -57,7 +55,6 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
     protected String mCertSubjNameAttr = LDAP_CERTSUBJNAME_ATTR;
     protected boolean mUseAllEntries = false;
 
-    private Logger mLogger = Logger.getLogger();
     protected IConfigStore mConfig = null;
     boolean mInited = false;
 
@@ -193,22 +190,23 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
             subjectDN = (X500Name) cert.getSubjectDN();
 
             logger.debug("LdapCertSubjMap: cert subject dn:" + subjectDN);
+
         } catch (ClassCastException e) {
+            logger.warn("LdapCertSubjMap: " + e.getMessage(), e);
             try {
                 X509CRLImpl crl = (X509CRLImpl) obj;
                 subjectDN = (X500Name) crl.getIssuerDN();
 
                 logger.debug("LdapCertSubjMap: crl issuer dn: " + subjectDN);
             } catch (ClassCastException ex) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_NOT_SUPPORTED_OBJECT"));
+                logger.warn(CMS.getLogMessage("PUBLISH_NOT_SUPPORTED_OBJECT"), ex);
                 return null;
             }
         }
         try {
             String[] attrs = new String[] { LDAPv3.NO_ATTRS };
 
-            log(ILogger.LL_INFO, "search " + mSearchBase +
-                    " (" + mCertSubjNameAttr + "=" + subjectDN + ") " + mCertSubjNameAttr);
+            logger.info("LdapCertSubjMap: search " + mSearchBase + " (" + mCertSubjNameAttr + "=" + subjectDN + ") " + mCertSubjNameAttr);
 
             LDAPSearchResults results =
                     conn.search(mSearchBase, LDAPv2.SCOPE_SUB,
@@ -217,11 +215,10 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
             LDAPEntry entry = results.next();
 
             if (results.hasMoreElements()) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", "", subjectDN.toString()));
+                logger.warn(CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", "", subjectDN.toString()));
             }
             if (entry != null) {
-                log(ILogger.LL_INFO, "entry found");
+                logger.info("LdapCertSubjMap: entry found");
                 return entry.getDN();
             }
             return null;
@@ -229,27 +226,23 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
                         + conn.getPort()));
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()));
+                logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()), e);
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
             }
         }
 
         /*
          catch (IOException e) {
-         log(ILogger.LL_FAILURE,
-         CMS.getLogMessage("PUBLISH_CANT_GET_SUBJECT", e.toString()));
+         logger.error(CMS.getLogMessage("PUBLISH_CANT_GET_SUBJECT", e.toString()), e);
          throw new ELdapException(
          LdapResources.GET_CERT_SUBJECT_DN_FAILED, e);
          }
          catch (CertificateEncodingException e) {
-         log(ILogger.LL_FAILURE,
-         CMS.getLogMessage("PUBLISH_CANT_DECODE_CERT", e.toString()));
+         logger.error(CMS.getLogMessage("PUBLISH_CANT_DECODE_CERT", e.toString()), e);
          throw new ELdapException(
          LdapResources.GET_DER_ENCODED_CERT_FAILED, e);
          }
@@ -274,14 +267,13 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
             subjectDN = (X500Name) cert.getSubjectDN();
             logger.debug("LdapCertSubjMap: cert subject dn:" + subjectDN);
         } catch (ClassCastException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_NOT_SUPPORTED_OBJECT"));
+            logger.warn(CMS.getLogMessage("PUBLISH_NOT_SUPPORTED_OBJECT"), e);
             return v;
         }
         try {
             String[] attrs = new String[] { LDAPv3.NO_ATTRS };
 
-            log(ILogger.LL_INFO, "search " + mSearchBase +
-                    " (" + mCertSubjNameAttr + "=" + subjectDN + ") " + mCertSubjNameAttr);
+            logger.info("LdapCertSubjMap: search " + mSearchBase + " (" + mCertSubjNameAttr + "=" + subjectDN + ") " + mCertSubjNameAttr);
 
             LDAPSearchResults results =
                     conn.search(mSearchBase, LDAPv2.SCOPE_SUB,
@@ -298,13 +290,11 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
                         + conn.getPort()));
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()));
+                logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()), e);
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
             }
         }
@@ -315,11 +305,6 @@ public class LdapCertSubjMap implements ILdapMapper, IExtendedPluginInfo {
     public Vector<String> mapAll(LDAPConnection conn, IRequest req, Object obj)
             throws ELdapException {
         return mapAll(conn, obj);
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "LdapCertSubjMap: " + msg);
     }
 
     /**
