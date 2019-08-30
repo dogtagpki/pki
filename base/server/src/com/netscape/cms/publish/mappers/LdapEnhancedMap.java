@@ -41,10 +41,8 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
@@ -160,12 +158,6 @@ public class LdapEnhancedMap
     // IExtendedPluginInfo parameters //
     ////////////////////////////////////
 
-    ///////////////////////
-    // Logger parameters //
-    ///////////////////////
-
-    private Logger mLogger = Logger.getLogger();
-
     /////////////////////
     // default methods //
     /////////////////////
@@ -198,12 +190,8 @@ public class LdapEnhancedMap
         try {
             mPattern = new MapDNPattern(mDnPattern);
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_DN_PATTERN_INIT",
-                            dnPattern, e.toString()));
-            throw new EBaseException(
-                    "falied to init with pattern " +
-                            dnPattern + " " + e);
+            logger.error(CMS.getLogMessage("PUBLISH_DN_PATTERN_INIT", dnPattern, e.toString()), e);
+            throw new EBaseException("Unable to init with pattern " + dnPattern + ": " + e.getMessage(), e);
         }
 
         mInited = true;
@@ -237,14 +225,11 @@ public class LdapEnhancedMap
             certExt = (CertificateExtensions)
                     info.get(CertificateExtensions.NAME);
         } catch (java.security.cert.CertificateParsingException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()), e);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()), e);
         } catch (java.security.cert.CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()), e);
         } catch (ClassCastException e) {
 
             try {
@@ -253,10 +238,9 @@ public class LdapEnhancedMap
 
                 logger.warn("LdapEnhancedMap: crl issuer dn: " + subjectDN + ": " + e.getMessage(), e);
             } catch (ClassCastException ex) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_PUBLISH_OBJ_NOT_SUPPORTED",
+                logger.warn(CMS.getLogMessage("PUBLISH_PUBLISH_OBJ_NOT_SUPPORTED",
                                 ((req == null) ? ""
-                                        : req.getRequestId().toString())));
+                                        : req.getRequestId().toString())), ex);
                 return null;
             }
         }
@@ -277,16 +261,15 @@ public class LdapEnhancedMap
 
             return dn;
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_CANT_FORM_DN",
+            logger.error(CMS.getLogMessage("PUBLISH_CANT_FORM_DN",
                             ((req == null) ? ""
-                                    : req.getRequestId().toString()), e.toString()));
+                                    : req.getRequestId().toString()), e.toString()), e);
 
             throw new EBaseException(
                     "failed to form dn for request: " +
                             ((req == null) ? ""
                                     : req.getRequestId().toString()) +
-                            " " + e);
+                            " " + e, e);
         }
     }
 
@@ -465,8 +448,7 @@ public class LdapEnhancedMap
         try {
             dn = formDN(req, obj);
             if (dn == null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_DN_NOT_FORMED"));
+                logger.error(CMS.getLogMessage("PUBLISH_DN_NOT_FORMED"));
 
                 String s1 = "";
 
@@ -482,8 +464,7 @@ public class LdapEnhancedMap
             // search for entry
             String[] attrs = new String[] { LDAPv3.NO_ATTRS };
 
-            log(ILogger.LL_INFO,
-                    "searching for dn: " +
+            logger.info("LdapEnhancedMap: searching for dn: " +
                             dn + " filter:" +
                             filter + " scope: base");
 
@@ -496,8 +477,7 @@ public class LdapEnhancedMap
             LDAPEntry entry = results.next();
 
             if (results.hasMoreElements()) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY",
+                logger.error(CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY",
                                 dn +
                                         ((req == null) ? ""
                                                 : req.getRequestId().toString())));
@@ -511,8 +491,7 @@ public class LdapEnhancedMap
             if (entry != null) {
                 return entry.getDN();
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND",
+                logger.error(CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND",
                                 dn +
                                         ((req == null) ? ""
                                                 : req.getRequestId().toString())));
@@ -524,8 +503,7 @@ public class LdapEnhancedMap
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
 
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
                         + conn.getPort()));
@@ -535,40 +513,31 @@ public class LdapEnhancedMap
                 try {
                     createEntry(conn, dn);
 
-                    log(ILogger.LL_INFO,
-                            "Entry " +
+                    logger.info("Entry " +
                                     dn +
                                     " Created");
 
                     return dn;
                 } catch (LDAPException e1) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION",
+                    logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION",
                                     dn,
-                                    e.toString()));
+                                    e.toString()), e);
 
-                    log(ILogger.LL_FAILURE,
-                            "Entry is not created. " +
+                    logger.error("LdapEnhancedMap: Entry is not created. " +
                                     "This may because there are " +
                                     "entries in the directory " +
                                     "hierachy not exit.");
 
                     throw new ELdapException(
-                            CMS.getUserMessage("CMS_LDAP_CREATE_ENTRY", dn));
+                            CMS.getUserMessage("CMS_LDAP_CREATE_ENTRY", dn), e1);
                 }
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION",
-                                dn,
-                                e.toString()));
-
+                logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", dn, e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
             }
-        } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_EXCEPTION_CAUGHT",
-                            e.toString()));
 
+        } catch (EBaseException e) {
+            logger.error(CMS.getLogMessage("PUBLISH_EXCEPTION_CAUGHT", e.toString()), e);
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
         }
     }
@@ -623,14 +592,5 @@ public class LdapEnhancedMap
                 org.mozilla.jss.netscape.security.util.Utils.getStringArrayFromVector(v);
 
         return params;
-    }
-
-    ////////////////////
-    // Logger methods //
-    ////////////////////
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "LdapEnhancedMapper: " + msg);
     }
 }
