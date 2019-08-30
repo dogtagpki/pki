@@ -41,7 +41,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
@@ -115,7 +114,7 @@ public class PKCS10Processor extends PKIProcessor {
         X509Key key = p10.getSubjectPublicKeyInfo();
 
         if (key == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_MISSING_KEY_IN_P10"));
+            logger.error(CMS.getLogMessage("CMSGW_MISSING_KEY_IN_P10"));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_KEY_IN_P10"));
         }
         CertificateX509Key certKey = new CertificateX509Key(key);
@@ -124,15 +123,15 @@ public class PKCS10Processor extends PKIProcessor {
             certInfo.set(X509CertInfo.KEY, certKey);
         } catch (CertificateException e) {
             EBaseException ex = new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()));
+                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()), e);
 
-            log(ILogger.LL_FAILURE, ex.toString());
+            logger.error("PKCS10Processor: " + ex.getMessage(), e);
             throw ex;
         } catch (IOException e) {
             EBaseException ex = new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()));
+                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()), e);
 
-            log(ILogger.LL_FAILURE, ex.toString());
+            logger.error("PKCS10Processor: " + ex.getMessage(), e);
             throw ex;
         }
 
@@ -142,30 +141,22 @@ public class PKCS10Processor extends PKIProcessor {
             try {
                 certInfo.set(X509CertInfo.SUBJECT,
                         new CertificateSubjectName(subject));
-                log(ILogger.LL_INFO,
-                        "Setting subject name " + subject + " from p10.");
+                logger.info("PKCS10Processor: Setting subject name " + subject + " from p10.");
             } catch (CertificateException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_FAILED_SET_SUBJECT_FROM_P10", e.toString()));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_SET_SUBJECT_FROM_P10_FAILED", e.toString()));
+                logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_SUBJECT_FROM_P10", e.toString()), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_SUBJECT_FROM_P10_FAILED", e.toString()), e);
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_FAILED_SET_SUBJECT_FROM_P10", e.toString()));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_SET_SUBJECT_FROM_P10_FAILED", e.toString()));
+                logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_SUBJECT_FROM_P10", e.toString()), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_SUBJECT_FROM_P10_FAILED", e.toString()), e);
             } catch (Exception e) {
                 // if anything bad happens in X500 name parsing,
                 // this will catch it.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_FAILED_SET_SUBJECT_FROM_P10", e.toString()));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_SET_SUBJECT_FROM_P10_FAILED", e.toString()));
+                logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_SUBJECT_FROM_P10", e.toString()), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_SUBJECT_FROM_P10_FAILED", e.toString()), e);
             }
         } else if (authToken == null ||
                 authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_MISSING_SUBJECT_IN_P10"));
+            logger.error(CMS.getLogMessage("CMSGW_MISSING_SUBJECT_IN_P10"));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_IN_P10"));
         }
 
@@ -196,23 +187,18 @@ public class PKCS10Processor extends PKIProcessor {
             }
             logger.debug("PKCS10Processor: Seted cert extensions from pkcs10. ");
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()), e);
 
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()), e);
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()));
         } catch (Exception e) {
             // if anything bad happens in extensions parsing,
             // this will catch it.
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()), e);
         }
 
         // override pkcs10 attributes with authtoken attributes
