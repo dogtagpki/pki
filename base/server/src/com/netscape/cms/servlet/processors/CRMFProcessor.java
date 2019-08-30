@@ -129,8 +129,7 @@ public class CRMFProcessor extends PKIProcessor {
                     } catch (Exception e) {
                         logger.error("CRMFProcessor: Failed POP verify: " + e.getMessage(), e);
 
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSGW_ERROR_POP_VERIFY"));
+                        logger.error(CMS.getLogMessage("CMSGW_ERROR_POP_VERIFY"));
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
@@ -147,8 +146,7 @@ public class CRMFProcessor extends PKIProcessor {
                 }
             } else {
                 if (enforcePop == true) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_ERROR_NO_POP"));
+                    logger.error(CMS.getLogMessage("CMSGW_ERROR_NO_POP"));
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
@@ -222,10 +220,8 @@ public class CRMFProcessor extends PKIProcessor {
             } else if (authToken == null ||
                     authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) == null) {
                 // No subject name - error!
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
+                logger.error(CMS.getLogMessage("CMSGW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
             }
 
             // get extensions
@@ -305,25 +301,18 @@ public class CRMFProcessor extends PKIProcessor {
             return certInfo;
 
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
-        } /* catch (InvalidBERException e) {
-          log(ILogger.LL_FAILURE,
-          CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1",e.toString()));
-          throw new ECMSGWException(
-          CMSGWResources.ERROR_CRMF_TO_CERTINFO);
-          } */catch (InvalidKeyException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
+        /* } catch (InvalidBERException e) {
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
+            throw new ECMSGWException(CMSGWResources.ERROR_CRMF_TO_CERTINFO, e);
+          */
+        } catch (InvalidKeyException e) {
+              logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
         }
 
     }
@@ -365,15 +354,11 @@ public class CRMFProcessor extends PKIProcessor {
 
             return certInfoArray;
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
         } catch (InvalidBERException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"), e);
         }
     }
 }
