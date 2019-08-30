@@ -39,9 +39,7 @@ import com.netscape.certsrv.ca.ICAService;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.cert.CertUtils;
@@ -67,7 +65,6 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
     public static final String PROP_REVOKE_CERT = "revokeCert";
 
     protected String mCertAttr = LDAP_USERCERT_ATTR;
-    private Logger mLogger = Logger.getLogger();
     private IConfigStore mConfig = null;
     private boolean mInited = false;
 
@@ -145,7 +142,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
 
         X509Certificate cert = (X509Certificate) certObj;
 
-        log(ILogger.LL_INFO, "Publishing " + cert);
+        logger.info("Publishing " + cert);
         try {
             byte[] certEnc = cert.getEncoded();
 
@@ -156,7 +153,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
             LDAPAttribute attr = getModificationAttribute(entry.getAttribute(mCertAttr), certEnc);
 
             if (attr == null) {
-                log(ILogger.LL_INFO, "publish: " + dn + " already has cert.");
+                logger.info("publish: " + dn + " already has cert.");
                 return;
             }
 
@@ -171,13 +168,12 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
-                        + conn.getPort()));
+                        + conn.getPort()), e);
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()));
+                logger.error(CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()), e);
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()), e);
             }
         }
         return;
@@ -204,7 +200,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
             LDAPEntry entry = res.next();
 
             if (!ByteValueExists(entry.getAttribute(mCertAttr), certEnc)) {
-                log(ILogger.LL_INFO, dn + " already has not cert");
+                logger.info(dn + " already has not cert");
                 return;
             }
 
@@ -213,27 +209,21 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
 
             conn.modify(dn, mod);
         } catch (CertificateEncodingException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
+            logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
-                        + conn.getPort()));
+                        + conn.getPort()), e);
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_USERCERT_ERROR", e.toString()));
+                logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()), e);
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_USERCERT_ERROR", e.toString()), e);
             }
         }
         return;
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "LdapUserCertPublisher: " + msg);
     }
 
     public LDAPAttribute getModificationAttribute(
@@ -261,22 +251,22 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
             try {
                 X509CertImpl cert = new X509CertImpl(val);
 
-                log(ILogger.LL_INFO, "Checking " + cert);
+                logger.info("Checking " + cert);
                 if (CertUtils.isEncryptionCert(thisCert) &&
                         CertUtils.isEncryptionCert(cert)) {
                     // skip
-                    log(ILogger.LL_INFO, "SKIP ENCRYPTION " + cert);
+                    logger.info("SKIP ENCRYPTION " + cert);
                     revokeCert(cert);
                 } else if (CertUtils.isSigningCert(thisCert) &&
                         CertUtils.isSigningCert(cert)) {
                     // skip
-                    log(ILogger.LL_INFO, "SKIP SIGNING " + cert);
+                    logger.info("SKIP SIGNING " + cert);
                     revokeCert(cert);
                 } else {
                     at.addValue(val);
                 }
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_CHECK_FAILED", e.toString()));
+                logger.warn(CMS.getLogMessage("PUBLISH_CHECK_FAILED", e.toString()), e);
             }
         }
         return at;
@@ -291,9 +281,8 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         try {
             crlentryexts.set(CRLReasonExtension.NAME, reasonExt);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_SET_CRL_REASON", reason.toString(), e.toString()));
-
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("PUBLISH_SET_CRL_REASON", reason.toString(), e.toString()), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()), e);
         }
         RevokedCertImpl crlentry =
                 new RevokedCertImpl(serialNo, new Date(), crlentryexts);
