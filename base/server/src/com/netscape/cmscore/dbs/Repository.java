@@ -244,6 +244,7 @@ public abstract class Repository implements IRepository {
      * init serial number cache
      */
     private void initCache() throws EBaseException {
+
         mNext = getSerialNumber();
         mRadix = 10;
 
@@ -253,15 +254,18 @@ public abstract class Repository implements IRepository {
             logger.debug("Repository: Instance of Certificate Repository.");
             mRadix = 16;
             mRepo = IDBSubsystem.CERTS;
+
         } else if (this instanceof IKeyRepository) {
             // Key Repository uses the same configuration parameters as Certificate
             // Repository.  This is ok because they are on separate subsystems.
             logger.debug("Repository: Instance of Key Repository");
             mRadix = 16;
             mRepo = IDBSubsystem.CERTS;
+
         } else if (this instanceof IReplicaIDRepository) {
             logger.debug("Repository: Instance of Replica ID repository");
             mRepo = IDBSubsystem.REPLICA_ID;
+
         } else {
             // CRLRepository subclasses this too, but does not use serial number stuff
             logger.debug("Repository: Instance of Request Repository or CRLRepository.");
@@ -298,39 +302,34 @@ public abstract class Repository implements IRepository {
         if (increment != null)
             mIncrementNo = new BigInteger(increment, mRadix);
 
-        BigInteger theSerialNo = null;
-        theSerialNo = getLastSerialNumberInRange(mMinSerialNo, mMaxSerialNo);
+        logger.info("Repository: Getting last serial number in range " + mMinSerialNo + ".." + mMaxSerialNo);
+        BigInteger theSerialNo = getLastSerialNumberInRange(mMinSerialNo, mMaxSerialNo);
 
         if (theSerialNo == null) {
             // This arises when range has been depleted by servicing
             // UpdateNumberRange requests for clones.  Attempt to
             // move to next range.
-            logger.debug(
-                "Repository: failed to get last serial number in range "
-                + mMinSerialNo + ".." + mMaxSerialNo);
+            logger.warn("Repository: Range " + mMinSerialNo + ".." + mMaxSerialNo + " has been depleted");
 
             if (hasNextRange()) {
-                logger.debug("Repository: switching to next range.");
+                logger.info("Repository: Switching to next range");
                 switchToNextRange();
-                logger.debug("Repository: new range: " + mMinSerialNo + ".." + mMaxSerialNo);
-                // try again with updated range
+
+                logger.info("Repository: Getting last serial number in new range " + mMinSerialNo + ".." + mMaxSerialNo);
                 theSerialNo = getLastSerialNumberInRange(mMinSerialNo, mMaxSerialNo);
+
             } else {
-                logger.debug("Repository: next range not available.");
+                logger.warn("Repository: Next range not available");
             }
         }
 
         if (theSerialNo != null) {
-
             mLastSerialNo = new BigInteger(theSerialNo.toString());
-            logger.debug("Repository:  mLastSerialNo: " + mLastSerialNo);
+            logger.debug("Repository: Last serial number: " + mLastSerialNo);
 
         } else {
-
             throw new EBaseException("Error in obtaining the last serial number in the repository!");
-
         }
-
     }
 
     protected void initCacheIfNeeded() throws EBaseException {
