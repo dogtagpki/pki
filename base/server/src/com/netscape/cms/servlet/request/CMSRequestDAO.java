@@ -44,6 +44,9 @@ import com.netscape.cmscore.apps.CMSEngine;
  */
 
 public abstract class CMSRequestDAO {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSRequestDAO.class);
+
     protected IRequestQueue queue;
     protected IAuthority authority;
     CMSEngine engine = CMS.getCMSEngine();
@@ -89,25 +92,39 @@ public abstract class CMSRequestDAO {
     public CMSRequestInfos listCMSRequests(String filter, RequestId start, int pageSize, int maxResults, int maxTime,
             UriInfo uriInfo) throws EBaseException {
 
+        logger.info("CMSRequestDAO: Searching for requests with filter " + filter);
+
         CMSRequestInfos ret = new CMSRequestInfos();
         int totalSize = 0;
         int current = 0;
 
         if (isVLVSearch(filter)) {
+
+            logger.debug("CMSRequestDAO: performing VLV search");
+
             IRequestVirtualList vlvlist = queue.getPagedRequestsByFilter(start, false, filter,
                     pageSize + 1, "requestId");
+
             totalSize = vlvlist.getSize();
+            logger.debug("CMSRequestDAO: total: " + totalSize);
             ret.setTotal(totalSize);
+
             current = vlvlist.getCurrentIndex();
 
             int numRecords = (totalSize > (current + pageSize)) ? pageSize :
                     totalSize - current;
+            logger.debug("CMSRequestDAO: records (" + numRecords + "):");
 
             for (int i = 0; i < numRecords; i++) {
                 IRequest request = vlvlist.getElementAt(i);
+                logger.debug("- " + request.getRequestId().toHexString());
                 ret.addEntry(createCMSRequestInfo(request, uriInfo));
             }
+
         } else {
+
+            logger.debug("CMSRequestDAO: performing non-VLV search");
+
             // The non-vlv requests are indexed, but are not paginated.
             // We should think about whether they should be, or if we need to
             // limit the number of results returned.
@@ -116,10 +133,13 @@ public abstract class CMSRequestDAO {
             if (requests == null) {
                 return ret;
             }
+
+            logger.debug("CMSRequestDAO: records:");
             while (requests.hasMoreElements()) {
                 RequestId rid = requests.nextElement();
                 IRequest request = queue.findRequest(rid);
                 if (request != null) {
+                    logger.debug("- " + request.getRequestId().toHexString());
                     ret.addEntry(createCMSRequestInfo(request, uriInfo));
                 }
             }
