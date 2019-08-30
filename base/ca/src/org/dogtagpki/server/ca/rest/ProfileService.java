@@ -566,7 +566,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
             tempProfile.setId(profileId);
             try {
-                PropConfigStore tempConfig = new PropConfigStore(null);
+                PropConfigStore tempConfig = new PropConfigStore();
                 tempConfig.load(new ByteArrayInputStream(data));
                 tempProfile.init(ps, tempConfig);
             } catch (Exception e) {
@@ -690,7 +690,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
             }
             tempProfile.setId(profileId);
             try {
-                PropConfigStore tempConfig = new PropConfigStore(null);
+                PropConfigStore tempConfig = new PropConfigStore();
                 tempConfig.load(new ByteArrayInputStream(data));
                 tempProfile.init(ps, tempConfig);
             } catch (Exception e) {

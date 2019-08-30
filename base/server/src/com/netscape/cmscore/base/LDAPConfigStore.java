@@ -23,6 +23,12 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.ldap.ELdapException;
+import com.netscape.certsrv.ldap.ILdapConnFactory;
+import com.netscape.cmsutil.ldap.LDAPPostReadControl;
+import com.netscape.cmsutil.ldap.LDAPUtil;
+
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPConnection;
@@ -31,12 +37,6 @@ import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPModification;
-
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.cmsutil.ldap.LDAPPostReadControl;
-import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * LDAPConfigStore:
@@ -74,8 +74,6 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
         ILdapConnFactory dbFactory,
         String dn, LDAPAttribute[] createAttrs, String attr
     ) {
-        super(null);  // top-level store without a name
-
         this.dbFactory = dbFactory;
         this.dn = dn;
         this.createAttrs = createAttrs;

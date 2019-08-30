@@ -80,6 +80,10 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     protected ISourceConfigStore mSource;
 
+    public PropConfigStore() {
+        mSource = new SourceConfigStore();
+    }
+
     /**
      * Constructs a property configuration store. This must
      * be a brand new store without properties. The subclass

@@ -26,11 +26,11 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import org.mozilla.jss.netscape.security.util.Utils;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * FileConfigStore:
@@ -59,7 +59,6 @@ public class FileConfigStore extends PropConfigStore implements
      * @exception EBaseException failed to create file configuration
      */
     public FileConfigStore(String fileName) throws EBaseException {
-        super(null); // top-level store without a name
         mFile = new File(fileName);
         if (!mFile.exists()) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_CONFIG_FILE",
