@@ -102,7 +102,6 @@ public class AdminServlet extends HttpServlet {
     private final static String HDR_AUTHORIZATION = "Authorization";
     private final static String HDR_LANG = "accept-language";
 
-    protected Logger mLogger = Logger.getLogger();
     protected Auditor auditor = Auditor.getAuditor();
     private UGSubsystem mUG = null;
     protected IConfigStore mConfig = null;
@@ -177,8 +176,8 @@ public class AdminServlet extends HttpServlet {
                         addACLInfo(aclInfo);
                         //mAuthz.authzMgrAccessInit(mAclMethod, aclInfo);
                     } catch (EBaseException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_FAIL"));
-                        throw new ServletException("failed to init authz info from xml config file");
+                        logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_FAIL"), e);
+                        throw new ServletException("failed to init authz info from xml config file", e);
                     }
                     logger.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", mServletID));
                 } else { // PROP_AUTHZ_MGR not specified, use default authzmgr
@@ -325,7 +324,7 @@ public class AdminServlet extends HttpServlet {
             SessionContext sc = SessionContext.getContext();
             IAuthToken token = null;
 
-            log(ILogger.LL_DEBUG, CMS.getLogMessage("ADMIN_SRVLT_ABOUT_AUTH",
+            logger.debug(CMS.getLogMessage("ADMIN_SRVLT_ABOUT_AUTH",
                     mServletID));
             try {
                 if (authType.equals("sslclientauth")) {
@@ -371,10 +370,9 @@ public class AdminServlet extends HttpServlet {
                  String errMsg = "authenticate(): " +
                  AdminResources.SRVLT_FAIL_AUTHS +": "+userid +":"+
                  e.getMessage();
-                 log(ILogger.LL_FAILURE,
-                 CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAIL",
+                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAIL",
                  CMS.getLogMessage("ADMIN_SRVLT_FAIL_AUTHS"),
-                 userid,e.getMessage()));
+                 userid,e.getMessage()), e);
                  */
 
                 if (authType.equals("sslclientauth")) {
@@ -399,9 +397,7 @@ public class AdminServlet extends HttpServlet {
                 String tuserid = token.getInString("userid");
 
                 if (tuserid == null) {
-                    mLogger.log(
-                            ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                            CMS.getLogMessage("ADMIN_SRVLT_NO_AUTH_TOKEN",
+                    logger.error(CMS.getLogMessage("ADMIN_SRVLT_NO_AUTH_TOKEN",
                                     tuserid));
 
                     if (authType.equals("sslclientauth")) {
@@ -428,9 +424,7 @@ public class AdminServlet extends HttpServlet {
                 IUser user = mUG.getUser(tuserid);
 
                 if (user == null) {
-                    mLogger.log(
-                            ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                            CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_FOUND",
+                    logger.error(CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_FOUND",
                                     tuserid));
 
                     if (authType.equals("sslclientauth")) {
@@ -459,8 +453,7 @@ public class AdminServlet extends HttpServlet {
                 sessionContext.put(SessionContext.USER_ID, tuserid);
                 sessionContext.put(SessionContext.USER, user);
             } catch (EUsrGrpException e) {
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_USR_GRP_ERR", e.toString()));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_USR_GRP_ERR", e.toString()), e);
 
                 if (authType.equals("sslclientauth")) {
 
@@ -588,7 +581,7 @@ public class AdminServlet extends HttpServlet {
 
             logger.debug(CMS.getLogMessage("ADMIN_SRVLT_AUTH_SUCCEED", mServletID));
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
 
             audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
@@ -601,7 +594,7 @@ public class AdminServlet extends HttpServlet {
 
             return null;
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
 
             audit(AuthzEvent.createFailureEvent(
                         auditSubjectID,
@@ -826,9 +819,7 @@ public class AdminServlet extends HttpServlet {
             String userid = token.getInString("userid");
 
             if (userid == null) {
-                mLogger.log(
-                        ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_GRP_AUTHZ_FAIL", userid));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_GRP_AUTHZ_FAIL", userid));
                 return false;
             }
 
@@ -837,9 +828,7 @@ public class AdminServlet extends HttpServlet {
             IUser user = mUG.getUser(userid);
 
             if (user == null) {
-                mLogger.log(
-                        ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_IN_DB", userid));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_IN_DB", userid));
                 return false;
             }
 
@@ -855,9 +844,7 @@ public class AdminServlet extends HttpServlet {
             if (mAnd) {
                 for (int i = 0; i < mGroupNames.length; i++) {
                     if (!mUG.isMemberOf(user, mGroupNames[i])) {
-                        mLogger.log(
-                                ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                                CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_IN_GRP", userid,
+                        logger.error(CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_IN_GRP", userid,
                                         mGroupNames[i]));
                         return false;
                     }
@@ -866,9 +853,7 @@ public class AdminServlet extends HttpServlet {
             } else {
                 for (int i = 0; i < mGroupNames.length; i++) {
                     if (mUG.isMemberOf(user, mGroupNames[i])) {
-                        mLogger.log(ILogger.EV_SYSTEM,
-                                ILogger.S_OTHER, ILogger.LL_INFO,
-                                CMS.getLogMessage("ADMIN_SRVLT_GRP_AUTH_SUCC_USER", userid,
+                        logger.info(CMS.getLogMessage("ADMIN_SRVLT_GRP_AUTH_SUCC_USER", userid,
                                         mGroupNames[i]));
                         return true;
                     }
@@ -880,14 +865,11 @@ public class AdminServlet extends HttpServlet {
                     groups.append(",");
                     groups.append(mGroupNames[j]);
                 }
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                        ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_ANY_GRP", userid, groups.toString()));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_ANY_GRP", userid, groups.toString()));
                 return false;
             }
         } catch (EUsrGrpException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_USR_GRP_ERR", e.toString()));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_USR_GRP_ERR", e.toString()), e);
             return false;
         }
     }
@@ -903,13 +885,6 @@ public class AdminServlet extends HttpServlet {
      */
     protected void commit(boolean createBackup) throws EBaseException {
         mConfig.commit(createBackup);
-    }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
-                level, "AdminServlet: " + msg);
     }
 
     /**

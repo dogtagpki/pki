@@ -3283,10 +3283,6 @@ public final class CMSAdminServlet extends AdminServlet {
         }
     }
 
-    public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level, "CMSAdminServlet: " + msg);
-    }
-
     /**
      * Signed Audit Log Public Key
      *
