@@ -135,7 +135,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         String op = super.getParameter(req, Constants.OP_TYPE);
 
         if (op == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_INVALID_PROTOCOL"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_INVALID_PROTOCOL"));
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
                     null, resp);
@@ -148,7 +148,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         try {
             super.authenticate(req);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_FAIL_AUTHS"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_FAIL_AUTHS"));
 
             sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHS_FAILED"),
                     null, resp);
@@ -298,8 +298,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         findUsers(req, resp);
                         return;
                     } else {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("ADMIN_SRVLT_INVALID_OP_SCOPE"));
+                        logger.error(CMS.getLogMessage("ADMIN_SRVLT_INVALID_OP_SCOPE"));
                         sendResponse(ERROR,
                                 CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
                                 null, resp);
@@ -308,13 +307,13 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 }
             } // if
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, e.toString());
+            logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
             sendResponse(ERROR, e.toString(getLocale(req)),
                     null, resp);
             return;
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, e.toString());
-            log(ILogger.LL_FAILURE, CMS.getLogMessage(" ADMIN_SRVLT_FAIL_PERFORM"));
+            logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
+            logger.error(CMS.getLogMessage(" ADMIN_SRVLT_FAIL_PERFORM"));
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
                     null, resp);
@@ -401,7 +400,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         String id = super.getParameter(req, Constants.RS_ID);
 
         if (id == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
@@ -460,7 +459,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             return;
         }
 
-        log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
+        logger.error(CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
 
         sendResponse(ERROR,
                 CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_USER_NOT_EXIST"), null, resp);
@@ -483,7 +482,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         String id = super.getParameter(req, Constants.RS_ID);
 
         if (id == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
@@ -505,7 +504,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         }
 
         if (user == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
+            logger.error(CMS.getLogMessage("USRGRP_SRVLT_USER_NOT_EXIST"));
 
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_USER_NOT_EXIST"), null, resp);
@@ -598,7 +597,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         String id = super.getParameter(req, Constants.RS_ID);
 
         if (id == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
@@ -643,7 +642,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             sendResponse(SUCCESS, null, params, resp);
             return;
         } else {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
+            logger.error(CMS.getLogMessage("USRGRP_SRVLT_GROUP_NOT_EXIST"));
 
             sendResponse(ERROR,
                     CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_GROUP_NOT_EXIST"), null, resp);
@@ -684,7 +683,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String id = super.getParameter(req, Constants.RS_ID);
 
             if (id == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -699,7 +698,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             if (id.indexOf(BACK_SLASH) != -1) {
                 // backslashes (BS) are not allowed
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_RS_ID_BS"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_RS_ID_BS"));
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -714,7 +713,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             if (id.equals(SYSTEM_USER)) {
                 // backslashes (BS) are not allowed
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_SPECIAL_ID", id));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_SPECIAL_ID", id));
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -733,7 +732,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             if ((fname == null) || (fname.length() == 0)) {
                 String msg = CMS.getUserMessage(getLocale(req), "CMS_USRGRP_USER_ADD_FAILED_1", "full name");
 
-                log(ILogger.LL_FAILURE, msg);
+                logger.error(msg);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -825,7 +824,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         try {
                             mMgr.modifyGroup(group);
                         } catch (Exception ex) {
-                            log(ILogger.LL_FAILURE, ex.toString());
+                            logger.error("UsrGrpAdminServlet: " + ex.getMessage(), e);
 
                             audit(new ConfigRoleEvent(
                                         auditSubjectID,
@@ -859,7 +858,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 sendResponse(SUCCESS, null, params, resp);
                 return;
             } catch (EUsrGrpException e) {
-                log(ILogger.LL_FAILURE, e.toString());
+                logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -876,7 +875,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
 
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, e.toString());
+                logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -951,7 +950,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String id = super.getParameter(req, Constants.RS_ID);
 
             if (id == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1076,7 +1075,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                                 manager.importCACertPackage(p7certs[j].getEncoded());
 
                         if (leafCert == null) {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NULL"));
+                            logger.error(CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NULL"));
                         } else {
                             logger.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_LEAF_CERT_NON_NULL"));
                         }
@@ -1087,7 +1086,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                                             InternalCertificate.TRUSTED_CA |
                                             InternalCertificate.TRUSTED_CLIENT_CA);
                         } else {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NOT_INTERNAL_CERT",
+                            logger.error(CMS.getLogMessage("ADMIN_SRVLT_NOT_INTERNAL_CERT",
                                     String.valueOf(p7certs[j].getSubjectDN())));
                         }
                     }
@@ -1100,7 +1099,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     */
                 } catch (Exception ex) {
                     //-----
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", ex.toString()));
+                    logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_ERROR", ex.toString()), ex);
 
                     audit(new ConfigRoleEvent(
                                 auditSubjectID,
@@ -1112,7 +1111,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     return;
                 }
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_O_ERROR", e.toString()));
+                logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_O_ERROR", e.toString()), e);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1141,8 +1140,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
 
             } catch (CertificateExpiredException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
-                        String.valueOf(certs[0].getSubjectDN())));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_ADD_CERT_EXPIRED",
+                        String.valueOf(certs[0].getSubjectDN())), e);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1153,8 +1152,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_SRVLT_CERT_EXPIRED"), null, resp);
                 return;
             } catch (CertificateNotYetValidException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
-                        String.valueOf(certs[0].getSubjectDN())));
+                logger.error(CMS.getLogMessage("USRGRP_SRVLT_CERT_NOT_YET_VALID",
+                        String.valueOf(certs[0].getSubjectDN())), e);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1177,7 +1176,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
 
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, e.toString());
+                logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1258,7 +1257,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String id = super.getParameter(req, Constants.RS_ID);
 
             if (id == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1300,7 +1299,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 sendResponse(SUCCESS, null, params, resp);
                 return;
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, e.toString());
+                logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1389,7 +1388,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
 
             if (id == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1526,7 +1525,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String id = super.getParameter(req, Constants.RS_ID);
 
             if (id == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1646,7 +1645,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String id = super.getParameter(req, Constants.RS_ID);
 
             if (id == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1736,7 +1735,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String id = super.getParameter(req, Constants.RS_ID);
 
             if (id == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1814,7 +1813,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 sendResponse(SUCCESS, null, params, resp);
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, e.toString());
+                logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1963,7 +1962,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String id = super.getParameter(req, Constants.RS_ID);
 
             if (id == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -1983,7 +1982,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 String msg =
                         CMS.getUserMessage(getLocale(req), "CMS_USRGRP_USER_MOD_FAILED", "full name");
 
-                log(ILogger.LL_FAILURE, msg);
+                logger.error(msg);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -2042,7 +2041,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 sendResponse(SUCCESS, null, params, resp);
                 return;
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, e.toString());
+                logger.error("UsrGrpAdminServlet: " + e.getMessage(), e);
 
                 audit(new ConfigRoleEvent(
                             auditSubjectID,
@@ -2084,12 +2083,5 @@ public class UsrGrpAdminServlet extends AdminServlet {
             //     // rethrow the specific exception to be handled later
             //     throw eAudit3;
         }
-    }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_USRGRP,
-                level, "UsrGrpAdminServlet: " + msg);
     }
 }
