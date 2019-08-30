@@ -48,7 +48,6 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.connector.IPKIMessage;
 import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -169,8 +168,7 @@ public class CloneServlet extends CMSServlet {
         try {
             peerCert = getPeerCert(req);
         } catch (EBaseException e) {
-            mAuthority.log(ILogger.LL_SECURITY,
-                    CMS.getLogMessage("CMSGW_HAS_NO_CLIENT_CERT"));
+            logger.error(CMS.getLogMessage("CMSGW_HAS_NO_CLIENT_CERT"), e);
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -205,8 +203,7 @@ public class CloneServlet extends CMSServlet {
             return;
         }
 
-        mAuthority.log(ILogger.LL_INFO,
-                "Clone Certificate Authority authenticated: " + peerCert.getSubjectDN());
+        logger.info("CloneServlet: Clone Certificate Authority authenticated: " + peerCert.getSubjectDN());
 
         // authorize, any authenticated user are authorized
         AuthzToken authzToken = null;
@@ -244,14 +241,11 @@ public class CloneServlet extends CMSServlet {
             logger.debug("Cloneservlet: decoded request");
             replymsg = processRequest(CCA_Id, CCAUserId, msg, token);
         } catch (IOException e) {
-            e.printStackTrace();
-            mAuthority.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()), e);
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         } catch (EBaseException e) {
-            mAuthority.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()), e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
         }
@@ -296,16 +290,13 @@ public class CloneServlet extends CMSServlet {
 
             return token;
         } catch (CertificateException e) {
-            mAuthority.log(ILogger.LL_SECURITY,
-                    CMS.getLogMessage("CMSGW_REMOTE_AUTHORITY_AUTH_FAILURE", peerCert.getSubjectDN().toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_REMOTE_AUTHORITY_AUTH_FAILURE", peerCert.getSubjectDN().toString()), e);
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         } catch (EInvalidCredentials e) {
-            mAuthority.log(ILogger.LL_SECURITY,
-                    CMS.getLogMessage("CMSGW_REMOTE_AUTHORITY_AUTH_FAILURE", peerCert.getSubjectDN().toString()));
+            logger.error(CMS.getLogMessage("CMSGW_REMOTE_AUTHORITY_AUTH_FAILURE", peerCert.getSubjectDN().toString()), e);
             throw e;
         } catch (EBaseException e) {
-            mAuthority.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_REMOTE_AUTHORITY_AUTH_FAILURE", peerCert.getSubjectDN().toString()));
+            logger.error(CMS.getLogMessage("CMSGW_REMOTE_AUTHORITY_AUTH_FAILURE", peerCert.getSubjectDN().toString()), e);
             throw e;
         }
     }
@@ -317,7 +308,7 @@ public class CloneServlet extends CMSServlet {
         IRequestQueue queue = mAuthority.getRequestQueue();
         String srcid = source + ":" + msg.getReqId();
 
-        mAuthority.log(ILogger.LL_INFO, "CFU: in CloneServlet processRequest");
+        logger.info("CloneServlet: processRequest");
 
         // find request in request queue and return result.
         RequestId thisreqid = queue.findRequestBySourceId(srcid);
@@ -329,11 +320,10 @@ public class CloneServlet extends CMSServlet {
                 // strange case.
                 String errormsg = "Cannot find request in request queue " + thisreqid;
 
-                mAuthority.log(ILogger.LL_FAILURE, errormsg);
+                logger.error("CloneServlet: " + errormsg);
                 throw new EBaseException(errormsg);
             } else {
-                mAuthority.log(ILogger.LL_INFO,
-                        "Found request " + thisreqid + " for " + srcid);
+                logger.info("CloneServlet: Found request " + thisreqid + " for " + srcid);
                 replymsg = new HttpPKIMessage();
                 replymsg.fromRequest(thisreq);
                 return replymsg;
@@ -350,7 +340,7 @@ public class CloneServlet extends CMSServlet {
         // requestor is a regular attribute.
         thisreq.setExtData(IRequest.REQUESTOR_TYPE,
                 IRequest.REQUESTOR_RA);
-        mAuthority.log(ILogger.LL_INFO, "Processing remote request " + srcid);
+        logger.info("CloneServlet: Processing remote request " + srcid);
 
         // Set this so that request's updateBy is recorded
         SessionContext s = SessionContext.getContext();
@@ -423,7 +413,7 @@ public class CloneServlet extends CMSServlet {
                 // return potentially more than one certificates.
                 if (issuedCerts != null) {
                 for (int i = 0; i < issuedCerts.length; i++) {
-                mLogger.log(ILogger.EV_AUDIT,
+                audit(ILogger.EV_AUDIT,
                 ILogger.S_OTHER,
                 AuditFormat.LEVEL,
                 AuditFormat.FORMAT,
@@ -439,7 +429,7 @@ public class CloneServlet extends CMSServlet {
                 );
                 }
                 } else {
-                mLogger.log(ILogger.EV_AUDIT,
+                audit(ILogger.EV_AUDIT,
                 ILogger.S_OTHER,
                 AuditFormat.LEVEL,
                 AuditFormat.NODNFORMAT,
@@ -457,7 +447,7 @@ public class CloneServlet extends CMSServlet {
                 certs = (X509CertImpl[])thisreq.get(IRequest.ISSUED_CERTS);
                 X509CertImpl renewed_cert = certs[0];
                 if (old_cert != null && renewed_cert != null) {
-                mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                audit(ILogger.EV_AUDIT, ILogger.S_OTHER,
                 AuditFormat.LEVEL,
                 AuditFormat.RENEWALFORMAT,
                 new Object[] {
@@ -471,7 +461,7 @@ public class CloneServlet extends CMSServlet {
                 renewed_cert.getSerialNumber().toString(16)}
                 );
                 } else {
-                mLogger.log(ILogger.EV_AUDIT,
+                audit(ILogger.EV_AUDIT,
                 ILogger.S_OTHER,
                 AuditFormat.LEVEL,
                 AuditFormat.NODNFORMAT,
@@ -513,7 +503,7 @@ public class CloneServlet extends CMSServlet {
                 if (err != null) {
                 for (int j = 0; j < count; j++) {
                 if (oldCerts[j] != null) {
-                mLogger.log(ILogger.EV_AUDIT,
+                audit(ILogger.EV_AUDIT,
                 ILogger.S_OTHER,
                 AuditFormat.LEVEL,
                 AuditFormat.DOREVOKEFORMAT,
@@ -535,7 +525,7 @@ public class CloneServlet extends CMSServlet {
                 // the success.
                 for (int j = 0; j < count; j++) {
                 if (oldCerts[j] != null) {
-                mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                audit(ILogger.EV_AUDIT, ILogger.S_OTHER,
                 AuditFormat.LEVEL,
                 AuditFormat.DOREVOKEFORMAT,
                 new Object[] {
@@ -550,7 +540,7 @@ public class CloneServlet extends CMSServlet {
                 }
                 }
                 } else {
-                mLogger.log(ILogger.EV_AUDIT,
+                audit(ILogger.EV_AUDIT,
                 ILogger.S_OTHER,
                 AuditFormat.LEVEL,
                 AuditFormat.NODNFORMAT,
