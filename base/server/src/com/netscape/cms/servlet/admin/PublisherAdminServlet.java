@@ -611,7 +611,7 @@ public class PublisherAdminServlet extends AdminServlet {
         } catch (Exception ex) {
             // force to save the config even there is error
             // ignore any exception
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_FAIL_RES_LDAP", ex.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_FAIL_RES_LDAP", ex.toString()), ex);
         }
 
         //XXX See if we can dynamically in B2
@@ -950,8 +950,7 @@ public class PublisherAdminServlet extends AdminServlet {
                             "CA certificate is published.");
                 } catch (Exception ex) {
                     // exception not thrown - not seen as a fatal error.
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("ADMIN_SRVLT_NO_PUB_CA_CERT", ex.toString()));
+                    logger.warn(CMS.getLogMessage("ADMIN_SRVLT_NO_PUB_CA_CERT", ex.toString()), ex);
                     params.put("publishCA",
                             "Failed to publish CA certificate.");
                     int index = ex.toString().indexOf("Failed to create CA");
@@ -979,8 +978,7 @@ public class PublisherAdminServlet extends AdminServlet {
                             "CRL is published.");
                 } catch (Exception ex) {
                     // exception not thrown - not seen as a fatal error.
-                    log(ILogger.LL_FAILURE,
-                            "Could not publish crl " + ex.toString());
+                    logger.warn("Could not publish crl " + ex.toString(), ex);
                     params.put("publishCRL",
                             "Failed to publish CRL.");
                     mProcessor.shutdown();
@@ -3109,15 +3107,5 @@ public class PublisherAdminServlet extends AdminServlet {
         String new1 = dashes.substring(0, len);
 
         return new1;
-    }
-
-    /**
-     * logs an entry in the log file.
-     */
-    public void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM,
-                ILogger.S_LDAP, level, "PublishingAdminServlet: " + msg);
     }
 }
