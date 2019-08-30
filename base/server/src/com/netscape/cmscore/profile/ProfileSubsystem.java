@@ -78,6 +78,7 @@ public class ProfileSubsystem
             logger.info("Creating profile: " + id);
 
             IConfigStore subStore = cs.getSubStore(id);
+
             String classid = subStore.getString(PROP_CLASS_ID);
             logger.debug("- class ID: " + classid);
 
@@ -87,7 +88,11 @@ public class ProfileSubsystem
             }
 
             logger.debug("- class name: " + info.getClassName());
-            createProfile(id, classid, info.getClassName(), false);
+
+            String configPath = subStore.getString(PROP_CONFIG);
+            logger.debug("- config: " + configPath);
+
+            createProfile(id, classid, info.getClassName(), configPath, false);
         }
 
         logger.info("Registered profiles:");
@@ -105,10 +110,11 @@ public class ProfileSubsystem
     @Override
     public IProfile createProfile(String id, String classid, String className)
             throws EProfileException {
-        return createProfile(id, classid, className, true);
+        return createProfile(id, classid, className, null, true);
     }
 
     private IProfile createProfile(String id, String classid, String className,
+            String configPath,
             boolean isNew) throws EProfileException {
 
         logger.info("ProfileSubsystem: Creating " + id + " profile");
@@ -118,9 +124,10 @@ public class ProfileSubsystem
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
 
-        String configPath;
         try {
-            configPath = cs.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
+            if (configPath == null) {
+                configPath = cs.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
+            }
         } catch (EBaseException e) {
             throw new EProfileException("CMS_PROFILE_DELETE_ERROR", e);
         }
