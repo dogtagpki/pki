@@ -39,7 +39,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -57,9 +56,9 @@ import com.netscape.cmscore.cert.CertUtils;
  * @version $Revision$, $Date$
  */
 public class GetCAChain extends CMSServlet {
-    /**
-         *
-         */
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GetCAChain.class);
+
     private static final long serialVersionUID = -8189048155415074581L;
     private final static String TPL_FILE = "displayCaCert.template";
     private String mFormPath = null;
@@ -106,9 +105,8 @@ public class GetCAChain extends CMSServlet {
 
         op = args.getValueAsString("op", null);
         if (op == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_NO_OPTIONS_SELECTED"));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_NO_OPTIONS_SELECTED"));
+            logger.error(CMS.getLogMessage("CMSGW_NO_OPTIONS_SELECTED"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_NO_OPTIONS_SELECTED"));
         }
 
         cmsReq.setStatus(ICMSRequest.SUCCESS);
@@ -120,11 +118,9 @@ public class GetCAChain extends CMSServlet {
                 authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "download");
             } catch (EAuthzAccessDenied e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             }
 
             if (authzToken == null) {
@@ -138,11 +134,9 @@ public class GetCAChain extends CMSServlet {
                 authzToken = mAuthz.authorize(mAclMethod, authToken,
                         mAuthzResourceName, "read");
             } catch (EAuthzAccessDenied e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             }
 
             if (authzToken == null) {
@@ -152,10 +146,8 @@ public class GetCAChain extends CMSServlet {
 
             displayChain(op, args, httpReq, httpResp, cmsReq);
         } else {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_INVALID_OPTIONS_CA_CHAIN"));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_INVALID_OPTIONS_SELECTED"));
+            logger.error(CMS.getLogMessage("CMSGW_INVALID_OPTIONS_CA_CHAIN"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_OPTIONS_SELECTED"));
         }
         //		cmsReq.setResult(null);
         return;
@@ -188,18 +180,16 @@ public class GetCAChain extends CMSServlet {
                 bytes = caCerts[0].getEncoded();
             } catch (CertificateEncodingException e) {
                 cmsReq.setStatus(ICMSRequest.ERROR);
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_GETTING_CACERT_ENCODED", e.toString()));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_GETTING_CA_CERT_ERROR"));
+                logger.error(CMS.getLogMessage("CMSGW_ERROR_GETTING_CACERT_ENCODED", e.toString()), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_GETTING_CA_CERT_ERROR"), e);
             }
         } else {
             CertificateChain certChain =
                     ((ICertAuthority) mAuthority).getCACertChain();
 
             if (certChain == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_CA_CHAIN_EMPTY"));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_CA_CHAIN_EMPTY"));
+                logger.error(CMS.getLogMessage("CMSGW_CA_CHAIN_EMPTY"));
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CA_CHAIN_EMPTY"));
             }
 
             try {
@@ -209,9 +199,8 @@ public class GetCAChain extends CMSServlet {
                 bytes = encoded.toByteArray();
             } catch (IOException e) {
                 cmsReq.setStatus(ICMSRequest.ERROR);
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_ENCODING_CA_CHAIN_1", e.toString()));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_ENCODING_CA_CHAIN_ERROR"));
+                logger.error(CMS.getLogMessage("CMSGW_ERROR_ENCODING_CA_CHAIN_1", e.toString()), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ENCODING_CA_CHAIN_ERROR"), e);
             }
         }
 
@@ -245,10 +234,8 @@ public class GetCAChain extends CMSServlet {
             httpResp.getOutputStream().flush();
         } catch (IOException e) {
             cmsReq.setStatus(ICMSRequest.ERROR);
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_DISPLAYING_CACHAIN_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAYING_CACHAIN_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_DISPLAYING_CACHAIN_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAYING_CACHAIN_ERROR"), e);
         }
     }
 
@@ -264,9 +251,8 @@ public class GetCAChain extends CMSServlet {
 
         if (certChain == null) {
             cmsReq.setStatus(ICMSRequest.ERROR);
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_CA_CHAIN_NOT_AVAILABLE"));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CA_CHAIN_NOT_AVAILABLE"));
+            logger.error(CMS.getLogMessage("CMSGW_CA_CHAIN_NOT_AVAILABLE"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CA_CHAIN_NOT_AVAILABLE"));
         }
 
         CMSTemplate form = null;
@@ -277,10 +263,8 @@ public class GetCAChain extends CMSServlet {
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
-            cmsReq.setError(new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()), e);
+            cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e));
             cmsReq.setStatus(ICMSRequest.ERROR);
             return;
         }
@@ -315,9 +299,8 @@ public class GetCAChain extends CMSServlet {
                 certChain.encode(encoded);
                 bytes = encoded.toByteArray();
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_ENCODING_CA_CHAIN_1", e.toString()));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_ENCODING_CA_CHAIN_ERROR"));
+                logger.error(CMS.getLogMessage("CMSGW_ERROR_ENCODING_CA_CHAIN_1", e.toString()), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ENCODING_CA_CHAIN_ERROR"), e);
             }
 
             String chainBase64 = getBase64(bytes);
@@ -358,10 +341,8 @@ public class GetCAChain extends CMSServlet {
                     argSet.addRepeatRecord(rarg);
                 }
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_ERROR_DISPLAYING_CACHAIN_1", e.toString()));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_DISPLAYING_CACHAIN_ERROR"));
+                logger.error(CMS.getLogMessage("CMSGW_ERROR_DISPLAYING_CACHAIN_1", e.toString()), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAYING_CACHAIN_ERROR"), e);
             }
         }
 
@@ -372,13 +353,10 @@ public class GetCAChain extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(ICMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
-            cmsReq.setError(new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()), e);
+            cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e));
             cmsReq.setStatus(ICMSRequest.ERROR);
         }
-
     }
 
     /**
