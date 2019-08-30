@@ -27,9 +27,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
@@ -54,7 +52,7 @@ import netscape.ldap.LDAPv2;
 public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCrlPublisher.class);
-    private Logger mLogger = Logger.getLogger();
+
     protected IConfigStore mConfig = null;
     boolean mInited = false;
 
@@ -155,7 +153,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public void publish(LDAPConnection conn, String dn, Object crlObj)
             throws ELdapException {
         if (conn == null) {
-            log(ILogger.LL_INFO, "publish CRL: no LDAP connection");
+            logger.warn("publish CRL: no LDAP connection");
             return;
         }
 
@@ -196,16 +194,16 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 conn = altConn;
             }
         } catch (LDAPException e) {
-            logger.warn("Failed to create alt connection " + e.getMessage(), e);
+            logger.warn("LdapCrlPublisher: Failed to create alt connection " + e.getMessage(), e);
         } catch (EBaseException e) {
-            logger.warn("Failed to create alt connection " + e.getMessage(), e);
+            logger.warn("LdapCrlPublisher: Failed to create alt connection " + e.getMessage(), e);
         }
 
         int orig_timelimit = 0;
         LDAPConstraints constraints = null;
         try {
             byte[] crlEnc = ((X509CRL) crlObj).getEncoded();
-            log(ILogger.LL_INFO, "publish CRL: " + dn);
+            logger.info("publish CRL: " + dn);
 
             /* search for attribute names to determine existence of attributes */
             LDAPSearchResults res = null;
@@ -237,7 +235,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 String oc = oclist[i].trim();
                 boolean hasoc = LdapUserCertPublisher.StringValueExists(ocs, oc);
                 if (!hasoc) {
-                    log(ILogger.LL_INFO, "adding CRL objectclass " + oc + " to " + dn);
+                    logger.info("LdapCrlPublisher: Adding CRL objectclass " + oc + " to " + dn);
                     modSet.add(LDAPModification.ADD,
                             new LDAPAttribute("objectclass", oc));
 
@@ -274,7 +272,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                         }
                     }
                     if (!match && hasoc) {
-                        log(ILogger.LL_INFO, "deleting CRL objectclass " + deloc + " from " + dn);
+                        logger.info("LdapCrlPublisher: Deleting CRL objectclass " + deloc + " from " + dn);
                         modSet.add(LDAPModification.DELETE,
                                 new LDAPAttribute("objectclass", deloc));
                     }
@@ -290,42 +288,43 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 try {
                     mConfig.commit(false);
                 } catch (Exception e) {
-                    log(ILogger.LL_INFO, "Failure in updating mObjAdded and mObjDeleted");
+                    logger.warn("LdapCrlPublisher: Unable to update mObjAdded and mObjDeleted", e);
                 }
             }
 
             constraints = conn.getConstraints();
             if (constraints != null) {
-                log(ILogger.LL_FAILURE, "CRLDEBUG - setting publishing timelimit on conn to: " + String.valueOf(mLdapPublishTimelimit_ms));
+                logger.debug("CRLDEBUG - setting publishing timelimit on conn to: " + String.valueOf(mLdapPublishTimelimit_ms));
                 orig_timelimit = constraints.getTimeLimit();
                 constraints.setTimeLimit(mLdapPublishTimelimit_ms);
                 conn.setConstraints(constraints);
             } else {
-                log(ILogger.LL_FAILURE, "CRLDEBUG - constraints not set");
+                logger.debug("CRLDEBUG - constraints not set");
             }
 
-            log(ILogger.LL_FAILURE, "CRLDEBUG - about to modify CRL");
+            logger.debug("CRLDEBUG - about to modify CRL");
             conn.modify(dn, modSet);
-            log(ILogger.LL_FAILURE, "CRLDEBUG - finished modify CRL");
+            logger.debug("CRLDEBUG - finished modify CRL");
+
         } catch (CRLException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()), e);
+
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
-                        + conn.getPort()));
+                        + conn.getPort()), e);
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()));
+                logger.error(CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()), e);
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()), e);
             }
         } finally {
             // Reset original timelimit
             if (constraints != null) {
-                log(ILogger.LL_FAILURE, "CRLDEBUG - resetting original timelimit on conn to: " + String.valueOf(orig_timelimit));
+                logger.debug("CRLDEBUG - resetting original timelimit on conn to: " + String.valueOf(orig_timelimit));
                 constraints.setTimeLimit(orig_timelimit);
                 conn.setConstraints(constraints);
             }
@@ -377,7 +376,7 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
             for (int i = 0; i < oclist.length; i++) {
                 String oc = oclist[i].trim();
                 if (LdapUserCertPublisher.StringValueExists(ocs, oc)) {
-                    log(ILogger.LL_INFO, "unpublish: deleting CRL object class " + oc + " from " + dn);
+                    logger.info("unpublish: deleting CRL object class " + oc + " from " + dn);
                     modSet.add(LDAPModification.DELETE,
                             new LDAPAttribute("objectClass", oc));
                     hasOC = true;
@@ -387,30 +386,23 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
             if (hasCRL || hasOC) {
                 conn.modify(dn, modSet);
             } else {
-                log(ILogger.LL_INFO,
-                        "unpublish: " + dn + " already has not CRL");
+                logger.info("unpublish: " + dn + " already has not CRL");
             }
         } catch (CRLException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()));
+            logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()), e);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
-                        + conn.getPort()));
+                        + conn.getPort()), e);
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_CRL_ERROR", e.toString()));
+                logger.error(CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()), e);
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_CRL_ERROR", e.toString()), e);
             }
         }
         return;
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "LdapCrlPublisher: " + msg);
     }
 }
