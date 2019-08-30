@@ -74,7 +74,7 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
     public LDAPConfigStore(
         ILdapConnFactory dbFactory,
         String dn, LDAPAttribute[] createAttrs, String attr
-    ) {
+    ) throws Exception {
         this.dbFactory = dbFactory;
         this.dn = dn;
         this.createAttrs = createAttrs;

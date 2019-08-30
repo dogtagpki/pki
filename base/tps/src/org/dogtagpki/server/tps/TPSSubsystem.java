@@ -130,7 +130,7 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
         profileDatabase = new ProfileDatabase();
         profileMappingDatabase = new ProfileMappingDatabase();
 
-        FileConfigStore defaultConfig;
+        IConfigStore defaultConfig;
         try {
             defaultConfig = new FileConfigStore("/usr/share/pki/tps/conf/CS.cfg");
             defaultConfig.load();

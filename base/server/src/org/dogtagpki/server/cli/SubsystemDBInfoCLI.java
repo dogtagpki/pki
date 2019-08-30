@@ -96,7 +96,7 @@ public class SubsystemDBInfoCLI extends CLI {
                 "conf" + File.separator + CMS.CONFIG_FILE;
 
         logger.info("Loading " + configFile);
-        FileConfigStore cs = new FileConfigStore(configFile);
+        IConfigStore cs = new FileConfigStore(configFile);
         cs.load();
 
         IConfigStore ldapConfig = cs.getSubStore("internaldb");

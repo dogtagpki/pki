@@ -18,7 +18,6 @@
 package org.dogtagpki.server.ca;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -141,18 +140,18 @@ public class CAConfigurator extends Configurator {
                 new LDAPAttribute("classId", classId)
         };
 
-        IConfigStore configStore = new LDAPConfigStore(
-                dbFactory, dn, createAttrs, "certProfileConfig");
-
         try {
+            IConfigStore configStore = new LDAPConfigStore(dbFactory, dn, createAttrs, "certProfileConfig");
+
             FileInputStream input = new FileInputStream(profilePath);
             configStore.load(input);
-        } catch (IOException e) {
+
+            configStore.commit(false /* no backup */);
+
+        } catch (Exception e) {
             logger.error("Unable to load data for profile " + profileId + ": " + e.getMessage(), e);
             throw new EBaseException("Unable to load data for profile " + profileId + ": " + e.getMessage(), e);
         }
-
-        configStore.commit(false /* no backup */);
     }
 
     @Override

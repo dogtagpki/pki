@@ -231,6 +231,12 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         mSource.clear();
     }
 
+    public void load() throws Exception {
+    }
+
+    public void commit(boolean createBackup) throws EBaseException {
+    }
+
     /**
      * Reads a config store from an input stream.
      *
@@ -772,14 +778,5 @@ public class PropConfigStore implements IConfigStore, Cloneable {
             return null;
         }
 
-    }
-
-    /**
-     * Commits properties into the file.
-     *
-     * @param createBackup true if create backup
-     * @exception EBaseException failed to commit properties
-     */
-    public void commit(boolean createBackup) throws EBaseException {
     }
 }

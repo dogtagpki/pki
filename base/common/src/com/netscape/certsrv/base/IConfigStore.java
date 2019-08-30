@@ -98,6 +98,20 @@ public interface IConfigStore {
     public void clear();
 
     /**
+     * Load config from storage storage (file or LDAP).
+     * @exception Exception If an error occurs while loading.
+     */
+    public void load() throws Exception;
+
+    /**
+     * Store config into storage (file or LDAP).
+     *
+     * @param createBackup true if a backup file should be created
+     * @exception EBaseException failed to commit
+     */
+    public void commit(boolean createBackup) throws EBaseException;
+
+    /**
      * Reads a config store from an input stream.
      *
      * @param in input stream where the properties are located
@@ -334,14 +348,6 @@ public interface IConfigStore {
      *         config-store
      */
     public Enumeration<String> getSubStoreNames();
-
-    /**
-     * Commits all the data into file immediately.
-     *
-     * @param createBackup true if a backup file should be created
-     * @exception EBaseException failed to commit
-     */
-    public void commit(boolean createBackup) throws EBaseException;
 
     /**
      * Return the number of items in this substore

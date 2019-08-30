@@ -532,7 +532,7 @@ public class CMSEngine implements ISubsystem {
             File f = new File(path);
             f.createNewFile();
 
-            FileConfigStore cs = new FileConfigStore(path);
+            IConfigStore cs = new FileConfigStore(path);
             cs.load();
             return cs;
 
