@@ -285,11 +285,9 @@ public class EnrollServlet extends CMSServlet {
                 mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
 
                 init_testbed_hack(mConfig);
+
             } catch (Exception e) {
-                // this should never happen.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR",
-                                e.toString(), mId));
+                logger.warn(CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(), mId), e);
             }
         } catch (ServletException eAudit1) {
             // rethrow caught exception
@@ -330,8 +328,7 @@ public class EnrollServlet extends CMSServlet {
         // if it is adminEnroll servlet,check if it's enabled
         if (mId.equals(ADMIN_ENROLL_SERVLET_ID) &&
                 !CMSGateway.getEnableAdminEnroll()) {
-            log(ILogger.LL_SECURITY,
-                    CMS.getLogMessage("ADMIN_SRVLT_ENROLL_ACCESS_AFTER_SETUP"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_ENROLL_ACCESS_AFTER_SETUP"));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_REDIRECTING_ADMINENROLL_ERROR",
                             "Attempt to access adminEnroll after already setup."));
@@ -382,14 +379,12 @@ public class EnrollServlet extends CMSServlet {
                 } else if (certauthEnrollType.equals("single")) {
                     logger.debug("EnrollServlet: certauthEnrollType is single");
                 } else {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_INVALID_CERTAUTH_ENROLL_TYPE_1", certauthEnrollType));
+                    logger.error(CMS.getLogMessage("CMSGW_INVALID_CERTAUTH_ENROLL_TYPE_1", certauthEnrollType));
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_INVALID_CERTAUTH_ENROLL_TYPE"));
                 }
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("MSGW_MISSING_CERTAUTH_ENROLL_TYPE"));
+                logger.error(CMS.getLogMessage("MSGW_MISSING_CERTAUTH_ENROLL_TYPE"));
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_MISSING_CERTAUTH_ENROLL_TYPE"));
             }
@@ -406,8 +401,7 @@ public class EnrollServlet extends CMSServlet {
                 CertUtils.isEncryptionCert((X509CertImpl) sslClientCert)) {
 
             // either it's not a signing cert, or it's a dual cert
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_INVALID_CERT_TYPE"));
+            logger.error(CMS.getLogMessage("CMSGW_INVALID_CERT_TYPE"));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_INVALID_CERT_TYPE"));
         }
@@ -424,8 +418,7 @@ public class EnrollServlet extends CMSServlet {
         logger.debug("EnrollServlet: In handleCertAuthDual!");
 
         if (mCa == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_NOT_A_CA"));
+            logger.error(CMS.getLogMessage("CMSGW_NOT_A_CA"));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_NOT_A_CA"));
         }
@@ -448,16 +441,14 @@ public class EnrollServlet extends CMSServlet {
         key = (X509Key) sslClientCert.getPublicKey();
         try {
             certInfo.set(X509CertInfo.KEY, new CertificateX509Key(key));
+
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_IO", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_IO", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
         }
 
         String filter =
@@ -506,24 +497,20 @@ public class EnrollServlet extends CMSServlet {
                                     X509CertImpl.NAME + "." + X509CertImpl.INFO);
 
                 } catch (CertificateParsingException ex) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_MISSING_CERTINFO_ENCRYPT_CERT"));
-                    throw new ECMSGWException(
-                            CMS.getUserMessage("CMS_GW_MISSING_CERTINFO"));
+                    logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTINFO_ENCRYPT_CERT"), ex);
+                    throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_CERTINFO"), ex);
                 }
 
                 try {
                     encCertInfo.set(X509CertInfo.KEY, new CertificateX509Key(key));
+
                 } catch (CertificateException e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
-                    throw new ECMSGWException(
-                            CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
+                    logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
+                    throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
+
                 } catch (IOException e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
-                    throw new ECMSGWException(
-                            CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
+                    logger.error(CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()), e);
+                    throw new ECMSGWException(CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()), e);
                 }
 
                 logger.debug("EnrollServlet: About to fillCertInfoFromAuthToken!");
@@ -611,15 +598,14 @@ public class EnrollServlet extends CMSServlet {
                             ""
                     );
                 }
+
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
-                                e.toString()));
+                logger.warn(CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING", e.toString()), e);
+
             } catch (CertificateException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
-                                e.toString()));
+                logger.warn(CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING", e.toString()), e);
             }
+
             return false;
         }
         // if service error use standard error templates.
@@ -652,14 +638,12 @@ public class EnrollServlet extends CMSServlet {
                                     certInfo.get(X509CertInfo.SUBJECT),
                                     ""
                             );
+
                         } catch (IOException e) {
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
-                                            e.toString()));
+                            logger.warn(CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING", e.toString()), e);
+
                         } catch (CertificateException e) {
-                            log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
-                                            e.toString()));
+                            logger.warn(CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING", e.toString()), e);
                         }
 
                     }
@@ -733,12 +717,12 @@ public class EnrollServlet extends CMSServlet {
             try {
                 authzToken = authorize(mAclMethod, authToken,
                             mAuthzResourceName, "submit");
+
             } catch (EAuthzAccessDenied e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             }
 
             if (authzToken == null) {
@@ -847,8 +831,7 @@ public class EnrollServlet extends CMSServlet {
             if (certAuthEnroll == true) {
                 sslClientCert = getSSLClientCertificate(httpReq);
                 if (sslClientCert == null) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_MISSING_SSL_CLIENT_CERT"));
+                    logger.error(CMS.getLogMessage("CMSGW_MISSING_SSL_CLIENT_CERT"));
 
                     // store a message in the signed audit log file
                     // (either an "admin" cert request for an admin certificate,
@@ -886,9 +869,9 @@ public class EnrollServlet extends CMSServlet {
                     certInfo = (X509CertInfo)
                             ((X509CertImpl) sslClientCert).get(
                                     X509CertImpl.NAME + "." + X509CertImpl.INFO);
+
                 } catch (CertificateParsingException ex) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_MISSING_CERTINFO"));
+                    logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTINFO"), ex);
 
                     // store a message in the signed audit log file
                     // (either an "admin" cert request for an admin certificate,
@@ -923,8 +906,7 @@ public class EnrollServlet extends CMSServlet {
                 // don't store agent token in request.
                 // agent currently used for bulk issuance.
                 // if (!authMgr.equals(AuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
-                log(ILogger.LL_INFO,
-                        "Enrollment request was authenticated by " +
+                logger.info("EnrollServlet: Enrollment request was authenticated by " +
                                 authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME));
 
                 PKIProcessor.fillCertInfoFromAuthToken(certInfo,
@@ -939,13 +921,10 @@ public class EnrollServlet extends CMSServlet {
             logger.debug("EnrollServlet: Enroll authMgr " + authMgr);
 
             if (certAuthEnroll == true) {
-                // log(ILogger.LL_DEBUG,
-                //     "just gotten subjectDN and serialNumber " +
-                //     "from ssl client cert");
+                // logger.debug("just gotten subjectDN and serialNumber from ssl client cert");
                 if (authToken == null) {
                     // authToken is null, can't match to anyone; bail!
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_ERR_PROCESS_ENROLL_NO_AUTH"));
+                    logger.error(CMS.getLogMessage("CMSGW_ERR_PROCESS_ENROLL_NO_AUTH"));
 
                     // store a message in the signed audit log file
                     // (either an "admin" cert request for an admin certificate,
@@ -1076,8 +1055,7 @@ public class EnrollServlet extends CMSServlet {
 
                     if (gotEncCert == false) {
                         // encryption cert not found, bail
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage(
+                        logger.error(CMS.getLogMessage(
                                         "CMSGW_ENCRYPTION_CERT_NOT_FOUND"));
 
                         // store a message in the signed audit log file
@@ -1151,8 +1129,7 @@ public class EnrollServlet extends CMSServlet {
                         logger.debug("EnrollServlet: sslClientCert issuerDN = " +
                                 sslClientCert.getIssuerDN().toString());
                     } else {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
+                        logger.error(CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
                                         CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
 
                         // store a message in the signed audit log file
@@ -1204,8 +1181,7 @@ public class EnrollServlet extends CMSServlet {
                                     httpParams,
                                     req);
                     } else {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
+                        logger.error(CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
                                         CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
 
                         // store a message in the signed audit log file
@@ -1253,8 +1229,7 @@ public class EnrollServlet extends CMSServlet {
                 certInfoArray = crmfProc.fillCertInfoArray(crmf, authToken,
                             httpParams, req);
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
+                logger.error(CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
                                 CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
 
                 // store a message in the signed audit log file
@@ -1288,7 +1263,7 @@ public class EnrollServlet extends CMSServlet {
                     }
                 }
             } catch (Exception e) {
-                logger.warn("Failed to set signing alg to certinfo: " + e.getMessage(), e);
+                logger.warn("ErrorServlet: Failed to set signing alg to certinfo: " + e.getMessage(), e);
             }
 
             req.setExtData(IRequest.CERT_INFO, certInfoArray);
@@ -1457,10 +1432,9 @@ public class EnrollServlet extends CMSServlet {
                                 issuedCerts[i]));
                 }
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_TEMP_REND_ERR",
+                logger.error(CMS.getLogMessage("CMSGW_TEMP_REND_ERR",
                                 mEnrollSuccessFiller.toString(),
-                                e.toString()));
+                                e.toString()), e);
 
                 // (automated "agent" cert request processed - "rejected")
                 audit(CertRequestProcessedEvent.createFailureEvent(
@@ -1470,7 +1444,7 @@ public class EnrollServlet extends CMSServlet {
                             SIGNED_AUDIT_AUTOMATED_REJECTION_REASON[2]));
 
                 throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_RETURNING_RESULT_ERROR"));
+                        CMS.getUserMessage("CMS_GW_RETURNING_RESULT_ERROR"), e);
             }
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
