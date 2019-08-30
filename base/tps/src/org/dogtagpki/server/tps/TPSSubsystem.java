@@ -55,7 +55,9 @@ import com.netscape.certsrv.tps.token.TokenStatus;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -132,7 +134,8 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
         IConfigStore defaultConfig;
         try {
-            defaultConfig = new FileConfigStore("/usr/share/pki/tps/conf/CS.cfg");
+            ConfigStorage storage = new FileConfigStore("/usr/share/pki/tps/conf/CS.cfg");
+            defaultConfig = new PropConfigStore(storage);
             defaultConfig.load();
         } catch (Exception e) {
             throw new EBaseException("Unable to load default TPS configuration: " + e.getMessage(), e);

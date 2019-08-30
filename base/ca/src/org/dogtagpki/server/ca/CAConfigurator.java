@@ -39,7 +39,9 @@ import com.netscape.certsrv.system.FinalizeConfigRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.LDAPConfigStore;
+import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
@@ -141,7 +143,8 @@ public class CAConfigurator extends Configurator {
         };
 
         try {
-            IConfigStore configStore = new LDAPConfigStore(dbFactory, dn, createAttrs, "certProfileConfig");
+            ConfigStorage storage = new LDAPConfigStore(dbFactory, dn, createAttrs, "certProfileConfig");
+            IConfigStore configStore = new PropConfigStore(storage);
 
             FileInputStream input = new FileInputStream(profilePath);
             configStore.load(input);

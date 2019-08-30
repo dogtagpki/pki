@@ -38,8 +38,7 @@ import com.netscape.cmscore.apps.CMS;
  * @version $Revision$, $Date$
  * @see PropConfigStore
  */
-public class FileConfigStore extends PropConfigStore implements
-        IConfigStore {
+public class FileConfigStore extends ConfigStorage {
 
     /**
      *
@@ -58,7 +57,7 @@ public class FileConfigStore extends PropConfigStore implements
         mFile = new File(fileName);
     }
 
-    public void load() throws Exception {
+    public void load(IConfigStore config) throws Exception {
 
         if (!mFile.exists()) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_CONFIG_FILE", mFile.getPath()));
@@ -66,7 +65,7 @@ public class FileConfigStore extends PropConfigStore implements
 
         try (FileInputStream fi = new FileInputStream(mFile);
                 BufferedInputStream bis = new BufferedInputStream(fi)) {
-            load(bis);
+            config.load(bis);
         }
     }
 
@@ -78,7 +77,7 @@ public class FileConfigStore extends PropConfigStore implements
      *
      * @param backup
      */
-    public void commit(boolean createBackup) throws EBaseException {
+    public void commit(IConfigStore config, boolean createBackup) throws EBaseException {
         if (createBackup) {
             File newName = new File(mFile.getPath() + "." +
                     Long.toString(System.currentTimeMillis()));
@@ -118,7 +117,7 @@ public class FileConfigStore extends PropConfigStore implements
 
         try (FileOutputStream out = new FileOutputStream(mFile)) {
 
-            store(out);
+            config.store(out);
 
             // Make certain that the original file retains
             // the correct permissions.

@@ -32,7 +32,9 @@ import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -96,9 +98,9 @@ public class SubsystemDBInfoCLI extends CLI {
                 "conf" + File.separator + CMS.CONFIG_FILE;
 
         logger.info("Loading " + configFile);
-        IConfigStore cs = new FileConfigStore(configFile);
+        ConfigStorage storage = new FileConfigStore(configFile);
+        IConfigStore cs = new PropConfigStore(storage);
         cs.load();
-
         IConfigStore ldapConfig = cs.getSubStore("internaldb");
 
         String instanceId = cs.getString("instanceId");

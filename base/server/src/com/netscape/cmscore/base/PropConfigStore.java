@@ -80,8 +80,15 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     protected SimpleProperties mSource;
 
+    protected ConfigStorage storage;
+
     public PropConfigStore() {
         mSource = new SimpleProperties();
+    }
+
+    public PropConfigStore(ConfigStorage storage) {
+        mSource = new SimpleProperties();
+        this.storage = storage;
     }
 
     /**
@@ -122,6 +129,10 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     public String getName() {
         return mStoreName;
+    }
+
+    public ConfigStorage getStorage() {
+        return storage;
     }
 
     /**
@@ -233,9 +244,15 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     }
 
     public void load() throws Exception {
+        if (storage != null) {
+            storage.load(this);
+        }
     }
 
     public void commit(boolean createBackup) throws EBaseException {
+        if (storage != null) {
+            storage.commit(this, createBackup);
+        }
     }
 
     /**

@@ -69,7 +69,9 @@ import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authentication.VerifiedCert;
 import com.netscape.cmscore.authentication.VerifiedCerts;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
+import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.cert.OidLoaderSubsystem;
 import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.dbs.CertificateRepository;
@@ -532,7 +534,8 @@ public class CMSEngine implements ISubsystem {
             File f = new File(path);
             f.createNewFile();
 
-            IConfigStore cs = new FileConfigStore(path);
+            ConfigStorage storage = new FileConfigStore(path);
+            IConfigStore cs = new PropConfigStore(storage);
             cs.load();
             return cs;
 

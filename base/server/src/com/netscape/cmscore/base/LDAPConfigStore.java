@@ -46,7 +46,7 @@ import netscape.ldap.LDAPModification;
  * @version $Revision$, $Date$
  * @see PropConfigStore
  */
-public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
+public class LDAPConfigStore extends ConfigStorage {
 
     private ILdapConnFactory dbFactory;
     private String dn;
@@ -90,21 +90,21 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
      *
      * @param createBackup Ignored.
      */
-    public void commit(boolean createBackup) throws EBaseException {
+    public void commit(IConfigStore config, boolean createBackup) throws EBaseException {
         String[] attrs = {};
-        commitReturn(createBackup, attrs);
+        commitReturn(config, createBackup, attrs);
     }
 
     /**
      * This version of commit also returns the post-read entry that
      * the change resulted in.
      */
-    public LDAPEntry commitReturn(boolean createBackup, String[] attrs)
+    public LDAPEntry commitReturn(IConfigStore config, boolean createBackup, String[] attrs)
             throws EBaseException {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
 
         try {
-            store(data);
+            config.store(data);
         } catch (Exception e) {
             throw new EBaseException(e);
         }

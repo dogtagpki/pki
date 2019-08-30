@@ -41,7 +41,9 @@ import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.servlet.csadmin.GetStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.LDAPConfigStore;
+import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -239,8 +241,9 @@ public class LDAPProfileSubsystem
                 new LDAPAttribute("classId", classid)
             };
 
-            IConfigStore subStoreConfig = new LDAPConfigStore(
-                dbFactory, createProfileDN(id), createAttrs, "certProfileConfig");
+            ConfigStorage storage = new LDAPConfigStore(dbFactory, createProfileDN(id), createAttrs, "certProfileConfig");
+            IConfigStore subStoreConfig = new PropConfigStore(storage);
+
             if (data != null)
                 subStoreConfig.load(data);
 
@@ -320,10 +323,11 @@ public class LDAPProfileSubsystem
     @Override
     protected void commitConfigStore(String id, IConfigStore configStore)
             throws EProfileException {
-        LDAPConfigStore cs = (LDAPConfigStore) configStore;
+        PropConfigStore propConfigStore = (PropConfigStore) configStore;
+        LDAPConfigStore storage = (LDAPConfigStore) propConfigStore.getStorage();
         try {
             String[] attrs = {"entryUSN", "nsUniqueId"};
-            LDAPEntry entry = cs.commitReturn(false, attrs);
+            LDAPEntry entry = storage.commitReturn(configStore, false, attrs);
             if (entry == null) {
                 // shouldn't happen, but let's be sure not to crash anyway
                 return;
