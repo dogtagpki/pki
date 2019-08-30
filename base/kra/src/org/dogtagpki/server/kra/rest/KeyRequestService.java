@@ -292,6 +292,14 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
     @Override
     public Response listRequests(String requestState, String requestType, String clientKeyID,
             RequestId start, Integer pageSize, Integer maxResults, Integer maxTime, String realm) {
+
+        logger.info("KeyRequestService: Listing key requests");
+
+        logger.debug("KeyRequestService: request state: " + requestState);
+        logger.debug("KeyRequestService: request type: " + requestType);
+        logger.debug("KeyRequestService: client key ID: " + clientKeyID);
+        logger.debug("KeyRequestService: realm: " + realm);
+
         if (realm != null) {
             try {
                 authz.checkRealm(realm, getAuthToken(), null, "certServer.kra.requests", "list");
@@ -300,13 +308,14 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
             } catch (EAuthzUnknownRealm e) {
                 throw new BadRequestException("Invalid realm", e);
             } catch (EBaseException e) {
-                logger.error("listRequests: unable to authorize realm: " + e.getMessage(), e);
+                logger.error("KeyRequestService: Unable to authorize realm: " + e.getMessage(), e);
                 throw new PKIException(e.toString(), e);
             }
         }
+
         // get ldap filter
         String filter = createSearchFilter(requestState, requestType, clientKeyID, realm);
-        logger.debug("listRequests: filter is " + filter);
+        logger.debug("KeyRequestService: filter: " + filter);
 
         start = start == null ? new RequestId(KeyRequestService.DEFAULT_START) : start;
         pageSize = pageSize == null ? DEFAULT_PAGESIZE : pageSize;
@@ -318,9 +327,10 @@ public class KeyRequestService extends SubsystemService implements KeyRequestRes
         try {
             requests = reqDAO.listRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
         } catch (EBaseException e) {
-            logger.error("listRequests: error in obtaining request results: " + e.getMessage(), e);
+            logger.error("KeyRequestService: Unable to obtain request results: " + e.getMessage(), e);
             throw new PKIException(e.toString(), e);
         }
+
         return createOKResponse(requests);
     }
 
