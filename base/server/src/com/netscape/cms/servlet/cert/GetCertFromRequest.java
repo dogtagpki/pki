@@ -39,7 +39,6 @@ import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
@@ -123,10 +122,7 @@ public class GetCertFromRequest extends CMSServlet {
                 mCertFrReqFiller = new CertFrRequestFiller();
             }
         } catch (Exception e) {
-            // should never happen.
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(),
-                            mId));
+            logger.warn(CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(), mId), e);
         }
     }
 
@@ -151,11 +147,9 @@ public class GetCertFromRequest extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -166,22 +160,22 @@ public class GetCertFromRequest extends CMSServlet {
         String requestId = httpParams.getValueAsString(REQUEST_ID, null);
 
         if (requestId == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_NO_REQUEST_ID_PROVIDED"));
+            logger.error(CMS.getLogMessage("CMSGW_NO_REQUEST_ID_PROVIDED"));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_NO_REQUEST_ID_PROVIDED"));
         }
         // check if request Id is valid.
         try {
             new BigInteger(requestId);
         } catch (NumberFormatException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_REQ_ID_FORMAT", requestId));
+            logger.error(CMS.getLogMessage("CMSGW_INVALID_REQ_ID_FORMAT", requestId), e);
             throw new EBaseException(
-                    CMS.getUserMessage(getLocale(httpReq), "CMS_BASE_INVALID_NUMBER_FORMAT_1", CMSTemplate.escapeJavaScriptStringHTML(requestId)));
+                    CMS.getUserMessage(getLocale(httpReq), "CMS_BASE_INVALID_NUMBER_FORMAT_1", CMSTemplate.escapeJavaScriptStringHTML(requestId)), e);
         }
 
         IRequest r = mQueue.findRequest(new RequestId(requestId));
 
         if (r == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND", requestId));
+            logger.error(CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND", requestId));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_REQUEST_ID_NOT_FOUND", requestId));
         }
@@ -199,8 +193,8 @@ public class GetCertFromRequest extends CMSServlet {
                         groupMatched = true;
                 }
                 if (groupMatched == false) {
-                    logger.error("RA group unmatched");
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND", requestId));
+                    logger.error("GetCertFromRequest: RA group unmatched");
+                    logger.error(CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND", requestId));
                     throw new ECMSGWException(
                             CMS.getUserMessage("CMS_GW_REQUEST_ID_NOT_FOUND", requestId));
                 }
@@ -209,24 +203,21 @@ public class GetCertFromRequest extends CMSServlet {
 
         if (!((r.getRequestType().equals(IRequest.ENROLLMENT_REQUEST)) ||
                 (r.getRequestType().equals(IRequest.RENEWAL_REQUEST)))) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_REQUEST_NOT_ENROLLMENT_1", requestId));
+            logger.error(CMS.getLogMessage("CMSGW_REQUEST_NOT_ENROLLMENT_1", requestId));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_REQUEST_NOT_ENROLLMENT", requestId));
         }
         RequestStatus status = r.getRequestStatus();
 
         if (!status.equals(RequestStatus.COMPLETE)) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_REQUEST_NOT_COMPLETED_1", requestId));
+            logger.error(CMS.getLogMessage("CMSGW_REQUEST_NOT_COMPLETED_1", requestId));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_REQUEST_NOT_COMPLETED", requestId));
         }
         Integer result = r.getExtDataInInteger(IRequest.RESULT);
 
         if (result != null && !result.equals(IRequest.RES_SUCCESS)) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_REQUEST_HAD_ERROR_1", requestId));
+            logger.error(CMS.getLogMessage("CMSGW_REQUEST_HAD_ERROR_1", requestId));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_REQUEST_HAD_ERROR", requestId));
         }
@@ -241,8 +232,7 @@ public class GetCertFromRequest extends CMSServlet {
             o = certs;
         }
         if (o == null || !(o instanceof X509CertImpl[])) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_REQUEST_HAD_NO_CERTS_1", requestId));
+            logger.error(CMS.getLogMessage("CMSGW_REQUEST_HAD_NO_CERTS_1", requestId));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_REQUEST_HAD_NO_CERTS", requestId));
         }
@@ -250,8 +240,7 @@ public class GetCertFromRequest extends CMSServlet {
             X509CertImpl[] certs = (X509CertImpl[]) o;
 
             if (certs == null || certs.length == 0 || certs[0] == null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_REQUEST_HAD_NO_CERTS_1", requestId));
+                logger.error(CMS.getLogMessage("CMSGW_REQUEST_HAD_NO_CERTS_1", requestId));
                 throw new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_REQUEST_HAD_NO_CERTS", requestId));
             }
@@ -269,11 +258,8 @@ public class GetCertFromRequest extends CMSServlet {
                 cmsReq.setResult(certs);
                 renderTemplate(cmsReq, mCertFrReqSuccessTemplate, mCertFrReqFiller);
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGE_ERROR_DISPLAY_TEMPLATE_1",
-                                mCertFrReqSuccessTemplate, e.toString()));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                logger.error(CMS.getLogMessage("CMSGE_ERROR_DISPLAY_TEMPLATE_1", mCertFrReqSuccessTemplate, e.toString()), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
             }
         }
         return;
