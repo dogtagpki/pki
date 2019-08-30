@@ -64,7 +64,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.ECMSGWException;
@@ -381,28 +380,19 @@ public class CMCProcessor extends PKIProcessor {
             req.setExtData(IRequest.CMC_REQIDS, reqIdArray);
             return certInfoArray;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"), e);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"), e);
         } catch (InvalidBERException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"), e);
         } catch (InvalidKeyException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"), e);
         } catch (Exception e) {
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CMC_ERROR", e.toString()));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_ERROR", e.toString()), e);
         }
 
     }
