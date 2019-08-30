@@ -342,7 +342,7 @@ public class LDAPProfileSubsystem
                 nsUniqueId = attr.getStringValueArray()[0];
             logger.debug("commitProfile: nsUniqueId = " + nsUniqueId);
             nsUniqueIds.put(id, nsUniqueId);
-        } catch (ELdapException e) {
+        } catch (EBaseException e) {
             logger.error("commitProfile: Failed to commit config store of profile '" + id + ": " + e, e);
             throw new EProfileException(
                 "Failed to commit config store of profile '" + id + ": " + e, e);

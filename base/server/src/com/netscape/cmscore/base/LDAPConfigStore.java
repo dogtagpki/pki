@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
@@ -102,7 +103,7 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
      *
      * @param createBackup Ignored.
      */
-    public void commit(boolean createBackup) throws ELdapException {
+    public void commit(boolean createBackup) throws EBaseException {
         String[] attrs = {};
         commitReturn(createBackup, attrs);
     }
@@ -112,7 +113,7 @@ public class LDAPConfigStore extends PropConfigStore implements IConfigStore {
      * the change resulted in.
      */
     public LDAPEntry commitReturn(boolean createBackup, String[] attrs)
-            throws ELdapException {
+            throws EBaseException {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         save(data, null);
 
