@@ -28,6 +28,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -51,30 +52,31 @@ public class ReplicationUtil {
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
         IConfigStore masterCfg = cs.getSubStore("preop.internaldb.master");
-        IConfigStore replicaCfg = cs.getSubStore("internaldb");
+        LDAPConfig replicaCfg = cs.getInternalDatabase();
 
         String machinename = cs.getHostname();
         String instanceId = cs.getInstanceID();
-        String secure = cs.getString("internaldb.ldapconn.secureConn");
-        String replicationSecurity = cs.getString("internaldb.ldapconn.replicationSecurity");
 
-        int masterReplicationPort = cs.getInteger("internaldb.ldapconn.masterReplicationPort");
-        int cloneReplicationPort = cs.getInteger("internaldb.ldapconn.cloneReplicationPort");
+        String secure = replicaCfg.getString("ldapconn.secureConn");
+        String replicationSecurity = replicaCfg.getString("ldapconn.replicationSecurity");
+
+        int masterReplicationPort = replicaCfg.getInteger("ldapconn.masterReplicationPort");
+        int cloneReplicationPort = replicaCfg.getInteger("ldapconn.cloneReplicationPort");
 
         String master_hostname = cs.getString("preop.internaldb.master.ldapconn.host", "");
         String master_replicationpwd = cs.getString("preop.internaldb.master.replication.password", "");
 
-        String replica_hostname = cs.getString("internaldb.ldapconn.host", "");
+        String replica_hostname = replicaCfg.getString("ldapconn.host", "");
         String replica_replicationpwd = cs.getString("preop.internaldb.replicationpwd", "");
 
-        String basedn = cs.getString("internaldb.basedn");
-        String suffix = cs.getString("internaldb.basedn", "");
+        String basedn = replicaCfg.getString("basedn");
+        String suffix = replicaCfg.getString("basedn", "");
 
         String masterAgreementName = "masterAgreement1-" + machinename + "-" + instanceId;
-        cs.putString("internaldb.replication.master", masterAgreementName);
+        replicaCfg.putString("replication.master", masterAgreementName);
 
         String cloneAgreementName = "cloneAgreement1-" + machinename + "-" + instanceId;
-        cs.putString("internaldb.replication.consumer", cloneAgreementName);
+        replicaCfg.putString("replication.consumer", cloneAgreementName);
 
         cs.commit(false);
 

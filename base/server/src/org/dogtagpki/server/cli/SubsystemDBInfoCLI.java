@@ -35,6 +35,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.FileConfigStore;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -101,7 +102,7 @@ public class SubsystemDBInfoCLI extends CLI {
         ConfigStorage storage = new FileConfigStore(configFile);
         EngineConfig cs = new EngineConfig(storage);
         cs.load();
-        IConfigStore ldapConfig = cs.getSubStore("internaldb");
+        LDAPConfig ldapConfig = cs.getInternalDatabase();
 
         String instanceId = cs.getInstanceID();
         String pwdClass = cs.getString("passwordClass");

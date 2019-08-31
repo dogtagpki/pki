@@ -77,6 +77,7 @@ import com.netscape.cmscore.cert.X500NameSubsystem;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.jobs.JobsScheduler;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 import com.netscape.cmscore.logging.LogSubsystem;
@@ -225,7 +226,7 @@ public class CMSEngine implements ISubsystem {
         return mPasswordStore;
     }
 
-    public void initializePasswordStore(IConfigStore config) throws EBaseException, IOException {
+    public void initializePasswordStore(EngineConfig config) throws EBaseException, IOException {
 
         logger.info("CMSEngine: initializing password stores");
 
@@ -235,6 +236,7 @@ public class CMSEngine implements ISubsystem {
         boolean skipPublishingCheck = config.getBoolean("cms.password.ignore.publishing.failure", true);
         String pwList = config.getString("cms.passwordlist", "internaldb,replicationdb");
         String tags[] = StringUtils.split(pwList, ",");
+        LDAPConfig ldapConfig = config.getInternalDatabase();
 
         for (String tag : tags) {
 
@@ -246,27 +248,27 @@ public class CMSEngine implements ISubsystem {
 
             if (tag.equals("internaldb")) {
 
-                authType = config.getString("internaldb.ldapauth.authtype", "BasicAuth");
+                authType = ldapConfig.getString("ldapauth.authtype", "BasicAuth");
                 if (!authType.equals("BasicAuth"))
                     continue;
 
                 connInfo = new LdapConnInfo(
-                        config.getString("internaldb.ldapconn.host"),
-                        config.getInteger("internaldb.ldapconn.port"),
-                        config.getBoolean("internaldb.ldapconn.secureConn"));
+                        ldapConfig.getString("ldapconn.host"),
+                        ldapConfig.getInteger("ldapconn.port"),
+                        ldapConfig.getBoolean("ldapconn.secureConn"));
 
-                binddn = config.getString("internaldb.ldapauth.bindDN");
+                binddn = ldapConfig.getString("ldapauth.bindDN");
 
             } else if (tag.equals("replicationdb")) {
 
-                authType = config.getString("internaldb.ldapauth.authtype", "BasicAuth");
+                authType = ldapConfig.getString("ldapauth.authtype", "BasicAuth");
                 if (!authType.equals("BasicAuth"))
                     continue;
 
                 connInfo = new LdapConnInfo(
-                        config.getString("internaldb.ldapconn.host"),
-                        config.getInteger("internaldb.ldapconn.port"),
-                        config.getBoolean("internaldb.ldapconn.secureConn"));
+                        ldapConfig.getString("ldapconn.host"),
+                        ldapConfig.getInteger("ldapconn.port"),
+                        ldapConfig.getBoolean("ldapconn.secureConn"));
 
                 binddn = "cn=Replication Manager masterAgreement1-" + mConfig.getHostname() + "-" +
                         mConfig.getInstanceID() + ",cn=config";
@@ -426,7 +428,7 @@ public class CMSEngine implements ISubsystem {
         if (state == 1) {
             // configuration is complete, initialize password store
             try {
-                initializePasswordStore(config);
+                initializePasswordStore(mConfig);
             } catch (IOException e) {
                 logger.error("Unable to initialize password store: " + e.getMessage(), e);
                 throw new EBaseException("Exception while initializing password store: " + e);

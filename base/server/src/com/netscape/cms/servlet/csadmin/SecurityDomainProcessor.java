@@ -37,7 +37,6 @@ import org.w3c.dom.NodeList;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.SessionContext;
@@ -53,6 +52,8 @@ import com.netscape.certsrv.system.SecurityDomainSubsystem;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -161,7 +162,7 @@ public class SecurityDomainProcessor extends CAProcessor {
     public DomainInfo getDomainInfo() throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         LdapBoundConnFactory connFactory = null;
         LDAPConnection conn = null;
@@ -170,11 +171,11 @@ public class SecurityDomainProcessor extends CAProcessor {
             LDAPSearchConstraints cons = null;
             String[] attrs = null;
 
-            String basedn = cs.getString("internaldb.basedn");
+            LDAPConfig ldapConfig = cs.getInternalDatabase();
+            String basedn = ldapConfig.getString("basedn");
             String dn = "ou=Security Domain," + basedn;
             String filter = "objectclass=pkiSecurityGroup";
 
-            IConfigStore ldapConfig = cs.getSubStore("internaldb");
             connFactory = new LdapBoundConnFactory("SecurityDomainProcessor");
             connFactory.init(cs, ldapConfig, engine.getPasswordStore());
 
@@ -395,8 +396,9 @@ public class SecurityDomainProcessor extends CAProcessor {
         String auditSubjectID = auditSubjectID();
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
-        String baseDN = cs.getString("internaldb.basedn");
+        EngineConfig cs = engine.getConfig();
+        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        String baseDN = ldapConfig.getString("basedn");
 
         String status = removeEntry(dn);
 
@@ -470,10 +472,10 @@ public class SecurityDomainProcessor extends CAProcessor {
         LDAPConnection conn = null;
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         try {
-            IConfigStore ldapConfig = cs.getSubStore("internaldb");
+            LDAPConfig ldapConfig = cs.getInternalDatabase();
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
             connFactory.init(cs, ldapConfig, engine.getPasswordStore());
 
@@ -524,10 +526,10 @@ public class SecurityDomainProcessor extends CAProcessor {
         LDAPConnection conn = null;
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         try {
-            IConfigStore ldapConfig = cs.getSubStore("internaldb");
+            LDAPConfig ldapConfig = cs.getInternalDatabase();
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
             connFactory.init(cs, ldapConfig, engine.getPasswordStore());
 
@@ -568,10 +570,10 @@ public class SecurityDomainProcessor extends CAProcessor {
         LDAPConnection conn = null;
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         try {
-            IConfigStore ldapConfig = cs.getSubStore("internaldb");
+            LDAPConfig ldapConfig = cs.getInternalDatabase();
             connFactory = new LdapBoundConnFactory("UpdateDomainXML");
             connFactory.init(cs, ldapConfig, engine.getPasswordStore());
 

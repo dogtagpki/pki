@@ -84,6 +84,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertUtils;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
 
@@ -104,7 +105,6 @@ public final class CMSAdminServlet extends AdminServlet {
 
     private final static String PROP_DB = "dbs";
     private final static String PROP_SMTP = "smtp";
-    private final static String PROP_INTERNAL_DB = "internaldb";
 
     // CMS must be instantiated before this admin servlet.
 
@@ -832,7 +832,7 @@ public final class CMSAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        IConfigStore dbConfig = mConfig.getSubStore(PROP_INTERNAL_DB);
+        LDAPConfig dbConfig = mConfig.getInternalDatabase();
         Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {

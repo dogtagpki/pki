@@ -41,9 +41,11 @@ import com.netscape.certsrv.util.AsyncLoader;
 import com.netscape.cms.servlet.csadmin.GetStatus;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -105,9 +107,9 @@ public class LDAPProfileSubsystem
         deletedNsUniqueIds = new TreeSet<>();
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
-        IConfigStore dbCfg = cs.getSubStore("internaldb");
+        LDAPConfig dbCfg = cs.getInternalDatabase();
         dbFactory = new LdapBoundConnFactory("LDAPProfileSubsystem");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -122,7 +124,7 @@ public class LDAPProfileSubsystem
         // *.profile2.config=config/profiles/profile2.cfg
 
         // read profile id, implementation, and its configuration files
-        String basedn = cs.getString("internaldb.basedn");
+        String basedn = dbCfg.getString("basedn");
         profileContainerDNString = "ou=certificateProfiles,ou=ca," + basedn;
         profileContainerDN = new DN(profileContainerDNString);
 

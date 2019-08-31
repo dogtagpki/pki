@@ -148,6 +148,7 @@ import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -883,7 +884,8 @@ public class Configurator {
                     }
 
                     if (name.equals("internaldb.basedn")) {
-                        cs.putString(name, v);
+                        LDAPConfig ldapConfig = cs.getInternalDatabase();
+                        ldapConfig.putString("basedn", v);
                         cs.putString("preop.internaldb.master.basedn", v);
 
                     } else if (name.startsWith("internaldb")) {
@@ -1449,9 +1451,10 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        boolean secureConn = cs.getBoolean("internaldb.ldapconn.secureConn");
-        String dsPort = cs.getString("internaldb.ldapconn.port");
-        String baseDN = cs.getString("internaldb.basedn");
+        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        boolean secureConn = ldapConfig.getBoolean("ldapconn.secureConn");
+        String dsPort = ldapConfig.getString("ldapconn.port");
+        String baseDN = ldapConfig.getString("basedn");
         boolean setupReplication = cs.getBoolean("preop.database.setupReplication", true);
 
         if (request.isClone() && setupReplication) {
@@ -1477,16 +1480,16 @@ public class Configurator {
 
             String masterReplicationPort = request.getMasterReplicationPort();
             if ((masterReplicationPort != null) && (!masterReplicationPort.equals(""))) {
-                cs.putString("internaldb.ldapconn.masterReplicationPort", masterReplicationPort);
+                ldapConfig.putString("ldapconn.masterReplicationPort", masterReplicationPort);
             } else {
-                cs.putString("internaldb.ldapconn.masterReplicationPort", masterport);
+                ldapConfig.putString("ldapconn.masterReplicationPort", masterport);
             }
 
             String cloneReplicationPort = request.getCloneReplicationPort();
             if ((cloneReplicationPort == null) || (cloneReplicationPort.length() == 0)) {
                 cloneReplicationPort = dsPort;
             }
-            cs.putString("internaldb.ldapconn.cloneReplicationPort", cloneReplicationPort);
+            ldapConfig.putString("ldapconn.cloneReplicationPort", cloneReplicationPort);
 
             String replicationSecurity = request.getReplicationSecurity();
             if (cloneReplicationPort == dsPort && secureConn) {
@@ -1494,7 +1497,7 @@ public class Configurator {
             } else if (replicationSecurity == null) {
                 replicationSecurity = "None";
             }
-            cs.putString("internaldb.ldapconn.replicationSecurity", replicationSecurity);
+            ldapConfig.putString("ldapconn.replicationSecurity", replicationSecurity);
 
             cs.putString("preop.internaldb.replicateSchema", request.getReplicateSchema());
         }
@@ -1562,7 +1565,7 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        IConfigStore dbCfg = cs.getSubStore("internaldb");
+        LDAPConfig dbCfg = cs.getInternalDatabase();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -1581,15 +1584,15 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        String baseDN = cs.getString("internaldb.basedn");
-        String database = cs.getString("internaldb.database", "");
+        LDAPConfig dbCfg = cs.getInternalDatabase();
+        String baseDN = dbCfg.getString("basedn");
+        String database = dbCfg.getString("database", "");
         String select = cs.getString("preop.subsystem.select", "");
         boolean remove = cs.getBoolean("preop.database.removeData", false);
         boolean createNewDB = cs.getBoolean("preop.database.createNewDB", true);
         boolean setupReplication = cs.getBoolean("preop.database.setupReplication", true);
         boolean reindexData = cs.getBoolean("preop.database.reindexData", false);
 
-        IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -1933,8 +1936,9 @@ public class Configurator {
         logger.debug("importLDIFS: param=" + param);
         String v = cs.getString(param);
 
-        String baseDN = cs.getString("internaldb.basedn");
-        String database = cs.getString("internaldb.database");
+        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        String baseDN = ldapConfig.getString("basedn");
+        String database = ldapConfig.getString("database");
         String instancePath = cs.getInstanceDir();
         String instanceId = cs.getInstanceID();
         String cstype = cs.getType();
@@ -2077,7 +2081,7 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        IConfigStore dbCfg = cs.getSubStore("internaldb");
+        LDAPConfig dbCfg = cs.getInternalDatabase();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -2098,7 +2102,7 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        IConfigStore dbCfg = cs.getSubStore("internaldb");
+        LDAPConfig dbCfg = cs.getInternalDatabase();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -3346,7 +3350,7 @@ public class Configurator {
 
         CMSEngine engine = CMS.getCMSEngine();
 
-        IConfigStore dbCfg = cs.getSubStore("internaldb");
+        LDAPConfig dbCfg = cs.getInternalDatabase();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -3355,7 +3359,7 @@ public class Configurator {
         LDAPAttributeSet attrs = null;
 
         // Create security domain ldap entry
-        String basedn = cs.getString("internaldb.basedn");
+        String basedn = dbCfg.getString("basedn");
         String secdomain = cs.getString("securitydomain.name");
 
         String dn = "ou=Security Domain," + basedn;
@@ -3747,9 +3751,9 @@ public class Configurator {
 
         UGSubsystem system = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
 
-        String userbasedn = "ou=people, " + cs.getString("internaldb.basedn");
+        LDAPConfig dbCfg = cs.getInternalDatabase();
+        String userbasedn = "ou=people, " + dbCfg.getString("basedn");
 
-        IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -3801,14 +3805,15 @@ public class Configurator {
         String endRequestNumStr = cs.getString("dbs.endRequestNumber", "");
         String endSerialNumStr = cs.getString("dbs.endSerialNumber", "");
         String type = cs.getType();
-        String basedn = cs.getString("internaldb.basedn");
+
+        LDAPConfig dbCfg = cs.getInternalDatabase();
+        String basedn = dbCfg.getString("basedn");
 
         BigInteger endRequestNum = new BigInteger(endRequestNumStr);
         BigInteger endSerialNum = new BigInteger(endSerialNumStr);
         BigInteger oneNum = new BigInteger("1");
 
         // update global next range entries
-        IConfigStore dbCfg = cs.getSubStore("internaldb");
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 

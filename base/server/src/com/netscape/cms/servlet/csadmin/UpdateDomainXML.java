@@ -37,7 +37,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -46,6 +45,8 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmsutil.xml.XMLObject;
 
 import netscape.ldap.LDAPAttribute;
@@ -188,10 +189,11 @@ public class UpdateDomainXML extends CMSServlet {
         String basedn = null;
         String secstore = null;
 
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
+        LDAPConfig ldapConfig = cs.getInternalDatabase();
 
         try {
-            basedn = cs.getString("internaldb.basedn");
+            basedn = ldapConfig.getString("basedn");
             secstore = cs.getString("securitydomain.store");
         } catch (Exception e) {
             logger.warn("Unable to determine security domain name or basedn. Please run the domaininfo migration script: " + e.getMessage(), e);

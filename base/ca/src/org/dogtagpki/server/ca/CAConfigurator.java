@@ -43,6 +43,7 @@ import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.LDAPConfigStore;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
@@ -93,7 +94,7 @@ public class CAConfigurator extends Configurator {
         String profileIds = profileCfg.getString("list", "");
         StringTokenizer st = new StringTokenizer(profileIds, ",");
 
-        IConfigStore dbCfg = cs.getSubStore("internaldb");
+        LDAPConfig dbCfg = cs.getInternalDatabase();
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAConfigurator");
         dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 
@@ -131,7 +132,8 @@ public class CAConfigurator extends Configurator {
             String profileId, String profilePath)
             throws EBaseException {
 
-        String basedn = cs.getString("internaldb.basedn", "");
+        LDAPConfig ldapConfig = cs.getInternalDatabase();
+        String basedn = ldapConfig.getString("basedn", "");
 
         String dn = "cn=" + profileId + ",ou=certificateProfiles,ou=ca," + basedn;
 
@@ -281,7 +283,7 @@ public class CAConfigurator extends Configurator {
 
         LDAPConnection conn = null;
         try {
-            IConfigStore dbCfg = cs.getSubStore("internaldb");
+            LDAPConfig dbCfg = cs.getInternalDatabase();
             LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("CAConfigurator");
             dbFactory.init(cs, dbCfg, engine.getPasswordStore());
 

@@ -22,12 +22,13 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -54,9 +55,9 @@ public class LDAPSecurityDomainSessionTable
         m_timeToLive = timeToLive;
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
-        IConfigStore internaldb = cs.getSubStore("internaldb");
+        LDAPConfig internaldb = cs.getInternalDatabase();
         mLdapConnFactory = new LdapBoundConnFactory("LDAPSecurityDomainSessionTable");
         mLdapConnFactory.init(cs, internaldb, engine.getPasswordStore());
     }
@@ -65,11 +66,13 @@ public class LDAPSecurityDomainSessionTable
             String uid, String group) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
+        LDAPConfig ldapConfig = cs.getInternalDatabase();
+
         LDAPConnection conn = null;
         int status = FAILURE;
 
-        String basedn = cs.getString("internaldb.basedn");
+        String basedn = ldapConfig.getString("basedn");
         String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
 
         try {
@@ -127,11 +130,13 @@ public class LDAPSecurityDomainSessionTable
     public int removeEntry(String sessionId) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
+        LDAPConfig ldapConfig = cs.getInternalDatabase();
+
         LDAPConnection conn = null;
         int status = FAILURE;
         try {
-            String basedn = cs.getString("internaldb.basedn");
+            String basedn = ldapConfig.getString("basedn");
             String dn = "cn=" + sessionId + ",ou=sessions,ou=Security Domain," + basedn;
             conn = mLdapConnFactory.getConn();
             conn.delete(dn);
@@ -159,12 +164,14 @@ public class LDAPSecurityDomainSessionTable
     public boolean sessionExists(String sessionId) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
+        LDAPConfig ldapConfig = cs.getInternalDatabase();
+
         LDAPConnection conn = null;
         boolean ret = false;
 
         try {
-            String basedn = cs.getString("internaldb.basedn");
+            String basedn = ldapConfig.getString("basedn");
             String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
             String filter = "(cn=" + sessionId + ")";
             String[] attrs = { "cn" };
@@ -190,12 +197,14 @@ public class LDAPSecurityDomainSessionTable
         logger.debug("LDAPSecurityDomainSessionTable: getSessionIds() ");
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
+        LDAPConfig ldapConfig = cs.getInternalDatabase();
+
         LDAPConnection conn = null;
         Vector<String> ret = new Vector<String>();
 
         try {
-            String basedn = cs.getString("internaldb.basedn");
+            String basedn = ldapConfig.getString("basedn");
             String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
             String filter = "(objectclass=securityDomainSessionEntry)";
             String[] attrs = { "cn" };
@@ -238,11 +247,13 @@ public class LDAPSecurityDomainSessionTable
     private String getStringValue(String sessionId, String attr) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
+        LDAPConfig ldapConfig = cs.getInternalDatabase();
+
         LDAPConnection conn = null;
         String ret = null;
         try {
-            String basedn = cs.getString("internaldb.basedn");
+            String basedn = ldapConfig.getString("basedn");
             String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
             String filter = "(cn=" + sessionId + ")";
             String[] attrs = { attr };
@@ -296,12 +307,14 @@ public class LDAPSecurityDomainSessionTable
     public int getSize() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
+        LDAPConfig ldapConfig = cs.getInternalDatabase();
+
         LDAPConnection conn = null;
         int ret = 0;
 
         try {
-            String basedn = cs.getString("internaldb.basedn");
+            String basedn = ldapConfig.getString("basedn");
             String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
             String filter = "(objectclass=securityDomainSessionEntry)";
             String[] attrs = { "cn" };

@@ -152,6 +152,7 @@ import com.netscape.cms.servlet.cert.RevocationProcessor;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.dbs.CRLRepository;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -159,6 +160,7 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.request.ARequestNotifier;
@@ -504,8 +506,8 @@ public class CertificateAuthority
         logger.info("CertificateAuthority: initialization");
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
-        IConfigStore dbCfg = cs.getSubStore("internaldb");
+        EngineConfig cs = engine.getConfig();
+        LDAPConfig dbCfg = cs.getInternalDatabase();
         IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
 
         mOwner = owner;
