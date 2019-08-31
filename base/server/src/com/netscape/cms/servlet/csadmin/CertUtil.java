@@ -66,6 +66,7 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
@@ -624,7 +625,7 @@ public class CertUtil {
 
     public static void addUserCertificate(X509CertImpl cert) {
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
         int num = 0;
         try {
             num = cs.getInteger("preop.subsystem.count", 0);
@@ -636,7 +637,7 @@ public class CertUtil {
         String id = "user" + num;
 
         try {
-            String sysType = cs.getString("cs.type", "");
+            String sysType = cs.getType();
             String machineName = cs.getString("machineName", "");
             String securePort = cs.getString("service.securePort", "");
             id = sysType + "-" + machineName + "-" + securePort;

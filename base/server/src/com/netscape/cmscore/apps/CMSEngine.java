@@ -1035,7 +1035,7 @@ public class CMSEngine implements ISubsystem {
 
         isStarted = true;
 
-        String type = mConfig.get("cs.type");
+        String type = mConfig.getType();
         logger.info(type + " subsystem started");
     }
 

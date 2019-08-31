@@ -78,7 +78,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
         CMSEngine engine = CMS.getCMSEngine();
         cs = engine.getConfig();
 
-        csType = cs.getString("cs.type");
+        csType = cs.getType();
         csSubsystem = csType.toLowerCase();
         csState = cs.getState() + "";
 

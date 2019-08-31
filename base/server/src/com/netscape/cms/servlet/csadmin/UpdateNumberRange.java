@@ -33,7 +33,6 @@ import org.w3c.dom.Node;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
@@ -45,6 +44,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class UpdateNumberRange extends CMSServlet {
@@ -122,8 +122,8 @@ public class UpdateNumberRange extends CMSServlet {
             String type = httpReq.getParameter("type");
             logger.debug("UpdateNumberRange: type: " + type);
 
-            IConfigStore cs = engine.getConfigStore();
-            String cstype = cs.getString("cs.type", "");
+            EngineConfig cs = engine.getConfig();
+            String cstype = cs.getType();
 
             auditParams += "+type;;" + type;
 

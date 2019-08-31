@@ -59,7 +59,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogEvent;
@@ -67,6 +66,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * Utility class with assorted methods to check for
@@ -943,10 +943,10 @@ public class CertUtils {
 
         CMSEngine engine = CMS.getCMSEngine();
         String auditMessage = null;
-        IConfigStore config = engine.getConfigStore();
+        EngineConfig config = engine.getConfig();
 
         try {
-            String subsysType = config.getString("cs.type", "");
+            String subsysType = config.getType();
             if (subsysType.equals("")) {
                 logger.error("CertUtils: verifySystemCertByTag() cs.type not defined in CS.cfg. System certificates verification not done");
                 throw new Exception("Missing cs.type in CS.cfg");
@@ -1052,10 +1052,10 @@ public class CertUtils {
 
         CMSEngine engine = CMS.getCMSEngine();
         String auditMessage = null;
-        IConfigStore config = engine.getConfigStore();
+        EngineConfig config = engine.getConfig();
 
         try {
-            String subsysType = config.getString("cs.type", "");
+            String subsysType = config.getType();
             if (subsysType.equals("")) {
                 logger.error("CertUtils: verifySystemCerts() cs.type not defined in CS.cfg. System certificates verification not done");
                 auditMessage = CMS.getLogMessage(

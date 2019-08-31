@@ -29,7 +29,6 @@ import org.mozilla.jss.netscape.security.util.Cert;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.cert.CertData;
@@ -42,6 +41,7 @@ import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * This is the class used to list, retrieve and modify system certificates for all Java subsystems.
@@ -60,8 +60,8 @@ public class SystemCertService extends PKIService implements SystemCertResource 
 
         CMSEngine engine = CMS.getCMSEngine();
         try {
-            IConfigStore cs = engine.getConfigStore();
-            String type = cs.getString("cs.type");
+            EngineConfig cs = engine.getConfig();
+            String type = cs.getType();
 
             CertData certData;
             if ("CA".equals(type)) {

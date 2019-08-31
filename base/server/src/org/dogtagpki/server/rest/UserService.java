@@ -45,7 +45,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.UserNotFoundException;
@@ -70,6 +69,7 @@ import com.netscape.cms.servlet.admin.GroupMemberProcessor;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -195,7 +195,7 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             CMSEngine engine = CMS.getCMSEngine();
-            IConfigStore cs = engine.getConfigStore();
+            EngineConfig cs = engine.getConfig();
             IUser user;
 
             try {
@@ -224,7 +224,7 @@ public class UserService extends SubsystemService implements UserResource {
             if (!StringUtils.isEmpty(type)) userData.setType(type);
 
             // TODO: refactor into TPSUserService
-            String csType = cs.getString("cs.type");
+            String csType = cs.getType();
             if (csType.equals("TPS")) {
 
                 List<String> profiles = user.getTpsProfiles();
@@ -273,7 +273,7 @@ public class UserService extends SubsystemService implements UserResource {
         if (userData == null) throw new BadRequestException("User data is null.");
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         String userID = userData.getUserID();
         logger.debug("User ID: " + userID);
@@ -362,7 +362,7 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             // TODO: refactor into TPSUserService
-            String csType = cs.getString("cs.type");
+            String csType = cs.getType();
             if (csType.equals("TPS")) {
 
                 String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
@@ -420,7 +420,7 @@ public class UserService extends SubsystemService implements UserResource {
         CMSEngine engine = CMS.getCMSEngine();
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
         try {
             if (userID == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -451,7 +451,7 @@ public class UserService extends SubsystemService implements UserResource {
             user.setState(state);
 
             // TODO: refactor into TPSUserService
-            String csType = cs.getString("cs.type");
+            String csType = cs.getType();
             if (csType.equals("TPS")) {
 
                 String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);
@@ -511,7 +511,7 @@ public class UserService extends SubsystemService implements UserResource {
         CMSEngine engine = CMS.getCMSEngine();
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
         try {
             if (userID == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -556,7 +556,7 @@ public class UserService extends SubsystemService implements UserResource {
             }
 
             // TODO: refactor into TPSUserService
-            String csType = cs.getString("cs.type");
+            String csType = cs.getType();
             if (csType.equals("TPS")) {
 
                 String tpsProfiles = userData.getAttribute(ATTR_TPS_PROFILES);

@@ -319,7 +319,7 @@ public class Configurator {
             return;
         }
 
-        String csType = cs.getString("cs.type");
+        String csType = cs.getType();
         String url = data.getIssuingCA();
 
         if (url.equals("External CA")) {
@@ -469,7 +469,7 @@ public class Configurator {
 
     public String getInstallToken(String sdhost, int sdport, String user, String passwd) throws Exception {
 
-        String csType = cs.getString("cs.type");
+        String csType = cs.getType();
 
         ClientConfig config = new ClientConfig();
         config.setServerURL("https://" + sdhost + ":" + sdport);
@@ -514,7 +514,7 @@ public class Configurator {
 
         String subca_url = "https://" + engine.getEEHost() + ":"
                 + engine.getAdminPort() + "/ca/admin/console/config/wizard" +
-                "?p=5&subsystem=" + cs.getString("cs.type");
+                "?p=5&subsystem=" + cs.getType();
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();
         content.putSingle("uid", user);
@@ -598,7 +598,7 @@ public class Configurator {
     public boolean isValidCloneURI(DomainInfo domainInfo, String cloneHost, int clonePort)
             throws Exception {
 
-        String csType = cs.getString("cs.type");
+        String csType = cs.getType();
         SecurityDomainSubsystem subsystem = domainInfo.getSubsystem(csType);
 
         for (SecurityDomainHost host : subsystem.getHosts()) {
@@ -651,7 +651,7 @@ public class Configurator {
                     "Clone URI does not match available subsystems: " + url);
         }
 
-        String csType = cs.getString("cs.type");
+        String csType = cs.getType();
         if (csType.equals("CA") && !data.getSystemCertsImported()) {
             logger.debug("SystemConfigService: import certificate chain from master");
             int masterAdminPort = getPortFromSecurityDomain(domainInfo,
@@ -680,9 +680,7 @@ public class Configurator {
             throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        String cstype = "";
-
-        cstype = cs.getString("cs.type", "");
+        String cstype = cs.getType();
 
         cstype = cstype.toLowerCase();
 
@@ -774,7 +772,7 @@ public class Configurator {
         logger.debug("updateNumberRange start host=" + hostname + " adminPort=" + adminPort + " eePort=" + eePort);
         logger.debug("updateNumberRange content: " + content);
 
-        String cstype = cs.getString("cs.type", "");
+        String cstype = cs.getType();
         cstype = cstype.toLowerCase();
 
         String serverPath = "/" + cstype + "/admin/" + cstype + "/updateNumberRange";
@@ -856,7 +854,7 @@ public class Configurator {
             if (status.equals(SUCCESS)) {
                 String cstype = "";
 
-                cstype = cs.getString("cs.type", "");
+                cstype = cs.getType();
 
                 logger.debug("Master's configuration:");
                 Document doc = parser.getDocument();
@@ -1114,7 +1112,7 @@ public class Configurator {
 
         CryptoManager cm = CryptoManager.getInstance();
         String certList = cs.getString("preop.cert.list");
-        String cstype = cs.getString("cs.type").toLowerCase();
+        String cstype = cs.getType().toLowerCase();
         StringTokenizer st = new StringTokenizer(certList, ",");
 
         while (st.hasMoreTokens()) {
@@ -1280,7 +1278,7 @@ public class Configurator {
 
         // nickname has no token prepended to it, so no need to strip
         String nickname = cs.getString("preop.master.audit_signing.nickname");
-        String cstype = cs.getString("cs.type", "");
+        String cstype = cs.getType();
         cstype = cstype.toLowerCase();
 
         //audit signing cert
@@ -1939,7 +1937,7 @@ public class Configurator {
         String database = cs.getString("internaldb.database");
         String instancePath = cs.getString("instanceRoot");
         String instanceId = cs.getString("instanceId");
-        String cstype = cs.getString("cs.type");
+        String cstype = cs.getType();
         String dbuser = cs.getString("preop.internaldb.dbuser",
                 "uid=" + DBUSER + ",ou=people," + baseDN);
 
@@ -2273,7 +2271,7 @@ public class Configurator {
 
     public void setSigningAlgorithm(String ct, String keyAlgo) throws EPropertyNotFound,
             EBaseException {
-        String systemType = cs.getString("cs.type");
+        String systemType = cs.getType();
         if (systemType.equalsIgnoreCase("CA")) {
             if (ct.equals("signing")) {
                 cs.putString("ca.signing.defaultSigningAlgorithm", keyAlgo);
@@ -2300,7 +2298,7 @@ public class Configurator {
         String certTag = certObj.getCertTag();
 
         String selection = cs.getString("preop.subsystem.select");
-        String csType = cs.getString("cs.type");
+        String csType = cs.getType();
         String preop_ca_type = null;
         String preop_cert_signing_type = null;
         String preop_cert_signing_profile = null;
@@ -2407,7 +2405,7 @@ public class Configurator {
 
         String profileId = cs.getString(PCERT_PREFIX + certTag + ".profile");
         String session_id = engine.getConfigSDSessionId();
-        String sysType = cs.getString("cs.type", "");
+        String sysType = cs.getType();
         String machineName = cs.getString("machineName", "");
         String securePort = cs.getString("service.securePort", "");
 
@@ -2559,7 +2557,7 @@ public class Configurator {
         }
 
         // if KRA, hardware token needs param "kra.storageUnit.hardware" in CS.cfg
-        String cstype = cs.getString("cs.type", null);
+        String cstype = cs.getType();
         cstype = cstype.toLowerCase();
         if (cstype.equals("kra")) {
             if (!CryptoUtil.isInternalToken(token)) {
@@ -2950,7 +2948,7 @@ public class Configurator {
         String adminSubjectDN = request.getAdminSubjectDN();
         cs.putString("preop.cert.admin.dn", adminSubjectDN);
 
-        String csType = cs.getString("cs.type");
+        String csType = cs.getType();
 
         if (csType.equals("CA")) {
 
@@ -3418,7 +3416,7 @@ public class Configurator {
         int sd_agent_port = cs.getInteger("securitydomain.httpsagentport");
         int sd_admin_port = cs.getInteger("securitydomain.httpsadminport");
         String select = cs.getString("preop.subsystem.select");
-        String type = cs.getString("cs.type");
+        String type = cs.getType();
         String sd_host = cs.getString("securitydomain.host");
         String subsystemName = cs.getString("preop.subsystem.name");
 
@@ -3693,7 +3691,7 @@ public class Configurator {
     public void registerUser(URI secdomainURI, URI targetURI, String targetType) throws Exception {
         CMSEngine engine = CMS.getCMSEngine();
 
-        String csType = cs.getString("cs.type");
+        String csType = cs.getType();
         String uid = csType.toUpperCase() + "-" + cs.getString("machineName", "")
                 + "-" + cs.getString("service.securePort", "");
         String sessionId = engine.getConfigSDSessionId();
@@ -3802,7 +3800,7 @@ public class Configurator {
 
         String endRequestNumStr = cs.getString("dbs.endRequestNumber", "");
         String endSerialNumStr = cs.getString("dbs.endSerialNumber", "");
-        String type = cs.getString("cs.type");
+        String type = cs.getType();
         String basedn = cs.getString("internaldb.basedn");
 
         BigInteger endRequestNum = new BigInteger(endRequestNumStr);
@@ -3843,7 +3841,7 @@ public class Configurator {
      */
     public void finalizeConfiguration(FinalizeConfigRequest request) throws Exception {
 
-        String type = cs.getString("cs.type");
+        String type = cs.getType();
         String list = cs.getString("preop.cert.list", "");
         StringTokenizer st = new StringTokenizer(list, ",");
 

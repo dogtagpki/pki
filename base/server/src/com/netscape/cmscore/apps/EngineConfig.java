@@ -27,6 +27,14 @@ public class EngineConfig extends PropConfigStore {
         super(storage);
     }
 
+    public String getType() throws EBaseException {
+        return getString("cs.type");
+    }
+
+    public void setType(String type) throws EBaseException {
+        putString("cs.type", type);
+    }
+
     public int getState() throws EBaseException {
         return getInteger("cs.state");
     }
