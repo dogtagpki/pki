@@ -105,10 +105,6 @@ public class CMSEngine implements ISubsystem {
 
     private static final String ID = "MAIN";
 
-    public static final String PROP_ID = "id";
-    public static final String PROP_CLASS = "class";
-    public static final String PROP_ENABLED = "enabled";
-
     private static final String SERVER_XML = "server.xml";
 
     // used for testing HSM issues
@@ -746,11 +742,11 @@ public class CMSEngine implements ISubsystem {
         SubsystemsConfig ssconfig = mConfig.getSubsystemsConfig();
 
         for (String ssName : ssconfig.getSubsystemNames()) {
-            IConfigStore config = ssconfig.getSubStore(ssName);
+            SubsystemConfig subsystemConfig = ssconfig.getSubsystemConfig(ssName);
 
-            String id = config.getString(PROP_ID);
-            String classname = config.getString(PROP_CLASS);
-            boolean enabled = config.getBoolean(PROP_ENABLED, true);
+            String id = subsystemConfig.getID();
+            String classname = subsystemConfig.getClassName();
+            boolean enabled = subsystemConfig.isEnabled();
 
             ISubsystem ss = null;
             try {

@@ -113,7 +113,6 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.PKIException;
@@ -145,6 +144,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.ServerXml;
+import com.netscape.cmscore.apps.SubsystemConfig;
 import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
@@ -3935,10 +3935,10 @@ public class Configurator {
         SubsystemsConfig ssconfig = cs.getSubsystemsConfig();
 
         for (String ssName : ssconfig.getSubsystemNames()) {
-            IConfigStore config = ssconfig.getSubStore(ssName);
+            SubsystemConfig subsystemConfig = ssconfig.getSubsystemConfig(ssName);
 
-            if (id.equalsIgnoreCase(config.getString(CMSEngine.PROP_ID))) {
-                config.putBoolean(CMSEngine.PROP_ENABLED, enabled);
+            if (id.equalsIgnoreCase(subsystemConfig.getID())) {
+                subsystemConfig.setEnabled(enabled);
                 break;
             }
         }
