@@ -420,7 +420,7 @@ public class CMSEngine implements ISubsystem {
 
         ready = false;
 
-        instanceDir = config.getString("instanceRoot");
+        instanceDir = mConfig.getInstanceDir();
         instanceId = config.getString("instanceId");
 
         if (state == 1) {
@@ -498,7 +498,7 @@ public class CMSEngine implements ISubsystem {
 
     private void parseServerXML() throws EBaseException {
         try {
-            String instanceRoot = mConfig.getString("instanceRoot");
+            String instanceRoot = mConfig.getInstanceDir();
             String path = instanceRoot + File.separator + "conf" + File.separator + SERVER_XML;
 
             serverXml = ServerXml.load(path);

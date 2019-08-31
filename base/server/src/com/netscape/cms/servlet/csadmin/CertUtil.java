@@ -462,7 +462,7 @@ public class CertUtil {
     }
 
     public static X509CertImpl createLocalCert(
-            IConfigStore config,
+            EngineConfig config,
             X509Key x509key,
             String prefix,
             String certTag,
@@ -516,7 +516,7 @@ public class CertUtil {
 
         logger.debug("Cert Template: " + info);
 
-        String instanceRoot = config.getString("instanceRoot");
+        String instanceRoot = config.getInstanceDir();
         String configurationRoot = config.getString("configurationRoot");
 
         String profileName = config.getString(prefix + certTag + ".profile");

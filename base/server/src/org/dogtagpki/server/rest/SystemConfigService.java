@@ -87,7 +87,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
             isMasterCA = true;
         }
 
-        instanceRoot = cs.getString("instanceRoot");
+        instanceRoot = cs.getInstanceDir();
 
         configurator = engine.createConfigurator();
     }

@@ -2440,7 +2440,7 @@ public class ProfileAdminServlet extends AdminServlet {
                 if (v >= 10) {
                     subpath = "/ca/profiles/";
                 }
-                config = engine.getConfigStore().getString("instanceRoot") + subpath + subname + "/" + id + ".cfg";
+                config = engine.getConfig().getInstanceDir() + subpath + subname + "/" + id + ".cfg";
             } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(

@@ -244,7 +244,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             String mInstanceRoot = null;
 
             try {
-                mInstanceRoot = engine.getConfigStore().getString("instanceRoot");
+                mInstanceRoot = engine.getConfig().getInstanceDir();
             } catch (Exception e) {
                 throw new RuntimeException("Invalid Instance Dir " + e);
             }

@@ -81,7 +81,7 @@ public class CAConfigurator extends Configurator {
      * @param configRoot Where to look for the profile files. For a
      *            fresh installation this should be
      *            "/usr/share/pki". For existing installations it
-     *            should be CMS.getConfigStore().getString("instanceRoot").
+     *            should be CMS.getCMSEngine().getConfig().getInstanceDir().
      *
      */
     public void importProfiles(String configRoot) throws EBaseException, ELdapException {

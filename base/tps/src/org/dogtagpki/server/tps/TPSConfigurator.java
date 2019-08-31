@@ -309,7 +309,7 @@ public class TPSConfigurator extends Configurator {
 
         String host = cs.getString("service.machineName");
         String port = cs.getString("service.securePort");
-        String dbDir = cs.getString("instanceRoot") + "/alias";
+        String dbDir = cs.getInstanceDir() + "/alias";
         String dbNick = cs.getString("tps.cert.subsystem.nickname");
 
         String passwordFile = cs.getString("passwordFile");

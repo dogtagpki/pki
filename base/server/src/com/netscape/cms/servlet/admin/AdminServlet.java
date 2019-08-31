@@ -63,6 +63,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.logging.Auditor;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
@@ -104,7 +105,7 @@ public class AdminServlet extends HttpServlet {
 
     protected Auditor auditor = Auditor.getAuditor();
     private UGSubsystem mUG = null;
-    protected IConfigStore mConfig = null;
+    protected EngineConfig mConfig = null;
     protected IAuthzSubsystem mAuthz = null;
 
     // we don't allow to switch authz db mid-way, for now
@@ -146,7 +147,7 @@ public class AdminServlet extends HttpServlet {
 
         CMSEngine engine = CMS.getCMSEngine();
         mUG = (UGSubsystem) engine.getSubsystem(UGSubsystem.ID);
-        mConfig = engine.getConfigStore();
+        mConfig = engine.getConfig();
 
         String srcType = AUTHZ_SRC_LDAP;
 

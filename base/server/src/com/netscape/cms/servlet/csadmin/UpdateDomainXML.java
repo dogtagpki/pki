@@ -249,8 +249,7 @@ public class UpdateDomainXML extends CMSServlet {
             }
         } else {
             // update the domain.xml file
-            String path = engine.getConfigStore().getString("instanceRoot", "")
-                    + "/conf/domain.xml";
+            String path = engine.getConfig().getInstanceDir() + "/conf/domain.xml";
 
             logger.debug("UpdateDomainXML: got path=" + path);
 

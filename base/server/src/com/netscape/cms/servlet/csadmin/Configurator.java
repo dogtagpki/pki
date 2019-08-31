@@ -1935,7 +1935,7 @@ public class Configurator {
 
         String baseDN = cs.getString("internaldb.basedn");
         String database = cs.getString("internaldb.database");
-        String instancePath = cs.getString("instanceRoot");
+        String instancePath = cs.getInstanceDir();
         String instanceId = cs.getString("instanceId");
         String cstype = cs.getType();
         String dbuser = cs.getString("preop.internaldb.dbuser",
@@ -2825,7 +2825,7 @@ public class Configurator {
         String profileName = cs.getString(Configurator.PCERT_PREFIX + tag + ".profile");
         logger.debug("Configurator: profile: " + profileName);
 
-        String instanceRoot = cs.getString("instanceRoot");
+        String instanceRoot = cs.getInstanceDir();
         String configurationRoot = cs.getString("configurationRoot");
         CertInfoProfile profile = new CertInfoProfile(instanceRoot + configurationRoot + profileName);
 
@@ -3309,7 +3309,7 @@ public class Configurator {
             String b64 = parser.getValue("b64");
 
             // save in a file for access by ImportAdminCertPanel
-            String instanceRoot = cs.getString("instanceRoot", "");
+            String instanceRoot = cs.getInstanceDir();
             String dir = instanceRoot + File.separator + "conf" + File.separator + "admin.b64";
             cs.putString("preop.admincert.b64", dir);
 

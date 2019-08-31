@@ -120,8 +120,7 @@ public class ProfileSubsystem
 
         String configPath;
         try {
-            configPath = engine.getConfigStore().getString("instanceRoot")
-                + "/ca/profiles/ca/" + id + ".cfg";
+            configPath = engine.getConfig().getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
         } catch (EBaseException e) {
             throw new EProfileException("CMS_PROFILE_DELETE_ERROR", e);
         }
@@ -153,8 +152,7 @@ public class ProfileSubsystem
         CMSEngine engine = CMS.getCMSEngine();
         String configPath;
         try {
-            configPath = engine.getConfigStore().getString("instanceRoot")
-                + "/ca/profiles/ca/" + id + ".cfg";
+            configPath = engine.getConfig().getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
         } catch (EBaseException e) {
             throw new EProfileException("CMS_PROFILE_DELETE_ERROR");
         }
@@ -203,8 +201,7 @@ public class ProfileSubsystem
         CMSEngine engine = CMS.getCMSEngine();
         String configPath;
         try {
-            configPath = engine.getConfigStore().getString("instanceRoot")
-                + "/ca/profiles/ca/" + id + ".cfg";
+            configPath = engine.getConfig().getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
         } catch (EBaseException e) {
             throw new EProfileException("CMS_PROFILE_DELETE_ERROR");
         }

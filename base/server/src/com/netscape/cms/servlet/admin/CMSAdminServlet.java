@@ -1108,8 +1108,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 }
             }
 
-            pathname = mConfig.getString("instanceRoot", "")
-                    + File.separator + "conf" + File.separator;
+            pathname = mConfig.getInstanceDir() + File.separator + "conf" + File.separator;
             dir = pathname;
 
             CMSEngine engine = CMS.getCMSEngine();
