@@ -20,6 +20,7 @@ package com.netscape.cmscore.apps;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
+import com.netscape.cmscore.ldapconn.LDAPConfig;
 
 public class EngineConfig extends PropConfigStore {
 
@@ -65,5 +66,18 @@ public class EngineConfig extends PropConfigStore {
 
     public void setState(int state) {
         putInteger("cs.state", state);
+    }
+
+    public LDAPConfig getInternalDatabase() {
+
+        String fullname = getFullName("internaldb");
+        String reference = mSource.get(fullname);
+
+        if (reference == null) {
+            return new LDAPConfig(fullname, mSource);
+
+        } else {
+            return new LDAPConfig(reference, mSource);
+        }
     }
 }

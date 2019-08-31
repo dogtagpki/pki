@@ -758,7 +758,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @param name property name
      * @return fill property name
      */
-    private String getFullName(String name) {
+    protected String getFullName(String name) {
         if (mStoreName == null)
             return name;
         else
