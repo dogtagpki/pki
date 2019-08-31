@@ -122,7 +122,7 @@ public class CMSEngine implements ISubsystem {
 
     private CryptoManager mManager = null;
 
-    protected IConfigStore mConfig;
+    protected EngineConfig mConfig;
     protected ServerXml serverXml;
 
     private boolean mExcludedLdapAttrsEnabled = false;
@@ -415,7 +415,7 @@ public class CMSEngine implements ISubsystem {
         logger.info("Initializing " + name + " subsystem");
 
         mOwner = owner;
-        mConfig = config;
+        mConfig = (EngineConfig) config;
         int state = mConfig.getInteger("cs.state");
 
         ready = false;
@@ -1360,6 +1360,10 @@ public class CMSEngine implements ISubsystem {
      * returns the main config store
      */
     public IConfigStore getConfigStore() {
+        return mConfig;
+    }
+
+    public EngineConfig getConfig() {
         return mConfig;
     }
 

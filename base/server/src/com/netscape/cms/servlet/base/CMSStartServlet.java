@@ -31,12 +31,14 @@ import org.dogtagpki.server.PKIServerSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.cms.realm.PKIRealm;
 import com.netscape.cms.tomcat.ProxyRealm;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStorage;
+import com.netscape.cmscore.base.FileConfigStore;
 
 /**
  * This servlet is started by the web server at startup, and
@@ -74,12 +76,25 @@ public class CMSStartServlet extends HttpServlet {
                     subsystem + File.separator + "CS.cfg";
         }
 
+        EngineConfig engineConfig;
+
+        try {
+            logger.debug("CMSStartServlet: Loading CMS engine configuration: " + path);
+            ConfigStorage storage = new FileConfigStore(path);
+            engineConfig = new EngineConfig(storage);
+            engineConfig.load();
+
+        } catch (Exception e) {
+            logger.error("Unable to load CMS engine configuration: " + e.getMessage(), e);
+            throw new ServletException(e);
+        }
+
         Class<?> engineClass = CMSEngine.class;
 
         String className = getServletConfig().getInitParameter(PROP_CMS_ENGINE);
         if (className != null) {
             try {
-                logger.debug("CMSStartServlet: Loading CMS engine " + className);
+                logger.debug("CMSStartServlet: Loading CMS engine: " + className);
                 engineClass = Class.forName(className);
             } catch (ClassNotFoundException e) {
                 logger.error("Unable to load CMS engine: " + e.getMessage(), e);
@@ -90,20 +105,18 @@ public class CMSStartServlet extends HttpServlet {
         CMSEngine engine = null;
 
         try {
-            logger.debug("CMSStartServlet: Creating CMS engine " + engineClass.getName());
+            logger.debug("CMSStartServlet: Creating CMS engine: " + engineClass.getName());
             engine = (CMSEngine) engineClass.newInstance();
             CMS.setCMSEngine(engine);
 
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (Exception e) {
             logger.error("Unable to create CMS engine: " + e.getMessage(), e);
             throw new ServletException(e);
         }
 
         try {
-            logger.debug("CMSStartServlet: Starting CMS engine " + engineClass.getName());
-            IConfigStore mainConfig = engine.createFileConfigStore(path);
-            engine.init(null, mainConfig);
-
+            logger.debug("CMSStartServlet: Starting CMS engine: " + engineClass.getName());
+            engine.init(null, engineConfig);
             engine.startup();
 
         } catch (Exception e) {
