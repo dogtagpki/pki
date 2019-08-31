@@ -27,6 +27,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.ldap.LDAPUtil;
 
@@ -48,12 +49,12 @@ public class ReplicationUtil {
         logger.info("ReplicationUtil: setting up replication");
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
         IConfigStore masterCfg = cs.getSubStore("preop.internaldb.master");
         IConfigStore replicaCfg = cs.getSubStore("internaldb");
 
         String machinename = cs.getString("machineName", "");
-        String instanceId = cs.getString("instanceId", "");
+        String instanceId = cs.getInstanceID();
         String secure = cs.getString("internaldb.ldapconn.secureConn");
         String replicationSecurity = cs.getString("internaldb.ldapconn.replicationSecurity");
 

@@ -1936,7 +1936,7 @@ public class Configurator {
         String baseDN = cs.getString("internaldb.basedn");
         String database = cs.getString("internaldb.database");
         String instancePath = cs.getInstanceDir();
-        String instanceId = cs.getString("instanceId");
+        String instanceId = cs.getInstanceID();
         String cstype = cs.getType();
         String dbuser = cs.getString("preop.internaldb.dbuser",
                 "uid=" + DBUSER + ",ou=people," + baseDN);
@@ -2602,7 +2602,7 @@ public class Configurator {
     }
 
     public String getNickname(String certTag) throws EBaseException {
-        String instanceID = cs.getString("instanceId", "");
+        String instanceID = cs.getInstanceID();
 
         String nickname = certTag + "Cert cert-" + instanceID;
         String preferredNickname = null;

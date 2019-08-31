@@ -27,6 +27,14 @@ public class EngineConfig extends PropConfigStore {
         super(storage);
     }
 
+    public String getInstanceID() throws EBaseException {
+        return getString("instanceId");
+    }
+
+    public void setInstanceID(String instanceID) throws EBaseException {
+        putString("instanceId", instanceID);
+    }
+
     public String getInstanceDir() throws EBaseException {
         return getString("instanceRoot");
     }

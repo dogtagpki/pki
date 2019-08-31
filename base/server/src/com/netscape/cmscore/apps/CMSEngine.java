@@ -269,7 +269,7 @@ public class CMSEngine implements ISubsystem {
                         config.getBoolean("internaldb.ldapconn.secureConn"));
 
                 binddn = "cn=Replication Manager masterAgreement1-" + config.getString("machineName", "") + "-" +
-                        config.getString("instanceId", "") + ",cn=config";
+                        mConfig.getInstanceID() + ",cn=config";
 
             } else if (tags.equals("CA LDAP Publishing")) {
 
@@ -421,7 +421,7 @@ public class CMSEngine implements ISubsystem {
         ready = false;
 
         instanceDir = mConfig.getInstanceDir();
-        instanceId = config.getString("instanceId");
+        instanceId = mConfig.getInstanceID();
 
         if (state == 1) {
             // configuration is complete, initialize password store

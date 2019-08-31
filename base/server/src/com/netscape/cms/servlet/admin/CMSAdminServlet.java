@@ -82,6 +82,7 @@ import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.symkey.SessionKey;
@@ -798,7 +799,7 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
         try {
             String installdate = cs.getString(Constants.PR_STAT_INSTALLDATE, "");
             params.put(Constants.PR_STAT_INSTALLDATE, installdate);
@@ -812,7 +813,7 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         try {
-            String instanceId = cs.getString(Constants.PR_STAT_INSTANCEID, "");
+            String instanceId = cs.getInstanceID();
             params.put(Constants.PR_STAT_INSTANCEID, instanceId);
         } catch (Exception e) {
         }
