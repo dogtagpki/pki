@@ -416,7 +416,7 @@ public class CMSEngine implements ISubsystem {
 
         mOwner = owner;
         mConfig = (EngineConfig) config;
-        int state = mConfig.getInteger("cs.state");
+        int state = mConfig.getState();
 
         ready = false;
 
@@ -558,13 +558,13 @@ public class CMSEngine implements ISubsystem {
     }
 
     public void setCSState(int mode) {
-        mConfig.putInteger("cs.state", mode);
+        mConfig.setState(mode);
     }
 
     public int getCSState() {
         int mode = 0;
         try {
-            mode = mConfig.getInteger("cs.state");
+            mode = mConfig.getState();
         } catch (Exception e) {
         }
         return mode;

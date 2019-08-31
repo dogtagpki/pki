@@ -144,6 +144,7 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
@@ -196,12 +197,12 @@ public class Configurator {
     public static ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
 
     protected CMSEngine engine;
-    protected IConfigStore cs;
+    protected EngineConfig cs;
     protected ServerXml serverXml;
 
     public Configurator(CMSEngine engine) {
         this.engine = engine;
-        this.cs = engine.getConfigStore();
+        this.cs = engine.getConfig();
         this.serverXml = engine.getServerXml();
     }
 
@@ -239,7 +240,7 @@ public class Configurator {
         return connection.post(path, content);
     }
 
-    public void setConfigStore(IConfigStore cs) {
+    public void setConfigStore(EngineConfig cs) {
         this.cs = cs;
     }
 
@@ -3922,7 +3923,7 @@ public class Configurator {
         cs.putString("jss.ssl.sslserver.ectype", ecType);
 
         cs.removeSubStore("preop");
-        cs.putInteger("cs.state", 1);
+        cs.setState(1);
 
         cs.commit(false);
     }

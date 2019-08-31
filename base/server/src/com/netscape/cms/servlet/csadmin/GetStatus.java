@@ -34,12 +34,12 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class GetStatus extends CMSServlet {
@@ -74,9 +74,9 @@ public class GetStatus extends CMSServlet {
 
         HttpServletResponse httpResp = cmsReq.getHttpResp();
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.getConfigStore();
+        EngineConfig config = engine.getConfig();
 
-        String state = config.getString("cs.state", "");
+        int state = config.getState();
         String type = config.getString("cs.type", "");
         String status = engine.isReady() ? "running" : "starting";
         String version = GetStatus.class.getPackage().getImplementationVersion();
@@ -88,7 +88,7 @@ public class GetStatus extends CMSServlet {
 
             Node root = xmlObj.createRoot("XMLResponse");
 
-            xmlObj.addItemToContainer(root, "State", state);
+            xmlObj.addItemToContainer(root, "State", state + "");
             xmlObj.addItemToContainer(root, "Type", type);
             xmlObj.addItemToContainer(root, "Status", status);
             xmlObj.addItemToContainer(root, "Version", version);

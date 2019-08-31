@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -38,6 +37,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 
 public class MainPageServlet extends CMSServlet {
@@ -105,14 +105,14 @@ public class MainPageServlet extends CMSServlet {
         int num = 0;
         ArgBlock rarg = null;
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
         int state = 0;
         String host = "";
         String adminInterface = "";
         String eeInterface = "";
         String agentInterface = "";
         try {
-            state = cs.getInteger("cs.state", 0);
+            state = cs.getState();
             host = cs.getString("machineName", "");
             adminInterface = cs.getString("admin.interface.uri", "");
             eeInterface = cs.getString("ee.interface.uri", "");

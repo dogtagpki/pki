@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.BadRequestException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.system.AdminSetupRequest;
@@ -54,6 +53,7 @@ import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cms.servlet.csadmin.SystemCertDataFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -66,7 +66,7 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
 
     public Configurator configurator;
 
-    public IConfigStore cs;
+    public EngineConfig cs;
     public String csType;
     public String csSubsystem;
     public String csState;
@@ -76,11 +76,11 @@ public class SystemConfigService extends PKIService implements SystemConfigResou
     public SystemConfigService() throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
-        cs = engine.getConfigStore();
+        cs = engine.getConfig();
 
         csType = cs.getString("cs.type");
         csSubsystem = csType.toLowerCase();
-        csState = cs.getString("cs.state");
+        csState = cs.getState() + "";
 
         String domainType = cs.getString("securitydomain.select", "existingdomain");
         if (csType.equals("CA") && domainType.equals("new")) {

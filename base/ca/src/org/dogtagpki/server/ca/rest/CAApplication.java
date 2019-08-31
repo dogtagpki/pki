@@ -21,9 +21,9 @@ import org.dogtagpki.server.rest.SystemCertService;
 import org.dogtagpki.server.rest.UserService;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 public class CAApplication extends Application {
 
@@ -74,12 +74,12 @@ public class CAApplication extends Application {
 
         // security domain
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         // check server state
         int state;
         try {
-            state = cs.getInteger("cs.state");
+            state = cs.getState();
         } catch (EBaseException e) {
             logger.error("CAApplication: " + e.getMessage(), e);
             throw new RuntimeException(e);

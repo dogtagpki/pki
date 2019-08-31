@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.apps;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
 
@@ -24,5 +25,13 @@ public class EngineConfig extends PropConfigStore {
 
     public EngineConfig(ConfigStorage storage) {
         super(storage);
+    }
+
+    public int getState() throws EBaseException {
+        return getInteger("cs.state");
+    }
+
+    public void setState(int state) {
+        putInteger("cs.state", state);
     }
 }
