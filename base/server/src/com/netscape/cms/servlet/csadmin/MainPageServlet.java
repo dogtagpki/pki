@@ -113,7 +113,7 @@ public class MainPageServlet extends CMSServlet {
         String agentInterface = "";
         try {
             state = cs.getState();
-            host = cs.getString("machineName", "");
+            host = cs.getHostname();
             adminInterface = cs.getString("admin.interface.uri", "");
             eeInterface = cs.getString("ee.interface.uri", "");
             agentInterface = cs.getString("agent.interface.uri", "");

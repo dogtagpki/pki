@@ -27,6 +27,14 @@ public class EngineConfig extends PropConfigStore {
         super(storage);
     }
 
+    public String getHostname() throws EBaseException {
+        return getString("machineName");
+    }
+
+    public void setHostname(String hostname) throws EBaseException {
+        putString("machineName", hostname);
+    }
+
     public String getInstanceID() throws EBaseException {
         return getString("instanceId");
     }

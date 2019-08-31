@@ -260,7 +260,7 @@ public class TPSConfigurator extends Configurator {
         String sessionId = engine.getConfigSDSessionId();
 
         String securePort = cs.getString("service.securePort", "");
-        String machineName = cs.getString("machineName", "");
+        String machineName = cs.getHostname();
         String name = "transportCert-" + machineName + "-" + securePort;
 
         MultivaluedMap<String, String> content = new MultivaluedHashMap<String, String>();

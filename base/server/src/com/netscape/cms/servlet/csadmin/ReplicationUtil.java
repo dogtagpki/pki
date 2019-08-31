@@ -53,7 +53,7 @@ public class ReplicationUtil {
         IConfigStore masterCfg = cs.getSubStore("preop.internaldb.master");
         IConfigStore replicaCfg = cs.getSubStore("internaldb");
 
-        String machinename = cs.getString("machineName", "");
+        String machinename = cs.getHostname();
         String instanceId = cs.getInstanceID();
         String secure = cs.getString("internaldb.ldapconn.secureConn");
         String replicationSecurity = cs.getString("internaldb.ldapconn.replicationSecurity");

@@ -268,7 +268,7 @@ public class CMSEngine implements ISubsystem {
                         config.getInteger("internaldb.ldapconn.port"),
                         config.getBoolean("internaldb.ldapconn.secureConn"));
 
-                binddn = "cn=Replication Manager masterAgreement1-" + config.getString("machineName", "") + "-" +
+                binddn = "cn=Replication Manager masterAgreement1-" + mConfig.getHostname() + "-" +
                         mConfig.getInstanceID() + ",cn=config";
 
             } else if (tags.equals("CA LDAP Publishing")) {
@@ -577,7 +577,7 @@ public class CMSEngine implements ISubsystem {
     public String getEEHost() {
         String host = "";
         try {
-            host = mConfig.getString("machineName");
+            host = mConfig.getHostname();
         } catch (Exception e) {
         }
         return host;
@@ -586,7 +586,7 @@ public class CMSEngine implements ISubsystem {
     public String getEENonSSLHost() {
         String host = "";
         try {
-            host = mConfig.getString("machineName");
+            host = mConfig.getHostname();
         } catch (Exception e) {
         }
         return host;
@@ -603,7 +603,7 @@ public class CMSEngine implements ISubsystem {
     public String getEESSLHost() {
         String host = "";
         try {
-            host = mConfig.getString("machineName");
+            host = mConfig.getHostname();
         } catch (Exception e) {
         }
         return host;
@@ -624,7 +624,7 @@ public class CMSEngine implements ISubsystem {
     public String getAgentHost() {
         String host = "";
         try {
-            host = mConfig.getString("machineName");
+            host = mConfig.getHostname();
         } catch (Exception e) {
         }
         return host;
@@ -641,7 +641,7 @@ public class CMSEngine implements ISubsystem {
     public String getAdminHost() {
         String host = "";
         try {
-            host = mConfig.getString("machineName");
+            host = mConfig.getHostname();
         } catch (Exception e) {
         }
         return host;

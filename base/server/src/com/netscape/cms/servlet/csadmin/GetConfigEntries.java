@@ -18,7 +18,6 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -42,6 +41,7 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -136,7 +136,7 @@ public class GetConfigEntries extends CMSServlet {
         }
 
         if (op != null) {
-            IConfigStore config = engine.getConfigStore();
+            EngineConfig config = engine.getConfig();
             String substores = args.getValueAsString("substores", "");
             StringTokenizer t = new StringTokenizer(substores, ",");
             while (t.hasMoreTokens()) {
@@ -149,7 +149,7 @@ public class GetConfigEntries extends CMSServlet {
                     try {
                         String value = config.getString(name);
                         if (value.equals("localhost")) {
-                            value = config.getString("machineName", InetAddress.getLocalHost().getHostName());
+                            value = config.getHostname();
                         }
                         Node container = xmlObj.createContainer(root, "Config");
                         xmlObj.addItemToContainer(container, "name", name);
@@ -171,7 +171,7 @@ public class GetConfigEntries extends CMSServlet {
                     value = config.getString(name);
                     logger.debug("Retrieving config value=" + value);
                     if (value.equals("localhost"))
-                        value = config.getString("machineName", InetAddress.getLocalHost().getHostName());
+                        value = config.getHostname();
                 } catch (Exception ee) {
                     if (name.equals("internaldb.ldapauth.password")) {
                         value = getLDAPPassword();

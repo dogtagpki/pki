@@ -638,7 +638,7 @@ public class CertUtil {
 
         try {
             String sysType = cs.getType();
-            String machineName = cs.getString("machineName", "");
+            String machineName = cs.getHostname();
             String securePort = cs.getString("service.securePort", "");
             id = sysType + "-" + machineName + "-" + securePort;
         } catch (Exception e) {

@@ -1463,7 +1463,7 @@ public class Configurator {
                 masterhost = cs.getString("preop.internaldb.master.ldapconn.host", "");
                 masterport = cs.getString("preop.internaldb.master.ldapconn.port", "");
                 masterbasedn = cs.getString("preop.internaldb.master.basedn", "");
-                realhostname = cs.getString("machineName", "");
+                realhostname = cs.getHostname();
             } catch (Exception e) {
             }
 
@@ -2406,7 +2406,7 @@ public class Configurator {
         String profileId = cs.getString(PCERT_PREFIX + certTag + ".profile");
         String session_id = engine.getConfigSDSessionId();
         String sysType = cs.getType();
-        String machineName = cs.getString("machineName", "");
+        String machineName = cs.getHostname();
         String securePort = cs.getString("service.securePort", "");
 
         if (certTag.equals("subsystem")) {
@@ -3692,7 +3692,7 @@ public class Configurator {
         CMSEngine engine = CMS.getCMSEngine();
 
         String csType = cs.getType();
-        String uid = csType.toUpperCase() + "-" + cs.getString("machineName", "")
+        String uid = csType.toUpperCase() + "-" + cs.getHostname()
                 + "-" + cs.getString("service.securePort", "");
         String sessionId = engine.getConfigSDSessionId();
         String subsystemName = cs.getString("preop.subsystem.name");
