@@ -31,10 +31,8 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.publish.IXcertPublisherProcessor;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -84,7 +82,6 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     protected IPublisherProcessor mPublisherProcessor = null;
 
     private String mId = ID;
-    private Logger mLogger = null;
 
     public CrossCertPairSubsystem() {
     }
@@ -110,7 +107,6 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
         try {
             mConfig = config;
-            mLogger = Logger.getLogger();
             synchronized (this) {
                 mCa = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
                 mPublisherProcessor = mCa.getPublisherProcessor();
@@ -120,9 +116,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             IConfigStore ldapConfig = mConfig.getSubStore(PROP_LDAP);
 
             if (ldapConfig == null) {
-                log(ILogger.LL_MISCONF,
-                        CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR",
-                                PROP_LDAP));
+                logger.warn(CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR", PROP_LDAP));
                 return;
             }
 
@@ -133,14 +127,12 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             if (mLdapConnFactory != null) {
                 mLdapConnFactory.init(cs, ldapConfig, engine.getPasswordStore());
             } else {
-                log(ILogger.LL_MISCONF,
-                        CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR",
-                                PROP_LDAP));
+                logger.warn(CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR", PROP_LDAP));
                 return;
             }
 
         } catch (EBaseException e) {
-            logger.error("Unable to initialize CrossCertPairSubsystem: " + e.getMessage(), e);
+            logger.error("CrossCertPairSubsystem: Unable to initialize subsystem: " + e.getMessage(), e);
             throw e;
         }
 
@@ -159,7 +151,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
      * @param certBytes cert in byte array to be imported
      */
     public void importCert(byte[] certBytes) throws EBaseException {
-        debug("importCert(byte[])");
+        logger.debug("CrossCertPairSubsystem: importCert(byte[])");
         X509Certificate cert = null;
 
         try {
@@ -187,7 +179,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         if (!(certObj instanceof X509Certificate))
             throw new IllegalArgumentException("Illegal arg to publish");
 
-        debug("in importCert(Object)");
+        logger.debug("CrossCertPairSubsystem: in importCert(Object)");
         X509Certificate cert = (X509Certificate) certObj;
         // check to see if this is a valid cross-signed ca cert:
         // 1. does cert2 share the same key pair as this CA's signing
@@ -206,14 +198,14 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                     DN_XCERTS, null, false);
 
             if (res.hasMoreElements()) {
-                log(ILogger.LL_INFO, "ldap search found " + DN_XCERTS);
+                logger.info("CrossCertPairSubsystem: ldap search found " + DN_XCERTS);
 
                 LDAPEntry entry = (LDAPEntry) res.nextElement();
                 LDAPAttribute caCerts = entry.getAttribute(LDAP_ATTR_CA_CERT);
                 LDAPAttribute certPairs = entry.getAttribute(LDAP_ATTR_XCERT_PAIR);
 
                 if (caCerts == null) {
-                    debug("no existing ca certs, just import");
+                    logger.debug("CrossCertPairSubsystem: no existing ca certs, just import");
                     addCAcert(conn, cert.getEncoded());
                     return;
                 }
@@ -222,9 +214,9 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                 Enumeration<byte[]> en = caCerts.getByteValues();
 
                 if ((en == null) || (en.hasMoreElements() == false)) {
-                    debug("1st potential xcert");
+                    logger.debug("CrossCertPairSubsystem: 1st potential xcert");
                     addCAcert(conn, cert.getEncoded());
-                    debug("potential cross ca cert added to crossCerts entry successfully");
+                    logger.debug("CrossCertPairSubsystem: potential cross ca cert added to crossCerts entry successfully");
                     return;
                 }
                 byte[] val = null;
@@ -232,7 +224,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
                 while (en.hasMoreElements()) {
                     val = en.nextElement();
-                    debug("val =" + val.length);
+                    logger.debug("CrossCertPairSubsystem: val =" + val.length);
                     if (val.length == 0) {
                         continue;
                     } else {
@@ -242,7 +234,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                             // found a pair,form xcert, write to
                             // crossCertificatePair attr, remove from
                             // caCertificate attr, and publish if so configured
-                            debug("found a pair!");
+                            logger.debug("CrossCertPairSubsystem: found a pair!");
                             CertificatePair cp = new
                                     //								CertificatePair(inCert.getEncoded(), cert.getEncoded());
                                     CertificatePair(inCert, cert);
@@ -259,34 +251,39 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                     // don't find a pair, add it into
                     // caCertificate attr for later pairing
                     // opportunities
-                    debug("didn't find a pair!");
+                    logger.debug("CrossCertPairSubsystem: didn't find a pair!");
                     addCAcert(conn, cert.getEncoded());
-                    debug("potential cross ca cert added to crossCerts entry successfully");
+                    logger.debug("CrossCertPairSubsystem: potential cross ca cert added to crossCerts entry successfully");
                 }
 
             } else {
-                log(ILogger.LL_INFO, "ldap search found no " + DN_XCERTS);
+                logger.info("CrossCertPairSubsystem: ldap search found no " + DN_XCERTS);
             }
+
         } catch (IOException e) {
-            throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString());
+            throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString(), e);
+
         } catch (LDAPException e) {
-            log(ILogger.LL_FAILURE, "exception: " + e.toString());
-            throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString());
+            logger.error("CrossCertPairSubsystem: " + e.getMessage(), e);
+            throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString(), e);
+
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, "exception: " + e.toString());
-            throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString());
+            logger.error("CrossCertPairSubsystem: " + e.getMessage(), e);
+            throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString(), e);
+
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, "exception: " + e.toString());
-            throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString());
+            logger.error("CrossCertPairSubsystem: " + e.getMessage(), e);
+            throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString(), e);
+
         } finally {
             try {
                 returnConn(conn);
             } catch (ELdapException e) {
-                log(ILogger.LL_FAILURE, "exception: " + e.toString());
+                logger.error("CrossCertPairSubsystem: " + e.getMessage(), e);
                 throw new EBaseException("CrossCertPairSubsystem: importCert() failed:" + e.toString());
             }
         }
-        debug("importCert(Object) completed");
+        logger.debug("CrossCertPairSubsystem: importCert(Object) completed");
     }
 
     /**
@@ -307,7 +304,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
     public X509Certificate byteArray2X509Cert(byte[] certBytes)
             throws CertificateException {
-        debug("in bytearray2X509Cert()");
+        logger.debug("CrossCertPairSubsystem: in bytearray2X509Cert()");
         ByteArrayInputStream inStream = new
                 ByteArrayInputStream(certBytes);
 
@@ -316,7 +313,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
         X509Certificate cert = (X509Certificate) cf.generateCertificate(inStream);
 
-        debug("done bytearray2X509Cert()");
+        logger.debug("CrossCertPairSubsystem: done bytearray2X509Cert()");
         return cert;
     }
 
@@ -328,7 +325,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         pair.encode(bos);
 
         if (ByteValueExists(certPairs, bos.toByteArray()) == true) {
-            debug("cross cert pair exists in internal db, don't add again");
+            logger.debug("CrossCertPairSubsystem: cross cert pair exists in internal db, don't add again");
             return;
         }
 
@@ -366,18 +363,18 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
      * compares contents two byte arrays returning true if exactly same.
      */
     static public boolean byteArraysAreEqual(byte[] a, byte[] b) {
-        debug("in byteArraysAreEqual()");
+        logger.debug("CrossCertPairSubsystem: in byteArraysAreEqual()");
         if (a.length != b.length) {
-            debug("exiting byteArraysAreEqual(): false");
+            logger.debug("CrossCertPairSubsystem: exiting byteArraysAreEqual(): false");
             return false;
         }
         for (int i = 0; i < a.length; i++) {
             if (a[i] != b[i]) {
-                debug("exiting byteArraysAreEqual(): false");
+                logger.debug("CrossCertPairSubsystem: exiting byteArraysAreEqual(): false");
                 return false;
             }
         }
-        debug("exiting byteArraysAreEqual(): true");
+        logger.debug("CrossCertPairSubsystem: exiting byteArraysAreEqual(): true");
         return true;
     }
 
@@ -417,20 +414,20 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             LDAPSearchResults res = conn.search(mBaseDN, LDAPv2.SCOPE_SUB,
                     DN_XCERTS, null, false);
 
-            debug("trying to publish cert pairs, if any");
+            logger.debug("CrossCertPairSubsystem: trying to publish cert pairs, if any");
             if ((res == null) || (res.hasMoreElements() == false)) {
-                debug("no cross cert pairs to publish");
+                logger.debug("CrossCertPairSubsystem: no cross cert pairs to publish");
                 return;
             }
 
             if (res.hasMoreElements()) {
-                log(ILogger.LL_INFO, "ldap search found " + DN_XCERTS);
+                logger.info("CrossCertPairSubsystem: ldap search found " + DN_XCERTS);
 
                 LDAPEntry entry = (LDAPEntry) res.nextElement();
                 LDAPAttribute xcerts = entry.getAttribute(LDAP_ATTR_XCERT_PAIR);
 
                 if (xcerts == null) {
-                    debug("no cross cert pairs to publish");
+                    logger.debug("CrossCertPairSubsystem: no cross cert pairs to publish");
                     return;
                 }
 
@@ -438,14 +435,14 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                 Enumeration<byte[]> en = xcerts.getByteValues();
 
                 if ((en == null) || (en.hasMoreElements() == false)) {
-                    debug("publishCertPair found no pairs in internal db");
+                    logger.debug("CrossCertPairSubsystem: publishCertPair found no pairs in internal db");
                     return;
                 }
                 byte[] val = null;
 
                 while (en.hasMoreElements()) {
                     val = en.nextElement();
-                    debug("val =" + val.length);
+                    logger.debug("CrossCertPairSubsystem: val =" + val.length);
                     if (val.length == 0) {
                         continue;
                     } else {
@@ -509,14 +506,5 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
      */
     public IConfigStore getConfigStore() {
         return mConfig;
-    }
-
-    protected void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM,
-                ILogger.S_XCERT, level, msg);
-    }
-
-    private static void debug(String msg) {
-        logger.debug("CrossCertPairSubsystem: " + msg);
     }
 }
