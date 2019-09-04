@@ -39,7 +39,6 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -161,12 +160,12 @@ public class SrchKeyForRecovery extends CMSServlet {
         try {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "list");
+
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -178,13 +177,11 @@ public class SrchKeyForRecovery extends CMSServlet {
         try {
             mAuthz.checkRealm(realm, authToken, null, mAuthzResourceName, "list");
         } catch (EAuthzAccessDenied | EAuthzUnknownRealm e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
             return;
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             cmsReq.setStatus(ICMSRequest.EXCEPTION);
             return;
         }
@@ -195,10 +192,8 @@ public class SrchKeyForRecovery extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         // process query if authentication is successful
@@ -233,9 +228,8 @@ public class SrchKeyForRecovery extends CMSServlet {
                     req.getParameter("publicKeyData"), req.getParameter(IN_FILTER),
                     req, resp, locale[0], realm);
         } catch (NumberFormatException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
-            error = new EBaseException(CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT"));
+            logger.warn(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"), e);
+            error = new EBaseException(CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT"), e);
         }
 
         /*
@@ -260,10 +254,8 @@ public class SrchKeyForRecovery extends CMSServlet {
                 cmsReq.setError(error);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
     }
 
@@ -339,8 +331,9 @@ public class SrchKeyForRecovery extends CMSServlet {
             header.addIntegerValue("maxSize", mMaxReturns);
             header.addIntegerValue(OUT_TOTAL_COUNT, count);
             ctx.addIntegerValue(OUT_MAXCOUNT, maxCount);
+
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, "Error " + e);
+            logger.error("SrchKeyForRecovery: " + e);
             throw e;
         }
     }
