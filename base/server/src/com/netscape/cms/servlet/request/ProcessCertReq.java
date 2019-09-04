@@ -276,10 +276,8 @@ public class ProcessCertReq extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         try {
@@ -316,7 +314,7 @@ public class ProcessCertReq extends CMSServlet {
                         toDo, signatureAlgorithm, subject,
                         notValidBefore, notValidAfter, locale[0], startTime);
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_REQUEST_ID_1", seqNum.toString()));
+                logger.error(CMS.getLogMessage("CMSGW_INVALID_REQUEST_ID_1", seqNum.toString()));
                 error = new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID",
                                 seqNum.toString()));
@@ -324,8 +322,8 @@ public class ProcessCertReq extends CMSServlet {
         } catch (EBaseException e) {
             error = e;
         } catch (NumberFormatException e) {
-            log(ILogger.LL_FAILURE, "Error " + e);
-            error = new EBaseException(CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT"));
+            logger.error("ProcessCertReq: " + e.getMessage(), e);
+            error = new EBaseException(CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT"), e);
         }
 
         try {
@@ -346,10 +344,8 @@ public class ProcessCertReq extends CMSServlet {
             }
 
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
         return;
     }
@@ -441,13 +437,9 @@ public class ProcessCertReq extends CMSServlet {
                     authzToken = authorize(mAclMethod, authToken,
                                 mAuthzResourceName, "execute");
                 } catch (EAuthzAccessDenied e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
-                                    e.toString()));
+                    logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
                 } catch (Exception e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
-                                    e.toString()));
+                    logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
                 }
 
                 if (authzToken == null) {
@@ -595,7 +587,7 @@ public class ProcessCertReq extends CMSServlet {
                                 extensions = (CertificateExtensions)
                                         certInfo[i].get(X509CertInfo.EXTENSIONS);
                             } catch (Exception e) {
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_PARSING_EXTENS", e.toString()));
+                                logger.warn(CMS.getLogMessage("CMSGW_ERROR_PARSING_EXTENS", e.toString()), e);
                             }
 
                             // 99/08/31 #361906 - handling additional extensions
@@ -645,8 +637,7 @@ public class ProcessCertReq extends CMSServlet {
                                         updateNSExtension(req, nsExtensions);
                                     }
                                 } catch (IOException e) {
-                                    log(ILogger.LL_FAILURE,
-                                            CMS.getLogMessage("CMSGW_ERROR_PROCESS_NETSCAPE_EXTENSION", e.toString()));
+                                    logger.warn(CMS.getLogMessage("CMSGW_ERROR_PROCESS_NETSCAPE_EXTENSION", e.toString()), e);
                                 }
 
                                 String pathLength = req.getParameter("pathLenConstraint");
@@ -675,13 +666,9 @@ public class ProcessCertReq extends CMSServlet {
                                             }
                                         }
                                     } catch (IOException e) {
-                                        log(ILogger.LL_FAILURE,
-                                                CMS.getLogMessage("CMSGW_ERROR_PROCESS_CONSTRAINTS_EXTENSION",
-                                                        e.toString()));
+                                        logger.warn(CMS.getLogMessage("CMSGW_ERROR_PROCESS_CONSTRAINTS_EXTENSION", e.toString()), e);
                                     } catch (NumberFormatException e) {
-                                        log(ILogger.LL_FAILURE,
-                                                CMS.getLogMessage("CMSGW_ERROR_PROCESS_CONSTRAINTS_EXTENSION",
-                                                        e.toString()));
+                                        logger.warn(CMS.getLogMessage("CMSGW_ERROR_PROCESS_CONSTRAINTS_EXTENSION", e.toString()), e);
                                     }
                                 }
 
@@ -1185,7 +1172,7 @@ public class ProcessCertReq extends CMSServlet {
             if (rid != null)
                 header.addStringValue("remoteReqID", rid);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()), e);
 
             // store a message in the signed audit log file
             if (toDo != null) {
@@ -1227,8 +1214,9 @@ public class ProcessCertReq extends CMSServlet {
             }
 
             throw e;
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()), e);
 
             // store a message in the signed audit log file
             if (toDo != null) {
@@ -1269,10 +1257,10 @@ public class ProcessCertReq extends CMSServlet {
                 }
             }
 
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_ENCODING_ISSUED_CERT_ERROR"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ENCODING_ISSUED_CERT_ERROR"), e);
+
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()), e);
 
             // store a message in the signed audit log file
             if (toDo != null) {
@@ -1313,10 +1301,10 @@ public class ProcessCertReq extends CMSServlet {
                 }
             }
 
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_ENCODING_ISSUED_CERT_ERROR"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ENCODING_ISSUED_CERT_ERROR"), e);
+
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()), e);
 
             // store a message in the signed audit log file
             if (toDo != null) {
@@ -1357,7 +1345,7 @@ public class ProcessCertReq extends CMSServlet {
                 }
             }
 
-            throw new EBaseException(CMS.getUserMessage(locale, "CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EBaseException(CMS.getUserMessage(locale, "CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         }
         return;
     }
@@ -1585,24 +1573,21 @@ public class ProcessCertReq extends CMSServlet {
         IGroup group = ug.findGroup(groupname), group1 = null;
 
         if (group == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_FIND_GROUP_1", groupname));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_FIND_GROUP_1", groupname));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_FIND_GROUP_ERROR", groupname));
         }
         if (groupname1 != null) {
             group1 = ug.findGroup(groupname1);
             if (group1 == null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_ERROR_FIND_GROUP_1", groupname));
+                logger.error(CMS.getLogMessage("CMSGW_ERROR_FIND_GROUP_1", groupname));
                 throw new ECMSGWException(CMS.getUserMessage("CMS_GW_FIND_GROUP_ERROR", groupname1));
             }
         }
         try {
             ug.addUser(user);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_ADDING_USER_1", uid));
-            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_USER_ERROR", uid));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_ADDING_USER_1", uid), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_USER_ERROR", uid), e);
         }
         try {
             if (certs[0] instanceof X509CertImpl) {
@@ -1613,9 +1598,8 @@ public class ProcessCertReq extends CMSServlet {
 
             ug.addUserCert(user);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_ADDING_CERT_1", uid));
-            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_CERT_ERROR", uid));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_ADDING_CERT_1", uid), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_CERT_ERROR", uid), e);
         }
         try {
             group.addMemberName(uid);
@@ -1644,16 +1628,15 @@ public class ProcessCertReq extends CMSServlet {
             }
 
         } catch (Exception e) {
-            String msg =
-                    "Could not add user " + uid + " to group " + groupname;
-
+            String msg = "Could not add user " + uid + " to group " + groupname;
             if (group1 != null)
                 msg += " or group " + groupname1;
-            log(ILogger.LL_FAILURE, msg);
+            logger.error(msg + ": " + e.getMessage(), e);
+
             if (group1 == null)
-                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_MEMBER", uid, groupname));
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_MEMBER", uid, groupname), e);
             else
-                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_MEMBER_1", uid, groupname, groupname1));
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_MEMBER_1", uid, groupname, groupname1), e);
         }
         return 1;
     }
