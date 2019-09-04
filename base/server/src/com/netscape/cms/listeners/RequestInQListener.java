@@ -26,14 +26,12 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.listeners.EListenersException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cms.profile.input.SubjectNameInput;
 import com.netscape.cms.profile.input.SubmitterInfoInput;
 import com.netscape.cmscore.apps.CMS;
@@ -71,7 +69,6 @@ public class RequestInQListener implements IRequestListener {
     protected final static String PROP_REQ_IN_Q_SUBSTORE = "requestInQ";
 
     private boolean mEnabled = false;
-    private Logger mLogger = Logger.getLogger();
     private String mSenderEmail = null;
     private String mRecipientEmail = null;
     private String mEmailSubject = null;
@@ -124,7 +121,7 @@ public class RequestInQListener implements IRequestListener {
         mHttpHost = engine.getAgentHost();
         mAgentPort = engine.getAgentPort();
         if (mAgentPort == null)
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_REQUEST_PORT_NOT_FOUND"));
+            logger.error(CMS.getLogMessage("LISTENERS_REQUEST_PORT_NOT_FOUND"));
         else
             logger.debug("RequestInQuListener: agentport = " + mAgentPort);
 
@@ -162,7 +159,7 @@ public class RequestInQListener implements IRequestListener {
          * parse and process the template
          */
         if (!template.init()) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_TEMPLATE_NOT_INIT"));
+            logger.warn(CMS.getLogMessage("LISTENERS_TEMPLATE_NOT_INIT"));
             return;
         }
 
@@ -178,18 +175,11 @@ public class RequestInQListener implements IRequestListener {
         try {
             mn.sendNotification();
         } catch (ENotificationException e) {
-            // already logged, lets audit
-            mLogger.log(ILogger.EV_AUDIT,
-                    ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("LISTENERS_SEND_FAILED", e.toString()));
+            logger.warn(CMS.getLogMessage("OPERATION_ERROR", e.toString()), e);
+            logger.warn(CMS.getLogMessage("LISTENERS_SEND_FAILED", e.toString()));
 
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("LISTENERS_SEND_FAILED", e.toString()));
+            logger.warn(CMS.getLogMessage("LISTENERS_SEND_FAILED", e.toString()), e);
         }
     }
 
@@ -265,14 +255,7 @@ public class RequestInQListener implements IRequestListener {
         } else if (name.equalsIgnoreCase(PROP_EMAIL_TEMPLATE)) {
             mFormPath = val;
         } else {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET"));
+            logger.warn(CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET"));
         }
-    }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, msg);
     }
 }
