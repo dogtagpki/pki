@@ -43,7 +43,6 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.certsrv.ldap.ILdapConnInfo;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.EMapperNotFound;
 import com.netscape.certsrv.publish.EMapperPluginNotFound;
 import com.netscape.certsrv.publish.EPublisherNotFound;
@@ -1085,8 +1084,7 @@ public class PublisherAdminServlet extends AdminServlet {
         MapperPlugin plugin = new MapperPlugin(id, classPath);
 
         mProcessor.getMapperPlugins().put(id, plugin);
-        mProcessor.log(ILogger.LL_INFO,
-                CMS.getLogMessage("ADMIN_SRVLT_MAPPER_ADDED", ""));
+        logger.info(CMS.getLogMessage("ADMIN_SRVLT_MAPPER_ADDED", ""));
 
         NameValuePairs params = new NameValuePairs();
 
@@ -1233,8 +1231,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // inited and commited ok. now add mapper instance to list.
         mProcessor.getMapperInsts().put(id, new MapperProxy(true, mapperInst));
 
-        mProcessor.log(ILogger.LL_INFO,
-                CMS.getLogMessage("ADMIN_SRVLT_MAPPER_INST_ADDED", id));
+        logger.info(CMS.getLogMessage("ADMIN_SRVLT_MAPPER_INST_ADDED", id));
 
         NameValuePairs params = new NameValuePairs();
 
@@ -1638,8 +1635,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         mProcessor.getMapperInsts().put(id, new MapperProxy(true, newMgrInst));
 
-        mProcessor.log(ILogger.LL_INFO,
-                CMS.getLogMessage("ADMIN_SRVLT_MAPPER_REPLACED", id));
+        logger.info(CMS.getLogMessage("ADMIN_SRVLT_MAPPER_REPLACED", id));
         NameValuePairs params = new NameValuePairs();
 
         sendResponse(SUCCESS, null, params, resp);
@@ -1725,8 +1721,7 @@ public class PublisherAdminServlet extends AdminServlet {
         RulePlugin plugin = new RulePlugin(id, classPath);
 
         mProcessor.getRulePlugins().put(id, plugin);
-        mProcessor.log(ILogger.LL_INFO,
-                CMS.getLogMessage("ADMIN_SRVLT_RULE_PLUG_ADDED", id));
+        logger.info(CMS.getLogMessage("ADMIN_SRVLT_RULE_PLUG_ADDED", id));
 
         NameValuePairs params = new NameValuePairs();
 
@@ -1866,8 +1861,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // inited and commited ok. now add manager instance to list.
         mProcessor.getRuleInsts().put(id, ruleInst);
 
-        mProcessor.log(ILogger.LL_INFO,
-                CMS.getLogMessage("ADMIN_SRVLT_RULE_INST_ADDED", id));
+        logger.info(CMS.getLogMessage("ADMIN_SRVLT_RULE_INST_ADDED", id));
 
         NameValuePairs params = new NameValuePairs();
 
@@ -2267,8 +2261,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         mProcessor.getRuleInsts().put(id, newRuleInst);
 
-        mProcessor.log(ILogger.LL_INFO,
-                CMS.getLogMessage("ADMIN_SRVLT_RULE_INST_REP", id));
+        logger.info(CMS.getLogMessage("ADMIN_SRVLT_RULE_INST_REP", id));
         NameValuePairs params = new NameValuePairs();
 
         sendResponse(SUCCESS, null, params, resp);
@@ -2355,8 +2348,7 @@ public class PublisherAdminServlet extends AdminServlet {
         PublisherPlugin plugin = new PublisherPlugin(id, classPath);
 
         mProcessor.getPublisherPlugins().put(id, plugin);
-        mProcessor.log(ILogger.LL_INFO,
-                CMS.getLogMessage("ADMIN_SRVLT_PUB_PLUG_ADDED", id));
+        logger.info(CMS.getLogMessage("ADMIN_SRVLT_PUB_PLUG_ADDED", id));
 
         NameValuePairs params = new NameValuePairs();
 
@@ -2507,8 +2499,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // inited and commited ok. now add manager instance to list.
         mProcessor.getPublisherInsts().put(id, new PublisherProxy(true, publisherInst));
 
-        mProcessor.log(ILogger.LL_INFO,
-                CMS.getLogMessage("ADMIN_SRVLT_PUB_INST_ADDED", id));
+        logger.info(CMS.getLogMessage("ADMIN_SRVLT_PUB_INST_ADDED", id));
 
         NameValuePairs params = new NameValuePairs();
 
@@ -2964,8 +2955,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         mProcessor.getPublisherInsts().put(id, new PublisherProxy(true, newMgrInst));
 
-        mProcessor.log(ILogger.LL_INFO,
-                CMS.getLogMessage("ADMIN_SRVLT_PUB_INST_REP", id));
+        logger.info(CMS.getLogMessage("ADMIN_SRVLT_PUB_INST_REP", id));
 
         NameValuePairs params = new NameValuePairs();
 
