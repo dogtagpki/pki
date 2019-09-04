@@ -36,12 +36,10 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -77,7 +75,6 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     private String mImplName = null;
     private IConfigStore mConfig = null;
 
-    private Logger mLogger = Logger.getLogger();
     private MessageDigest mSHADigest = null;
 
     // request attributes hacks
@@ -111,7 +108,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
             throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.getMessage()), e);
         }
 
-        log(ILogger.LL_INFO, CMS.getLogMessage("INIT_DONE", name));
+        logger.info(CMS.getLogMessage("INIT_DONE", name));
     }
 
     /**
@@ -159,8 +156,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
          X509Certificate[] x509Certs =
          (X509Certificate[]) authCred.get(CRED_CERT);
          if (x509Certs == null) {
-         log(ILogger.LL_FAILURE,
-         " missing cert credential.");
+         logger.error("ChallengePhraseAuthentication: missing cert credential");
          throw new EMissingCredential(CRED_CERT_SERIAL);
          }
          */
@@ -185,7 +181,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
 
             } catch (NumberFormatException e) {
                 throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
-                        "Invalid serial number."));
+                        "Invalid serial number"));
             }
         }
 
@@ -196,14 +192,13 @@ public class ChallengePhraseAuthentication implements IAuthManager {
         }
         if (challenge.equals("")) {
             // empty challenge not allowed
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_REVO_ATTEMPT", serialNum.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_AUTH_REVO_ATTEMPT", serialNum.toString()));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
         /* maybe later
          if (mCertDB.isCertificateRevoked(cert) != null) {
-         log(ILogger.LL_FAILURE,
-         "Certificate has already been revoked.");
+         logger.error("ChallengePhraseAuthentication: Certificate has already been revoked");
          // throw something else...cfu
          throw new EInvalidCredentials();
          }
@@ -236,7 +231,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
                         bigIntArray[0] = record.getSerialNumber();
                     } else
                         throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
-                                "Invalid password."));
+                                "Invalid password"));
 
                 } else {
                     bigIntArray = new BigInteger[0];
@@ -268,10 +263,10 @@ public class ChallengePhraseAuthentication implements IAuthManager {
                 if (status == RequestStatus.COMPLETE) {
                     bigIntArray = checkChallengeReq.getExtDataInBigIntegerArray("serialNoArray");
                 } else {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_INCOMPLETE_REQUEST"));
+                    logger.warn(CMS.getLogMessage("CMSCORE_AUTH_INCOMPLETE_REQUEST"));
                 }
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_FAILED_GET_QUEUE"));
+                logger.error(CMS.getLogMessage("CMSCORE_AUTH_FAILED_GET_QUEUE"));
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_REVOCATION_CHALLENGE_QUEUE_FAILED"));
             }
         } // else, ra
@@ -313,8 +308,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
             return false;
 
             /*
-             log(ILogger.LL_FAILURE,
-             "Incorrect challenge phrase password used for revocation");
+             logger.error("ChallengePhraseAuthentication: Incorrect challenge phrase password used for revocation");
              throw new EInvalidCredentials();
              */
         } else
@@ -366,13 +360,6 @@ public class ChallengePhraseAuthentication implements IAuthManager {
         return mConfig;
     }
 
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
-                level, msg);
-    }
-
     private IRequestQueue getReqQueue() {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -385,8 +372,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
                 queue = ra.getRequestQueue();
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    " cannot get access to the request queue.");
+            logger.warn("ChallengePhraseAuthentication: cannot get access to the request queue");
         }
 
         return queue;
