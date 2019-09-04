@@ -191,8 +191,7 @@ public class ConnectorServlet extends CMSServlet {
         try {
             peerCert = getPeerCert(req);
         } catch (EBaseException e) {
-            mAuthority.log(ILogger.LL_SECURITY,
-                    CMS.getLogMessage("CMSGW_HAS_NO_CLIENT_CERT"));
+            logger.warn(CMS.getLogMessage("CMSGW_HAS_NO_CLIENT_CERT"), e);
             resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -223,8 +222,7 @@ public class ConnectorServlet extends CMSServlet {
             return;
         }
 
-        mAuthority.log(ILogger.LL_INFO,
-                "Remote Authority authenticated: " + peerCert.getSubjectDN());
+        logger.info("ConnectorServlet: Remote Authority authenticated: " + peerCert.getSubjectDN());
 
         // authorize
         AuthzToken authzToken = null;
@@ -261,14 +259,12 @@ public class ConnectorServlet extends CMSServlet {
             replymsg = processRequest(RA_Id, raUserId, msg, token);
         } catch (IOException e) {
             logger.error("ConnectorServlet: service " + e.getMessage(), e);
-            mAuthority.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         } catch (EBaseException e) {
             logger.error("ConnectorServlet: service " + e.getMessage(), e);
-            mAuthority.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;
         } catch (Exception e) {
@@ -461,8 +457,7 @@ public class ConnectorServlet extends CMSServlet {
                     String errormsg = "Cannot find request in request queue " +
                             thisreqid;
 
-                    mAuthority.log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage(
+                    logger.error(CMS.getLogMessage(
                                     "CMSGW_REQUEST_ID_NOT_FOUND_1",
                                     thisreqid.toString()));
 
@@ -483,8 +478,7 @@ public class ConnectorServlet extends CMSServlet {
 
                     throw new EBaseException(errormsg);
                 } else {
-                    mAuthority.log(ILogger.LL_INFO,
-                            "Found request " + thisreqid + " for " + srcid);
+                    logger.info("ConnectorServlet: Found request " + thisreqid + " for " + srcid);
                     replymsg = new HttpPKIMessage();
                     replymsg.fromRequest(thisreq);
 
@@ -591,8 +585,7 @@ public class ConnectorServlet extends CMSServlet {
             // requestor is a regular attribute.
             thisreq.setExtData(IRequest.REQUESTOR_TYPE,
                     IRequest.REQUESTOR_RA);
-            mAuthority.log(ILogger.LL_INFO, "Processing remote request " +
-                    srcid);
+            logger.info("ConnectorServlet: Processing remote request " + srcid);
 
             // Set this so that request's updateBy is recorded
             SessionContext s = SessionContext.getContext();
