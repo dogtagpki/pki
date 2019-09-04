@@ -38,7 +38,6 @@ import com.netscape.certsrv.jobs.EJobsException;
 import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.jobs.JobPlugin;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -361,8 +360,7 @@ public class JobsAdminServlet extends AdminServlet {
         JobPlugin plugin = new JobPlugin(id, classPath);
 
         mJobsSched.getPlugins().put(id, plugin);
-        mJobsSched.log(ILogger.LL_INFO,
-                CMS.getLogMessage("ADMIN_SRVLT_JS_PLUGIN_ADD", id));
+        logger.info(CMS.getLogMessage("ADMIN_SRVLT_JS_PLUGIN_ADD", id));
 
         NameValuePairs params = new NameValuePairs();
 
@@ -506,8 +504,7 @@ public class JobsAdminServlet extends AdminServlet {
         // inited and commited ok. now add manager instance to list.
         mJobsSched.getInstances().put(id, jobsInst);
 
-        mJobsSched.log(ILogger.LL_INFO,
-                CMS.getLogMessage("ADMIN_SRVLT_JOB_INST_ADD", id));
+        logger.info(CMS.getLogMessage("ADMIN_SRVLT_JOB_INST_ADD", id));
 
         NameValuePairs params = new NameValuePairs();
 
@@ -932,8 +929,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         mJobsSched.getInstances().put(id, newJobInst);
 
-        mJobsSched.log(ILogger.LL_INFO,
-                CMS.getLogMessage("ADMIN_SRVLT_JOB_INST_REP", id));
+        logger.info(CMS.getLogMessage("ADMIN_SRVLT_JOB_INST_REP", id));
 
         NameValuePairs params = new NameValuePairs();
 
