@@ -36,8 +36,6 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
-import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -130,10 +128,8 @@ public class CheckCertServlet extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         ArgBlock header = new ArgBlock();
@@ -189,8 +185,8 @@ public class CheckCertServlet extends CMSServlet {
         } catch (Exception e) {
             header.addStringValue(ATTR_STATUS, STATUS_UNKNOWN);
         }
-        log(ILogger.EV_AUDIT, AuditFormat.LEVEL, "Checked Certificate Status "
-                + cert.getIssuerDN().getName() + " " + cert.getSerialNumber().toString());
+
+        logger.info("Checked Certificate Status " + cert.getIssuerDN().getName() + " " + cert.getSerialNumber().toString());
 
         try {
             ServletOutputStream out = resp.getOutputStream();
@@ -204,10 +200,8 @@ public class CheckCertServlet extends CMSServlet {
                 cmsReq.setStatus(ICMSRequest.SUCCESS);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
     }
 }
