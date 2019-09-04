@@ -40,7 +40,6 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPlugin;
 import com.netscape.certsrv.publish.ILdapPublishModule;
@@ -48,7 +47,6 @@ import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.CertRecord;
@@ -62,7 +60,6 @@ public class LdapPublishModule implements ILdapPublishModule {
 
     protected IConfigStore mConfig = null;
     protected LdapBoundConnFactory mLdapConnFactory = null;
-    protected Logger mLogger = Logger.getLogger();
     private boolean mInited = false;
     protected ICertAuthority mAuthority = null;
 
@@ -234,37 +231,33 @@ public class LdapPublishModule implements ILdapPublishModule {
                     publisher.init(publisherConf);
                 }
                 mMappers.put(certType, new LdapMappers(mapper, publisher));
+
             } catch (ClassNotFoundException e) {
                 String missingClass = mapperClassName +
                         ((publisherClassName == null) ? "" :
                                 (" or " + publisherClassName));
 
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_FIND_CLASS", missingClass));
-                throw new ELdapException(
-                        CMS.getUserMessage("CMS_LDAP_CLASS_NOT_FOUND", missingClass));
+                logger.error(CMS.getLogMessage("CMSCORE_LDAP_FIND_CLASS", missingClass), e);
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_CLASS_NOT_FOUND", missingClass), e);
+
             } catch (InstantiationException e) {
                 String badInstance = mapperClassName +
                         ((publisherClassName == null) ? "" :
                                 (" or " + publisherClassName));
 
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_INST_CLASS",
-                                badInstance, certType));
-                throw new ELdapException(
-                        CMS.getUserMessage("CMS_LDAP_INSTANTIATING_CLASS_FAILED", badInstance));
+                logger.error(CMS.getLogMessage("CMSCORE_LDAP_INST_CLASS", badInstance, certType), e);
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INSTANTIATING_CLASS_FAILED", badInstance), e);
+
             } catch (IllegalAccessException e) {
                 String badInstance = mapperClassName +
                         ((publisherClassName == null) ? "" :
                                 (" or " + publisherClassName));
 
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_INSUFFICIENT_CREDENTIALS", badInstance, certType));
-                throw new ELdapException(
-                        CMS.getUserMessage("CMS_LDAP_INSUFFICIENT_CREDENTIALS", certType));
+                logger.error(CMS.getLogMessage("CMSCORE_LDAP_INSUFFICIENT_CREDENTIALS", badInstance, certType), e);
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INSUFFICIENT_CREDENTIALS", certType), e);
+
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_INIT_ERROR", certType, e.toString()));
+                logger.error(CMS.getLogMessage("CMSCORE_LDAP_INIT_ERROR", certType, e.toString()), e);
                 throw e;
             }
         }
@@ -350,12 +343,10 @@ public class LdapPublishModule implements ILdapPublishModule {
             modSet.add(ICertRecord.ATTR_META_INFO,
                     Modification.MOD_REPLACE, metaInfo);
             certdb.modifyCertificateRecord(serialNo, modSet);
+
         } catch (EBaseException e) {
-            // not fatal. just log warning.
-            log(ILogger.LL_WARN,
-                    "Cannot mark cert 0x" + serialNo.toString(16) + " published as " + published +
-                            " in the ldap directory. Cert Record not found. Error: " +
-                            e.getMessage());
+            logger.warn("LdapPublishModule: Cannot mark cert 0x" + serialNo.toString(16) + " published as " + published + " in the ldap directory");
+            logger.warn("LdapPublishModule: Cert Record not found: " + e.getMessage(), e);
         }
     }
 
@@ -384,8 +375,7 @@ public class LdapPublishModule implements ILdapPublishModule {
                 result = mapper.map(conn, cert);
                 dirdn = result;
                 if (dirdn == null) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_LDAP_PUBLISH_NOT_MATCH",
+                    logger.error(CMS.getLogMessage("CMSCORE_LDAP_PUBLISH_NOT_MATCH",
                                     cert.getSerialNumber().toString(16),
                                     cert.getSubjectDN().toString()));
                     throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
@@ -416,8 +406,7 @@ public class LdapPublishModule implements ILdapPublishModule {
                 result = mapper.map(conn, cert);
                 dirdn = result;
                 if (dirdn == null) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_LDAP_PUBLISH_NOT_MATCH",
+                    logger.error(CMS.getLogMessage("CMSCORE_LDAP_PUBLISH_NOT_MATCH",
                                     cert.getSerialNumber().toString(16),
                                     cert.getSubjectDN().toString()));
                     throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
@@ -459,7 +448,7 @@ public class LdapPublishModule implements ILdapPublishModule {
                 result = ((ILdapMapper) mappers.mapper).map(conn, crl);
                 dn = result;
                 if (dn == null) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_CRL_NOT_MATCH"));
+                    logger.error(CMS.getLogMessage("CMSCORE_LDAP_CRL_NOT_MATCH"));
                     throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
                             crl.getIssuerDN().toString()));
                 }
@@ -510,12 +499,6 @@ public class LdapPublishModule implements ILdapPublishModule {
             }
         }
     }
-
-    public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "LdapPublishModule: " + msg);
-    }
-
 }
 
 class LdapMappers {
@@ -592,9 +575,8 @@ class HandleEnrollment implements IRequestListener {
                 mModule.setPublishedFlag(certs[i].getSerialNumber(), true);
 
             } catch (ELdapException e) {
-                mModule.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
-                                certs[i].getSerialNumber().toString(16), e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
+                                certs[i].getSerialNumber().toString(16), e.toString()), e);
                 results[i] = IRequest.RES_ERROR;
             }
             r.setExtData("ldapPublishStatus", results);
@@ -649,16 +631,16 @@ class HandleRenewal implements IRequestListener {
                 mModule.publish((ILdapMapper) mappers.mapper,
                         (ILdapPublisher) mappers.publisher, cert);
                 results[i] = IRequest.RES_SUCCESS;
-                mModule.log(ILogger.LL_INFO,
-                        "Published cert serial no 0x" + cert.getSerialNumber().toString(16));
+                logger.info("Published cert serial no 0x" + cert.getSerialNumber().toString(16));
+
             } catch (ELdapException e) {
                 error = true;
-                mModule.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
-                                cert.getSerialNumber().toString(16), e.getMessage()));
+                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
+                                cert.getSerialNumber().toString(16), e.getMessage()), e);
                 results[i] = IRequest.RES_ERROR;
             }
         }
+
         r.setExtData("ldapPublishStatus", results);
         r.setExtData("ldapPublishOverAllStatus",
                 (error == true ? IRequest.RES_ERROR : IRequest.RES_SUCCESS));
@@ -718,9 +700,8 @@ class HandleRevocation implements IRequestListener {
 
             } catch (ELdapException e) {
                 error = true;
-                mModule.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_UNPUBLISH",
-                                cert.getSerialNumber().toString(16), e.getMessage()));
+                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_UNPUBLISH",
+                                cert.getSerialNumber().toString(16), e.getMessage()), e);
             }
         }
         r.setExtData("ldapPublishStatus", results);
@@ -780,9 +761,8 @@ class HandleUnrevocation implements IRequestListener {
 
             } catch (ELdapException e) {
                 error = true;
-                mModule.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_UNPUBLISH",
-                                certs[i].getSerialNumber().toString(16), e.getMessage()));
+                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_UNPUBLISH",
+                                certs[i].getSerialNumber().toString(16), e.getMessage()), e);
             }
         }
         r.setExtData("ldapPublishStatus", results);
