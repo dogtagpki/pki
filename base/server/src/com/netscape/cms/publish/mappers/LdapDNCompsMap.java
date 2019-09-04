@@ -35,9 +35,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPlugin;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPConnection;
@@ -70,7 +68,6 @@ public class LdapDNCompsMap
     protected ObjectIdentifier[] mDnComps = null;
     protected ObjectIdentifier[] mFilterComps = null;
 
-    private Logger mLogger = Logger.getLogger();
     private boolean mInited = false;
     protected IConfigStore mConfig = null;
 
@@ -236,17 +233,14 @@ public class LdapDNCompsMap
             if (dn == null) {
                 // #362332
                 // if (filter == null) {
-                //	log(ILogger.LL_FAILURE, "No dn and filter formed");
+                //	logger.error("LdapDNCompsMap: No dn and filter formed");
                 //	throw new ELdapException(
                 //		LdapResources.NO_DN_AND_FILTER_COMPS,
                 //		x500name.toString());
                 // }
                 if (mBaseDN == null) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("PUBLISH_NO_BASE"));
-                    throw new ELdapException(
-                            CMS.getUserMessage("CMS_LDAP_NO_DN_COMPS_AND_BASEDN",
-                                    x500name.toString()));
+                    logger.error(CMS.getLogMessage("PUBLISH_NO_BASE"));
+                    throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_DN_COMPS_AND_BASEDN", x500name.toString()));
                 }
                 dn = mBaseDN;
             }
@@ -262,7 +256,7 @@ public class LdapDNCompsMap
 
             attrs = new String[] { LDAPv3.NO_ATTRS };
 
-            log(ILogger.LL_INFO, "searching for " + dn + " " + filter + " " +
+            logger.info("LdapDNCompsMap: searching for " + dn + " " + filter + " " +
                     ((scope == LDAPv2.SCOPE_SUB) ? "sub" : "base"));
 
             LDAPSearchResults results =
@@ -270,16 +264,14 @@ public class LdapDNCompsMap
             LDAPEntry entry = results.next();
 
             if (results.hasMoreElements()) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", "", x500name.toString()));
+                logger.error(CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", "", x500name.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY",
                             x500name.toString()));
             }
             if (entry != null) {
                 return entry.getDN();
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND", "", x500name.toString()));
+                logger.error(CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND", "", x500name.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND",
                             "null entry"));
             }
@@ -287,21 +279,13 @@ public class LdapDNCompsMap
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
-                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
-                        + conn.getPort()));
+                logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
+                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()), e);
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
+                logger.error(CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()), e);
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()), e);
             }
         }
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "LdapDNCompsMap: " + msg);
     }
 
     /**
@@ -369,9 +353,8 @@ public class LdapDNCompsMap
                 }
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_FROM_SUBJ_TO_DN", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FORM_DN_COMPS_FAILED", e.toString()));
+            logger.error(CMS.getLogMessage("PUBLISH_FROM_SUBJ_TO_DN", e.toString()), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FORM_DN_COMPS_FAILED", e.toString()), e);
         }
 
         return new String[] { dnStr, filterStr };
