@@ -24,8 +24,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.jobs.IJobCron;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -45,6 +43,8 @@ import com.netscape.cmscore.apps.CMS;
  */
 public class JobCron implements IJobCron {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JobCron.class);
+
     /**
      * CRON_MINUTE, CRON_HOUR, CRON_DAY_OF_MONTH, CRON_MONTH_OF_YEAR,
      * and CRON_DAY_OF_WEEK are to be used in <b>getItem()</b> to
@@ -55,7 +55,6 @@ public class JobCron implements IJobCron {
     public static final String CRON_DAY_OF_MONTH = "dom";
     public static final String CRON_MONTH_OF_YEAR = "moy";
     public static final String CRON_DAY_OF_WEEK = "dow";
-    private Logger mLogger = Logger.getLogger();
 
     String mCronString = null;
 
@@ -95,8 +94,7 @@ public class JobCron implements IJobCron {
                 cMinute.set(sMinute);
             }
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_JOBS_INVALID_MIN", e.toString()));
+            logger.error(CMS.getLogMessage("CMSCORE_JOBS_INVALID_MIN", e.toString()));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
         }
 
@@ -106,8 +104,8 @@ public class JobCron implements IJobCron {
                 cHour.set(sHour);
             }
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INVALID_HOUR", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
+            logger.error(CMS.getLogMessage("CMSCORE_JOBS_INVALID_HOUR", e.toString()), e);
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"), e);
         }
 
         if (st.hasMoreTokens()) {
@@ -121,8 +119,8 @@ public class JobCron implements IJobCron {
                 cMOY.set(sMonthOYear);
             }
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INVALID_MONTH", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
+            logger.error(CMS.getLogMessage("CMSCORE_JOBS_INVALID_MONTH", e.toString()), e);
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"), e);
         }
 
         if (st.hasMoreTokens()) {
@@ -141,16 +139,16 @@ public class JobCron implements IJobCron {
             try {
                 cDOW.set(sDayOWeek);
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INVALID_DAY_OF_WEEK", e.toString()));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
+                logger.error(CMS.getLogMessage("CMSCORE_JOBS_INVALID_DAY_OF_WEEK", e.toString()), e);
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"), e);
             }
         } else if ((sDayOMonth != null)
                 && !sDayOMonth.equals(CronItem.ALL) && (sDayOWeek != null) && sDayOWeek.equals(CronItem.ALL)) {
             try {
                 cDOM.set(sDayOMonth);
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INVALID_DAY_OF_MONTH", e.toString()));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
+                logger.error(CMS.getLogMessage("CMSCORE_JOBS_INVALID_DAY_OF_MONTH", e.toString()), e);
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"), e);
             }
         } else { // if both '*', every day, if neither is '*', do both
             try {
@@ -158,16 +156,16 @@ public class JobCron implements IJobCron {
                     cDOW.set(sDayOWeek);
                 }
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INVALID_DAY_OF_WEEK", e.toString()));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
+                logger.error(CMS.getLogMessage("CMSCORE_JOBS_INVALID_DAY_OF_WEEK", e.toString()), e);
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"), e);
             }
             try {
                 if (sDayOMonth != null) {
                     cDOM.set(sDayOMonth);
                 }
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INVALID_DAY_OF_MONTH", e.toString()));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
+                logger.error(CMS.getLogMessage("CMSCORE_JOBS_INVALID_DAY_OF_MONTH", e.toString()), e);
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"), e);
             }
         }
     }
@@ -342,15 +340,5 @@ public class JobCron implements IJobCron {
         }
 
         return cronMoy;
-    }
-
-    /**
-     * logs an entry in the log file.
-     */
-    protected void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, msg);
     }
 }
