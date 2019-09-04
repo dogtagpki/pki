@@ -158,7 +158,7 @@ public class CMCRevReqServlet extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
 
@@ -255,7 +255,7 @@ public class CMCRevReqServlet extends CMSServlet {
                     header.addStringValue("request", getCertsChallengeReq.getRequestId().toString());
                     mRequestID = getCertsChallengeReq.getRequestId().toString();
                 } else {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_FAIL_GET_CERT_CHALL_PWRD"));
+                    logger.warn(CMS.getLogMessage("ADMIN_SRVLT_FAIL_GET_CERT_CHALL_PWRD"));
                 }
             }
 
@@ -306,9 +306,8 @@ public class CMCRevReqServlet extends CMSServlet {
                 }
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
         }
     }
 
@@ -840,9 +839,10 @@ public class CMCRevReqServlet extends CMSServlet {
                 }
             }
 
-            log(ILogger.LL_FAILURE, "error " + e);
+            logger.warn("CMCRevReqServlet: " + e.getMessage(), e);
+
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, "error " + e);
+            logger.error("CMCRevReqServlet: " + e.getMessage(), e);
 
             if (auditRequest) {
 
@@ -874,9 +874,9 @@ public class CMCRevReqServlet extends CMSServlet {
             }
 
             throw e;
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED", e.toString()), e);
 
             if (auditRequest) {
 
@@ -907,7 +907,8 @@ public class CMCRevReqServlet extends CMSServlet {
                 }
             }
 
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"), e);
+
         } catch (Exception e) {
             if (auditRequest) {
 
@@ -938,10 +939,8 @@ public class CMCRevReqServlet extends CMSServlet {
                 }
             }
 
-            e.printStackTrace();
+            logger.warn("CMCRevReqServlet: " + e.getMessage(), e);
         }
-
-        return;
     }
 
     /**
