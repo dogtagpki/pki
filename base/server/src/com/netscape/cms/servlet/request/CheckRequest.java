@@ -67,7 +67,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
@@ -161,11 +160,9 @@ public class CheckRequest extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -182,10 +179,8 @@ public class CheckRequest extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         ArgBlock header = new ArgBlock();
@@ -274,13 +269,13 @@ public class CheckRequest extends CMSServlet {
         }
 
         if (requestId == null || requestId.trim().equals("")) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_NO_REQUEST_ID_PROVIDED"));
+            logger.error(CMS.getLogMessage("CMSGW_NO_REQUEST_ID_PROVIDED"));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_NO_REQUEST_ID_PROVIDED"));
         }
         try {
             new BigInteger(requestId);
         } catch (NumberFormatException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT_1",  requestId));
+            logger.error(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT_1",  requestId), e);
             throw new EBaseException(
                     CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT_1",CMSTemplate.escapeJavaScriptStringHTML( requestId)));
         }
@@ -288,9 +283,8 @@ public class CheckRequest extends CMSServlet {
         IRequest r = mQueue.findRequest(new RequestId(requestId));
 
         if (r == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND_1", requestId));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_REQUEST_ID_NOT_FOUND", requestId));
+            logger.error(CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND_1", requestId));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_REQUEST_ID_NOT_FOUND", requestId));
         }
 
         if (authToken != null) {
@@ -305,9 +299,8 @@ public class CheckRequest extends CMSServlet {
                             groupMatched = true;
                     }
                     if (groupMatched == false) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT_1", requestId.toString()));
-                        throw new EBaseException(
-                                CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT_1", requestId));
+                        logger.error(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT_1", requestId.toString()));
+                        throw new EBaseException(CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT_1", requestId));
                     }
                 }
             }
@@ -529,7 +522,7 @@ public class CheckRequest extends CMSServlet {
                                             rb.encode(ostream);
                                             digest = SHADigest.digest(ostream.toByteArray());
                                         } catch (NoSuchAlgorithmException ex) {
-                                            //log("digest fail");
+                                            //logger.warn("digest fail", ex);
                                         }
 
                                         org.mozilla.jss.pkix.cms.SignerInfo signInfo = new
@@ -579,11 +572,8 @@ public class CheckRequest extends CMSServlet {
                                         header.addStringValue(FULL_RESPONSE, Utils.base64encode(fr, true));
                                     }
                                 } catch (Exception e) {
-                                    e.printStackTrace();
-                                    log(ILogger.LL_FAILURE,
-                                            CMS.getLogMessage("CMSGW_ERROR_FORMING_PKCS7_1", e.toString()));
-                                    throw new ECMSGWException(
-                                            CMS.getUserMessage("CMS_GW_FORMING_PKCS7_ERROR"));
+                                    logger.error(CMS.getLogMessage("CMSGW_ERROR_FORMING_PKCS7_1", e.toString()), e);
+                                    throw new ECMSGWException(CMS.getUserMessage("CMS_GW_FORMING_PKCS7_ERROR"), e);
                                 }
                             }
                             argSet.addRepeatRecord(rarg);
@@ -610,10 +600,8 @@ public class CheckRequest extends CMSServlet {
                 cmsReq.setError(error);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
     }
 }
