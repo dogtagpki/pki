@@ -21,6 +21,8 @@ import java.math.BigInteger;
 import java.security.cert.Certificate;
 import java.util.Hashtable;
 
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -30,7 +32,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
@@ -38,8 +39,6 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
-
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 public class LdapRequestListener implements IRequestListener {
 
@@ -232,9 +231,8 @@ class LdapEnrollmentListener implements IRequestListener {
                                 xcert.getSerialNumber().toString(16));
                 //mProcessor.setPublishedFlag(xcert.getSerialNumber(), true);
             } catch (ELdapException e) {
-                mProcessor.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
-                                xcert.getSerialNumber().toString(16), e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
+                                xcert.getSerialNumber().toString(16), e.toString()), e);
                 results[i] = IRequest.RES_ERROR;
                 error = true;
             }
@@ -287,14 +285,12 @@ class LdapRenewalListener implements IRequestListener {
             try {
                 mProcessor.publishCert(cert, r);
                 results[i] = IRequest.RES_SUCCESS;
-                mProcessor.log(ILogger.LL_INFO,
-                        "Published cert serial no 0x" +
+                logger.info("Published cert serial no 0x" +
                                 cert.getSerialNumber().toString(16));
             } catch (ELdapException e) {
                 error = true;
-                mProcessor.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
-                                cert.getSerialNumber().toString(16), e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
+                                cert.getSerialNumber().toString(16), e.toString()), e);
                 results[i] = IRequest.RES_ERROR;
             }
         }
@@ -353,21 +349,19 @@ class LdapRevocationListener implements IRequestListener {
 
                 if (auth == null ||
                         !(auth instanceof ICertificateAuthority)) {
-                    mProcessor.log(ILogger.LL_WARN,
-                            "Trying to get a certificate from non certificate authority.");
+                    logger.warn("Trying to get a certificate from non certificate authority.");
                 } else {
                     ICertificateRepository certdb =
                             ((ICertificateAuthority) auth).getCertificateRepository();
 
                     if (certdb == null) {
-                        mProcessor.log(ILogger.LL_WARN, "Cert DB is null for " + auth);
+                        logger.warn("Cert DB is null for " + auth);
                     } else {
                         try {
                             certRecord = certdb.readCertificateRecord(serial);
                         } catch (EBaseException e) {
-                            mProcessor.log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSCORE_LDAP_GET_CERT_RECORD",
-                                            serial.toString(16), e.toString()));
+                            logger.warn(CMS.getLogMessage("CMSCORE_LDAP_GET_CERT_RECORD",
+                                            serial.toString(16), e.toString()), e);
                         }
                     }
                 }
@@ -379,9 +373,7 @@ class LdapRevocationListener implements IRequestListener {
                     metaInfo =
                             (MetaInfo) certRecord.get(ICertRecord.ATTR_META_INFO);
                 if (metaInfo == null) {
-                    mProcessor.log(ILogger.LL_FAILURE,
-                            "failed getting CertRecord.ATTR_META_INFO for cert serial number 0x" +
-                                    serial.toString(16));
+                    logger.warn("failed getting CertRecord.ATTR_META_INFO for cert serial number 0x" + serial.toString(16));
                 } else {
                     ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
                 }
@@ -399,16 +391,15 @@ class LdapRevocationListener implements IRequestListener {
                                 cert.getSerialNumber().toString(16));
             } catch (ELdapException e) {
                 error = true;
-                mProcessor.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_UNPUBLISH",
-                                cert.getSerialNumber().toString(16), e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_UNPUBLISH",
+                                cert.getSerialNumber().toString(16), e.toString()), e);
             } catch (EBaseException e) {
                 error = true;
-                mProcessor.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_FIND",
-                                cert.getSerialNumber().toString(16), e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_FIND",
+                                cert.getSerialNumber().toString(16), e.toString()), e);
             }
         }
+
         r.setExtData("ldapPublishStatus", results);
         r.setExtData("ldapPublishOverAllStatus",
                 (error == true ? IRequest.RES_ERROR : IRequest.RES_SUCCESS));
@@ -463,21 +454,17 @@ class LdapUnrevocationListener implements IRequestListener {
 
                 if (auth == null ||
                         !(auth instanceof ICertificateAuthority)) {
-                    mProcessor.log(ILogger.LL_WARN,
-                            "Trying to get a certificate from non certificate authority.");
+                    logger.warn("Trying to get a certificate from non certificate authority");
                 } else {
                     ICertificateRepository certdb = ((ICertificateAuthority) auth).getCertificateRepository();
 
                     if (certdb == null) {
-                        mProcessor.log(ILogger.LL_WARN, "Cert DB is null for " + auth);
+                        logger.warn("Cert DB is null for " + auth);
                     } else {
                         try {
                             certRecord = certdb.readCertificateRecord(serial);
                         } catch (EBaseException e) {
-                            mProcessor
-                                    .log(ILogger.LL_FAILURE,
-                                            CMS.getLogMessage("CMSCORE_LDAP_GET_CERT_RECORD", serial.toString(16),
-                                                    e.toString()));
+                            logger.warn(CMS.getLogMessage("CMSCORE_LDAP_GET_CERT_RECORD", serial.toString(16), e.toString()), e);
                         }
                     }
                 }
@@ -489,9 +476,7 @@ class LdapUnrevocationListener implements IRequestListener {
                     metaInfo =
                             (MetaInfo) certRecord.get(CertRecord.ATTR_META_INFO);
                 if (metaInfo == null) {
-                    mProcessor.log(ILogger.LL_FAILURE,
-                            "Failed getting CertRecord.ATTR_META_INFO for cert serial number 0x" +
-                                    serial.toString(16));
+                    logger.warn("Failed getting CertRecord.ATTR_META_INFO for cert serial number 0x" + serial.toString(16));
                 } else {
                     ridString = (String) metaInfo.get(CertRecord.META_REQUEST_ID);
                 }
@@ -505,20 +490,20 @@ class LdapUnrevocationListener implements IRequestListener {
                 }
                 mProcessor.publishCert(xcert, req);
                 results[i] = IRequest.RES_SUCCESS;
-                logger.debug("Published cert serial no 0x" +
-                                xcert.getSerialNumber().toString(16));
+                logger.debug("Published cert serial no 0x" + xcert.getSerialNumber().toString(16));
+
             } catch (ELdapException e) {
                 error = true;
-                mProcessor.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
-                                xcert.getSerialNumber().toString(16), e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_PUBLISH",
+                                xcert.getSerialNumber().toString(16), e.toString()), e);
+
             } catch (EBaseException e) {
                 error = true;
-                mProcessor.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_FIND",
-                                xcert.getSerialNumber().toString(16), e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_LDAP_CERT_NOT_FIND",
+                                xcert.getSerialNumber().toString(16), e.toString()), e);
             }
         }
+
         r.setExtData("ldapPublishStatus", results);
         r.setExtData("ldapPublishOverAllStatus",
                 (error == true ? IRequest.RES_ERROR : IRequest.RES_SUCCESS));
