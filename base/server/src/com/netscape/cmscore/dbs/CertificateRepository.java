@@ -57,8 +57,6 @@ import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.certdb.RenewableCertificateCollection;
 import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.security.JssSubsystem;
@@ -653,23 +651,17 @@ public class CertificateRepository extends Repository
 
         logger.debug("In updateCertStatus()");
 
-        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                CMS.getLogMessage("CMSCORE_DBS_START_VALID_SEARCH"));
+        logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_VALID_SEARCH"));
         transitInvalidCertificates();
-        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                CMS.getLogMessage("CMSCORE_DBS_FINISH_VALID_SEARCH"));
+        logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_VALID_SEARCH"));
 
-        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                CMS.getLogMessage("CMSCORE_DBS_START_EXPIRED_SEARCH"));
+        logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_EXPIRED_SEARCH"));
         transitValidCertificates();
-        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                CMS.getLogMessage("CMSCORE_DBS_FINISH_EXPIRED_SEARCH"));
+        logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_EXPIRED_SEARCH"));
 
-        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                CMS.getLogMessage("CMSCORE_DBS_START_REVOKED_EXPIRED_SEARCH"));
+        logger.debug(CMS.getLogMessage("CMSCORE_DBS_START_REVOKED_EXPIRED_SEARCH"));
         transitRevokedExpiredCertificates();
-        Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
+        logger.debug(CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
     }
 
     /**
