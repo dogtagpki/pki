@@ -53,7 +53,6 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
@@ -147,8 +146,8 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
         }
 
         ArgBlock header = new ArgBlock();
@@ -199,8 +198,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "revoke");
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -232,7 +230,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                     header.addStringValue("request", getCertsChallengeReq.getRequestId().toString());
                     mRequestID = getCertsChallengeReq.getRequestId().toString();
                 } else {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_FAIL_GET_CERT_CHALL_PWRD"));
+                    logger.warn(CMS.getLogMessage("ADMIN_SRVLT_FAIL_GET_CERT_CHALL_PWRD"));
                 }
             }
 
@@ -289,9 +287,8 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 }
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
         }
     }
 
@@ -689,16 +686,15 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 }
             }
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, "error " + e);
+            logger.warn("ChallengeRevocationServlet1: " + e.getMessage(), e);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, "error " + e);
+            logger.error("ChallengeRevocationServlet1: " + e.getMessage(), e);
             throw e;
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED", e.toString()));
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED", e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"), e);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warn("ChallengeRevocationServlet1: " + e.getMessage(), e);
         }
 
         return;
