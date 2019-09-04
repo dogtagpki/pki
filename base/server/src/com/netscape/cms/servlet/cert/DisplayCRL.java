@@ -43,7 +43,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -136,10 +135,8 @@ public class DisplayCRL extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE_1", mFormPath, e.toString()));
-            throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE_1", mFormPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
         }
 
         ArgBlock header = new ArgBlock();
@@ -165,9 +162,8 @@ public class DisplayCRL extends CMSServlet {
                 cmsReq.setStatus(ICMSRequest.SUCCESS);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", e.toString()));
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
         }
     }
 
@@ -256,10 +252,8 @@ public class DisplayCRL extends CMSServlet {
             return;
         }
         if (crlRecord == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlIssuingPointId));
-            header.addStringValue("error",
-                    new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_CRL_NOT_YET_UPDATED")).toString());
+            logger.warn(CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlIssuingPointId));
+            header.addStringValue("error", new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_CRL_NOT_YET_UPDATED")).toString());
             return;
         }
 
@@ -288,10 +282,8 @@ public class DisplayCRL extends CMSServlet {
             byte[] crlbytes = crlRecord.getCRL();
 
             if (crlbytes == null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlIssuingPointId));
-                header.addStringValue("error",
-                        new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_CRL_NOT_YET_UPDATED")).toString());
+                logger.warn(CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlIssuingPointId));
+                header.addStringValue("error", new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_CRL_NOT_YET_UPDATED")).toString());
                 return;
             }
 
@@ -303,9 +295,8 @@ public class DisplayCRL extends CMSServlet {
                 }
 
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_DECODE_CRL", e.toString()));
-                header.addStringValue("error",
-                        new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_DECODE_CRL_FAILED")).toString());
+                logger.warn(CMS.getLogMessage("CMSGW_ERR_DECODE_CRL", e.toString()), e);
+                header.addStringValue("error", new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_DECODE_CRL_FAILED")).toString());
             }
         }
 
@@ -399,8 +390,7 @@ public class DisplayCRL extends CMSServlet {
                     byte[] deltaCRLBytes = crlRecord.getDeltaCRL();
 
                     if (deltaCRLBytes == null) {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSGW_ERR_NO_DELTA_CRL", crlIssuingPointId));
+                        logger.warn(CMS.getLogMessage("CMSGW_ERR_NO_DELTA_CRL", crlIssuingPointId));
                         header.addStringValue("error", "Delta CRL is not available");
                     } else {
                         X509CRLImpl deltaCRL = null;
@@ -408,7 +398,7 @@ public class DisplayCRL extends CMSServlet {
                         try {
                             deltaCRL = new X509CRLImpl(deltaCRLBytes);
                         } catch (Exception e) {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_DECODE_DELTA_CRL", e.toString()));
+                            logger.warn(CMS.getLogMessage("CMSGW_ERR_DECODE_DELTA_CRL", e.toString()), e);
                             header.addStringValue("error",
                                     new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_DECODE_CRL_FAILED"))
                                             .toString());
