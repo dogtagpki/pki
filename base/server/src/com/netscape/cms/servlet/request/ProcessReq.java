@@ -40,7 +40,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -148,10 +147,8 @@ public class ProcessReq extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    "Error getting template " + mFormPath + " Error " + e);
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error("ProcessReq: Unable to get template " + mFormPath + ": " + e.getMessage(), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         try {
@@ -177,11 +174,10 @@ public class ProcessReq extends CMSServlet {
                                     mAuthzResourceName, "unassign");
                     }
                 } catch (EAuthzAccessDenied e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+
                 } catch (Exception e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
                 }
 
                 if (authzToken == null) {
@@ -192,10 +188,8 @@ public class ProcessReq extends CMSServlet {
                 process(argSet, header, seqNum, req, resp,
                         doAssign, locale[0]);
             } else {
-                log(ILogger.LL_FAILURE, "Invalid sequence number " + seqNum);
-                error = new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID",
-                                String.valueOf(seqNum)));
+                logger.warn("ProcessReq: Invalid sequence number " + seqNum);
+                error = new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID", String.valueOf(seqNum)));
             }
         } catch (EBaseException e) {
             error = e;
@@ -220,13 +214,9 @@ public class ProcessReq extends CMSServlet {
                 cmsReq.setStatus(ICMSRequest.ERROR);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    "Error getting servlet output stream for rendering template. " +
-                            "Error " + e);
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error("ProcessReq: Error getting servlet output stream for rendering template: " + e.getMessage(), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
-        return;
     }
 
     /**
@@ -319,12 +309,8 @@ public class ProcessReq extends CMSServlet {
 
             mParser.fillRequestIntoArg(locale, r, argSet, header);
         } else {
-            log(ILogger.LL_FAILURE, "Invalid sequence number " + seqNum.toString());
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID",
-                            seqNum.toString()));
+            logger.error("ProcessReq: Invalid sequence number " + seqNum.toString());
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID", seqNum.toString()));
         }
-
-        return;
     }
 }
