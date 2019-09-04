@@ -53,7 +53,6 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.util.IStatsSubsystem;
@@ -266,7 +265,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                                 r.getSerialNumber().toString(),
                                 ICertRecord.ATTR_ID + "=*");
 
-                log(ILogger.LL_INFO, "remove CRL 0x" +
+                logger.info("remove CRL 0x" +
                         r.getSerialNumber().toString(16) +
                         " of " + caName);
                 String rep_dn = "ou=" +
@@ -291,10 +290,6 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
     public void audit(int level, String msg) {
         mOCSPAuthority.audit(level, msg);
-    }
-
-    public void log(int level, String msg) {
-        mOCSPAuthority.log(level, msg);
     }
 
     public void startup() throws EBaseException {
@@ -333,7 +328,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         TBSRequest tbsReq = request.getTBSRequest();
         if (tbsReq.getRequestCount() == 0) {
             logger.error("DefStore: No request found");
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
+            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
             throw new EBaseException("OCSP request is empty");
         }
 
@@ -344,7 +339,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         long startTime = new Date().getTime();
 
         try {
-            mOCSPAuthority.log(ILogger.LL_INFO, "start OCSP request");
+            logger.info("start OCSP request");
 
             // (3) look into database to check the
             //     certificate's status
@@ -422,7 +417,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     new ResponseBytes(ResponseBytes.OCSP_BASIC,
                             new OCTET_STRING(ASN1Util.encode(basicRes))));
 
-            log(ILogger.LL_INFO, "done OCSP request");
+            logger.info("done OCSP request");
 
             long endTime = new Date().getTime();
             mOCSPAuthority.incTotalTime(endTime - startTime);
@@ -430,11 +425,11 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             return response;
 
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
+            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()), e);
             throw e;
 
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
+            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()), e);
             throw new EBaseException(e);
         }
     }
@@ -469,8 +464,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 try {
                     cert = new X509CertImpl(certdata);
                 } catch (Exception e) {
-                    // error
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CERT", e.toString()));
+                    logger.error(CMS.getLogMessage("OCSP_DECODE_CERT", e.toString()), e);
                     throw e;
                 }
 
@@ -497,7 +491,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     try {
                         theCRL = new X509CRLImpl(crldata);
                     } catch (Exception e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CRL", e.toString()));
+                        logger.error(CMS.getLogMessage("OCSP_DECODE_CRL", e.toString()), e);
                         throw e;
                     }
                     logger.debug("DefStore: done building x509 crl impl");
@@ -924,7 +918,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             // update cache
             mCacheCRLIssuingPoints.clear();
 
-            log(ILogger.LL_INFO, "AddCRLServlet: Finish Committing CRL." +
+            logger.info("AddCRLServlet: Finish Committing CRL." +
                     " thisUpdate=" + crl.getThisUpdate() +
                     " nextUpdate=" + crl.getNextUpdate());
 
