@@ -20,16 +20,14 @@ package com.netscape.cmscore.notification;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 
+import org.mozilla.jss.netscape.security.x509.X500Name;
+
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.ENotificationException;
 import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * An email resolver that first checks the request email, if none,
@@ -42,7 +40,6 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 public class ReqCertEmailResolver implements IEmailResolver {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ReqCertEmailResolver.class);
-    private Logger mLogger = Logger.getLogger();
 
     public static final String KEY_REQUEST = "request";
     public static final String KEY_CERT = "cert";
@@ -70,7 +67,7 @@ public class ReqCertEmailResolver implements IEmailResolver {
                     "csrRequestorEmail");
             if (mEmail == null) {
                 String mail = req.getExtDataInString("requestor_email");
-                log(ILogger.LL_INFO, "REQUESTOR_EMAIL = " + mail);
+                logger.info("ReqCertEmailResolver: REQUESTOR_EMAIL = " + mail);
                 if (mail != null && !mail.equals(""))
                     return mail;
             } else {
@@ -78,7 +75,7 @@ public class ReqCertEmailResolver implements IEmailResolver {
                     return mEmail;
             }
         } else {
-            log(ILogger.LL_INFO, "request null in keys");
+            logger.warn("ReqCertEmailResolver: request null in keys");
         }
 
         X509Certificate cert = (X509Certificate) keys.get(KEY_CERT);
@@ -98,29 +95,28 @@ public class ReqCertEmailResolver implements IEmailResolver {
                                 subjectDN.toString()));
             }
         } else {
-            log(ILogger.LL_INFO, "cert null in keys");
+            logger.warn("ReqCertEmailResolver: cert null in keys");
         }
 
         // log it
         if (mEmail == null) {
             if (cert != null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL", subjectDN.toString()));
-                logger.error("no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1 for " + subjectDN);
-                throw new ENotificationException(
-                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", "subjectDN= " + subjectDN));
+                logger.error(CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL", subjectDN.toString()));
+                logger.error("ReqCertEmailResolver: no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1 for " + subjectDN);
+                throw new ENotificationException(CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", "subjectDN= " + subjectDN));
+
             } else if (req != null) {
-                log(ILogger.LL_FAILURE, "no email resolved for request id =" + req.getRequestId());
-                logger.error("no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1 for request id =" + req.getRequestId());
-                throw new ENotificationException(
-                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", "requestId= " + req.getRequestId()));
+                logger.error("ReqCertEmailResolver: no email resolved for request id =" + req.getRequestId());
+                logger.error("ReqCertEmailResolver: throwing NotificationResources.EMAIL_RESOLVE_FAILED_1");
+                throw new ENotificationException(CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", "requestId= " + req.getRequestId()));
+
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL_REQUEST"));
-                logger.error("no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1.  No request id or cert info found");
-                throw new ENotificationException(
-                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", ": No request id or cert info found"));
+                logger.error(CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL_REQUEST"));
+                logger.error("ReqCertEmailResolver: no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1.  No request id or cert info found");
+                throw new ENotificationException(CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", ": No request id or cert info found"));
             }
         } else {
-            log(ILogger.LL_INFO, "email resolved: " + mEmail);
+            logger.info("ReqCertEmailResolver: email resolved: " + mEmail);
         }
 
         return mEmail;
@@ -131,16 +127,4 @@ public class ReqCertEmailResolver implements IEmailResolver {
      *
      * @return Array of required keys.
      */
-
-    /*	public String[] getRequiredKeys() {
-     return mRequiredKeys;
-     }*/
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, "ReqCertEmailResolver: " + msg);
-    }
-
 }
