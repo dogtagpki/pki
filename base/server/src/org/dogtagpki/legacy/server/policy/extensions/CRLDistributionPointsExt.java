@@ -26,16 +26,6 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
-
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cmscore.apps.CMS;
-
 import org.mozilla.jss.netscape.security.util.BitArray;
 import org.mozilla.jss.netscape.security.x509.CRLDistributionPoint;
 import org.mozilla.jss.netscape.security.x509.CRLDistributionPointsExtension;
@@ -49,6 +39,14 @@ import org.mozilla.jss.netscape.security.x509.RDN;
 import org.mozilla.jss.netscape.security.x509.URIName;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * The type of the distribution point or issuer name. The name is expressed
@@ -128,6 +126,8 @@ class DistPointParams {
  */
 public class CRLDistributionPointsExt extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRLDistributionPointsExt.class);
 
     public static final String PROP_IS_CRITICAL = "critical";
     public static final String PROP_NUM_POINTS = "numPoints";
@@ -306,7 +306,7 @@ public class CRLDistributionPointsExt extends APolicyRule
                 if (nType == null) {
                     String err = "Unknown name type: " + params.pointType;
 
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_UNKNOWN_NAME_TYPE", params.pointType));
+                    logger.error(CMS.getLogMessage("CA_UNKNOWN_NAME_TYPE", params.pointType));
                     throw new EBaseException(err);
                 }
 
@@ -325,7 +325,7 @@ public class CRLDistributionPointsExt extends APolicyRule
                 } else {
                     String err = "Unknown name type: " + nType.toString();
 
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_UNKNOWN_NAME_TYPE", nType.toString()));
+                    logger.error(CMS.getLogMessage("CA_UNKNOWN_NAME_TYPE", nType.toString()));
                     throw new EBaseException(err);
                 }
             }
@@ -340,7 +340,7 @@ public class CRLDistributionPointsExt extends APolicyRule
                     Reason r = Reason.fromString(s);
 
                     if (r == null) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_UNKNOWN_REASON", s));
+                        logger.error(CMS.getLogMessage("CA_UNKNOWN_REASON", s));
                         throw new EBaseException("Unknown reason: " + s);
                     } else {
                         reasonBits |= r.getBitMask();
@@ -362,7 +362,7 @@ public class CRLDistributionPointsExt extends APolicyRule
                 if (nType == null) {
                     String err = "Unknown name type: " + params.issuerType;
 
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_UNKNOWN_NAME_TYPE", params.issuerType));
+                    logger.error(CMS.getLogMessage("CA_UNKNOWN_NAME_TYPE", params.issuerType));
                     throw new EBaseException(err);
                 }
 
@@ -379,7 +379,7 @@ public class CRLDistributionPointsExt extends APolicyRule
                 } else {
                     String err = "Unknown name type: " + nType.toString();
 
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_UNKNOWN_NAME_TYPE", nType.toString()));
+                    logger.error(CMS.getLogMessage("CA_UNKNOWN_NAME_TYPE", nType.toString()));
                     throw new EBaseException(err);
                 }
             }
@@ -448,15 +448,13 @@ public class CRLDistributionPointsExt extends APolicyRule
             return PolicyResult.ACCEPTED;
 
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME,
-                    e.getMessage());
+            logger.warn(CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()), e);
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME, e.getMessage());
             return PolicyResult.REJECTED;
+
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR",
-                    e.getMessage()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME,
-                    e.getMessage());
+            logger.warn(CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()), e);
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME, e.getMessage());
             return PolicyResult.REJECTED;
         }
     }
