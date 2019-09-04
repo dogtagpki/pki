@@ -20,10 +20,8 @@ package com.netscape.cms.listeners;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -56,7 +54,6 @@ public class PinRemovalListener implements IRequestListener {
     protected String mPinAttr = null;
 
     private boolean mEnabled = false;
-    private Logger mLogger = Logger.getLogger();
 
     private IConfigStore mConfig = null;
     private IConfigStore mLdapConfig = null;
@@ -135,7 +132,7 @@ public class PinRemovalListener implements IRequestListener {
                     IRequest.HTTP_PARAMS, "uid");
 
             if (uid == null) {
-                log(ILogger.LL_INFO, "did not find UID parameter in this request");
+                logger.warn("PinRemovalListener: did not find UID parameter in this request");
                 return;
             }
 
@@ -146,8 +143,7 @@ public class PinRemovalListener implements IRequestListener {
                         LDAPv2.SCOPE_SUB, "(uid=" + uid + ")", null, false);
 
                 if (!res.hasMoreElements()) {
-                    log(ILogger.LL_SECURITY, "uid " + uid + " does not exist in the ldap " +
-                            " server. Could not remove pin");
+                    logger.warn("PinRemovalListener: uid " + uid + " does not exist in the ldap server. Could not remove pin");
                     return;
                 }
 
@@ -160,20 +156,13 @@ public class PinRemovalListener implements IRequestListener {
                                 LDAPModification.DELETE,
                                 new LDAPAttribute(mPinAttr)));
 
-                log(ILogger.LL_INFO, "Removed pin for user \"" + userdn + "\"");
+                logger.info("PinRemovalListener: Removed pin for user \"" + userdn + "\"");
 
             } catch (LDAPException e) {
-                log(ILogger.LL_SECURITY, "could not remove pin for " + userdn);
+                logger.warn("PinRemovalListener: could not remove pin for " + userdn, e);
             }
 
         }
-    }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, "PinRemovalListener: " + msg);
     }
 
     public void set(String name, String val) {
