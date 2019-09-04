@@ -31,7 +31,6 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IOCSPService;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -95,11 +94,10 @@ public class GetOCSPInfo extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -108,7 +106,7 @@ public class GetOCSPInfo extends CMSServlet {
         }
 
         if (!(mAuthority instanceof IOCSPService)) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
+            logger.warn(CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
             cmsReq.setStatus(ICMSRequest.ERROR);
@@ -121,8 +119,7 @@ public class GetOCSPInfo extends CMSServlet {
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            logger.warn(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(ICMSRequest.ERROR);
@@ -141,25 +138,27 @@ public class GetOCSPInfo extends CMSServlet {
         header.addLongValue("totalLookupSec", ca.getOCSPTotalLookupTime());
         header.addLongValue("totalData", ca.getOCSPTotalData());
         long secs = 0;
+
         if (ca.getOCSPRequestTotalTime() != 0) {
             secs = (ca.getNumOCSPRequest() * 1000) / ca.getOCSPRequestTotalTime();
         }
+
         header.addLongValue("ReqSec", secs);
+
         try {
             ServletOutputStream out = httpResp.getOutputStream();
 
             httpResp.setContentType("text/html");
             form.renderOutput(out, argSet);
             cmsReq.setStatus(ICMSRequest.SUCCESS);
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            logger.warn(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
             cmsReq.setError(new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(ICMSRequest.ERROR);
         }
-        cmsReq.setStatus(ICMSRequest.SUCCESS);
-        return;
-    }
 
+        cmsReq.setStatus(ICMSRequest.SUCCESS);
+    }
 }
