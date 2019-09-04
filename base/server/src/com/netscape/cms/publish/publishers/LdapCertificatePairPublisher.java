@@ -25,9 +25,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ELdapServerDownException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
@@ -61,7 +59,6 @@ public class LdapCertificatePairPublisher
     protected String mObjAdded = "";
     protected String mObjDeleted = "";
 
-    private Logger mLogger = Logger.getLogger();
     private boolean mInited = false;
     protected IConfigStore mConfig = null;
 
@@ -180,7 +177,7 @@ public class LdapCertificatePairPublisher
             throws ELdapException {
 
         if (conn == null) {
-            log(ILogger.LL_INFO, "LdapCertificatePairPublisher: no LDAP connection");
+            logger.info("LdapCertificatePairPublisher: no LDAP connection");
             return;
         }
 
@@ -216,11 +213,10 @@ public class LdapCertificatePairPublisher
                 return;
             }
             if (hasCert) {
-                log(ILogger.LL_INFO, "publish: CA " + dn + " already has cross cert pair bytes");
+                logger.info("LdapCertificatePairPublisher: CA " + dn + " already has cross cert pair bytes");
             } else {
-                modSet.add(LDAPModification.ADD,
-                        new LDAPAttribute(mCrossCertPairAttr, pair));
-                log(ILogger.LL_INFO, "cross cert pair published with dn=" + dn);
+                modSet.add(LDAPModification.ADD, new LDAPAttribute(mCrossCertPairAttr, pair));
+                logger.info("LdapCertificatePairPublisher: cross cert pair published with dn=" + dn);
             }
 
             String[] oclist = mCaObjectclass.split(",");
@@ -230,9 +226,8 @@ public class LdapCertificatePairPublisher
                 String oc = oclist[i].trim();
                 boolean hasoc = LdapUserCertPublisher.StringValueExists(ocs, oc);
                 if (!hasoc) {
-                    log(ILogger.LL_INFO, "adding CA objectclass " + oc + " to " + dn);
-                    modSet.add(LDAPModification.ADD,
-                            new LDAPAttribute("objectclass", oc));
+                    logger.info("LdapCertificatePairPublisher: adding CA objectclass " + oc + " to " + dn);
+                    modSet.add(LDAPModification.ADD, new LDAPAttribute("objectclass", oc));
 
                     if ((!attrsAdded) && oc.equalsIgnoreCase("certificationAuthority")) {
                         // add MUST attributes
@@ -264,9 +259,8 @@ public class LdapCertificatePairPublisher
                         }
                     }
                     if (!match && hasoc) {
-                        log(ILogger.LL_INFO, "deleting CRL objectclass " + deloc + " from " + dn);
-                        modSet.add(LDAPModification.DELETE,
-                                new LDAPAttribute("objectclass", deloc));
+                        logger.info("LdapCertificatePairPublisher: deleting CRL objectclass " + deloc + " from " + dn);
+                        modSet.add(LDAPModification.DELETE, new LDAPAttribute("objectclass", deloc));
                     }
                 }
             }
@@ -280,7 +274,7 @@ public class LdapCertificatePairPublisher
                 try {
                     mConfig.commit(false);
                 } catch (Exception e) {
-                    log(ILogger.LL_INFO, "Failure in updating mObjAdded and mObjDeleted");
+                    logger.info("Failure in updating mObjAdded and mObjDeleted");
                 }
             }
 
@@ -291,13 +285,11 @@ public class LdapCertificatePairPublisher
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
-                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
-                        + conn.getPort()));
+                logger.error(CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"), e);
+                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()), e);
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISHER_EXCEPTION", "", e.toString()));
-                throw new ELdapException("error publishing cross cert pair:" + e.toString());
+                logger.error(CMS.getLogMessage("PUBLISH_PUBLISHER_EXCEPTION", "", e.toString()), e);
+                throw new ELdapException("Unable to publishing cross cert pair:" + e.toString(), e);
             }
         }
         return;
@@ -310,13 +302,4 @@ public class LdapCertificatePairPublisher
             throws ELdapException {
         logger.debug("LdapCertificatePairPublisher: unpublish() is unsupported in this revision");
     }
-
-    /**
-     * handy routine for logging in this class.
-     */
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "LdapCertificatePairPublisher: " + msg);
-    }
-
 }
