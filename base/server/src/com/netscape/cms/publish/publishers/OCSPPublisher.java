@@ -38,9 +38,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -71,7 +69,6 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     private String mPath = null;
     private String mNickname = null;
     private boolean mClientAuthEnabled = true;
-    private Logger mLogger = Logger.getLogger();
 
     /**
      * Returns the implementation name.
@@ -239,11 +236,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             int port = Integer.parseInt(mPort);
             String path = mPath;
 
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_INFO, "OCSPPublisher: " +
-                            "Host='" + host + "' Port='" + port +
-                            "' URL='" + path + "'");
-            logger.debug("OCSPPublisher: " +
+            logger.info("OCSPPublisher: " +
                     "Host='" + host + "' Port='" + port +
                     "' URL='" + path + "'");
 
@@ -302,8 +295,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             OutputStream os = socket.getOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(os, "UTF8");
 
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_INFO, "OCSPPublisher: start sending CRL");
+            logger.info("OCSPPublisher: start sending CRL");
             long startTime = new Date().getTime();
             logger.debug("OCSPPublisher: start CRL sending startTime=" + startTime);
             httpReq.write(outputStreamWriter);
@@ -311,8 +303,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             logger.debug("OCSPPublisher: done CRL sending endTime=" + endTime + " diff=" + (endTime - startTime));
 
             // Read the response
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_INFO, "OCSPPublisher: start getting response");
+            logger.info("OCSPPublisher: start getting response");
             BufferedReader dis = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String nextline;
             String error = "";
@@ -330,25 +321,22 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             }
             dis.close();
             if (status) {
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                        ILogger.LL_INFO, "OCSPPublisher: successful");
+                logger.info("OCSPPublisher: successful");
             } else {
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                        ILogger.LL_INFO, "OCSPPublisher: failed - " + error);
+                logger.warn("OCSPPublisher: failed - " + error);
             }
 
         } catch (IOException e) {
             logger.warn("OCSPPublisher: publish failed " + e.getMessage(), e);
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
+
         } catch (CRLException e) {
             logger.warn("OCSPPublisher: publish failed " + e.getMessage(), e);
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
+
         } catch (Exception e) {
             logger.warn("OCSPPublisher: publish failed " + e.getMessage(), e);
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
         }
     }
 
