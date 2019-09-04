@@ -47,7 +47,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
@@ -162,10 +161,8 @@ public class RevocationServlet extends CMSServlet {
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         ArgBlock header = new ArgBlock();
@@ -180,11 +177,9 @@ public class RevocationServlet extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "submit");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -277,8 +272,7 @@ public class RevocationServlet extends CMSServlet {
 
         if (!noInfo && (certsToRevoke == null || certsToRevoke.length == 0 ||
                 (!authorized))) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CA_CERT_ALREADY_REVOKED_1", old_serial_no.toString(16)));
+            logger.error(CMS.getLogMessage("CA_CERT_ALREADY_REVOKED_1", old_serial_no.toString(16)));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CERT_ALREADY_REVOKED"));
         }
 
@@ -330,10 +324,8 @@ public class RevocationServlet extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(ICMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         return;
@@ -351,20 +343,16 @@ public class RevocationServlet extends CMSServlet {
         // get serial no
         serialno = httpParams.getValueAsBigInteger(SERIAL_NO, null);
         if (serialno == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_REVOKE"));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_MISSING_SERIALNO_FOR_REVOKE"));
+            logger.error(CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_REVOKE"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_SERIALNO_FOR_REVOKE"));
         }
 
         // get cert from db if we're cert authority.
         if (mAuthority instanceof ICertificateAuthority) {
             cert = getX509Certificate(serialno);
             if (cert == null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
+                logger.error(CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
             }
         }
         certContainer[0] = cert;
@@ -381,16 +369,13 @@ public class RevocationServlet extends CMSServlet {
                 authToken.getInCert(AuthToken.TOKEN_CERT);
 
         if (cert == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
+            logger.error(CMS.getLogMessage("CMSGW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
         }
         if (mAuthority instanceof ICertificateAuthority &&
                 !isCertFromCA(cert)) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
+            logger.error(CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
         }
         certContainer[0] = cert;
         BigInteger serialno = ((X509Certificate) cert).getSerialNumber();
