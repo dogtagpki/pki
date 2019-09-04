@@ -20,20 +20,18 @@ package com.netscape.cms.crl;
 import java.io.IOException;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.HoldInstructionExtension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.HoldInstructionExtension;
-import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 
 /**
  * This represents a hold instruction extension.
@@ -42,12 +40,13 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
  */
 public class CMSHoldInstructionExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSHoldInstructionExtension.class);
+
     public static final String PROP_INSTR = "instruction";
     public static final String PROP_INSTR_NONE = "none";
     public static final String PROP_INSTR_CALLISSUER = "callissuer";
     public static final String PROP_INSTR_REJECT = "reject";
-
-    private Logger mLogger = Logger.getLogger();
 
     public CMSHoldInstructionExtension() {
     }
@@ -63,7 +62,7 @@ public class CMSHoldInstructionExtension
             holdInstrExt = new HoldInstructionExtension(Boolean.valueOf(critical),
                         holdInstr);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_HOLD_INSTR_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_HOLD_INSTR_EXT", e.toString()), e);
         }
         return holdInstrExt;
     }
@@ -77,9 +76,9 @@ public class CMSHoldInstructionExtension
         try {
             instruction = config.getString(PROP_INSTR);
         } catch (EPropertyNotFound e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_HOLD_UNDEFINED", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_HOLD_UNDEFINED", e.toString()), e);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_HOLD_INVALID", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_HOLD_INVALID", e.toString()), e);
         }
 
         ObjectIdentifier holdInstr = HoldInstructionExtension.NONE_HOLD_INSTR_OID;
@@ -95,7 +94,7 @@ public class CMSHoldInstructionExtension
             holdInstrExt = new HoldInstructionExtension(Boolean.valueOf(critical),
                         holdInstr);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_HOLD_INSTR_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_HOLD_INSTR_EXT", e.toString()), e);
         }
 
         return holdInstrExt;
@@ -111,9 +110,9 @@ public class CMSHoldInstructionExtension
         try {
             instruction = config.getString(PROP_INSTR);
         } catch (EPropertyNotFound e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_HOLD_UNDEFINED", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_HOLD_UNDEFINED", e.toString()), e);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_HOLD_INVALID", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_HOLD_INVALID", e.toString()), e);
         }
         if (instruction != null) {
             if (!(instruction.equalsIgnoreCase(PROP_INSTR_NONE) ||
@@ -145,10 +144,5 @@ public class CMSHoldInstructionExtension
             };
 
         return params;
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
-                "CMSHoldInstructionExtension - " + msg);
     }
 }
