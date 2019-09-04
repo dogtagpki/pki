@@ -46,7 +46,6 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.util.IStatsSubsystem;
@@ -175,8 +174,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             return caCert;
         } catch (Exception e) {
             logger.warn("LDAPStore: locateCACert " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("OCSP_LOCATE_CA", e.toString()));
+            logger.warn(CMS.getLogMessage("OCSP_LOCATE_CA", e.toString()));
         }
         return null;
     }
@@ -208,8 +206,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             return crl;
         } catch (Exception e) {
             logger.warn("LDAPStore: locateCRL " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("OCSP_LOCATE_CRL", e.toString()));
+            logger.warn(CMS.getLogMessage("OCSP_LOCATE_CRL", e.toString()));
         }
         return null;
     }
@@ -220,17 +217,12 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
         if (oldCRL != null) {
             if (oldCRL.getThisUpdate().getTime() >= crl.getThisUpdate().getTime()) {
-                log(ILogger.LL_INFO,
-                        "LDAPStore: no update, received CRL is older than current CRL");
+                logger.info("LDAPStore: no update, received CRL is older than current CRL");
                 return; // no update
             }
         }
         logger.debug("Added '" + caCert.getSubjectDN() + "' into CRL hash");
         mCRLs.put(caCert, crl);
-    }
-
-    public void log(int level, String msg) {
-        mOCSPAuthority.log(level, msg);
     }
 
     public void startup() throws EBaseException {
@@ -282,7 +274,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         TBSRequest tbsReq = request.getTBSRequest();
         if (tbsReq.getRequestCount() == 0) {
             logger.error("LDAPStore: No request found");
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
+            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
             throw new EBaseException("OCSP request is empty");
         }
 
@@ -293,7 +285,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         long startTime = new Date().getTime();
 
         try {
-            mOCSPAuthority.log(ILogger.LL_INFO, "start OCSP request");
+            logger.info("LDAPStore: Start OCSP request");
 
             Vector<SingleResponse> singleResponses = new Vector<SingleResponse>();
 
@@ -369,7 +361,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
                     new ResponseBytes(ResponseBytes.OCSP_BASIC,
                             new OCTET_STRING(ASN1Util.encode(basicRes))));
 
-            log(ILogger.LL_INFO, "done OCSP request");
+            logger.info("LDAPStore: done OCSP request");
 
             long endTime = new Date().getTime();
             mOCSPAuthority.incTotalTime(endTime - startTime);
@@ -377,11 +369,11 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             return response;
 
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
+            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()), e);
             throw e;
 
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
+            logger.error(CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()), e);
             throw new EBaseException(e);
         }
     }
