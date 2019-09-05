@@ -119,11 +119,10 @@ public class GetPk12 extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "download");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -137,10 +136,8 @@ public class GetPk12 extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         cmsReq.setStatus(ICMSRequest.SUCCESS);
@@ -157,10 +154,8 @@ public class GetPk12 extends CMSServlet {
             Hashtable<String, Object> params = mService.getRecoveryParams(recoveryID);
 
             if (params == null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_NO_RECOVERY_TOKEN_FOUND_1", recoveryID));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_NO_RECOVERY_TOKEN_FOUND", recoveryID));
+                logger.error(CMS.getLogMessage("CMSGW_NO_RECOVERY_TOKEN_FOUND_1", recoveryID));
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_NO_RECOVERY_TOKEN_FOUND", recoveryID));
             }
 
             // only the init DRM agent can get the pkcs12
@@ -177,14 +172,8 @@ public class GetPk12 extends CMSServlet {
             String initAgent = (String) params.get("agent");
 
             if (!agent.equals(initAgent)) {
-                log(ILogger.LL_SECURITY,
-
-                CMS.getLogMessage("CMSGW_INVALID_AGENT_3",
-                        recoveryID,
-                        initAgent));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_INVALID_AGENT",
-                                agent, initAgent, recoveryID));
+                logger.error(CMS.getLogMessage("CMSGW_INVALID_AGENT_3", recoveryID, initAgent));
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_AGENT", agent, initAgent, recoveryID));
             }
 
             header.addStringValue("serialNumber",
@@ -239,10 +228,8 @@ public class GetPk12 extends CMSServlet {
             resp.setContentType("text/html");
             form.renderOutput(out, argSet);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         cmsReq.setStatus(ICMSRequest.SUCCESS);
