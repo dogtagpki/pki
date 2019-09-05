@@ -165,8 +165,8 @@ public class DoRevoke extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
         }
 
         ArgBlock header = new ArgBlock();
@@ -214,11 +214,10 @@ public class DoRevoke extends CMSServlet {
                 authzToken = authorize(mAclMethod, authToken,
                             mAuthzResourceName, "revoke");
             } catch (EAuthzAccessDenied e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             }
 
             if (authzToken == null) {
@@ -270,9 +269,8 @@ public class DoRevoke extends CMSServlet {
                     comments, locale[0]);
 
         } catch (NumberFormatException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
-            error = new EBaseException(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
+            logger.error(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"), e);
+            error = new EBaseException(CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"), e);
 
         } catch (ForbiddenException e) {
             authorized = false;
@@ -311,10 +309,10 @@ public class DoRevoke extends CMSServlet {
                 cmsReq.setStatus(ICMSRequest.ERROR);
                 cmsReq.setError(error);
             }
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
         }
     }
 
