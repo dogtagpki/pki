@@ -124,10 +124,8 @@ public class DoUnrevoke extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         ArgBlock header = new ArgBlock();
@@ -157,12 +155,12 @@ public class DoUnrevoke extends CMSServlet {
             try {
                 authzToken = authorize(mAclMethod, authToken,
                             mAuthzResourceName, "unrevoke");
+
             } catch (EAuthzAccessDenied e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             }
 
             if (authzToken == null) {
@@ -173,8 +171,9 @@ public class DoUnrevoke extends CMSServlet {
             process(argSet, header, serialNumber, req, resp, locale[0], initiative);
 
         } catch (NumberFormatException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_SERIAL_NUM_FORMAT"));
-            error = new EBaseException(CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT"));
+            logger.warn(CMS.getLogMessage("CMSGW_INVALID_SERIAL_NUM_FORMAT"), e);
+            error = new EBaseException(CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT"), e);
+
         } catch (EBaseException e) {
             error = e;
         }
@@ -195,11 +194,10 @@ public class DoUnrevoke extends CMSServlet {
                 cmsReq.setStatus(ICMSRequest.ERROR);
                 cmsReq.setError(error);
             }
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
     }
 
