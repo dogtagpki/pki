@@ -46,7 +46,6 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -136,11 +135,10 @@ public class GetBySerial extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "import");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -161,20 +159,16 @@ public class GetBySerial extends CMSServlet {
         CMSEngine engine = CMS.getCMSEngine();
 
         if (serial == null || serialNo == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_INVALID_SERIAL_NUMBER"));
-            cmsReq.setError(new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_INVALID_SERIAL_NUMBER")));
+            logger.warn(CMS.getLogMessage("CMSGW_INVALID_SERIAL_NUMBER"));
+            cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_INVALID_SERIAL_NUMBER")));
             cmsReq.setStatus(ICMSRequest.ERROR);
             return;
         }
 
         ICertRecord certRecord = getCertRecord(serialNo);
         if (certRecord == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", serialNo.toString(16)));
-            cmsReq.setError(new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_CERT_SERIAL_NOT_FOUND", "0x" + serialNo.toString(16))));
+            logger.warn(CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", serialNo.toString(16)));
+            cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_CERT_SERIAL_NOT_FOUND", "0x" + serialNo.toString(16))));
             cmsReq.setStatus(ICMSRequest.ERROR);
             return;
         }
@@ -204,10 +198,8 @@ public class GetBySerial extends CMSServlet {
                         }
                     }
                     if (groupMatched == false) {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", serialNo.toString(16)));
-                        cmsReq.setError(new ECMSGWException(
-                                CMS.getUserMessage("CMS_GW_CERT_SERIAL_NOT_FOUND", "0x" + serialNo.toString(16))));
+                        logger.warn(CMS.getLogMessage("CMSGW_CERT_SERIAL_NOT_FOUND_1", serialNo.toString(16)));
+                        cmsReq.setError(new ECMSGWException(CMS.getUserMessage("CMS_GW_CERT_SERIAL_NOT_FOUND", "0x" + serialNo.toString(16))));
                         cmsReq.setStatus(ICMSRequest.ERROR);
                         return;
                     }
@@ -290,11 +282,9 @@ public class GetBySerial extends CMSServlet {
             try {
                 renderTemplate(cmsReq, mImportTemplate, mImportTemplateFiller);
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
-                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                logger.error(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
             }
         }
-
-        return;
     }
 }
