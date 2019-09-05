@@ -22,16 +22,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.util.Locale;
 
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ca.ICMSCRLExtension;
-import com.netscape.certsrv.ca.ICRLIssuingPoint;
-import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.apps.CMS;
-
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
@@ -43,6 +33,14 @@ import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ca.ICMSCRLExtension;
+import com.netscape.certsrv.ca.ICRLIssuingPoint;
+import com.netscape.certsrv.ca.ICertificateAuthority;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.cmscore.apps.CMS;
+
 /**
  * This represents an authority key identifier extension.
  *
@@ -50,7 +48,8 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  */
 public class CMSAuthorityKeyIdentifierExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
-    private Logger mLogger = Logger.getLogger();
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSAuthorityKeyIdentifierExtension.class);
 
     public CMSAuthorityKeyIdentifierExtension() {
     }
@@ -71,7 +70,7 @@ public class CMSAuthorityKeyIdentifierExtension
                         AuthorityKeyIdentifierExtension.SERIAL_NUMBER);
             authKeyIdExt = new AuthorityKeyIdentifierExtension(critical, keyId, names, sn);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AKI_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_AKI_EXT", e.toString()), e);
         }
         return authKeyIdExt;
     }
@@ -110,9 +109,10 @@ public class CMSAuthorityKeyIdentifierExtension
                 }
 
             } catch (CertificateParsingException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CERT_PARSING_ERROR", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CERT_PARSING_ERROR", e.toString()), e);
+
             } catch (CertificateException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CERT_CERT_EXCEPTION", e.toString()));
+                logger.warn(CMS.getLogMessage("CRL_CERT_CERT_EXCEPTION", e.toString()), e);
             }
 
             if (keyId != null) {
@@ -129,7 +129,7 @@ public class CMSAuthorityKeyIdentifierExtension
             }
 
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AKI_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_AKI_EXT", e.toString()), e);
         }
 
         return authKeyIdExt;
@@ -157,10 +157,5 @@ public class CMSAuthorityKeyIdentifierExtension
             };
 
         return params;
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
-                "CMSAuthorityKeyIdentifierExtension - " + msg);
     }
 }
