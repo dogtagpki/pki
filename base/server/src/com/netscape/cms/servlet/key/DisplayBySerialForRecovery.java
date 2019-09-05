@@ -38,7 +38,6 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.kra.IKeyService;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -122,11 +121,10 @@ public class DisplayBySerialForRecovery extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -140,10 +138,8 @@ public class DisplayBySerialForRecovery extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         // Note that we should try to handle all the exceptions
@@ -163,29 +159,30 @@ public class DisplayBySerialForRecovery extends CMSServlet {
             process(argSet, header,
                     req.getParameter("publicKeyData"),
                     seqNum, req, resp, locale[0], authToken);
+
         } catch (EAuthzException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-                cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
-                return;
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+            cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
+            return;
+
         } catch (NumberFormatException e) {
             header.addStringValue(OUT_ERROR,
                     CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println(e.toString());
+            logger.warn("DisplayBySerialForRecovery: " + e.getMessage(), e);
         }
+
         try {
             ServletOutputStream out = resp.getOutputStream();
 
             resp.setContentType("text/html");
             form.renderOutput(out, argSet);
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
+
         cmsReq.setStatus(ICMSRequest.SUCCESS);
     }
 
