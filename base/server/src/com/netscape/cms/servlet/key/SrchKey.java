@@ -39,7 +39,6 @@ import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -164,11 +163,10 @@ public class SrchKey extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "list");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -179,14 +177,14 @@ public class SrchKey extends CMSServlet {
         String realm = req.getParameter(REALM);
         try {
             mAuthz.checkRealm(realm, authToken, null, mAuthzResourceName, "list");
+
         } catch (EAuthzException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             cmsReq.setStatus(ICMSRequest.UNAUTHORIZED);
             return;
+
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             cmsReq.setStatus(ICMSRequest.EXCEPTION);
             return;
         }
@@ -198,10 +196,8 @@ public class SrchKey extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         // process query if authentication is successful
@@ -245,11 +241,10 @@ public class SrchKey extends CMSServlet {
 
             resp.setContentType("text/html");
             form.renderOutput(out, argSet);
+
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
         cmsReq.setStatus(ICMSRequest.SUCCESS);
     }
