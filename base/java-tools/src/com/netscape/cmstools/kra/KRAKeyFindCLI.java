@@ -53,7 +53,7 @@ public class KRAKeyFindCLI extends CLI {
         option.setArgName("client key ID");
         options.addOption(option);
 
-        option = new Option(null, "status", true, "Status");
+        option = new Option(null, "status", true, "Status: active, inactive");
         option.setArgName("status");
         options.addOption(option);
 
@@ -76,6 +76,10 @@ public class KRAKeyFindCLI extends CLI {
         option = new Option(null, "realm", true, "Realm");
         option.setArgName("realm");
         options.addOption(option);
+
+        option = new Option(null, "output-format", true, "Output format: text (default), json");
+        option.setArgName("format");
+        options.addOption(option);
     }
 
     public void execute(String[] args) throws Exception {
@@ -96,6 +100,7 @@ public class KRAKeyFindCLI extends CLI {
         String clientKeyID = cmd.getOptionValue("clientKeyID");
         String status = cmd.getOptionValue("status");
         String realm = cmd.getOptionValue("realm");
+        String outputFormat = cmd.getOptionValue("output-format", "text");
 
         String s = cmd.getOptionValue("maxResults");
         Integer maxResults = s == null ? null : Integer.valueOf(s);
@@ -112,23 +117,31 @@ public class KRAKeyFindCLI extends CLI {
         KeyClient keyClient = keyCLI.getKeyClient();
         KeyInfoCollection keys = keyClient.listKeys(clientKeyID, status, maxResults, maxTime, start, size, realm);
 
-        Collection<KeyInfo> entries = keys.getEntries();
+        if ("json".equals(outputFormat)) {
+            System.out.println(keys.toJSON());
 
-        MainCLI.printMessage(entries.size() + " key(s) matched");
+        } else if ("text".equals(outputFormat)) {
+            Collection<KeyInfo> entries = keys.getEntries();
 
-        boolean first = true;
+            MainCLI.printMessage(entries.size() + " key(s) matched");
 
-        for (KeyInfo info : entries) {
+            boolean first = true;
 
-            if (first) {
-                first = false;
-            } else {
-                System.out.println();
+            for (KeyInfo info : entries) {
+
+                if (first) {
+                    first = false;
+                } else {
+                    System.out.println();
+                }
+
+                KRAKeyCLI.printKeyInfo(info);
             }
 
-            KRAKeyCLI.printKeyInfo(info);
-        }
+            MainCLI.printMessage("Number of entries returned " + entries.size());
 
-        MainCLI.printMessage("Number of entries returned " + entries.size());
+        } else {
+            throw new Exception("Unsupported format: " + outputFormat);
+        }
     }
 }
