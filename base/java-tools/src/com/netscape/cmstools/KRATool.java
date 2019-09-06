@@ -699,6 +699,7 @@ public class KRATool {
     private static final String KRATOOL_CFG_RECOVERY = "recoveryRequest";
     private static final String KRATOOL_CFG_TPS_KEY_RECORD = "tpsKeyRecord";
     private static final String KRATOOL_CFG_KEYGEN = "tpsNetkeyKeygenRequest";
+    private static final String KRATOOL_CFG_KEYRECOVERY = "tpsNetkeyKeyRecoveryRequest";
 
     // Constants:  KRATOOL Config File (KRA CA Enrollment Request Fields)
     private static final String KRATOOL_CFG_ENROLLMENT_CN = KRATOOL_CFG_PREFIX
@@ -860,6 +861,12 @@ public class KRATool {
                                       + DOT
                                       + "requestId";
 
+    private static final String KRATOOL_CFG_KEYRECOVERY_REQUEST_ID = KRATOOL_CFG_PREFIX
+                                                                       + DOT
+                                                                       + KRATOOL_CFG_KEYRECOVERY
+                                                                       + DOT
+                                                                       + "requestId";
+
     // Constants:  Target Certificate Information
     private static final String HEADER = "-----BEGIN";
     private static final String TRAILER = "-----END";
@@ -892,6 +899,7 @@ public class KRATool {
     private static final String KRA_LDIF_KEYGEN = "netkeyKeygen";
     private static final String KRA_LDIF_RECOVERY = "recovery";
     private static final String KRA_LDIF_TPS_KEY_RECORD = "TPS";
+    private static final String KRA_LDIF_KEYRECOVERY = "netkeyKeyRecovery";
 
     // Constants:  KRA LDIF Record Messages
     private static final String KRA_LDIF_REWRAP_MESSAGE = "REWRAPPED the '"
@@ -2334,6 +2342,9 @@ public class KRATool {
             } else {
                 output = line;
             }
+        } else if (record_type.equals( KRA_LDIF_KEYRECOVERY ) ) {
+            output = line;
+            System.out.println("cn: Key Recovery");
         } else if (record_type.equals(KRA_LDIF_RECORD)) {
             // Non-Request / Non-Key Record:
             //     Pass through the original
@@ -2439,6 +2450,9 @@ public class KRATool {
             } else {
                 output = line;
             }
+        } else if (record_type.equals( KRA_LDIF_KEYRECOVERY ) ) {
+            output = line;
+            System.out.println("Date Of Modify: Key Recovery");
         } else {
             log("ERROR:  Mismatched record field='"
                     + KRA_LDIF_DATE_OF_MODIFY
@@ -2657,6 +2671,9 @@ public class KRATool {
                 } else {
                     output = line;
                 }
+            } else if (record_type.equals( KRA_LDIF_KEYRECOVERY ) ) {
+                output = line;
+                System.out.println("dn: Key Recovery");
             } else if (record_type.equals(KRA_LDIF_RECORD)) {
                 // Non-Request / Non-Key Record:
                 //     Pass through the original
@@ -2771,6 +2788,9 @@ public class KRATool {
             } else {
                 output = line;
             }
+        } else if (record_type.equals( KRA_LDIF_KEYRECOVERY ) ) {
+            output = line;
+            System.out.println("extdata-requestid: Key Recovery");
         } else {
             log("ERROR:  Mismatched record field='"
                     + KRA_LDIF_EXTDATA_REQUEST_ID
@@ -3307,6 +3327,9 @@ public class KRATool {
             } else {
                 output = line;
             }
+        } else if (record_type.equals( KRA_LDIF_KEYRECOVERY ) ) {
+            output = line;
+            System.out.println("extdata-requestnotes: Key Recovery");
         } else {
             log("ERROR:  Mismatched record field='"
                     + KRA_LDIF_EXTDATA_REQUEST_NOTES
@@ -3633,6 +3656,8 @@ public class KRATool {
                     writer.flush();
                     System.out.print(".");
                 }
+            } else if (record_type.equals( KRA_LDIF_KEYRECOVERY ) ) {
+                System.out.println("create-extdata-requestnotes: Key Recovery");
             }
         }
     }
@@ -3897,6 +3922,15 @@ public class KRATool {
             } else {
                 output = line;
             }
+        } else if ( record_type.equals( KRA_LDIF_KEYRECOVERY ) ) {
+            if ( kratoolCfg.get( KRATOOL_CFG_KEYRECOVERY_REQUEST_ID ) ) {
+                    output = compose_numeric_line(KRA_LDIF_REQUEST_ID,
+                                                  SPACE,
+                                                  line,
+                                                  true);
+            } else {
+                    output = line;
+            }
         } else {
             log("ERROR:  Mismatched record field='"
                     + KRA_LDIF_REQUEST_ID
@@ -4115,7 +4149,8 @@ public class KRATool {
                                       ).trim();
                         if (!record_type.equals(KRA_LDIF_ENROLLMENT) &&
                                 !record_type.equals(KRA_LDIF_KEYGEN) &&
-                                !record_type.equals(KRA_LDIF_RECOVERY)) {
+                                !record_type.equals(KRA_LDIF_RECOVERY) &&
+                                !record_type.equals( KRA_LDIF_KEYRECOVERY)) {
                             log("ERROR:  Unknown LDIF record type='"
                                     + record_type
                                     + "'!"
@@ -4398,7 +4433,8 @@ public class KRATool {
                             || name.equals(KRATOOL_CFG_KEYGEN_EXTDATA_KEY_RECORD)
                             || name.equals(KRATOOL_CFG_KEYGEN_EXTDATA_REQUEST_ID)
                             || name.equals(KRATOOL_CFG_KEYGEN_EXTDATA_REQUEST_NOTES)
-                            || name.equals(KRATOOL_CFG_KEYGEN_REQUEST_ID)) {
+                            || name.equals(KRATOOL_CFG_KEYGEN_REQUEST_ID)
+                            || name.equals( KRATOOL_CFG_KEYRECOVERY_REQUEST_ID )) {
                         kratoolCfg.put(name, value);
                         System.out.print(".");
                     }
