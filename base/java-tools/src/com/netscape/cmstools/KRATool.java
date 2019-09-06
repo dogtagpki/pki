@@ -4496,6 +4496,7 @@ public class KRATool {
                 (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 5)) &&
                 (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 6)) &&
                 (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 7)) &&
+                (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 8)) &&
                 (args.length != (REWRAP_AND_ID_OFFSET_ARGS + 9))) {
             System.err.println("ERROR:  Incorrect number of arguments!"
                               + NEWLINE);
@@ -4892,16 +4893,18 @@ public class KRATool {
         }
 
         // Check for the Key Unwrap Algorithm provided by user.
-        // If unprovided, choose DES3 as the default (to maintain consistency with old code)
-        if (keyUnwrapAlgorithmName.equalsIgnoreCase("DES3")) {
-            keyUnwrapAlgorithm = SymmetricKey.DES3;
-        } else if (keyUnwrapAlgorithmName.equalsIgnoreCase("AES")) {
-            keyUnwrapAlgorithm = SymmetricKey.AES;
-        } else {
-            System.err.println("ERROR:  Unsupported key unwrap algorithm '"
-                    + keyUnwrapAlgorithmName + "'"
-                    + NEWLINE);
-            System.exit(1);
+        // If unprovided, DES3 is chosen as the default (to maintain consistency with old code)
+        if (keyUnwrapAlgorithmName != null) {
+            if (keyUnwrapAlgorithmName.equalsIgnoreCase("DES3")) {
+                keyUnwrapAlgorithm = SymmetricKey.DES3;
+            } else if (keyUnwrapAlgorithmName.equalsIgnoreCase("AES")) {
+                keyUnwrapAlgorithm = SymmetricKey.AES;
+            } else {
+                System.err.println("ERROR:  Unsupported key unwrap algorithm '"
+                        + keyUnwrapAlgorithmName + "'"
+                        + NEWLINE);
+                System.exit(1);
+            }
         }
 
         // Check for OPTIONAL "Process Requests and Key Records ONLY" option
