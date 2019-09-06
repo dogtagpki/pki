@@ -885,6 +885,12 @@ public class KRATool {
                                           + DOT
                                           + "extdata.requestId";
 
+    private static final String KRATOOL_CFG_KEYRECOVERY_CN = KRATOOL_CFG_PREFIX
+                          + DOT
+                          + KRATOOL_CFG_KEYRECOVERY
+                          + DOT
+                          + "cn";
+
     // Constants:  Target Certificate Information
     private static final String HEADER = "-----BEGIN";
     private static final String TRAILER = "-----END";
@@ -2361,8 +2367,14 @@ public class KRATool {
                 output = line;
             }
         } else if (record_type.equals( KRA_LDIF_KEYRECOVERY ) ) {
-            output = line;
-            System.out.println("cn: Key Recovery");
+            if( kratoolCfg.get(KRATOOL_CFG_KEYRECOVERY_CN ) ) {
+                output = compose_numeric_line(KRA_LDIF_CN,
+                    SPACE,
+                    line,
+                    false );
+            } else {
+                output = line;
+            }
         } else if (record_type.equals(KRA_LDIF_RECORD)) {
             // Non-Request / Non-Key Record:
             //     Pass through the original
@@ -4508,7 +4520,8 @@ public class KRATool {
                             || name.equals(KRATOOL_CFG_KEYRECOVERY_REQUEST_ID )
                             || name.equals(KRATOOL_CFG_KEYRECOVERY_DN )
                             || name.equals(KRATOOL_CFG_KEYRECOVERY_DATE_OF_MODIFY)
-                            || name.equals(KRATOOL_CFG_KEYRECOVERY_EXTDATA_REQUEST_ID)) {
+                            || name.equals(KRATOOL_CFG_KEYRECOVERY_EXTDATA_REQUEST_ID)
+                            || name.equals(KRATOOL_CFG_KEYRECOVERY_CN)) {
                         kratoolCfg.put(name, value);
                         System.out.print(".");
                     }
