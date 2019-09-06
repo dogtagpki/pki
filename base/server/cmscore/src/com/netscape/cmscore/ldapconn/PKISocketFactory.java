@@ -33,6 +33,9 @@ import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
+import com.netscape.certsrv.logging.SignedAuditEvent;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
@@ -45,6 +48,8 @@ import org.dogtagpki.server.PKIClientSocketListener;
  * @author Lily Hsiao lhsiao@netscape.com
  */
 public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
+
+    private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
 
     private boolean secure;
     private String mClientAuthCertNickname;
@@ -157,6 +162,22 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
             s.setKeepAlive(keepAlive);
 
         } catch (Exception e) {
+            // for auditing
+            String localIP = "localhost";
+            try {
+                localIP = InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException e2) {
+                // default to "localhost";
+            }
+            SignedAuditEvent auditEvent;
+            auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
+                        localIP,
+                        host,
+                        Integer.toString(port),
+                        "SYSTEM",
+                        "connect:" +e.toString());
+            signedAuditLogger.log(auditEvent);
+
             CMS.debug(e);
             if (s != null) {
                 try {
