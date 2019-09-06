@@ -31,6 +31,9 @@ import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
 
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.logging.SignedAuditEvent;
+import com.netscape.certsrv.logging.event.ClientAccessSessionEstablishEvent;
+import com.netscape.cms.logging.SignedAuditLogger;
 
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSSLSocketFactoryExt;
@@ -44,6 +47,7 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKISocketFactory.class);
 
+    private static SignedAuditLogger signedAuditLogger = SignedAuditLogger.getLogger();
     private boolean secure;
     private String mClientAuthCertNickname;
     private boolean mClientAuth;
@@ -137,6 +141,22 @@ public class PKISocketFactory implements LDAPSSLSocketFactoryExt {
             s.setKeepAlive(keepAlive);
 
         } catch (Exception e) {
+            // for auditing
+            String localIP = "localhost";
+            try {
+                localIP = InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException e2) {
+                // default to "localhost";
+            }
+            SignedAuditEvent auditEvent;
+            auditEvent = ClientAccessSessionEstablishEvent.createFailureEvent(
+                        localIP,
+                        host,
+                        Integer.toString(port),
+                        "SYSTEM",
+                        "connect:" +e.toString());
+            signedAuditLogger.log(auditEvent);
+
             String message = "Unable to create socket: " + e;
             logger.error(message, e);
             if (s != null) {
