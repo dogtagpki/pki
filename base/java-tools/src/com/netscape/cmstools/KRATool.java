@@ -873,6 +873,12 @@ public class KRATool {
                                       + DOT
                                       + "dn";
 
+    private static final String KRATOOL_CFG_KEYRECOVERY_DATE_OF_MODIFY = KRATOOL_CFG_PREFIX
+                                      + DOT
+                                      + KRATOOL_CFG_KEYRECOVERY
+                                      + DOT
+                                      + "dateOfModify";
+
     // Constants:  Target Certificate Information
     private static final String HEADER = "-----BEGIN";
     private static final String TRAILER = "-----END";
@@ -2457,8 +2463,20 @@ public class KRATool {
                 output = line;
             }
         } else if (record_type.equals( KRA_LDIF_KEYRECOVERY ) ) {
-            output = line;
-            System.out.println("Date Of Modify: Key Recovery");
+            if( kratoolCfg.get( KRATOOL_CFG_KEYRECOVERY_DATE_OF_MODIFY ) ) {
+                output = KRA_LDIF_DATE_OF_MODIFY
+                        + SPACE
+                        + mDateOfModify;
+
+                 log( "Changed '"
+                    + line
+                    + "' to '"
+                    + output
+                    + "'."
+                    + NEWLINE, false );
+            } else {
+                    output = line;
+            }
         } else {
             log("ERROR:  Mismatched record field='"
                     + KRA_LDIF_DATE_OF_MODIFY
@@ -4475,8 +4493,9 @@ public class KRATool {
                             || name.equals(KRATOOL_CFG_KEYGEN_EXTDATA_REQUEST_ID)
                             || name.equals(KRATOOL_CFG_KEYGEN_EXTDATA_REQUEST_NOTES)
                             || name.equals(KRATOOL_CFG_KEYGEN_REQUEST_ID)
-                            || name.equals( KRATOOL_CFG_KEYRECOVERY_REQUEST_ID )
-                            || name.equals( KRATOOL_CFG_KEYRECOVERY_DN )) {
+                            || name.equals(KRATOOL_CFG_KEYRECOVERY_REQUEST_ID )
+                            || name.equals(KRATOOL_CFG_KEYRECOVERY_DN )
+                            || name.equals(KRATOOL_CFG_KEYRECOVERY_DATE_OF_MODIFY)) {
                         kratoolCfg.put(name, value);
                         System.out.print(".");
                     }
