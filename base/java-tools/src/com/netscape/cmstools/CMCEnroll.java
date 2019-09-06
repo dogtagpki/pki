@@ -46,6 +46,11 @@ import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS10;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkcs10.CertificationRequest;
 import org.mozilla.jss.pkix.cmc.PKIData;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
@@ -62,12 +67,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.pkcs.PKCS10;
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * Tool for signing PKCS #10 , return CMC enrollment request
@@ -364,9 +363,14 @@ public class CMCEnroll {
 
                 CryptoManager cm = CryptoManager.getInstance();
                 CryptoToken token = cm.getInternalKeyStorageToken();
-                Password pass = new Password(pValue.toCharArray());
 
-                token.login(pass);
+                Password pass = new Password(pValue.toCharArray());
+                try {
+                    token.login(pass);
+                } finally {
+                    pass.clear();
+                }
+
                 X509Certificate signerCert = null;
 
                 signerCert = cm.findCertByNickname(nValue);

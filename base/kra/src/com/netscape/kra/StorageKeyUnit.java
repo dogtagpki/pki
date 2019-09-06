@@ -448,19 +448,15 @@ public class StorageKeyUnit extends EncryptionUnit implements
      */
     public static SymmetricKey buildSymmetricKey(CryptoToken token,
             String pin) throws EBaseException {
+        Password pass = new Password(pin.toCharArray());
         try {
-
-            Password pass = new Password(pin.toCharArray());
-            KeyGenerator kg = null;
-
-            kg = token.getKeyGenerator(
+            KeyGenerator kg = token.getKeyGenerator(
                         PBEAlgorithm.PBE_SHA1_DES3_CBC);
             byte salt[] = { 0x01, 0x01, 0x01, 0x01,
                     0x01, 0x01, 0x01, 0x01 };
             PBEKeyGenParams kgp = new PBEKeyGenParams(pass,
                     salt, 5);
 
-            pass.clear();
             kg.initialize(kgp);
             return kg.generate();
         } catch (TokenException e) {
@@ -479,6 +475,8 @@ public class StorageKeyUnit extends EncryptionUnit implements
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1",
                         "buildSymmetricKey:" +
                                 e.toString()));
+        } finally {
+            pass.clear();
         }
     }
 
@@ -551,8 +549,9 @@ public class StorageKeyUnit extends EncryptionUnit implements
      */
     public void login(String pin) throws EBaseException {
         if (mConfig.getString(PROP_HARDWARE, null) != null) {
+            Password password = new Password(pin.toCharArray());
             try {
-                getToken().login(new Password(pin.toCharArray()));
+                getToken().login(password);
                 PrivateKey pk[] = getToken().getCryptoStore().getPrivateKeys();
 
                 for (int i = 0; i < pk.length; i++) {
@@ -563,6 +562,8 @@ public class StorageKeyUnit extends EncryptionUnit implements
                 }
             } catch (Exception e) {
                 logger.warn(CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGIN", e.toString()), e);
+            } finally {
+                password.clear();
             }
 
         } else {

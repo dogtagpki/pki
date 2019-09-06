@@ -61,7 +61,11 @@ public class CAClientExample {
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = manager.getInternalKeyStorageToken();
         Password password = new Password(nssDatabasePassword.toCharArray());
-        token.login(password);
+        try {
+            token.login(password);
+        } finally {
+            password.clear();
+        }
 
         ClientConfig config = new ClientConfig();
         config.setServerURL(protocol, hostname, port);

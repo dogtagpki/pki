@@ -24,12 +24,11 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.util.logging.PKILogger;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.MainCLI;
-
-import org.mozilla.jss.netscape.security.pkcs.PKCS12;
-import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 
 /**
  * Tool for importing NSS database from PKCS #12 file
@@ -106,10 +105,10 @@ public class PKCS12ImportCLI extends CLI {
             throw new Exception("Missing PKCS #12 password.");
         }
 
-        Password password = new Password(passwordString.toCharArray());
-
         boolean trustFlagsEnabled = !cmd.hasOption("no-trust-flags");
         boolean overwrite = cmd.hasOption("overwrite");
+
+        Password password = new Password(passwordString.toCharArray());
 
         try {
             PKCS12Util util = new PKCS12Util();

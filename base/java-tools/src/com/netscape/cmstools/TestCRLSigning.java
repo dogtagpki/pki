@@ -27,14 +27,13 @@ import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
-import org.mozilla.jss.util.Password;
-
-import com.netscape.cmsutil.crypto.CryptoUtil;
-
 import org.mozilla.jss.netscape.security.x509.RevokedCertImpl;
 import org.mozilla.jss.netscape.security.x509.RevokedCertificate;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+import org.mozilla.jss.util.Password;
+
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Tool used to test out signing a CRL
@@ -66,7 +65,11 @@ public class TestCRLSigning {
         CryptoToken token = CryptoUtil.getKeyStorageToken(tokenname);
 
         Password pass = new Password(tokenpwd.toCharArray());
-        token.login(pass);
+        try {
+            token.login(pass);
+        } finally {
+            pass.clear();
+        }
 
         // generate key pair
         KeyPairGenerator g = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);

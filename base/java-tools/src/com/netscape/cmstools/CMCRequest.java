@@ -30,14 +30,15 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
+import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.Key;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.StringTokenizer;
+
 import javax.crypto.Mac;
 
 import org.mozilla.jss.CryptoManager;
@@ -2282,6 +2283,8 @@ public class CMCRequest {
             } catch (Exception e) {
                 System.out.println("login Exception: " + e.toString());
                 System.exit(1);
+            } finally {
+                pass.clear();
             }
 
             X509Certificate signerCert = null;

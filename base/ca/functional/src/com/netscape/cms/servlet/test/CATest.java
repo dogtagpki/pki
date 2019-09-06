@@ -147,6 +147,8 @@ public class CATest {
                 if (!token.isLoggedIn()) {
                     token.initPassword(password, password);
                 }
+            } finally {
+                password.clear();
             }
         } catch (Exception e) {
             log("Exception in logging into token:" + e.toString());

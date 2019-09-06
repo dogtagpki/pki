@@ -33,17 +33,16 @@ import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.asn1.UniversalString;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.PrivateKey;
-import org.mozilla.jss.pkix.primitive.AVA;
-import org.mozilla.jss.pkix.primitive.Name;
-import org.mozilla.jss.util.Password;
-
-import com.netscape.cmsutil.crypto.CryptoUtil;
-
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.x509.Extensions;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.SubjectKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.pkix.primitive.AVA;
+import org.mozilla.jss.pkix.primitive.Name;
+import org.mozilla.jss.util.Password;
+
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * Generates an ECC or RSA key pair in the security database, constructs a
@@ -216,7 +215,6 @@ public class PKCS10Client {
                 System.out.println("PKCS10Client: Debug: thread token set.");
             }
 
-
             Password pass = new Password(password.toCharArray());
 
             try {
@@ -227,6 +225,8 @@ public class PKCS10Client {
             } catch (Exception e) {
                 System.out.println("PKCS10Client: login Exception: " + e.toString());
                 System.exit(1);
+            } finally {
+                pass.clear();
             }
 
             KeyPair pair = null;

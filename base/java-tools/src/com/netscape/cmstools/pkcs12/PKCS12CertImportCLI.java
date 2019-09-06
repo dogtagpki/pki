@@ -27,12 +27,11 @@ import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.crypto.PBEAlgorithm;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmstools.cli.MainCLI;
-
-import org.mozilla.jss.netscape.security.pkcs.PKCS12;
-import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 
 /**
  * @author Endi S. Dewata
@@ -158,8 +157,6 @@ public class PKCS12CertImportCLI extends CLI {
             throw new Exception("Missing PKCS #12 password.");
         }
 
-        Password password = new Password(passwordString.toCharArray());
-
         String friendlyName = cmd.getOptionValue("friendly-name");
         String certEncryption = cmd.getOptionValue("cert-encryption");
         String keyEncryption = cmd.getOptionValue("key-encryption");
@@ -168,6 +165,8 @@ public class PKCS12CertImportCLI extends CLI {
         boolean includeTrustFlags = !cmd.hasOption("no-trust-flags");
         boolean includeKey = !cmd.hasOption("no-key");
         boolean includeChain = !cmd.hasOption("no-chain");
+
+        Password password = new Password(passwordString.toCharArray());
 
         try {
             PKCS12Util util = new PKCS12Util();

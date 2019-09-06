@@ -62,7 +62,7 @@ public class PWUtil {
         }
 
         // System.out.println( "returning pw" );
-        return (new Password(passwordString.toCharArray()));
+        return new Password(passwordString.toCharArray());
 
     }
 }

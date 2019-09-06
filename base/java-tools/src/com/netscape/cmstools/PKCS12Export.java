@@ -24,12 +24,11 @@ import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.crypto.CryptoToken;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 import org.mozilla.jss.util.Password;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.mozilla.jss.netscape.security.pkcs.PKCS12;
-import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
 
 /**
  * Tool for creating PKCS12 file
@@ -101,6 +100,7 @@ public class PKCS12Export {
                 line = "";
             }
         }
+
         Password password = new Password(line.toCharArray());
 
         logger.info("Logging into security token");

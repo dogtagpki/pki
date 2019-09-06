@@ -39,11 +39,11 @@ import org.mozilla.jss.SecretDecoderRing.Encryptor;
 import org.mozilla.jss.SecretDecoderRing.KeyManager;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.TokenException;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * Tool for interacting with the PWcache
@@ -164,7 +164,6 @@ public class PasswordCache {
         String pw = argv[0];
 
         char[] testpw = pw.toCharArray();
-        Password pass = new Password(testpw);
 
         String command = "";
         String aTag = "";
@@ -236,6 +235,7 @@ public class PasswordCache {
             }
         }
 
+        Password pass = new Password(testpw);
         try {
             // initialize CryptoManager
             System.out.println("cert/key prefix = " + mPrefix);
@@ -255,6 +255,8 @@ public class PasswordCache {
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
+        } finally {
+            pass.clear();
         }
 
         // generating new key

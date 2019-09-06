@@ -92,6 +92,8 @@ public class NSSCryptoProvider extends CryptoProvider {
                 if (!token.isLoggedIn()) {
                     token.initPassword(password, password);
                 }
+            } finally {
+                password.clear();
             }
         } catch (AlreadyInitializedException e1) {
             //Ignore

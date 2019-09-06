@@ -44,6 +44,10 @@ import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.pkix.cmc.PKIData;
 import org.mozilla.jss.pkix.cmc.TaggedAttribute;
 import org.mozilla.jss.pkix.cms.ContentInfo;
@@ -57,11 +61,6 @@ import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.x509.X500Name;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 /**
  * Tool for signing a CMC revocation request with an agent's certificate.
@@ -191,8 +190,12 @@ public class CMCRevoke {
                 }
 
                 Password pass = new Password(pValue.toCharArray());
+                try {
+                    token.login(pass);
+                } finally {
+                    pass.clear();
+                }
 
-                token.login(pass);
                 X509Certificate signerCert = getCertificate(cm, hValue, nValue);
                 ContentInfo fullEnrollmentRequest = createRevokeReq(hValue, signerCert, cm);
 

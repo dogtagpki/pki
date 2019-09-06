@@ -26,13 +26,12 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.util.logging.PKILogger;
-import org.mozilla.jss.util.Password;
-
-import com.netscape.cmstools.cli.MainCLI;
-
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12CertInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
+import org.mozilla.jss.util.Password;
+
+import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
@@ -117,13 +116,13 @@ public class PKCS12CertModCLI extends CLI {
             throw new Exception("Missing PKCS #12 password.");
         }
 
-        Password password = new Password(passwordString.toCharArray());
-
         String trustFlags = cmd.getOptionValue("trust-flags");
 
         if (trustFlags == null) {
             throw new Exception("Missing trust flags.");
         }
+
+        Password password = new Password(passwordString.toCharArray());
 
         try {
             PKCS12Util util = new PKCS12Util();

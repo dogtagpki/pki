@@ -609,14 +609,15 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     public void loggedInToken(String tokenName, String pwd) throws EBaseException {
+        Password clk = new Password(pwd.toCharArray());
         try {
             CryptoToken ctoken = CryptoUtil.getKeyStorageToken(tokenName);
-            Password clk = new Password(pwd.toCharArray());
-
             ctoken.login(clk);
         } catch (Exception e) {
             logger.error("JssSubsystem: " + CMS.getLogMessage("CMSCORE_SECURITY_TOKEN_LOGGED_IN", e.toString()), e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR"), e);
+        } finally {
+            clk.clear();
         }
     }
 

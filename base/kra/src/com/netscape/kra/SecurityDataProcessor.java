@@ -576,8 +576,6 @@ public class SecurityDataProcessor {
                 params.put(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA, pbeWrappedData);
 
             } catch (Exception e) {
-                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
-                jssSubsystem.obscureBytes(unwrappedSecData);
                 throw new EBaseException("Cannot unwrap passphrase: " + e, e);
 
             } finally {

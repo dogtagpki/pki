@@ -30,6 +30,7 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.PublicKey;
+
 import javax.crypto.Mac;
 
 import org.apache.commons.cli.CommandLine;
@@ -437,6 +438,8 @@ public class CRMFPopClient {
                 token.login(password);
             } catch (Exception e) {
                 throw new Exception("Unable to login: " + e, e);
+            } finally {
+                password.clear();
             }
 
             CRMFPopClient client = new CRMFPopClient();
@@ -757,7 +760,7 @@ public class CRMFPopClient {
             0x6a, 0x12, 0x6b, 0x3c, 0x4c, 0x3f, 0x00, 0x14,
             0x51, 0x61, 0x15, 0x22, 0x23, 0x5f, 0x5e, 0x69
         };
-       
+
         Mac hmac = Mac.getInstance("HmacSHA1","Mozilla-JSS");
         Key secKey = CryptoUtil.importHmacSha1Key(key1);
         hmac.init(secKey);

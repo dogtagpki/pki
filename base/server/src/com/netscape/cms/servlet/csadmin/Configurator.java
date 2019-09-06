@@ -989,7 +989,6 @@ public class Configurator {
         Password password = new Password(p12Pass.toCharArray());
 
         try {
-
             PFX pfx = (PFX) (new PFX.Template()).decode(bis);
             boolean verifypfx = pfx.verifyAuthSafes(password, reason);
 
@@ -1104,9 +1103,7 @@ public class Configurator {
         } catch (Exception e) {
             throw e;
         } finally {
-            if (password != null) {
-                password.clear();
-            }
+            password.clear();
         }
     }
 
@@ -3026,7 +3023,6 @@ public class Configurator {
         Password pass = new org.mozilla.jss.util.Password(pwd.toCharArray());
 
         try {
-
             PKCS12Util util = new PKCS12Util();
             PKCS12 pkcs12 = new PKCS12();
 
@@ -3079,9 +3075,7 @@ public class Configurator {
         } catch (Exception e) {
             throw e;
         } finally {
-            if (pass != null) {
-                pass.clear();
-            }
+            pass.clear();
         }
     }
 

@@ -209,7 +209,11 @@ public class CMCSharedToken {
             manager.setThreadToken(token);
 
             Password password = new Password(tokenPassword.toCharArray());
-            token.login(password);
+            try {
+                token.login(password);
+            } finally {
+                password.clear();
+            }
 
             X509Certificate  issuanceProtCert = null;
             if (issuanceProtCertFilename != null) {

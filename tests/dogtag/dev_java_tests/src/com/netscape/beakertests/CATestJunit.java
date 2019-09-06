@@ -60,6 +60,8 @@ public class CATestJunit extends PKIJUnitTest {
             if (!token.isLoggedIn()) {
                 token.initPassword(password, password);
             }
+        } finally {
+            password.clear();
         }
 
         ClientConfig config = new ClientConfig();

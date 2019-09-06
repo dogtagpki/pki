@@ -52,6 +52,7 @@ import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs12.SafeBag;
 import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
+import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -461,7 +462,11 @@ public class RecoveryService implements IService {
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=false");
 
         CMSEngine engine = CMS.getCMSEngine();
-        org.mozilla.jss.util.Password pass = null;
+
+        String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
+        char[] pwdChar = pwd.toCharArray();
+        Password pass = new Password(pwdChar);
+
         try {
             // create p12
             X509Certificate x509cert =
@@ -469,7 +474,6 @@ public class RecoveryService implements IService {
             if (x509cert == null) {
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1","Missing Certificate"));
             }
-            String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
 
             logger.info("KRA adds certificate to P12");
 
@@ -491,15 +495,6 @@ public class RecoveryService implements IService {
             encSafeContents.addElement(certBag);
 
             logger.info("KRA adds key to P12");
-
-            char[] pwdChar = pwd.toCharArray();
-            pass = new
-                    org.mozilla.jss.util.Password(
-                            pwdChar);
-            {
-                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
-                jssSubsystem.obscureChars(pwdChar);
-            }
 
             SEQUENCE safeContents = new SEQUENCE();
             PasswordConverter passConverter = new
@@ -594,9 +589,10 @@ public class RecoveryService implements IService {
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1", e.toString()));
 
         } finally {
-            if(pass != null) {
-                pass.clear();
-            }
+            pass.clear();
+
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
+            jssSubsystem.obscureChars(pwdChar);
         }
 
         // update request
@@ -649,7 +645,11 @@ public class RecoveryService implements IService {
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
 
         CMSEngine engine = CMS.getCMSEngine();
-        org.mozilla.jss.util.Password pass = null;
+
+        String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
+        char[] pwdChars = pwd.toCharArray();
+        Password pass = new Password(pwdChars);
+
         try {
             // create p12
             X509Certificate x509cert =
@@ -657,7 +657,6 @@ public class RecoveryService implements IService {
             if (x509cert == null) {
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1","Missing Certificate"));
             }
-            String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
 
             logger.info("KRA adds certificate to P12");
 
@@ -680,13 +679,6 @@ public class RecoveryService implements IService {
 
             // add key
             logger.info("KRA adds key to P12");
-            char[] pwdChars = pwd.toCharArray();
-            pass = new org.mozilla.jss.util.Password(
-                    pwdChars);
-
-            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
-            jssSubsystem.obscureChars(pwdChars);
-
 
             SEQUENCE safeContents = new SEQUENCE();
             PrivateKeyInfo pki = (PrivateKeyInfo)
@@ -760,8 +752,10 @@ public class RecoveryService implements IService {
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_PKCS12_FAILED_1", e.toString()));
 
         } finally {
-            if(pass != null)
-                pass.clear();
+            pass.clear();
+
+            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
+            jssSubsystem.obscureChars(pwdChars);
         }
 
         // update request

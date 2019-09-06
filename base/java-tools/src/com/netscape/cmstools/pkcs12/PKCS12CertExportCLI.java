@@ -30,14 +30,13 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.codec.binary.Hex;
 import org.dogtagpki.cli.CLI;
 import org.dogtagpki.util.logging.PKILogger;
-import org.mozilla.jss.util.Password;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
-
 import org.mozilla.jss.netscape.security.pkcs.PKCS12;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12CertInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS12Util;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.util.Password;
 
 /**
  * @author Endi S. Dewata
@@ -138,13 +137,13 @@ public class PKCS12CertExportCLI extends CLI {
             throw new Exception("Missing PKCS #12 password.");
         }
 
-        Password password = new Password(passwordString.toCharArray());
-
         String certFile = cmd.getOptionValue("cert-file");
 
         if (certFile == null) {
             throw new Exception("Missing certificate file.");
         }
+
+        Password password = new Password(passwordString.toCharArray());
 
         try {
             PKCS12Util util = new PKCS12Util();

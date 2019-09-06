@@ -36,6 +36,7 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.InitializationValues;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
@@ -44,7 +45,6 @@ import org.mozilla.jss.ssl.SSLVersionRange;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This class implements a CMC Enroll client for testing.
@@ -122,7 +122,11 @@ public class HttpClient {
                 }
                 cm.setThreadToken(token);
                 Password pass = new Password(password.toCharArray());
-                token.login(pass);
+                try {
+                    token.login(pass);
+                } finally {
+                    pass.clear();
+                }
 
                 SSLHandshakeCompletedListener listener = new ClientHandshakeCB(this);
 

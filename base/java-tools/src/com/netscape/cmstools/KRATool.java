@@ -56,17 +56,16 @@ import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenCertificate;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.pkcs11.PK11PubKey;
-import org.mozilla.jss.util.Password;
-
-import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
-
 import org.mozilla.jss.netscape.security.provider.RSAPublicKey;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
 import org.mozilla.jss.netscape.security.util.DerOutputStream;
 import org.mozilla.jss.netscape.security.util.DerValue;
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.pkcs11.PK11PubKey;
+import org.mozilla.jss.util.Password;
+
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
  * The KRATool class is a utility program designed to operate on an LDIF file
@@ -1628,7 +1627,6 @@ public class KRATool {
             if (mPwdfileFlag) {
                 BufferedReader in = null;
                 String pwd = null;
-                Password mPwd = null;
 
                 try {
                     in = new BufferedReader(
@@ -1638,9 +1636,13 @@ public class KRATool {
                     if (pwd == null) {
                         pwd = "";
                     }
-                    mPwd = new Password(pwd.toCharArray());
 
-                    mSourceToken.login(mPwd);
+                    Password mPwd = new Password(pwd.toCharArray());
+                    try {
+                        mSourceToken.login(mPwd);
+                    } finally {
+                        mPwd.clear();
+                    }
                 } catch (Exception exReadPwd) {
                     log("ERROR:  Failed to read the keydb password from "
                             + "the file '"

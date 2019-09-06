@@ -28,13 +28,12 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Utils;
+import org.mozilla.jss.netscape.security.util.WrappingParams;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.util.WrappingParams;
 
 public class GeneratePKIArchiveOptions {
 
@@ -185,6 +184,8 @@ public class GeneratePKIArchiveOptions {
                 if (!token.isLoggedIn()) {
                     token.initPassword(password, password);
                 }
+            } finally {
+                password.clear();
             }
         } catch (Exception e) {
             log("Exception in logging into token:" + e.toString());

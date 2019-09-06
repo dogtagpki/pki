@@ -172,6 +172,8 @@ public class ConfigurationTest {
                 if (!token.isLoggedIn()) {
                     token.initPassword(password, password);
                 }
+            } finally {
+                password.clear();
             }
         } catch (Exception e) {
             System.out.println("Exception in logging into token:" + e.toString());

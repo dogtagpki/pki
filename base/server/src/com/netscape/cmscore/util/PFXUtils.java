@@ -35,6 +35,7 @@ import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs12.SafeBag;
 import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
+import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
@@ -46,6 +47,9 @@ public class PFXUtils {
      */
     public static byte[] createPFX(String pwd, X509Certificate x509cert,
             byte privateKeyInfo[]) throws EBaseException {
+
+        Password pass = new Password(pwd.toCharArray());
+
         try {
             // add certificate
             SEQUENCE encSafeContents = new SEQUENCE();
@@ -62,10 +66,6 @@ public class PFXUtils {
             encSafeContents.addElement(certBag);
 
             // add key
-            org.mozilla.jss.util.Password pass = new
-                    org.mozilla.jss.util.Password(
-                            pwd.toCharArray());
-
             SEQUENCE safeContents = new SEQUENCE();
             PasswordConverter passConverter = new
                     PasswordConverter();
@@ -105,7 +105,6 @@ public class PFXUtils {
                     ByteArrayOutputStream();
 
             pfx.encode(fos);
-            pass.clear();
 
             // put final PKCS12 into volatile request
             return fos.toByteArray();
@@ -113,6 +112,8 @@ public class PFXUtils {
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
                             "Failed to create PKCS12 - " + e.toString()));
+        } finally {
+            pass.clear();
         }
     }
 
