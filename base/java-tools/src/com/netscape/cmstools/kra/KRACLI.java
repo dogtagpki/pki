@@ -40,6 +40,7 @@ public class KRACLI extends SubsystemCLI {
         super("kra", "KRA management commands", parent);
 
         addModule(new AuditCLI(this));
+        addModule(new KRACertCLI(this));
         addModule(new GroupCLI(this));
         addModule(new KRAKeyCLI(this));
         addModule(new SelfTestCLI(this));
