@@ -891,6 +891,12 @@ public class KRATool {
                           + DOT
                           + "cn";
 
+    private static final String KRATOOL_CFG_KEYRECOVERY_EXTDATA_REQUEST_NOTES = KRATOOL_CFG_PREFIX
+                                             + DOT
+                                             + KRATOOL_CFG_KEYRECOVERY
+                                             + DOT
+                                             + "extdata.requestNotes";
+
     // Constants:  Target Certificate Information
     private static final String HEADER = "-----BEGIN";
     private static final String TRAILER = "-----END";
@@ -3739,8 +3745,153 @@ public class KRATool {
                     writer.flush();
                     System.out.print(".");
                 }
-            } else if (record_type.equals( KRA_LDIF_KEYRECOVERY ) ) {
-                System.out.println("create-extdata-requestnotes: Key Recovery");
+            }
+        } else if (record_type.equals(KRA_LDIF_KEYRECOVERY)) {
+            if( kratoolCfg.get( KRATOOL_CFG_KEYRECOVERY_EXTDATA_REQUEST_NOTES ) ) {
+                if(!previous_line.startsWith( KRA_LDIF_EXTDATA_REQUEST_NOTES)) {
+                    // write out the missing 'extdata-requestnotes' line
+                    if( mRewrapFlag && mAppendIdOffsetFlag ) {
+                        data = LEFT_BRACE
+                             + mDateOfModify
+                             + RIGHT_BRACE
+                             + COLON + SPACE
+                             + KRA_LDIF_REWRAP_MESSAGE
+                             + mPublicKeySize
+                             + KRA_LDIF_RSA_MESSAGE
+                             + mSourcePKISecurityDatabasePwdfileMessage
+                             + SPACE
+                             + PLUS + SPACE
+                             + KRA_LDIF_APPENDED_ID_OFFSET_MESSAGE
+                             + SPACE
+                             + TIC
+                             + mAppendIdOffset.toString()
+                             + TIC
+                             + mKraNamingContextMessage
+                             + mProcessRequestsAndKeyRecordsOnlyMessage;
+
+                        // Unformat the data
+                        unformatted_data = stripEOL( data );
+
+                        // Format the unformatted_data
+                        // to match the desired LDIF format
+                        output = KRA_LDIF_EXTDATA_REQUEST_NOTES
+                               + SPACE
+                               + format_ldif_data(
+                                   EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
+                                   unformatted_data );
+                    } else if( mRewrapFlag && mRemoveIdOffsetFlag ) {
+                        data = LEFT_BRACE
+                             + mDateOfModify
+                             + RIGHT_BRACE
+                             + COLON + SPACE
+                             + KRA_LDIF_REWRAP_MESSAGE
+                             + mPublicKeySize
+                             + KRA_LDIF_RSA_MESSAGE
+                             + mSourcePKISecurityDatabasePwdfileMessage
+                             + SPACE
+                             + PLUS + SPACE
+                             + KRA_LDIF_REMOVED_ID_OFFSET_MESSAGE
+                             + SPACE
+                             + TIC
+                             + mRemoveIdOffset.toString()
+                             + TIC
+                             + mKraNamingContextMessage
+                             + mProcessRequestsAndKeyRecordsOnlyMessage;
+
+                        // Unformat the data
+                        unformatted_data = stripEOL( data );
+
+                        // Format the unformatted_data
+                        // to match the desired LDIF format
+                        output = KRA_LDIF_EXTDATA_REQUEST_NOTES
+                               + SPACE
+                               + format_ldif_data(
+                                   EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
+                                   unformatted_data );
+                    } else if( mRewrapFlag ) {
+                        data = LEFT_BRACE
+                             + mDateOfModify
+                             + RIGHT_BRACE
+                             + COLON + SPACE
+                             + KRA_LDIF_REWRAP_MESSAGE
+                             + mPublicKeySize
+                             + KRA_LDIF_RSA_MESSAGE
+                             + mSourcePKISecurityDatabasePwdfileMessage
+                             + mKraNamingContextMessage
+                             + mProcessRequestsAndKeyRecordsOnlyMessage;
+
+                        // Unformat the data
+                        unformatted_data = stripEOL( data );
+
+                        // Format the unformatted_data
+                        // to match the desired LDIF format
+                        output = KRA_LDIF_EXTDATA_REQUEST_NOTES
+                               + SPACE
+                               + format_ldif_data(
+                                   EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
+                                   unformatted_data );
+                    } else if( mAppendIdOffsetFlag ) {
+                        data = LEFT_BRACE
+                             + mDateOfModify
+                             + RIGHT_BRACE
+                             + COLON + SPACE
+                             + KRA_LDIF_APPENDED_ID_OFFSET_MESSAGE
+                             + SPACE
+                             + TIC
+                             + mAppendIdOffset.toString()
+                             + TIC
+                             + mKraNamingContextMessage
+                             + mProcessRequestsAndKeyRecordsOnlyMessage;
+
+                        // Unformat the data
+                        unformatted_data = stripEOL( data );
+
+                        // Format the unformatted_data
+                        // to match the desired LDIF format
+                        output = KRA_LDIF_EXTDATA_REQUEST_NOTES
+                               + SPACE
+                               + format_ldif_data(
+                                   EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
+                                   unformatted_data );
+                    } else if( mRemoveIdOffsetFlag ) {
+                        data = LEFT_BRACE
+                             + mDateOfModify
+                             + RIGHT_BRACE
+                             + COLON + SPACE
+                             + KRA_LDIF_REMOVED_ID_OFFSET_MESSAGE
+                             + SPACE
+                             + TIC
+                             + mRemoveIdOffset.toString()
+                             + TIC
+                             + mKraNamingContextMessage
+                             + mProcessRequestsAndKeyRecordsOnlyMessage;
+
+                        // Unformat the data
+                        unformatted_data = stripEOL( data );
+
+                        // Format the unformatted_data
+                        // to match the desired LDIF format
+                        output = KRA_LDIF_EXTDATA_REQUEST_NOTES
+                               + SPACE
+                               + format_ldif_data(
+                                   EXTDATA_REQUEST_NOTES_FIRST_LINE_DATA_LENGTH,
+                                   unformatted_data );
+                    }
+
+                    // log this information
+                    log( "Created:"
+                       + NEWLINE
+                       + TIC
+                       + output
+                       + TIC
+                       + NEWLINE, false );
+
+                    // Write out this revised line
+                    // and flush the buffer
+                    writer.write( output + NEWLINE );
+                    writer.flush();
+                    System.out.print( "." );
+                }
             }
         }
     }
@@ -4521,7 +4672,8 @@ public class KRATool {
                             || name.equals(KRATOOL_CFG_KEYRECOVERY_DN )
                             || name.equals(KRATOOL_CFG_KEYRECOVERY_DATE_OF_MODIFY)
                             || name.equals(KRATOOL_CFG_KEYRECOVERY_EXTDATA_REQUEST_ID)
-                            || name.equals(KRATOOL_CFG_KEYRECOVERY_CN)) {
+                            || name.equals(KRATOOL_CFG_KEYRECOVERY_CN)
+                            || name.equals(KRATOOL_CFG_KEYRECOVERY_EXTDATA_REQUEST_NOTES) ) {
                         kratoolCfg.put(name, value);
                         System.out.print(".");
                     }
