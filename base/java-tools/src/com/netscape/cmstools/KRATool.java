@@ -867,6 +867,12 @@ public class KRATool {
                                                                        + DOT
                                                                        + "requestId";
 
+    private static final String KRATOOL_CFG_KEYRECOVERY_DN = KRATOOL_CFG_PREFIX
+                                      + DOT
+                                      + KRATOOL_CFG_KEYRECOVERY
+                                      + DOT
+                                      + "dn";
+
     // Constants:  Target Certificate Information
     private static final String HEADER = "-----BEGIN";
     private static final String TRAILER = "-----END";
@@ -2672,8 +2678,43 @@ public class KRATool {
                     output = line;
                 }
             } else if (record_type.equals( KRA_LDIF_KEYRECOVERY ) ) {
+                if( kratoolCfg.get( KRATOOL_CFG_KEYRECOVERY_DN ) ) {
+                    // First check for an embedded "cn=<value>"
+                    // name-value pair
+                    if( line.startsWith( KRA_LDIF_DN_EMBEDDED_CN_DATA ) ) {
+                        // At this point, always extract
+                        // the embedded "cn=<value>" name-value pair
+                        // which will ALWAYS be the first
+                        // portion of the "dn: " attribute
+                        embedded_cn_data = line.split( COMMA, 2 );
+
+                        embedded_cn_output = compose_numeric_line(
+                                                 KRA_LDIF_DN_EMBEDDED_CN_DATA,
+                                                 EQUAL_SIGN,
+                                                 embedded_cn_data[0],
+                                                 false );
+
+                        input = embedded_cn_output
+                              + COMMA
+                              + embedded_cn_data[1];
+                    } else {
+                        input = line;
+                    }
+
+                    // Since "-source_kra_naming_context", and
+                    // "-target_kra_naming_context" are OPTIONAL
+                    // parameters, ONLY process this portion of the field
+                    // if both of these options have been selected
+                    if( mKraNamingContextsFlag ) {
+                        output = input.replace( mSourceKraNamingContext,
+                                                mTargetKraNamingContext );
+            } else {
+                output = input;
+            }
+
+        } else {
                 output = line;
-                System.out.println("dn: Key Recovery");
+        }
             } else if (record_type.equals(KRA_LDIF_RECORD)) {
                 // Non-Request / Non-Key Record:
                 //     Pass through the original
@@ -4434,7 +4475,8 @@ public class KRATool {
                             || name.equals(KRATOOL_CFG_KEYGEN_EXTDATA_REQUEST_ID)
                             || name.equals(KRATOOL_CFG_KEYGEN_EXTDATA_REQUEST_NOTES)
                             || name.equals(KRATOOL_CFG_KEYGEN_REQUEST_ID)
-                            || name.equals( KRATOOL_CFG_KEYRECOVERY_REQUEST_ID )) {
+                            || name.equals( KRATOOL_CFG_KEYRECOVERY_REQUEST_ID )
+                            || name.equals( KRATOOL_CFG_KEYRECOVERY_DN )) {
                         kratoolCfg.put(name, value);
                         System.out.print(".");
                     }
