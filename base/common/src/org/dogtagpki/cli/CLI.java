@@ -212,7 +212,7 @@ public class CLI {
     public void printHelp() {
 
         int leftPadding = 1;
-        int rightPadding = 25;
+        int rightPadding = 35;
 
         System.out.println("Commands:");
 
@@ -339,7 +339,9 @@ public class CLI {
             System.arraycopy(args, 1, moduleArgs, 0, args.length-1);
         }
 
-        // Add "--help" option to all command modules
+        // Add default options to all command modules
+        module.options.addOption("v", "verbose", false, "Run in verbose mode");
+        module.options.addOption(null, "debug", false, "Run in debug mode");
         module.options.addOption(null, "help", false, "Show help options");
 
         module.execute(moduleArgs);
