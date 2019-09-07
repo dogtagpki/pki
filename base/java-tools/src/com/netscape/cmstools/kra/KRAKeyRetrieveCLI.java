@@ -1,13 +1,10 @@
 package com.netscape.cmstools.kra;
 
-import java.io.File;
+import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -63,6 +60,10 @@ public class KRAKeyRetrieveCLI extends CLI {
         option.setArgName("Input file path");
         options.addOption(option);
 
+        option = new Option(null, "output-format", true, "Output format: xml (default), json");
+        option.setArgName("format");
+        options.addOption(option);
+
         option = new Option(null, "output", true, "Location to store the retrieved key information");
         option.setArgName("File path to store key information");
         options.addOption(option);
@@ -116,6 +117,7 @@ public class KRAKeyRetrieveCLI extends CLI {
             String inputFormat = cmd.getOptionValue("input-format", "xml");
             String outputFilePath = cmd.getOptionValue("output");
             String outputDataFile = cmd.getOptionValue("output-data");
+            String outputFormat = cmd.getOptionValue("output-format", "xml");
             String transportNickname = cmd.getOptionValue("transport");
 
             KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
@@ -203,8 +205,6 @@ public class KRAKeyRetrieveCLI extends CLI {
                 }
             }
 
-            MainCLI.printMessage("Retrieve Key Information");
-
             if (outputDataFile != null) {
 
                 byte[] data;
@@ -218,18 +218,29 @@ public class KRAKeyRetrieveCLI extends CLI {
                 Path path = Paths.get(outputDataFile);
                 Files.write(path, data);
 
+                MainCLI.printMessage("Retrieve Key Information");
                 printKeyInfo(key);
                 System.out.println("  Output: " + outputDataFile);
 
             } else if (outputFilePath != null) {
-                JAXBContext context = JAXBContext.newInstance(Key.class);
-                Marshaller marshaller = context.createMarshaller();
-                marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-                marshaller.marshal(key, new File(outputFilePath));
 
-                System.out.println("  Output: " + outputFilePath);
+                try (FileWriter out = new FileWriter(outputFilePath)) {
+                    if ("xml".equalsIgnoreCase(outputFormat)) {
+                        out.write(key.toXML());
+                    } else if ("json".equalsIgnoreCase(outputFormat)) {
+                        out.write(keyData.toJSON());
+                    }
+                }
+
+            } else if ("xml".equalsIgnoreCase(outputFormat)) {
+                System.out.println(key.toXML());
+
+            } else if ("json".equalsIgnoreCase(outputFormat)) {
+                System.out.println(keyData.toJSON());
 
             } else {
+                MainCLI.printMessage("Retrieve Key Information");
+
                 printKeyInfo(key);
                 printKeyData(key);
             }
