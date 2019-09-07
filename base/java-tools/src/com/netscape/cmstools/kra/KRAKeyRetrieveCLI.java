@@ -1,19 +1,18 @@
 package com.netscape.cmstools.kra;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.netscape.security.util.Utils;
 
@@ -26,6 +25,9 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.MainCLI;
 
 public class KRAKeyRetrieveCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KRAKeyRetrieveCLI.class);
+
     public KRAKeyCLI keyCLI;
     private boolean clientEncryption = true;
 
@@ -53,6 +55,10 @@ public class KRAKeyRetrieveCLI extends CLI {
         option.setArgName("Passphrase");
         options.addOption(option);
 
+        option = new Option(null, "input-format", true, "Input format: xml (default), json");
+        option.setArgName("format");
+        options.addOption(option);
+
         option = new Option(null, "input", true, "Location of the request template file.");
         option.setArgName("Input file path");
         options.addOption(option);
@@ -68,16 +74,26 @@ public class KRAKeyRetrieveCLI extends CLI {
         option = new Option(null, "transport", true, "Transport certificate nickname.");
         option.setArgName("Nickname");
         options.addOption(option);
+
+        options.addOption("v", "verbose", false, "Run in verbose mode.");
+        options.addOption(null, "debug", false, "Run in debug mode.");
     }
 
     public void execute(String[] args) throws Exception {
-        // Always check for "--help" prior to parsing
-        if (Arrays.asList(args).contains("--help")) {
+
+        CommandLine cmd = parser.parse(options, args);
+
+        if (cmd.hasOption("help")) {
             printHelp();
             return;
         }
 
-        CommandLine cmd = parser.parse(options, args);
+        if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
+
+        } else if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+        }
 
         String[] cmdArgs = cmd.getArgs();
 
@@ -96,18 +112,30 @@ public class KRAKeyRetrieveCLI extends CLI {
             String keyId = cmd.getOptionValue("keyID");
             String passphrase = cmd.getOptionValue("passphrase");
             String requestId = cmd.getOptionValue("requestID");
+            String requestFile = cmd.getOptionValue("input");
+            String inputFormat = cmd.getOptionValue("input-format", "xml");
             String outputFilePath = cmd.getOptionValue("output");
             String outputDataFile = cmd.getOptionValue("output-data");
-            String requestFile = cmd.getOptionValue("input");
             String transportNickname = cmd.getOptionValue("transport");
 
             KeyClient keyClient = keyCLI.getKeyClient(transportNickname);
 
             if (requestFile != null) {
-                JAXBContext context = JAXBContext.newInstance(KeyRecoveryRequest.class);
-                Unmarshaller unmarshaller = context.createUnmarshaller();
-                FileInputStream fis = new FileInputStream(requestFile);
-                KeyRecoveryRequest req = (KeyRecoveryRequest) unmarshaller.unmarshal(fis);
+                Path path = Paths.get(requestFile);
+                String input = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+
+                KeyRecoveryRequest req;
+                if ("xml".equalsIgnoreCase(inputFormat)) {
+                    req = KeyRecoveryRequest.fromXML(input);
+                    logger.info("Request: " + req.toXML());
+
+                } else if ("json".equalsIgnoreCase(inputFormat)) {
+                    req = KeyRecoveryRequest.fromJSON(input);
+                    logger.info("Request: " + req.toJSON());
+
+                } else {
+                    throw new Exception("Unsupported format: " + inputFormat);
+                }
 
                 if (req.getKeyId() == null) {
                     throw new Exception("Key ID must be specified in the request file.");
