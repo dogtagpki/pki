@@ -33,7 +33,6 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
@@ -120,8 +119,7 @@ public class ProfileReviewServlet extends ProfileServlet {
                 authToken = authenticate(request);
             } catch (EBaseException e) {
                 logger.error("ReviewReqServlet: " + e.getMessage(), e);
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                         "CMS_AUTHENTICATION_ERROR"));
@@ -136,11 +134,9 @@ public class ProfileReviewServlet extends ProfileServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {

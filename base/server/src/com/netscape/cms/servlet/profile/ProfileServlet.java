@@ -35,14 +35,12 @@ import javax.servlet.http.HttpServletResponse;
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.certsrv.template.ArgString;
 import com.netscape.certsrv.template.IArgValue;
 import com.netscape.certsrv.util.IStatsSubsystem;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -157,7 +155,6 @@ public class ProfileServlet extends CMSServlet {
     protected IAuthzSubsystem mAuthz = null;
     protected String mAclMethod = null;
     protected String mAuthzResourceName = null;
-    protected Logger mLogger = Logger.getLogger();
     protected LogSource mLogCategory = ILogger.S_OTHER;
     protected String mProfileSubId = null;
 
@@ -193,7 +190,7 @@ public class ProfileServlet extends CMSServlet {
         try {
             mAclMethod = ServletUtils.initializeAuthz(sc, mAuthz, mId);
         } catch (ServletException e) {
-            log(ILogger.LL_FAILURE, e.toString());
+            logger.error("ProfileServlet: " + e.getMessage(), e);
             throw e;
         }
     }
@@ -462,19 +459,6 @@ public class ProfileServlet extends CMSServlet {
                 outputArgString(writer, n, str);
             }
         }
-    }
-
-    /**
-     * log according to authority category.
-     */
-    protected void log(LogCategory event, int level, String msg) {
-        mLogger.log(event, mLogCategory, level,
-                "Servlet " + mId + ": " + msg);
-    }
-
-    protected void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, mLogCategory, level,
-                "Servlet " + mId + ": " + msg);
     }
 
     /**

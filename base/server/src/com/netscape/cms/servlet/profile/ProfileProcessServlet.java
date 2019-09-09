@@ -30,7 +30,6 @@ import com.netscape.certsrv.base.BadRequestDataException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ForbiddenException;
 import com.netscape.certsrv.cert.CertReviewResponse;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
@@ -112,15 +111,15 @@ public class ProfileProcessServlet extends ProfileServlet {
             data = processor.processRequest(cmsReq, op);
 
         } catch (ForbiddenException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             setError(args, e.getMessage(), request, response);
             return;
         } catch (EAuthException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             setError(args, e.getMessage(), request, response);
             return;
         } catch (EAuthzException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             setError(args, e.getMessage(), request, response);
             return;
         } catch (BadRequestDataException e) {

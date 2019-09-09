@@ -125,9 +125,7 @@ public class ProfileApproveServlet extends ProfileServlet {
             } catch (Exception e) {
                 auditSubjectID = auditSubjectID();
                 logger.error("ProfileApproveServlet: " + e.getMessage(), e);
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
-                                e.toString()));
+                logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                         "CMS_AUTHENTICATION_ERROR"));
@@ -152,13 +150,9 @@ public class ProfileApproveServlet extends ProfileServlet {
                 authzToken = authorize(mAclMethod, authToken,
                             mAuthzResourceName, "approve");
             } catch (EAuthzAccessDenied e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
-                                e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
-                                e.toString()));
+                logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             }
 
             if (authzToken == null) {
