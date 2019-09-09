@@ -38,12 +38,10 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -66,7 +64,6 @@ public class SSLClientCertAuthentication implements IAuthManager {
 
     private ICertificateAuthority mCA = null;
     private ICertificateRepository mCertDB = null;
-    private Logger mLogger = Logger.getLogger();
     private String mName = null;
     private String mImplName = null;
     private IConfigStore mConfig = null;
@@ -92,7 +89,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
         mImplName = implName;
         mConfig = config;
 
-        log(ILogger.LL_INFO, CMS.getLogMessage("INIT_DONE", name));
+        logger.info(CMS.getLogMessage("INIT_DONE", name));
     }
 
     public IAuthToken authenticate(IAuthCredentials authCred)
@@ -106,8 +103,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
 
         if (x509Certs == null) {
             logger.error("SSLCertAuth: No client certificate found");
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
+            logger.error(CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
             throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CERT));
         }
         logger.debug("SSLCertAuth: Got client certificate");
@@ -199,13 +195,11 @@ public class SSLClientCertAuthentication implements IAuthManager {
                                 CMS.getUserMessage("CMS_BASE_INVALID_CERT_STATUS", params));
                     }
                 } else {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_AUTH_INCOMPLETE_REQUEST"));
+                    logger.error(CMS.getLogMessage("CMSCORE_AUTH_INCOMPLETE_REQUEST"));
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_REQUEST_IN_BAD_STATE"));
                 }
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_AUTH_FAILED_GET_QUEUE"));
+                logger.error(CMS.getLogMessage("CMSCORE_AUTH_FAILED_GET_QUEUE"));
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_GET_QUEUE_FAILED"));
             }
         } // else, ra
@@ -241,13 +235,6 @@ public class SSLClientCertAuthentication implements IAuthManager {
         return mRequiredCreds;
     }
 
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
-                level, msg);
-    }
-
     private IRequestQueue getReqQueue() {
 
         CMSEngine engine = CMS.getCMSEngine();
@@ -260,8 +247,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
                 queue = ra.getRequestQueue();
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    " cannot get access to the request queue.");
+            logger.warn("Unable to get access to the request queue: " + e.getMessage(), e);
         }
 
         return queue;

@@ -25,8 +25,6 @@ import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -38,6 +36,8 @@ import com.netscape.cmscore.apps.CMS;
  */
 public class NullAuthentication implements IAuthManager {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NullAuthentication.class);
+
     /* configuration params to pass to console (none) */
     protected static String[] mConfigParams = null;
 
@@ -45,7 +45,6 @@ public class NullAuthentication implements IAuthManager {
     private String mName = null;
     private String mImplName = null;
     private IConfigStore mConfig = null;
-    private Logger mLogger = Logger.getLogger();
 
     public NullAuthentication() {
     }
@@ -66,7 +65,7 @@ public class NullAuthentication implements IAuthManager {
         mImplName = implName;
         mConfig = config;
 
-        log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_AUTH_INIT_AUTH", mName));
+        logger.info(CMS.getLogMessage("CMSCORE_AUTH_INIT_AUTH", mName));
     }
 
     /**
@@ -145,18 +144,5 @@ public class NullAuthentication implements IAuthManager {
      */
     public IConfigStore getConfigStore() {
         return mConfig;
-    }
-
-    /**
-     * Log a message.
-     *
-     * @param level The logging level.
-     * @param msg The message to log.
-     */
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_AUTHENTICATION,
-                level, msg);
     }
 }
