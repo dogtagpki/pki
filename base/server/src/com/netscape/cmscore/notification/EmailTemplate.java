@@ -23,9 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailTemplate;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -39,13 +37,14 @@ import com.netscape.cmscore.apps.CMS;
 
 public class EmailTemplate implements IEmailTemplate {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EmailTemplate.class);
+
     /*==========================================================
      * variables
      *==========================================================*/
 
     /* private variables */
     private String mTemplateFile = "";
-    private Logger mLogger = Logger.getLogger();
 
     /* public vaiables */
     public String mFileContents;
@@ -80,7 +79,7 @@ public class EmailTemplate implements IEmailTemplate {
 
         /* check if file exists and is accessible */
         if ((!template.exists()) || (!template.canRead()) || (template.isDirectory())) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NOT_EXIST", mTemplateFile));
+            logger.warn(CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NOT_EXIST", mTemplateFile));
             return false;
         }
 
@@ -90,15 +89,14 @@ public class EmailTemplate implements IEmailTemplate {
         try {
             input = new FileReader(template);
         } catch (FileNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NOT_FOUND", mTemplateFile));
-
+            logger.warn(CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NOT_FOUND", mTemplateFile), e);
             return false;
         }
 
         /* load template */
         mFileContents = loadFile(input);
         if (mFileContents == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_LOAD_ERROR"));
+            logger.warn(CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_LOAD_ERROR"));
             return false;
         }
 
@@ -155,7 +153,7 @@ public class EmailTemplate implements IEmailTemplate {
                 buf.append("\n");
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_LOADING"));
+            logger.warn(CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_LOADING"), e);
             return null;
         }
 
@@ -165,12 +163,4 @@ public class EmailTemplate implements IEmailTemplate {
     public int length() {
         return (mFileContents == null) ? 0 : mFileContents.length();
     }
-
-    private void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, msg);
-    }
-
 }

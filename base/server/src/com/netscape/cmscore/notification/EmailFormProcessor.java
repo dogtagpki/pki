@@ -22,9 +22,7 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -38,12 +36,13 @@ import com.netscape.cmscore.apps.CMS;
  */
 public class EmailFormProcessor implements IEmailFormProcessor {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EmailFormProcessor.class);
+
     protected final static String TOK_PREFIX = "$";
     protected final static String TOK_ESC = "\\";
     protected final static char TOK_END = ' ';
     protected final static String TOK_VALUE_UNKNOWN = "VALUE UNKNOWN";
     protected final static String TOK_TOKEN_UNKNOWN = "UNKNOWN TOKEN:";
-    protected Logger mLogger = Logger.getLogger();
 
     // stores all the available token keys; added so that we can
     // parse strings to replace unresolvable token keys and replace
@@ -91,12 +90,12 @@ public class EmailFormProcessor implements IEmailFormProcessor {
         mTok2vals = tok2vals;
 
         if (form == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NULL"));
+            logger.warn(CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NULL"));
             return null;
         }
 
         if (mTok2vals == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TOKEN_NULL"));
+            logger.warn(CMS.getLogMessage("CMSCORE_NOTIFY_TOKEN_NULL"));
             return null;
         }
 
@@ -238,13 +237,6 @@ public class EmailFormProcessor implements IEmailFormProcessor {
         return content.toString();
     }
 
-    /**
-     * logs an entry in the log file.
-     */
     public void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                level, "EmailFormProcessor: " + msg);
     }
 }
