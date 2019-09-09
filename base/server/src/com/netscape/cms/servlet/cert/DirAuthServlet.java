@@ -35,7 +35,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.cms.authentication.HashAuthentication;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -100,9 +99,8 @@ public class DirAuthServlet extends CMSServlet {
         IArgBlock args = cmsReq.getHttpParams();
 
         if (!(mAuthority instanceof IRegistrationAuthority)) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_CA_FROM_RA_NOT_IMP"));
-            cmsReq.setError(new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_NOT_YET_IMPLEMENTED")));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_CA_FROM_RA_NOT_IMP"));
+            cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_NOT_YET_IMPLEMENTED")));
             cmsReq.setStatus(ICMSRequest.ERROR);
             return;
         }
@@ -114,10 +112,8 @@ public class DirAuthServlet extends CMSServlet {
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
-            cmsReq.setError(new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")));
+            logger.error(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
+            cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e));
             cmsReq.setStatus(ICMSRequest.ERROR);
             return;
         }
@@ -190,10 +186,8 @@ public class DirAuthServlet extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(ICMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
-            cmsReq.setError(new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()), e);
+            cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e));
             cmsReq.setStatus(ICMSRequest.ERROR);
         }
         cmsReq.setStatus(ICMSRequest.SUCCESS);
@@ -219,10 +213,8 @@ public class DirAuthServlet extends CMSServlet {
         try {
             form = getTemplate(formPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", formPath, e.toString()));
-            cmsReq.setError(new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", formPath, e.toString()), e);
+            cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e));
             cmsReq.setStatus(ICMSRequest.ERROR);
             return;
         }
@@ -234,10 +226,8 @@ public class DirAuthServlet extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(ICMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
-            cmsReq.setError(new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()), e);
+            cmsReq.setError(new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e));
             cmsReq.setStatus(ICMSRequest.ERROR);
         }
     }

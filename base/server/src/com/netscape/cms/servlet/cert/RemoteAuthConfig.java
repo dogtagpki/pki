@@ -36,7 +36,6 @@ import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -250,9 +249,8 @@ public class RemoteAuthConfig extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         try {
@@ -262,10 +260,8 @@ public class RemoteAuthConfig extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(ICMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
     }
 

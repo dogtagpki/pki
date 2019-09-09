@@ -49,7 +49,6 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.ScheduleCRLGenerationEvent;
 import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
@@ -130,11 +129,9 @@ public class UpdateCRL extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "update");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
         }
 
         if (authzToken == null) {
@@ -157,13 +154,11 @@ public class UpdateCRL extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
             if (statsSub != null) {
                 statsSub.endTiming("crl");
             }
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         try {
@@ -193,14 +188,11 @@ public class UpdateCRL extends CMSServlet {
                 cmsReq.setError(error);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE",
-                            e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
             if (statsSub != null) {
                 statsSub.endTiming("crl");
             }
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
         if (statsSub != null) {
             statsSub.endTiming("crl");
@@ -565,7 +557,7 @@ public class UpdateCRL extends CMSServlet {
             }
 
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_UPDATE_CRL", e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_UPDATE_CRL", e.toString()), e);
             if ((lpm != null) && lpm.isCRLPublishingEnabled() && (e instanceof ELdapException)) {
                 header.addStringValue("crlPublished", "Failure");
                 header.addStringValue("error", e.toString(locale));
