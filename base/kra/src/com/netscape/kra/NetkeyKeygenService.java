@@ -407,7 +407,7 @@ public class NetkeyKeygenService implements IService {
                     //                       encKey OCTET_STRING,
                     //                    }
                     //
-                    //            mKRA.log(ILogger.LL_INFO, "KRA encrypts internal private");
+                    //            logger.info("KRA encrypts internal private");
 
                     audit(SecurityDataArchivalRequestEvent.createSuccessEvent(
                             agentId,

@@ -216,7 +216,6 @@ public class SymKeyGenService implements IService {
         if (serialNo == null) {
             String message = CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL");
             logger.error("SymKeyGenService: " + message);
-            mKRA.log(ILogger.LL_FAILURE, message);
             auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, message);
             throw new EBaseException(message);
@@ -237,7 +236,6 @@ public class SymKeyGenService implements IService {
         } catch (Exception e) {
             String message = "Unable to store wrapping parameters: " + e.getMessage();
             logger.error("SymKeyGenService: " + message, e);
-            mKRA.log(ILogger.LL_FAILURE, message);
             auditSymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, message);
             throw new EBaseException(message, e);

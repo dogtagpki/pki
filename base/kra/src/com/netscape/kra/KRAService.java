@@ -21,7 +21,6 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.RequestStatus;
@@ -80,10 +79,9 @@ public class KRAService implements IService {
      * @exception EBaseException failed to serve
      */
     public boolean serviceRequest(IRequest r) throws EBaseException {
-        logger.debug("KRA services request " +
-                    r.getRequestId().toString());
-        mKRA.log(ILogger.LL_INFO, "KRA services request " +
-                r.getRequestId().toString());
+
+        logger.info("KRA services request " + r.getRequestId());
+
         IService s = mServices.get(r.getRequestType());
 
         if (s == null) {

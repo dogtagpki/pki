@@ -42,7 +42,6 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.KeyRequestResource;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalProcessedEvent;
 import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
@@ -308,8 +307,7 @@ public class SecurityDataProcessor {
         BigInteger serialNo = keyRepository.getNextSerialNumber();
 
         if (serialNo == null) {
-            kra.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
 
             signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                     auditSubjectID,
@@ -339,8 +337,7 @@ public class SecurityDataProcessor {
         try {
             rec.setWrappingParams(params, doEncrypt);
         } catch (Exception e) {
-            kra.log(ILogger.LL_FAILURE,
-                    "Failed to store wrapping parameters: " + e);
+            logger.error("Unable to store wrapping parameters: " + e.getMessage(), e);
 
             signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
                     auditSubjectID,

@@ -186,7 +186,6 @@ public class AsymKeyGenService implements IService {
         if (serialNo == null) {
             String message = "Unable to get next key ID";
             logger.error("AsymKeyGenService: " + message);
-            kra.log(ILogger.LL_FAILURE, message);
             auditAsymKeyGenRequestProcessed(auditSubjectID, ILogger.FAILURE, request.getRequestId(),
                     clientKeyId, null, message);
             throw new EBaseException(message);

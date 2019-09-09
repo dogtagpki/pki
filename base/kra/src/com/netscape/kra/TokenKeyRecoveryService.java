@@ -408,7 +408,7 @@ public class TokenKeyRecoveryService implements IService {
                 byte inputPubData[] = x509cert.getPublicKey().getEncoded();
 
                 if (inputPubData.length != pubData.length) {
-                    mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
+                    logger.error(CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
                     audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
@@ -417,13 +417,12 @@ public class TokenKeyRecoveryService implements IService {
                             CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"),
                             agentId));
 
-                    throw new EKRAException(
-                            CMS.getUserMessage("CMS_KRA_PUBLIC_KEY_NOT_MATCHED"));
+                    throw new EKRAException(CMS.getUserMessage("CMS_KRA_PUBLIC_KEY_NOT_MATCHED"));
                 }
 
                 for (int i = 0; i < pubData.length; i++) {
                     if (pubData[i] != inputPubData[i]) {
-                        mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
+                        logger.error(CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"));
                         audit(new SecurityDataRecoveryProcessedEvent(
                                 auditSubjectID,
                                 ILogger.FAILURE,
@@ -431,8 +430,7 @@ public class TokenKeyRecoveryService implements IService {
                                 keyId,
                                 CMS.getLogMessage("CMSCORE_KRA_PUBLIC_KEY_LEN"),
                                 agentId));
-                        throw new EKRAException(
-                                CMS.getUserMessage("CMS_KRA_PUBLIC_KEY_NOT_MATCHED"));
+                        throw new EKRAException(CMS.getUserMessage("CMS_KRA_PUBLIC_KEY_NOT_MATCHED"));
                     }
                 }
             } // else, searched by keyid, can't check
@@ -481,8 +479,7 @@ public class TokenKeyRecoveryService implements IService {
                 }
 
                 if (verifyKeyPair(pubData, privateKeyData) == false) {
-                    mKRA.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
+                    logger.error(CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
                     audit(new SecurityDataRecoveryProcessedEvent(
                             auditSubjectID,
                             ILogger.FAILURE,
@@ -493,8 +490,7 @@ public class TokenKeyRecoveryService implements IService {
 
                     jssSubsystem.obscureBytes(privateKeyData);
                     jssSubsystem.obscureBytes(p);
-                    throw new EKRAException(
-                        CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
+                    throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
                 } else {
                     logger.debug("TokenKeyRecoveryService: private key verified with public key");
                 }
@@ -716,8 +712,8 @@ public class TokenKeyRecoveryService implements IService {
                      keyRecord.getWrappingParams(mStorageUnit.getOldWrappingParams()));
              /* mStorageUnit.logout();*/
         } catch (Exception e){
-            mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"));
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "no private key"));
+            logger.error(CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"), e);
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "no private key"), e);
         }
     }
 
