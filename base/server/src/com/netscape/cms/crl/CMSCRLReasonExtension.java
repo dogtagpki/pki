@@ -20,18 +20,16 @@ package com.netscape.cms.crl;
 import java.io.IOException;
 import java.util.Locale;
 
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ca.ICMSCRLExtension;
-import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
-import com.netscape.cmscore.apps.CMS;
-
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.RevocationReason;
+
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.ca.ICMSCRLExtension;
+import com.netscape.certsrv.common.NameValuePairs;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * This represents a CRL reason extension.
@@ -40,7 +38,8 @@ import org.mozilla.jss.netscape.security.x509.RevocationReason;
  */
 public class CMSCRLReasonExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
-    private Logger mLogger = Logger.getLogger();
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSCRLReasonExtension.class);
 
     public CMSCRLReasonExtension() {
     }
@@ -54,7 +53,7 @@ public class CMSCRLReasonExtension
             reason = (RevocationReason) ((CRLReasonExtension) ext).get(CRLReasonExtension.REASON);
             crlReasonExt = new CRLReasonExtension(Boolean.valueOf(critical), reason);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_CRL_REASON_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_CRL_REASON_EXT", e.toString()), e);
         }
         return crlReasonExt;
     }
@@ -88,10 +87,5 @@ public class CMSCRLReasonExtension
             };
 
         return params;
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
-                "CMSCRLReasonExtension - " + msg);
     }
 }

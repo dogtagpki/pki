@@ -21,18 +21,16 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.x509.DeltaCRLIndicatorExtension;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 
 /**
  * This represents a delta CRL indicator extension.
@@ -41,7 +39,8 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
  */
 public class CMSDeltaCRLIndicatorExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
-    private Logger mLogger = Logger.getLogger();
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSDeltaCRLIndicatorExtension.class);
 
     public CMSDeltaCRLIndicatorExtension() {
     }
@@ -58,7 +57,7 @@ public class CMSDeltaCRLIndicatorExtension
                         Boolean.valueOf(critical),
                         baseCRLNumber);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DELTA_CRL_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_DELTA_CRL_EXT", e.toString()), e);
         }
         return deltaCRLIndicatorExt;
     }
@@ -74,7 +73,7 @@ public class CMSDeltaCRLIndicatorExtension
                         Boolean.valueOf(critical),
                         crlIssuingPoint.getCRLNumber());
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DELTA_CRL_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_DELTA_CRL_EXT", e.toString()), e);
         }
         return deltaCRLIndicatorExt;
     }
@@ -100,10 +99,5 @@ public class CMSDeltaCRLIndicatorExtension
             };
 
         return params;
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
-                "CMSDeltaCRLIndicatorExtension - " + msg);
     }
 }

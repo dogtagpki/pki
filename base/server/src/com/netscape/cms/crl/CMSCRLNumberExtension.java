@@ -21,18 +21,16 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Locale;
 
+import org.mozilla.jss.netscape.security.x509.CRLNumberExtension;
+import org.mozilla.jss.netscape.security.x509.Extension;
+import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
+
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.x509.CRLNumberExtension;
-import org.mozilla.jss.netscape.security.x509.Extension;
-import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 
 /**
  * This represents a CRL number extension.
@@ -41,7 +39,8 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
  */
 public class CMSCRLNumberExtension
         implements ICMSCRLExtension, IExtendedPluginInfo {
-    private Logger mLogger = Logger.getLogger();
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSCRLNumberExtension.class);
 
     public CMSCRLNumberExtension() {
     }
@@ -57,7 +56,7 @@ public class CMSCRLNumberExtension
             crlNumberExt = new CRLNumberExtension(Boolean.valueOf(critical),
                         crlNumber);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_CRL_NUMBER_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_CRL_NUMBER_EXT", e.toString()), e);
         }
         return crlNumberExt;
     }
@@ -72,7 +71,7 @@ public class CMSCRLNumberExtension
             crlNumberExt = new CRLNumberExtension(Boolean.valueOf(critical),
                         crlIssuingPoint.getNextCRLNumber());
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_CRL_NUMBER_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_CRL_NUMBER_EXT", e.toString()), e);
         }
         return crlNumberExt;
     }
@@ -99,10 +98,5 @@ public class CMSCRLNumberExtension
             };
 
         return params;
-    }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level,
-                "CMSCRLNumberExtension - " + msg);
     }
 }
