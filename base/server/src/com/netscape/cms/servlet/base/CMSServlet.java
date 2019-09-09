@@ -73,7 +73,6 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogCategory;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.event.AuthEvent;
@@ -280,7 +279,7 @@ public abstract class CMSServlet extends HttpServlet {
         try {
             mAclMethod = ServletUtils.initializeAuthz(sc, mAuthz, mId);
         } catch (ServletException e) {
-            log(ILogger.LL_FAILURE, e.toString());
+            logger.error("CMSServlet: " + e.getMessage(), e);
             throw e;
         }
 
@@ -363,20 +362,15 @@ public abstract class CMSServlet extends HttpServlet {
             getDontSaveHttpParams(sc);
             getSaveHttpHeaders(sc);
         } catch (Exception e) {
-            // should never occur since we provide defaults above.
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS",
-                            e.toString()));
-            throw new ServletException(e.toString());
+            logger.error(CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS", e.toString()), e);
+            throw new ServletException(e);
         }
 
         try {
             mSHADigest = MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS",
-                            e.toString()));
-            throw new ServletException(e.toString());
+            logger.error(CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS", e.toString()), e);
+            throw new ServletException(e);
         }
     }
 
@@ -675,10 +669,8 @@ public abstract class CMSServlet extends HttpServlet {
             cmsReq.getHttpResp().setContentLength(bos.size());
             bos.writeTo(cmsReq.getHttpResp().getOutputStream());
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_OUT_TEMPLATE", templateName, e.toString()));
-            renderException(cmsReq,
-                    new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_TEMPLATE", templateName, e.toString()), e);
+            renderException(cmsReq, new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e));
             return;
         }
     }
@@ -832,8 +824,7 @@ public abstract class CMSServlet extends HttpServlet {
 
         X509Certificate cert = null;
 
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_INFO,
-                CMS.getLogMessage("CMSGW_GETTING_SSL_CLIENT_CERT"));
+        logger.info(CMS.getLogMessage("CMSGW_GETTING_SSL_CLIENT_CERT"));
 
         // iws60 support Java Servlet Spec V2.2, attribute
         // javax.servlet.request.X509Certificate now contains array
@@ -852,8 +843,7 @@ public abstract class CMSServlet extends HttpServlet {
 
         if (cert == null) {
             // just don't have a cert.
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL"));
+            logger.error(CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL"));
             return null;
         }
 
@@ -863,14 +853,10 @@ public abstract class CMSServlet extends HttpServlet {
 
             cert = new X509CertImpl(certEncoded);
         } catch (CertificateEncodingException e) {
-            mLogger.log(
-                    ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_ENCODE", e.getMessage()));
+            logger.error(CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_ENCODE", e.getMessage()), e);
             return null;
         } catch (CertificateException e) {
-            mLogger.log(
-                    ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_DECODE", e.getMessage()));
+            logger.error(CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_DECODE", e.getMessage()), e);
             return null;
         }
         return cert;
@@ -884,7 +870,7 @@ public abstract class CMSServlet extends HttpServlet {
             throws EBaseException, IOException {
         // this converts to system dependent file seperator char.
         if (mServletConfig == null) {
-            logger.warn("CMSServlet:getTemplate() - mServletConfig is null!");
+            logger.error("CMSServlet:getTemplate() - mServletConfig is null!");
             return null;
         }
         if (mServletConfig.getServletContext() == null) {
@@ -895,9 +881,7 @@ public abstract class CMSServlet extends HttpServlet {
                 mServletConfig.getServletContext().getRealPath("/" + templateName);
 
         if (realpath == null) {
-            mLogger.log(
-                    ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_NO_FIND_TEMPLATE", templateName));
+            logger.error(CMS.getLogMessage("CMSGW_NO_FIND_TEMPLATE", templateName));
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
 
@@ -913,19 +897,6 @@ public abstract class CMSServlet extends HttpServlet {
                 (CMSTemplate) mFileLoader.getCMSFile(templateFile, charSet);
 
         return template;
-    }
-
-    /**
-     * log according to authority category.
-     */
-    protected void log(LogCategory event, int level, String msg) {
-        mLogger.log(event, mLogCategory, level,
-                "Servlet " + mId + ": " + msg);
-    }
-
-    protected void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, mLogCategory, level,
-                "Servlet " + mId + ": " + msg);
     }
 
     /**
@@ -951,9 +922,7 @@ public abstract class CMSServlet extends HttpServlet {
                 }
             }
         } catch (Exception e) {
-            // should never happen
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_NO_CONFIG_VALUE", PROP_DONT_SAVE_HTTP_PARAMS, e.toString()));
+            logger.warn(CMS.getLogMessage("CMSGW_NO_CONFIG_VALUE", PROP_DONT_SAVE_HTTP_PARAMS, e.toString()), e);
             // default just in case.
             for (int i = 0; i < DONT_SAVE_HTTP_PARAMS.length; i++) {
                 mDontSaveHttpParams.addElement(DONT_SAVE_HTTP_PARAMS[i]);
@@ -987,8 +956,7 @@ public abstract class CMSServlet extends HttpServlet {
                 }
             }
         } catch (Exception e) {
-            // should never happen
-            log(ILogger.LL_WARN, CMS.getLogMessage("CMSGW_NO_CONFIG_VALUE", PROP_SAVE_HTTP_HEADERS, e.toString()));
+            logger.warn(CMS.getLogMessage("CMSGW_NO_CONFIG_VALUE", PROP_SAVE_HTTP_HEADERS, e.toString()), e);
             return;
         }
     }
@@ -1053,15 +1021,14 @@ public abstract class CMSServlet extends HttpServlet {
     protected ICertRecord getCertRecord(BigInteger serialNo) {
         if (mAuthority == null ||
                 !(mAuthority instanceof ICertificateAuthority)) {
-            log(ILogger.LL_WARN,
-                    CMS.getLogMessage("CMSGW_NON_CERT_AUTH"));
+            logger.error(CMS.getLogMessage("CMSGW_NON_CERT_AUTH"));
             return null;
         }
         ICertificateRepository certdb =
                 ((ICertificateAuthority) mAuthority).getCertificateRepository();
 
         if (certdb == null) {
-            log(ILogger.LL_WARN, CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
             return null;
         }
         ICertRecord certRecord = null;
@@ -1069,8 +1036,7 @@ public abstract class CMSServlet extends HttpServlet {
         try {
             certRecord = certdb.readCertificateRecord(serialNo);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_NO_CERT_REC", serialNo.toString(16), e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_NO_CERT_REC", serialNo.toString(16), e.toString()), e);
             return null;
         }
         return certRecord;
@@ -1108,15 +1074,14 @@ public abstract class CMSServlet extends HttpServlet {
     protected X509Certificate getX509Certificate(BigInteger serialNo) {
         if (mAuthority == null ||
                 !(mAuthority instanceof ICertificateAuthority)) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_NOT_CERT_AUTH"));
+            logger.error(CMS.getLogMessage("CMSGW_NOT_CERT_AUTH"));
             return null;
         }
         ICertificateRepository certdb =
                 ((ICertificateAuthority) mAuthority).getCertificateRepository();
 
         if (certdb == null) {
-            log(ILogger.LL_WARN, CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
             return null;
         }
         X509Certificate cert = null;
@@ -1124,8 +1089,7 @@ public abstract class CMSServlet extends HttpServlet {
         try {
             cert = certdb.getX509Certificate(serialNo);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_NO_CERT_REC", serialNo.toString(16), e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_NO_CERT_REC", serialNo.toString(16), e.toString()), e);
             return null;
         }
         return cert;
@@ -1146,8 +1110,7 @@ public abstract class CMSServlet extends HttpServlet {
             if ((e instanceof RuntimeException)) {
                 throw (RuntimeException) e;
             } else {
-                log(ILogger.LL_WARN,
-                        CMS.getLogMessage("CMSGW_CANT_LOAD_FILLER", fillerClass, e.toString()));
+                logger.error(CMS.getLogMessage("CMSGW_CANT_LOAD_FILLER", fillerClass, e.toString()), e);
                 return null;
             }
         }
@@ -1245,10 +1208,7 @@ public abstract class CMSServlet extends HttpServlet {
                     unexpectedErrorTemplate = "/" + gateway + unexpectedErrorTemplate;
             }
         } catch (Exception e) {
-            // this should never happen.
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(),
-                            mId));
+            logger.warn(CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(), mId), e);
         }
 
         mTemplates.put(
@@ -1430,17 +1390,11 @@ public abstract class CMSServlet extends HttpServlet {
             httpResp.setContentType(contentType);
             out.write(encoding);
         } catch (IOException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_RET_CERT_IMPORT_ERR", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_ERROR_RETURNING_CERT"));
+            logger.error(CMS.getLogMessage("CMSGW_RET_CERT_IMPORT_ERR", e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_RETURNING_CERT"), e);
         } catch (CertificateEncodingException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_NO_ENCODED_IMP_CERT", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_ERROR_ENCODING_ISSUED_CERT"));
+            logger.error(CMS.getLogMessage("CMSGW_NO_ENCODED_IMP_CERT", e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_ENCODING_ISSUED_CERT"), e);
         }
     }
 
@@ -1531,10 +1485,8 @@ public abstract class CMSServlet extends HttpServlet {
         try {
             crlentryexts.set(CRLReasonExtension.NAME, reasonExt);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_CRL_REASON", reason.toString(), e.toString()));
-            throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_ERROR_SETTING_CRLREASON"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_CRL_REASON", reason.toString(), e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_SETTING_CRLREASON"), e);
         }
         RevokedCertImpl crlentry =
                 new RevokedCertImpl(serialNo, new Date(), crlentryexts);
@@ -1553,10 +1505,8 @@ public abstract class CMSServlet extends HttpServlet {
         ICertRecord certRecord = getCertRecord(serialNum);
 
         if (certRecord == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_BAD_CERT_SER_NUM", String.valueOf(serialNum)));
-            throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_INVALID_CERT"));
+            logger.error(CMS.getLogMessage("CMSGW_BAD_CERT_SER_NUM", String.valueOf(serialNum)));
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_INVALID_CERT"));
         }
         if (certRecord.getStatus().equals(ICertRecord.STATUS_REVOKED))
             return true;

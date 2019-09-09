@@ -121,7 +121,7 @@ public class CMSStartServlet extends HttpServlet {
 
         } catch (Exception e) {
             logger.error("Unable to start CMS engine: " + e.getMessage(), e);
-            logger.info(Constants.SERVER_SHUTDOWN_MESSAGE);
+            logger.error(Constants.SERVER_SHUTDOWN_MESSAGE);
 
             if (engine != null) {
                 engine.shutdown();

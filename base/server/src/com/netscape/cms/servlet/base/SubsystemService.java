@@ -28,8 +28,6 @@ import javax.ws.rs.core.HttpHeaders;
 
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.logging.AuditEvent;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogSource;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
@@ -43,7 +41,6 @@ public class SubsystemService extends PKIService {
     CMSEngine engine = CMS.getCMSEngine();
     protected IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
     protected Auditor auditor = Auditor.getAuditor();
-    protected Logger logger = Logger.getLogger();
 
     public String getSubsystemName() {
         // get web application path: /<subsystem>
@@ -77,14 +74,6 @@ public class SubsystemService extends PKIService {
 
     public String getUserMessage(String messageId, HttpHeaders headers, String... params) {
         return CMS.getUserMessage(getLocale(headers), messageId, params);
-    }
-
-    public void log(LogSource source, int level, String message) {
-
-        logger.log(ILogger.EV_SYSTEM,
-                source,
-                level,
-                getClass().getSimpleName() + ": " + message);
     }
 
     public void audit(String message, String scope, String type, String id, Map<String, String> params, String status) {

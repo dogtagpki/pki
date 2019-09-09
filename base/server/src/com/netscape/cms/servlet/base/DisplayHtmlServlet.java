@@ -27,7 +27,6 @@ import javax.servlet.ServletException;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
@@ -68,9 +67,7 @@ public class DisplayHtmlServlet extends CMSServlet {
                     mServletConfig.getServletContext().getRealPath("/" + mHTMLPath);
 
             if (realpath == null) {
-                mLogger.log(
-                        ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_NO_FIND_TEMPLATE", mHTMLPath));
+                logger.error(CMS.getLogMessage("CMSGW_NO_FIND_TEMPLATE", mHTMLPath));
                 throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
             }
             File file = new File(realpath);
@@ -88,9 +85,8 @@ public class DisplayHtmlServlet extends CMSServlet {
             ins.close();
             bos.close();
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_OUT_TEMPLATE", mHTMLPath, e.toString()));
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_TEMPLATE", mHTMLPath, e.toString()), e);
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"), e);
         }
     }
 }

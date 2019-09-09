@@ -25,7 +25,6 @@ import javax.servlet.ServletException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
@@ -88,11 +87,8 @@ public class IndexServlet extends CMSServlet {
             try {
                 cmsReq.getHttpResp().sendRedirect("/ca/adminEnroll.html");
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_FAIL_REDIRECT_ADMIN_ENROLL", e.toString()));
-                throw new ECMSGWException(
-                        CMS.getLogMessage("CMSGW_ERROR_REDIRECTING_ADMINENROLL1",
-                                e.toString()));
+                logger.error(CMS.getLogMessage("CMSGW_FAIL_REDIRECT_ADMIN_ENROLL", e.toString()), e);
+                throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_REDIRECTING_ADMINENROLL1", e.toString()), e);
             }
             return;
         } else {
@@ -100,10 +96,8 @@ public class IndexServlet extends CMSServlet {
                 renderTemplate(
                         cmsReq, mTemplateName, new IndexTemplateFiller());
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_FAIL_RENDER_TEMPLATE", mTemplateName, e.toString()));
-                throw new ECMSGWException(
-                        CMS.getLogMessage("CMSG_ERROR_DISPLAY_TEMPLATE"));
+                logger.error(CMS.getLogMessage("CMSGW_FAIL_RENDER_TEMPLATE", mTemplateName, e.toString()), e);
+                throw new ECMSGWException(CMS.getLogMessage("CMSG_ERROR_DISPLAY_TEMPLATE"), e);
             }
         }
         cmsReq.setStatus(ICMSRequest.SUCCESS);
