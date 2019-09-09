@@ -167,12 +167,12 @@ public class UsrGrpAdminServlet extends AdminServlet {
          try {
          authzTok = mAuthz.authorize("DirAclAuthz", authToken, RES_GROUP, "read");
          } catch (EBaseException e) {
-         log(ILogger.LL_FAILURE,  CMS.getLogMessage("ADMIN_SRVLT_AUTH_CALL_FAIL",e.toString()));
+             logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_CALL_FAIL",e.toString()), e);
          }
          if (AuthzToken.AUTHZ_STATUS_FAIL.equals(authzTok.get(AuthzToken.TOKEN_AUTHZ_STATUS))) {
          // audit would have been needed here if this weren't just a test...
 
-         log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_FAIL_AUTHS"));
+         logger.error(CMS.getLogMessage("ADMIN_SRVLT_FAIL_AUTHS"), e);
 
          sendResponse(ERROR,
          MessageFormatter.getLocalizedString(
@@ -1095,7 +1095,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                      } catch (CryptoManager.UserCertConflictException ex) {
                      // got a "user cert" in the chain, most likely the CA
                     // cert of this instance, which has a private key.  Ignore
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_PKS7_IGNORED", ex.toString()));
+                        logger.error(CMS.getLogMessage("ADMIN_SRVLT_PKS7_IGNORED", ex.toString()), ex);
                     */
                 } catch (Exception ex) {
                     //-----

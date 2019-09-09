@@ -917,7 +917,7 @@ public final class CMSAdminServlet extends AdminServlet {
                             token.login(cpcb);
                             break;
                         } catch (Exception e3) {
-                            //log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_INCORRECT_PWD"));
+                            // logger.warn(CMS.getLogMessage("CMSCORE_SECURITY_INCORRECT_PWD"), e3);
                             continue;
                         }
                     }
@@ -1647,7 +1647,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             //xxx import cert with nickname without token name?
             //jss adds the token prefix!!!
-            //log(ILogger.LL_DEBUG,"import as alias"+ nicknameWithoutTokenName);
+            //logger.debug("CMSAdminServlet: import as alias "+ nicknameWithoutTokenName);
             try {
                 logger.debug("CMSAdminServlet: issueImportCert: Importing cert: " + nicknameWithoutTokenName);
                 jssSubSystem.importCert(signedCert, nicknameWithoutTokenName,
