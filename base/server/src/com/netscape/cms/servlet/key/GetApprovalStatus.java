@@ -36,7 +36,6 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -143,10 +142,8 @@ public class GetApprovalStatus extends CMSServlet {
             Hashtable<String, Object> params = mService.getRecoveryParams(recoveryID);
 
             if (params == null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_NO_RECOVERY_TOKEN_FOUND_1", recoveryID));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_NO_RECOVERY_TOKEN_FOUND", recoveryID));
+                logger.error(CMS.getLogMessage("CMSGW_NO_RECOVERY_TOKEN_FOUND_1", recoveryID));
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_NO_RECOVERY_TOKEN_FOUND", recoveryID));
             }
             header.addStringValue("serialNumber",
                     (String) params.get("keyID"));
@@ -214,10 +211,8 @@ public class GetApprovalStatus extends CMSServlet {
             try {
                 form = getTemplate(mFormPath, req, locale);
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()), e);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
             }
 
             ServletOutputStream out = resp.getOutputStream();
@@ -225,10 +220,8 @@ public class GetApprovalStatus extends CMSServlet {
             resp.setContentType("text/html");
             form.renderOutput(out, argSet);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
 
         cmsReq.setStatus(ICMSRequest.SUCCESS);
