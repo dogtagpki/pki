@@ -27,8 +27,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
@@ -44,10 +42,10 @@ import netscape.ldap.LDAPAttributeSet;
  */
 public class X500NameMapper implements IDBAttrMapper {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(X500NameMapper.class);
+
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
-
-    private Logger mLogger = Logger.getLogger();
 
     /**
      * Constructs X500Name mapper.
@@ -98,11 +96,8 @@ public class X500NameMapper implements IDBAttrMapper {
              * @phase Maps LDAP attributes into object
              * @message X500NameMapper: <exception thrown>
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_DBS_X500NAME_MAPPER_ERROR",
-                            e.toString()));
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name));
+            logger.error(CMS.getLogMessage("CMSCORE_DBS_X500NAME_MAPPER_ERROR", e.toString()), e);
+            throw new EDBException(CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name), e);
         }
     }
 

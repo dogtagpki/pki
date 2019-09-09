@@ -29,7 +29,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
@@ -49,7 +48,6 @@ public class ObjectStreamMapper implements IDBAttrMapper {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ObjectStreamMapper.class);
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
-    private Logger mLogger = Logger.getLogger();
 
     /**
      * Constructs object stream mapper.
@@ -93,11 +91,8 @@ public class ObjectStreamMapper implements IDBAttrMapper {
              * @phase Maps object to ldap attribute set
              * @message ObjectStreamMapper: <exception thrown>
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_DBS_OBJECTSTREAM_MAPPER_ERROR",
-                            e.toString()));
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+            logger.error(CMS.getLogMessage("CMSCORE_DBS_OBJECTSTREAM_MAPPER_ERROR", e.toString()), e);
+            throw new EDBException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name), e);
         }
     }
 

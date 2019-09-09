@@ -21,8 +21,6 @@ import java.util.Enumeration;
 
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSearchResults;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
@@ -37,9 +35,10 @@ import netscape.ldap.LDAPException;
  */
 public class DBSearchResults implements IDBSearchResults {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DBSearchResults.class);
+
     private IDBRegistry mRegistry = null;
     private Enumeration<Object> mRes = null;
-    private Logger mLogger = Logger.getLogger();
 
     /**
      * Constructs search results.
@@ -74,8 +73,7 @@ public class DBSearchResults implements IDBSearchResults {
                 // doing nothing because the last object in the search
                 // results is always LDAPException
                 else
-                    mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
-                            ILogger.LL_FAILURE, "DBSearchResults: result format error class=" + o.getClass().getName());
+                    logger.warn("DBSearchResults: result format error class=" + o.getClass().getName());
             }
         } catch (Exception e) {
 
@@ -85,8 +83,7 @@ public class DBSearchResults implements IDBSearchResults {
              * @reason failed to get next element
              * @message DBSearchResults: <exception thrown>
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
-                    ILogger.LL_FAILURE, "DBSearchResults: " + e.toString());
+            logger.warn("DBSearchResults: " + e.getMessage(), e);
         }
         return null;
     }

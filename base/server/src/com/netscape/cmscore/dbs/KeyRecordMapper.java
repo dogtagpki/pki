@@ -27,8 +27,6 @@ import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPAttribute;
@@ -44,8 +42,9 @@ import netscape.ldap.LDAPAttributeSet;
  */
 public class KeyRecordMapper implements IDBAttrMapper {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRecordMapper.class);
+
     private IKeyRepository mDB = null;
-    private Logger mLogger = Logger.getLogger();
 
     public KeyRecordMapper(IKeyRepository db) {
         mDB = db;
@@ -74,10 +73,8 @@ public class KeyRecordMapper implements IDBAttrMapper {
              * @phase  Maps object to ldap attribute set
              * @message KeyRecordMapper: <exception thrown>
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_DBS_KEYRECORD_MAPPER_ERROR", e.toString()));
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+            logger.error(CMS.getLogMessage("CMSCORE_DBS_KEYRECORD_MAPPER_ERROR", e.toString()), e);
+            throw new EDBException(CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name), e);
         }
     }
 
@@ -101,10 +98,8 @@ public class KeyRecordMapper implements IDBAttrMapper {
              * @phase  Maps ldap attribute set to object
              * @message KeyRecordMapper: <exception thrown>
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_DBS_KEYRECORD_MAPPER_ERROR", e.toString()));
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name));
+            logger.error(CMS.getLogMessage("CMSCORE_DBS_KEYRECORD_MAPPER_ERROR", e.toString()), e);
+            throw new EDBException(CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name), e);
         }
     }
 

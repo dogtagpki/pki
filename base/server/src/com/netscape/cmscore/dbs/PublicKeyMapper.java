@@ -25,8 +25,6 @@ import java.util.Vector;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.cert.CertUtils;
 
@@ -44,10 +42,10 @@ import netscape.ldap.LDAPAttributeSet;
  */
 public class PublicKeyMapper implements IDBAttrMapper {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PublicKeyMapper.class);
+
     private String mLdapName = null;
     private Vector<String> v = new Vector<String>();
-
-    private Logger mLogger = Logger.getLogger();
 
     /**
      * Constructs a byte array mapper.
@@ -115,9 +113,7 @@ public class PublicKeyMapper implements IDBAttrMapper {
                  * @phase Maps search filters into LDAP search filter
                  * @message PublicKeyMapper: <exception thrown>
                  */
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_DBS_PUBLICKEY_MAPPER_ERROR",
-                                e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_DBS_PUBLICKEY_MAPPER_ERROR", e.toString()), e);
             }
         }
         return mLdapName + op + value;

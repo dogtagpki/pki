@@ -24,17 +24,15 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.IElementProcessor;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
-import netscape.ldap.LDAPv2;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPControl;
 import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPSearchConstraints;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPSortKey;
+import netscape.ldap.LDAPv2;
 import netscape.ldap.controls.LDAPSortControl;
 import netscape.ldap.controls.LDAPVirtualListControl;
 import netscape.ldap.controls.LDAPVirtualListResponse;
@@ -76,8 +74,6 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
     private int mJumpToInitialIndex = 0; // Initial index hit in jumpto operation
     private int mJumpToDirection = 1; // Do we proceed forward or backwards
     private String mJumpTo = null; // Determines if this is the jumpto case
-
-    private Logger mLogger = Logger.getLogger();
 
     /**
      * Constructs a virtual list.
@@ -490,13 +486,11 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
                      * @reason Failed to get enties.
                      * @message DBVirtualList: <exception thrown>
                      */
-                    mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE, message);
 
                     // #539044
                     damageCounter++;
                     if (damageCounter > 100) {
-                        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSCORE_DBS_VL_CORRUPTED_ENTRIES", Integer.toString(damageCounter)));
+                        logger.error(CMS.getLogMessage("CMSCORE_DBS_VL_CORRUPTED_ENTRIES", Integer.toString(damageCounter)));
                         return false;
                     }
                 }
@@ -511,8 +505,6 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
              */
             String message = CMS.getLogMessage("OPERATION_ERROR", e.getMessage());
             logger.error(message, e);
-
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE, message);
         }
         //System.out.println( "Returning " + mEntries.size() +
         //       " entries" );
@@ -562,8 +554,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
                 //       ".." + (mTop+mEntries.size()-1) +
                 //      " of " + mSize );
             } else {
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_DBS_VL_NULL_RESPONSE"));
+                logger.warn(CMS.getLogMessage("CMSCORE_DBS_VL_NULL_RESPONSE"));
             }
             return true;
         } catch (Exception e) {
@@ -635,8 +626,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
              *
              * @phase local ldap search
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_DBS_VL_NULL_RESPONSE"));
+            logger.warn(CMS.getLogMessage("CMSCORE_DBS_VL_NULL_RESPONSE"));
         }
         return true;
     }
