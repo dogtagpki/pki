@@ -704,10 +704,11 @@ class PkiScriptlet(pkiscriptlet.AbstractBasePkiScriptlet):
             protocol='https',
             hostname=deployer.mdict['pki_hostname'],
             port=deployer.mdict['pki_https_port'],
-            subsystem=deployer.mdict['pki_subsystem_type'],
             trust_env=False)
 
-        client = pki.system.SystemConfigClient(connection)
+        client = pki.system.SystemConfigClient(
+            connection,
+            subsystem=deployer.mdict['pki_subsystem_type'])
 
         logger.info('Configuring %s subsystem', subsystem.type)
         request = deployer.config_client.create_config_request()

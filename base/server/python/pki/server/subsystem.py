@@ -388,11 +388,10 @@ class PKISubsystem(object):
             protocol=protocol,
             hostname=socket.getfqdn(),
             port=port,
-            subsystem=self.name,
             accept='application/xml',
             trust_env=False)
 
-        client = pki.system.SystemStatusClient(connection)
+        client = pki.system.SystemStatusClient(connection, subsystem=self.name)
         response = client.get_status(timeout=timeout)
 
         root = ET.fromstring(response)

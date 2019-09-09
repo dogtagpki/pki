@@ -145,7 +145,7 @@ encoder.NOTYPES['Feature'] = Feature
 
 def main():
     # Create a PKIConnection object that stores the details of the CA.
-    connection = client.PKIConnection('https', 'localhost', '8453', 'ca')
+    connection = client.PKIConnection('https', 'localhost', '8453')
 
     # Instantiate the FeatureClient
     feature_client = FeatureClient(connection)

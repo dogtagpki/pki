@@ -719,10 +719,9 @@ class PKIServer(object):
     @staticmethod
     def setup_password_authentication(username, password, subsystem_name='ca', secure_port='8443'):
         """Return a PKIConnection, logged in using username and password."""
-        connection = client.PKIConnection(
-            'https', os.environ['HOSTNAME'], secure_port, subsystem_name)
+        connection = client.PKIConnection('https', os.environ['HOSTNAME'], secure_port)
         connection.authenticate(username, password)
-        account_client = pki.account.AccountClient(connection)
+        account_client = pki.account.AccountClient(connection, subsystem=subsystem_name)
         account_client.login()
         return connection
 

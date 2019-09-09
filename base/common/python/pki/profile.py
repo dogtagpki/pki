@@ -998,7 +998,7 @@ class ProfileClient(object):
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
 
-        self.account_client = account.AccountClient(connection)
+        self.account_client = account.AccountClient(connection, subsystem='ca')
 
     def _get(self, url, query_params=None, payload=None):
         self.account_client.login()
@@ -1163,7 +1163,7 @@ class ProfileClient(object):
 
 def main():
     # Initialize a PKIConnection object for the CA
-    connection = client.PKIConnection('https', 'localhost', '8443', 'ca')
+    connection = client.PKIConnection('https', 'localhost', '8443')
 
     # The pem file used for authentication. Created from a p12 file using the
     # command -

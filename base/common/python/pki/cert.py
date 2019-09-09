@@ -1070,7 +1070,7 @@ encoder.NOTYPES['ProfileParameter'] = profile.ProfileParameter
 
 def main():
     # Create a PKIConnection object that stores the details of the CA.
-    connection = client.PKIConnection('https', 'localhost', '8443', 'ca')
+    connection = client.PKIConnection('https', 'localhost', '8443')
 
     # The pem file used for authentication. Created from a p12 file using the
     # command -

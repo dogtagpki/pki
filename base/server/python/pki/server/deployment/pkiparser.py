@@ -587,7 +587,6 @@ class PKIConfigParser:
             protocol='https',
             hostname=self.mdict['pki_security_domain_hostname'],
             port=self.mdict['pki_security_domain_https_port'],
-            subsystem='ca',
             trust_env=False)
 
     def sd_get_info(self):
@@ -605,7 +604,7 @@ class PKIConfigParser:
             self.mdict['pki_security_domain_user'],
             self.mdict['pki_security_domain_password'])
 
-        account = pki.account.AccountClient(self.sd_connection)
+        account = pki.account.AccountClient(self.sd_connection, subsystem='ca')
         try:
             account.login()
             account.logout()
@@ -650,9 +649,8 @@ class PKIConfigParser:
             protocol=parse.scheme,
             hostname=parse.hostname,
             port=str(parse.port),
-            subsystem=system_type,
             trust_env=False)
-        client = pki.system.SystemStatusClient(conn)
+        client = pki.system.SystemStatusClient(conn, subsystem=system_type)
         response = client.get_status()
         root = ET.fromstring(response)
         return root.findtext("Status")
