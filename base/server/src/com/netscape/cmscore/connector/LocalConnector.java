@@ -26,7 +26,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.connector.IConnector;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -44,8 +43,7 @@ public class LocalConnector implements IConnector {
 
     public LocalConnector(ICertAuthority source, IAuthority dest) {
         mSource = source;
-        // mSource.log(ILogger.LL_DEBUG, "Local connector setup for source " +
-        //    mSource.getId());
+        // logger.debug("Local connector setup for source " + mSource.getId());
         mDest = dest;
         logger.debug("Local connector setup for dest " +
                 mDest.getId());
@@ -67,9 +65,7 @@ public class LocalConnector implements IConnector {
 
         logger.debug("local connector dest req " +
                 destreq.getRequestId() + " created for source rId " + r.getRequestId());
-        //  mSource.log(ILogger.LL_DEBUG,
-        //     "setting connector dest " + mDest.getId() +
-        //    " source id to " + r.getRequestId());
+        //  logger.debug("setting connector dest " + mDest.getId() + " source id to " + r.getRequestId());
 
         // XXX set context to the real identity later.
         destreq.setSourceId(
@@ -153,16 +149,13 @@ public class LocalConnector implements IConnector {
             int index = sourceNameAndId.lastIndexOf(':');
 
             if (index == -1) {
-                mSource.log(ILogger.LL_FAILURE,
-                        "request " + destreq.getRequestId() +
-                                " for " + sourceNameAndId + " malformed.");
+                logger.error("request " + destreq.getRequestId() + " for " + sourceNameAndId + " malformed.");
                 return;
             }
             String sourceId = sourceNameAndId.substring(index + 1);
             RequestId rId = new RequestId(sourceId);
 
-            //    mSource.log(ILogger.LL_DEBUG, mDest.getId() + " " +
-            //       destreq.getRequestId() + " mapped to " + mSource.getId() + " " + rId);
+            // logger.debug(mDest.getId() + " " + destreq.getRequestId() + " mapped to " + mSource.getId() + " " + rId);
 
             IRequest r = null;
 
@@ -184,8 +177,7 @@ public class LocalConnector implements IConnector {
             r = mSourceReqs.get(rId.toString());
             if (r != null) {
                 if (r.getRequestStatus() != RequestStatus.SVC_PENDING) {
-                    mSource.log(ILogger.LL_FAILURE,
-                            "request state of " + rId + "not pending " +
+                    logger.warn("request state of " + rId + "not pending " +
                                     " from dest authority " + mDest.getId());
                     sourceQ.releaseRequest(r);
                     return;

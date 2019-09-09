@@ -24,8 +24,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.IHttpConnection;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
 
@@ -38,8 +36,6 @@ public class HttpConnFactory {
 
     protected int mMinConns = 1;
     protected int mMaxConns = 30;
-
-    private Logger mLogger = Logger.getLogger();
 
     private int mNumConns = 0; // number of available conns in array
     private int mTotal = 0; // total num conns
@@ -234,9 +230,7 @@ public class HttpConnFactory {
             if (!waitForConn)
                 return null;
             try {
-                logger.debug("getConn: out of http connections");
-                log(ILogger.LL_WARN,
-                        "Ran out of http connections available ");
+                logger.warn("HttpConnFactory: Ran out of HTTP connections");
                 waited = true;
                 logger.debug("HttpConn:about to wait for a new http connection");
                 while (mNumConns == 0)
@@ -253,8 +247,7 @@ public class HttpConnFactory {
 
         if (waited) {
             logger.warn("HttpConn:had to wait for an available connection from pool");
-            log(ILogger.LL_WARN,
-                    "Http connections are available again in http connection pool ");
+            logger.warn("Http connections are available again in http connection pool");
         }
         logger.debug("HttpgetConn: mNumConns now " + mNumConns);
 
@@ -296,14 +289,5 @@ public class HttpConnFactory {
         mConns[mNumConns++] = boundconn;
         logger.debug("HttpreturnConn: mNumConns now " + mNumConns);
         notify();
-    }
-
-    /**
-     * handy routine for logging in this class.
-     */
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "In Http (bound) connection pool to" +
-                        msg);
     }
 }

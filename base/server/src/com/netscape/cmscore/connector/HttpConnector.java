@@ -198,8 +198,7 @@ public class HttpConnector implements IConnector {
                 logger.debug("HttpConn:  remote request id still pending " +
                         r.getRequestId() + " state " + replyStatus);
                 /*
-                mSource.log(ILogger.LL_INFO,
-                        CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_COMPLETED", r.getRequestId().toString()));
+                logger.info(CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_COMPLETED", r.getRequestId().toString()));
                 */
                 if (mResender != null)
                     mResender.addRequest(r);
@@ -238,11 +237,10 @@ public class HttpConnector implements IConnector {
                     mResender.addRequest(r);
             }
             /*
-            mSource.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CONNECTOR_SEND_REQUEST", r.getRequestId()
+            logger.error(CMS.getLogMessage("CMSCORE_CONNECTOR_SEND_REQUEST", r.getRequestId()
                     .toString(), mDest.getHost(), Integer.toString(mDest.getPort())));
             */
-            // mSource.log(ILogger.LL_INFO,
-            //    "Queing " + r.getRequestId() + " for resend.");
+            // logger.info("Queing " + r.getRequestId() + " for resend.");
             return false;
         } finally {
 

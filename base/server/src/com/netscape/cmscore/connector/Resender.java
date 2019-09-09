@@ -31,7 +31,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.IRemoteAuthority;
 import com.netscape.certsrv.connector.IResender;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -170,8 +169,7 @@ public class Resender implements IResender {
                 r = mQueue.findRequest(rid);
             } catch (EBaseException e) {
                 // XXX bad case. should we remove the rid now ?
-                mAuthority.log(ILogger.LL_WARN,
-                        CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_FOUND", rid.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_FOUND", rid.toString()), e);
                 continue;
             }
             try {
@@ -184,17 +182,15 @@ public class Resender implements IResender {
 
                     if (completed) {
                         completedRids.addElement(rid);
-                        mAuthority.log(ILogger.LL_INFO,
-                                CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_COMPLETED", rid.toString()));
+                        logger.info(CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_COMPLETED", rid.toString()));
                     }
                 }
             } catch (IOException e) {
-                mAuthority.log(ILogger.LL_WARN,
-                        CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_ERROR", rid.toString(), e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_ERROR", rid.toString(), e.toString()), e);
             } catch (EBaseException e) {
                 // if connection is down, don't send the remaining request
                 // as it will sure fail.
-                mAuthority.log(ILogger.LL_WARN, CMS.getLogMessage("CMSCORE_CONNECTOR_DOWN"));
+                logger.warn(CMS.getLogMessage("CMSCORE_CONNECTOR_DOWN"), e);
                 if (e.toString().indexOf("connection not available") >= 0)
                     break;
             }
@@ -252,8 +248,7 @@ public class Resender implements IResender {
             return true;
         } catch (EBaseException e) {
             // same as not having sent it, so still want to resend.
-            mAuthority.log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CONNECTOR_RESEND_ERROR", r.getRequestId().toString(), e.toString()));
+            logger.warn(CMS.getLogMessage("CMSCORE_CONNECTOR_RESEND_ERROR", r.getRequestId().toString(), e.toString()), e);
             if (e.toString().indexOf("Connection refused by peer") > 0)
                 throw new EBaseException("connection not available");
         }
