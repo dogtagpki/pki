@@ -25,6 +25,9 @@ import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.AlgorithmId;
+import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authority.ICertAuthority;
@@ -32,14 +35,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.x509.AlgorithmId;
-import org.mozilla.jss.netscape.security.x509.CertificateAlgorithmId;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * SigningAlgorithmConstraints enforces that only a supported
@@ -55,6 +53,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  */
 public class SigningAlgorithmConstraints extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SigningAlgorithmConstraints.class);
+
     private String[] mAllowedAlgs = null; // algs allowed by this policy
     static String[] mDefaultAllowedAlgs = null; // default algs allowed by this policy based on CA's key
     private String[] mConfigAlgs = null; // algs listed in config file
@@ -225,11 +226,10 @@ public class SigningAlgorithmConstraints extends APolicyRule
                 EPolicyException e = new EPolicyException(CMS.getUserMessage(reason, NAME, mAllowedAlgs[i]));
 
                 if (isError) {
-                    log(ILogger.LL_FAILURE, e.toString());
-                    throw new EPolicyException(CMS.getUserMessage(reason,
-                                NAME, mAllowedAlgs[i]));
+                    logger.error("SigningAlgorithmConstraints: " + e.getMessage(), e);
+                    throw e;
                 } else {
-                    log(ILogger.LL_WARN, e.toString());
+                    logger.warn("SigningAlgorithmConstraints: " + e.getMessage(), e);
                 }
             }
         }

@@ -34,7 +34,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.security.ISigningUnit;
@@ -94,15 +93,12 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
                 ((IPolicyProcessor) owner).getAuthority();
 
         if (certAuthority == null) {
-            // should never get here.
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                        "Cannot find the Certificate Manager"));
+            logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "Cannot find the Certificate Manager"));
         }
         if (!(certAuthority instanceof ICertificateAuthority)) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                        "Cannot find the Certificate Manager"));
+            logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "Cannot find the Certificate Manager"));
         }
         mCA = (ICertificateAuthority) certAuthority;
         ISigningUnit su = mCA.getSigningUnit();
@@ -140,7 +136,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
                     IRequest.CERT_INFO);
 
             if (certInfos == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_NO_CERT_INFO", getInstanceName()));
+                logger.warn(CMS.getLogMessage("POLICY_NO_CERT_INFO", getInstanceName()));
                 setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO", NAME + ":" + getInstanceName()), "");
                 return PolicyResult.REJECTED;
             }
@@ -151,26 +147,23 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
 
                 // if there is no name set, set one here.
                 if (subName == null) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_NO_SUBJECT_NAME_1", getInstanceName()));
+                    logger.warn(CMS.getLogMessage("POLICY_NO_SUBJECT_NAME_1", getInstanceName()));
                     setError(req, CMS.getUserMessage("CMS_POLICY_NO_SUBJECT_NAME", NAME + ":" + getInstanceName()), "");
                     return PolicyResult.REJECTED;
                 }
                 String certSubjectName = subName.toString();
 
                 if (certSubjectName.equalsIgnoreCase(mIssuerNameStr)) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_SUBJECT_NAME_EXIST_1", mIssuerNameStr));
-                    setError(req,
-                            CMS.getUserMessage("CMS_POLICY_SUBJECT_NAME_EXIST", NAME + ":" + "Same As Issuer Name "
-                                    + mIssuerNameStr), "");
+                    logger.warn(CMS.getLogMessage("POLICY_SUBJECT_NAME_EXIST_1", mIssuerNameStr));
+                    setError(req, CMS.getUserMessage("CMS_POLICY_SUBJECT_NAME_EXIST", NAME + ":" + "Same As Issuer Name " + mIssuerNameStr), "");
                     result = PolicyResult.REJECTED;
                 }
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_NO_SUBJECT_NAME_1", getInstanceName()));
+            logger.warn(CMS.getLogMessage("POLICY_NO_SUBJECT_NAME_1", getInstanceName()), e);
             String params[] = { getInstanceName(), e.toString() };
 
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR",
-                    params), "");
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", params), "");
             result = PolicyResult.REJECTED;
         }
         return result;

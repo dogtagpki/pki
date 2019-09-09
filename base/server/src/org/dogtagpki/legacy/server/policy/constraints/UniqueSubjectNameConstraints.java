@@ -25,6 +25,11 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -33,16 +38,9 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
-import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
-import org.mozilla.jss.netscape.security.x509.X509CertImpl;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Checks the uniqueness of the subject name. This policy
@@ -68,6 +66,9 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
  */
 public class UniqueSubjectNameConstraints extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UniqueSubjectNameConstraints.class);
+
     protected static final String PROP_PRE_AGENT_APPROVAL_CHECKING =
             "enablePreAgentApprovalChecking";
     protected static final String PROP_KEY_USAGE_EXTENSION_CHECKING =
@@ -119,15 +120,12 @@ public class UniqueSubjectNameConstraints extends APolicyRule
                 ((IPolicyProcessor) owner).getAuthority();
 
         if (certAuthority == null) {
-            // should never get here.
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                    "Cannot find the Certificate Manager or Registration Manager"));
+            logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "Cannot find the Certificate Manager or Registration Manager"));
         }
         if (!(certAuthority instanceof ICertificateAuthority)) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                    "Cannot find the Certificate Manager"));
+            logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "Cannot find the Certificate Manager"));
         }
 
         mCA = (ICertificateAuthority) certAuthority;

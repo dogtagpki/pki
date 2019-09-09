@@ -29,7 +29,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -95,13 +94,10 @@ public class IssuerConstraints extends APolicyRule
                 mIssuerDN = new X500Name(mIssuerDNString);
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    NAME + CMS.getLogMessage("CA_GET_ISSUER_NAME_FAILED"));
+            logger.error(NAME + CMS.getLogMessage("CA_GET_ISSUER_NAME_FAILED"), e);
 
             String[] params = { getInstanceName(), e.toString() };
-
-            throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_CONFIG", params));
+            throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_CONFIG", params), e);
         }
         logger.debug(NAME + ": init() done");
     }
@@ -130,8 +126,7 @@ public class IssuerConstraints extends APolicyRule
                             CMS.getUserMessage("CMS_POLICY_INVALID_ISSUER",
                                     getInstanceName()), "");
                     result = PolicyResult.REJECTED;
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CA_GET_ISSUER_NAME_FAILED"));
+                    logger.warn(CMS.getLogMessage("CA_GET_ISSUER_NAME_FAILED"));
                     logger.debug(NAME + ": apply() - issuerDN mismatch: client issuerDN = " + clientIssuerDN
                                     + "; expected issuerDN = " + mIssuerDNString);
                 }
@@ -142,8 +137,7 @@ public class IssuerConstraints extends APolicyRule
                         req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
                 if (certInfo == null) {
-                    log(ILogger.LL_FAILURE,
-                            NAME + ": apply() - missing certInfo");
+                    logger.warn(NAME + ": apply() - missing certInfo");
                     setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO",
                             getInstanceName()), "");
                     return PolicyResult.REJECTED;
@@ -157,8 +151,7 @@ public class IssuerConstraints extends APolicyRule
                                 CMS.getUserMessage("CMS_POLICY_CLIENT_ISSUER_NOT_FOUND",
                                         getInstanceName()), "");
                         result = PolicyResult.REJECTED;
-                        log(ILogger.LL_FAILURE,
-                                NAME + ": apply() - client issuerDN not found");
+                        logger.warn(NAME + ": apply() - client issuerDN not found");
                     }
                     X500Name oi_name = new X500Name(oldIssuer);
 
@@ -167,8 +160,7 @@ public class IssuerConstraints extends APolicyRule
                                 CMS.getUserMessage("CMS_POLICY_INVALID_ISSUER",
                                         getInstanceName()), "");
                         result = PolicyResult.REJECTED;
-                        log(ILogger.LL_FAILURE,
-                                NAME + ": apply() - cert issuerDN mismatch: client issuerDN = " + oldIssuer
+                        logger.warn(NAME + ": apply() - cert issuerDN mismatch: client issuerDN = " + oldIssuer
                                         + "; expected issuerDN = " + mIssuerDNString);
                     }
                 }
@@ -181,8 +173,7 @@ public class IssuerConstraints extends APolicyRule
         }
 
         if (result.equals(PolicyResult.ACCEPTED)) {
-            log(ILogger.LL_INFO,
-                    NAME + ": apply() - accepted");
+            logger.info(NAME + ": apply() - accepted");
         }
         return result;
     }

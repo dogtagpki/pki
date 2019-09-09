@@ -25,20 +25,18 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.provider.DSAPublicKey;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.provider.DSAPublicKey;
-import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * DSAKeyConstraints policy enforces min and max size of the key.
@@ -53,6 +51,9 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
  */
 public class DSAKeyConstraints extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DSAKeyConstraints.class);
+
     private int mMinSize;
     private int mMaxSize;
 
@@ -115,7 +116,7 @@ public class DSAKeyConstraints extends APolicyRule
             if (mMaxSize > DEF_MAX_SIZE) {
                 String msg = "cannot be more than " + DEF_MAX_SIZE;
 
-                log(ILogger.LL_FAILURE, PROP_MAX_SIZE + " " + msg);
+                logger.error(PROP_MAX_SIZE + " " + msg);
                 throw new EBaseException(
                         CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
                                 PROP_MAX_SIZE, msg));
@@ -123,7 +124,7 @@ public class DSAKeyConstraints extends APolicyRule
             if (mMinSize < DEF_MIN_SIZE) {
                 String msg = "cannot be less than " + DEF_MIN_SIZE;
 
-                log(ILogger.LL_FAILURE, PROP_MIN_SIZE + " " + msg);
+                logger.error(PROP_MIN_SIZE + " " + msg);
                 throw new EBaseException(
                         CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
                                 PROP_MIN_SIZE, msg));
@@ -131,7 +132,7 @@ public class DSAKeyConstraints extends APolicyRule
             if (mMaxSize % INCREMENT != 0) {
                 String msg = "must be in increments of " + INCREMENT;
 
-                log(ILogger.LL_FAILURE, PROP_MAX_SIZE + " " + msg);
+                logger.error(PROP_MAX_SIZE + " " + msg);
                 throw new EBaseException(
                         CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
                                 PROP_MIN_SIZE, msg));
@@ -139,7 +140,7 @@ public class DSAKeyConstraints extends APolicyRule
             if (mMaxSize % INCREMENT != 0) {
                 String msg = "must be in increments of " + INCREMENT;
 
-                log(ILogger.LL_FAILURE, PROP_MIN_SIZE + " " + msg);
+                logger.error(PROP_MIN_SIZE + " " + msg);
                 throw new EBaseException(
                         CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
                                 PROP_MIN_SIZE, msg));
