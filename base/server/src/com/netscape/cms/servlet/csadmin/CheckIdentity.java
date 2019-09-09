@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -68,9 +67,7 @@ public class CheckIdentity extends CMSServlet {
             authenticate(cmsReq);
         } catch (Exception e) {
             logger.warn("CheckIdentity authentication failed: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
-                            e.toString()));
+            logger.warn(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
             outputError(httpResp, "Error: Not authenticated");
             return;
         }

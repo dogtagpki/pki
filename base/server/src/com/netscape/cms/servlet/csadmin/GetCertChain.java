@@ -33,7 +33,6 @@ import org.w3c.dom.Node;
 
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -101,11 +100,8 @@ public class GetCertChain extends CMSServlet {
             certChain.encode(encoded);
             bytes = encoded.toByteArray();
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_ENCODING_CA_CHAIN_1",
-                            e.toString()));
-            outputError(httpResp,
-                    "Error: Failed to encode the certificate chain");
+            logger.warn(CMS.getLogMessage("CMSGW_ERROR_ENCODING_CA_CHAIN_1", e.toString()), e);
+            outputError(httpResp, "Error: Failed to encode the certificate chain");
         }
 
         String chainBase64 = Utils.base64encode(bytes, true);

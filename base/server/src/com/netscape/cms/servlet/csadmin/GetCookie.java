@@ -32,7 +32,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -132,9 +131,8 @@ public class GetCookie extends CMSServlet {
             authToken = authenticate(cmsReq);
         } catch (Exception e) {
             logger.error("GetCookie authentication failed: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
-                            e.toString()));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
+
             header.addStringValue("sd_uid", "");
             header.addStringValue("sd_pwd", "");
             header.addStringValue("host", u.getHost());
@@ -151,10 +149,8 @@ public class GetCookie extends CMSServlet {
             } catch (IOException eee) {
                 logger.error("GetCookie process: cant locate the form: " + eee.getMessage(), eee);
                 /*
-                                log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
-                                throw new ECMSGWException(
-                                  CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", eee.toString()));
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), eee);
                 */
             }
 
@@ -170,10 +166,8 @@ public class GetCookie extends CMSServlet {
                 httpResp.setContentType("text/html");
                 form.renderOutput(out, argSet);
             } catch (IOException ee) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", ee.toString()));
-                throw new ECMSGWException(
-                        CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", ee.toString()), ee);
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), ee);
             }
             return;
         }
@@ -200,12 +194,10 @@ public class GetCookie extends CMSServlet {
                     try {
                         form = getTemplate(mFormPath, httpReq, locale);
                     } catch (IOException e) {
-                        logger.warn("GetCookie process: cant locate the form: " + e.getMessage(), e);
+                        logger.error("GetCookie process: cant locate the form: " + e.getMessage(), e);
                         /*
-                        log(ILogger.LL_FAILURE,
-                          CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
-                        throw new ECMSGWException(
-                          CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                        logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
+                        throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
                         */
                     }
 
@@ -220,10 +212,8 @@ public class GetCookie extends CMSServlet {
                         form.renderOutput(out, argSet);
 
                     } catch (IOException e) {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
-                        throw new ECMSGWException(
-                                CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                        logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()), e);
+                        throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
                     }
                 }
 

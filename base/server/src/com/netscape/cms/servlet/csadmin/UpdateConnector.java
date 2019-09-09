@@ -33,7 +33,6 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -94,11 +93,8 @@ public class UpdateConnector extends CMSServlet {
             logger.debug("UpdateConnector authentication successful.");
         } catch (Exception e) {
             logger.error("UpdateConnector: authentication failed: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
-                            e.toString()));
-            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
-                        null);
+            logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
+            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated", null);
             return;
         }
 
@@ -115,15 +111,12 @@ public class UpdateConnector extends CMSServlet {
                     "modify");
             logger.debug("UpdateConnector authorization successful.");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             outputError(httpResp, "Error: Not authorized");
             return;
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-            outputError(httpResp,
-                    "Error: Encountered problem during authorization.");
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+            outputError(httpResp, "Error: Encountered problem during authorization.");
             return;
         }
 

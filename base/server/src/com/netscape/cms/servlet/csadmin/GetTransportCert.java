@@ -34,7 +34,6 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -83,11 +82,8 @@ public class GetTransportCert extends CMSServlet {
             logger.debug("GetTransportCert authentication successful.");
         } catch (Exception e) {
             logger.error("GetTransportCert: authentication failed: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
-                            e.toString()));
-            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
-                        null);
+            logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
+            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated", null);
             return;
         }
 
@@ -104,15 +100,12 @@ public class GetTransportCert extends CMSServlet {
                     "read");
             logger.debug("GetTransportCert authorization successful.");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             outputError(httpResp, "Error: Not authorized");
             return;
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-            outputError(httpResp,
-                    "Error: Encountered problem during authorization.");
+            logger.warn(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+            outputError(httpResp, "Error: Encountered problem during authorization.");
             return;
         }
 

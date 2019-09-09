@@ -98,17 +98,13 @@ public class UpdateDomainXML extends CMSServlet {
         try {
             authToken = authenticate(cmsReq);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
-                            e.toString()));
-            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
-                        null);
+            logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()), e);
+            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated", null);
             return;
         }
         if (authToken == null) {
             logger.error("UpdateDomainXML process: authToken is null");
-            outputError(httpResp, AUTH_FAILURE, "Error: not authenticated",
-                        null);
+            outputError(httpResp, AUTH_FAILURE, "Error: not authenticated", null);
             return;
         }
         logger.debug("UpdateDomainXML process: authentication done");
@@ -119,15 +115,12 @@ public class UpdateDomainXML extends CMSServlet {
             authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
                     "modify");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             outputError(httpResp, "Error: Not authorized");
             return;
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-            outputError(httpResp,
-                    "Error: Encountered problem during authorization.");
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+            outputError(httpResp, "Error: Encountered problem during authorization.");
             return;
         }
         if (authzToken == null) {

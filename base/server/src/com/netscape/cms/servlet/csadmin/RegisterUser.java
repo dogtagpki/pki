@@ -98,11 +98,8 @@ public class RegisterUser extends CMSServlet {
             logger.debug("RegisterUser authentication successful.");
         } catch (Exception e) {
             logger.error("RegisterUser: authentication failed: " + e.getMessage(), e);
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
-                            e.toString()));
-            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated",
-                        null);
+            logger.error(CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
+            outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated", null);
             return;
         }
 
@@ -119,15 +116,12 @@ public class RegisterUser extends CMSServlet {
                     "modify");
             logger.debug("RegisterUser authorization successful.");
         } catch (EAuthzAccessDenied e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
             outputError(httpResp, "Error: Not authorized");
             return;
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-            outputError(httpResp,
-                    "Error: Encountered problem during authorization.");
+            logger.error(CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()), e);
+            outputError(httpResp, "Error: Encountered problem during authorization.");
             return;
         }
 

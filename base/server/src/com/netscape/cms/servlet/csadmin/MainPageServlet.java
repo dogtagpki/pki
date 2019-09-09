@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.common.ICMSRequest;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -75,10 +74,8 @@ public class MainPageServlet extends CMSServlet {
         } catch (IOException e) {
             logger.warn("MainPageServlet process: cant locate the form: " + e.getMessage(), e);
             /*
-                        log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
-                        throw new ECMSGWException(
-                          CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
             */
         }
 
@@ -91,10 +88,8 @@ public class MainPageServlet extends CMSServlet {
             response.setContentType("text/html");
             form.renderOutput(out, argSet);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            logger.error(CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()), e);
+            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
         }
     }
 
