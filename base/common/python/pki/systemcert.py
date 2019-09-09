@@ -38,10 +38,13 @@ class SystemCertClient(object):
     def __init__(self, connection):
         """ Constructor """
         # super(PKIResource, self).__init__(connection)
+
         self.connection = connection
+
+        self.cert_url = '/rest/config/cert'
+
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
-        self.cert_url = '/rest/config/cert'
 
     @pki.handle_exceptions()
     def get_transport_cert(self):

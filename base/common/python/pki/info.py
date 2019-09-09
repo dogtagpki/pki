@@ -99,16 +99,18 @@ class InfoClient(object):
 
     def __init__(self, connection):
         """ Constructor """
+
         self.connection = connection
+
+        self.info_url = '/pki/rest/info'
 
     @pki.handle_exceptions()
     def get_info(self):
         """ Return an Info object form a PKI server """
 
-        url = '/pki/rest/info'
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        r = self.connection.get(url, headers, use_root_uri=True)
+        r = self.connection.get(self.info_url, headers, use_root_uri=True)
         return Info.from_json(r.json())
 
     @pki.handle_exceptions()

@@ -109,10 +109,13 @@ class FeatureClient(object):
 
     def __init__(self, connection):
         """ Constructor """
+
         self.connection = connection
+
+        self.feature_url = '/rest/config/features'
+
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
-        self.feature_url = '/rest/config/features'
 
     @pki.handle_exceptions()
     def get_feature(self, feature_id):

@@ -175,7 +175,11 @@ class SecurityDomainClient(object):
     """
 
     def __init__(self, connection):
+
         self.connection = connection
+
+        self.domain_info_url = '/rest/securityDomain/domainInfo'
+        self.domain_xml_url = '/admin/ca/getDomainXML'
 
     def get_security_domain_info(self):
         """
@@ -185,7 +189,7 @@ class SecurityDomainClient(object):
 
         :returns: pki.system.SecurityDomainInfo
         """
-        response = self.connection.get('/rest/securityDomain/domainInfo')
+        response = self.connection.get(self.domain_info_url)
         info = SecurityDomainInfo.from_json(response.json())
         return info
 
@@ -198,7 +202,7 @@ class SecurityDomainClient(object):
 
         :returns: pki.system.SecurityDomainInfo
         """
-        response = self.connection.get('/admin/ca/getDomainXML')
+        response = self.connection.get(self.domain_xml_url)
         root = ETree.fromstring(response.text)
         domaininfo = ETree.fromstring(root.find("DomainInfo").text)
         info = SecurityDomainInfo()
@@ -290,6 +294,15 @@ class SystemConfigClient(object):
     def __init__(self, connection):
         self.connection = connection
 
+        self.configure_url = '/rest/installer/configure'
+        self.setup_database_url = '/rest/installer/setupDatabase'
+        self.setup_cert_url = '/rest/installer/setupCert'
+        self.setup_admin_url = '/rest/installer/setupAdmin'
+        self.backup_keys_url = '/rest/installer/backupKeys'
+        self.setup_security_domain_url = '/rest/installer/setupSecurityDomain'
+        self.setup_db_user_url = '/rest/installer/setupDatabaseUser'
+        self.finalize_config_url = '/rest/installer/finalizeConfiguration'
+
     def configure(self, request):
         """
         Contacts the server and invokes the Java configuration REST API to
@@ -303,7 +316,7 @@ class SystemConfigClient(object):
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
         self.connection.post(
-            '/rest/installer/configure',
+            self.configure_url,
             data,
             headers)
 
@@ -318,7 +331,7 @@ class SystemConfigClient(object):
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
         self.connection.post(
-            '/rest/installer/setupDatabase',
+            self.setup_database_url,
             data,
             headers)
 
@@ -335,7 +348,7 @@ class SystemConfigClient(object):
                    'Accept': 'application/json'}
 
         response = self.connection.post(
-            '/rest/installer/setupCert',
+            self.setup_cert_url,
             data,
             headers)
 
@@ -356,7 +369,7 @@ class SystemConfigClient(object):
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
         response = self.connection.post(
-            '/rest/installer/setupAdmin',
+            self.setup_admin_url,
             data,
             headers)
         return response.json()
@@ -372,7 +385,7 @@ class SystemConfigClient(object):
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
         self.connection.post(
-            '/rest/installer/backupKeys',
+            self.backup_keys_url,
             data,
             headers)
 
@@ -387,7 +400,7 @@ class SystemConfigClient(object):
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
         self.connection.post(
-            '/rest/installer/setupSecurityDomain',
+            self.setup_security_domain_url,
             data,
             headers)
 
@@ -402,7 +415,7 @@ class SystemConfigClient(object):
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
         self.connection.post(
-            '/rest/installer/setupDatabaseUser',
+            self.setup_db_user_url,
             data,
             headers)
 
@@ -417,7 +430,7 @@ class SystemConfigClient(object):
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
         self.connection.post(
-            '/rest/installer/finalizeConfiguration',
+            self.finalize_config_url,
             data,
             headers)
 
@@ -430,6 +443,8 @@ class SystemStatusClient(object):
     def __init__(self, connection):
         self.connection = connection
 
+        self.get_status_url = '/admin/%s/getStatus' % connection.subsystem
+
     def get_status(self, timeout=None):
         """
         Checks the status of the subsystem by calling the getStatus()
@@ -439,7 +454,7 @@ class SystemStatusClient(object):
         :return: str - getStatus response
         """
         response = self.connection.get(
-            '/admin/' + self.connection.subsystem + '/getStatus',
+            self.get_status_url,
             timeout=timeout,
         )
         return response.text

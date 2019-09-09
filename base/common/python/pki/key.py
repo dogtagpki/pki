@@ -468,11 +468,15 @@ class KeyClient(object):
     def __init__(self, connection, crypto, transport_cert_nick=None,
                  info_client=None):
         """ Constructor """
+
         self.connection = connection
-        self.headers = {'Content-type': 'application/json',
-                        'Accept': 'application/json'}
+
         self.key_url = '/rest/agent/keys'
         self.key_requests_url = '/rest/agent/keyrequests'
+
+        self.headers = {'Content-type': 'application/json',
+                        'Accept': 'application/json'}
+
         self.crypto = crypto
 
         if transport_cert_nick is not None:

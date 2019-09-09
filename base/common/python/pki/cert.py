@@ -620,13 +620,17 @@ class CertClient(object):
 
     def __init__(self, connection):
         """ Constructor """
+
         self.connection = connection
-        self.headers = {'Content-type': 'application/json',
-                        'Accept': 'application/json'}
+
         self.cert_url = '/rest/certs'
         self.agent_cert_url = '/rest/agent/certs'
         self.cert_requests_url = '/rest/certrequests'
         self.agent_cert_requests_url = '/rest/agent/certrequests'
+
+        self.headers = {'Content-type': 'application/json',
+                        'Accept': 'application/json'}
+
         self.enrollment_templates = {}
 
     @pki.handle_exceptions()

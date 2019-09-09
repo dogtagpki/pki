@@ -987,10 +987,14 @@ class ProfileClient(object):
     """
 
     def __init__(self, connection):
+
         self.connection = connection
+
+        self.profiles_url = '/rest/profiles'
+
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
-        self.profiles_url = '/rest/profiles'
+
         self.account_client = account.AccountClient(connection)
 
     def _get(self, url, query_params=None, payload=None):

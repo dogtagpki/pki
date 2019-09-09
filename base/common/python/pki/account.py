@@ -43,7 +43,11 @@ class AccountClient:
         :type connection: pki.PKIConnection
         :returns: AccountClient
         """
+
         self.connection = connection
+
+        self.login_url = '/rest/account/login'
+        self.logout_url = '/rest/account/logout'
 
     @pki.handle_exceptions()
     def login(self):
@@ -53,7 +57,7 @@ class AccountClient:
 
         :returns: None
         """
-        self.connection.get('/rest/account/login')
+        self.connection.get(self.login_url)
 
     @pki.handle_exceptions()
     def logout(self):
@@ -63,4 +67,4 @@ class AccountClient:
 
         :returns: None
         """
-        self.connection.get('/rest/account/logout')
+        self.connection.get(self.logout_url)

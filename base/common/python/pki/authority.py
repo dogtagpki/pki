@@ -128,7 +128,9 @@ class AuthorityClient(object):
 
     def __init__(self, connection):
         """ Constructor """
+
         self.connection = connection
+
         self.ca_url = '/rest/authorities'
 
     @pki.handle_exceptions()
