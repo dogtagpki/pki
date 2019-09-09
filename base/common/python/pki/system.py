@@ -181,6 +181,10 @@ class SecurityDomainClient(object):
         self.domain_info_url = '/rest/securityDomain/domainInfo'
         self.domain_xml_url = '/admin/ca/getDomainXML'
 
+        if connection.subsystem is None:
+            self.domain_info_url = '/ca' + self.domain_info_url
+            self.domain_xml_url = '/ca' + self.domain_xml_url
+
     def get_security_domain_info(self):
         """
         Contact the security domain CA specified in the connection object
@@ -291,7 +295,8 @@ class SystemConfigClient(object):
     the PKIConnection object used when constructing this object.
     """
 
-    def __init__(self, connection):
+    def __init__(self, connection, subsystem=None):
+
         self.connection = connection
 
         self.configure_url = '/rest/installer/configure'
@@ -302,6 +307,20 @@ class SystemConfigClient(object):
         self.setup_security_domain_url = '/rest/installer/setupSecurityDomain'
         self.setup_db_user_url = '/rest/installer/setupDatabaseUser'
         self.finalize_config_url = '/rest/installer/finalizeConfiguration'
+
+        if connection.subsystem is None:
+
+            if subsystem is None:
+                raise Exception('Missing subsystem for SystemConfigClient')
+
+            self.configure_url = '/' + subsystem + self.configure_url
+            self.setup_database_url = '/' + subsystem + self.setup_database_url
+            self.setup_cert_url = '/' + subsystem + self.setup_cert_url
+            self.setup_admin_url = '/' + subsystem + self.setup_admin_url
+            self.backup_keys_url = '/' + subsystem + self.backup_keys_url
+            self.setup_security_domain_url = '/' + subsystem + self.setup_security_domain_url
+            self.setup_db_user_url = '/' + subsystem + self.setup_db_user_url
+            self.finalize_config_url = '/' + subsystem + self.finalize_config_url
 
     def configure(self, request):
         """
@@ -440,10 +459,18 @@ class SystemStatusClient(object):
     Client used to check the status of a Dogtag subsystem.
     """
 
-    def __init__(self, connection):
+    def __init__(self, connection, subsystem=None):
+
         self.connection = connection
 
-        self.get_status_url = '/admin/%s/getStatus' % connection.subsystem
+        if connection.subsystem is not None:
+            self.get_status_url = '/admin/%s/getStatus' % connection.subsystem
+
+        elif subsystem is not None:
+            self.get_status_url = '/%s/admin/%s/getStatus' % (subsystem, subsystem)
+
+        else:
+            raise Exception('Missing subsystem for SystemStatusClient')
 
     def get_status(self, timeout=None):
         """

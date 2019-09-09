@@ -35,7 +35,7 @@ class AccountClient:
        * call logout() to invalidate the session.
     """
 
-    def __init__(self, connection):
+    def __init__(self, connection, subsystem=None):
         """
         Creates an AccountClient for the connection.
 
@@ -48,6 +48,14 @@ class AccountClient:
 
         self.login_url = '/rest/account/login'
         self.logout_url = '/rest/account/logout'
+
+        if connection.subsystem is None:
+
+            if subsystem is None:
+                raise Exception('Missing subsystem for AccountClient')
+
+            self.login_url = '/' + subsystem + self.login_url
+            self.logout_url = '/' + subsystem + self.logout_url
 
     @pki.handle_exceptions()
     def login(self):

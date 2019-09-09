@@ -628,6 +628,12 @@ class CertClient(object):
         self.cert_requests_url = '/rest/certrequests'
         self.agent_cert_requests_url = '/rest/agent/certrequests'
 
+        if connection.subsystem is None:
+            self.cert_url = '/ca' + self.cert_url
+            self.agent_cert_url = '/ca' + self.agent_cert_url
+            self.cert_requests_url = '/ca' + self.cert_requests_url
+            self.agent_cert_requests_url = '/ca' + self.agent_cert_requests_url
+
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
 

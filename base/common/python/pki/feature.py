@@ -114,6 +114,9 @@ class FeatureClient(object):
 
         self.feature_url = '/rest/config/features'
 
+        if connection.subsystem is None:
+            self.feature_url = '/ca' + self.feature_url
+
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
 
