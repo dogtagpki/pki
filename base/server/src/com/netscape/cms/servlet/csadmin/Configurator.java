@@ -1447,6 +1447,7 @@ public class Configurator {
     public void initializeDatabase(DatabaseSetupRequest request) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         LDAPConfig ldapConfig = cs.getInternalDatabase();
         boolean secureConn = ldapConfig.getBoolean("ldapconn.secureConn");
@@ -1506,8 +1507,6 @@ public class Configurator {
 
             if (StringUtils.isEmpty(replicationPassword)) {
                 // generate random password
-
-                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 SecureRandom random = jssSubsystem.getRandomNumberGenerator();
                 replicationPassword = Integer.toString(random.nextInt());
             }

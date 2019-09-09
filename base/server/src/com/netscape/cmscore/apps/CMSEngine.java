@@ -672,6 +672,10 @@ public class CMSEngine implements ISubsystem {
         return subsystems.get(name);
     }
 
+    public JssSubsystem getJSSSubsystem() {
+        return (JssSubsystem) subsystems.get(JssSubsystem.ID);
+    }
+
     public void setSubsystemEnabled(String id, boolean enabled) {
         SubsystemInfo si = subsystemInfos.get(id);
         si.enabled = enabled;

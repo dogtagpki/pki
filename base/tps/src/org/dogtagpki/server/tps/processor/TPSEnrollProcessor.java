@@ -96,7 +96,10 @@ public class TPSEnrollProcessor extends TPSProcessor {
         logger.debug(method + " entering...");
         String logMsg = null;
         String auditInfo = null;
+
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
         TPSTokenPolicy tokenPolicy = new TPSTokenPolicy(tps);
         IConfigStore configStore = engine.getConfigStore();
@@ -524,7 +527,6 @@ public class TPSEnrollProcessor extends TPSProcessor {
 
         if (lastObjVer != 0) {
             while (lastObjVer == 0xff) {
-                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 SecureRandom randomGenerator = jssSubsystem.getRandomNumberGenerator();
                 lastObjVer = randomGenerator.nextInt(1000);
             }
@@ -946,7 +948,7 @@ public class TPSEnrollProcessor extends TPSProcessor {
         int lastObjectVersion;
 
         CMSEngine engine = CMS.getCMSEngine();
-        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         SecureRandom randomGenerator = jssSubsystem.getRandomNumberGenerator();
 
         lastObjectVersion = randomGenerator.nextInt(1000);

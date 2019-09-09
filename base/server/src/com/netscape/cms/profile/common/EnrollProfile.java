@@ -22,8 +22,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
-import java.security.Key;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -34,7 +34,9 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
+
 import javax.crypto.Mac;
+
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
@@ -398,15 +400,14 @@ public abstract class EnrollProfile extends BasicProfile
         }
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
         byte[] req_key_data = req.getExtDataInByteArray(IEnrollProfile.REQUEST_KEY);
         if (req_key_data != null) {
             logger.debug(method + "found user public key in request");
 
             // generate a challenge of 64 bytes;
-
-            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             SecureRandom random = jssSubsystem.getRandomNumberGenerator();
-
             byte[] challenge = new byte[64];
             random.nextBytes(challenge);
 

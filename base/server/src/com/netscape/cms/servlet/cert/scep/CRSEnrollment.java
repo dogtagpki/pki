@@ -232,6 +232,8 @@ public class CRSEnrollment extends HttpServlet {
             crsCA = "ca";
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
         mAuthority = (ICertAuthority) engine.getSubsystem(crsCA);
         ca = (ICertificateAuthority) mAuthority;
 
@@ -323,7 +325,6 @@ public class CRSEnrollment extends HttpServlet {
         } catch (NoSuchAlgorithmException e) {
         }
 
-        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
         mRandom = jssSubsystem.getRandomNumberGenerator();
 
     }

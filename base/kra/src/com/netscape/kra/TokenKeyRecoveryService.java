@@ -193,7 +193,10 @@ public class TokenKeyRecoveryService implements IService {
         String iv_s = "";
 
         logger.debug("KRA services token key recovery request");
+
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
         IConfigStore config = null;
         Boolean allowEncDecrypt_recovery = false;
 
@@ -208,7 +211,6 @@ public class TokenKeyRecoveryService implements IService {
 
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         try {
-            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             SecureRandom random = jssSubsystem.getRandomNumberGenerator();
             random.nextBytes(iv);
         } catch (Exception e) {
@@ -488,7 +490,7 @@ public class TokenKeyRecoveryService implements IService {
                             keyId,
                             CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"),
                             agentId));
-                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
+
                     jssSubsystem.obscureBytes(privateKeyData);
                     jssSubsystem.obscureBytes(p);
                     throw new EKRAException(
@@ -505,9 +507,9 @@ public class TokenKeyRecoveryService implements IService {
                         EncryptionAlgorithm.DES3_CBC_PAD,
                         algParam);
 
-                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(privateKeyData);
                 jssSubsystem.obscureBytes(p);
+
             } else { //encrypted == false
                 PrivateKey privKey = recoverKey(params, keyRecord, allowEncDecrypt_recovery);
                 if (privKey == null) {

@@ -84,7 +84,7 @@ public class SecurityDomainProcessor extends CAProcessor {
     public SecurityDomainProcessor(Locale locale) throws EPropertyNotFound, EBaseException {
         super("securitydomain", locale);
         CMSEngine engine = CMS.getCMSEngine();
-        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         random = jssSubsystem.getRandomNumberGenerator();
     }
 

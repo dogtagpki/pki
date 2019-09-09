@@ -216,6 +216,8 @@ public class SecureChannelProtocol {
         logger.debug(method + " entering. nickname: " + keyNickName + " selectedToken: " + selectedToken);
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
         CryptoManager cm = null;
         CryptoToken token = null;
         CryptoToken internalToken = null;
@@ -345,7 +347,6 @@ public class SecureChannelProtocol {
                     byte[] finalKeyBytes = nistKdf.kdf_AES_CMAC_SCP03(divKey, context, constant, 16);
                     sessionKey = unwrapAESSymKeyOnToken(token, finalKeyBytes, false);
 
-                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(finalKeyBytes);
 
                     //The final session key is AES.
@@ -398,7 +399,6 @@ public class SecureChannelProtocol {
                     byte[] finalKeyBytes = nistKdf.kdf_AES_CMAC_SCP03(divKey, context, constant, 16);
                     sessionKey = unwrapAESSymKeyOnToken(token, finalKeyBytes, false);
 
-                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(finalKeyBytes);
                 }
             }
@@ -865,6 +865,8 @@ public class SecureChannelProtocol {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
         KeyGenerator kg;
         SymmetricKey finalAESKey;
         try {
@@ -914,8 +916,6 @@ public class SecureChannelProtocol {
             keyUnWrap.initUnwrap(tempKey, new IVParameterSpec(iv));
             finalAESKey = keyUnWrap.unwrapSymmetric(wrappedKey, SymmetricKey.AES, 16);
 
-
-            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             jssSubsystem.obscureBytes(wrappedKey);
 
             //byte[] finalKeyBytes = finalAESKey.getKeyData();

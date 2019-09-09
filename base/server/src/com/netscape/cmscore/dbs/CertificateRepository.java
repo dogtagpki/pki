@@ -192,9 +192,9 @@ public class CertificateRepository extends Repository
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
-        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
+        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
         BigInteger randomNumber = new BigInteger(mBitLength, random);
         randomNumber = (randomNumber.multiply(mRangeSize)).shiftRight(mBitLength);
         logger.debug("CertificateRepository: getRandomNumber  randomNumber="+randomNumber);

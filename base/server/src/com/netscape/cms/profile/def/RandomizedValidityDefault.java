@@ -72,7 +72,7 @@ public class RandomizedValidityDefault extends EnrollDefault {
         addValueName(VAL_NOT_AFTER);
 
         CMSEngine engine = CMS.getCMSEngine();
-        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         mRandom = jssSubsystem.getRandomNumberGenerator();
     }
 

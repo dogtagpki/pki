@@ -1931,7 +1931,10 @@ public class TokenServlet extends CMSServlet {
 
         String errorMsg = "";
         String badParams = "";
+
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
         IConfigStore sconfig = engine.getConfigStore();
         encryptedData = null;
         String rdata = req.getParameter(IRemoteRequest.TOKEN_DATA);
@@ -1991,7 +1994,6 @@ public class TokenServlet extends CMSServlet {
                 logger.debug("TokenServlet: processEncryptData(): contain data in request, however, random generation on TKS is required. Generating...");
             }
             try {
-                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 SecureRandom random = jssSubsystem.getRandomNumberGenerator();
                 data = new byte[16];
                 random.nextBytes(data);
@@ -2278,7 +2280,9 @@ public class TokenServlet extends CMSServlet {
         logger.debug("TokenServlet::processComputeRandomData");
 
         SessionContext sContext = SessionContext.getContext();
+
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         String agentId = "";
         if (sContext != null) {
@@ -2316,7 +2320,6 @@ public class TokenServlet extends CMSServlet {
 
         if (!missingParam) {
             try {
-                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 SecureRandom random = jssSubsystem.getRandomNumberGenerator();
                 randomData = new byte[dataSize];
                 random.nextBytes(randomData);

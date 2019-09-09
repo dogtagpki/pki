@@ -81,7 +81,7 @@ public class EnableEnrollResult extends CMSServlet {
         mTemplates.remove(ICMSRequest.SUCCESS);
 
         CMSEngine engine = CMS.getCMSEngine();
-        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
         random = jssSubsystem.getRandomNumberGenerator();
     }
 

@@ -146,6 +146,8 @@ public class EnrollmentService implements IService {
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
         IConfigStore config = null;
         Boolean allowEncDecrypt_archival = false;
 
@@ -279,7 +281,6 @@ public class EnrollmentService implements IService {
                 }
 
                 unwrapped = Arrays.copyOfRange(tmp_unwrapped, first, tmp_unwrapped.length);
-                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(tmp_unwrapped);
             } /*else {  allowEncDecrypt_archival != true
                  this is done below with unwrap()
@@ -363,7 +364,6 @@ public class EnrollmentService implements IService {
                 } catch (Exception e) {
                     logger.error("EnrollmentService: " + e.getMessage(), e);
 
-                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(unwrapped);
 
                     signedAuditLogger.log(SecurityDataArchivalProcessedEvent.createFailureEvent(
@@ -445,7 +445,6 @@ public class EnrollmentService implements IService {
                         CMS.getUserMessage("CMS_KRA_INVALID_PRIVATE_KEY") + ": " + e, e);
 
             } finally {
-                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(unwrapped);
             }
 

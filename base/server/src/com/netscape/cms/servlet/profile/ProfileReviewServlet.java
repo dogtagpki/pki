@@ -84,14 +84,14 @@ public class ProfileReviewServlet extends ProfileServlet {
         super.init(sc);
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
         mAuthorityId = sc.getInitParameter(PROP_AUTHORITY_ID);
 
         if (mAuthorityId != null)
             authority = (ICertificateAuthority) engine.getSubsystem(mAuthorityId);
 
         if (authority != null && authority.noncesEnabled()) {
-
-            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             mRandom = jssSubsystem.getRandomNumberGenerator();
         }
     }

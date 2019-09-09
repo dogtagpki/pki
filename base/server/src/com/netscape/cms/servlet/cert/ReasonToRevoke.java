@@ -86,6 +86,7 @@ public class ReasonToRevoke extends CMSServlet {
         super.init(sc);
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         if (mAuthority instanceof ICertificateAuthority) {
@@ -94,8 +95,6 @@ public class ReasonToRevoke extends CMSServlet {
         }
 
         if (mCA != null && mCA.noncesEnabled()) {
-
-            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             mRandom = jssSubsystem.getRandomNumberGenerator();
         }
 

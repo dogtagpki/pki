@@ -636,6 +636,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             String newpwd) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         // locate the id(s)
         byte share[]=null;
@@ -653,12 +654,10 @@ public class StorageKeyUnit extends EncryptionUnit implements
                             encryptShareWithInternalStorage(
                                     share, newpwd));
                     mStorageConfig.commit(false);
-                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(share);
                     return true;
                 }
             } catch (Exception e) {
-                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(share);
                 break;
             }
@@ -896,6 +895,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
     public void checkPassword(String userid, String pwd) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         for (int i = 0;; i++) {
             String uid = null;
@@ -914,7 +914,6 @@ public class StorageKeyUnit extends EncryptionUnit implements
                 if (data == null) {
                     throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
                 } else {
-                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(data);
                 }
                 return;
@@ -995,6 +994,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         // sort the credential according to the order in
         // configuration file
@@ -1021,7 +1021,6 @@ public class StorageKeyUnit extends EncryptionUnit implements
                     }
 
                     v.put(Integer.toString(i), pwd);
-                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(pwd);
                     break;
                 }
@@ -1066,7 +1065,6 @@ public class StorageKeyUnit extends EncryptionUnit implements
             byte secret[] = j.recoverSecret();
             String pwd = new String(secret);
 
-            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             jssSubsystem.obscureBytes(secret);
 
             return pwd;

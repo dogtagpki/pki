@@ -143,6 +143,8 @@ public class RecoveryService implements IService {
         Boolean allowEncDecrypt_recovery = false;
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
         try {
             cm = CryptoManager.getInstance();
             config = engine.getConfigStore();
@@ -253,7 +255,6 @@ public class RecoveryService implements IService {
                 }
                 // verifyKeyPair() is RSA-centric
                 if (verifyKeyPair(pubData, privateKeyData) == false) {
-                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     jssSubsystem.obscureBytes(privateKeyData);
                     logger.error(CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
                     throw new EKRAException(
@@ -277,8 +278,6 @@ public class RecoveryService implements IService {
             } catch (EBaseException e) {
                 throw e;
             } finally {
-                //We don't need this data any more
-                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 jssSubsystem.obscureBytes(privateKeyData);
             }
 
@@ -462,6 +461,7 @@ public class RecoveryService implements IService {
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=false");
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
         char[] pwdChar = pwd.toCharArray();
@@ -504,7 +504,6 @@ public class RecoveryService implements IService {
 
             ASN1Value key;
             if (legacyP12) {
-                JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                 SecureRandom ran = jssSubsystem.getRandomNumberGenerator();
                 byte[] salt = new byte[20];
                 ran.nextBytes(salt);
@@ -591,7 +590,6 @@ public class RecoveryService implements IService {
         } finally {
             pass.clear();
 
-            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             jssSubsystem.obscureChars(pwdChar);
         }
 
@@ -645,6 +643,7 @@ public class RecoveryService implements IService {
         logger.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
 
         CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
 
         String pwd = (String) params.get(ATTR_TRANSPORT_PWD);
         char[] pwdChars = pwd.toCharArray();
@@ -754,7 +753,6 @@ public class RecoveryService implements IService {
         } finally {
             pass.clear();
 
-            JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
             jssSubsystem.obscureChars(pwdChars);
         }
 

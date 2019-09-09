@@ -63,10 +63,11 @@ public class RequestQueue
     }
 
     protected RequestId newEphemeralRequestId() {
-        CMSEngine engine = CMS.getCMSEngine();
-        JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
-        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
 
+        CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
+        SecureRandom random = jssSubsystem.getRandomNumberGenerator();
         long id = System.currentTimeMillis() * 10000 + random.nextInt(10000);
         return new RequestId(id);
     }

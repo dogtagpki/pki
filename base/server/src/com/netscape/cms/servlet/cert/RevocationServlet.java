@@ -99,6 +99,10 @@ public class RevocationServlet extends CMSServlet {
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
+
+        CMSEngine engine = CMS.getCMSEngine();
+        JssSubsystem jssSubsystem = engine.getJSSSubsystem();
+
         // override success template. has same info as enrollment.
         mTemplates.remove(ICMSRequest.SUCCESS);
 
@@ -109,12 +113,8 @@ public class RevocationServlet extends CMSServlet {
             if (mFormPath == null)
                 mFormPath = "/" + TPL_FILE;
 
-            CMSEngine engine = CMS.getCMSEngine();
-
             if (mAuthority instanceof ICertificateAuthority) {
                 if (((ICertificateAuthority) mAuthority).noncesEnabled()) {
-
-                    JssSubsystem jssSubsystem = (JssSubsystem) engine.getSubsystem(JssSubsystem.ID);
                     mRandom = jssSubsystem.getRandomNumberGenerator();
                 }
             }
