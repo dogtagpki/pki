@@ -94,7 +94,7 @@ def run_test(protocol, hostname, port, client_cert, certdb_dir,
     """ test code execution """
 
     # set up the connection to the DRM, including authentication credentials
-    connection = PKIConnection(protocol, hostname, port, 'kra')
+    connection = PKIConnection(protocol, hostname, port)
     connection.set_authentication_cert(client_cert)
 
     # create kraclient

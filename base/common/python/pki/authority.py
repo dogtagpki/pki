@@ -341,7 +341,7 @@ def issue_cert_using_authority(cert_client, authority_id):
 
 def main():
     # Create a PKIConnection object that stores the details of the CA.
-    connection = client.PKIConnection('https', 'localhost', '8453', 'ca')
+    connection = client.PKIConnection('https', 'localhost', '8453')
 
     # The pem file used for authentication. Created from a p12 file using the
     # command -
