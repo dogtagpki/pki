@@ -24,10 +24,8 @@ import org.dogtagpki.legacy.policy.IExpression;
 import org.dogtagpki.legacy.policy.IPolicyRule;
 import org.dogtagpki.legacy.policy.IPolicySet;
 
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -44,7 +42,6 @@ public class PolicySet implements IPolicySet {
     private String mName;
     private Vector<String> mRuleNames = new Vector<String>();
     private Vector<IPolicyRule> mRules = new Vector<IPolicyRule>();
-    private Logger mLogger = Logger.getLogger();
 
     public PolicySet(String name) {
         mName = name;
@@ -198,30 +195,23 @@ public class PolicySet implements IPolicySet {
                     // It is hard to find out the owner at the moment unless
                     // we pass that info down the chain. For now use S_OTHER
                     // as the system id for the log entry.
-                    mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                            ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_POLICY_REJECT_RESULT", req.getRequestId().toString(), name));
+                    logger.warn(CMS.getLogMessage("CMSCORE_POLICY_REJECT_RESULT", req.getRequestId().toString(), name));
                     rejected = true;
                 } else if (result == PolicyResult.DEFERRED) {
                     // It is hard to find out the owner at the moment unless
                     // we pass that info down the chain. For now use S_OTHER
                     // as the system id for the log entry.
-                    mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                            ILogger.LL_WARN,
-                            CMS.getLogMessage("CMSCORE_POLICY_DEFER_RESULT", req.getRequestId().toString(), name));
+                    logger.warn(CMS.getLogMessage("CMSCORE_POLICY_DEFER_RESULT", req.getRequestId().toString(), name));
                     deferred = true;
                 } else if (result == PolicyResult.ACCEPTED) {
                     // It is hard to find out the owner at the moment unless
                     // we pass that info down the chain. For now use S_OTHER
                     // as the system id for the log entry.
                 } else {
-                    // should not get to this status
                     // It is hard to find out the owner at the moment unless
                     // we pass that info down the chain. For now use S_OTHER
                     // as the system id for the log entry.
-                    mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                            ILogger.LL_INFO,
-                            "policy: Request " + req.getRequestId() + " - Result of applying rule: " + name +
+                    logger.warn("policy: Request " + req.getRequestId() + " - Result of applying rule: " + name +
                                     " is: " + getPolicyResult(result));
                 }
             } catch (Throwable ex) {
@@ -229,12 +219,7 @@ public class PolicySet implements IPolicySet {
                 // The policy may have bug. We want to
                 // catch those problems and report
                 // them to the log
-                mLogger.log(
-                        ILogger.EV_SYSTEM,
-                        ILogger.S_OTHER,
-                        ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_POLICY_ERROR_RESULT", req.getRequestId().toString(), name,
-                                ex.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_POLICY_ERROR_RESULT", req.getRequestId().toString(), name, ex.toString()), ex);
                 // treat as rejected to prevent request from going into
                 // a weird state. request queue doesn't handle this case.
                 rejected = true;
@@ -249,10 +234,7 @@ public class PolicySet implements IPolicySet {
         } else if (deferred) {
             return PolicyResult.DEFERRED;
         } else {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_INFO,
-                    "Request " + req.getRequestId() +
-                            " Policy result: successful");
+            logger.info("Request " + req.getRequestId() + " Policy result: successful");
             return PolicyResult.ACCEPTED;
         }
     }

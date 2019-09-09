@@ -38,7 +38,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -321,8 +320,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 rule.setInstanceName(instanceName);
                 rule.init(this, c);
             } catch (Throwable e) {
-                mAuthority.log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_POLICY_INIT_FAILED", instanceName, e.toString()));
+                logger.warn(CMS.getLogMessage("CMSCORE_POLICY_INIT_FAILED", instanceName, e.toString()), e);
                 // disable rule initialized if there is
                 // configuration error
                 enabled = false;
@@ -1058,7 +1056,6 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
             String message = CMS.getLogMessage("CMSCORE_POLICY_DEF_CREATE", e.getMessage());
             logger.error(message, e);
-            mAuthority.log(ILogger.LL_FAILURE, message);
             throw ex;
         }
 
