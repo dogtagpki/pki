@@ -25,10 +25,8 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPConnection;
@@ -44,7 +42,6 @@ public class LdapCrlIssuerCompsMap
         extends LdapDNCompsMap implements ILdapMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCrlIssuerCompsMap.class);
-    Logger mLogger = Logger.getLogger();
 
     public LdapCrlIssuerCompsMap() {
         // need to support baseDN, dnComps, and filterComps
@@ -137,9 +134,8 @@ public class LdapCrlIssuerCompsMap
             result = super.map(conn, issuerDN, crlbytes);
             return result;
         } catch (CRLException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_CANT_DECODE_CRL", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CRL_FAILED", e.toString()));
+            logger.error(CMS.getLogMessage("PUBLISH_CANT_DECODE_CRL", e.toString()), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CRL_FAILED", e.toString()), e);
         }
     }
 
@@ -147,13 +143,4 @@ public class LdapCrlIssuerCompsMap
             throws ELdapException {
         return map(conn, obj);
     }
-
-    /**
-     * overrides super's log().
-     */
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "LdapCrlCompsMap: " + msg);
-    }
-
 }

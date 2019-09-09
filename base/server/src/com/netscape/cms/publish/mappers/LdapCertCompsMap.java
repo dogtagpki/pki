@@ -27,10 +27,8 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 import netscape.ldap.LDAPConnection;
@@ -52,7 +50,6 @@ public class LdapCertCompsMap
         extends LdapDNCompsMap implements ILdapMapper {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapCertCompsMap.class);
-    Logger mLogger = Logger.getLogger();
 
     public LdapCertCompsMap() {
         // need to support baseDN, dnComps, and filterComps
@@ -142,9 +139,8 @@ public class LdapCertCompsMap
             result = super.map(conn, subjectDN, certbytes);
             return result;
         } catch (CertificateEncodingException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_CANT_DECODE_CERT", e.toString()));
-            throw new ELdapException(
-                    CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
+            logger.error(CMS.getLogMessage("PUBLISH_CANT_DECODE_CERT", e.toString()), e);
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()), e);
         } catch (ClassCastException e) {
             try {
                 X509CRLImpl crl = (X509CRLImpl) obj;
@@ -158,10 +154,10 @@ public class LdapCertCompsMap
                 result = super.map(conn, issuerDN, crlbytes);
                 return result;
             } catch (CRLException ex) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_CANT_DECODE_CRL", ex.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CRL_FAILED", ex.toString()));
+                logger.error(CMS.getLogMessage("PUBLISH_CANT_DECODE_CRL", ex.toString()), ex);
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CRL_FAILED", ex.toString()), ex);
             } catch (ClassCastException ex) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_NOT_SUPPORTED_OBJECT"));
+                logger.warn(CMS.getLogMessage("PUBLISH_NOT_SUPPORTED_OBJECT"), ex);
                 return null;
             }
         }
@@ -171,10 +167,4 @@ public class LdapCertCompsMap
             throws ELdapException {
         return map(conn, obj);
     }
-
-    private void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "LdapCertCompsMap: " + msg);
-    }
-
 }
