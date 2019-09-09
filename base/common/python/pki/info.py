@@ -110,7 +110,7 @@ class InfoClient(object):
 
         headers = {'Content-type': 'application/json',
                    'Accept': 'application/json'}
-        r = self.connection.get(self.info_url, headers, use_root_uri=True)
+        r = self.connection.get(self.info_url, headers)
         return Info.from_json(r.json())
 
     @pki.handle_exceptions()

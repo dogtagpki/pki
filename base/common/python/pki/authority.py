@@ -133,6 +133,9 @@ class AuthorityClient(object):
 
         self.ca_url = '/rest/authorities'
 
+        if connection.subsystem is None:
+            self.ca_url = '/ca' + self.ca_url
+
     @pki.handle_exceptions()
     def get_ca(self, aid):
         """ Return a AuthorityData object for a subordinate CA. """

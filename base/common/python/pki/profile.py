@@ -992,6 +992,9 @@ class ProfileClient(object):
 
         self.profiles_url = '/rest/profiles'
 
+        if connection.subsystem is None:
+            self.profiles_url = '/ca' + self.profiles_url
+
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
 

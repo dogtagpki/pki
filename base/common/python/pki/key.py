@@ -474,6 +474,10 @@ class KeyClient(object):
         self.key_url = '/rest/agent/keys'
         self.key_requests_url = '/rest/agent/keyrequests'
 
+        if connection.subsystem is None:
+            self.key_url = '/kra' + self.key_url
+            self.key_requests_url = '/kra' + self.key_requests_url
+
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
 

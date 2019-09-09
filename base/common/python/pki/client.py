@@ -22,6 +22,8 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import functools
+import inspect
+import logging
 import warnings
 
 import requests
@@ -29,6 +31,8 @@ try:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
 except ImportError:
     from urllib3.exceptions import InsecureRequestWarning
+
+logger = logging.getLogger(__name__)
 
 
 def catch_insecure_warning(func):
@@ -54,7 +58,7 @@ class PKIConnection:
     """
 
     def __init__(self, protocol='http', hostname='localhost', port='8080',
-                 subsystem='ca', accept='application/json',
+                 subsystem=None, accept='application/json',
                  trust_env=None, verify=False):
         """
         Set the parameters for a python-requests based connection to a
@@ -65,7 +69,8 @@ class PKIConnection:
         :type hostname: str
         :param port: port of server
         :type port: str
-        :param subsystem: ca, kra, ocsp, tks or tps
+        :param subsystem: Subsystem name: ca, kra, ocsp, tks, tps.
+           DEPRECATED: https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes
         :type subsystem: str
         :param accept: value of accept header.  Supported values are usually
            'application/json' or 'application/xml'
@@ -85,11 +90,20 @@ class PKIConnection:
         self.subsystem = subsystem
 
         self.rootURI = self.protocol + '://' + self.hostname + ':' + self.port
-        self.serverURI = self.rootURI + '/' + self.subsystem
+
+        if subsystem is not None:
+            logger.warning(
+                '%s:%s: The subsystem in PKIConnection.__init__() has been deprecated '
+                '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
+            self.serverURI = self.rootURI + '/' + subsystem
+        else:
+            self.serverURI = self.rootURI
 
         self.session = requests.Session()
         self.session.trust_env = trust_env
         self.session.verify = verify
+
         if accept:
             self.session.headers.update({'Accept': accept})
 
@@ -151,6 +165,10 @@ class PKIConnection:
             successful, or returns an error code.
         """
         if use_root_uri:
+            logger.warning(
+                '%s:%s: The use_root_uri in PKIConnection.get() has been deprecated '
+                '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
             target_path = self.rootURI + path
         else:
             target_path = self.serverURI + path
@@ -186,6 +204,10 @@ class PKIConnection:
             successful, or returns an error code.
         """
         if use_root_uri:
+            logger.warning(
+                '%s:%s: The use_root_uri in PKIConnection.post() has been deprecated '
+                '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
             target_path = self.rootURI + path
         else:
             target_path = self.serverURI + path
@@ -216,6 +238,10 @@ class PKIConnection:
             successful, or returns an error code.
         """
         if use_root_uri:
+            logger.warning(
+                '%s:%s: The use_root_uri in PKIConnection.put() has been deprecated '
+                '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
             target_path = self.rootURI + path
         else:
             target_path = self.serverURI + path
@@ -240,6 +266,10 @@ class PKIConnection:
             successful, or returns an error code.
         """
         if use_root_uri:
+            logger.warning(
+                '%s:%s: The use_root_uri in PKIConnection.delete() has been deprecated '
+                '(https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
             target_path = self.rootURI + path
         else:
             target_path = self.serverURI + path

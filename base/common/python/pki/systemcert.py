@@ -43,6 +43,9 @@ class SystemCertClient(object):
 
         self.cert_url = '/rest/config/cert'
 
+        if connection.subsystem is None:
+            self.cert_url = '/ca' + self.cert_url
+
         self.headers = {'Content-type': 'application/json',
                         'Accept': 'application/json'}
 
