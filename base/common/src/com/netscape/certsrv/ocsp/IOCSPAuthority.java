@@ -18,6 +18,7 @@
 package com.netscape.certsrv.ocsp;
 
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
@@ -25,8 +26,6 @@ import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cmsutil.ocsp.BasicOCSPResponse;
 import com.netscape.cmsutil.ocsp.ResponderID;
 import com.netscape.cmsutil.ocsp.ResponseData;
-
-import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * This class represents the primary interface for the Online Certificate
@@ -113,25 +112,6 @@ public interface IOCSPAuthority extends ISubsystem {
      * @return String[] the names of all potential OCSP signing algorithms
      */
     public String[] getOCSPSigningAlgorithms();
-
-    /**
-     * This method logs the specified message at the specified level.
-     * <P>
-     *
-     * @param level the log level
-     * @param msg the log message
-     */
-    public void log(int level, String msg);
-
-    /**
-     * This method logs the specified message at the specified level given
-     * the specified event.
-     * <P>
-     *
-     * @param level the log message
-     * @param msg the log message
-     */
-    public void audit(int level, String msg);
 
     /**
      * This method retrieves the X500Name of an OCSP server instance.

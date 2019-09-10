@@ -40,9 +40,7 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.ISigningUnit;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -67,7 +65,6 @@ public final class SigningUnit implements ISigningUnit {
     protected String mNickname = null;
 
     private boolean mInited = false;
-    private Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_OCSP);
     private IConfigStore mConfig;
 
     @SuppressWarnings("unused")
@@ -311,10 +308,6 @@ public final class SigningUnit implements ISigningUnit {
             engine.checkForAndAutoShutdown();
             throw new EOCSPException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()), e);
         }
-    }
-
-    private void log(int level, String msg) {
-        systemLogger.log(level, "OCSPSigningUnit: " + msg);
     }
 
     /**

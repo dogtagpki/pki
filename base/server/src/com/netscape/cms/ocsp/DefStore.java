@@ -52,7 +52,6 @@ import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
-import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.util.IStatsSubsystem;
@@ -288,10 +287,6 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
-    public void audit(int level, String msg) {
-        mOCSPAuthority.audit(level, msg);
-    }
-
     public void startup() throws EBaseException {
         int refresh = mConfig.getInteger(PROP_REFRESH_IN_SEC,
                 DEF_REFRESH_IN_SEC);
@@ -515,7 +510,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
 
         // check the serial number
-        audit(AuditFormat.LEVEL, "Checked Status of certificate 0x" + serialNo.toString(16));
+        logger.info("Checked Status of certificate 0x" + serialNo.toString(16));
 
         GeneralizedTime thisUpdate;
 

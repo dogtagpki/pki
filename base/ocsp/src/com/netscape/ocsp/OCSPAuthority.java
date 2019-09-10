@@ -104,9 +104,6 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     public long mSignTime = 0;
     public long mLookupTime = 0;
 
-    protected Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_OCSP);
-    protected Logger transactionLogger = Logger.getLogger(ILogger.EV_AUDIT, ILogger.S_OCSP);
-
     /**
      * Retrieves the name of this subsystem.
      */
@@ -383,18 +380,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         return mSigningUnit.getDefaultAlgorithm();
     }
 
-    /**
-     * logs a message in the CA area.
-     *
-     * @param level the debug level.
-     * @param msg the message to debug.
-     */
-    public void audit(int level, String msg) {
-        transactionLogger.log(level, msg);
-    }
-
     public void log(int level, String msg) {
-        systemLogger.log(level, msg);
     }
 
     public void setDefaultAlgorithm(String algorithm)
