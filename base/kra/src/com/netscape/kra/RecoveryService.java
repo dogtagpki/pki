@@ -62,13 +62,11 @@ import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.kra.EKRAException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditFormat;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.dbs.KeyRecord;
@@ -108,8 +106,6 @@ public class RecoveryService implements IService {
     // same as encryption certs
     public static final String ATTR_USER_CERT = "cert";
     public static final String ATTR_DELIVERY = "delivery";
-
-    Logger transactionLogger = Logger.getLogger(ILogger.EV_AUDIT, ILogger.S_KRA);
 
     private IKeyRecoveryAuthority mKRA = null;
     private IKeyRepository mStorage = null;

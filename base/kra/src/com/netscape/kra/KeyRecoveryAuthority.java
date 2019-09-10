@@ -105,7 +105,6 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecoveryAuthority {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeyRecoveryAuthority.class);
-    private static Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_KRA);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     public final static String OFFICIAL_NAME = "Data Recovery Manager";
@@ -1398,7 +1397,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @param msg message to log
      */
     public void log(int level, String msg) {
-        systemLogger.log(level, msg);
     }
 
     /**
