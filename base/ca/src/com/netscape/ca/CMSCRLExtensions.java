@@ -50,9 +50,7 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -87,8 +85,6 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     private static final Vector<String> mDefaultCriticalCRLExtensions = new Vector<String>();
     private static final Hashtable<String, String> mDefaultCRLExtensionClassNames = new Hashtable<String, String>();
     private static final Hashtable<String, String> mDefaultCRLExtensionIDs = new Hashtable<String, String>();
-
-    private Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_CA);
 
     static {
 
@@ -729,9 +725,5 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         }
 
         return null;
-    }
-
-    private void log(int level, String msg) {
-        systemLogger.log(level, "CMSCRLExtension - " + msg);
     }
 }

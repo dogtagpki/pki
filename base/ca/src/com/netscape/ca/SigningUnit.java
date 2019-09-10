@@ -45,10 +45,8 @@ import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.logging.ConsoleError;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.certsrv.security.ISigningUnit;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -73,7 +71,6 @@ public final class SigningUnit implements ISigningUnit {
     protected String mNickname = null;
 
     private boolean mInited = false;
-    private Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_CA);
     private IConfigStore mConfig;
 
     @SuppressWarnings("unused")
@@ -372,10 +369,6 @@ public final class SigningUnit implements ISigningUnit {
             // XXX fix this exception later.
             throw new EBaseException(e);
         }
-    }
-
-    private void log(int level, String msg) {
-        systemLogger.log(level, "CASigningUnit: " + msg);
     }
 
     /**

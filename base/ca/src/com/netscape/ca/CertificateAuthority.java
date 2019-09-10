@@ -240,8 +240,6 @@ public class CertificateAuthority
     protected ISubsystem mOwner = null;
     protected IConfigStore mConfig = null;
 
-    protected Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_CA);
-
     protected Hashtable<String, ICRLIssuingPoint> mCRLIssuePoints = new Hashtable<String, ICRLIssuingPoint>();
     protected CRLIssuingPoint mMasterCRLIssuePoint = null; // the complete crl.
     protected SigningUnit mSigningUnit;
@@ -1622,7 +1620,6 @@ public class CertificateAuthority
      * @param msg the message to debug.
      */
     public void log(int level, String msg) {
-        systemLogger.log(level, msg);
     }
 
     /**
