@@ -109,12 +109,22 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
         // if no attributes specified, don't change filter
         if (attributes == null || attributes.isEmpty()) return;
 
-        // wrap current filter with attribute matching filter
-        sb.insert(0, "(&");
+        // count filter components
+        int components = 0;
+        if (sb.length() > 0) components++; // count original filter
+        components += attributes.size(); // count attribute filters
+
+        // concatenate the original filter and attribute filters:
+        // <original filter>(<attribute>=<value>)...(<attribute>=<value>)
         for (Map.Entry<String, String> entry : attributes.entrySet()) {
             sb.append("(" + entry.getKey() + "=" + LDAPUtil.escapeFilter(entry.getValue()) + ")");
         }
-        sb.append(")");
+
+        // if there are multiple filter components, join with AND operator
+        if (components > 1) {
+            sb.insert(0, "(&");
+            sb.append(")");
+        }
     }
 
     @Override
@@ -122,13 +132,20 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
         return findRecords(keyword, null);
     }
 
+    /**
+     * Search for LDAP records with the specified keyword and attributes.
+     * The keyword parameter will be used to search with wildcards on certain attributes.
+     * The attributes parameter will be used to find exact matches of the specified attributes.
+     */
     public Collection<E> findRecords(String keyword, Map<String, String> attributes) throws Exception {
 
         logger.debug("LDAPDatabase: findRecords()");
 
         try (IDBSSession session = dbSubsystem.createSession()) {
             Collection<E> list = new ArrayList<E>();
+
             String ldapFilter = createFilter(keyword, attributes);
+
             logger.debug("LDAPDatabase: searching " + baseDN + " with filter " + ldapFilter);
             IDBSearchResults results = session.search(baseDN, ldapFilter);
 
