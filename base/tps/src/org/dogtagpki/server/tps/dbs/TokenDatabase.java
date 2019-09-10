@@ -60,6 +60,7 @@ public class TokenDatabase extends LDAPDatabase<TokenRecord> {
         StringBuilder sb = new StringBuilder();
 
         if (keyword != null) {
+            // if keyword is specified, generate filter with wildcards
             keyword = LDAPUtil.escapeFilter(keyword);
             sb.append("(|(id=*" + keyword + "*)(userID=*" + keyword + "*))");
         }
