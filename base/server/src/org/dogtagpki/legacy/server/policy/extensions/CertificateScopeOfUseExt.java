@@ -26,16 +26,6 @@ import org.dogtagpki.legacy.core.policy.GeneralNameUtil;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNameUtil;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
-
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.request.IRequest;
-import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cmscore.apps.CMS;
-
 import org.mozilla.jss.netscape.security.extensions.CertificateScopeEntry;
 import org.mozilla.jss.netscape.security.extensions.CertificateScopeOfUseExtension;
 import org.mozilla.jss.netscape.security.util.BigInt;
@@ -43,6 +33,14 @@ import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.CertificateVersion;
 import org.mozilla.jss.netscape.security.x509.GeneralName;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+
+import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.IExtendedPluginInfo;
+import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.PolicyResult;
+import com.netscape.cmscore.apps.CMS;
 
 /**
  * Certificate Scope Of Use extension policy. This extension
@@ -178,8 +176,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
 
             certInfo = ci[j];
             if (certInfo == null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CA_CERT_INFO_ERROR", NAME));
+                logger.warn(CMS.getLogMessage("CA_CERT_INFO_ERROR", NAME));
                 setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                         NAME, "Configuration Info Error");
                 return PolicyResult.REJECTED; // unrecoverable error.
@@ -207,7 +204,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
                     // check to see if AIA is already exist
                     try {
                         extensions.delete(CertificateScopeOfUseExtension.NAME);
-                        log(ILogger.LL_INFO, "Previous extension deleted: " + CertificateScopeOfUseExtension.NAME);
+                        logger.info("Previous extension deleted: " + CertificateScopeOfUseExtension.NAME);
                     } catch (IOException ex) {
                     }
                 }
@@ -220,20 +217,16 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
                 extensions.set(CertificateScopeOfUseExtension.NAME, suExt);
 
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
-                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                        NAME, e.getMessage());
+                logger.warn(CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()), e);
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME, e.getMessage());
                 return PolicyResult.REJECTED; // unrecoverable error.
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE,
-                        "Configuration Info Error encountered: " +
-                                e.getMessage());
+                logger.warn("Configuration Info Error encountered: " + e.getMessage(), e);
                 setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                         NAME, "Configuration Info Error");
                 return PolicyResult.REJECTED; // unrecoverable error.
             } catch (CertificateException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
+                logger.warn(CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()), e);
                 setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                         NAME, "Certificate Info Error");
                 return PolicyResult.REJECTED; // unrecoverable error.
