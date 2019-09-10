@@ -44,7 +44,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -112,7 +111,7 @@ public class CertificatePoliciesExt extends APolicyRule
         mNumCertPolicies = mConfig.getInteger(
                     PROP_NUM_CERTPOLICIES, DEF_NUM_CERTPOLICIES);
         if (mNumCertPolicies < 1) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_ATTR_VALUE_2", NAME, ""));
+            logger.error(CMS.getLogMessage("BASE_INVALID_ATTR_VALUE_2", NAME, ""));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
                         PROP_NUM_CERTPOLICIES,
                         "value must be greater than or equal to 1"));
@@ -126,8 +125,7 @@ public class CertificatePoliciesExt extends APolicyRule
             try {
                 mCertPolicies[i] = new CertPolicy(subtreeName, mConfig, mEnabled);
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, NAME + ": " +
-                        CMS.getLogMessage("POLICY_ERROR_CREATE_CERT_POLICY", e.toString()));
+                logger.error(NAME + ": " + CMS.getLogMessage("POLICY_ERROR_CREATE_CERT_POLICY", e.toString()), e);
                 throw e;
             }
         }
@@ -216,22 +214,16 @@ public class CertificatePoliciesExt extends APolicyRule
             extensions.set(CertificatePoliciesExtension.NAME,
                     mCertificatePoliciesExtension);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1",
-                    e.toString()));
-            setError(req,
-                    CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
+            logger.warn(CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1", e.toString()), e);
+            setError(req, CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1",
-                    e.toString()));
-            setError(req,
-                    CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
+            logger.warn(CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1", e.toString()), e);
+            setError(req, CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
             return PolicyResult.REJECTED;
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1",
-                    e.toString()));
-            setError(req,
-                    CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
+            logger.warn(CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1", e.toString()), e);
+            setError(req, CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
             return PolicyResult.REJECTED;
         }
         return PolicyResult.ACCEPTED;
