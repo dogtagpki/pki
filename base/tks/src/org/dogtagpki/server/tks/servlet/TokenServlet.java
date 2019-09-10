@@ -51,7 +51,6 @@ import com.netscape.certsrv.logging.event.ComputeRandomDataRequestProcessedEvent
 import com.netscape.certsrv.logging.event.ComputeSessionKeyRequestProcessedEvent;
 import com.netscape.certsrv.logging.event.DiversifyKeyRequestProcessedEvent;
 import com.netscape.certsrv.logging.event.EncryptDataRequestProcessedEvent;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.tks.GPParams;
@@ -75,7 +74,6 @@ import com.netscape.symkey.SessionKey;
 public class TokenServlet extends CMSServlet {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TokenServlet.class);
-    Logger transactionLogger = Logger.getLogger(ILogger.EV_AUDIT, ILogger.S_TKS);
 
     private static final long serialVersionUID = 8687436109695172791L;
     protected static final String PROP_ENABLED = "enabled";
@@ -1283,8 +1281,7 @@ public class TokenServlet extends CMSServlet {
                     }
 
                     // AC: KDF SPEC CHANGE - print both KDD and CUID
-                    transactionLogger.log(
-                            ILogger.LL_INFO, "processComputeSessionKey for CUID=" +
+                    logger.info("processComputeSessionKey for CUID=" +
                                     trim(pp.toHexString(xCUID)) +
                                     ", KDD=" +
                                     trim(pp.toHexString(xKDD)));
@@ -1808,12 +1805,10 @@ public class TokenServlet extends CMSServlet {
                 logger.debug("TokenServlet.processDiversifyKey: New keyset data obtained");
 
                 if (KeySetData == null || KeySetData.length <= 1) {
-                    transactionLogger.log(ILogger.LL_INFO, "process DiversifyKey: Missing MasterKey in Slot");
+                    logger.info("process DiversifyKey: Missing MasterKey in Slot");
                 }
 
-                transactionLogger.log(
-                        ILogger.LL_INFO,
-                        "process DiversifyKey for CUID=" +
+                logger.info("process DiversifyKey for CUID=" +
                                 trim(pp.toHexString(xCUID)) + // AC: KDF SPEC CHANGE:  Log both CUID and KDD
                                 ", KDD=" +
                                 trim(pp.toHexString(xKDD))
@@ -2156,8 +2151,7 @@ public class TokenServlet extends CMSServlet {
 
                 // AC: KDF SPEC CHANGE - Log both CUID and KDD
 
-                transactionLogger.log(
-                        ILogger.LL_INFO, "process EncryptData for CUID=" +
+                logger.info("process EncryptData for CUID=" +
                                 trim(pp.toHexString(xCUID)) +
                                 ", KDD=" +
                                 trim(pp.toHexString(xKDD)));

@@ -21,15 +21,12 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.cms.logging.Logger;
 
 public class TKSAuthority implements IAuthority, ISubsystem {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TKSAuthority.class);
-    protected Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_TKS);
 
     public static final String ID = "tks";
 
@@ -66,7 +63,6 @@ public class TKSAuthority implements IAuthority, ISubsystem {
      * log interface
      */
     public void log(int level, String msg) {
-        systemLogger.log(level, msg);
     }
 
     /**
@@ -122,7 +118,7 @@ public class TKSAuthority implements IAuthority, ISubsystem {
      * <P>
      */
     public void shutdown() {
-        systemLogger.log(ILogger.LL_INFO, "TKSAuthority is stopped");
+        logger.info("TKSAuthority is stopped");
     }
 
     /**
