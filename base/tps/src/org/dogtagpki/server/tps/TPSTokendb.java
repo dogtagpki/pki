@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.dogtagpki.server.tps.cms.CARemoteRequestHandler;
@@ -143,17 +144,20 @@ public class TPSTokendb {
      */
     public ArrayList<TokenRecord> tdbFindTokenRecordsByUID(String uid)
             throws Exception {
+
+        // search for tokens with (tokenUserID=<owner UID>)
+        Map<String, String> attributes = new LinkedHashMap<>();
+        attributes.put("tokenUserID", uid);
+
+        Iterator<TokenRecord> records = tps.tokenDatabase.findRecords(null, attributes).iterator();
+
         ArrayList<TokenRecord> tokenRecords = new ArrayList<TokenRecord>();
-        String filter = uid;
-        Iterator<TokenRecord> records = null;
-        records = tps.tokenDatabase.findRecords(filter).iterator();
+        while (records.hasNext()) {
+            TokenRecord tokenRecord = records.next();
+            tokenRecords.add(tokenRecord);
+        }
 
-       while (records.hasNext()) {
-           TokenRecord tokenRecord = records.next();
-           tokenRecords.add(tokenRecord);
-       }
-
-       return tokenRecords;
+        return tokenRecords;
     }
 
     public void tdbHasActiveToken(String userid)
