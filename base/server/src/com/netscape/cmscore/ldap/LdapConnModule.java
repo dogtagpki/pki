@@ -23,8 +23,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
@@ -40,7 +38,6 @@ public class LdapConnModule implements ILdapConnModule {
 
     protected IConfigStore mConfig = null;
     protected LdapBoundConnFactory mLdapConnFactory = null;
-    protected Logger mLogger = Logger.getLogger();
     private boolean mInited = false;
 
     /**
@@ -135,10 +132,4 @@ public class LdapConnModule implements ILdapConnModule {
     public void returnConn(LDAPConnection conn) throws ELdapException {
         mLdapConnFactory.returnConn(conn);
     }
-
-    public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-                "LdapPublishModule: " + msg);
-    }
-
 }

@@ -59,7 +59,6 @@ import com.netscape.certsrv.request.IService;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -727,8 +726,6 @@ public abstract class ARequestQueue
         mService = service;
         mNotify = notify;
         mPendingNotify = pendingNotify;
-
-        mLogger = Logger.getLogger();
     }
 
     // Instance variables
@@ -738,8 +735,6 @@ public abstract class ARequestQueue
     IService mService;
     INotify mNotify;
     INotify mPendingNotify;
-
-    protected Logger mLogger;
 }
 
 //

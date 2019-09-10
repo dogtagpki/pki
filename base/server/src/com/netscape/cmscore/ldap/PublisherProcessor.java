@@ -40,7 +40,6 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnModule;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapExpression;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPublisher;
@@ -54,7 +53,6 @@ import com.netscape.certsrv.publish.PublisherProxy;
 import com.netscape.certsrv.publish.RulePlugin;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestNotifier;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.dbs.CertRecord;
 
@@ -80,7 +78,6 @@ public class PublisherProcessor implements
     private IConfigStore mConfig = null;
     private IConfigStore mLdapConfig = null;
     private String mId = null;
-    private Logger mLogger = Logger.getLogger();
 
     protected ICertAuthority mAuthority = null;
     protected LdapRequestListener mLdapRequestListener = null;
@@ -1467,15 +1464,5 @@ public class PublisherProcessor implements
             return true;
         else
             return false;
-    }
-
-    /**
-     * logs an entry in the log file.
-     */
-    public void log(int level, String msg) {
-        if (mLogger == null)
-            return;
-        mLogger.log(ILogger.EV_SYSTEM,
-                ILogger.S_LDAP, level, "Publishing: " + msg);
     }
 }

@@ -24,12 +24,12 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
+
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.request.IRequest;
-
-import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 
 /**
  * Controls the publishing process from the top level. Maintains
@@ -343,16 +343,6 @@ public interface IPublisherProcessor extends ISubsystem {
      */
 
     public ISubsystem getAuthority();
-
-    /**
-     *
-     * Perform logging function for this Processor.
-     *
-     * @param level Log level to be used for this message
-     * @param msg Message to be logged.
-     */
-
-    public void log(int level, String msg);
 
     /**
      *

@@ -21,8 +21,6 @@ import org.mozilla.jss.util.Password;
 import org.mozilla.jss.util.PasswordCallback;
 import org.mozilla.jss.util.PasswordCallbackInfo;
 
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.JDialogPasswordCallback;
@@ -42,7 +40,6 @@ public class PWCBsdr implements PasswordCallback {
     boolean firsttime = true;
     private PasswordCallback mCB = null;
     private String mPWcachedb = null;
-    private Logger mLogger = null;
 
     public PWCBsdr() {
         this(null);
@@ -54,26 +51,14 @@ public class PWCBsdr implements PasswordCallback {
 
         mprompt = prompt;
 
-        /* to get the test program work
-         System.out.println("before CMS.getLogger");
-         try {
-         */
-        mLogger = Logger.getLogger();
-
-        /*
-         } catch (NullPointerException e) {
-         System.out.println("after CMS.getLoggergot NullPointerException ... testing ok");
-         }
-         System.out.println("after CMS.getLogger");
-         */
         // get path to password cache
         try {
             mPWcachedb = engine.getConfigStore().getString("pwCache");
             logger.debug("got pwCache from configstore: " + mPWcachedb);
         } catch (NullPointerException e) {
-            System.out.println("after CMS.getConfigStore got NullPointerException ... testing ok");
+            logger.warn("after CMS.getConfigStore got NullPointerException ... testing ok", e);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_CONFIG"));
+            logger.warn(CMS.getLogMessage("CMSCORE_SECURITY_GET_CONFIG"), e);
             // let it fall through
         }
 
@@ -143,7 +128,7 @@ public class PWCBsdr implements PasswordCallback {
             } else { /* get password from password cache */
 
                 logger.debug("getting tag = " + tmpPrompt);
-                PWsdrCache pwc = new PWsdrCache(mPWcachedb, mLogger);
+                PWsdrCache pwc = new PWsdrCache(mPWcachedb);
 
                 pw = pwc.getEntry(tmpPrompt);
 
@@ -152,7 +137,7 @@ public class PWCBsdr implements PasswordCallback {
                     return pw;
                 } else { /* password not found */
                     // we don't want caller to do getPasswordAgain,    for now
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_THROW_CALLBACK"));
+                    logger.error(CMS.getLogMessage("CMSCORE_SECURITY_THROW_CALLBACK"));
                     throw new PasswordCallback.GiveUpException();
                 }
             }
@@ -193,14 +178,6 @@ public class PWCBsdr implements PasswordCallback {
         } catch (Throwable e) {
             // logger.error("Unable to get the password again: " + e.getMessage(), e);
             throw new PasswordCallback.GiveUpException();
-        }
-    }
-
-    public void log(int level, String msg) {
-        if (mLogger == null) {
-            logger.debug(msg);
-        } else {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level, "PWCBsdr " + msg);
         }
     }
 }

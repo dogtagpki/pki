@@ -39,7 +39,6 @@ import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmsutil.crypto.CryptoUtil;
@@ -197,8 +196,7 @@ public class PWsdrCache {
     }
 
     // for PWCBsdr
-    public PWsdrCache(String pwCache, Logger logger) throws
-            EBaseException {
+    public PWsdrCache(String pwCache) throws EBaseException {
         mPWcachedb = pwCache;
         initToken();
         initKey();

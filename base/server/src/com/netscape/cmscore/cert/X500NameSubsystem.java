@@ -30,8 +30,6 @@ import org.mozilla.jss.netscape.security.x509.X500NameAttrMap;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -135,7 +133,6 @@ public class X500NameSubsystem implements ISubsystem {
      */
     public synchronized void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
-        mLogger = Logger.getLogger();
         logger.trace(ID + " started");
         mConfig = config;
 
@@ -197,10 +194,8 @@ public class X500NameSubsystem implements ISubsystem {
 
         if (numTokens == 0) {
             String msg = "must be a list of DER tag names seperated by commas.";
-
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CERT_DIR_STRING", PROP_DIR_STR_ENCODING_ORDER));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                        PROP_DIR_STR_ENCODING_ORDER, msg));
+            logger.error(CMS.getLogMessage("CMSCORE_CERT_DIR_STRING", PROP_DIR_STR_ENCODING_ORDER));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", PROP_DIR_STR_ENCODING_ORDER, msg));
         }
 
         byte[] tags = new byte[numTokens];
@@ -212,11 +207,8 @@ public class X500NameSubsystem implements ISubsystem {
                 tags[i] = derStr2Tag(nextTag);
             } catch (IllegalArgumentException e) {
                 String msg = "unknown DER tag '" + nextTag + "'.";
-
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CERT_UNKNOWN_TAG", PROP_DIR_STR_ENCODING_ORDER, nextTag));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                            PROP_DIR_STR_ENCODING_ORDER, msg));
+                logger.error(CMS.getLogMessage("CMSCORE_CERT_UNKNOWN_TAG", PROP_DIR_STR_ENCODING_ORDER, nextTag), e);
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", PROP_DIR_STR_ENCODING_ORDER, msg), e);
             }
         }
 
@@ -277,12 +269,4 @@ public class X500NameSubsystem implements ISubsystem {
     public IConfigStore getConfigStore() {
         return mConfig;
     }
-
-    protected Logger mLogger = null;
-
-    protected synchronized void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM,
-                ILogger.S_ADMIN, level, msg);
-    }
-
 }
