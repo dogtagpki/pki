@@ -209,7 +209,7 @@ public class TPSPinResetProcessor extends TPSProcessor {
                     BaseMappingResolver resolverInst =
                             subsystem.getMappingResolverManager().getResolverInstance(resolverInstName);
                     String keySet = resolverInst.getResolvedMapping(mappingParams, "keySet");
-                    setSelectedTokenType(keySet);
+                    setSelectedKeySet(keySet);
                     CMS.debug(method + " resolved keySet: " + keySet);
                 }
             } catch (TPSException e) {
