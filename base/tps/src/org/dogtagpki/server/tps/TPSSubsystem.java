@@ -48,11 +48,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.dbs.IDBSubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.tps.token.TokenStatus;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.ConfigStorage;
@@ -69,8 +67,6 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CMSEngine.class);
 
     public final static String ID = "tps";
-
-    public Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_TPS);
 
     public String id;
     public String nickname;
@@ -314,7 +310,6 @@ public class TPSSubsystem implements IAuthority, ISubsystem {
 
     @Override
     public void log(int level, String msg) {
-        systemLogger.log(level, msg);
     }
 
     @Override
