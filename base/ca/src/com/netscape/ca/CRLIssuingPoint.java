@@ -65,7 +65,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
-import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.event.DeltaCRLGenerationEvent;
 import com.netscape.certsrv.logging.event.DeltaCRLPublishingEvent;
@@ -110,8 +109,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CRLIssuingPoint.class);
 
-    private static Logger systemLogger = Logger.getLogger(ILogger.EV_SYSTEM, ILogger.S_CA);
-    private static Logger transactionLogger = Logger.getLogger(ILogger.EV_AUDIT, ILogger.S_OTHER);
     private static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
     /* Foreign config param for IssuingDistributionPointExtension. */
@@ -2479,19 +2476,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             return;
 
         logger.debug("Updating CRL");
-        transactionLogger.log(AuditFormat.LEVEL,
-                    CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATE_STARTED"),
-                    new Object[] {
-                            getId(),
-                            getNextCRLNumber(),
-                            Boolean.toString(isDeltaCRLEnabled()),
-                            Boolean.toString(isCRLCacheEnabled()),
-                            Boolean.toString(mEnableCacheRecovery),
-                            Boolean.toString(mCRLCacheIsCleared),
-                                    mCRLCerts.size() + "," + mRevokedCerts.size() + "," + mUnrevokedCerts.size()
-                                    + "," + mExpiredCerts.size() + ""
-                    }
-                   );
+        logger.info(
+            CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATE_STARTED"),
+            getId(),
+            getNextCRLNumber(),
+            Boolean.toString(isDeltaCRLEnabled()),
+            Boolean.toString(isCRLCacheEnabled()),
+            Boolean.toString(mEnableCacheRecovery),
+            Boolean.toString(mCRLCacheIsCleared),
+            mCRLCerts.size() + "," + mRevokedCerts.size() + "," + mUnrevokedCerts.size() + "," + mExpiredCerts.size()
+        );
+
         mUpdatingCRL = CRL_UPDATE_STARTED;
         if (signingAlgorithm == null || signingAlgorithm.length() == 0)
             signingAlgorithm = mSigningAlgorithm;
@@ -2783,18 +2778,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
             splitTimes.append(")");
 
-            transactionLogger.log(
-                    AuditFormat.LEVEL,
-                    CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
-                    new Object[] {
-                            getId(),
-                            getNextCRLNumber(),
-                            getCRLNumber(),
-                            getLastUpdate(),
-                            getNextDeltaUpdate(),
-                            Long.toString(mDeltaCRLSize),
-                            Long.toString(totalTime) + splitTimes.toString()
-                    }
+            logger.info(
+                CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
+                getId(),
+                getNextCRLNumber(),
+                getCRLNumber(),
+                getLastUpdate(),
+                getNextDeltaUpdate(),
+                Long.toString(mDeltaCRLSize),
+                Long.toString(totalTime) + splitTimes.toString()
             );
 
             signedAuditLogger.log(DeltaCRLGenerationEvent.createSuccessEvent(
@@ -2933,19 +2925,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
             splitTimes.append(String.format(",%d,%d,%d)",deltaTime,crlTime,totalTime));
 
-            transactionLogger.log(
-                        AuditFormat.LEVEL,
-                        CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATED"),
-                        new Object[] {
-                                getId(),
-                                getCRLNumber(),
-                                getLastUpdate(),
-                                getNextUpdate(),
-                                Long.toString(mCRLSize),
-                                Long.toString(totalTime),
-                                Long.toString(crlTime),
-                                Long.toString(deltaTime) + splitTimes
-                        }
+            logger.info(
+                CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATED"),
+                getId(),
+                getCRLNumber(),
+                getLastUpdate(),
+                getNextUpdate(),
+                Long.toString(mCRLSize),
+                Long.toString(totalTime),
+                Long.toString(crlTime),
+                Long.toString(deltaTime) + splitTimes
             );
 
             logger.debug("CRLIssuingPoint: Finished Logging CRL Update to transaction log");
@@ -3071,10 +3060,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 statsSub.endTiming("crl_publishing");
             }
         }
-    }
-
-    protected synchronized void log(int level, String msg) {
-        systemLogger.log(level, "CRLIssuingPoint " + mId + " - " + msg);
     }
 
     void setConfigParam(String name, String value) {
