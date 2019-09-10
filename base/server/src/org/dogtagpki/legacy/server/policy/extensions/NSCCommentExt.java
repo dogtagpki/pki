@@ -29,20 +29,18 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.NSCCommentExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
-import org.mozilla.jss.netscape.security.x509.NSCCommentExtension;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Netscape comment
@@ -222,8 +220,7 @@ public class NSCCommentExt extends APolicyRule
             } catch (IOException e) {
                 setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                         NAME, " Comment Text file not found : " + mCommentFile);
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("POLICY_COMMENT_FILE_NOT_FOUND", e.toString()));
+                logger.warn(CMS.getLogMessage("POLICY_COMMENT_FILE_NOT_FOUND", e.toString()), e);
                 return PolicyResult.REJECTED;
 
             }
@@ -238,10 +235,8 @@ public class NSCCommentExt extends APolicyRule
 
             extensions.set(NSCCommentExtension.NAME, cpExt);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1", NAME));
-            setError(req,
-                    CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
+            logger.warn(CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1", NAME), e);
+            setError(req, CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
             return PolicyResult.REJECTED;
         }
         return PolicyResult.ACCEPTED;

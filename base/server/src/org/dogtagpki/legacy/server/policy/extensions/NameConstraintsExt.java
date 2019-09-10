@@ -38,7 +38,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -305,13 +304,12 @@ public class NameConstraintsExt extends APolicyRule
                             req.getRequestId());
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_NAME_CONST_EXTENSION", e.getMessage()));
+            logger.warn(CMS.getLogMessage("POLICY_ERROR_NAME_CONST_EXTENSION", e.getMessage()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, e.getMessage());
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("CA_CERT_INFO_ERROR", e.toString()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, "Certificate Info Error");
             return PolicyResult.REJECTED;

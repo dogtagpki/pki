@@ -24,20 +24,18 @@ import java.util.Vector;
 
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.extensions.OCSPNoCheckExtension;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.extensions.OCSPNoCheckExtension;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * This implements an OCSP Signing policy, it
@@ -149,7 +147,7 @@ public class OCSPNoCheckExt extends APolicyRule
                     extensions.delete(OCSPNoCheckExtension.NAME);
                 } catch (IOException ex) {
                     // OCSPNoCheck extension is not already there
-                    //  log(ILogger.LL_FAILURE, "No previous extension: "+OCSPNoCheckExtension.NAME+" "+ex.getMessage());
+                    // logger.warn("No previous extension: "+OCSPNoCheckExtension.NAME+" "+ex.getMessage(), ex);
                 }
             }
 
@@ -158,14 +156,12 @@ public class OCSPNoCheckExt extends APolicyRule
             return PolicyResult.ACCEPTED;
 
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME,
-                    e.getMessage());
+            logger.warn(CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()), e);
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME, e.getMessage());
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME,
-                    e.getMessage());
+            logger.warn(CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()), e);
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME, e.getMessage());
             return PolicyResult.REJECTED;
         }
     }

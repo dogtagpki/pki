@@ -34,7 +34,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
@@ -164,10 +163,8 @@ public class CertificateRenewalWindowExt extends APolicyRule
             extensions.set(CertificateRenewalWindowExtension.NAME,
                     crwExt);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1", NAME));
-            setError(req,
-                    CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
+            logger.warn(CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1", NAME), e);
+            setError(req, CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
             return PolicyResult.REJECTED;
         }
         return PolicyResult.ACCEPTED;

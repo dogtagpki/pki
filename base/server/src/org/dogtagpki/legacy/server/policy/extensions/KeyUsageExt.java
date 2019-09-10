@@ -26,6 +26,11 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.CertificateChain;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -33,16 +38,9 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.x509.CertificateChain;
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
-import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Policy to add Key Usage Extension.
@@ -111,7 +109,7 @@ public class KeyUsageExt extends APolicyRule
                 ((IPolicyProcessor) owner).getAuthority();
 
         if (certAuthority == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
+            logger.error(CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
                         "Cannot find the Certificate Manager or Registration Manager"));
         }
@@ -250,7 +248,7 @@ public class KeyUsageExt extends APolicyRule
                 }
             }
             if (!bitset) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_NO_KEYUSAGE_EXTENSION_BITS_SET", NAME));
+                logger.warn(CMS.getLogMessage("POLICY_NO_KEYUSAGE_EXTENSION_BITS_SET", NAME));
                 setError(req, CMS.getUserMessage("CMS_POLICY_NO_KEYUSAGE_EXTENSION_BITS_SET"),
                         NAME);
                 return PolicyResult.REJECTED;
@@ -264,12 +262,12 @@ public class KeyUsageExt extends APolicyRule
             extensions.set(KeyUsageExtension.NAME, mKeyUsage);
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
+            logger.warn(CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, e.getMessage());
             return PolicyResult.REJECTED; // unrecoverable error.
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
+            logger.warn(CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
                     NAME, "Certificate Info Error");
             return PolicyResult.REJECTED; // unrecoverable error.

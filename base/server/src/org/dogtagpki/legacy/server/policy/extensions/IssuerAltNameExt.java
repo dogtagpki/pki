@@ -27,20 +27,18 @@ import org.dogtagpki.legacy.policy.IEnrollmentPolicy;
 import org.dogtagpki.legacy.policy.IGeneralNamesConfig;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.dogtagpki.legacy.server.policy.APolicyRule;
+import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
+import org.mozilla.jss.netscape.security.x509.CertificateVersion;
+import org.mozilla.jss.netscape.security.x509.IssuerAlternativeNameExtension;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
-import org.mozilla.jss.netscape.security.x509.CertificateVersion;
-import org.mozilla.jss.netscape.security.x509.IssuerAlternativeNameExtension;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 /**
  * Issuer Alt Name Extension policy.
@@ -215,8 +213,7 @@ public class IssuerAltNameExt extends APolicyRule
         } catch (Exception e) {
             if (e instanceof RuntimeException)
                 throw (RuntimeException) e;
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CRL_CREATE_ISSUER_ALT_NAME_EXT", e.toString()));
+            logger.warn(CMS.getLogMessage("CRL_CREATE_ISSUER_ALT_NAME_EXT", e.toString()), e);
             setError(req, CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR"), NAME);
             return PolicyResult.REJECTED;
         }

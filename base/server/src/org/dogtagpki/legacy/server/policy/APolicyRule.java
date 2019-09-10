@@ -35,11 +35,9 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.AgentApprovals;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 
 /**
@@ -62,7 +60,6 @@ public abstract class APolicyRule implements IPolicyRule {
     protected String DESC = null;
     protected IExpression mFilterExp = null;
     protected String mInstanceName = null;
-    protected Logger mLogger = Logger.getLogger();
 
     public APolicyRule() {
     }
@@ -244,14 +241,6 @@ public abstract class APolicyRule implements IPolicyRule {
         }
         ev.addElement(ex.toString());
         req.setExtData(IRequest.ERRORS, ev);
-    }
-
-    /**
-     * log a message for this policy rule.
-     */
-    protected void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level,
-                "APolicyRule " + NAME + ": " + msg);
     }
 
     public static KeyIdentifier createKeyIdentifier(X509Key key)
