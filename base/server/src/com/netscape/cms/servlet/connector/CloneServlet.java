@@ -52,7 +52,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
@@ -79,7 +78,6 @@ public class CloneServlet extends CMSServlet {
     protected IAuthority mAuthority = null;
     protected IRequestEncoder mReqEncoder = null;
     protected IAuthSubsystem mAuthSubsystem = null;
-    protected Logger mLogger = Logger.getLogger();
 
     public CloneServlet() {
     }

@@ -827,7 +827,7 @@ public abstract class AAclAuthz implements IAuthzManager {
      *     authzTok = mAuthz.authorize(
      *         "DirAclAuthz", authToken, RES_GROUP, "read");
      * } catch (EBaseException e) {
-     *     log(ILogger.LL_FAILURE, "authorize call: " + e.toString());
+     *     logger.warn("authorize call: " + e.getMessage(), e);
      * }
      *
      * @param authToken the authToken associated with a user

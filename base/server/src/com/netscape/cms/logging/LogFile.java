@@ -1385,10 +1385,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                     lineNo++;
 
                 } catch (IOException e) {
-                    Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                            ILogger.LL_FAILURE,
-                            CMS.getLogMessage("LOGGING_READ_ERROR", fileName,
-                                    Integer.toString(lineNo)));
+                    logger.warn(CMS.getLogMessage("LOGGING_READ_ERROR", fileName, Integer.toString(lineNo)), e);
                 }
 
             } while (nextLine != null);
@@ -1452,16 +1449,11 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             try {
                 fBuffer.close();
             } catch (IOException e) {
-                Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                        ILogger.LL_FAILURE, "logging:" + fileName +
-                                " failed to close for reading");
+                logger.warn("logging:" + fileName + " failed to close for reading", e);
             }
 
         } catch (FileNotFoundException e) {
-            Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("LOGGING_FILE_NOT_FOUND",
-                            fileName));
+            logger.warn(CMS.getLogMessage("LOGGING_FILE_NOT_FOUND", fileName), e);
         }
         return mEntries;
     }
@@ -1512,9 +1504,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                         entries.elementAt(i).getEntry(), "");
             }
         } catch (Exception e) {
-            Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_WARN,
-                    "System log parse error");
+            logger.warn("System log parse error: " + e.getMessage(), e);
         }
         return params;
     }

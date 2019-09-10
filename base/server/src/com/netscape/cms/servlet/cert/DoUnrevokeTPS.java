@@ -124,10 +124,8 @@ public class DoUnrevokeTPS extends CMSServlet {
                 try {
                     form = getTemplate(mFormPath, req, locale);
                 } catch (IOException e) {
-                    log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
-                    throw new ECMSGWException(
-                      CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    logger.error(CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()), e);
+                    throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"), e);
                 }
         */
 

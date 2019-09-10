@@ -246,8 +246,8 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             // bind as user dn and pwd - authenticates user with pwd.
             conn.authenticate(userdn, pwd);
 
-            logger.error("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", uid));
-            // log(ILogger.LL_SECURITY, "found user : " + userdn);
+            logger.info("UidPwdPinDirAuthentication: " + CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", uid));
+            // logger.info("UidPwdPinDirAuthentication: found user: " + userdn);
 
             // check pin.
             checkpin(conn, userdn, uid, pin);

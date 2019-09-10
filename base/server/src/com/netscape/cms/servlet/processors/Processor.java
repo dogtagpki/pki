@@ -9,8 +9,6 @@ import javax.ws.rs.FormParam;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
-import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.logging.LogSource;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
@@ -18,9 +16,9 @@ import com.netscape.cmscore.logging.Auditor;
 
 public class Processor {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Processor.class);
     protected static Logger signedAuditLogger = SignedAuditLogger.getLogger();
 
-    protected Logger systemLogger = Logger.getLogger();
     protected Auditor auditor = Auditor.getAuditor();
 
     protected String id;
@@ -58,20 +56,10 @@ public class Processor {
 
             } catch (Exception e) {
                 // ignore inaccessible fields
-                e.printStackTrace();
+                logger.warn("Processor: " + e.getMessage(), e);
             }
         }
 
         return map;
-    }
-
-    public void log(LogSource source, int level, String message) {
-
-        if (systemLogger == null) return;
-
-        systemLogger.log(ILogger.EV_SYSTEM,
-                source,
-                level,
-                getClass().getSimpleName() + ": " + message);
     }
 }

@@ -47,9 +47,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
-import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
-import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 
@@ -77,7 +75,6 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     private static final String PROP_MAX_FULL_CRLS = "maxFullCRLs";
     private IConfigStore mConfig = null;
     private String mDir = null;
-    private Logger mLogger = Logger.getLogger();
     private String mCrlIssuingPointId;
     protected boolean mDerAttr = true;
     protected boolean mB64Attr = false;
@@ -450,14 +447,11 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 purgeExcessFiles();
             }
         } catch (IOException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_FILE_PUBLISHER_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("PUBLISH_FILE_PUBLISHER_ERROR", e.toString()), e);
         } catch (CertificateEncodingException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_FILE_PUBLISHER_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("PUBLISH_FILE_PUBLISHER_ERROR", e.toString()), e);
         } catch (CRLException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_FILE_PUBLISHER_ERROR", e.toString()));
+            logger.warn(CMS.getLogMessage("PUBLISH_FILE_PUBLISHER_ERROR", e.toString()), e);
         }
     }
 
