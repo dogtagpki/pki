@@ -27,6 +27,10 @@ import java.util.Vector;
 import org.dogtagpki.legacy.policy.EPolicyException;
 import org.dogtagpki.legacy.policy.IExpression;
 import org.dogtagpki.legacy.policy.IPolicyRule;
+import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
+import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
+import org.mozilla.jss.netscape.security.x509.X509CertInfo;
+import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -37,11 +41,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
-import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
-import org.mozilla.jss.netscape.security.x509.X509CertInfo;
-import org.mozilla.jss.netscape.security.x509.X509Key;
 
 /**
  * The abstract policy rule that concrete implementations will
@@ -56,6 +55,9 @@ import org.mozilla.jss.netscape.security.x509.X509Key;
  * @version $Revision$, $Date$
  */
 public abstract class APolicyRule implements IPolicyRule {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(APolicyRule.class);
+
     protected String NAME = null;
     protected String DESC = null;
     protected IExpression mFilterExp = null;
@@ -277,36 +279,28 @@ public abstract class APolicyRule implements IPolicyRule {
                     (CertificateX509Key) certInfo.get(X509CertInfo.KEY);
 
             if (certKey == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_MISSING_KEY_1", ""));
+                logger.error(CMS.getLogMessage("POLICY_MISSING_KEY_1", ""));
                 throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_MISSING_KEY", NAME));
             }
             X509Key key = (X509Key) certKey.get(CertificateX509Key.KEY);
 
             if (key == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_MISSING_KEY_1", ""));
+                logger.error(CMS.getLogMessage("POLICY_MISSING_KEY_1", ""));
                 throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_MISSING_KEY", NAME));
             }
             keyId = createKeyIdentifier(key);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME));
-            throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME), e);
+            throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME), e);
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME));
-            throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME), e);
+            throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME), e);
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME));
-            throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME), e);
+            throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME), e);
         } catch (InvalidKeyException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME));
-            throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME), e);
+            throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME), e);
         }
         return keyId;
     }
@@ -328,13 +322,13 @@ public abstract class APolicyRule implements IPolicyRule {
                     (CertificateX509Key) certInfo.get(X509CertInfo.KEY);
 
             if (certKey == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_MISSING_KEY_1", ""));
+                logger.error(CMS.getLogMessage("POLICY_MISSING_KEY_1", ""));
                 throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_MISSING_KEY", NAME));
             }
             X509Key key = (X509Key) certKey.get(CertificateX509Key.KEY);
 
             if (key == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_MISSING_KEY_1", ""));
+                logger.error(CMS.getLogMessage("POLICY_MISSING_KEY_1", ""));
                 throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_MISSING_KEY", NAME));
             }
             byte[] rawKey = key.getKey();
@@ -344,20 +338,14 @@ public abstract class APolicyRule implements IPolicyRule {
             md.update(rawKey);
             keyId = new KeyIdentifier(md.digest());
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME));
-            throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME), e);
+            throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME), e);
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME));
-            throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME), e);
+            throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME), e);
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME));
-            throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
+            logger.error(CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME), e);
+            throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME), e);
         }
         return keyId;
     }
