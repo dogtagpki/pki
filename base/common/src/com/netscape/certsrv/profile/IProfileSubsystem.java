@@ -46,7 +46,7 @@ public interface IProfileSubsystem extends ISubsystem {
      * @param id profile id
      * @return true if profile is approved
      */
-    public boolean isProfileEnable(String id);
+    public boolean isProfileEnable(String id) throws EBaseException;
 
     /**
      * Retrieves the approver of the given profile.

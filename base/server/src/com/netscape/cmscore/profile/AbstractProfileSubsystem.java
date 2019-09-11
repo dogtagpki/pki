@@ -66,14 +66,9 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
     public void setId(String id) throws EBaseException {
     }
 
-    public boolean isProfileEnable(String id) {
+    public boolean isProfileEnable(String id) throws EBaseException{
         IProfile profile = mProfiles.get(id);
-        String enable = null;
-
-        try {
-            enable = profile.getConfigStore().getString(PROP_ENABLE);
-        } catch (EBaseException e) {
-        }
+        String enable = profile.getConfigStore().getString(PROP_ENABLE, null);
         return Boolean.valueOf(enable);
     }
 
