@@ -49,6 +49,9 @@ public class ACMEDirectoryService {
         URI newOrderURL = uriInfo.getBaseUriBuilder().path("new-order").build();
         directory.setNewOrder(newOrderURL);
 
+        URI revokeCertURL = uriInfo.getBaseUriBuilder().path("revoke-cert").build();
+        directory.setRevokeCert(revokeCertURL);
+
         logger.info("Directory:\n" + directory);
 
         ResponseBuilder builder = Response.ok();
