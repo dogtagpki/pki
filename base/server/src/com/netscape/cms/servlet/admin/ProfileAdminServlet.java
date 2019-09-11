@@ -347,9 +347,7 @@ public class ProfileAdminServlet extends AdminServlet {
                     null, resp);
     }
 
-    public void processProfileRuleMgmt(HttpServletRequest req,
-            HttpServletResponse resp)
-            throws ServletException, IOException {
+    public void processProfileRuleMgmt(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         // Get operation type
         String op = req.getParameter(Constants.OP_TYPE);
 
@@ -357,25 +355,30 @@ public class ProfileAdminServlet extends AdminServlet {
             if (!readAuthorize(req, resp))
                 return;
             listProfileInstances(req, resp);
+
         } else if (op.equals(OpDef.OP_DELETE)) {
             if (!modifyAuthorize(req, resp))
                 return;
             deleteProfileInstance(req, resp);
+
         } else if (op.equals(OpDef.OP_READ)) {
             if (!readAuthorize(req, resp))
                 return;
             getProfileInstanceConfig(req, resp);
+
         } else if (op.equals(OpDef.OP_ADD)) {
             if (!modifyAuthorize(req, resp))
                 return;
             addProfileInstance(req, resp);
+
         } else if (op.equals(OpDef.OP_MODIFY)) {
             if (!modifyAuthorize(req, resp))
                 return;
             modifyProfileInstance(req, resp);
-        } else
-            sendResponse(ERROR, INVALID_POLICY_IMPL_OP,
-                    null, resp);
+
+        } else {
+            sendResponse(ERROR, INVALID_POLICY_IMPL_OP, null, resp);
+        }
     }
 
     /**
@@ -2199,9 +2202,7 @@ public class ProfileAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, nvp, resp);
     }
 
-    public void listProfileInstances(HttpServletRequest req,
-            HttpServletResponse resp)
-            throws ServletException, IOException {
+    public void listProfileInstances(HttpServletRequest req, HttpServletResponse resp) throws Exception {
 
         NameValuePairs nvp = new NameValuePairs();
         Enumeration<String> e = mProfileSub.getProfileIds();
