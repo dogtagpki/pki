@@ -122,34 +122,47 @@ public class ProfileAdminServlet extends AdminServlet {
     public void service(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
+
         super.service(req, resp);
 
         super.authenticate(req);
 
         AUTHZ_RES_NAME = "certServer.profile.configuration";
         String scope = req.getParameter(Constants.OP_SCOPE);
+        logger.debug("ProfileAdminServlet: scope: " + scope);
 
-        logger.debug("ProfileAdminServlet: service scope: " + scope);
-        if (scope.equals(ScopeDef.SC_PROFILE_RULES)) {
-            processProfileRuleMgmt(req, resp);
-        } else if (scope.equals(ScopeDef.SC_PROFILE_POLICIES)) {
-            processProfilePolicy(req, resp);
-        } else if (scope.equals(ScopeDef.SC_PROFILE_DEFAULT_POLICY)) {
-            processPolicyDefaultConfig(req, resp);
-        } else if (scope.equals(ScopeDef.SC_PROFILE_CONSTRAINT_POLICY)) {
-            processPolicyConstraintConfig(req, resp);
-        } else if (scope.equals(ScopeDef.SC_POLICY_IMPLS)) {
-            processPolicyImplMgmt(req, resp);
-        } else if (scope.equals(ScopeDef.SC_PROFILE_INPUT)) {
-            processProfileInput(req, resp);
-        } else if (scope.equals(ScopeDef.SC_PROFILE_OUTPUT)) {
-            processProfileOutput(req, resp);
-        } else if (scope.equals(ScopeDef.SC_PROFILE_INPUT_CONFIG)) {
-            processProfileInputConfig(req, resp);
-        } else if (scope.equals(ScopeDef.SC_PROFILE_OUTPUT_CONFIG)) {
-            processProfileOutputConfig(req, resp);
-        } else
-            sendResponse(ERROR, INVALID_POLICY_SCOPE, null, resp);
+        try {
+            if (scope.equals(ScopeDef.SC_PROFILE_RULES)) {
+                processProfileRuleMgmt(req, resp);
+            } else if (scope.equals(ScopeDef.SC_PROFILE_POLICIES)) {
+                processProfilePolicy(req, resp);
+            } else if (scope.equals(ScopeDef.SC_PROFILE_DEFAULT_POLICY)) {
+                processPolicyDefaultConfig(req, resp);
+            } else if (scope.equals(ScopeDef.SC_PROFILE_CONSTRAINT_POLICY)) {
+                processPolicyConstraintConfig(req, resp);
+            } else if (scope.equals(ScopeDef.SC_POLICY_IMPLS)) {
+                processPolicyImplMgmt(req, resp);
+            } else if (scope.equals(ScopeDef.SC_PROFILE_INPUT)) {
+                processProfileInput(req, resp);
+            } else if (scope.equals(ScopeDef.SC_PROFILE_OUTPUT)) {
+                processProfileOutput(req, resp);
+            } else if (scope.equals(ScopeDef.SC_PROFILE_INPUT_CONFIG)) {
+                processProfileInputConfig(req, resp);
+            } else if (scope.equals(ScopeDef.SC_PROFILE_OUTPUT_CONFIG)) {
+                processProfileOutputConfig(req, resp);
+            } else {
+                sendResponse(ERROR, INVALID_POLICY_SCOPE, null, resp);
+            }
+
+        } catch (ServletException e) {
+            throw e;
+
+        } catch (IOException e) {
+            throw e;
+
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
     }
 
     private boolean readAuthorize(HttpServletRequest req,
@@ -176,9 +189,7 @@ public class ProfileAdminServlet extends AdminServlet {
         return true;
     }
 
-    public void processProfilePolicy(HttpServletRequest req,
-            HttpServletResponse resp)
-            throws ServletException, IOException {
+    public void processProfilePolicy(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         // Get operation type
         String op = req.getParameter(Constants.OP_TYPE);
 
@@ -186,10 +197,12 @@ public class ProfileAdminServlet extends AdminServlet {
             if (!readAuthorize(req, resp))
                 return;
             getProfilePolicy(req, resp);
+
         } else if (op.equals(OpDef.OP_ADD)) {
             if (!modifyAuthorize(req, resp))
                 return;
             addProfilePolicy(req, resp);
+
         } else if (op.equals(OpDef.OP_DELETE)) {
             if (!modifyAuthorize(req, resp))
                 return;
@@ -396,12 +409,9 @@ public class ProfileAdminServlet extends AdminServlet {
      *
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
-     * @exception ServletException a servlet error has occurred
-     * @exception IOException an input/output error has occurred
+     * @exception Exception an error has occurred
      */
-    public void addProfilePolicy(HttpServletRequest req,
-            HttpServletResponse resp)
-            throws ServletException, IOException {
+    public void addProfilePolicy(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
