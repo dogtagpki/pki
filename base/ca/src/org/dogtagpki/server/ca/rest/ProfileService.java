@@ -362,7 +362,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     @Override
-    public Response modifyProfileState(String profileId, String action) {
+    public Response modifyProfileState(String profileId, String action) throws Exception {
         if (profileId == null) {
             logger.error("modifyProfileState: invalid request. profileId is null");
             throw new BadRequestException("Unable to modify profile state: Invalid Profile Id");

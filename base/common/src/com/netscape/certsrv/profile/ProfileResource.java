@@ -52,7 +52,7 @@ public interface ProfileResource {
     @Path("{id}")
     @ClientResponseType(entityType=Void.class)
     @ACLMapping("profiles.approve")
-    public Response modifyProfileState(@PathParam("id") String id, @QueryParam("action") String action);
+    public Response modifyProfileState(@PathParam("id") String id, @QueryParam("action") String action) throws Exception;
 
     @PUT
     @Path("{id}")

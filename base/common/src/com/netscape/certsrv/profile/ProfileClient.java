@@ -55,12 +55,12 @@ public class ProfileClient extends Client {
         return client.getEntity(response, ProfileDataInfos.class);
     }
 
-    public void enableProfile(String id) {
+    public void enableProfile(String id) throws Exception {
         Response response = profileClient.modifyProfileState(id, "enable");
         client.getEntity(response, Void.class);
     }
 
-    public void disableProfile(String id) {
+    public void disableProfile(String id) throws Exception {
         Response response = profileClient.modifyProfileState(id, "disable");
         client.getEntity(response, Void.class);
     }
