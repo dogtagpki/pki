@@ -90,9 +90,9 @@ public class ProfileApproveServlet extends ProfileServlet {
      * </ul>
      *
      * @param cmsReq the object holding the request and response information
-     * @exception EBaseException an error has occurred
+     * @exception Exception an error has occurred
      */
-    public void process(CMSRequest cmsReq) throws EBaseException {
+    public void process(CMSRequest cmsReq) throws Exception {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();
 
@@ -488,7 +488,7 @@ public class ProfileApproveServlet extends ProfileServlet {
      * @return operation string containing either OP_APPROVE, OP_DISAPPROVE,
      *         or SIGNED_AUDIT_EMPTY_VALUE
      */
-    private String auditProfileOp(HttpServletRequest req) {
+    private String auditProfileOp(HttpServletRequest req) throws Exception {
 
         if (mProfileSubId == null ||
                 mProfileSubId.equals("")) {
