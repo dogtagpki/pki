@@ -64,7 +64,7 @@ public interface ProfileResource {
     @Path("{id}/raw")
     @ClientResponseType(entityType=byte[].class)
     @ACLMapping("profiles.modify")
-    public Response modifyProfileRaw(@PathParam("id") String id, byte[] data);
+    public Response modifyProfileRaw(@PathParam("id") String id, byte[] data) throws Exception;
 
     @DELETE
     @Path("{id}")
