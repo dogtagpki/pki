@@ -40,7 +40,7 @@ public interface ProfileResource {
     @POST
     @ClientResponseType(entityType=ProfileData.class)
     @ACLMapping("profiles.create")
-    public Response createProfile(ProfileData data);
+    public Response createProfile(ProfileData data) throws Exception;
 
     @POST
     @Path("raw")
@@ -58,7 +58,7 @@ public interface ProfileResource {
     @Path("{id}")
     @ClientResponseType(entityType=ProfileData.class)
     @ACLMapping("profiles.modify")
-    public Response modifyProfile(@PathParam("id") String id, ProfileData data);
+    public Response modifyProfile(@PathParam("id") String id, ProfileData data) throws Exception;
 
     @PUT
     @Path("{id}/raw")

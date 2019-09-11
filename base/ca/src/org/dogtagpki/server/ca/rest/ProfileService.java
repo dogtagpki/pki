@@ -442,7 +442,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     @Override
-    public Response createProfile(ProfileData data) {
+    public Response createProfile(ProfileData data) throws Exception {
         if (data == null) {
             logger.error("createProfile: profile data is null");
             throw new BadRequestException("Unable to create profile: Invalid profile data.");
@@ -602,7 +602,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
     }
 
     @Override
-    public Response modifyProfile(String profileId, ProfileData data) {
+    public Response modifyProfile(String profileId, ProfileData data) throws Exception {
         if (profileId == null) {
             logger.error("modifyProfile: invalid request. profileId is null");
             throw new BadRequestException("Unable to modify profile: Invalid Profile Id");
@@ -710,7 +710,7 @@ public class ProfileService extends SubsystemService implements ProfileResource 
         }
     }
 
-    private void changeProfileData(ProfileData data, IProfile profile) {
+    private void changeProfileData(ProfileData data, IProfile profile) throws Exception {
         String profileId = data.getId();
         if (profile == null) {
             logger.error("changeProfileData - profile is null");

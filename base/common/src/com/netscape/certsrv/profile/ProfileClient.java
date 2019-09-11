@@ -65,7 +65,7 @@ public class ProfileClient extends Client {
         client.getEntity(response, Void.class);
     }
 
-    public ProfileData createProfile(ProfileData data) {
+    public ProfileData createProfile(ProfileData data) throws Exception {
         Response response = profileClient.createProfile(data);
         return client.getEntity(response, ProfileData.class);
     }
@@ -76,7 +76,7 @@ public class ProfileClient extends Client {
         return client.getEntity(response, byte[].class);
     }
 
-    public ProfileData modifyProfile(ProfileData data) {
+    public ProfileData modifyProfile(ProfileData data) throws Exception {
         Response response = profileClient.modifyProfile(data.getId(), data);
         return client.getEntity(response, ProfileData.class);
     }
