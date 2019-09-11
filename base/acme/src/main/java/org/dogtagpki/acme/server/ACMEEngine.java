@@ -38,6 +38,7 @@ import org.dogtagpki.acme.ACMEIdentifier;
 import org.dogtagpki.acme.ACMEMetadata;
 import org.dogtagpki.acme.ACMENonce;
 import org.dogtagpki.acme.ACMEOrder;
+import org.dogtagpki.acme.ACMERevocation;
 import org.dogtagpki.acme.JWK;
 import org.dogtagpki.acme.JWS;
 import org.dogtagpki.acme.backend.ACMEBackend;
@@ -60,6 +61,7 @@ import org.mozilla.jss.netscape.security.x509.GeneralNameInterface;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X500Name;
+import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -745,5 +747,53 @@ public class ACMEEngine implements ServletContextListener {
                 dnsNames.add(dnsName.toLowerCase());
             }
         }
+    }
+
+    public void validateRevocation(ACMEAccount account, ACMERevocation revocation) throws Exception {
+
+        // RFC 8555 Section 7.6: Certificate Revocation
+        //
+        // The server MUST consider at least the following accounts authorized
+        // for a given certificate:
+        // -  the account that issued the certificate.
+        // -  an account that holds authorizations for all of the identifiers in
+        //    the certificate.
+
+        // Case 1: validate using order information (if it still exists)
+
+        String certBase64 = revocation.getCertificate();
+        byte[] certBytes = Utils.base64decode(certBase64);
+        X509CertImpl cert = new X509CertImpl(certBytes);
+
+        BigInteger serialNumber = cert.getSerialNumber();
+        logger.info("Serial Number: 0x" + serialNumber.toString(16));
+
+        String certID = Base64.encodeBase64URLSafeString(serialNumber.toByteArray());
+
+        logger.info("Finding order that issued the certificate");
+        ACMEOrder order = database.getOrderByCertificate(certID);
+
+        if (order != null) {
+            logger.info("Order ID: " + order.getID());
+
+            // check order ownership
+            if (!order.getAccountID().equals(account.getID())) {
+                // TODO: generate proper exception
+                throw new Exception("Account did not issue the certificate");
+            }
+
+            // No need to check order status since it's guaranteed to be valid.
+            // No need to check order expiration since it's irrelevant for revocation.
+
+            logger.info("Account authorized to revoke certificate");
+            return;
+        }
+
+        logger.info("Order not found");
+
+        // TODO: Case 2: validate using cert identifiers authorizations
+
+        // TODO: generate proper exception
+        throw new Exception("Account unauthorized to revoke certificate");
     }
 }
