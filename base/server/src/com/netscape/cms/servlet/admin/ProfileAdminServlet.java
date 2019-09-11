@@ -2224,37 +2224,27 @@ public class ProfileAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, nvp, resp);
     }
 
-    public void getProfileInstanceConfig(HttpServletRequest req,
-            HttpServletResponse resp)
-            throws ServletException, IOException {
+    public void getProfileInstanceConfig(HttpServletRequest req, HttpServletResponse resp) throws Exception {
 
         String id = req.getParameter(Constants.RS_ID);
-        IProfile profile = null;
-
-        try {
-            profile = mProfileSub.getProfile(id);
-        } catch (EBaseException e1) {
-            logger.error("ProfileAdminServlet::getProfileInstanceConfig() - " +
-                       "profile is null! " + e1.getMessage(), e1);
-            throw new ServletException(e1.toString());
-        }
+        IProfile profile = mProfileSub.getProfile(id);
 
         NameValuePairs nvp = new NameValuePairs();
 
         nvp.put("name", profile.getName(getLocale(req)));
         nvp.put("desc", profile.getDescription(getLocale(req)));
         nvp.put("visible", Boolean.toString(profile.isVisible()));
-        nvp.put("enable", Boolean.toString(
-                mProfileSub.isProfileEnable(id)));
+        nvp.put("enable", Boolean.toString(mProfileSub.isProfileEnable(id)));
 
         String authid = profile.getAuthenticatorId();
+        logger.debug("ProfileAdminServlet: authid: " + authid);
 
         if (authid == null) {
             nvp.put("auth", "");
         } else {
             nvp.put("auth", authid);
         }
-        logger.debug("ProfileAdminServlet: authid=" + authid);
+
         nvp.put("plugin", mProfileSub.getProfileClassId(id));
 
         sendResponse(SUCCESS, null, nvp, resp);
