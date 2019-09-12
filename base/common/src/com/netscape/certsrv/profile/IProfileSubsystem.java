@@ -54,7 +54,7 @@ public interface IProfileSubsystem extends ISubsystem {
      * @param id profile id
      * @return user id of the agent who has approved the profile
      */
-    public String getProfileEnableBy(String id);
+    public String getProfileEnableBy(String id) throws EBaseException;
 
     /**
      * Creates new profile.

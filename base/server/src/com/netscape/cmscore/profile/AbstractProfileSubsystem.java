@@ -77,17 +77,11 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
         return Boolean.valueOf(enable);
     }
 
-    public String getProfileEnableBy(String id) {
+    public String getProfileEnableBy(String id) throws EBaseException {
         if (!isProfileEnable(id))
             return null;
         IProfile profile = mProfiles.get(id);
-        String enableBy = null;
-
-        try {
-            enableBy = profile.getConfigStore().getString(PROP_ENABLE_BY);
-        } catch (EBaseException e) {
-        }
-        return enableBy;
+        return profile.getConfigStore().getString(PROP_ENABLE_BY, null);
     }
 
     /**
