@@ -31,6 +31,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.ICAService;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.CertInfo;
@@ -70,7 +71,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.ECAException;
-import com.netscape.certsrv.ca.ICAService;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;

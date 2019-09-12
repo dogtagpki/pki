@@ -20,6 +20,7 @@ package com.netscape.cms.profile.common;
 import java.util.Date;
 import java.util.Enumeration;
 
+import org.dogtagpki.server.ca.ICAService;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
@@ -30,7 +31,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
-import com.netscape.certsrv.ca.ICAService;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.event.SecurityDataArchivalRequestEvent;
