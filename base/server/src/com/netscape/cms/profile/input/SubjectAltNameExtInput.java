@@ -32,6 +32,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 
 /**
@@ -72,10 +73,12 @@ public class SubjectAltNameExtInput extends EnrollInput implements IProfileInput
     public void init(IProfile profile, IConfigStore config)
         throws EProfileException {
         super.init(profile, config);
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         try {
-            mSANentryNum =
-                engine.getConfigStore().getInteger("ca.SAN.entryNum", DEF_REQ_ENTRIES);
+            mSANentryNum = cs.getInteger("ca.SAN.entryNum", DEF_REQ_ENTRIES);
         } catch (EBaseException e) {
             /* mSANentryNum has default; ok */
             logger.warn("SubjectAltNameExtInput: init(): getting config failed on ca.SAN.entryNum: " + e.getMessage(), e);

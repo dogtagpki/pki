@@ -35,6 +35,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -262,7 +263,7 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
         logger.debug("nsNKeySubjectNameDefault: ldapInit(): begin");
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         try {
             // cfu - XXX do more error handling here later

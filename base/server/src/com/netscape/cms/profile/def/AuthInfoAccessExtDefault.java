@@ -39,6 +39,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * This class implements an enrollment default policy
@@ -412,7 +413,10 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
     }
 
     public AuthInfoAccessExtension createExtension() {
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         AuthInfoAccessExtension ext = null;
         int num = getNumAds();
 
@@ -437,7 +441,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                             String uri = "";
                             if (hostname != null && port != null)
                                 uri = "http://" + hostname + ":" + port + "/ca/ocsp";
-                            location = engine.getConfigStore().getString("ca.defaultOcspUri", uri);
+                            location = cs.getString("ca.defaultOcspUri", uri);
                         }
                     }
 

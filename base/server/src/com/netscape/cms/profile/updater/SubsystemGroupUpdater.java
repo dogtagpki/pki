@@ -44,6 +44,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -121,7 +122,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         if (cert == null)
             return;
 
-        IConfigStore mainConfig = engine.getConfigStore();
+        EngineConfig mainConfig = engine.getConfig();
 
         int num = 0;
         try {

@@ -43,6 +43,7 @@ import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -202,8 +203,10 @@ public abstract class EnrollInput implements IProfileInput {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         try {
-            if (engine.getConfigStore().getBoolean("cms.skipPOPVerify", false)) {
+            if (cs.getBoolean("cms.skipPOPVerify", false)) {
                 logger.debug(method + "skipPOPVerify on, return");
                 return;
             }
@@ -211,7 +214,7 @@ public abstract class EnrollInput implements IProfileInput {
             CryptoManager cm = CryptoManager.getInstance();
 
             CryptoToken verifyToken = null;
-            String tokenName = engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+            String tokenName = cs.getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
             if (CryptoUtil.isInternalToken(tokenName)) {
                 logger.debug(method + "POP verification using internal token");
                 certReqMsg.verify();
