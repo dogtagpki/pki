@@ -22,7 +22,7 @@ public class AuthorityRemoveCLI extends CLI {
     }
 
     public void printHelp() {
-        formatter.printHelp(getFullName() + " <dn>", options);
+        formatter.printHelp(getFullName() + " <ID>", options);
     }
 
     public void execute(String[] args) throws Exception {
