@@ -30,6 +30,7 @@ import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnection;
 import com.netscape.cmscore.ldapconn.PKISocketFactory;
 
@@ -167,7 +168,7 @@ public class LdapCaCertPublisher
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         try {
             mCaCertAttr = mConfig.getString("caCertAttr", LDAP_CACERT_ATTR);

@@ -41,6 +41,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
@@ -146,7 +147,8 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
         Vector<String> v = new Vector<String>();
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.getConfigStore();
+        EngineConfig config = engine.getConfig();
+
         String nickname = "";
         // get subsystem cert nickname as default for client auth
         try {
