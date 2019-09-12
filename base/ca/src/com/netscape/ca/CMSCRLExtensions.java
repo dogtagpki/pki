@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.extensions.AuthInfoAccessExtension;
 import org.mozilla.jss.netscape.security.x509.AuthorityKeyIdentifierExtension;
 import org.mozilla.jss.netscape.security.x509.CRLExtensions;
@@ -47,7 +48,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.ca.ICMSCRLExtensions;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;

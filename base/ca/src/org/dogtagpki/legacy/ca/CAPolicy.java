@@ -19,11 +19,11 @@ package org.dogtagpki.legacy.ca;
 
 import org.dogtagpki.legacy.core.policy.GenericPolicyProcessor;
 import org.dogtagpki.legacy.policy.IPolicyProcessor;
+import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.request.IPolicy;
 import com.netscape.certsrv.request.IRequest;

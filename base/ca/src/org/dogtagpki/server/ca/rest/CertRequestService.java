@@ -27,6 +27,7 @@ import java.util.List;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
@@ -46,7 +47,6 @@ import com.netscape.certsrv.ca.CADisabledException;
 import com.netscape.certsrv.ca.CAMissingCertException;
 import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.CANotFoundException;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;

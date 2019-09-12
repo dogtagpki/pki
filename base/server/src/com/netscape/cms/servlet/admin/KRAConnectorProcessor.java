@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
+import org.dogtagpki.server.ca.ICertificateAuthority;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
@@ -28,7 +29,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ca.ICAService;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.system.ConnectorNotFoundException;
 import com.netscape.certsrv.system.KRAConnectorInfo;

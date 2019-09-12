@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
 
+import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.asn1.INTEGER;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.CertificateChain;
@@ -32,7 +33,6 @@ import org.mozilla.jss.pkix.cmmf.CertifiedKeyPair;
 import org.mozilla.jss.pkix.cmmf.PKIStatusInfo;
 
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileContext;

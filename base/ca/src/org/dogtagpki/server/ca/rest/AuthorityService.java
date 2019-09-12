@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
+import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X500Name;
 
@@ -53,7 +54,6 @@ import com.netscape.certsrv.ca.CAMissingKeyException;
 import com.netscape.certsrv.ca.CANotFoundException;
 import com.netscape.certsrv.ca.CANotLeafException;
 import com.netscape.certsrv.ca.CATypeException;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ca.IssuerUnavailableException;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;

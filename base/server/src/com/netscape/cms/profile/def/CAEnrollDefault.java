@@ -20,6 +20,7 @@ package com.netscape.cms.profile.def;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 
+import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.x509.CertificateX509Key;
 import org.mozilla.jss.netscape.security.x509.KeyIdentifier;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
@@ -29,7 +30,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**

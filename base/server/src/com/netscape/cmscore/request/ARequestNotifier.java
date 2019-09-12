@@ -22,8 +22,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.ICertificateAuthority;
+
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.ldap.ILdapConnModule;
 import com.netscape.certsrv.publish.IPublisherProcessor;

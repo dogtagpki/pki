@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.ca;
+package org.dogtagpki.server.ca;
 
 import java.util.Enumeration;
 import java.util.List;
@@ -30,6 +30,9 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ca.AuthorityID;
+import com.netscape.certsrv.ca.ECAException;
+import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;

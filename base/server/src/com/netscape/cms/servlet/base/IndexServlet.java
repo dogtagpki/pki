@@ -22,8 +22,9 @@ import java.io.IOException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
+import org.dogtagpki.server.ca.ICertificateAuthority;
+
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.CMSRequest;

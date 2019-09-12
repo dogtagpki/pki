@@ -37,6 +37,7 @@ import java.util.Map;
 import javax.ws.rs.core.Response;
 
 import org.apache.catalina.realm.GenericPrincipal;
+import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.jboss.resteasy.plugins.providers.atom.Link;
 import org.mozilla.jss.netscape.security.pkcs.ContentInfo;
 import org.mozilla.jss.netscape.security.pkcs.PKCS7;
@@ -55,7 +56,6 @@ import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.UnauthorizedException;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.CertData;
 import com.netscape.certsrv.cert.CertDataInfo;
 import com.netscape.certsrv.cert.CertDataInfos;
