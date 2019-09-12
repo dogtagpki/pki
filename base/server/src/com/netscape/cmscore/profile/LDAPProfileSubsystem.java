@@ -262,7 +262,7 @@ public class LDAPProfileSubsystem
         }
     }
 
-    public synchronized void deleteProfile(String id) throws EProfileException {
+    public synchronized void deleteProfile(String id) throws EBaseException {
         if (isProfileEnable(id)) {
             throw new EProfileException("CMS_PROFILE_DELETE_ENABLEPROFILE");
         }

@@ -147,7 +147,7 @@ public class ProfileSubsystem
         return null;
     }
 
-    public void deleteProfile(String id) throws EProfileException {
+    public void deleteProfile(String id) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
         String configPath;

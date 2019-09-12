@@ -2292,7 +2292,7 @@ public class ProfileAdminServlet extends AdminServlet {
 
             try {
                 mProfileSub.deleteProfile(id);
-            } catch (EProfileException e) {
+            } catch (EBaseException e) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             AuditEvent.CONFIG_CERT_PROFILE,

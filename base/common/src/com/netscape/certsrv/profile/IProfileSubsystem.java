@@ -19,6 +19,7 @@ package com.netscape.certsrv.profile;
 
 import java.util.Enumeration;
 
+import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 
 /**
@@ -72,7 +73,7 @@ public interface IProfileSubsystem extends ISubsystem {
      * @param id profile id
      * @exception EProfileException failed to delete profile
      */
-    public void deleteProfile(String id) throws EProfileException;
+    public void deleteProfile(String id) throws EBaseException;
 
     /**
      * Enables a profile.
