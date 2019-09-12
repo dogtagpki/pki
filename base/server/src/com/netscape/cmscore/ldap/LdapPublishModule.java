@@ -49,6 +49,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
@@ -119,7 +120,7 @@ public class LdapPublishModule implements ILdapPublishModule {
             return;
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         mAuthority = authority;
         mPubProcessor = p;
@@ -141,7 +142,7 @@ public class LdapPublishModule implements ILdapPublishModule {
             return;
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         mAuthority = authority;
         mConfig = config;

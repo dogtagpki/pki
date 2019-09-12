@@ -31,6 +31,7 @@ import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 public class ProfileSubsystem
         extends AbstractProfileSubsystem
@@ -116,7 +117,7 @@ public class ProfileSubsystem
         IProfile profile = null;
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         String configPath;
         try {
@@ -150,9 +151,11 @@ public class ProfileSubsystem
     public void deleteProfile(String id) throws EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         String configPath;
         try {
-            configPath = engine.getConfig().getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
+            configPath = cs.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
         } catch (EBaseException e) {
             throw new EProfileException("CMS_PROFILE_DELETE_ERROR");
         }
@@ -190,7 +193,7 @@ public class ProfileSubsystem
         mProfiles.remove(id);
         mProfileClassIds.remove(id);
         try {
-            engine.getConfigStore().commit(false);
+            cs.commit(false);
         } catch (Exception e) {
         }
     }
@@ -199,9 +202,11 @@ public class ProfileSubsystem
             throws EProfileException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         String configPath;
         try {
-            configPath = engine.getConfig().getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
+            configPath = cs.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
         } catch (EBaseException e) {
             throw new EProfileException("CMS_PROFILE_DELETE_ERROR");
         }
@@ -215,7 +220,7 @@ public class ProfileSubsystem
             }
             mConfig.putString(id + "." + PROP_CLASS_ID, classId);
             mConfig.putString(id + "." + PROP_CONFIG, configPath);
-            engine.getConfigStore().commit(true);
+            cs.commit(true);
         } catch (EBaseException e) {
             logger.warn("Unable to create profile config: " + e.getMessage(), e);
         }

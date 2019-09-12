@@ -30,6 +30,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
@@ -83,7 +84,7 @@ public class PasswdUserDBAuthentication implements IAuthManager, IPasswdUserDBAu
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         /* internal database directory used */
         DBSubsystem dbs = (DBSubsystem) DBSubsystem.getInstance();

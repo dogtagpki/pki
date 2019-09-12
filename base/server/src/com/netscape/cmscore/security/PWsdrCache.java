@@ -41,6 +41,7 @@ import org.mozilla.jss.util.Password;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /*
@@ -66,10 +67,12 @@ public class PWsdrCache {
 
     // for CMSEngine
     public PWsdrCache() throws EBaseException {
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
 
         try {
-            mPWcachedb = engine.getConfigStore().getString("pwCache");
+            mPWcachedb = cs.getString("pwCache");
             logger.debug("PWsdrCache: got pwCache file path from configstore");
         } catch (Exception e) {
             logger.warn(CMS.getLogMessage("CMSCORE_SECURITY_GET_CONFIG"), e);
@@ -80,10 +83,13 @@ public class PWsdrCache {
     }
 
     private void initToken() throws EBaseException {
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         if (mToken == null) {
             try {
-                mTokenName = engine.getConfigStore().getString(PROP_PWC_TOKEN_NAME);
+                mTokenName = cs.getString(PROP_PWC_TOKEN_NAME);
                 logger.debug("PWsdrCache: pwcTokenname specified.  Use token for SDR key. tokenname= " + mTokenName);
                 mToken = CryptoUtil.getKeyStorageToken(mTokenName);
             } catch (Exception e) {
@@ -95,10 +101,13 @@ public class PWsdrCache {
 
     // called from PWCBsdr or CMSEngine only
     private void initKey() throws EBaseException {
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         if (mKeyID == null) {
             try {
-                String keyID = engine.getConfigStore().getString(PROP_PWC_KEY_ID);
+                String keyID = cs.getString(PROP_PWC_KEY_ID);
                 logger.debug("PWsdrCache: retrieved PWC SDR key");
                 mKeyID = base64Decode(keyID);
 

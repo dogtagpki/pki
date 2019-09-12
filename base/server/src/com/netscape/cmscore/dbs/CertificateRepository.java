@@ -59,6 +59,7 @@ import com.netscape.certsrv.dbs.repository.IRepository;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.security.JssSubsystem;
 
 import netscape.ldap.LDAPAttributeSet;
@@ -138,6 +139,8 @@ public class CertificateRepository extends Repository
         logger.debug("CertificateRepository:  setEnableRandomSerialNumbers   random="+random+"  updateMode="+updateMode);
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         if (mEnableRandomSerialNumbers ^ random || forceModeChange) {
             mEnableRandomSerialNumbers = random;
             logger.debug("CertificateRepository:  setEnableRandomSerialNumbers   switching to " +
@@ -167,7 +170,7 @@ public class CertificateRepository extends Repository
             }
 
             try {
-                engine.getConfigStore().commit(false);
+                cs.commit(false);
             } catch (Exception e) {
             }
         }
@@ -306,6 +309,8 @@ public class CertificateRepository extends Repository
                   mEnableRandomSerialNumbers+"  mCounter="+mCounter);
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         try {
             super.initCacheIfNeeded();
         } catch (Exception e) {
@@ -330,7 +335,7 @@ public class CertificateRepository extends Repository
             long t = System.currentTimeMillis();
             mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, mCounter.toString()+","+t);
             try {
-                engine.getConfigStore().commit(false);
+                cs.commit(false);
             } catch (Exception e) {
                 logger.warn("CertificateRepository: updateCounter: " + e.getMessage(), e);
             }
@@ -373,7 +378,10 @@ public class CertificateRepository extends Repository
 
     private BigInteger getInRangeCounter(BigInteger  minSerialNo, BigInteger maxSerialNo)
     throws EBaseException {
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         String c = null;
         String t = null;
         String s = (mDBConfig.getString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, "-1")).trim();
@@ -401,7 +409,7 @@ public class CertificateRepository extends Repository
             counter = new BigInteger("-2");
             mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, "-2");
             try {
-                engine.getConfigStore().commit(false);
+                cs.commit(false);
             } catch (Exception e) {
                 logger.warn("CertificateRepository: getInRangeCounter: " + e.getMessage(), e);
             }
@@ -434,6 +442,7 @@ public class CertificateRepository extends Repository
         }
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
 
         mEnableRandomSerialNumbers = mDBConfig.getBoolean(PROP_ENABLE_RANDOM_SERIAL_NUMBERS, false);
         mForceModeChange = mDBConfig.getBoolean(PROP_FORCE_MODE_CHANGE, false);
@@ -471,7 +480,7 @@ public class CertificateRepository extends Repository
         }
         mDBConfig.putString(PROP_RANDOM_SERIAL_NUMBER_COUNTER, mCounter.toString());
         try {
-            engine.getConfigStore().commit(false);
+            cs.commit(false);
         } catch (Exception e) {
         }
         logger.debug("CertificateRepository: getLastSerialNumberInRange  mEnableRandomSerialNumbers="+mEnableRandomSerialNumbers);
