@@ -505,6 +505,7 @@ public class CertificateAuthority
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
+
         LDAPConfig dbCfg = cs.getInternalDatabase();
         IDBSubsystem dbSubsystem = DBSubsystem.getInstance();
 

@@ -121,7 +121,7 @@ public class ProfileSubsystem
 
         String configPath;
         try {
-            configPath = engine.getConfig().getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
+            configPath = cs.getInstanceDir() + "/ca/profiles/ca/" + id + ".cfg";
         } catch (EBaseException e) {
             throw new EProfileException("CMS_PROFILE_DELETE_ERROR", e);
         }

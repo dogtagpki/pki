@@ -94,6 +94,8 @@ public class UpdateDomainXML extends CMSServlet {
         logger.debug("UpdateDomainXML process: authentication starts");
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         IAuthToken authToken = null;
         try {
             authToken = authenticate(cmsReq);
@@ -182,7 +184,6 @@ public class UpdateDomainXML extends CMSServlet {
         String basedn = null;
         String secstore = null;
 
-        EngineConfig cs = engine.getConfig();
         LDAPConfig ldapConfig = cs.getInternalDatabase();
 
         try {
@@ -244,7 +245,7 @@ public class UpdateDomainXML extends CMSServlet {
             }
         } else {
             // update the domain.xml file
-            String path = engine.getConfig().getInstanceDir() + "/conf/domain.xml";
+            String path = cs.getInstanceDir() + "/conf/domain.xml";
 
             logger.debug("UpdateDomainXML: got path=" + path);
 

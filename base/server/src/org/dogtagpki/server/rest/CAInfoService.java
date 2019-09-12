@@ -176,11 +176,15 @@ public class CAInfoService extends PKIService implements CAInfoResource {
      */
     private static KRAInfoClient getKRAInfoClient(KRAConnectorInfo connInfo)
             throws MalformedURLException, URISyntaxException, EBaseException {
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         ClientConfig config = new ClientConfig();
         int port = Integer.parseInt(connInfo.getPort());
         config.setServerURL("https", connInfo.getHost(), port);
-        config.setNSSDatabase(engine.getConfig().getInstanceDir() + "/alias");
+        config.setNSSDatabase(cs.getInstanceDir() + "/alias");
+
         return new KRAInfoClient(new PKIClient(config), "kra");
     }
 
