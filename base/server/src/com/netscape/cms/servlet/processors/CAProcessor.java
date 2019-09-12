@@ -68,6 +68,7 @@ import com.netscape.cms.servlet.common.CMSGateway;
 import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
@@ -143,7 +144,9 @@ public class CAProcessor extends Processor {
         super(id, locale);
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore().getSubStore("processor." + id);
+        EngineConfig config = engine.getConfig();
+
+        IConfigStore cs = config.getSubStore("processor." + id);
         this.profileID = cs.getString(PROFILE_ID, "").isEmpty() ? null : cs.getString(PROFILE_ID);
         this.authzResourceName = cs.getString(AUTHZ_RESOURCE_NAME, "").isEmpty() ? null :
             cs.getString(AUTHZ_RESOURCE_NAME);

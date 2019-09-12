@@ -103,6 +103,7 @@ import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.CommandQueue;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
@@ -272,6 +273,8 @@ public abstract class CMSServlet extends HttpServlet {
         this.servletConfig = sc;
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         mAuthz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
         mId = sc.getInitParameter(PROP_ID);
 
@@ -282,7 +285,7 @@ public abstract class CMSServlet extends HttpServlet {
             throw e;
         }
 
-        mConfig = engine.getConfigStore().getSubStore(CMSGateway.PROP_CMSGATEWAY);
+        mConfig = cs.getSubStore(CMSGateway.PROP_CMSGATEWAY);
         mServletConfig = sc;
         mServletContext = sc.getServletContext();
         mFileLoader = new CMSFileLoader();
@@ -413,6 +416,8 @@ public abstract class CMSServlet extends HttpServlet {
             throws ServletException, IOException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         boolean running_state = engine.isInRunningState();
 
         if (!running_state) {
@@ -420,7 +425,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         try {
-            if (engine.getConfigStore().getBoolean("useThreadNaming", false)) {
+            if (cs.getBoolean("useThreadNaming", false)) {
                 String currentName = Thread.currentThread().getName();
                 Thread.currentThread().setName(currentName + "-" + httpReq.getServletPath());
             }

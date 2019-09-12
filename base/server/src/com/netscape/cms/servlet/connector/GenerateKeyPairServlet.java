@@ -33,7 +33,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -41,6 +40,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.PrettyPrintFormat;
 
 /**
@@ -77,8 +77,10 @@ public class GenerateKeyPairServlet extends CMSServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         mConfig = config;
+
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore sconfig = engine.getConfigStore();
+        EngineConfig sconfig = engine.getConfig();
+
         String authority = config.getInitParameter(PROP_AUTHORITY);
 
         if (authority != null)

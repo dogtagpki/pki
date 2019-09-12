@@ -102,6 +102,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -358,11 +359,12 @@ public class CMCOutputTemplate {
             }
 
             CMSEngine engine = CMS.getCMSEngine();
+            EngineConfig cs = engine.getConfig();
 
             if (success_bpids.size() > 0) {
                 boolean confirmRequired = false;
                 try {
-                    confirmRequired = engine.getConfigStore().getBoolean("cmc.cert.confirmRequired", false);
+                    confirmRequired = cs.getBoolean("cmc.cert.confirmRequired", false);
                 } catch (Exception e) {
                 }
                 if (confirmRequired) {
@@ -972,6 +974,8 @@ public class CMCOutputTemplate {
         logger.debug(method + "begins");
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         boolean revoke = false;
         SessionContext context = SessionContext.getContext();
         String authManagerId = (String) context.get(SessionContext.AUTH_MANAGER_ID);
@@ -1028,7 +1032,7 @@ public class CMCOutputTemplate {
                     logger.debug(method + "no shared secret in request; Checking signature;");
                     boolean needVerify = true;
                     try {
-                        needVerify = engine.getConfigStore().getBoolean("cmc.revokeCert.verify", true);
+                        needVerify = cs.getBoolean("cmc.revokeCert.verify", true);
                     } catch (Exception e) {
                     }
 

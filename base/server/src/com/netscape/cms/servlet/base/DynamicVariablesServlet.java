@@ -37,6 +37,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * Return some javascript to the request which contains the list of
@@ -92,9 +93,11 @@ public class DynamicVariablesServlet extends CMSServlet {
     private ServletConfig mServletCfg;
     private ServletContext mServletCtx = null;
     private static String mCrlurl = "";
+
     static {
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.getConfigStore().getSubStore(PROP_CLONING);
+        EngineConfig cs = engine.getConfig();
+        IConfigStore config = cs.getSubStore(PROP_CLONING);
 
         try {
             mCrlurl = config.getString(PROP_CRLURL, "");
