@@ -42,6 +42,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.util.AssertionException;
@@ -67,7 +68,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GenericPolicyProcessor.class);
 
     protected IConfigStore mConfig = null;
-    protected IConfigStore mGlobalStore = null;
+    protected EngineConfig mGlobalStore = null;
     protected IAuthority mAuthority = null;
 
     // Default System Policies
@@ -147,12 +148,13 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         logger.debug("GenericPolicyProcessor::init begins");
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig configStore = engine.getConfig();
+
         mAuthority = (IAuthority) owner;
         mConfig = config;
-        mGlobalStore = engine.getConfigStore();
+        mGlobalStore = configStore;
 
         try {
-            IConfigStore configStore = engine.getConfigStore();
             String PKI_Subsystem = configStore.getString("subsystem.0.id",
                                                           null);
 
