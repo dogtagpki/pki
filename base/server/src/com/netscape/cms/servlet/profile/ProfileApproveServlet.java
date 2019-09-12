@@ -38,7 +38,6 @@ import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfilePolicy;
-import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.template.ArgList;
@@ -47,6 +46,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.profile.IProfileSubsystem;
 
 /**
  * Toggle the approval state of a profile

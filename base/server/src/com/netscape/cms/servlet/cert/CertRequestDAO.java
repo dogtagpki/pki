@@ -38,7 +38,6 @@ import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestInfos;
 import com.netscape.certsrv.cert.CertReviewResponse;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.request.CMSRequestInfo;
 import com.netscape.certsrv.request.CMSRequestInfos;
 import com.netscape.certsrv.request.IRequest;
@@ -51,6 +50,7 @@ import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.profile.IProfileSubsystem;
 import com.netscape.cmscore.security.JssSubsystem;
 
 /**

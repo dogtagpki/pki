@@ -56,7 +56,6 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.IProfilePolicy;
-import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.profile.PolicyConstraint;
 import com.netscape.certsrv.profile.PolicyConstraintValue;
 import com.netscape.certsrv.profile.PolicyDefault;
@@ -80,6 +79,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.base.SimpleProperties;
+import com.netscape.cmscore.profile.IProfileSubsystem;
 
 /**
  * @author alee

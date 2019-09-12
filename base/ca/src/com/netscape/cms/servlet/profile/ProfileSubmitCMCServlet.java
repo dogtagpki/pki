@@ -64,7 +64,6 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
-import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
@@ -77,6 +76,7 @@ import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.profile.IProfileSubsystem;
 
 /**
  * This servlet submits end-user request into the profile framework.

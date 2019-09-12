@@ -38,7 +38,6 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfilePolicy;
-import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.template.ArgList;
@@ -48,6 +47,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.profile.IProfileSubsystem;
 
 /**
  * Retrieve detailed information of a particular profile.

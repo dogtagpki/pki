@@ -31,7 +31,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
-import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.system.DatabaseSetupRequest;
@@ -45,6 +44,7 @@ import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.cert.CrossCertPairSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
+import com.netscape.cmscore.profile.IProfileSubsystem;
 import com.netscape.cmscore.profile.LDAPProfileSubsystem;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 

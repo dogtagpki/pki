@@ -28,6 +28,7 @@ import java.util.Vector;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
@@ -41,7 +42,6 @@ import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.IProfilePolicy;
-import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.profile.IProfileUpdater;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.registry.IPluginInfo;
@@ -52,6 +52,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.profile.IProfileSubsystem;
 
 /**
  * This class implements a basic profile.
@@ -201,10 +202,10 @@ public abstract class BasicProfile implements IProfile {
     /**
      * Initializes this profile.
      */
-    public void init(IProfileSubsystem owner, IConfigStore config)
+    public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
         logger.debug("BasicProfile: start init");
-        mOwner = owner;
+        mOwner = (IProfileSubsystem) owner;
         mConfig = config;
 
         CMSEngine engine = CMS.getCMSEngine();
