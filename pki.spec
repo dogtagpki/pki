@@ -1533,8 +1533,7 @@ fi
 %dir %{_datadir}/pki/ca
 %{_datadir}/pki/ca/conf/
 %{_datadir}/pki/ca/emails/
-%dir %{_datadir}/pki/ca/profiles
-%{_datadir}/pki/ca/profiles/ca/
+%{_datadir}/pki/ca/profiles/
 %{_datadir}/pki/ca/setup/
 %{_datadir}/pki/ca/webapps/
 
