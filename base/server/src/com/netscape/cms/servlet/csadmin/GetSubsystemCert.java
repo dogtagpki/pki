@@ -30,12 +30,12 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -66,7 +66,8 @@ public class GetSubsystemCert extends CMSServlet {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
+
         String nickname = "";
         try {
             nickname = cs.getString("ca.subsystem.nickname", "");

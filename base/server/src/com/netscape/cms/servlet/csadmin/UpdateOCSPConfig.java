@@ -31,13 +31,13 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -73,6 +73,8 @@ public class UpdateOCSPConfig extends CMSServlet {
         logger.debug("UpdateOCSPConfig process: authentication starts");
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         IAuthToken authToken = authenticate(cmsReq);
         if (authToken == null) {
             logger.warn("UpdateOCSPConfig process: authToken is null");
@@ -99,7 +101,6 @@ public class UpdateOCSPConfig extends CMSServlet {
             return;
         }
 
-        IConfigStore cs = engine.getConfigStore();
         String nickname = "";
 
         // get nickname

@@ -29,12 +29,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.xml.XMLObject;
 
 public class GetTokenInfo extends CMSServlet {
@@ -80,7 +80,7 @@ public class GetTokenInfo extends CMSServlet {
         Node root = xmlObj.createRoot("XMLResponse");
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore config = engine.getConfigStore();
+        EngineConfig config = engine.getConfig();
 
         String certlist = "";
         try {

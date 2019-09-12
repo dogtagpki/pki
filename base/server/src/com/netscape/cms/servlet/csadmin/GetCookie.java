@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.system.InstallToken;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -41,6 +40,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 
 public class GetCookie extends CMSServlet {
@@ -91,8 +91,9 @@ public class GetCookie extends CMSServlet {
 
         logger.debug("GetCookie start");
         IAuthToken authToken = null;
+
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         ArgBlock header = new ArgBlock();
         ArgBlock ctx = new ArgBlock();

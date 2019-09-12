@@ -728,8 +728,10 @@ public class CertUtil {
 
     public static boolean privateKeyExistsOnToken(String certTag,
             String tokenname, String nickname) {
+
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
+
         String givenid = "";
         try {
             givenid = cs.getString("preop.cert." + certTag + ".privkey.id");

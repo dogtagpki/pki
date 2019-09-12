@@ -26,6 +26,7 @@ import org.apache.velocity.context.Context;
 
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 public class LoginServlet extends BaseServlet {
 
@@ -45,6 +46,8 @@ public class LoginServlet extends BaseServlet {
             Context context) {
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         Template template = null;
 
         try {
@@ -53,7 +56,7 @@ public class LoginServlet extends BaseServlet {
             if (pin == null) {
                 context.put("error", "");
             } else {
-                String cspin = engine.getConfigStore().getString("preop.pin");
+                String cspin = cs.getString("preop.pin");
 
                 if (cspin != null && cspin.equals(pin)) {
                     // create session

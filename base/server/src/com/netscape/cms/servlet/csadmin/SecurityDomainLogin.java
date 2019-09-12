@@ -27,9 +27,9 @@ import org.apache.velocity.Template;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 public class SecurityDomainLogin extends BaseServlet {
 
@@ -48,7 +48,9 @@ public class SecurityDomainLogin extends BaseServlet {
             HttpServletResponse response,
             Context context) {
         Template template = null;
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
 
         try {
             String url = request.getParameter("url");
@@ -77,7 +79,6 @@ public class SecurityDomainLogin extends BaseServlet {
             context.put("subsystem", subsystem);
             // The "securitydomain.name" property ONLY resides in the "CS.cfg"
             // associated with the CS subsystem hosting the security domain.
-            IConfigStore cs = engine.getConfigStore();
             String sdname = cs.getString("securitydomain.name", "");
             context.put("name", sdname);
             template = Velocity.getTemplate("admin/console/config/securitydomainloginpanel.vm");
