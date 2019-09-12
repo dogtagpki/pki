@@ -44,6 +44,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -115,6 +116,8 @@ public class GrantRecovery extends CMSServlet {
         HttpServletResponse resp = cmsReq.getHttpResp();
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         IAuthToken authToken = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
@@ -148,7 +151,7 @@ public class GrantRecovery extends CMSServlet {
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         String agentID = authToken.getInString("uid");
-        if (engine.getConfigStore().getBoolean("kra.keySplitting")) {
+        if (cs.getBoolean("kra.keySplitting")) {
             agentID = req.getParameter("agentID");
         }
         try {

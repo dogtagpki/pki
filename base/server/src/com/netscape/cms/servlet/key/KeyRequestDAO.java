@@ -69,6 +69,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.CMSRequestDAO;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * @author alee
@@ -474,6 +475,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         boolean keyExists = doesKeyExist(clientKeyId, "active");
         if (keyExists == true) {
             throw new BadRequestException("Cannot archive already active existing key!");
@@ -500,8 +503,8 @@ public class KeyRequestDAO extends CMSRequestDAO {
             //Validate key size
             if (algName.equalsIgnoreCase(KeyRequestResource.RSA_ALGORITHM)) {
                 int size = Integer.valueOf(keySize);
-                int minSize = Integer.valueOf(engine.getConfigStore().getInteger("keys.rsa.min.size", 256));
-                int maxSize = Integer.valueOf(engine.getConfigStore().getInteger("keys.rsa.max.size", 8192));
+                int minSize = Integer.valueOf(cs.getInteger("keys.rsa.min.size", 256));
+                int maxSize = Integer.valueOf(cs.getInteger("keys.rsa.max.size", 8192));
                 if (minSize > maxSize) {
                     throw new PKIException("Incorrect size parameters stored in config file.");
                 }
