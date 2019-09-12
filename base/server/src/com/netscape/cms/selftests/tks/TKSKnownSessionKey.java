@@ -39,6 +39,7 @@ import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.symkey.SessionKey;
 
 //////////////////////
@@ -330,8 +331,9 @@ public class TKSKnownSessionKey
     public void runSelfTest(ILogEventListener listener) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         try {
-            IConfigStore cs = engine.getConfigStore();
             boolean useNewNames = cs.getBoolean("tks.useNewSharedSecretNames", false);
             if (useNewNames) {
                 String tpsList = cs.getString("tps.list", "");
