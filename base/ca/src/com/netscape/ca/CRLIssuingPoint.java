@@ -29,6 +29,7 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import org.dogtagpki.server.ca.ICMSCRLExtensions;
 import org.dogtagpki.server.ca.ICRLIssuingPoint;
 import org.dogtagpki.server.ca.ICertificateAuthority;
 import org.mozilla.jss.netscape.security.util.BitArray;
@@ -53,7 +54,6 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ECAException;
 import com.netscape.certsrv.ca.EErrorPublishCRL;
-import com.netscape.certsrv.ca.ICMSCRLExtensions;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
