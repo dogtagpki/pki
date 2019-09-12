@@ -50,7 +50,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.pattern.Pattern;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.ICertInfoPolicyDefault;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.EPropertyException;

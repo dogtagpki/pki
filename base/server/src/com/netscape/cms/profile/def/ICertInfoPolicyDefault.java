@@ -15,11 +15,12 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.profile;
+package com.netscape.cms.profile.def;
 
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.request.IRequest;
 
 public interface ICertInfoPolicyDefault extends IPolicyDefault {
