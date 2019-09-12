@@ -46,6 +46,7 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -163,6 +164,8 @@ public class SharedSecret extends DirBasedAuthentication
         super.init(name, implName, config);
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         //TODO later:
         //mRemoveShrTok =
         //        config.getBoolean(PROP_REMOVE_SharedToken, DEF_REMOVE_SharedToken);
@@ -196,8 +199,7 @@ public class SharedSecret extends DirBasedAuthentication
         }
 
         try {
-            String tokenName =
-                    engine.getConfigStore().getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+            String tokenName = cs.getString("cmc.token", CryptoUtil.INTERNAL_TOKEN_NAME);
             logger.debug(method + "getting token :" + tokenName);
             token = CryptoUtil.getKeyStorageToken(tokenName);
         } catch (Exception e) {
@@ -223,7 +225,7 @@ public class SharedSecret extends DirBasedAuthentication
         String msg = "";
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         shrTokLdapConfigStore = config.getSubStore("ldap");
         if (shrTokLdapConfigStore == null) {

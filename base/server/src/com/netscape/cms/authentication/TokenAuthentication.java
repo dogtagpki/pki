@@ -42,6 +42,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -133,7 +134,7 @@ public class TokenAuthentication implements IAuthManager,
         AuthToken authToken = new AuthToken(this);
 
         // get group name from configuration file
-        IConfigStore sconfig = engine.getConfigStore();
+        EngineConfig sconfig = engine.getConfig();
 
         String sessionId = (String) authCred.get(CRED_SESSION_ID);
         String givenHost = (String) authCred.get("clientHost");

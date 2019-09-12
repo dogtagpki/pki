@@ -49,6 +49,7 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LdapAnonConnFactory;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
@@ -267,7 +268,7 @@ public abstract class DirBasedAuthentication
         String method = "DirBasedAuthentication: init: ";
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         /* initialize ldap server configuration */
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
@@ -405,7 +406,7 @@ public abstract class DirBasedAuthentication
         logger.debug(method + " begins...mBoundConnEnable=" + mBoundConnEnable);
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         try {
             if (mConnFactory == null) {

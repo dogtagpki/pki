@@ -104,6 +104,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 //import com.netscape.cmscore.util.*;
@@ -263,6 +264,8 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         logger.debug(method + "begins");
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         String auditSubjectID = getAuditSubjectID();
         String auditReqType = ILogger.UNIDENTIFIED;
         String requestCertSubject = ILogger.UNIDENTIFIED;
@@ -356,8 +359,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                     logger.debug(method + "cmc request content is signed data");
                     cmcFullReq = (SignedData) cmcReq.getInterpretedContent();
 
-                    IConfigStore cmc_config = engine.getConfigStore();
-                    boolean checkSignerInfo = cmc_config.getBoolean("cmc.signerInfo.verify", true);
+                    boolean checkSignerInfo = cs.getBoolean("cmc.signerInfo.verify", true);
                     if (checkSignerInfo) {
                         // selfSigned will be set in verifySignerInfo if applicable
                         IAuthToken userToken = verifySignerInfo(auditContext, authToken, cmcFullReq);
@@ -570,12 +572,11 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                             CryptoToken savedToken = null;
 
                             // for PKCS10, "sigver" would offer the POP
-                            sigver = engine.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
+                            sigver = cs.getBoolean("ca.requestVerify.enabled", true);
                             try {
                                 cm = CryptoManager.getInstance();
                                 if (sigver == true) {
-                                    String tokenName = engine.getConfigStore().getString("ca.requestVerify.token",
-                                            CryptoUtil.INTERNAL_TOKEN_NAME);
+                                    String tokenName = cs.getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                                     savedToken = cm.getThreadToken();
                                     signToken = CryptoUtil.getCryptoToken(tokenName);
                                     if (!savedToken.getName().equals(signToken.getName())) {
@@ -957,6 +958,8 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
         logger.debug(method + "begins");
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
         OBJECT_IDENTIFIER id = ci.getContentType();
         OCTET_STRING content = ci.getContent();
@@ -1112,8 +1115,7 @@ public class CMCUserSignedAuth implements IAuthManager, IExtendedPluginInfo,
                                         CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL") + ":" + msg);
                             }
 
-                            String tokenName = engine.getConfigStore().getString("ca.requestVerify.token",
-                                    CryptoUtil.INTERNAL_TOKEN_NAME);
+                            String tokenName = cs.getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                             // by default JSS will use internal crypto token
                             if (!CryptoUtil.isInternalToken(tokenName)) {
                                 savedToken = cm.getThreadToken();

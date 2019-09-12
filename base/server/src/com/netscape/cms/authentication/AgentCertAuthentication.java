@@ -45,6 +45,7 @@ import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -208,7 +209,7 @@ public class AgentCertAuthentication implements IAuthManager,
         }
 
         // get group name from configuration file
-        IConfigStore sconfig = engine.getConfigStore();
+        EngineConfig sconfig = engine.getConfig();
         String groupname = "";
         try {
             groupname = sconfig.getString("auths.instance." + getName() + ".agentGroup",

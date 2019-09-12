@@ -42,6 +42,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
 import netscape.ldap.LDAPAttribute;
@@ -153,7 +154,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         super.init(name, implName, config);
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         mRemovePin =
                 config.getBoolean(PROP_REMOVE_PIN, DEF_REMOVE_PIN);

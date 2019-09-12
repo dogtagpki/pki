@@ -98,6 +98,7 @@ import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 //import com.netscape.cmscore.util.*;
@@ -214,8 +215,11 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         mName = name;
         mImplName = implName;
         mConfig = config;
+
         CMSEngine engine = CMS.getCMSEngine();
-        mBypassClientAuth = engine.getConfigStore().getBoolean("cmc.bypassClientAuth", false);
+        EngineConfig cs = engine.getConfig();
+
+        mBypassClientAuth = cs.getBoolean("cmc.bypassClientAuth", false);
 
         logger.info("CMCAuth: Initialization complete!");
     }
@@ -251,6 +255,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         String auditSignerInfo = ILogger.UNIDENTIFIED;
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         SessionContext auditContext = SessionContext.getExistingContext();
         X509Certificate clientCert =
                (X509Certificate) auditContext.get(SessionContext.SSL_CLIENT_CERT);
@@ -337,7 +343,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                 SignedData cmcFullReq = (SignedData)
                                         cmcReq.getInterpretedContent();
 
-                IConfigStore cmc_config = engine.getConfigStore();
+                EngineConfig cmc_config = engine.getConfig();
                 boolean checkSignerInfo =
                         cmc_config.getBoolean("cmc.signerInfo.verify", true);
                 String userid = "defUser";
@@ -506,12 +512,11 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             CryptoManager cm = null;
                             CryptoToken signToken = null;
                             CryptoToken savedToken = null;
-                            sigver = engine.getConfigStore().getBoolean("ca.requestVerify.enabled", true);
+                            sigver = cs.getBoolean("ca.requestVerify.enabled", true);
                             try {
                                 cm = CryptoManager.getInstance();
                                 if (sigver == true) {
-                                    String tokenName =
-                                        engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                                    String tokenName = cs.getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                                     savedToken = cm.getThreadToken();
                                     signToken = CryptoUtil.getCryptoToken(tokenName);
                                     if (!savedToken.getName().equals(signToken.getName())) {
@@ -759,7 +764,10 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
             SessionContext auditContext,
             AuthToken authToken,
             SignedData cmcFullReq) throws EBaseException {
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         String method = "CMCAuth: verifySignerInfo: ";
         String msg = "";
         EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
@@ -915,8 +923,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                                 pubK = PK11PubKey.fromSPKI(/*keyType,*/ ((X509Key) signKey).getKey());
                             }
 
-                            String tokenName =
-                                engine.getConfigStore().getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
+                            String tokenName = cs.getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
                             // by default JSS will use internal crypto token
                             if (!CryptoUtil.isInternalToken(tokenName)) {
                                 savedToken = cm.getThreadToken();
