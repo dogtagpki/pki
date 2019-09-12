@@ -21,7 +21,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.profile.IPolicyDefault;
-import com.netscape.certsrv.profile.IProfileEx;
 import com.netscape.certsrv.profile.IProfilePolicy;
 
 /**
