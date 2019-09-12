@@ -80,4 +80,17 @@ public class EngineConfig extends PropConfigStore {
             return new LDAPConfig(reference, mSource);
         }
     }
+
+    public SubsystemsConfig getSubsystemsConfig() {
+
+        String fullname = getFullName("subsystem");
+        String reference = mSource.get(fullname);
+
+        if (reference == null) {
+            return new SubsystemsConfig(fullname, mSource);
+
+        } else {
+            return new SubsystemsConfig(reference, mSource);
+        }
+    }
 }

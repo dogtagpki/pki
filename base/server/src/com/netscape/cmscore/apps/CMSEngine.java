@@ -105,7 +105,6 @@ public class CMSEngine implements ISubsystem {
 
     private static final String ID = "MAIN";
 
-    public static final String PROP_SUBSYSTEM = "subsystem";
     public static final String PROP_ID = "id";
     public static final String PROP_CLASS = "class";
     public static final String PROP_ENABLED = "enabled";
@@ -698,15 +697,6 @@ public class CMSEngine implements ISubsystem {
         }
     }
 
-    private ArrayList<String> getDynSubsystemNames() throws EBaseException {
-        IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
-        Enumeration<String> ssNames = ssconfig.getSubStoreNames();
-        ArrayList<String> ssNamesList = new ArrayList<String>();
-        while (ssNames.hasMoreElements())
-            ssNamesList.add(ssNames.nextElement());
-        return ssNamesList;
-    }
-
     /**
      * load subsystems
      */
@@ -753,10 +743,9 @@ public class CMSEngine implements ISubsystem {
 
         logger.debug("CMSEngine: loading dyn subsystems");
 
-        ArrayList<String> ssNames = getDynSubsystemNames();
-        IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
+        SubsystemsConfig ssconfig = mConfig.getSubsystemsConfig();
 
-        for (String ssName : ssNames) {
+        for (String ssName : ssconfig.getSubsystemNames()) {
             IConfigStore config = ssconfig.getSubStore(ssName);
 
             String id = config.getString(PROP_ID);

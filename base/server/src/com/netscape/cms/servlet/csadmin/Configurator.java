@@ -43,7 +43,6 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -146,6 +145,7 @@ import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.ServerXml;
+import com.netscape.cmscore.apps.SubsystemsConfig;
 import com.netscape.cmscore.authentication.AuthSubsystem;
 import com.netscape.cmscore.authorization.AuthzSubsystem;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -3932,9 +3932,9 @@ public class Configurator {
      */
     public void setSubsystemEnabled(String id, boolean enabled) throws EBaseException {
 
-        IConfigStore ssconfig = cs.getSubStore(CMSEngine.PROP_SUBSYSTEM);
+        SubsystemsConfig ssconfig = cs.getSubsystemsConfig();
 
-        for (String ssName : getDynSubsystemNames()) {
+        for (String ssName : ssconfig.getSubsystemNames()) {
             IConfigStore config = ssconfig.getSubStore(ssName);
 
             if (id.equalsIgnoreCase(config.getString(CMSEngine.PROP_ID))) {
@@ -3942,21 +3942,6 @@ public class Configurator {
                 break;
             }
         }
-    }
-
-    public ArrayList<String> getDynSubsystemNames() throws EBaseException {
-
-        IConfigStore subsystems = cs.getSubStore(CMSEngine.PROP_SUBSYSTEM);
-
-        Enumeration<String> names = subsystems.getSubStoreNames();
-
-        ArrayList<String> list = new ArrayList<String>();
-
-        while (names.hasMoreElements()) {
-            list.add(names.nextElement());
-        }
-
-        return list;
     }
 
     public String getSystemCertProfileID(String keyType, String tag, String defaultName) {
