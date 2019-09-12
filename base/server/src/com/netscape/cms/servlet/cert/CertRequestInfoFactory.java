@@ -28,10 +28,10 @@ import com.netscape.certsrv.cert.CertRequestInfo;
 import com.netscape.certsrv.cert.CertRequestResource;
 import com.netscape.certsrv.cert.CertResource;
 import com.netscape.certsrv.dbs.certdb.CertId;
-import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.profile.common.IEnrollProfile;
 
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 

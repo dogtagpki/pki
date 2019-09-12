@@ -123,7 +123,6 @@ import com.netscape.certsrv.profile.ECMCUnsupportedExtException;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IEnrollProfile;
 import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
