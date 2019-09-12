@@ -69,10 +69,8 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
-import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ConsoleError;
 import com.netscape.certsrv.logging.ELogException;
@@ -82,10 +80,9 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogSource;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.certsrv.logging.SystemEvent;
-import com.netscape.certsrv.ocsp.IOCSPAuthority;
-import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 import netscape.ldap.client.JDAPAVA;
 import netscape.ldap.client.JDAPFilter;
@@ -430,6 +427,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         String fileName = null;
         String defaultFileName = null;
         String signedAuditDefaultFileName = "";
@@ -455,37 +454,11 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         mLevel = config.getInteger(PROP_LEVEL, 3);
 
         try {
-            // retrieve the subsystem
-            String subsystem = "";
-
-            ISubsystem caSubsystem = engine.getSubsystem(ICertificateAuthority.ID);
-            if (caSubsystem != null) {
-                subsystem = ICertificateAuthority.ID;
-            }
-
-            ISubsystem raSubsystem = engine.getSubsystem(IRegistrationAuthority.ID);
-            if (raSubsystem != null) {
-                subsystem = IRegistrationAuthority.ID;
-            }
-
-            ISubsystem kraSubsystem = engine.getSubsystem(IKeyRecoveryAuthority.ID);
-            if (kraSubsystem != null) {
-                subsystem = IKeyRecoveryAuthority.ID;
-            }
-
-            ISubsystem ocspSubsystem = engine.getSubsystem(IOCSPAuthority.ID);
-            if (ocspSubsystem != null) {
-                subsystem = IOCSPAuthority.ID;
-            }
-
-            // retrieve the instance name
-            String instIDPath = engine.getInstanceDir();
-            int index = instIDPath.lastIndexOf("/");
-            String instID = instIDPath.substring(index + 1);
+            String subsystem = cs.getType().toLowerCase();
+            String instID = cs.getInstanceID();
 
             // build the default signedAudit file name
-            signedAuditDefaultFileName = subsystem + "_"
-                                       + instID + "_" + "audit";
+            signedAuditDefaultFileName = subsystem + "_" + instID + "_" + "audit";
 
         } catch (Exception e2) {
             String message = CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
