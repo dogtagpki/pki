@@ -35,6 +35,7 @@ import com.netscape.certsrv.system.KRAConnectorInfo;
 import com.netscape.cms.servlet.processors.CAProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 /**
@@ -69,7 +70,8 @@ public class KRAConnectorProcessor extends CAProcessor {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
+
         String host = cs.getString(PREFIX + ".host");
         String port = cs.getString(PREFIX + ".port");
 
@@ -145,9 +147,10 @@ public class KRAConnectorProcessor extends CAProcessor {
         stopConnector();
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         ICertificateAuthority ca = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
         ICAService caService = (ICAService)ca.getCAService();
-        IConfigStore cs = engine.getConfigStore();
 
         IConnector kraConnector = caService.getConnector(cs.getSubStore(PREFIX));
         caService.setKRAConnector(kraConnector);
@@ -165,8 +168,10 @@ public class KRAConnectorProcessor extends CAProcessor {
     }
 
     public void addConnector(KRAConnectorInfo info) throws EPropertyNotFound, EBaseException {
+
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
+
         String newHost = info.getHost();
         String newPort = info.getPort();
         String newTransportCert = info.getTransportCert();
@@ -222,7 +227,7 @@ public class KRAConnectorProcessor extends CAProcessor {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         KRAConnectorInfo info = new KRAConnectorInfo();
         info.setHost(cs.getString(PREFIX + ".host"));
@@ -238,7 +243,7 @@ public class KRAConnectorProcessor extends CAProcessor {
 
     public void addHost(String newHost, String newPort) throws EPropertyNotFound, EBaseException {
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         if ((newHost == null) || (newPort == null)) {
             logger.error("addHost: malformed request.  newHost, newPort or transport cert is null");

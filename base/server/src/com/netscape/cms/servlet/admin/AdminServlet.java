@@ -269,6 +269,8 @@ public class AdminServlet extends HttpServlet {
             IOException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig configStore = engine.getConfig();
+
         String auditUID = ILogger.UNIDENTIFIED;
         String authType = "";
 
@@ -276,8 +278,6 @@ public class AdminServlet extends HttpServlet {
         // to the signed audit log and stored as failures
         try {
             try {
-                IConfigStore configStore = engine.getConfigStore();
-
                 authType = configStore.getString("authType");
             } catch (EBaseException e) {
                 // do nothing for now.

@@ -875,10 +875,12 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         if (selectedToken != null && newKeyName != null) {
             SessionKey.GenMasterKey(selectedToken, newKeyName); // check for errors
-            engine.getConfigStore().putString("tks.defaultSlot", selectedToken);
-            String masterKeyPrefix = engine.getConfigStore().getString("tks.master_key_prefix", null);
+            cs.putString("tks.defaultSlot", selectedToken);
+            String masterKeyPrefix = cs.getString("tks.master_key_prefix", null);
 
             SessionKey.SetDefaultPrefix(masterKeyPrefix);
             params.put(Constants.PR_KEY_LIST, newKeyName);

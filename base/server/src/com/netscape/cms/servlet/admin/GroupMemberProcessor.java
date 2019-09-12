@@ -32,7 +32,6 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.ConflictingOperationException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.base.SessionContext;
@@ -49,6 +48,7 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.cms.servlet.processors.Processor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
 /**
@@ -193,7 +193,10 @@ public class GroupMemberProcessor extends Processor {
 
     public GroupMemberData addGroupMember(GroupMemberData groupMemberData) {
         String groupID = groupMemberData.getGroupID();
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig config = engine.getConfig();
+
         try {
             if (groupID == null) {
                 logger.error(CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
@@ -210,7 +213,6 @@ public class GroupMemberProcessor extends Processor {
             boolean multiRole = true;
 
             try {
-                IConfigStore config = engine.getConfigStore();
                 multiRole = config.getBoolean(MULTI_ROLE_ENABLE);
             } catch (Exception e) {
                 // ignore
@@ -272,10 +274,11 @@ public class GroupMemberProcessor extends Processor {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig config = engine.getConfig();
+
         String groupList = null;
         if (multiRoleGroupEnforceList == null) {
             try {
-                IConfigStore config = engine.getConfigStore();
                 groupList = config.getString(MULTI_ROLE_ENFORCE_GROUP_LIST);
             } catch (Exception e) {
                 // ignore

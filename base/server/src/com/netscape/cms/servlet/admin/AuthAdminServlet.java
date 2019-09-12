@@ -45,6 +45,7 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 
 /**
@@ -181,10 +182,11 @@ public class AuthAdminServlet extends AdminServlet {
         }
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig configStore = engine.getConfig();
+
         try {
             if (op.equals(OpDef.OP_AUTH)) {
                 if (scope.equals(ScopeDef.SC_AUTHTYPE)) {
-                    IConfigStore configStore = engine.getConfigStore();
                     String val = configStore.getString("authType", "pwd");
                     NameValuePairs params = new NameValuePairs();
 

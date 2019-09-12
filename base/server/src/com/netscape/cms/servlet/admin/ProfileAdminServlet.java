@@ -51,6 +51,7 @@ import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * This class is an administration servlet for policy management.
@@ -2383,6 +2384,8 @@ public class ProfileAdminServlet extends AdminServlet {
             throws ServletException, IOException {
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -2433,7 +2436,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String subpath = "/profiles/";
 
             try {
-                String version = engine.getConfigStore().getString("cms.version");
+                String version = cs.getString("cms.version");
                 if (version.indexOf('.') > -1) {
                     version = version.substring(0, version.indexOf('.'));
                 }
