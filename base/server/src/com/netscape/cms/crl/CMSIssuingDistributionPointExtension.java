@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.dogtagpki.server.ca.ICMSCRLExtension;
 import org.mozilla.jss.netscape.security.util.BitArray;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.GeneralNames;
@@ -36,7 +37,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
 

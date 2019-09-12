@@ -20,6 +20,7 @@ package com.netscape.cms.crl;
 import java.io.IOException;
 import java.util.Locale;
 
+import org.dogtagpki.server.ca.ICMSCRLExtension;
 import org.mozilla.jss.netscape.security.x509.CRLReasonExtension;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
@@ -27,7 +28,6 @@ import org.mozilla.jss.netscape.security.x509.RevocationReason;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmscore.apps.CMS;
 
