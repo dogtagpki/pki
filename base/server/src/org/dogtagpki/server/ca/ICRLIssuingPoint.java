@@ -15,7 +15,7 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.ca;
+package org.dogtagpki.server.ca;
 
 import java.math.BigInteger;
 import java.util.Date;
@@ -30,6 +30,7 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+import com.netscape.certsrv.ca.ICMSCRLExtensions;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.IElementProcessor;
 
