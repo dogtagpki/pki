@@ -44,7 +44,6 @@ import org.jboss.resteasy.plugins.providers.atom.Link;
 
 import com.netscape.certsrv.base.BadRequestException;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.base.ResourceNotFoundException;
 import com.netscape.certsrv.logging.AuditConfig;
@@ -56,6 +55,7 @@ import com.netscape.certsrv.logging.event.ConfigSignedAuditEvent;
 import com.netscape.cms.servlet.base.SubsystemService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.logging.LogSubsystem;
 
 /**
@@ -77,7 +77,7 @@ public class AuditService extends SubsystemService implements AuditResource {
             throws UnsupportedEncodingException, EBaseException {
 
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
 
         AuditConfig auditConfig = new AuditConfig();
         String val = null;
@@ -168,11 +168,11 @@ public class AuditService extends SubsystemService implements AuditResource {
         logger.debug("AuditService.updateAuditConfig()");
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         try {
             AuditConfig currentAuditConfig = createAuditConfig();
             Map<String, String> currentEventConfigs = currentAuditConfig.getEventConfigs();
-
-            IConfigStore cs = engine.getConfigStore();
 
             if (auditConfig.getSigned() != null) {
                 cs.putBoolean("log.instance.SignedAudit.logSigning", auditConfig.getSigned());
@@ -276,9 +276,10 @@ public class AuditService extends SubsystemService implements AuditResource {
         logger.debug("AuditService.changeAuditStatus()");
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         try {
             auditModParams.put("Action", action);
-            IConfigStore cs = engine.getConfigStore();
 
             if ("enable".equals(action)) {
                 cs.putBoolean("log.instance.SignedAudit.enable", true);
@@ -316,8 +317,10 @@ public class AuditService extends SubsystemService implements AuditResource {
     }
 
     public File getCurrentLogFile() {
+
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore();
+        EngineConfig cs = engine.getConfig();
+
         String filename = cs.get("log.instance.SignedAudit.fileName");
         return new File(filename);
     }

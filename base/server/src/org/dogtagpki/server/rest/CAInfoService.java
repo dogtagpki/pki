@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.PKIException;
 import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.certsrv.client.PKIClient;
@@ -43,6 +42,7 @@ import com.netscape.cms.servlet.admin.KRAConnectorProcessor;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * @author Ade Lee
@@ -126,7 +126,10 @@ public class CAInfoService extends PKIService implements CAInfoResource {
     }
 
     private static void queryKRAInfo(KRAConnectorInfo connInfo) {
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         try {
             KRAInfo kraInfo = getKRAInfoClient(connInfo).getInfo();
 
@@ -147,7 +150,6 @@ public class CAInfoService extends PKIService implements CAInfoResource {
                 // pre-10.4 KRA does not advertise the archival
                 // mechanism; look for the old knob in CA's config
                 // or fall back to the default
-                IConfigStore cs = engine.getConfigStore();
                 boolean encrypt_archival;
                 try {
                     encrypt_archival = cs.getBoolean(

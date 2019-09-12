@@ -17,14 +17,18 @@ import com.netscape.certsrv.system.FeatureResource;
 import com.netscape.cms.servlet.base.PKIService;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 public class FeatureService extends PKIService implements FeatureResource {
     IConfigStore cs;
 
     @Override
     public Response listFeatures() {
+
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore().getSubStore("features");
+        EngineConfig config = engine.getConfig();
+
+        IConfigStore cs = config.getSubStore("features");
         ArrayList<Feature> features = new ArrayList<Feature>();
         Enumeration<String> tags = cs.getSubStoreNames();
         while (tags.hasMoreElements()) {
@@ -38,8 +42,11 @@ public class FeatureService extends PKIService implements FeatureResource {
 
     @Override
     public Response getFeature(String id) {
+
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore cs = engine.getConfigStore().getSubStore("features");
+        EngineConfig config = engine.getConfig();
+
+        IConfigStore cs = config.getSubStore("features");
         Enumeration<String> tags = cs.getSubStoreNames();
         while(tags.hasMoreElements()) {
             String tag = tags.nextElement();
