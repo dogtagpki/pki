@@ -48,6 +48,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -184,7 +185,10 @@ public class GetInfo extends CMSServlet {
             HttpServletResponse resp,
             Locale locale)
             throws EBaseException {
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         if (mCA != null) {
             String crlIssuingPoints = "";
             String crlNumbers = "";
@@ -197,8 +201,8 @@ public class GetInfo extends CMSServlet {
             String crlTesting = "";
             boolean isDeltaCRLEnabled = false;
 
-            String masterHost = engine.getConfigStore().getString("master.ca.agent.host", "");
-            String masterPort = engine.getConfigStore().getString("master.ca.agent.port", "");
+            String masterHost = cs.getString("master.ca.agent.host", "");
+            String masterPort = cs.getString("master.ca.agent.port", "");
 
             if (masterHost != null && masterHost.length() > 0 &&
                     masterPort != null && masterPort.length() > 0) {

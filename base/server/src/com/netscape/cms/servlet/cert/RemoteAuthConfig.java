@@ -43,6 +43,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 
 import netscape.ldap.LDAPAttribute;
@@ -95,10 +96,11 @@ public class RemoteAuthConfig extends CMSServlet {
         super.init(sc);
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
-        mFileConfig = engine.getConfigStore();
-        mAuthConfig = mFileConfig.getSubStore("auths");
+        mFileConfig = cs;
+        mAuthConfig = cs.getSubStore("auths");
         try {
             mEnableRemoteConfiguration = mAuthConfig.getBoolean(ENABLE_REMOTE_CONFIG, false);
         } catch (EBaseException eb) {

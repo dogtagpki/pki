@@ -33,7 +33,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.cms.authentication.HashAuthentication;
@@ -44,6 +43,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 
 /**
@@ -88,6 +88,8 @@ public class DisableEnrollResult extends CMSServlet {
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig configStore = engine.getConfig();
+
         IAuthToken token = authenticate(cmsReq);
 
         AuthzToken authzToken = null;
@@ -135,7 +137,6 @@ public class DisableEnrollResult extends CMSServlet {
         ArgBlock fixed = new ArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        IConfigStore configStore = engine.getConfigStore();
         String val = configStore.getString("hashDirEnrollment.name");
         IAuthSubsystem authSS = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
         IAuthManager authMgr = authSS.get(val);

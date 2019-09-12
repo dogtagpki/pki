@@ -50,6 +50,7 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.base.ArgBlock;
 import com.netscape.cmscore.cert.CrlCachePrettyPrint;
 import com.netscape.cmscore.cert.CrlPrettyPrint;
@@ -176,6 +177,8 @@ public class DisplayCRL extends CMSServlet {
                          String crlIssuingPointId,
                          Locale locale) {
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig cs = engine.getConfig();
+
         ICRLIssuingPoint crlIP = null;
         X509CRLImpl crl = null;
         boolean clonedCA = false;
@@ -187,8 +190,8 @@ public class DisplayCRL extends CMSServlet {
         ICRLRepository crlRepository = mCA.getCRLRepository();
 
         try {
-            masterHost = engine.getConfigStore().getString("master.ca.agent.host", "");
-            masterPort = engine.getConfigStore().getString("master.ca.agent.port", "");
+            masterHost = cs.getString("master.ca.agent.host", "");
+            masterPort = cs.getString("master.ca.agent.port", "");
             if (masterHost != null && masterHost.length() > 0 &&
                     masterPort != null && masterPort.length() > 0) {
                 clonedCA = true;

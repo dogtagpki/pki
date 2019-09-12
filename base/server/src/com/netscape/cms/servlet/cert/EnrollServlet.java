@@ -77,6 +77,7 @@ import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 
@@ -178,8 +179,9 @@ public class EnrollServlet extends CMSServlet {
             logger.debug("EnrollServlet: In Enroll Servlet init!");
 
             CMSEngine engine = CMS.getCMSEngine();
+            EngineConfig configStore = engine.getConfig();
+
             try {
-                IConfigStore configStore = engine.getConfigStore();
                 String PKI_Subsystem = configStore.getString("subsystem.0.id",
                                                               null);
 
@@ -682,7 +684,10 @@ public class EnrollServlet extends CMSServlet {
      */
     protected void processX509(CMSRequest cmsReq)
             throws EBaseException {
+
         CMSEngine engine = CMS.getCMSEngine();
+        EngineConfig configStore = engine.getConfig();
+
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
@@ -697,8 +702,6 @@ public class EnrollServlet extends CMSServlet {
         AuthzToken authzToken = null;
         IRequest req = null;
         X509CertInfo certInfo = null;
-
-        IConfigStore configStore = engine.getConfigStore();
 
         /* XXX shouldn't we read this from ServletConfig at init time? */
         enforcePop = configStore.getBoolean("enrollment.enforcePop", false);
@@ -758,7 +761,7 @@ public class EnrollServlet extends CMSServlet {
             }
 
             try {
-                if (engine.getConfigStore().getBoolean("useThreadNaming", false)) {
+                if (configStore.getBoolean("useThreadNaming", false)) {
                     String currentName = Thread.currentThread().getName();
 
                     Thread.currentThread().setName(currentName
