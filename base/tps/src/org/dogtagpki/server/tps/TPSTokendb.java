@@ -145,9 +145,11 @@ public class TPSTokendb {
     public ArrayList<TokenRecord> tdbFindTokenRecordsByUID(String uid)
             throws Exception {
 
-        // search for tokens with (tokenUserID=<owner UID>)
+        // search for tokens with (userID=<UID>) filter which will be
+        // translated into (tokenUserID=<UID>) LDAP filter as defined
+        // in TokenRecord
         Map<String, String> attributes = new LinkedHashMap<>();
-        attributes.put("tokenUserID", uid);
+        attributes.put("userID", uid);
 
         Iterator<TokenRecord> records = tps.tokenDatabase.findRecords(null, attributes).iterator();
 
