@@ -32,7 +32,7 @@ public interface IProfileContext {
      * @param name property name
      * @param value property value
      */
-    public void set(String name, String value);
+    public void put(String name, String value);
 
     /**
      * Retrieves a value from the context.

@@ -86,7 +86,7 @@ public class CertProcessor extends CAProcessor {
             }
 
             if (value == null) continue;
-            ctx.set(name, value.toString());
+            ctx.put(name, value.toString());
         }
     }
 

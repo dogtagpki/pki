@@ -1598,8 +1598,8 @@ public class CRSEnrollment extends HttpServlet {
 
             IRequest reqs[] = null;
             logger.debug("CRSEnrollment: Creating profile requests");
-            ctx.set(IEnrollProfile.CTX_CERT_REQUEST_TYPE, "pkcs10");
-            ctx.set(IEnrollProfile.CTX_CERT_REQUEST, pkcs10blob);
+            ctx.put(IEnrollProfile.CTX_CERT_REQUEST_TYPE, "pkcs10");
+            ctx.put(IEnrollProfile.CTX_CERT_REQUEST, pkcs10blob);
             Locale locale = Locale.getDefault();
             reqs = profile.createRequests(ctx, locale);
             if (reqs == null) {

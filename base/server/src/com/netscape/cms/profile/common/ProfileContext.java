@@ -29,7 +29,7 @@ import com.netscape.certsrv.profile.IProfileContext;
 public class ProfileContext implements IProfileContext {
     private Hashtable<String, String> m_Attrs = new Hashtable<String, String>();
 
-    public void set(String name, String value) {
+    public void put(String name, String value) {
         m_Attrs.put(name, value);
     }
 

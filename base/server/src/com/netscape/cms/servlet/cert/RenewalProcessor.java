@@ -233,7 +233,7 @@ public class RenewalProcessor extends CertProcessor {
             IProfileContext ctx = profile.createContext();
 
             if (aidString != null)
-                ctx.set(IEnrollProfile.REQUEST_AUTHORITY_ID, aidString);
+                ctx.put(IEnrollProfile.REQUEST_AUTHORITY_ID, aidString);
 
             IProfileAuthenticator authenticator = ps.getProfileAuthenticator(renewProfile);
             IProfileAuthenticator origAuthenticator = ps.getProfileAuthenticator(profile);
@@ -253,9 +253,9 @@ public class RenewalProcessor extends CertProcessor {
             // for renewal, input needs to be retrieved from the orig req record
             logger.debug("processRenewal: set original Inputs into profile Context");
             setInputsIntoContext(origReq, profile, ctx, locale);
-            ctx.set(IEnrollProfile.CTX_RENEWAL, "true");
-            ctx.set("renewProfileId", renewProfileId);
-            ctx.set(IEnrollProfile.CTX_RENEWAL_SEQ_NUM, origSeqNum.toString());
+            ctx.put(IEnrollProfile.CTX_RENEWAL, "true");
+            ctx.put("renewProfileId", renewProfileId);
+            ctx.put(IEnrollProfile.CTX_RENEWAL_SEQ_NUM, origSeqNum.toString());
 
             // for ssl authentication; pass in servlet for retrieving
             // ssl client certificates
@@ -401,7 +401,7 @@ public class RenewalProcessor extends CertProcessor {
 
                     if (inputValue != null) {
                         logger.debug("RenewalSubmitter: setInputsIntoContext() setting value in ctx:" + inputValue);
-                        ctx.set(inputName, inputValue);
+                        ctx.put(inputName, inputValue);
                     } else {
                         logger.warn("RenewalSubmitter: setInputsIntoContext() value null");
                     }

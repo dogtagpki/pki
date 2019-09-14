@@ -78,9 +78,9 @@ public class EnrollmentProcessor extends CertProcessor {
                     if (dataInputs.containsKey(inputName)) {
                         // all subject name parameters start with sn_, no other input parameters do
                         if (inputName.matches("^sn_.*")) {
-                            ctx.set(inputName, LDAPUtil.escapeRDNValue(dataInputs.get(inputName)));
+                            ctx.put(inputName, LDAPUtil.escapeRDNValue(dataInputs.get(inputName)));
                         } else {
-                            ctx.set(inputName, dataInputs.get(inputName));
+                            ctx.put(inputName, dataInputs.get(inputName));
                         }
                     }
                 }
@@ -153,10 +153,10 @@ public class EnrollmentProcessor extends CertProcessor {
             if (request != null)
                 userData = request.getParameter("user-data");
             if (userData != null)
-                ctx.set(IEnrollProfile.REQUEST_USER_DATA, userData);
+                ctx.put(IEnrollProfile.REQUEST_USER_DATA, userData);
 
             if (aid != null)
-                ctx.set(IEnrollProfile.REQUEST_AUTHORITY_ID, aid.toString());
+                ctx.put(IEnrollProfile.REQUEST_AUTHORITY_ID, aid.toString());
 
             logger.debug("EnrollmentProcessor: set Inputs into profile Context");
             setInputsIntoContext(data, profile, ctx);

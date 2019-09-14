@@ -129,7 +129,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
                     if (request.getParameter(inputName) != null) {
                         logger.debug(method + "setting: " + inputName);
-                        ctx.set(inputName, request.getParameter(inputName));
+                        ctx.put(inputName, request.getParameter(inputName));
                     }
                 }
             }
@@ -146,7 +146,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
                 String authName = authIds.nextElement();
 
                 if (request.getParameter(authName) != null) {
-                    ctx.set(authName, request.getParameter(authName));
+                    ctx.put(authName, request.getParameter(authName));
                 }
             }
         }
@@ -390,8 +390,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
         IProfileContext ctx = profile.createContext();
         if (requestB64 != null) {
-            ctx.set("cert_request_type", cert_request_type);
-            ctx.set("cert_request", Utils.normalizeString(requestB64));
+            ctx.put("cert_request_type", cert_request_type);
+            ctx.put("cert_request", Utils.normalizeString(requestB64));
         }
         // passing auths into context
         IProfileAuthenticator authenticator = null;
@@ -510,7 +510,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             // unlikely to happen, but do this just in case
             logger.debug("ProfileSubmitCMCServlet: found existing CRED_CMC_SIGNING_CERT in ctx for CMCUserSignedAuth:" + tmpCertSerialS);
             logger.debug("ProfileSubmitCMCServlet: null it out");
-            ctx.set(IAuthManager.CRED_CMC_SIGNING_CERT, "");
+            ctx.put(IAuthManager.CRED_CMC_SIGNING_CERT, "");
         }
 
         String signingCertSerialS = null;
@@ -519,7 +519,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         }
         if (signingCertSerialS != null) {
             logger.debug("ProfileSubmitCMCServlet: setting CRED_CMC_SIGNING_CERT in ctx for CMCUserSignedAuth");
-            ctx.set(IAuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
+            ctx.put(IAuthManager.CRED_CMC_SIGNING_CERT, signingCertSerialS);
         }
 
         String tmpSharedTokenAuthenticatedCertSubject = ctx.get(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
@@ -527,7 +527,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             // unlikely to happen, but do this just in case
             logger.debug("ProfileSubmitCMCServlet: found existing TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT in ctx for CMCUserSignedAuth:" + tmpSharedTokenAuthenticatedCertSubject);
             logger.debug("ProfileSubmitCMCServlet: null it out");
-            ctx.set(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, "");
+            ctx.put(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, "");
         }
 
         String errorCode = null;

@@ -214,7 +214,7 @@ public abstract class EnrollProfile extends BasicProfile
                     (String) sessionContext.get(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT);
 
             if (authenticatedSubject != null) {
-                ctx.set(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, authenticatedSubject);
+                ctx.put(IAuthToken.TOKEN_SHARED_TOKEN_AUTHENTICATED_CERT_SUBJECT, authenticatedSubject);
             }
 
             if (cmc_msgs == null) {
