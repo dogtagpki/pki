@@ -161,7 +161,7 @@ public class EnrollmentProcessor extends CertProcessor {
             logger.debug("EnrollmentProcessor: set Inputs into profile Context");
             setInputsIntoContext(data, profile, ctx);
 
-            IProfileAuthenticator authenticator = profile.getAuthenticator();
+            IProfileAuthenticator authenticator = ps.getProfileAuthenticator(profile);
             if (authenticator != null) {
                 logger.debug("EnrollmentProcessor: authenticator " + authenticator.getName() + " found");
                 setCredentialsIntoContext(request, credentials, authenticator, ctx);

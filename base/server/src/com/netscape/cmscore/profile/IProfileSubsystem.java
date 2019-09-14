@@ -23,6 +23,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileAuthenticator;
 
 /**
  * This represents the profile subsystem that manages
@@ -108,6 +109,17 @@ public interface IProfileSubsystem extends ISubsystem {
      * @return implementation id managed by the registry
      */
     public String getProfileClassId(String id);
+
+    /**
+     * Retrieves the associated profile authenticator instance.
+     *
+     * @param profile profile
+     * @return profile authenticator instance.
+     *         if no associated authenticator, null is returned
+     * @exception EBaseException failed to retrieve
+     */
+    public IProfileAuthenticator getProfileAuthenticator(IProfile profile)
+            throws EBaseException;
 
     /**
      * Retrieves a list of profile ids. The return

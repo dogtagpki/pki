@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -37,7 +36,6 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
@@ -152,29 +150,6 @@ public abstract class BasicProfile implements IProfile {
 
     public String getId() {
         return mId;
-    }
-
-    public IProfileAuthenticator getAuthenticator() throws EProfileException {
-
-        CMSEngine engine = CMS.getCMSEngine();
-        try {
-            IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
-            IProfileAuthenticator auth = (IProfileAuthenticator)
-                    authSub.get(mAuthInstanceId);
-
-            if (mAuthInstanceId != null && mAuthInstanceId.length() > 0
-                    && auth == null) {
-                throw new EProfileException("Cannot load " +
-                        mAuthInstanceId);
-            }
-            return auth;
-        } catch (Exception e) {
-            if (mAuthInstanceId != null) {
-                throw new EProfileException("Cannot load " +
-                        mAuthInstanceId);
-            }
-            return null;
-        }
     }
 
     public String getRequestorDN(IRequest request) {

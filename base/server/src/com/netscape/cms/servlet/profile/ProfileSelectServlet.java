@@ -247,7 +247,7 @@ public class ProfileSelectServlet extends ProfileServlet {
         IProfileAuthenticator authenticator = null;
 
         try {
-            authenticator = profile.getAuthenticator();
+            authenticator = ps.getProfileAuthenticator(profile);
         } catch (EProfileException e) {
             // authenticator not installed correctly
             args.set(ARG_ERROR_CODE, "1");

@@ -22,11 +22,15 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
+import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.cmscore.apps.CMS;
@@ -163,6 +167,23 @@ public abstract class AbstractProfileSubsystem implements IProfileSubsystem {
 
     public String getProfileClassId(String id) {
         return mProfileClassIds.get(id);
+    }
+
+    public IProfileAuthenticator getProfileAuthenticator(IProfile profile) throws EBaseException {
+
+        String authenticatorID = profile.getAuthenticatorId();
+        if (StringUtils.isEmpty(authenticatorID)) return null;
+
+        CMSEngine engine = CMS.getCMSEngine();
+
+        IAuthSubsystem authSub = (IAuthSubsystem) engine.getSubsystem(IAuthSubsystem.ID);
+        IProfileAuthenticator auth = (IProfileAuthenticator) authSub.get(authenticatorID);
+
+        if (auth == null) {
+            throw new EProfileException("Unable to load authenticator: " + authenticatorID);
+        }
+
+        return auth;
     }
 
     /**

@@ -235,8 +235,8 @@ public class RenewalProcessor extends CertProcessor {
             if (aidString != null)
                 ctx.set(IEnrollProfile.REQUEST_AUTHORITY_ID, aidString);
 
-            IProfileAuthenticator authenticator = renewProfile.getAuthenticator();
-            IProfileAuthenticator origAuthenticator = profile.getAuthenticator();
+            IProfileAuthenticator authenticator = ps.getProfileAuthenticator(renewProfile);
+            IProfileAuthenticator origAuthenticator = ps.getProfileAuthenticator(profile);
 
             if (authenticator != null) {
                 logger.debug("RenewalSubmitter: authenticator " + authenticator.getName() + " found");

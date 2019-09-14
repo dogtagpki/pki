@@ -123,16 +123,6 @@ public interface IProfile {
     public void setAuthzAcl(String id);
 
     /**
-     * Retrieves the associated authenticator instance.
-     *
-     * @return profile authenticator instance.
-     *         if no associated authenticator, null is returned
-     * @exception EProfileException failed to retrieve
-     */
-    public IProfileAuthenticator getAuthenticator()
-            throws EProfileException;
-
-    /**
      * Retrieves a list of input policy IDs.
      *
      * @return input policy id list

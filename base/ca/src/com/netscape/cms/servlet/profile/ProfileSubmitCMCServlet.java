@@ -397,7 +397,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         IProfileAuthenticator authenticator = null;
 
         try {
-            authenticator = profile.getAuthenticator();
+            authenticator = ps.getProfileAuthenticator(profile);
         } catch (EProfileException e) {
             // authenticator not installed correctly
         }

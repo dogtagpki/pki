@@ -634,7 +634,7 @@ public class CRSEnrollment extends HttpServlet {
             IProfileAuthenticator authenticator = null;
             try {
                 logger.debug("Retrieving authenticator");
-                authenticator = profile.getAuthenticator();
+                authenticator = mProfileSubsystem.getProfileAuthenticator(profile);
                 if (authenticator == null) {
                     logger.error("Authenticator not found.");
                     throw new ServletException("Authenticator not found.");
@@ -1562,7 +1562,7 @@ public class CRSEnrollment extends HttpServlet {
             IProfileAuthenticator authenticator = null;
             try {
                 logger.debug("Retrieving authenticator");
-                authenticator = profile.getAuthenticator();
+                authenticator = mProfileSubsystem.getProfileAuthenticator(profile);
                 if (authenticator == null) {
                     logger.debug("No authenticator Found");
                 } else {
