@@ -22,11 +22,8 @@ import java.util.Locale;
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyDefault;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.IEnrollProfile;
@@ -44,11 +41,6 @@ public class UserSubjectNameConstraint extends EnrollConstraint {
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserSubjectNameConstraint.class);
 
     public UserSubjectNameConstraint() {
-    }
-
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) {

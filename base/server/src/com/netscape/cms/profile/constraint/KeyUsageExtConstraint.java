@@ -23,11 +23,8 @@ import org.mozilla.jss.netscape.security.x509.KeyUsageExtension;
 import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyDefault;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -72,12 +69,6 @@ public class KeyUsageExtConstraint extends EnrollConstraint {
         addConfigName(CONFIG_CRL_SIGN);
         addConfigName(CONFIG_ENCIPHER_ONLY);
         addConfigName(CONFIG_DECIPHER_ONLY);
-    }
-
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
-
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) {

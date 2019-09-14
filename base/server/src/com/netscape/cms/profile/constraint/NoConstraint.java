@@ -27,7 +27,6 @@ import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -65,8 +64,7 @@ public class NoConstraint implements IPolicyConstraint {
         return null;
     }
 
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+    public void init(IConfigStore config) throws EProfileException {
         mConfig = config;
     }
 

@@ -36,12 +36,10 @@ public interface IPolicyConstraint extends IConfigTemplate {
     /**
      * Initializes this constraint policy.
      *
-     * @param profile owner of this policy
      * @param config configuration store for this constraint
      * @exception EProfileException failed to initialize
      */
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException;
+    public void init(IConfigStore config) throws EProfileException;
 
     /**
      * Returns the corresponding configuration store

@@ -949,7 +949,7 @@ public abstract class BasicProfile implements IProfile {
             IConfigStore conStore = null;
 
             conStore = policyStore.getSubStore(constraintRoot);
-            constraint.init(this, conStore);
+            constraint.init(conStore);
             policy = new ProfilePolicy(id, def, constraint);
             policies.addElement(policy);
             logger.debug(method + " constraint class initialized.");

@@ -30,7 +30,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyDefault;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.def.CAValidityDefault;
 import com.netscape.cms.profile.def.NoDefault;
@@ -56,9 +55,8 @@ public class CAValidityConstraint extends CAEnrollConstraint {
         super();
     }
 
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
+    public void init(IConfigStore config) throws EProfileException {
+        super.init(config);
         X509CertImpl caCert;
         try {
             caCert = getCACert();

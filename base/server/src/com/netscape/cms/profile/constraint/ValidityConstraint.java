@@ -25,11 +25,8 @@ import java.util.Locale;
 import org.mozilla.jss.netscape.security.x509.CertificateValidity;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyDefault;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -66,11 +63,6 @@ public class ValidityConstraint extends EnrollConstraint {
         addConfigName(CONFIG_NOT_BEFORE_GRACE_PERIOD);
         addConfigName(CONFIG_CHECK_NOT_BEFORE);
         addConfigName(CONFIG_CHECK_NOT_AFTER);
-    }
-
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
     }
 
     public void setConfig(String name, String value)

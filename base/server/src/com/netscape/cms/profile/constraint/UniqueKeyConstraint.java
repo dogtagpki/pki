@@ -36,7 +36,6 @@ import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyDefault;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -80,9 +79,9 @@ public class UniqueKeyConstraint extends EnrollConstraint {
         addConfigName(CONFIG_ALLOW_SAME_KEY_RENEWAL);
     }
 
-    public void init(IProfile profile, IConfigStore config)
+    public void init(IConfigStore config)
             throws EProfileException {
-        super.init(profile, config);
+        super.init(config);
         CMSEngine engine = CMS.getCMSEngine();
         mCA = (ICertificateAuthority) engine.getSubsystem(ICertificateAuthority.ID);
     }
