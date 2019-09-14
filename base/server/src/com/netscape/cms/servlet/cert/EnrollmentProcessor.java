@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,7 +36,6 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
@@ -56,7 +56,7 @@ public class EnrollmentProcessor extends CertProcessor {
         super(id, locale);
     }
 
-    private void setInputsIntoContext(CertEnrollmentRequest data, IProfile profile, IProfileContext ctx) {
+    private void setInputsIntoContext(CertEnrollmentRequest data, IProfile profile, Map<String, String> ctx) {
         // put profile inputs into a local map
         HashMap<String, String> dataInputs = new HashMap<String, String>();
         for (ProfileInput input : data.getInputs()) {
@@ -146,7 +146,7 @@ public class EnrollmentProcessor extends CertProcessor {
                 throw new BadRequestDataException("Profile " + profileId + " not enabled");
             }
 
-            IProfileContext ctx = profile.createContext();
+            Map<String, String> ctx = new HashMap<>();
 
             // set arbitrary user data into request, if any
             String userData = null;

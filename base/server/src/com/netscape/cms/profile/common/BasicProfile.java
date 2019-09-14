@@ -36,7 +36,6 @@ import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.IProfilePolicy;
@@ -1035,12 +1034,10 @@ public abstract class BasicProfile implements IProfile {
         mConfig.putString(PROP_NAME, name);
     }
 
-    public abstract IProfileContext createContext();
-
     /**
      * Creates request.
      */
-    public abstract IRequest[] createRequests(IProfileContext ctx, Locale locale) throws Exception;
+    public abstract IRequest[] createRequests(Map<String, String> ctx, Locale locale) throws Exception;
 
     /**
      * Returns the profile description.
@@ -1057,7 +1054,7 @@ public abstract class BasicProfile implements IProfile {
         mConfig.putString(PROP_DESC, desc);
     }
 
-    public void populateInput(IProfileContext ctx, IRequest request) throws Exception {
+    public void populateInput(Map<String, String> ctx, IRequest request) throws Exception {
 
         Enumeration<String> ids = getProfileInputIds();
 

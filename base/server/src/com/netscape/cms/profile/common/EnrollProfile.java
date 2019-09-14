@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.crypto.Mac;
@@ -123,7 +124,6 @@ import com.netscape.certsrv.profile.ECMCUnsupportedExtException;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
@@ -158,14 +158,10 @@ public abstract class EnrollProfile extends BasicProfile
         return authority.getRequestQueue();
     }
 
-    public IProfileContext createContext() {
-        return new ProfileContext();
-    }
-
     /**
      * Creates request.
      */
-    public IRequest[] createRequests(IProfileContext ctx, Locale locale) throws Exception {
+    public IRequest[] createRequests(Map<String, String> ctx, Locale locale) throws Exception {
 
         String method = "EnrollProfile: createRequests: ";
         logger.debug(method + "begins");
@@ -2621,7 +2617,7 @@ public abstract class EnrollProfile extends BasicProfile
      * @param request the certificate request
      * @exception Exception an error related to this profile has occurred
      */
-    public void populateInput(IProfileContext ctx, IRequest request) throws Exception {
+    public void populateInput(Map<String, String> ctx, IRequest request) throws Exception {
         super.populateInput(ctx, request);
     }
 

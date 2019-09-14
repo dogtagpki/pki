@@ -18,6 +18,7 @@
 package com.netscape.cms.profile.input;
 
 import java.util.Locale;
+import java.util.Map;
 
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
 import org.mozilla.jss.netscape.security.util.DerInputStream;
@@ -28,7 +29,6 @@ import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
@@ -89,7 +89,7 @@ public class EncryptionKeyGenInput extends EnrollInput implements IProfileInput 
     /**
      * Populates the request with this policy default.
      */
-    public void populate(IProfileContext ctx, IRequest request) throws Exception {
+    public void populate(Map<String, String> ctx, IRequest request) throws Exception {
 
         String keygen_request_type = ctx.get(VAL_KEYGEN_REQUEST_TYPE);
         String keygen_request = ctx.get(VAL_KEYGEN_REQUEST);

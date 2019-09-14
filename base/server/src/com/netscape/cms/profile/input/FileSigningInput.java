@@ -22,11 +22,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.util.Locale;
+import java.util.Map;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
@@ -92,7 +92,7 @@ public class FileSigningInput extends EnrollInput implements IProfileInput {
     /**
      * Populates the request with this policy default.
      */
-    public void populate(IProfileContext ctx, IRequest request) throws Exception {
+    public void populate(Map<String, String> ctx, IRequest request) throws Exception {
 
         request.setExtData(TEXT, ctx.get(TEXT));
         request.setExtData(URL, ctx.get(URL));

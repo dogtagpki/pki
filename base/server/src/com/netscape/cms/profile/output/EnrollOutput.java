@@ -19,12 +19,12 @@ package com.netscape.cms.profile.output;
 
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -63,7 +63,7 @@ public abstract class EnrollOutput implements IProfileOutput {
      * @param request request
      * @exception EProfileException failed to populate
      */
-    public abstract void populate(IProfileContext ctx, IRequest request)
+    public abstract void populate(Map<String, String> ctx, IRequest request)
             throws EProfileException;
 
     /**

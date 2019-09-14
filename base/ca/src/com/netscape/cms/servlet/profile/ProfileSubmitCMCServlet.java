@@ -22,7 +22,9 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -61,7 +63,6 @@ import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
@@ -113,7 +114,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         mRenderResult = false;
     }
 
-    private void setInputsIntoContext(HttpServletRequest request, IProfile profile, IProfileContext ctx) {
+    private void setInputsIntoContext(HttpServletRequest request, IProfile profile, Map<String, String> ctx) {
         String method = "ProfileSubmitCMCServlet.setInputsIntoContext: ";
         // passing inputs into context
         Enumeration<String> inputIds = profile.getProfileInputIds();
@@ -138,7 +139,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
     }
 
     private void setCredentialsIntoContext(HttpServletRequest request, IProfileAuthenticator authenticator,
-            IProfileContext ctx) {
+            Map<String, String> ctx) {
         Enumeration<String> authIds = authenticator.getValueNames();
 
         if (authIds != null) {
@@ -388,7 +389,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             return;
         }
 
-        IProfileContext ctx = profile.createContext();
+        Map<String, String> ctx = new HashMap<>();
         if (requestB64 != null) {
             ctx.put("cert_request_type", cert_request_type);
             ctx.put("cert_request", Utils.normalizeString(requestB64));

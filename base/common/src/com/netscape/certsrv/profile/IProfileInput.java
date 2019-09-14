@@ -19,6 +19,7 @@ package com.netscape.certsrv.profile;
 
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Map;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.property.EPropertyException;
@@ -59,7 +60,7 @@ public interface IProfileInput extends IConfigTemplate {
      * @param request request
      * @exception Exception failed to populate
      */
-    public void populate(IProfileContext ctx, IRequest request) throws Exception;
+    public void populate(Map<String, String> ctx, IRequest request) throws Exception;
 
     /**
      * Retrieves the localizable name of this policy.

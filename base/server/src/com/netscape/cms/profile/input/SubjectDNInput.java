@@ -19,6 +19,7 @@ package com.netscape.cms.profile.input;
 
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Vector;
 
 import org.mozilla.jss.netscape.security.x509.CertificateSubjectName;
@@ -28,7 +29,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
@@ -89,7 +89,7 @@ public class SubjectDNInput extends EnrollInput implements IProfileInput {
     /**
      * Populates the request with this policy default.
      */
-    public void populate(IProfileContext ctx, IRequest request) throws Exception {
+    public void populate(Map<String, String> ctx, IRequest request) throws Exception {
 
         X509CertInfo info =
                 request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);

@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -43,7 +44,6 @@ import com.netscape.certsrv.cert.CertEnrollmentRequest;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
@@ -230,7 +230,7 @@ public class RenewalProcessor extends CertProcessor {
                 throw new BadRequestDataException("Profile " + profileId + " not enabled");
             }
 
-            IProfileContext ctx = profile.createContext();
+            Map<String, String> ctx = new HashMap<>();
 
             if (aidString != null)
                 ctx.put(IEnrollProfile.REQUEST_AUTHORITY_ID, aidString);
@@ -379,7 +379,7 @@ public class RenewalProcessor extends CertProcessor {
      * This is expected to be used by renewal where the request
      * is retrieved from request record
      */
-    private void setInputsIntoContext(IRequest request, IProfile profile, IProfileContext ctx, Locale locale) {
+    private void setInputsIntoContext(IRequest request, IProfile profile, Map<String, String> ctx, Locale locale) {
         // passing inputs into context
         Enumeration<String> inputIds = profile.getProfileInputIds();
 

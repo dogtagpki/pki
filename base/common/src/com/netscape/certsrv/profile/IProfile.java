@@ -19,6 +19,7 @@ package com.netscape.certsrv.profile;
 
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Map;
 
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -220,15 +221,6 @@ public interface IProfile {
     public String getDescription(Locale locale);
 
     /**
-     * Retrieves profile context. The context stores
-     * information about the requestor before the
-     * actual request is created.
-     *
-     * @return profile context.
-     */
-    public IProfileContext createContext();
-
-    /**
      * Returns the profile policy set identifiers.
      *
      * @return a list of policy set id
@@ -363,7 +355,7 @@ public interface IProfile {
      * @return a list of requests
      * @exception Exception failed to create requests
      */
-    public IRequest[] createRequests(IProfileContext ctx, Locale locale) throws Exception;
+    public IRequest[] createRequests(Map<String, String> ctx, Locale locale) throws Exception;
 
     /**
      * Populates user-supplied input values into the requests.
@@ -372,7 +364,7 @@ public interface IProfile {
      * @param request request
      * @exception Exception failed to populate
      */
-    public void populateInput(IProfileContext ctx, IRequest request) throws Exception;
+    public void populateInput(Map<String, String> ctx, IRequest request) throws Exception;
 
     /**
      * Passes the request to the set of default policies that

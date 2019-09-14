@@ -24,8 +24,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.servlet.ServletConfig;
@@ -105,7 +107,6 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -1557,7 +1558,7 @@ public class CRSEnrollment extends HttpServlet {
                 logger.error("profile " + mProfileId + " not found");
                 return null;
             }
-            IProfileContext ctx = profile.createContext();
+            Map<String, String> ctx = new HashMap<>();
 
             IProfileAuthenticator authenticator = null;
             try {

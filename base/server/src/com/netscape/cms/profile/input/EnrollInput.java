@@ -19,6 +19,7 @@ package com.netscape.cms.profile.input;
 
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Vector;
 
 import org.mozilla.jss.CryptoManager;
@@ -33,7 +34,6 @@ import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -81,7 +81,7 @@ public abstract class EnrollInput implements IProfileInput {
      * @param request request
      * @exception Exception failed to populate
      */
-    public abstract void populate(IProfileContext ctx, IRequest request) throws Exception;
+    public abstract void populate(Map<String, String> ctx, IRequest request) throws Exception;
 
     /**
      * Retrieves the localizable name of this policy.

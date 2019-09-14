@@ -18,21 +18,20 @@
 package com.netscape.cms.profile.output;
 
 import java.util.Locale;
+import java.util.Map;
 
+import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
-
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * This class implements the output plugin that outputs
@@ -73,7 +72,7 @@ public class nsNKeyOutput extends EnrollOutput implements IProfileOutput {
     /**
      * Populates the request with this policy default.
      */
-    public void populate(IProfileContext ctx, IRequest request)
+    public void populate(Map<String, String> ctx, IRequest request)
             throws EProfileException {
     }
 

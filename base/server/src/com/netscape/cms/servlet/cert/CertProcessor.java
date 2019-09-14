@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,7 +39,6 @@ import com.netscape.certsrv.logging.event.CertRequestProcessedEvent;
 import com.netscape.certsrv.profile.EDeferException;
 import com.netscape.certsrv.profile.ERejectException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileContext;
 import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.ProfileAttribute;
 import com.netscape.certsrv.profile.ProfileInput;
@@ -66,7 +66,7 @@ public class CertProcessor extends CAProcessor {
             HttpServletRequest request,
             AuthCredentials creds,
             IProfileAuthenticator authenticator,
-            IProfileContext ctx) {
+            Map<String, String> ctx) {
 
         Enumeration<String> names = authenticator.getValueNames();
         if (names == null) {
@@ -318,7 +318,7 @@ public class CertProcessor extends CAProcessor {
 
     protected void populateRequests(CertEnrollmentRequest data, boolean isRenewal,
             Locale locale, Date origNotAfter, String origSubjectDN, IRequest origReq, String profileId,
-            IProfile profile, IProfileContext ctx, IProfileAuthenticator authenticator, IAuthToken authToken,
+            IProfile profile, Map<String, String> ctx, IProfileAuthenticator authenticator, IAuthToken authToken,
             IRequest[] reqs) throws Exception {
 
         for (IRequest req : reqs) {
