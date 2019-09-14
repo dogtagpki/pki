@@ -23,7 +23,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileAuthenticator;
+import com.netscape.cms.profile.IProfileAuthenticator;
 
 /**
  * This represents the profile subsystem that manages
