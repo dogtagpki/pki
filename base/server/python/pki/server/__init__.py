@@ -25,6 +25,7 @@ import functools
 import getpass
 import grp
 import io
+import inspect
 import logging
 import os
 import pathlib
@@ -728,7 +729,7 @@ class PKIServer(object):
     @staticmethod
     def setup_cert_authentication(
             client_nssdb_pass, client_nssdb_pass_file, client_cert,
-            client_nssdb, tmpdir, subsystem_name, secure_port='8443'):
+            client_nssdb, tmpdir, subsystem_name=None, secure_port='8443'):
         """
         Utility method to set up a secure authenticated connection with a
         subsystem of PKI Server through PKI client
@@ -744,11 +745,19 @@ class PKIServer(object):
         :param tmpdir: Absolute path of temp dir to store p12 and pem files
         :type tmpdir: str
         :param subsystem_name: Name of the subsystem
+           DEPRECATED: https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes
         :type subsystem_name: str
         :param secure_port: Secure Port Number
         :type secure_port: str
         :return: Authenticated secure connection to PKI server
         """
+
+        if subsystem_name is not None:
+            logger.warning(
+                '%s:%s: The subsystem_name in PKIServer.setup_cert_authentication() has '
+                'been deprecated (https://www.dogtagpki.org/wiki/PKI_10.8_Python_Changes).',
+                inspect.stack()[1].filename, inspect.stack()[1].lineno)
+
         temp_auth_p12 = os.path.join(tmpdir, 'auth.p12')
         temp_auth_cert = os.path.join(tmpdir, 'auth.pem')
 
@@ -1882,7 +1891,6 @@ class PKIInstance(PKIServer):
                         client_nssdb_pass_file=client_nssdb_pass_file,
                         client_nssdb=client_nssdb,
                         tmpdir=tmpdir,
-                        subsystem_name='ca',
                         secure_port=secure_port
                     )
                 logger.info('Secure connection with CA is established.')
