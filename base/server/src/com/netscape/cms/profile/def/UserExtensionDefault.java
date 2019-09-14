@@ -23,9 +23,7 @@ import org.mozilla.jss.netscape.security.x509.CertificateExtensions;
 import org.mozilla.jss.netscape.security.x509.Extension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -54,11 +52,6 @@ public class UserExtensionDefault extends EnrollExtDefault {
         super();
         addValueName(VAL_OID);
         addConfigName(CONFIG_OID);
-    }
-
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) {

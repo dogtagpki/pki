@@ -25,9 +25,7 @@ import org.mozilla.jss.netscape.security.x509.X500Name;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.authentication.IAuthManager;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -53,11 +51,6 @@ public class CMCUserSignedSubjectNameDefault extends EnrollDefault {
     public CMCUserSignedSubjectNameDefault() {
         super();
         addValueName(VAL_NAME);
-    }
-
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {

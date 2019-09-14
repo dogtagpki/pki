@@ -27,10 +27,8 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ca.AuthorityID;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -57,11 +55,6 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
 
         addValueName(VAL_CRITICAL);
         addValueName(VAL_KEY_ID);
-    }
-
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {

@@ -24,9 +24,7 @@ import org.mozilla.jss.netscape.security.util.ObjectIdentifier;
 import org.mozilla.jss.netscape.security.x509.NSCCommentExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -57,11 +55,6 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
 
         addConfigName(CONFIG_CRITICAL);
         addConfigName(CONFIG_COMMENT);
-    }
-
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) {

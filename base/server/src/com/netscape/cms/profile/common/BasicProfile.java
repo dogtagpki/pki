@@ -920,7 +920,7 @@ public abstract class BasicProfile implements IProfile {
             IConfigStore defStore = null;
 
             defStore = policyStore.getSubStore(defaultRoot);
-            def.init(this, defStore);
+            def.init(defStore);
             logger.debug(method + " default class initialized.");
         }
 

@@ -23,9 +23,7 @@ import java.util.Locale;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -80,11 +78,6 @@ public class NSCertTypeExtDefault extends EnrollExtDefault {
         addConfigName(CONFIG_SSL_CA);
         addConfigName(CONFIG_EMAIL_CA);
         addConfigName(CONFIG_OBJECT_SIGNING_CA);
-    }
-
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) {

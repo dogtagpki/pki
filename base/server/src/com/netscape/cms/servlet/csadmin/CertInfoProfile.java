@@ -67,7 +67,7 @@ public class CertInfoProfile {
     private void init(IConfigStore config, ICertInfoPolicyDefault def)
             throws Exception {
         try {
-            def.init(null, config);
+            def.init(config);
         } catch (Exception e) {
             logger.warn("CertInfoProfile: Unable to initialize CertInfoPolicyDefault: " + e.getMessage(), e);
         }

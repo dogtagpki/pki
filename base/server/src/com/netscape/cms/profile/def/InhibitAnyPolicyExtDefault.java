@@ -25,9 +25,7 @@ import org.mozilla.jss.netscape.security.extensions.InhibitAnyPolicyExtension;
 import org.mozilla.jss.netscape.security.util.BigInt;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -58,11 +56,6 @@ public class InhibitAnyPolicyExtDefault extends EnrollExtDefault {
 
         addConfigName(CONFIG_CRITICAL);
         addConfigName(CONFIG_SKIP_CERTS);
-    }
-
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
     }
 
     public IDescriptor getConfigDescriptor(Locale locale, String name) {

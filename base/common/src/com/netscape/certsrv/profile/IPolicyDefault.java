@@ -52,12 +52,10 @@ public interface IPolicyDefault extends IConfigTemplate {
     /**
      * Initializes this default policy.
      *
-     * @param profile owner of this default policy
      * @param config configuration store for this default
      * @exception EProfileException failed to initialize
      */
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException;
+    public void init(IConfigStore config) throws EProfileException;
 
     /**
      * Retrieves the configuration store of this default.

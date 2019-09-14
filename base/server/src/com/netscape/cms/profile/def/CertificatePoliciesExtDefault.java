@@ -39,7 +39,6 @@ import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -121,10 +120,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         return num;
     }
 
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
-
+    public void init(IConfigStore config) throws EProfileException {
+        super.init(config);
         refreshConfigAndValueNames();
     }
 
