@@ -23,9 +23,7 @@ import java.util.Map;
 import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
@@ -45,14 +43,6 @@ public class nsNKeyOutput extends EnrollOutput implements IProfileOutput {
 
     public nsNKeyOutput() {
         addValueName(VAL_DER);
-    }
-
-    /**
-     * Initializes this default policy.
-     */
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
     }
 
     /**

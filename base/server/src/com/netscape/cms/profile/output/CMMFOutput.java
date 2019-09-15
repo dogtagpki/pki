@@ -33,9 +33,7 @@ import org.mozilla.jss.pkix.cmmf.CertResponse;
 import org.mozilla.jss.pkix.cmmf.CertifiedKeyPair;
 import org.mozilla.jss.pkix.cmmf.PKIStatusInfo;
 
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
@@ -59,14 +57,6 @@ public class CMMFOutput extends EnrollOutput implements IProfileOutput {
     public CMMFOutput() {
         addValueName(VAL_PRETTY_CERT);
         addValueName(VAL_CMMF_RESPONSE);
-    }
-
-    /**
-     * Initializes this default policy.
-     */
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
-        super.init(profile, config);
     }
 
     /**

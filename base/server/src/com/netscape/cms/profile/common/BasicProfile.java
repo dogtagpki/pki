@@ -264,7 +264,7 @@ public abstract class BasicProfile implements IProfile {
                 throw new EBaseException(e.toString());
             }
             IConfigStore outputConfig = outputStore.getSubStore(output_id);
-            output.init(this, outputConfig);
+            output.init(outputConfig);
             mOutputs.put(output_id, output);
             mOutputIds.addElement(output_id);
         }
@@ -597,7 +597,7 @@ public abstract class BasicProfile implements IProfile {
             logger.debug("BasicProfile: initing " + id + " output");
 
             logger.debug("BasicProfile: outputStore " + outputStore);
-            output.init(this, outputStore);
+            output.init(outputStore);
 
             mOutputs.put(id, output);
             mOutputIds.addElement(id);

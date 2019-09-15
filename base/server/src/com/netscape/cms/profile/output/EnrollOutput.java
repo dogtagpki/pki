@@ -24,7 +24,6 @@ import java.util.Vector;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
@@ -43,8 +42,7 @@ public abstract class EnrollOutput implements IProfileOutput {
     /**
      * Initializes this default policy.
      */
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+    public void init(IConfigStore config) throws EProfileException {
         mConfig = config;
     }
 

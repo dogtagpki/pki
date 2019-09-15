@@ -39,12 +39,10 @@ public interface IProfileOutput extends IConfigTemplate {
     /**
      * Initializes this default policy.
      *
-     * @param profile owner of this policy
      * @param config configuration store
      * @exception EProfileException failed to initialize
      */
-    public void init(IProfile profile, IConfigStore config)
-            throws EProfileException;
+    public void init(IConfigStore config) throws EProfileException;
 
     /**
      * Retrieves configuration store.
