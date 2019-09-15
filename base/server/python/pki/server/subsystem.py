@@ -916,6 +916,25 @@ class CASubsystem(PKISubsystem):
     def __init__(self, instance):
         super(CASubsystem, self).__init__(instance, 'ca')
 
+    def load_profile_registry(self):
+
+        registry = {}
+        registry_conf = os.path.join(self.conf_dir, 'registry.cfg')
+        pki.util.load_properties(registry_conf, registry)
+
+        return registry
+
+    def get_profile_configs(self):
+
+        profiles_dir = os.path.join(self.base_dir, 'profiles')
+
+        profile_configs = []
+        for root, _, files in os.walk(profiles_dir):
+            for filename in files:
+                profile_configs.append(os.path.join(root, filename))
+
+        return profile_configs
+
     def find_cert_requests(self, cert=None):
 
         base_dn = self.config['internaldb.basedn']
