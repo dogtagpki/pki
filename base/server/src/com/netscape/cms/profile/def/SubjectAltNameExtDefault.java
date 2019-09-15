@@ -29,7 +29,6 @@ import org.mozilla.jss.netscape.security.x509.PKIXExtensions;
 import org.mozilla.jss.netscape.security.x509.SubjectAlternativeNameExtension;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 
-import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IAttrSet;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.pattern.Pattern;
@@ -60,9 +59,6 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
     public static final String CONFIG_SOURCE = "subjAltExtSource_";
     public static final String CONFIG_SOURCE_UUID4 = "UUID4";
     public static final String CONFIG_SAN_REQ_PATTERN_PREFIX = "$request.req_san_pattern_";
-
-    public static final String CONFIG_OLD_TYPE = "subjAltExtType";
-    public static final String CONFIG_OLD_PATTERN = "subjAltExtPattern";
 
     public static final String VAL_CRITICAL = "subjAltNameExtCritical";
     public static final String VAL_GENERAL_NAMES = "subjAltNames";
@@ -100,42 +96,6 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
 
         super.init(profile, config);
         refreshConfigAndValueNames();
-        // migrate old parameters to new parameters
-        String old_type = null;
-        String old_pattern = null;
-        IConfigStore paramConfig = config.getSubStore("params");
-        try {
-            if (paramConfig != null) {
-                old_type = paramConfig.getString(CONFIG_OLD_TYPE);
-            }
-        } catch (EBaseException e) {
-            // nothing to do here
-        }
-        logger.debug("SubjectAltNameExtDefault: Upgrading old_type=" +
-                old_type);
-        try {
-            if (paramConfig != null) {
-                old_pattern = paramConfig.getString(CONFIG_OLD_PATTERN);
-            }
-        } catch (EBaseException e) {
-            // nothing to do here
-        }
-        logger.debug("SubjectAltNameExtDefault: Upgrading old_pattern=" +
-                old_pattern);
-        if (old_type != null && old_pattern != null) {
-            logger.debug("SubjectAltNameExtDefault: Upgrading");
-            try {
-                paramConfig.putString(CONFIG_NUM_GNS, "1");
-                paramConfig.putString(CONFIG_GN_ENABLE + "0", "true");
-                paramConfig.putString(CONFIG_TYPE + "0", old_type);
-                paramConfig.putString(CONFIG_PATTERN + "0", old_pattern);
-                paramConfig.remove(CONFIG_OLD_TYPE);
-                paramConfig.remove(CONFIG_OLD_PATTERN);
-                profile.getConfigStore().commit(true);
-            } catch (Exception e) {
-                logger.warn("SubjectAltNameExtDefault: Failed to upgrade " + e.getMessage(), e);
-            }
-        }
     }
 
     public void setConfig(String name, String value)
