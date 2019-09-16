@@ -1463,9 +1463,7 @@ public class CRSEnrollment extends HttpServlet {
     public X509CertImpl handlePKCSReq(HttpServletRequest httpReq,
                                  IRequest cmsRequest, CRSPKIMessage req,
                                     CRSPKIMessage crsResp, CryptoContext cx)
-            throws ServletException,
-             NotInitializedException,
-             CRSFailureException {
+            throws Exception {
 
         try {
             unwrapPKCS10(req, cx);
@@ -1535,7 +1533,8 @@ public class CRSEnrollment extends HttpServlet {
     */
 
     private IRequest postRequest(HttpServletRequest httpReq, CRSPKIMessage req, CRSPKIMessage crsResp)
-            throws EBaseException {
+            throws Exception {
+
         X500Name subject = (X500Name) req.get(SUBJECTNAME);
 
         if (mCreateEntry) {

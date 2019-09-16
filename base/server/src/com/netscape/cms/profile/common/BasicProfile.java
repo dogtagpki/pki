@@ -1083,8 +1083,8 @@ public abstract class BasicProfile implements IProfile {
         mConfig.putString(PROP_DESC, desc);
     }
 
-    public void populateInput(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+    public void populateInput(IProfileContext ctx, IRequest request) throws Exception {
+
         Enumeration<String> ids = getProfileInputIds();
 
         while (ids.hasMoreElements()) {

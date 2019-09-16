@@ -381,10 +381,9 @@ public interface IProfile {
      *
      * @param ctx profile context
      * @param request request
-     * @exception EProfileException failed to populate
+     * @exception Exception failed to populate
      */
-    public void populateInput(IProfileContext ctx, IRequest request)
-            throws EProfileException;
+    public void populateInput(IProfileContext ctx, IRequest request) throws Exception;
 
     /**
      * Passes the request to the set of default policies that

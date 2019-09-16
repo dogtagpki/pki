@@ -2620,11 +2620,9 @@ public abstract class EnrollProfile extends BasicProfile
      *
      * @param ctx profile context
      * @param request the certificate request
-     * @exception EProfileException an error related to this profile has
-     *                occurred
+     * @exception Exception an error related to this profile has occurred
      */
-    public void populateInput(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+    public void populateInput(IProfileContext ctx, IRequest request) throws Exception {
         super.populateInput(ctx, request);
     }
 
