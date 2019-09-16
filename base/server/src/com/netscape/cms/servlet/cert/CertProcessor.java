@@ -319,7 +319,8 @@ public class CertProcessor extends CAProcessor {
     protected void populateRequests(CertEnrollmentRequest data, boolean isRenewal,
             Locale locale, Date origNotAfter, String origSubjectDN, IRequest origReq, String profileId,
             IProfile profile, IProfileContext ctx, IProfileAuthenticator authenticator, IAuthToken authToken,
-            IRequest[] reqs) throws EBaseException {
+            IRequest[] reqs) throws Exception {
+
         for (IRequest req : reqs) {
             // adding parameters to request
             if (isRenewal) {

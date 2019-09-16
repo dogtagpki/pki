@@ -204,7 +204,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         }
     }
 
-    public HashMap<String, Object> processEnrollment(CMSRequest cmsReq) throws EBaseException {
+    public HashMap<String, Object> processEnrollment(CMSRequest cmsReq) throws Exception {
 
         HttpServletRequest request = cmsReq.getHttpReq();
         Locale locale = getLocale(request);

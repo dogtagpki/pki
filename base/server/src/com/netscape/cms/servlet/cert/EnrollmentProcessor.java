@@ -94,7 +94,7 @@ public class EnrollmentProcessor extends CertProcessor {
             HttpServletRequest request,
             AuthorityID aid,
             AuthCredentials credentials)
-            throws EBaseException {
+            throws Exception {
         return processEnrollment(data, request, aid, credentials, null);
     }
 
@@ -112,7 +112,7 @@ public class EnrollmentProcessor extends CertProcessor {
      * through the approval process
      * </ul>
      *
-     * @exception EBaseException an error has occurred
+     * @exception Exception an error has occurred
      */
     public HashMap<String, Object> processEnrollment(
             CertEnrollmentRequest data,
@@ -120,7 +120,7 @@ public class EnrollmentProcessor extends CertProcessor {
             AuthorityID aid,
             AuthCredentials credentials,
             IAuthToken authToken)
-        throws EBaseException {
+        throws Exception {
 
         try {
             if (logger.isDebugEnabled()) {
