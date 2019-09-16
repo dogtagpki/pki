@@ -35,6 +35,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.cert.CertUtils;
 
 /**
  * This class implements the key generation input that
@@ -110,7 +111,8 @@ public class EncryptionKeyGenInput extends EnrollInput implements IProfileInput 
                         getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
         }
         if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_PKCS10)) {
-            PKCS10 pkcs10 = mEnrollProfile.parsePKCS10(getLocale(request), keygen_request);
+
+            PKCS10 pkcs10 = CertUtils.parsePKCS10(getLocale(request), keygen_request);
 
             if (pkcs10 == null) {
                 throw new EProfileException(CMS.getUserMessage(

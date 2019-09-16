@@ -34,6 +34,7 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 import com.netscape.cmscore.apps.CMS;
+import com.netscape.cmscore.cert.CertUtils;
 
 /**
  * This class implements the dual key generation input.
@@ -110,8 +111,8 @@ public class DualKeyGenInput extends EnrollInput implements IProfileInput {
                         getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
         }
         if (keygen_request_type.startsWith("pkcs10")) {
-            PKCS10 pkcs10 = mEnrollProfile.parsePKCS10(getLocale(request), keygen_request);
 
+            PKCS10 pkcs10 = CertUtils.parsePKCS10(getLocale(request), keygen_request);
             mEnrollProfile.fillPKCS10(getLocale(request), pkcs10, info, request);
         } else if (keygen_request_type.startsWith("keygen")) {
             DerInputStream keygen = mEnrollProfile.parseKeyGen(getLocale(request), keygen_request);

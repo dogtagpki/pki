@@ -179,7 +179,7 @@ public abstract class EnrollProfile extends BasicProfile
 
         if (cert_request_type != null && cert_request_type.startsWith("pkcs10")) {
             // catch for invalid request
-            parsePKCS10(locale, cert_request);
+            CertUtils.parsePKCS10(locale, cert_request);
         }
         if (cert_request_type != null && cert_request_type.startsWith("crmf")) {
             CertReqMsg msgs[] = parseCRMF(locale, cert_request);
@@ -2329,60 +2329,6 @@ public abstract class EnrollProfile extends BasicProfile
         //     logger.error(e);
         //     throw new EProfileException(e);
         }
-    }
-
-    public PKCS10 parsePKCS10(Locale locale, String certreq)
-            throws EProfileException {
-        /* cert request must not be null */
-        if (certreq == null) {
-            logger.error("EnrollProfile: parsePKCS10() certreq null");
-            throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
-        }
-        logger.debug("Start parsePKCS10(): " + certreq);
-
-        // trim header and footer
-        String creq = CertUtils.normalizeCertReq(certreq);
-
-        // parse certificate into object
-        byte data[] = Utils.base64decode(creq);
-        PKCS10 pkcs10 = null;
-
-        CMSEngine engine = CMS.getCMSEngine();
-        EngineConfig cs = engine.getConfig();
-
-        CryptoManager cm = null;
-        CryptoToken savedToken = null;
-        boolean sigver = true;
-
-        try {
-            cm = CryptoManager.getInstance();
-            sigver = cs.getBoolean("ca.requestVerify.enabled", true);
-            if (sigver) {
-                logger.debug("EnrollProfile: parsePKCS10: signature verification enabled");
-                String tokenName = cs.getString("ca.requestVerify.token", CryptoUtil.INTERNAL_TOKEN_NAME);
-                savedToken = cm.getThreadToken();
-                CryptoToken signToken = CryptoUtil.getCryptoToken(tokenName);
-                logger.debug("EnrollProfile: parsePKCS10 setting thread token");
-                cm.setThreadToken(signToken);
-                pkcs10 = new PKCS10(data);
-            } else {
-                logger.debug("EnrollProfile: parsePKCS10: signature verification disabled");
-                pkcs10 = new PKCS10(data, sigver);
-            }
-
-        } catch (Exception e) {
-            logger.error("Unable to parse PKCS #10 request: " + e.getMessage(), e);
-            throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
-        } finally {
-            if (sigver) {
-                logger.debug("EnrollProfile: parsePKCS10 restoring thread token");
-                cm.setThreadToken(savedToken);
-            }
-        }
-
-        return pkcs10;
     }
 
     public void fillPKCS10(Locale locale, PKCS10 pkcs10, X509CertInfo info, IRequest req)
