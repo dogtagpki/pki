@@ -57,6 +57,7 @@ public class HttpClient {
     private boolean _secure = false;
 
     public static final int ARGC = 1;
+    public static final int MAX_HTTP_RESPONSE_HEADER_LINES = 56;
 
     public HttpClient(String host, int port, String secure)
             throws Exception {
@@ -99,7 +100,8 @@ public class HttpClient {
     }
 
     public void send(String ifilename, String ofilename, String tokenName, String dbdir,
-            String nickname, String password, String servlet, String clientmode)
+            String nickname, String password, String servlet, String clientmode,
+            int numHeaderLines)
             throws Exception {
         DataOutputStream dos = null;
         InputStream is = null;
@@ -190,15 +192,21 @@ public class HttpClient {
             boolean startSaving = false;
             int sum = 0;
             boolean hack = false;
+            String catchHeaders = "";
             try {
                 while (true) {
                     int r = is.read();
                     if (r == -1)
                         break;
-                    if (r == 10) {
+                    if (r == 10) { // line break
                         sum++;
                     }
-                    if (sum == 6) {
+
+                    // catch the header lines for debugging purposes
+                    if (sum < numHeaderLines) {
+                        catchHeaders = catchHeaders + (char) r;
+                    }
+                    if (sum == 5) {
                         startSaving = true;
                         continue;
                     }
@@ -214,6 +222,8 @@ public class HttpClient {
             } catch (IOException e) {
             }
             fof.close();
+            // debug
+            System.out.println("\n##Response Headers begin##\n" + catchHeaders + "\n##end##\n");
 
             byte[] bout = getBytesFromFile(ofilename);
             System.out.println("Total number of bytes read = " + bout.length);
@@ -352,6 +362,10 @@ public class HttpClient {
         String clientmode = config.getProperty("clientmode");
         String servlet = config.getProperty("servlet");
 
+        // unadvertised parameter to tell HttpClient how many header lines
+        // to skip
+        String numHeaderLinesStr = config.getProperty("numHeaderLines");
+
         if (host == null) {
             System.out.println("Missing host name.");
             printUsage();
@@ -397,10 +411,25 @@ public class HttpClient {
             }
         }
 
+        /*
+         * numHeaderLines is the number of lines in the header;
+         * By default it is 5 (in earlier version it was 6);
+         * One should not need to set this, but we provide this
+         * parameter in case it gets changed
+         */
+        int numHeaderLines = 5;
+        if (numHeaderLinesStr != null) {
+            numHeaderLines = Integer.parseInt(numHeaderLinesStr);
+            if (numHeaderLines < 1 || numHeaderLines > MAX_HTTP_RESPONSE_HEADER_LINES) {
+                System.out.println("numHeaderLines " + numHeaderLines + " out of range: 1 - 56");
+                System.exit(1);
+            }
+        }
+
         try {
             HttpClient client =
                     new HttpClient(host, port, secure);
-            client.send(ifilename, ofilename, tokenName,  dbdir, nickname, password, servlet, clientmode);
+            client.send(ifilename, ofilename, tokenName,  dbdir, nickname, password, servlet, clientmode, numHeaderLines);
         } catch (Exception e) {
             System.out.println("Error: " + e.toString());
         }
