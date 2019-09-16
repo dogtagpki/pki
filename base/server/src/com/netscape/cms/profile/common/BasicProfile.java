@@ -1065,8 +1065,7 @@ public abstract class BasicProfile implements IProfile {
     /**
      * Creates request.
      */
-    public abstract IRequest[] createRequests(IProfileContext ctx, Locale locale)
-            throws EProfileException;
+    public abstract IRequest[] createRequests(IProfileContext ctx, Locale locale) throws Exception;
 
     /**
      * Returns the profile description.

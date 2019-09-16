@@ -165,8 +165,7 @@ public abstract class EnrollProfile extends BasicProfile
     /**
      * Creates request.
      */
-    public IRequest[] createRequests(IProfileContext ctx, Locale locale)
-            throws EProfileException {
+    public IRequest[] createRequests(IProfileContext ctx, Locale locale) throws Exception {
 
         String method = "EnrollProfile: createRequests: ";
         logger.debug(method + "begins");

@@ -371,10 +371,9 @@ public interface IProfile {
      * @param ctx profile context
      * @param locale user locale
      * @return a list of requests
-     * @exception EProfileException failed to create requests
+     * @exception Exception failed to create requests
      */
-    public IRequest[] createRequests(IProfileContext ctx, Locale locale)
-            throws EProfileException;
+    public IRequest[] createRequests(IProfileContext ctx, Locale locale) throws Exception;
 
     /**
      * Populates user-supplied input values into the requests.
