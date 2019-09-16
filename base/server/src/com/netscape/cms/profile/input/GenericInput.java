@@ -109,8 +109,7 @@ public class GenericInput extends EnrollInput implements IProfileInput {
     /**
      * Populates the request with this policy default.
      */
-    public void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+    public void populate(IProfileContext ctx, IRequest request) throws Exception {
         int num = getNum();
         for (int i = 0; i < num; i++) {
             String enable = getConfig(CONFIG_ENABLE + i);

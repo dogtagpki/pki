@@ -195,8 +195,8 @@ public class SubjectNameInput extends EnrollInput implements IProfileInput {
     /**
      * Populates the request with this policy default.
      */
-    public void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+    public void populate(IProfileContext ctx, IRequest request) throws Exception {
+
         X509CertInfo info =
                 request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
         String subjectName = "";

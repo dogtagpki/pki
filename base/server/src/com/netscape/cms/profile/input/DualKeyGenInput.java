@@ -89,8 +89,8 @@ public class DualKeyGenInput extends EnrollInput implements IProfileInput {
     /**
      * Populates the request with this policy default.
      */
-    public void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+    public void populate(IProfileContext ctx, IRequest request) throws Exception {
+
         String keygen_request_type = ctx.get(VAL_KEYGEN_REQUEST_TYPE);
         String keygen_request = ctx.get(VAL_KEYGEN_REQUEST);
 

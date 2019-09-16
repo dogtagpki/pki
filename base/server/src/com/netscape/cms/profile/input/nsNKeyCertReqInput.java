@@ -83,8 +83,8 @@ public class nsNKeyCertReqInput extends EnrollInput implements IProfileInput {
     /**
      * Populates the request with this policy default.
      */
-    public void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+    public void populate(IProfileContext ctx, IRequest request) throws Exception {
+
         String sn = ctx.get(VAL_SN);
         String pk = ctx.get(VAL_PUBLIC_KEY);
         X509CertInfo info =

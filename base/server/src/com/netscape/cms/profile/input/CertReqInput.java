@@ -91,8 +91,8 @@ public class CertReqInput extends EnrollInput implements IProfileInput {
     /**
      * Populates the request with this policy default.
      */
-    public void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+    public void populate(IProfileContext ctx, IRequest request) throws Exception {
+
         String method = "CertReqInput: populate: ";
         logger.debug(method + "begins");
 

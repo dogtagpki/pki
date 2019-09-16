@@ -87,8 +87,8 @@ public class CMCCertReqInput extends EnrollInput implements IProfileInput {
     /**
      * Populates the request with this policy default.
      */
-    public void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+    public void populate(IProfileContext ctx, IRequest request) throws Exception {
+
         String method = "CMCCertReqInput: populate: ";
         logger.debug(method + "begins");
 

@@ -92,8 +92,8 @@ public class FileSigningInput extends EnrollInput implements IProfileInput {
     /**
      * Populates the request with this policy default.
      */
-    public void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+    public void populate(IProfileContext ctx, IRequest request) throws Exception {
+
         request.setExtData(TEXT, ctx.get(TEXT));
         request.setExtData(URL, ctx.get(URL));
         request.setExtData(DIGEST_TYPE, "SHA256");

@@ -79,10 +79,9 @@ public abstract class EnrollInput implements IProfileInput {
      *
      * @param ctx profile context
      * @param request request
-     * @exception EProfileException failed to populate
+     * @exception Exception failed to populate
      */
-    public abstract void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException;
+    public abstract void populate(IProfileContext ctx, IRequest request) throws Exception;
 
     /**
      * Retrieves the localizable name of this policy.
