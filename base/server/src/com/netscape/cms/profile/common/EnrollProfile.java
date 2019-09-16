@@ -34,7 +34,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import javax.crypto.Mac;
 
@@ -130,6 +129,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
@@ -602,7 +602,7 @@ public abstract class EnrollProfile extends BasicProfile
         //logger.debug(method + " Start: " + certReqBlob);
         logger.debug(method + "starts");
 
-        String creq = normalizeCertReq(certReqBlob);
+        String creq = CertUtils.normalizeCertReq(certReqBlob);
         try {
             byte data[] = Utils.base64decode(creq);
             ByteArrayInputStream cmcBlobIn = new ByteArrayInputStream(data);
@@ -2092,7 +2092,7 @@ public abstract class EnrollProfile extends BasicProfile
         logger.debug("EnrollProfile: Start parseCRMF(): "/* + certreq*/);
 
         CertReqMsg msgs[] = null;
-        String creq = normalizeCertReq(certreq);
+        String creq = CertUtils.normalizeCertReq(certreq);
         try {
             byte data[] = Utils.base64decode(creq);
             ByteArrayInputStream crmfBlobIn =
@@ -2342,7 +2342,7 @@ public abstract class EnrollProfile extends BasicProfile
         logger.debug("Start parsePKCS10(): " + certreq);
 
         // trim header and footer
-        String creq = normalizeCertReq(certreq);
+        String creq = CertUtils.normalizeCertReq(certreq);
 
         // parse certificate into object
         byte data[] = Utils.base64decode(creq);
@@ -2559,35 +2559,6 @@ public abstract class EnrollProfile extends BasicProfile
             throw new EProfileException(
                     CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         }
-    }
-
-    public String normalizeCertReq(String s) {
-        if (s == null) {
-            return s;
-        }
-        s = s.replaceAll(org.mozilla.jss.netscape.security.util.Cert.REQUEST_HEADER, "");
-        s = s.replaceAll("-----BEGIN NEW CERTIFICATE REQUEST-----", "");
-        s = s.replaceAll(org.mozilla.jss.netscape.security.util.Cert.REQUEST_FOOTER, "");
-        s = s.replaceAll("-----END NEW CERTIFICATE REQUEST-----", "");
-
-        StringBuffer sb = new StringBuffer();
-        StringTokenizer st = new StringTokenizer(s, "\r\n ");
-
-        while (st.hasMoreTokens()) {
-            String nextLine = st.nextToken();
-
-            nextLine = nextLine.trim();
-            if (nextLine.equals(org.mozilla.jss.netscape.security.util.Cert.REQUEST_HEADER))
-                continue;
-            if (nextLine.equals("-----BEGIN NEW CERTIFICATE REQUEST-----"))
-                continue;
-            if (nextLine.equals(org.mozilla.jss.netscape.security.util.Cert.REQUEST_FOOTER))
-                continue;
-            if (nextLine.equals("-----END NEW CERTIFICATE REQUEST-----"))
-                continue;
-            sb.append(nextLine);
-        }
-        return sb.toString();
     }
 
     public Locale getLocale(IRequest request) {

@@ -89,6 +89,39 @@ public class CertUtils {
             "-----BEGIN CERTIFICATE REVOCATION LIST-----";
     public static final String END_CRL_HEADER =
             "-----END CERTIFICATE REVOCATION LIST-----";
+
+    public static String normalizeCertReq(String s) {
+
+        if (s == null) {
+            return s;
+        }
+
+        s = s.replaceAll(org.mozilla.jss.netscape.security.util.Cert.REQUEST_HEADER, "");
+        s = s.replaceAll("-----BEGIN NEW CERTIFICATE REQUEST-----", "");
+        s = s.replaceAll(org.mozilla.jss.netscape.security.util.Cert.REQUEST_FOOTER, "");
+        s = s.replaceAll("-----END NEW CERTIFICATE REQUEST-----", "");
+
+        StringBuffer sb = new StringBuffer();
+        StringTokenizer st = new StringTokenizer(s, "\r\n ");
+
+        while (st.hasMoreTokens()) {
+            String nextLine = st.nextToken();
+
+            nextLine = nextLine.trim();
+            if (nextLine.equals(org.mozilla.jss.netscape.security.util.Cert.REQUEST_HEADER))
+                continue;
+            if (nextLine.equals("-----BEGIN NEW CERTIFICATE REQUEST-----"))
+                continue;
+            if (nextLine.equals(org.mozilla.jss.netscape.security.util.Cert.REQUEST_FOOTER))
+                continue;
+            if (nextLine.equals("-----END NEW CERTIFICATE REQUEST-----"))
+                continue;
+            sb.append(nextLine);
+        }
+
+        return sb.toString();
+    }
+
     /**
      * Remove the header and footer in the PKCS10 request.
      */
