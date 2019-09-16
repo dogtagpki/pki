@@ -325,7 +325,7 @@ public class AuthorityService extends SubsystemService implements AuthorityResou
             auditParams.put("exception", e.toString());
             audit(ILogger.FAILURE, OpDef.OP_MODIFY, aidString, auditParams);
             throw new ConflictingOperationException(e.toString());
-        } catch (EBaseException e) {
+        } catch (Exception e) {
             String message = "Error renewing authority: " + e.getMessage();
             logger.error(message, e);
             auditParams.put("exception", e.toString());

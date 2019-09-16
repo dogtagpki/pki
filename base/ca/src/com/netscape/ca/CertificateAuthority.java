@@ -2955,8 +2955,7 @@ public class CertificateAuthority
     /**
      * Renew certificate of this CA.
      */
-    public void renewAuthority(HttpServletRequest httpReq)
-            throws EBaseException {
+    public void renewAuthority(HttpServletRequest httpReq) throws Exception {
 
         CMSEngine engine = CMS.getCMSEngine();
         if (

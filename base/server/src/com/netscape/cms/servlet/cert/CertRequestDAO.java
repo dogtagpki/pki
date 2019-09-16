@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.UriInfo;
 
@@ -176,8 +175,7 @@ public class CertRequestDAO extends CMSRequestDAO {
      *
      * @param data
      * @return info for the request submitted.
-     * @throws EBaseException
-     * @throws ServletException
+     * @throws Exception
      */
     public CertRequestInfos submitRequest(
             AuthorityID aid,
@@ -185,7 +183,7 @@ public class CertRequestDAO extends CMSRequestDAO {
             HttpServletRequest request,
             UriInfo uriInfo,
             Locale locale)
-        throws EBaseException {
+        throws Exception {
 
         CertRequestInfos ret = new CertRequestInfos();
 

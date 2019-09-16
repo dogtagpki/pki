@@ -81,7 +81,7 @@ public class RenewalProcessor extends CertProcessor {
             CertEnrollmentRequest data,
             HttpServletRequest request,
             AuthCredentials credentials)
-            throws EBaseException {
+            throws Exception {
         try {
             if (logger.isDebugEnabled()) {
                 HashMap<String, String> params = data.toParams();

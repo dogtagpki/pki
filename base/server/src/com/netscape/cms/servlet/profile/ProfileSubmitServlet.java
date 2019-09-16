@@ -242,7 +242,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         return processor.processEnrollment(data, request, aid, null);
     }
 
-    public HashMap<String, Object> processRenewal(CMSRequest cmsReq) throws EBaseException {
+    public HashMap<String, Object> processRenewal(CMSRequest cmsReq) throws Exception {
 
         HttpServletRequest request = cmsReq.getHttpReq();
         Locale locale = getLocale(request);
