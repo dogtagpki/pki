@@ -22,6 +22,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import getopt
 import io
+import logging
 import os
 import shutil
 import sys
@@ -31,6 +32,8 @@ import pki.cli
 import pki.server.cli.audit
 import pki.server.cli.config
 import pki.server.cli.db
+
+logger = logging.getLogger(__name__)
 
 
 class CACLI(pki.cli.CLI):
@@ -79,6 +82,7 @@ class CACertChainExportCLI(pki.cli.CLI):
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  File containing the PKCS #12 password.')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -86,11 +90,12 @@ class CACertChainExportCLI(pki.cli.CLI):
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'verbose', 'help'])
+                'instance=',
+                'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -113,37 +118,40 @@ class CACertChainExportCLI(pki.cli.CLI):
                     pkcs12_password = f.read()
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Invalid option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         if not pkcs12_file:
-            print('ERROR: Missing PKCS #12 file')
+            logger.error('Missing PKCS #12 file')
             self.print_help()
             sys.exit(1)
 
         if not pkcs12_password:
-            print('ERROR: Missing PKCS #12 password')
+            logger.error('Missing PKCS #12 password')
             self.print_help()
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
 
         subsystem = instance.get_subsystem('ca')
         if not subsystem:
-            print('ERROR: No CA subsystem in instance %s.' % instance_name)
+            logger.error('No CA subsystem in instance %s', instance_name)
             sys.exit(1)
 
         tmpdir = tempfile.mkdtemp()
@@ -187,11 +195,12 @@ class CACertRequestFindCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ca-cert-request-find [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('      --cert                      Issued certificate.')
-        print('      --cert-file                 File containing issued certificate.')
-        print('  -v, --verbose                   Run in verbose mode.')
-        print('      --help                      Show help message.')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --cert                         Issued certificate.')
+        print('      --cert-file                    File containing issued certificate.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
         print()
 
     def execute(self, argv):
@@ -199,10 +208,10 @@ class CACertRequestFindCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'cert=', 'cert-file=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -221,27 +230,30 @@ class CACertRequestFindCLI(pki.cli.CLI):
                     cert = f.read()
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Invalid option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
 
         subsystem = instance.get_subsystem('ca')
         if not subsystem:
-            print('ERROR: No CA subsystem in instance %s.' % instance_name)
+            logger.error('No CA subsystem in instance %s', instance_name)
             sys.exit(1)
 
         results = subsystem.find_cert_requests(cert=cert)
@@ -267,10 +279,11 @@ class CACertRequestShowCLI(pki.cli.CLI):
     def print_help(self):
         print('Usage: pki-server ca-cert-request-show <request ID> [OPTIONS]')
         print()
-        print('  -i, --instance <instance ID>    Instance ID (default: pki-tomcat).')
-        print('  -v, --verbose                   Run in verbose mode.')
-        print('      --output-file <file_name>   Save request in file.')
-        print('      --help                      Show help message.')
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --output-file <file_name>      Save request in file.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
         print()
 
     def execute(self, argv):
@@ -278,15 +291,15 @@ class CACertRequestShowCLI(pki.cli.CLI):
         try:
             opts, args = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=', 'output-file=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
         if len(args) != 1:
-            print('ERROR: missing request ID')
+            logger.error('Missing request ID')
             self.print_help()
             sys.exit(1)
 
@@ -302,27 +315,30 @@ class CACertRequestShowCLI(pki.cli.CLI):
                 output_file = a
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Invalid option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
 
         subsystem = instance.get_subsystem('ca')
         if not subsystem:
-            print('ERROR: No CA subsystem in instance %s.' % instance_name)
+            logger.error('No CA subsystem in instance %s', instance_name)
             sys.exit(1)
 
         request = subsystem.get_cert_requests(request_id)
@@ -358,6 +374,7 @@ class CAClonePrepareCLI(pki.cli.CLI):
         print('      --pkcs12-password <password>   Password for the PKCS #12 file.')
         print('      --pkcs12-password-file <path>  File containing the PKCS #12 password.')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -365,11 +382,12 @@ class CAClonePrepareCLI(pki.cli.CLI):
 
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
-                'instance=', 'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
-                'verbose', 'help'])
+                'instance=',
+                'pkcs12-file=', 'pkcs12-password=', 'pkcs12-password-file=',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -392,37 +410,40 @@ class CAClonePrepareCLI(pki.cli.CLI):
                     pkcs12_password = f.read()
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Invalid option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         if not pkcs12_file:
-            print('ERROR: Missing PKCS #12 file')
+            logger.error('Missing PKCS #12 file')
             self.print_help()
             sys.exit(1)
 
         if not pkcs12_password:
-            print('ERROR: Missing PKCS #12 password')
+            logger.error('Missing PKCS #12 password')
             self.print_help()
             sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
 
         subsystem = instance.get_subsystem('ca')
         if not subsystem:
-            print('ERROR: No CA subsystem in instance %s.' % instance_name)
+            logger.error('No CA subsystem in instance %s', instance_name)
             sys.exit(1)
 
         tmpdir = tempfile.mkdtemp()
