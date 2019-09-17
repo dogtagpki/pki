@@ -30,6 +30,8 @@ import getpass
 
 import pki.cli
 
+logger = logging.getLogger(__name__)
+
 
 class DBCLI(pki.cli.CLI):
 
@@ -49,25 +51,26 @@ class DBSchemaUpgrade(pki.cli.CLI):
         super(DBSchemaUpgrade, self).__init__(
             'schema-upgrade', 'Upgrade PKI database schema')
 
-    def usage(self):
+    def print_help(self):
         print('Usage: pki-server db-schema-upgrade [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('  -D, --bind-dn <Bind DN>            Connect DN (default: cn=Directory Manager).')
         print('  -w, --bind-password <password>     Password to connect to DB.')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
     def execute(self, argv):
         try:
-            opts, _ = getopt.gnu_getopt(
-                argv, 'i:D:w:v', ['instance=', 'bind-dn=', 'bind-password=',
-                                  'verbose', 'help'])
+            opts, _ = getopt.gnu_getopt(argv, 'i:D:w:v', [
+                'instance=', 'bind-dn=', 'bind-password=',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
-            self.usage()
+            logger.error(e)
+            self.print_help()
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
@@ -85,25 +88,28 @@ class DBSchemaUpgrade(pki.cli.CLI):
                 bind_password = a
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
-                self.usage()
+                self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
-                self.usage()
+                logger.error('Invalid option: %s', o)
+                self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print("ERROR: Invalid instance %s." % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
         instance.load()
 
         if not instance.subsystems:
-            print("ERROR: No subsystem in instance %s." % instance_name)
+            logger.error('No subsystem in instance %s', instance_name)
             sys.exit(1)
 
         if not bind_password:
@@ -113,12 +119,15 @@ class DBSchemaUpgrade(pki.cli.CLI):
             self.update_schema(instance.subsystems[0], bind_dn, bind_password)
 
         except subprocess.CalledProcessError as e:
-            print("ERROR: " + e.output)
-            sys.exit(e.returncode)
+            logger.error('Unable to update schema: %s', e)
+            raise e
 
         self.print_message('Upgrade complete')
 
     def update_schema(self, subsystem, bind_dn, bind_password):
+
+        logger.info('Updating schema with %s', self.SCHEMA_PATH)
+
         # TODO(alee) re-implement this using open_database
         host = subsystem.config['internaldb.ldapconn.host']
         port = subsystem.config['internaldb.ldapconn.port']
@@ -139,26 +148,28 @@ class DBSchemaUpgrade(pki.cli.CLI):
 
 
 class DBUpgrade(pki.cli.CLI):
-    def __init__(self):
-        super(DBUpgrade, self).__init__(
-            'upgrade', 'Upgrade PKI server database')
 
-    def usage(self):
+    def __init__(self):
+        super(DBUpgrade, self).__init__('upgrade', 'Upgrade PKI server database')
+
+    def print_help(self):
         print('Usage: pki-server db-upgrade [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
         print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
     def execute(self, argv):
         try:
-            opts, _ = getopt.gnu_getopt(
-                argv, 'i:v', ['instance=', 'verbose', 'help'])
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
-            self.usage()
+            logger.error(e)
+            self.print_help()
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
@@ -168,28 +179,34 @@ class DBUpgrade(pki.cli.CLI):
                 instance_name = a
 
             elif o in ('-v', '--verbose'):
-                self.set_verbose(True)
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
 
             elif o == '--help':
-                self.usage()
+                self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
-                self.usage()
+                logger.error('Invalid option: %s', o)
+                self.print_help()
                 sys.exit(1)
 
         nss.nss_init_nodb()
 
         instance = pki.server.PKIInstance(instance_name)
+
         if not instance.is_valid():
-            print("ERROR: Invalid instance %s." % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
+
         instance.load()
 
         subsystem = instance.get_subsystem('ca')
+
         if not subsystem:
-            print('ERROR: No CA subsystem in instance %s.' % instance_name)
+            logger.error('No CA subsystem in instance %s', instance_name)
             sys.exit(1)
 
         base_dn = subsystem.config['internaldb.basedn']
@@ -197,8 +214,7 @@ class DBUpgrade(pki.cli.CLI):
 
         try:
             repo_dn = 'ou=certificateRepository,ou=ca,%s' % base_dn
-            if self.verbose:
-                print('Searching certificates records with missing issuerName in %s' % repo_dn)
+            logger.info('Searching certificates records with missing issuerName in %s', repo_dn)
 
             entries = conn.ldap.search_s(
                 repo_dn,
@@ -217,8 +233,7 @@ class DBUpgrade(pki.cli.CLI):
     def add_issuer_name(self, conn, entry):
         dn, attrs = entry
 
-        if self.verbose:
-            print('Fixing certificate record %s' % dn)
+        logger.info('Fixing certificate record %s', dn)
 
         attr_cert = attrs.get('userCertificate;binary')
         if not attr_cert:
@@ -228,11 +243,11 @@ class DBUpgrade(pki.cli.CLI):
         issuer_name = str(cert.issuer)
 
         try:
-            conn.ldap.modify_s(dn, [(ldap.MOD_REPLACE, 'issuerName', issuer_name)])
+            conn.ldap.modify_s(dn, [
+                (ldap.MOD_REPLACE, 'issuerName', [issuer_name.encode('utf-8')])
+            ])
         except ldap.LDAPError as e:
-            print(
-                'Failed to add issuerName to certificate {}: {}'
-                .format(attrs.get('cn', ['<unknown>'])[0], e))
+            logger.warning('Unable to add issuerName to certificate %s: %s', dn, e)
 
 
 class SubsystemDBCLI(pki.cli.CLI):
@@ -315,6 +330,8 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
         print('Usage: pki-server %s-db-config-show [OPTIONS]' % self.parent.parent.parent.name)
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -322,10 +339,10 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -335,18 +352,24 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Invalid option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -355,8 +378,8 @@ class SubsystemDBConfigShowCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            print('ERROR: No %s subsystem in instance %s.'
-                  % (subsystem_name.upper(), instance_name))
+            logger.error('No %s subsystem in instance %s.',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         SubsystemDBCLI.print_config(subsystem)
@@ -388,6 +411,8 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
         print('      --multiSuffix <True|False>     Set multiple suffix.')
         print('      --maxConns <max connections>   Set maximum connections.')
         print('      --minConns <min connections>   Set minimum connections.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
         print()
 
@@ -400,10 +425,10 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
                 'nickname=',
                 'database=', 'baseDN=', 'multiSuffix=',
                 'maxConns=', 'minConns=',
-                'verbose', 'help'])
+                'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: ' + str(e))
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -473,18 +498,24 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
                     raise ValueError('Invalid input: %s accepts a number' % o)
                 minConns = a
 
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+
             elif o == '--help':
                 self.print_help()
                 sys.exit()
 
             else:
-                print('ERROR: unknown option ' + o)
+                logger.error('Invalid option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -493,8 +524,8 @@ class SubsystemDBConfigModifyCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            print('ERROR: No %s subsystem in instance %s.'
-                  % (subsystem_name.upper(), instance_name))
+            logger.error('No %s subsystem in instance %s',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         name = 'internaldb.%s'
@@ -573,7 +604,7 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
-            print('ERROR: %s' % e)
+            logger.error(e)
             self.print_help()
             sys.exit(1)
 
@@ -603,13 +634,13 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                print('ERROR: unknown option %s' % o)
+                logger.error('Invalid option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
         instance = pki.server.PKIInstance(instance_name)
         if not instance.is_valid():
-            print('ERROR: Invalid instance %s.' % instance_name)
+            logger.error('Invalid instance: %s', instance_name)
             sys.exit(1)
 
         instance.load()
@@ -617,8 +648,8 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
         subsystem = instance.get_subsystem(subsystem_name)
 
         if not subsystem:
-            print('ERROR: No %s subsystem in instance %s.'
-                  % (subsystem_name.upper(), instance_name))
+            logger.error('No %s subsystem in instance %s',
+                         subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         subsystem.run(cmd, as_current_user=as_current_user)
