@@ -138,8 +138,9 @@ public class CertReqInput extends EnrollInput implements IProfileInput {
 
             mEnrollProfile.fillKeyGen(getLocale(request), keygen, info, request);
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_CRMF)) {
+
             logger.debug(method + "cert_request_type= REQ_TYPE_CRMF");
-            CertReqMsg msgs[] = mEnrollProfile.parseCRMF(getLocale(request), cert_request);
+            CertReqMsg[] msgs = CertUtils.parseCRMF(getLocale(request), cert_request);
 
             if (msgs == null) {
                 throw new EProfileException(CMS.getUserMessage(

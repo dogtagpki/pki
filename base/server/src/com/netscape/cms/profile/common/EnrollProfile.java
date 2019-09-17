@@ -181,11 +181,12 @@ public abstract class EnrollProfile extends BasicProfile
             // catch for invalid request
             CertUtils.parsePKCS10(locale, cert_request);
         }
-        if (cert_request_type != null && cert_request_type.startsWith("crmf")) {
-            CertReqMsg msgs[] = parseCRMF(locale, cert_request);
 
+        if (cert_request_type != null && cert_request_type.startsWith("crmf")) {
+            CertReqMsg[] msgs = CertUtils.parseCRMF(locale, cert_request);
             num_requests = msgs.length;
         }
+
         TaggedRequest[] cmc_msgs = null;
         if (cert_request_type != null && cert_request_type.startsWith("cmc")) {
 
@@ -2077,43 +2078,6 @@ public abstract class EnrollProfile extends BasicProfile
                     + reqId
                     + " because this request id is not part of the body list in LRA Pop witness control.");
             verifyPOP(locale, crm);
-        }
-    }
-
-    public CertReqMsg[] parseCRMF(Locale locale, String certreq)
-            throws EProfileException {
-
-        /* cert request must not be null */
-        if (certreq == null) {
-            logger.error("EnrollProfile: parseCRMF() certreq null");
-            throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
-        }
-        logger.debug("EnrollProfile: Start parseCRMF(): "/* + certreq*/);
-
-        CertReqMsg msgs[] = null;
-        String creq = CertUtils.normalizeCertReq(certreq);
-        try {
-            byte data[] = Utils.base64decode(creq);
-            ByteArrayInputStream crmfBlobIn =
-                    new ByteArrayInputStream(data);
-            SEQUENCE crmfMsgs = (SEQUENCE)
-                    new SEQUENCE.OF_Template(new
-                            CertReqMsg.Template()).decode(crmfBlobIn);
-            int nummsgs = crmfMsgs.size();
-
-            if (nummsgs <= 0)
-                return null;
-            msgs = new CertReqMsg[crmfMsgs.size()];
-            for (int i = 0; i < nummsgs; i++) {
-                msgs[i] = (CertReqMsg) crmfMsgs.elementAt(i);
-            }
-            return msgs;
-
-        } catch (Exception e) {
-            logger.error("Unable to parse CRMF request: " + e.getMessage(), e);
-            throw new EProfileException(
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         }
     }
 

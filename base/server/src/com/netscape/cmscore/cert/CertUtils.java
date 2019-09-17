@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,6 +39,7 @@ import java.util.StringTokenizer;
 
 import org.mozilla.jss.CertificateUsage;
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.netscape.security.extensions.NSCertTypeExtension;
 import org.mozilla.jss.netscape.security.pkcs.PKCS10;
@@ -59,6 +61,7 @@ import org.mozilla.jss.netscape.security.x509.X509CRLImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 import org.mozilla.jss.netscape.security.x509.X509CertInfo;
 import org.mozilla.jss.netscape.security.x509.X509Key;
+import org.mozilla.jss.pkix.crmf.CertReqMsg;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.AuditEvent;
@@ -259,6 +262,41 @@ public class CertUtils {
                 logger.debug("CertUtils: restoring thread token");
                 cm.setThreadToken(savedToken);
             }
+        }
+    }
+
+    public static CertReqMsg[] parseCRMF(Locale locale, String certreq) throws Exception {
+
+        logger.debug("CertUtils: Parsing CRMF request");
+
+        if (certreq == null) {
+            logger.error("CertUtils: Missing CRMF request");
+            throw new EProfileException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"));
+        }
+
+        String creq = normalizeCertReq(certreq);
+
+        try {
+            byte[] data = Utils.base64decode(creq);
+            ByteArrayInputStream crmfBlobIn = new ByteArrayInputStream(data);
+            SEQUENCE crmfMsgs = (SEQUENCE) new SEQUENCE.OF_Template(
+                    new CertReqMsg.Template()).decode(crmfBlobIn);
+            int nummsgs = crmfMsgs.size();
+
+            if (nummsgs <= 0) {
+                return null;
+            }
+
+            CertReqMsg[] msgs = new CertReqMsg[crmfMsgs.size()];
+            for (int i = 0; i < nummsgs; i++) {
+                msgs[i] = (CertReqMsg) crmfMsgs.elementAt(i);
+            }
+
+            return msgs;
+
+        } catch (Exception e) {
+            logger.error("Unable to parse CRMF request: " + e.getMessage(), e);
+            throw new EProfileException(CMS.getUserMessage(locale, "CMS_PROFILE_INVALID_REQUEST"), e);
         }
     }
 
