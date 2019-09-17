@@ -2451,15 +2451,6 @@ public abstract class EnrollProfile extends BasicProfile
         }
     }
 
-    public DerInputStream parseKeyGen(Locale locale, String certreq)
-            throws EProfileException {
-        byte data[] = Utils.base64decode(certreq);
-
-        DerInputStream derIn = new DerInputStream(data);
-
-        return derIn;
-    }
-
     public void fillKeyGen(Locale locale, DerInputStream derIn, X509CertInfo info, IRequest req
             )
                     throws EProfileException {

@@ -115,7 +115,8 @@ public class DualKeyGenInput extends EnrollInput implements IProfileInput {
             PKCS10 pkcs10 = CertUtils.parsePKCS10(getLocale(request), keygen_request);
             mEnrollProfile.fillPKCS10(getLocale(request), pkcs10, info, request);
         } else if (keygen_request_type.startsWith("keygen")) {
-            DerInputStream keygen = mEnrollProfile.parseKeyGen(getLocale(request), keygen_request);
+
+            DerInputStream keygen = CertUtils.parseKeyGen(getLocale(request), keygen_request);
 
             mEnrollProfile.fillKeyGen(getLocale(request), keygen, info, request);
         } else if (keygen_request_type.startsWith("crmf")) {

@@ -126,6 +126,11 @@ public class CertUtils {
         return sb.toString();
     }
 
+    public static DerInputStream parseKeyGen(Locale locale, String certreq) throws Exception {
+        byte[] data = Utils.base64decode(certreq);
+        return new DerInputStream(data);
+    }
+
     /**
      * Remove the header and footer in the PKCS10 request.
      */

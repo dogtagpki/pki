@@ -121,7 +121,8 @@ public class SigningKeyGenInput extends EnrollInput implements IProfileInput {
 
             mEnrollProfile.fillPKCS10(getLocale(request), pkcs10, info, request);
         } else if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_KEYGEN)) {
-            DerInputStream keygen = mEnrollProfile.parseKeyGen(getLocale(request), keygen_request);
+
+            DerInputStream keygen = CertUtils.parseKeyGen(getLocale(request), keygen_request);
 
             if (keygen == null) {
                 throw new EProfileException(CMS.getUserMessage(
