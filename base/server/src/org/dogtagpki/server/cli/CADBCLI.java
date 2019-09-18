@@ -23,11 +23,12 @@ import org.dogtagpki.cli.CLI;
 /**
  * @author Endi S. Dewata
  */
-public class CACLI extends CLI {
+public class CADBCLI extends CLI {
 
-    public CACLI(CLI parent) {
-        super("ca", "CA subsystem management commands", parent);
+    public CADBCLI(CLI parent) {
+        super("db", "CA database management commands", parent);
 
-        addModule(new CADBCLI(this));
+        addModule(new SubsystemDBInfoCLI(this));
+        addModule(new CADBUpgradeCLI(this));
     }
 }

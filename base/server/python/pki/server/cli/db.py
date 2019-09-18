@@ -21,9 +21,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import getopt
-import ldap
 import logging
-import nss.nss as nss
 import subprocess
 import sys
 import getpass
@@ -156,6 +154,7 @@ class DBUpgradeCLI(pki.cli.CLI):
         print('Usage: pki-server db-upgrade [OPTIONS]')
         print()
         print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --as-current-user              Run as current user.')
         print('  -v, --verbose                      Run in verbose mode.')
         print('      --debug                        Run in debug mode.')
         print('      --help                         Show help message.')
@@ -165,6 +164,7 @@ class DBUpgradeCLI(pki.cli.CLI):
         try:
             opts, _ = getopt.gnu_getopt(argv, 'i:v', [
                 'instance=',
+                'as-current-user',
                 'verbose', 'debug', 'help'])
 
         except getopt.GetoptError as e:
@@ -173,16 +173,24 @@ class DBUpgradeCLI(pki.cli.CLI):
             sys.exit(1)
 
         instance_name = 'pki-tomcat'
+        as_current_user = False
+        verbose = False
+        debug = False
 
         for o, a in opts:
             if o in ('-i', '--instance'):
                 instance_name = a
 
+            elif o == '--as-current-user':
+                as_current_user = True
+
             elif o in ('-v', '--verbose'):
                 logging.getLogger().setLevel(logging.INFO)
+                verbose = True
 
             elif o == '--debug':
                 logging.getLogger().setLevel(logging.DEBUG)
+                debug = True
 
             elif o == '--help':
                 self.print_help()
@@ -193,8 +201,6 @@ class DBUpgradeCLI(pki.cli.CLI):
                 self.print_help()
                 sys.exit(1)
 
-        nss.nss_init_nodb()
-
         instance = pki.server.PKIInstance(instance_name)
 
         if not instance.is_valid():
@@ -203,51 +209,17 @@ class DBUpgradeCLI(pki.cli.CLI):
 
         instance.load()
 
-        subsystem = instance.get_subsystem('ca')
+        # upgrade all subsystems
+        for subsystem in instance.subsystems:
 
-        if not subsystem:
-            logger.error('No CA subsystem in instance %s', instance_name)
-            sys.exit(1)
+            cmd = [subsystem.name + '-db-upgrade']
 
-        base_dn = subsystem.config['internaldb.basedn']
-        conn = subsystem.open_database()
+            if verbose:
+                cmd.append('--verbose')
+            elif debug:
+                cmd.append('--debug')
 
-        try:
-            repo_dn = 'ou=certificateRepository,ou=ca,%s' % base_dn
-            logger.info('Searching certificates records with missing issuerName in %s', repo_dn)
-
-            entries = conn.ldap.search_s(
-                repo_dn,
-                ldap.SCOPE_ONELEVEL,
-                '(&(objectclass=certificaterecord)(|(!(issuername=*))(issuername=)))',
-                None)
-
-            for entry in entries:
-                self.add_issuer_name(conn, entry)
-
-        finally:
-            conn.close()
-
-        self.print_message('Upgrade complete')
-
-    def add_issuer_name(self, conn, entry):
-        dn, attrs = entry
-
-        logger.info('Fixing certificate record %s', dn)
-
-        attr_cert = attrs.get('userCertificate;binary')
-        if not attr_cert:
-            return  # shouldn't happen, but nothing we can do if it does
-
-        cert = nss.Certificate(bytearray(attr_cert[0]))
-        issuer_name = str(cert.issuer)
-
-        try:
-            conn.ldap.modify_s(dn, [
-                (ldap.MOD_REPLACE, 'issuerName', [issuer_name.encode('utf-8')])
-            ])
-        except ldap.LDAPError as e:
-            logger.warning('Unable to add issuerName to certificate %s: %s', dn, e)
+            subsystem.run(cmd, as_current_user=as_current_user)
 
 
 class SubsystemDBCLI(pki.cli.CLI):
