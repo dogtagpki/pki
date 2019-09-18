@@ -26,8 +26,9 @@ import org.dogtagpki.cli.CLI;
 public class SubsystemDBCLI extends CLI {
 
     public SubsystemDBCLI(CLI parent) {
-        super("db", parent.getName().toUpperCase() + " database management commands", parent);
+        super("db", parent.name.toUpperCase() + " database management commands", parent);
 
         addModule(new SubsystemDBInfoCLI(this));
+        addModule(new SubsystemDBUpgradeCLI(this));
     }
 }

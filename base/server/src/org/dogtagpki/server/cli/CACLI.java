@@ -28,6 +28,6 @@ public class CACLI extends CLI {
     public CACLI(CLI parent) {
         super("ca", "CA subsystem management commands", parent);
 
-        addModule(new CADBCLI(this));
+        addModule(new SubsystemDBCLI(this));
     }
 }
