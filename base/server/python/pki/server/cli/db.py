@@ -260,6 +260,7 @@ class SubsystemDBCLI(pki.cli.CLI):
         self.parent = parent
         self.add_module(SubsystemDBConfigCLI(self))
         self.add_module(SubsystemDBInfoCLI(self))
+        self.add_module(SubsystemDBUpgradeCLI(self))
 
     @staticmethod
     def print_config(subsystem):
@@ -650,6 +651,85 @@ class SubsystemDBInfoCLI(pki.cli.CLI):
         if not subsystem:
             logger.error('No %s subsystem in instance %s',
                          subsystem_name.upper(), instance_name)
+            sys.exit(1)
+
+        subsystem.run(cmd, as_current_user=as_current_user)
+
+
+class SubsystemDBUpgradeCLI(pki.cli.CLI):
+
+    def __init__(self, parent):
+        super(SubsystemDBUpgradeCLI, self).__init__(
+            'upgrade',
+            'Upgrade %s database' % parent.parent.name.upper())
+
+        self.parent = parent
+
+    def print_help(self):
+        print('Usage: pki-server %s-db-upgrade [OPTIONS]' % self.parent.parent.name)
+        print()
+        print('  -i, --instance <instance ID>       Instance ID (default: pki-tomcat).')
+        print('      --as-current-user              Run as current user.')
+        print('  -v, --verbose                      Run in verbose mode.')
+        print('      --debug                        Run in debug mode.')
+        print('      --help                         Show help message.')
+        print()
+
+    def execute(self, argv):
+        try:
+            opts, _ = getopt.gnu_getopt(argv, 'i:v', [
+                'instance=',
+                'as-current-user',
+                'verbose', 'debug', 'help'])
+
+        except getopt.GetoptError as e:
+            logging.error(e)
+            self.print_help()
+            sys.exit(1)
+
+        instance_name = 'pki-tomcat'
+        subsystem_name = self.parent.parent.name
+        as_current_user = False
+
+        cmd = [subsystem_name + '-db-upgrade']
+
+        for o, a in opts:
+            if o in ('-i', '--instance'):
+                instance_name = a
+
+            elif o == '--as-current-user':
+                as_current_user = True
+
+            elif o in ('-v', '--verbose'):
+                logging.getLogger().setLevel(logging.INFO)
+                cmd.append('--verbose')
+
+            elif o == '--debug':
+                logging.getLogger().setLevel(logging.DEBUG)
+                cmd.append('--debug')
+
+            elif o == '--help':
+                self.print_help()
+                sys.exit()
+
+            else:
+                logging.error('Invalid option: %s', o)
+                self.print_help()
+                sys.exit(1)
+
+        instance = pki.server.PKIInstance(instance_name)
+
+        if not instance.is_valid():
+            logging.error('Invalid instance: %s', instance_name)
+            sys.exit(1)
+
+        instance.load()
+
+        subsystem = instance.get_subsystem(subsystem_name)
+
+        if not subsystem:
+            logging.error('No %s subsystem in instance %s.',
+                          subsystem_name.upper(), instance_name)
             sys.exit(1)
 
         subsystem.run(cmd, as_current_user=as_current_user)

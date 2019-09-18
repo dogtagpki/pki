@@ -39,8 +39,8 @@ class TKSCLI(pki.cli.CLI):
         super(TKSCLI, self).__init__(
             'tks', 'TKS management commands')
 
-        self.add_module(TKSCloneCLI())
         self.add_module(pki.server.cli.audit.AuditCLI(self))
+        self.add_module(TKSCloneCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
 

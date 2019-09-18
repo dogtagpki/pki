@@ -52,11 +52,10 @@ class KRACLI(pki.cli.CLI):
         super(KRACLI, self).__init__(
             'kra', 'KRA management commands')
 
-        self.add_module(KRACloneCLI())
-        self.add_module(KRADBCLI())
         self.add_module(pki.server.cli.audit.AuditCLI(self))
+        self.add_module(KRACloneCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
-        self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
+        self.add_module(KRADBCLI(self))
 
 
 class KRACloneCLI(pki.cli.CLI):
@@ -172,10 +171,14 @@ class KRAClonePrepareCLI(pki.cli.CLI):
 
 class KRADBCLI(pki.cli.CLI):
 
-    def __init__(self):
+    def __init__(self, parent):
         super(KRADBCLI, self).__init__(
             'db', 'KRA database management commands')
 
+        self.parent = parent
+        self.add_module(pki.server.cli.db.SubsystemDBConfigCLI(self))
+        self.add_module(pki.server.cli.db.SubsystemDBInfoCLI(self))
+        self.add_module(pki.server.cli.db.SubsystemDBUpgradeCLI(self))
         self.add_module(KRADBVLVCLI())
 
 

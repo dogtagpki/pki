@@ -42,11 +42,11 @@ class CACLI(pki.cli.CLI):
         super(CACLI, self).__init__(
             'ca', 'CA management commands')
 
+        self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(CACertCLI())
         self.add_module(CACloneCLI())
-        self.add_module(pki.server.cli.audit.AuditCLI(self))
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
-        self.add_module(CADBCLI(self))
+        self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
 
 
 class CACertCLI(pki.cli.CLI):
@@ -466,12 +466,3 @@ class CAClonePrepareCLI(pki.cli.CLI):
 
         finally:
             shutil.rmtree(tmpdir)
-
-
-class CADBCLI(pki.cli.CLI):
-
-    def __init__(self, parent):
-        super(CADBCLI, self).__init__('db', 'CA database management commands')
-
-        self.parent = parent
-        self.add_module(pki.server.cli.db.SubsystemDBConfigCLI(self))

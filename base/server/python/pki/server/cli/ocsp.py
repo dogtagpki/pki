@@ -39,8 +39,8 @@ class OCSPCLI(pki.cli.CLI):
         super(OCSPCLI, self).__init__(
             'ocsp', 'OCSP management commands')
 
-        self.add_module(OCSPCloneCLI())
         self.add_module(pki.server.cli.audit.AuditCLI(self))
+        self.add_module(OCSPCloneCLI())
         self.add_module(pki.server.cli.config.SubsystemConfigCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBCLI(self))
 

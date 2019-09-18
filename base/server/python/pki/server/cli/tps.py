@@ -169,6 +169,7 @@ class TPSDBCLI(pki.cli.CLI):
         self.parent = parent
         self.add_module(pki.server.cli.db.SubsystemDBConfigCLI(self))
         self.add_module(pki.server.cli.db.SubsystemDBInfoCLI(self))
+        self.add_module(pki.server.cli.db.SubsystemDBUpgradeCLI(self))
         self.add_module(TPSDBVLVCLI())
 
 
