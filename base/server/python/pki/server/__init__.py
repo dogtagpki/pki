@@ -1434,13 +1434,15 @@ class PKIInstance(PKIServer):
         self.load_external_certs(self.external_certs_conf)
 
         # load subsystems
-        if os.path.exists(self.registry_dir):
-            for subsystem_name in os.listdir(self.registry_dir):
-                if subsystem_name in SUBSYSTEM_TYPES:
-                    subsystem = pki.server.subsystem.PKISubsystemFactory.create(
-                        self, subsystem_name)
-                    subsystem.load()
-                    self.subsystems.append(subsystem)
+        for subsystem_name in SUBSYSTEM_TYPES:
+
+            subsystem_dir = os.path.join(self.base_dir, subsystem_name)
+            if not os.path.exists(subsystem_dir):
+                continue
+
+            subsystem = pki.server.subsystem.PKISubsystemFactory.create(self, subsystem_name)
+            subsystem.load()
+            self.subsystems.append(subsystem)
 
     def load_external_certs(self, conf_file):
         for external_cert in PKIInstance.read_external_certs(conf_file):
