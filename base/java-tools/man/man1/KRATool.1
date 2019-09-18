@@ -1,7 +1,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH KRATool 1 "July 18, 2016" "version 10.3" "PKI Key Recovery Authority (KRA) Tool" Dogtag Team
+.TH KRATool 1 "Sep 11, 2019" "version 10.5" "PKI Key Recovery Authority (KRA) Tool" Dogtag Team
 .\" Please adjust this date whenever revising the man page.
 .\"
 .\" Some roff macros, for reference:
@@ -33,6 +33,8 @@ The syntax for rewrapping keys:
 	[-source_pki_security_database_pwdfile </path/to/password_file>]]
 	[-source_kra_naming_context <name> -target_kra_naming_context <name>]
 	[-process_requests_and_key_records_only]
+	[-unwrap_algorithm AES|DES3]
+
 .fi
 .PP
 The syntax for renumbering keys:
@@ -130,6 +132,12 @@ Gives the path and filename to a password file that contains only the password f
 
 This argument is optional when other rewrap parameters are used. If this argument is not used, then the script prompts for the password.
 
+.TP
+.B -unwrap_algorithm <algorithm>
+Specifies the symmetric key algorithm used by source KRA. Available options include \fBDES3\fP and \fBAES\fP
+
+This argument is optional and defaults to \fBDES3\fP if unspecified.
+
 .PP
 The following parameters are optional for renumbering keys:
 
@@ -147,13 +155,14 @@ If \fB-remove_id_offset\fP is used, then do not use the \fB-append_id_offset\fP 
 
 .SH Configuration File (.cfg)
 .PP
-The required configuration file instructs the KRATool how to process attributes in the key archival and key request entries in the LDIF file. There are six types of entries:
+The required configuration file instructs the KRATool how to process attributes in the key archival and key request entries in the LDIF file. There are seven types of entries:
 .IP
 * CA enrollment requests
 * TPS enrollment requests
 * CA key records
 * TPS key records
 * CA and TPS recovery requests (which are treated the same in the KRA)
+* TPS token key recovery requests
 .PP
 Each key and key request has an LDAP entry with attributes that are specific to that kind of record. For example, for a recovery request:
 .IP
@@ -198,7 +207,7 @@ nsUniqueId: b2891805-1dd111b2-a6d7e85f-2c2f0000
 .PP
 Much of that information passes through the script processing unchanged, so it is entered into the new, target KRA just the same. However, some of those attributes can and should be edited, like the Common Name (CN) and DN being changed to match the new KRA instance. The fields which can safely be changed are listed in the configuration file for each type of key entry. (Any attribute not listed is not touched by the tool under any circumstances.)
 .PP
-If a field /fIshould/fP be edited — meaning, the tool can update the record ID number or rename the entry — then the value is set to true in the configuration file. For example, this configuration updates the CN, DN, ID number, last modified date, and associated entry notes for all CA enrollment requests:
+If a field \fIshould\fP be edited — meaning, the tool can update the record ID number or rename the entry — then the value is set to true in the configuration file. For example, this configuration updates the CN, DN, ID number, last modified date, and associated entry notes for all CA enrollment requests:
 .IP
 .nf
 kratool.ldif.caEnrollmentRequest.cn=true
@@ -324,9 +333,9 @@ kratool.ldif.namingContext._037=##    uid                                 ##
 kratool.ldif.namingContext._038=##    uniqueMember                        ##
 kratool.ldif.namingContext._039=##                                        ##
 kratool.ldif.namingContext._040=##  If '-source_naming_context            ##
-kratool.ldif.namingContext._041=##  original source KRA naming context'   ##
+kratool.ldif.namingContext._041=##  <original source KRA naming context>' ##
 kratool.ldif.namingContext._042=##  and '-target_naming_context           ##
-kratool.ldif.namingContext._043=##  renamed target KRA naming context'    ##
+kratool.ldif.namingContext._043=##  <renamed target KRA naming context>'  ##
 kratool.ldif.namingContext._044=##  options are specified, ALWAYS         ##
 kratool.ldif.namingContext._045=##  require 'KRATOOL' to change the       ##
 kratool.ldif.namingContext._046=##  KRA 'naming context' data in ALL of   ##
@@ -355,6 +364,10 @@ kratool.ldif.namingContext._068=##    tpsNetkeyKeygenRequest:             ##
 kratool.ldif.namingContext._069=##                                        ##
 kratool.ldif.namingContext._070=##      dn                                ##
 kratool.ldif.namingContext._071=##                                        ##
+kratool.ldif.namingContext._072=##    tpsNetkeyKeyRecoveryRequest:        ##
+kratool.ldif.namingContext._073=##                                        ##
+kratool.ldif.namingContext._074=##      dn                                ##
+kratool.ldif.namingContext._075=##                                        ##
 kratool.ldif.namingContext._072=############################################
 kratool.ldif.recoveryRequest._000=#####################################
 kratool.ldif.recoveryRequest._001=##  KRA CA / TPS Recovery Request  ##
@@ -401,6 +414,23 @@ kratool.ldif.tpsNetkeyKeygenRequest.extdata.keyRecord=true
 kratool.ldif.tpsNetkeyKeygenRequest.extdata.requestId=true
 kratool.ldif.tpsNetkeyKeygenRequest.extdata.requestNotes=true
 kratool.ldif.tpsNetkeyKeygenRequest.requestId=true
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._000=########################################
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._001=## KRA TPS Netkey Keyrecovery Request ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._002=########################################
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._003=##                                    ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._004=##  NEVER allow 'KRATOOL' the ability ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._005=##  to change the TPS 'naming context'##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._006=##  data in the following fields:     ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._007=##                                    ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._008=##        extdata-updatedby           ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._009=##                                    ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._010=########################################
+kratool.ldif.tpsNetkeyKeyRecoveryRequest.cn=true
+kratool.ldif.tpsNetkeyKeyRecoveryRequest.requestId=true
+kratool.ldif.tpsNetkeyKeyRecoveryRequest.dn=true
+kratool.ldif.tpsNetkeyKeyRecoveryRequest.dateOfModify=true
+kratool.ldif.tpsNetkeyKeyRecoveryRequest.extdata.requestId=true
+kratool.ldif.tpsNetkeyKeyRecoveryRequest.extdata.requestNotes=true
 .if
 
 .SH EXAMPLES
@@ -448,10 +478,10 @@ KRATool -kratool_config_file "/usr/share/pki/java-tools/KRATool.cfg" -source_ldi
 .if
 
 .SH AUTHORS
-Matthew Harmsen <mharmsen@redhat.com>.
+Matthew Harmsen <mharmsen@redhat.com> and Dinesh Prasanth M K <dmoluguw@redhat.com>
 
 .SH COPYRIGHT
-Copyright (c) 2016 Red Hat, Inc. This is licensed under the GNU General Public
+Copyright (c) 2019 Red Hat, Inc. This is licensed under the GNU General Public
 License, version 2 (GPLv2). A copy of this license is available at
 http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
