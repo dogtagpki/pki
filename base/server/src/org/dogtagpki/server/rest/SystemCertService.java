@@ -20,6 +20,7 @@ package org.dogtagpki.server.rest;
 
 import java.net.URI;
 import java.security.Principal;
+import java.util.Date;
 
 import javax.ws.rs.core.Response;
 
@@ -120,7 +121,8 @@ public class SystemCertService extends PKIService implements SystemCertResource 
             throw new PKIException("Transport cert not found.");
         }
 
-        return createCertificateData(transportCert);
+        X509CertImpl cert = new X509CertImpl(transportCert.getEncoded());
+        return createCertificateData(cert);
     }
 
     public CertData createCertificateData(X509CertImpl cert) throws Exception {
@@ -138,23 +140,11 @@ public class SystemCertService extends PKIService implements SystemCertResource 
         String b64 = Cert.HEADER + "\n" + Utils.base64encode(cert.getEncoded(), true) + Cert.FOOTER;
         data.setEncoded(b64);
 
-        return data;
-    }
+        Date notBefore = cert.getNotBefore();
+        if (notBefore != null) data.setNotBefore(notBefore.toString());
 
-    public CertData createCertificateData(X509Certificate cert) throws Exception {
-
-        CertData data = new CertData();
-
-        data.setSerialNumber(new CertId(cert.getSerialNumber()));
-
-        Principal issuerDN = cert.getIssuerDN();
-        if (issuerDN != null) data.setIssuerDN(issuerDN.toString());
-
-        Principal subjectDN = cert.getSubjectDN();
-        if (subjectDN != null) data.setSubjectDN(subjectDN.toString());
-
-        String b64 = Cert.HEADER + "\n" + Utils.base64encode(cert.getEncoded(), true) + Cert.FOOTER;
-        data.setEncoded(b64);
+        Date notAfter = cert.getNotAfter();
+        if (notAfter != null) data.setNotAfter(notAfter.toString());
 
         return data;
     }
