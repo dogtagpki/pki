@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlValue;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.netscape.certsrv.account.AccountInfo;
 import com.netscape.certsrv.key.AsymKeyGenerationRequest;
 import com.netscape.certsrv.key.KeyArchivalRequest;
@@ -45,6 +47,7 @@ import com.netscape.certsrv.key.SymKeyGenerationRequest;
     AsymKeyGenerationRequest.class
 })
 @XmlAccessorType(XmlAccessType.NONE)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ResourceMessage {
 
     protected Map<String, String> attributes = new LinkedHashMap<String, String>();
@@ -80,6 +83,7 @@ public class ResourceMessage {
         this.attributes.putAll(attributes);
     }
 
+    @JsonIgnore
     public Collection<String> getAttributeNames() {
         return attributes.keySet();
     }
@@ -177,24 +181,15 @@ public class ResourceMessage {
         marshaller.marshal(this, os);
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T unmarshal(String string, Class<T> clazz) throws Exception {
-        try {
-            Unmarshaller unmarshaller = JAXBContext.newInstance(clazz).createUnmarshaller();
-            return (T) unmarshaller.unmarshal(new StringReader(string));
-        } catch (Exception e) {
-            return null;
-        }
+        Unmarshaller unmarshaller = JAXBContext.newInstance(clazz).createUnmarshaller();
+        return (T) unmarshaller.unmarshal(new StringReader(string));
     }
 
     public static <T> T unmarshall(Class<T> t, String filePath) throws JAXBException, FileNotFoundException {
         JAXBContext context = JAXBContext.newInstance(t);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         FileInputStream fis = new FileInputStream(filePath);
-        @SuppressWarnings("unchecked")
-        T req = (T) unmarshaller.unmarshal(fis);
-
-        return req;
+        return (T) unmarshaller.unmarshal(fis);
     }
-
 }

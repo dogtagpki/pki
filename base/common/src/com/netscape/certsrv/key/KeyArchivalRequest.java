@@ -21,11 +21,20 @@
  */
 package com.netscape.certsrv.key;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import javax.ws.rs.core.MultivaluedMap;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.base.ResourceMessage;
 
 /**
@@ -80,6 +89,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     /**
      * @return the clientKeyID
      */
+    @JsonIgnore
     public String getClientKeyId() {
         return attributes.get(CLIENT_KEY_ID);
     }
@@ -94,6 +104,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     /**
      * @return the dataType
      */
+    @JsonIgnore
     public String getDataType() {
         return attributes.get(DATA_TYPE);
     }
@@ -108,6 +119,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     /**
      * @return the transWrappedSessionKey
      */
+    @JsonIgnore
     public String getTransWrappedSessionKey() {
         return attributes.get(TRANS_WRAPPED_SESSION_KEY);
     }
@@ -122,6 +134,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     /**
      * @return the PKIArchiveOptions structure
      */
+    @JsonIgnore
     public String getPKIArchiveOptions() {
         return attributes.get(PKI_ARCHIVE_OPTIONS);
     }
@@ -136,6 +149,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     /**
      * @return the algorithm OID structure
      */
+    @JsonIgnore
     public String getAlgorithmOID() {
         return attributes.get(ALGORITHM_OID);
     }
@@ -150,6 +164,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     /**
      * @return the algorithm params structure
      */
+    @JsonIgnore
     public String getSymmetricAlgorithmParams() {
         return attributes.get(SYMMETRIC_ALGORITHM_PARAMS);
     }
@@ -164,6 +179,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     /**
      * @return the pkiArchiveOptions structure
      */
+    @JsonIgnore
     public String getWrappedPrivateData() {
         return attributes.get(WRAPPED_PRIVATE_DATA);
     }
@@ -178,6 +194,7 @@ public class KeyArchivalRequest extends ResourceMessage {
     /**
      * @return the keyAlgorithm (valid for symmetric keys)
      */
+    @JsonIgnore
     public String getKeyAlgorithm() {
         return attributes.get(KEY_ALGORITHM);
     }
@@ -192,20 +209,24 @@ public class KeyArchivalRequest extends ResourceMessage {
     /**
      * @return the key strength (valid for symmetric keys)
      */
-    public int getKeySize() {
-        return Integer.parseInt(attributes.get(KEY_SIZE));
+    @JsonIgnore
+    public Integer getKeySize() {
+        String keySize = attributes.get(KEY_SIZE);
+        return keySize == null ? null : Integer.valueOf(keySize);
     }
 
     /**
      * @param keySize the key strength to set (valid for symmetric keys)
      */
-    public void setKeySize(int keySize) {
+    public void setKeySize(Integer keySize) {
+        if (keySize == null) return;
         attributes.put(KEY_SIZE, Integer.toString(keySize));
     }
 
     /**
      * @return the authentication realm
      */
+    @JsonIgnore
     public String getRealm() {
         return attributes.get(REALM);
     }
@@ -221,19 +242,35 @@ public class KeyArchivalRequest extends ResourceMessage {
         }
     }
 
-    public String toString() {
-        try {
-            return ResourceMessage.marshal(this, KeyArchivalRequest.class);
-        } catch (Exception e) {
-            return super.toString();
-        }
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(KeyArchivalRequest.class).createMarshaller();
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
     }
 
-    public static KeyArchivalRequest valueOf(String string) throws Exception {
+    public static KeyArchivalRequest fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(KeyArchivalRequest.class).createUnmarshaller();
+        return (KeyArchivalRequest) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        return mapper.writeValueAsString(this);
+    }
+
+    public static KeyArchivalRequest fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        return mapper.readValue(json, KeyArchivalRequest.class);
+    }
+
+    public String toString() {
         try {
-            return ResourceMessage.unmarshal(string, KeyArchivalRequest.class);
+            return toXML();
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -247,11 +284,17 @@ public class KeyArchivalRequest extends ResourceMessage {
         before.setRealm("ipa-vault");
         before.setKeySize(128);
 
-        String string = before.toString();
-        System.out.println(string);
+        String xml = before.toString();
+        System.out.println(xml);
 
-        KeyArchivalRequest after = KeyArchivalRequest.valueOf(string);
-        System.out.println(before.equals(after));
+        KeyArchivalRequest afterXML = KeyArchivalRequest.fromXML(xml);
+        System.out.println(before.equals(afterXML));
+
+        String json = before.toJSON();
+        System.out.println(json);
+
+        KeyArchivalRequest afterJSON = KeyArchivalRequest.fromJSON(json);
+        System.out.println(before.equals(afterJSON));
     }
 
 }

@@ -21,11 +21,21 @@
  */
 package com.netscape.certsrv.key;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import javax.ws.rs.core.MultivaluedMap;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
@@ -36,6 +46,7 @@ import com.netscape.certsrv.request.RequestId;
  */
 @XmlRootElement(name="KeyRecoveryRequest")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KeyRecoveryRequest extends ResourceMessage {
 
     private static final String KEY_ID = "keyId";
@@ -76,6 +87,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
     /**
      * @return the keyId
      */
+    @JsonIgnore
     public KeyId getKeyId() {
         String id = attributes.get(KEY_ID);
         if (id != null)
@@ -93,6 +105,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
     /**
      * @return the requestId
      */
+    @JsonIgnore
     public RequestId getRequestId() {
         String id = attributes.get(REQUEST_ID);
         if (id != null)
@@ -110,6 +123,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
     /**
      * @return the transWrappedSessionKey
      */
+    @JsonIgnore
     public String getTransWrappedSessionKey() {
         return attributes.get(TRANS_WRAPPED_SESSION_KEY);
     }
@@ -124,6 +138,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
     /**
      * @return the sessionWrappedPassphrase
      */
+    @JsonIgnore
     public String getSessionWrappedPassphrase() {
         return attributes.get(SESSION_WRAPPED_PASSPHRASE);
     }
@@ -139,6 +154,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
      * @return nonceData
      */
 
+    @JsonIgnore
     public String getNonceData() {
         return attributes.get(NONCE_DATA);
     }
@@ -154,6 +170,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
     /**
      * @return the certificate
      */
+    @JsonIgnore
     public String getCertificate() {
         return attributes.get(CERTIFICATE);
     }
@@ -168,6 +185,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
     /**
      * @return the passphrase
      */
+    @JsonIgnore
     public String getPassphrase() {
         return attributes.get(PASSPHRASE);
     }
@@ -182,6 +200,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
     /**
      * @return the payloadEncryptionOID
      */
+    @JsonIgnore
     public String getPaylodEncryptionOID() {
         return attributes.get(PAYLOAD_ENCRYPTION_OID);
     }
@@ -196,6 +215,7 @@ public class KeyRecoveryRequest extends ResourceMessage {
     /**
      * @return the payloadWrappingName
      */
+    @JsonIgnore
     public String getPayloadWrappingName() {
         return attributes.get(PAYLOAD_WRAPPING_NAME);
     }
@@ -207,19 +227,35 @@ public class KeyRecoveryRequest extends ResourceMessage {
         attributes.put(PAYLOAD_WRAPPING_NAME, payloadWrappingName);
     }
 
-    public static KeyRecoveryRequest valueOf(String string) throws Exception {
-        try {
-            return ResourceMessage.unmarshal(string, KeyRecoveryRequest.class);
-        } catch (Exception e) {
-            return null;
-        }
+    public String toXML() throws Exception {
+        Marshaller marshaller = JAXBContext.newInstance(KeyRecoveryRequest.class).createMarshaller();
+        StringWriter sw = new StringWriter();
+        marshaller.marshal(this, sw);
+        return sw.toString();
+    }
+
+    public static KeyRecoveryRequest fromXML(String xml) throws Exception {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(KeyRecoveryRequest.class).createUnmarshaller();
+        return (KeyRecoveryRequest) unmarshaller.unmarshal(new StringReader(xml));
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        return mapper.writeValueAsString(this);
+    }
+
+    public static KeyRecoveryRequest fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        return mapper.readValue(json, KeyRecoveryRequest.class);
     }
 
     public String toString() {
         try {
-            return ResourceMessage.marshal(this, KeyRecoveryRequest.class);
+            return toXML();
         } catch (Exception e) {
-            return super.toString();
+            throw new RuntimeException(e);
         }
     }
 
@@ -234,10 +270,16 @@ public class KeyRecoveryRequest extends ResourceMessage {
         before.setSessionWrappedPassphrase("XXXXXXXX1234");
         before.setTransWrappedSessionKey("124355AAA");
 
-        String string = before.toString();
-        System.out.println(string);
+        String xml = before.toString();
+        System.out.println(xml);
 
-        KeyRecoveryRequest after = KeyRecoveryRequest.valueOf(string);
-        System.out.println(before.equals(after));
+        KeyRecoveryRequest afterXML = KeyRecoveryRequest.fromXML(xml);
+        System.out.println(before.equals(afterXML));
+
+        String json = before.toJSON();
+        System.out.println(json);
+
+        KeyRecoveryRequest afterJSON = KeyRecoveryRequest.fromJSON(json);
+        System.out.println(before.equals(afterJSON));
     }
 }

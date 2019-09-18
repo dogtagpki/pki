@@ -26,8 +26,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.netscape.certsrv.dbs.keydb.KeyId;
 import org.mozilla.jss.netscape.security.util.Utils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 
 /**
  * @author alee
@@ -82,6 +84,7 @@ public class KeyInfo {
     /**
      * @return the key ID in the keyURL
      */
+    @JsonIgnore
     public KeyId getKeyId() {
         String id = keyURL.substring(keyURL.lastIndexOf("/") + 1);
         return new KeyId(id);
