@@ -37,18 +37,18 @@ class DBCLI(pki.cli.CLI):
 
     def __init__(self):
         super(DBCLI, self).__init__(
-            'db', 'DB management commands')
+            'db', 'Database management commands')
 
-        self.add_module(DBUpgrade())
-        self.add_module(DBSchemaUpgrade())
+        self.add_module(DBUpgradeCLI())
+        self.add_module(DBSchemaUpgradeCLI())
 
 
-class DBSchemaUpgrade(pki.cli.CLI):
+class DBSchemaUpgradeCLI(pki.cli.CLI):
 
     SCHEMA_PATH = '/usr/share/pki/server/conf/schema.ldif'
 
     def __init__(self):
-        super(DBSchemaUpgrade, self).__init__(
+        super(DBSchemaUpgradeCLI, self).__init__(
             'schema-upgrade', 'Upgrade PKI database schema')
 
     def print_help(self):
@@ -147,10 +147,10 @@ class DBSchemaUpgrade(pki.cli.CLI):
         subprocess.check_output(cmd, stderr=subprocess.STDOUT)
 
 
-class DBUpgrade(pki.cli.CLI):
+class DBUpgradeCLI(pki.cli.CLI):
 
     def __init__(self):
-        super(DBUpgrade, self).__init__('upgrade', 'Upgrade PKI server database')
+        super(DBUpgradeCLI, self).__init__('upgrade', 'Upgrade PKI server database')
 
     def print_help(self):
         print('Usage: pki-server db-upgrade [OPTIONS]')

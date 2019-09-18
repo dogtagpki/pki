@@ -2372,7 +2372,6 @@ class KRAConnector:
             protocol='https',
             hostname=sechost,
             port=secport,
-            subsystem='ca',
             trust_env=False)
         sd = pki.system.SecurityDomainClient(sd_connection)
         try:
