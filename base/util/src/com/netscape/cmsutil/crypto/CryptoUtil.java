@@ -3111,7 +3111,7 @@ public class CryptoUtil {
         if (oid.equals(KeyWrapAlgorithm.AES_CBC_PAD_OID))
             return KeyWrapAlgorithm.AES_CBC_PAD;
 
-        if (oid.equals(KeyWrapAlgorithm.DES_CBC_PAD_OID))
+        if (oid.equals(KeyWrapAlgorithm.DES3_CBC_PAD_OID))
             return KeyWrapAlgorithm.DES3_CBC_PAD;
 
         throw new NoSuchAlgorithmException(wrapOID);
