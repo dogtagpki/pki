@@ -208,6 +208,8 @@ public class SecurityDataProcessor {
                             KeyRequestService.SYMKEY_TYPES.get(algorithm),
                             strength);
                 } catch (Exception e) {
+                    CMS.debug("Can't decrypt symmetric key:");
+                    CMS.debug(e);
                     throw new EBaseException("Can't decrypt symmetric key.", e);
                 }
             }
@@ -222,6 +224,8 @@ public class SecurityDataProcessor {
                         secdata,
                         null);
             } catch (Exception e) {
+                CMS.debug("Can't decrypt passphrase.");
+                CMS.debug(e);
                 throw new EBaseException("Can't decrypt passphrase.", e);
             }
 
