@@ -56,7 +56,9 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.crypto.BadPaddingException;
+import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.ArrayUtils;
@@ -2774,42 +2776,15 @@ public class CryptoUtil {
 
     /**
     * importHmacSha1Key returns a key based on a byte array,
-    * which is originally a password. Used for the HMAC Digest algs.
+    * which is originally a password. Used for the HMAC Digest algorithms.
     *
     * @param key the byte array representing the original password or secret.
     * @return The JSS SymKey
     *
     */
-    public static Key importHmacSha1Key(byte[] key)
-        throws Exception {
-
-        final String WRAPPING_ALGORITHM = "AES/CBC/PKCS5Padding";
-
-        Key wrappingKey = null;
-
-        final String keyGenAlgorithm = "AES";
-        final int wrappingKeyLength = 256;
-
-	logger.debug("CryptoUtil.importHmacSha1Key: entering");
-
-        javax.crypto.KeyGenerator keyGen = javax.crypto.KeyGenerator.getInstance(keyGenAlgorithm, "Mozilla-JSS");
-        keyGen.init(wrappingKeyLength);
-        wrappingKey = keyGen.generateKey();
-
-        byte[] iv = new byte[16];
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
-
-        javax.crypto.Cipher wrappingCipher = javax.crypto.Cipher.getInstance(WRAPPING_ALGORITHM, "Mozilla-JSS");
-        wrappingCipher.init(javax.crypto.Cipher.ENCRYPT_MODE, wrappingKey, ivParameterSpec);
-
-        byte[] wrappedKeyData = wrappingCipher.doFinal(key);
-
-        javax.crypto.Cipher unwrappingCipher = javax.crypto.Cipher.getInstance(WRAPPING_ALGORITHM, "Mozilla-JSS");
-        unwrappingCipher.init(javax.crypto.Cipher.UNWRAP_MODE, wrappingKey, ivParameterSpec);
-
-        return unwrappingCipher.unwrap(wrappedKeyData,
-                                                   SymmetricKey.SHA1_HMAC.toString(),
-                                                   javax.crypto.Cipher.SECRET_KEY);
+    public static Key importHmacSha1Key(byte[] key) throws Exception {
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("HmacSHA1", "Mozilla-JSS");
+        return factory.generateSecret(new SecretKeySpec(key, "SHA1_HMAC"));
     }
 
 
