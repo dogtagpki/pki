@@ -748,22 +748,20 @@ public abstract class DirBasedAuthentication
      * @return The subject name string.
      * @exception EBaseException If an internal error occurs.
      */
-    protected String formSubjectName(LDAPEntry entry)
-            throws EAuthException {
-        if (mPattern.mPatternString == null)
+    protected String formSubjectName(LDAPEntry entry) throws EAuthException {
+
+        if (mPattern.mPatternString == null) {
             return entry.getDN();
+        }
 
         /*
          if (mTestDNString != null) {
-         mPattern.mTestDN = mTestDNString;
-         //System.out.println("Set DNPattern.mTestDN to "+mPattern.mTestDN);
+             logger.debug("DirBasedAuthentication: setting DNPattern.mTestDN to " + mPattern.mTestDN);
+             mPattern.mTestDN = mTestDNString;
         }
         */
 
-        String dn = mPattern.formDN(entry);
-
-        logger.debug("DirBasedAuthentication: formed DN '" + dn + "'");
-        return dn;
+        return mPattern.formDN(entry);
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
