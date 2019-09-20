@@ -33,6 +33,7 @@ import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.KeyWrapAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.base.ResourceMessage;
 import com.netscape.certsrv.client.Client;
@@ -41,7 +42,6 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.util.CryptoProvider;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 /**
  * @author Endi S. Dewata
@@ -683,7 +683,7 @@ public class KeyClient extends Client {
                 sessionKey,
                 encryptAlgorithm);
 
-        return archiveEncryptedData(clientKeyId, KeyRequestResource.PASS_PHRASE_TYPE, null, 0, algorithmOID,
+        return archiveEncryptedData(clientKeyId, KeyRequestResource.PASS_PHRASE_TYPE, null, null, algorithmOID,
                 nonceData, encryptedData, transWrappedSessionKey, realm);
     }
 
@@ -720,7 +720,7 @@ public class KeyClient extends Client {
      *             BadPaddingException, IllegalBlockSizeException
      */
     public KeyRequestResponse archiveSymmetricKey(String clientKeyId, SymmetricKey secret, String keyAlgorithm,
-            int keySize, String realm) throws Exception {
+            Integer keySize, String realm) throws Exception {
 
         String algorithmOID = getEncryptAlgorithmOID();
 
@@ -740,7 +740,7 @@ public class KeyClient extends Client {
     /* old method signature for backwards compatibility */
     @Deprecated
     public KeyRequestResponse archiveSymmetricKey(String clientKeyId, SymmetricKey secret, String keyAlgorithm,
-            int keySize) throws Exception {
+            Integer keySize) throws Exception {
         return archiveSymmetricKey(clientKeyId, secret, keyAlgorithm,keySize, null);
     }
 
@@ -763,33 +763,41 @@ public class KeyClient extends Client {
      * @param realm -- authorization realm
      * @return A KeyRequestResponse object with information about the request.
      */
-    public KeyRequestResponse archiveEncryptedData(String clientKeyId, String dataType, String keyAlgorithm,
-            int keySize, String algorithmOID, byte[] nonceData, byte[] encryptedData,
-            byte[] transWrappedSessionKey, String realm) {
+    public KeyRequestResponse archiveEncryptedData(
+            String clientKeyId,
+            String dataType,
+            String keyAlgorithm,
+            Integer keySize,
+            String algorithmOID,
+            byte[] nonceData,
+            byte[] encryptedData,
+            byte[] transWrappedSessionKey,
+            String realm) {
 
         if (clientKeyId == null || dataType == null) {
             throw new IllegalArgumentException("Client key id and data type must be specified.");
         }
+
         if (dataType == KeyRequestResource.SYMMETRIC_KEY_TYPE) {
             if (keyAlgorithm == null || keySize < 0) {
                 throw new IllegalArgumentException(
                         "Key algorithm and key size must be specified for a symmetric key type request.");
             }
         }
+
         if (encryptedData == null || transWrappedSessionKey == null || algorithmOID == null
                 || nonceData == null) {
             throw new IllegalArgumentException("All data and wrapping parameters must be specified.");
         }
-        KeyArchivalRequest data = new KeyArchivalRequest();
 
+        KeyArchivalRequest data = new KeyArchivalRequest();
         data.setDataType(dataType);
         data.setKeyAlgorithm(keyAlgorithm);
         data.setKeySize(keySize);
         data.setClientKeyId(clientKeyId);
         data.setAlgorithmOID(algorithmOID);
         data.setSymmetricAlgorithmParams(Utils.base64encode(nonceData, true));
-        String req1 = Utils.base64encode(encryptedData, true);
-        data.setWrappedPrivateData(req1);
+        data.setWrappedPrivateData(Utils.base64encode(encryptedData, true));
         data.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey, true));
         data.setRealm(realm);
 
@@ -799,7 +807,7 @@ public class KeyClient extends Client {
     /* old signature for backwards compatibility */
     @Deprecated
     public KeyRequestResponse archiveEncryptedData(String clientKeyId, String dataType, String keyAlgorithm,
-            int keySize, String algorithmOID, byte[] nonceData, byte[] encryptedData,
+            Integer keySize, String algorithmOID, byte[] nonceData, byte[] encryptedData,
             byte[] transWrappedSessionKey) {
         return archiveEncryptedData(clientKeyId, dataType, keyAlgorithm, keySize, algorithmOID, nonceData,
                 encryptedData, transWrappedSessionKey, null);
