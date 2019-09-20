@@ -26,6 +26,7 @@ import abc
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 
 import nss.nss as nss
@@ -193,6 +194,9 @@ class NSSCryptoProvider(CryptoProvider):
             content = cert.encoded
         else:
             content = cert
+
+        if sys.version_info[0] > 2:
+            content = content.encode()
 
         # certutil -A -d db_dir -n cert_nick -t trust -i cert_file
         with tempfile.NamedTemporaryFile() as cert_file:
