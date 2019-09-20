@@ -373,6 +373,10 @@ public class KeyClient extends Client {
         return new Key(client.getEntity(response, KeyData.class));
     }
 
+    public SymmetricKey generateSessionKey() throws Exception {
+        return crypto.generateSessionKey(encryptAlgorithm);
+    }
+
     /**
      * Retrieve a secret (passphrase or symmetric key) from the DRM.
      *
@@ -391,11 +395,12 @@ public class KeyClient extends Client {
      *             CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
      *             BadPaddingException, IllegalBlockSizeException
      */
-    public Key retrieveKey(KeyId keyId) throws Exception {
+    public Key retrieveKey(KeyId keyId, SymmetricKey sessionKey) throws Exception {
+
         if (keyId == null) {
             throw new IllegalArgumentException("KeyId must be specified.");
         }
-        SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
+
         byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
 
         Key data = retrieveKey(keyId, transWrappedSessionKey);
@@ -446,11 +451,12 @@ public class KeyClient extends Client {
         data.setData(bytes);
     }
 
-    public Key retrieveKeyByRequest(RequestId requestId) throws Exception {
+    public Key retrieveKeyByRequest(RequestId requestId, SymmetricKey sessionKey) throws Exception {
+
         if (requestId == null) {
             throw new IllegalArgumentException("RequestId must be specified.");
         }
-        SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
+
         byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
 
         KeyRecoveryRequest recoveryRequest = new KeyRecoveryRequest();
@@ -461,6 +467,7 @@ public class KeyClient extends Client {
 
         Key data = retrieveKeyData(recoveryRequest);
         processKeyData(data, sessionKey);
+
         return data;
     }
 
@@ -527,7 +534,7 @@ public class KeyClient extends Client {
         if (passphrase == null) {
             throw new IllegalArgumentException("Passphrase must be specified.");
         }
-        SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
+        SymmetricKey sessionKey = generateSessionKey();
         byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
 
@@ -546,7 +553,7 @@ public class KeyClient extends Client {
             throw new IllegalArgumentException("Passphrase must be specified.");
         }
 
-        SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
+        SymmetricKey sessionKey = generateSessionKey();
         byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
 
@@ -674,7 +681,7 @@ public class KeyClient extends Client {
         String algorithmOID = getEncryptAlgorithmOID();
 
         byte[] nonceData = CryptoUtil.getNonceData(encryptAlgorithm.getIVLength());
-        SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
+        SymmetricKey sessionKey = generateSessionKey();
         byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
 
         byte[] encryptedData = crypto.encryptSecret(
@@ -733,7 +740,7 @@ public class KeyClient extends Client {
             nonceData = CryptoUtil.getNonceData(wrapIVLength);
         }
 
-        SymmetricKey sessionKey = crypto.generateSessionKey(encryptAlgorithm);
+        SymmetricKey sessionKey = generateSessionKey();
         byte[] encryptedData = crypto.wrapWithSessionKey(secret, sessionKey, nonceData, wrapAlgorithm);
         byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
 

@@ -14,6 +14,8 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.mozilla.jss.crypto.SymmetricKey;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.Key;
@@ -21,7 +23,6 @@ import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.MainCLI;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 public class KRAKeyRetrieveCLI extends CLI {
     public KRAKeyCLI keyCLI;
@@ -128,7 +129,8 @@ public class KRAKeyRetrieveCLI extends CLI {
                             Utils.base64decode(req.getTransWrappedSessionKey()));
 
                 } else {
-                    keyData = keyClient.retrieveKey(req.getKeyId());
+                    SymmetricKey sessionKey = keyClient.generateSessionKey();
+                    keyData = keyClient.retrieveKey(req.getKeyId(), sessionKey);
                 }
 
             } else {
@@ -146,10 +148,11 @@ public class KRAKeyRetrieveCLI extends CLI {
                     }
 
                 } else {
+                    SymmetricKey sessionKey = keyClient.generateSessionKey();
                     if (requestId != null) {
-                        keyData = keyClient.retrieveKeyByRequest(new RequestId(requestId));
+                        keyData = keyClient.retrieveKeyByRequest(new RequestId(requestId), sessionKey);
                     } else {
-                        keyData = keyClient.retrieveKey(new KeyId(keyId));
+                        keyData = keyClient.retrieveKey(new KeyId(keyId), sessionKey);
                     }
 
                     clientEncryption = false;
