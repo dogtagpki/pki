@@ -20,6 +20,7 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.key.Key;
 import com.netscape.certsrv.key.KeyClient;
+import com.netscape.certsrv.key.KeyData;
 import com.netscape.certsrv.key.KeyRecoveryRequest;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cmstools.cli.MainCLI;
@@ -88,6 +89,7 @@ public class KRAKeyRetrieveCLI extends CLI {
             throw new Exception("Incorrect number of parameters provided.");
         }
 
+        KeyData keyData = null;
         Key key = null;
 
         try {
@@ -112,8 +114,9 @@ public class KRAKeyRetrieveCLI extends CLI {
                 }
 
                 if (req.getCertificate() != null) {
-                    key = keyClient.retrieveKeyByPKCS12(req.getKeyId(), req.getCertificate(),
+                    keyData = keyClient.retrieveKeyByPKCS12(req.getKeyId(), req.getCertificate(),
                             req.getPassphrase());
+                    key = new Key(keyData);
 
                 } else if (req.getPassphrase() != null) {
                     key = keyClient.retrieveKeyByPassphrase(req.getKeyId(), req.getPassphrase());

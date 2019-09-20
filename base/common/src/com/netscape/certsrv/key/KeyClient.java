@@ -645,7 +645,7 @@ public class KeyClient extends Client {
      * @param passphrase -- A passphrase for the pkcs12 file.
      * @return A Key object with the wrapped secret
      */
-    public Key retrieveKeyByPKCS12(KeyId keyId, String certificate, String passphrase) {
+    public KeyData retrieveKeyByPKCS12(KeyId keyId, String certificate, String passphrase) {
         if (keyId == null || certificate == null || passphrase == null) {
             throw new IllegalArgumentException("KeyId, certificate and passphrase must be specified.");
         }
@@ -657,7 +657,7 @@ public class KeyClient extends Client {
         recoveryRequest.setRequestId(keyData.getRequestId());
         recoveryRequest.setPassphrase(passphrase);
 
-        return new Key(retrieveKeyData(recoveryRequest));
+        return retrieveKeyData(recoveryRequest);
     }
 
     /**
