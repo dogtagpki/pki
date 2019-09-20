@@ -1,4 +1,4 @@
-# KRATool 1 "July 18, 2016" PKI "PKI Key Recovery Authority (KRA) Tool"
+# KRATool 1 "Sep 11, 2019" PKI "PKI Key Recovery Authority (KRA) Tool"
 
 ## NAME
 
@@ -10,26 +10,27 @@ during the process of moving the keys, the KRATool can rewrap keys, renumber key
 
 The syntax for rewrapping keys:
 
-**KRATool** **-kratool_config_file** *tool_config_file*  
-	**-source_ldif_file** *original_ldif_file*  
-	**-target_ldif_file** *newinstance_ldif_file*  
-	**-log_file** *tool_log_file*  
-	[**-source_pki_security_database_path** *nss_database*  
-	**-source_storage_token_name** *token*  
-	**-source_storage_certificate_nickname** *storage_certificate_nickname*  
-	**-target_storage_certificate_file** *new_ASCII_storage_cert*  
-	[**-source_pki_security_database_pwdfile** *password_file*]]  
-	[**-source_kra_naming_context** *name* **-target_kra_naming_context** *name*]  
-	[**-process_requests_and_key_records_only**]
+**KRATool** **-kratool_config_file** &lt;tool_config_file&gt;  
+	**-source_ldif_file** &lt;original_ldif_file&gt;  
+	**-target_ldif_file** &lt;newinstance_ldif_file&gt;  
+	**-log_file** &lt;tool_log_file&gt;  
+	[**-source_pki_security_database_path** &lt;nss_database&gt;  
+	**-source_storage_token_name** &lt;token&gt;  
+	**-source_storage_certificate_nickname** &lt;storage_certificate_nickname&gt;  
+	**-target_storage_certificate_file** &lt;new_ASCII_storage_cert&gt;  
+	[**-source_pki_security_database_pwdfile** &lt;password_file&gt;]  
+	[**-source_kra_naming_context** &lt;name&gt; **-target_kra_naming_context** &lt;name&gt;]  
+	[**-process_requests_and_key_records_only**]  
+    [**-unwrap_algorithm AES|DES3**]
 
 The syntax for renumbering keys:
 
-**KRATool** **-kratool_config_file** *tool_config_file*  
-	**-source_ldif_file** *original_ldif_file*  
-	**-target_ldif_file** *newinstance_ldif_file*  
-	**-log_file** *tool_log_file*  
-	[**-append_id_offset** *prefix_to_add* | **-remove_id_offset** *prefix_to_remove*]  
-	[**-source_kra_naming_context** *name* **-target_kra_naming_context** *name*]  
+**KRATool** **-kratool_config_file** &lt;tool_config_file&gt;  
+	**-source_ldif_file** &lt;original_ldif_file&gt;  
+	**-target_ldif_file** &lt;newinstance_ldif_file&gt;  
+	**-log_file** &lt;tool_log_file&gt;  
+	[**-append_id_offset** &lt;prefix_to_add&gt; | **-remove_id_offset** &lt;prefix_to_remove&gt;]  
+	[**-source_kra_naming_context** &lt;name&gt; **-target_kra_naming_context** &lt;name&gt;]  
 	[**-process_requests_and_key_records_only**]
 
 ## DESCRIPTION
@@ -50,7 +51,7 @@ this tool can be used as part of a process of combining multiple KRA instances i
 
 The following parameters are mandatory for both rewrapping and renumbering keys:
 
-**-kratool_config_file** *tool_config_file*  
+**-kratool_config_file** &lt;tool_config_file&gt;  
     Gives the complete path and filename of the configuration file used by the tool.
     This configuration process tells the tool how to process certain parameters in the existing key records,
     whether to apply any formatting changes (like changing the naming context or adding an offset)
@@ -58,22 +59,22 @@ The following parameters are mandatory for both rewrapping and renumbering keys:
     The configuration file is required and a default file is included with the tool.
     The file format is described in the section entitled **Configuration File (.cfg)**.
 
-**-source_ldif_file** *original_ldif_file*  
+**-source_ldif_file** &lt;original_ldif_file&gt;  
     Gives the complete path and filename of the LDAP Data Interchange Format (LDIF) file
     which contains all of the key data from the old KRA.
 
-**-target_ldif_file** *newinstance_ldif_file*  
+**-target_ldif_file** &lt;newinstance_ldif_file&gt;  
     Gives the complete path and filename of the LDIF file
     to which the tool will write all of the key data from the new KRA.
     This file is created by the tool as it runs.
 
-**-log_file** *tool_log_file*  
+**-log_file** &lt;tool_log_file&gt;  
     Gives the path and filename of the log file to use to log the tool progress and messages.
     This file is created by the tool as it runs.
 
 The following parameters are optional for both rewrapping and renumbering keys:
 
-**-source_kra_naming_context** *name*  
+**-source_kra_naming_context** &lt;name&gt;  
     Gives the naming context of the original KRA instance,
     the Distinguished Name (DN) element that refers to the original KRA.
     Key-related LDIF entries have a DN with the KRA instance name in it,
@@ -86,7 +87,7 @@ The following parameters are optional for both rewrapping and renumbering keys:
     before it is imported into the target KRA.
     If this argument is used, then the **-target_kra_naming_context** argument must also be used.
 
-**-target_kra_naming_context** *name*  
+**-target_kra_naming_context** &lt;name&gt;  
     Gives the naming context of the new KRA instance, the name that the original key entries should be changed too.
     Key-related LDIF entries have a DN with the KRA instance name in it,
     such as cn=1,ou=kra,ou=requests,dc=omega.example.com-pki-kra.
@@ -105,48 +106,54 @@ The following parameters are optional for both rewrapping and renumbering keys:
 
 The following parameters are optional for rewrapping keys:
 
-**-source_pki_security_database_path** *nss_databases*  
+**-source_pki_security_database_path** &lt;nss_databases&gt;  
     Gives the full path to the directory which contains the Network Security Services (NSS) security databases
     used by the old KRA instance.  
     &nbsp;  
     This option is required if any other rewrap parameters are used.
 
-**-source_storage_token_name** *token*  
+**-source_storage_token_name** &lt;token&gt;  
     Gives the name of the token which stores the KRA data, like **Internal Key Storage Token** for internal tokens
     or a name like **NHSM6000-OCS** for the hardware token name.  
     &nbsp;  
     This option is required if any other rewrap parameters are used.
 
-**-source_storage_certificate_nickname** *storage_certificate_nickname*  
+**-source_storage_certificate_nickname** &lt;storage_certificate_nickname&gt;  
     Gives the nickname of the KRA storage certificate for the old KRA instance.
     Either this certificate will be located in the security database for the old KRA instance
     or the security database will contain a pointer to the certificate in the hardware token.  
     &nbsp;  
     This option is required if any other rewrap parameters are used.
 
-**-target_storage_certificate_file** *new_ASCII_storage_cert*  
+**-target_storage_certificate_file** &lt;new_ASCII_storage_cert&gt;  
     Gives the path and filename of an ASCII-formatted file of the storage certificate for the new KRA instance.
     The storage certificate should be exported from the new KRA's databases
     and stored in an accessible location before running KRATool.  
     &nbsp;  
     This option is required if any other rewrap parameters are used.
 
-**-source_pki_security_database_pwdfile** *password_file*  
+**-source_pki_security_database_pwdfile** &lt;password_file&gt;  
     Gives the path and filename to a password file that contains only the password for the storage token
     given in the **-source_storage_token_name** option.  
     &nbsp;  
     This argument is optional when other rewrap parameters are used.
     If this argument is not used, then the script prompts for the password.
 
+**-unwrap_algorithm** &lt;algorithm&gt;  
+    Specifies the symmetric key algorithm used by source KRA. Available options include **DES3** and **AES**  
+    &nbsp;  
+    This argument is optional and defaults to **DES3** if unspecified.  
+
+
 The following parameters are optional for renumbering keys:
 
-**-append_id_offset** *prefix_to_add*  
+**-append_id_offset** &lt;prefix_to_add&gt;  
     Gives an ID number which will be preprended to every imported key, to prevent possible collisions.
     A unique ID offset should be used for every KRA instance which has keys exported using KRATool.  
     &nbsp;  
     If **-append_id_offset** is used, then do not use the **-remove_id_offset** option.
 
-**-remove_id_offset** *prefix_to_remove*  
+**-remove_id_offset** &lt;prefix_to_remove&gt;  
     Gives an ID number to remove from the beginning of every imported key.  
     &nbsp;  
     If **-remove_id_offset** is used, then do not use the **-append_id_offset** option.
@@ -155,13 +162,14 @@ The following parameters are optional for renumbering keys:
 
 The required configuration file instructs the KRATool how to process attributes in the key archival
 and key request entries in the LDIF file.
-There are six types of entries:
+There are seven types of entries:
 
 * CA enrollment requests
 * TPS enrollment requests
 * CA key records
 * TPS key records
 * CA and TPS recovery requests (which are treated the same in the KRA)
+* TPS token key recovery requests
 
 Each key and key request has an LDAP entry with attributes that are specific to that kind of record.
 For example, for a recovery request:
@@ -349,9 +357,9 @@ kratool.ldif.namingContext._037=##    uid                                 ##
 kratool.ldif.namingContext._038=##    uniqueMember                        ##
 kratool.ldif.namingContext._039=##                                        ##
 kratool.ldif.namingContext._040=##  If '-source_naming_context            ##
-kratool.ldif.namingContext._041=##  original source KRA naming context'   ##
+kratool.ldif.namingContext._041=##  <original source KRA naming context>' ##
 kratool.ldif.namingContext._042=##  and '-target_naming_context           ##
-kratool.ldif.namingContext._043=##  renamed target KRA naming context'    ##
+kratool.ldif.namingContext._043=##  <renamed target KRA naming context>   ##
 kratool.ldif.namingContext._044=##  options are specified, ALWAYS         ##
 kratool.ldif.namingContext._045=##  require 'KRATOOL' to change the       ##
 kratool.ldif.namingContext._046=##  KRA 'naming context' data in ALL of   ##
@@ -380,7 +388,11 @@ kratool.ldif.namingContext._068=##    tpsNetkeyKeygenRequest:             ##
 kratool.ldif.namingContext._069=##                                        ##
 kratool.ldif.namingContext._070=##      dn                                ##
 kratool.ldif.namingContext._071=##                                        ##
-kratool.ldif.namingContext._072=############################################
+kratool.ldif.namingContext._072=##    tpsNetkeyKeyRecoveryRequest:        ##
+kratool.ldif.namingContext._073=##                                        ##
+kratool.ldif.namingContext._074=##      dn                                ##
+kratool.ldif.namingContext._075=##                                        ##
+kratool.ldif.namingContext._076=############################################
 kratool.ldif.recoveryRequest._000=#####################################
 kratool.ldif.recoveryRequest._001=##  KRA CA / TPS Recovery Request  ##
 kratool.ldif.recoveryRequest._002=#####################################
@@ -426,6 +438,23 @@ kratool.ldif.tpsNetkeyKeygenRequest.extdata.keyRecord=true
 kratool.ldif.tpsNetkeyKeygenRequest.extdata.requestId=true
 kratool.ldif.tpsNetkeyKeygenRequest.extdata.requestNotes=true
 kratool.ldif.tpsNetkeyKeygenRequest.requestId=true
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._000=########################################
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._001=## KRA TPS Netkey Keyrecovery Request ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._002=########################################
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._003=##                                    ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._004=##  NEVER allow 'KRATOOL' the ability ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._005=##  to change the TPS 'naming context'##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._006=##  data in the following fields:     ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._007=##                                    ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._008=##        extdata-updatedby           ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._009=##                                    ##
+kratool.ldif.tpsNetkeyKeyRecoveryRequest._010=########################################
+kratool.ldif.tpsNetkeyKeyRecoveryRequest.cn=true
+kratool.ldif.tpsNetkeyKeyRecoveryRequest.requestId=true
+kratool.ldif.tpsNetkeyKeyRecoveryRequest.dn=true
+kratool.ldif.tpsNetkeyKeyRecoveryRequest.dateOfModify=true
+kratool.ldif.tpsNetkeyKeyRecoveryRequest.extdata.requestId=true
+kratool.ldif.tpsNetkeyKeyRecoveryRequest.extdata.requestNotes=true
 ```
 
 ## EXAMPLES
@@ -510,10 +539,10 @@ $ KRATool -kratool_config_file KRATool.cfg \
 
 ## AUTHORS
 
-Matthew Harmsen &lt;mharmsen@redhat.com&gt;.
+Matthew Harmsen &lt;mharmsen@redhat.com&gt; and Dinesh Prasanth M K &lt;dmoluguw@redhat.com&gt;. 
 
 ## COPYRIGHT
 
-Copyright (c) 2016 Red Hat, Inc.
+Copyright (c) 2019 Red Hat, Inc.
 This is licensed under the GNU General Public License, version 2 (GPLv2).
 A copy of this license is available at http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
