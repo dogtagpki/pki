@@ -395,7 +395,7 @@ public class KeyClient extends Client {
      *             CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
      *             BadPaddingException, IllegalBlockSizeException
      */
-    public Key retrieveKey(KeyId keyId, SymmetricKey sessionKey) throws Exception {
+    public KeyData retrieveKey(KeyId keyId, SymmetricKey sessionKey) throws Exception {
 
         if (keyId == null) {
             throw new IllegalArgumentException("KeyId must be specified.");
@@ -485,7 +485,7 @@ public class KeyClient extends Client {
      *             CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
      *             BadPaddingException, IllegalBlockSizeException
      */
-    public Key retrieveKey(KeyId keyId, byte[] transWrappedSessionKey) throws Exception {
+    public KeyData retrieveKey(KeyId keyId, byte[] transWrappedSessionKey) throws Exception {
 
         if (keyId == null) {
             throw new IllegalArgumentException("KeyId must be specified.");
@@ -500,7 +500,7 @@ public class KeyClient extends Client {
         recoveryRequest.setPayloadEncryptionOID(getEncryptAlgorithmOID());
         recoveryRequest.setPayloadWrappingName(getWrapAlgorithmName());
 
-        return new Key(retrieveKeyData(recoveryRequest));
+        return retrieveKeyData(recoveryRequest);
     }
 
     /**

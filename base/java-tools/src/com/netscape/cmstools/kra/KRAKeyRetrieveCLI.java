@@ -130,12 +130,14 @@ public class KRAKeyRetrieveCLI extends CLI {
                     key = new Key(keyData);
 
                 } else if (req.getTransWrappedSessionKey() != null) {
-                    key = keyClient.retrieveKey(req.getKeyId(),
+                    keyData = keyClient.retrieveKey(req.getKeyId(),
                             Utils.base64decode(req.getTransWrappedSessionKey()));
+                    key = new Key(keyData);
 
                 } else {
                     SymmetricKey sessionKey = keyClient.generateSessionKey();
-                    key = keyClient.retrieveKey(req.getKeyId(), sessionKey);
+                    keyData = keyClient.retrieveKey(req.getKeyId(), sessionKey);
+                    key = new Key(keyData);
                     keyClient.processKeyData(key, sessionKey);
                 }
 
@@ -159,7 +161,8 @@ public class KRAKeyRetrieveCLI extends CLI {
                     if (requestId != null) {
                         key = keyClient.retrieveKeyByRequest(new RequestId(requestId), sessionKey);
                     } else {
-                        key = keyClient.retrieveKey(new KeyId(keyId), sessionKey);
+                        keyData = keyClient.retrieveKey(new KeyId(keyId), sessionKey);
+                        key = new Key(keyData);
                     }
                     keyClient.processKeyData(key, sessionKey);
 
