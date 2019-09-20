@@ -48,34 +48,24 @@ public class FilterMappingResolver extends BaseMappingResolver {
         logger.debug(method + " starts");
 
         major_version = mappingParams.getInt(FilterMappingParams.FILTER_PARAM_MAJOR_VERSION);
-        logger.debug(method + " param major_version =" + major_version);
+        logger.debug(method + " param major_version: " + major_version);
 
         minor_version = mappingParams.getInt(FilterMappingParams.FILTER_PARAM_MINOR_VERSION);
-        logger.debug(method + " param minor_version =" + minor_version);
+        logger.debug(method + " param minor_version: " + minor_version);
 
         cuid =  mappingParams.getString(FilterMappingParams.FILTER_PARAM_CUID);
-        logger.debug(method + " param cuid =" + cuid);
+        logger.debug(method + " param cuid: " + cuid);
         // msn = (String) mappingParams.get(FilterMappingParams.FILTER_PARAM_MSN);
 
         // they don't necessarily have extension
-        try {
-            extTokenType = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_TYPE);
-        } catch (TPSException e) {
-            logger.warn(method + " OK to not have tokenType extension. Continue: " + e.getMessage(), e);
-        }
-        try {
-            extTokenATR = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_ATR);
-        } catch (TPSException e) {
-            logger.warn(method + " OK to not have tokenATR extension. Continue: " + e.getMessage(), e);
-        }
-        try {
-            extKeySet = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_KEY_SET);
-        } catch (TPSException e) {
-            logger.warn(method + " OK to not have keySet extension. Continue: " + e.getMessage(), e);
-        }
+        extTokenType = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_TYPE, null);
+        logger.debug(method + " param tokenType extension: " + extTokenType);
 
+        extTokenATR = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_TOKEN_ATR, null);
+        logger.debug(method + " param tokenATR extension: " + extTokenATR);
 
-        logger.debug(method + " mapping params retrieved.");
+        extKeySet = mappingParams.getString(FilterMappingParams.FILTER_PARAM_EXT_KEY_SET, null);
+        logger.debug(method + " param keySet extension: " + extKeySet);
 
         String configName = prefix + "." + TPSEngine.CFG_PROFILE_MAPPING_ORDER;
 

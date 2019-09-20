@@ -89,6 +89,14 @@ public class FilterMappingParams {
         return val;
     }
 
+    public String getString(String name, String defaultValue) {
+        String value = content.get(name);
+        if (value == null) {
+            return defaultValue;
+        }
+        return value;
+    }
+
     /**
      * Gets an int attribute value.
      * <P>
