@@ -93,6 +93,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.Constants;
+import com.netscape.certsrv.dbs.EDBRecordNotFoundException;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.LogEvent;
 import com.netscape.certsrv.logging.event.TokenAppletUpgradeEvent;
@@ -1513,20 +1514,26 @@ public class TPSProcessor {
     protected TokenRecord isTokenRecordPresent(AppletInfo appletInfo) throws TPSException {
 
         if (appletInfo == null) {
-            throw new TPSException("TPSProcessor.isTokenRecordPresent: invalid input data.");
+            throw new TPSException("Missing applet info");
         }
 
-        logger.debug("TPSProcessor.isTokenRecordPresent: " + appletInfo.getCUIDhexString());
+        String cuid = appletInfo.getCUIDhexStringPlain();
+        logger.info("TPSProcessor: Searching for token " + cuid);
 
         CMSEngine engine = CMS.getCMSEngine();
         TPSSubsystem tps = (TPSSubsystem) engine.getSubsystem(TPSSubsystem.ID);
+
         TokenRecord tokenRecord = null;
         try {
-            tokenRecord = tps.tdb.tdbGetTokenEntry(appletInfo.getCUIDhexStringPlain());
+            tokenRecord = tps.tdb.tdbGetTokenEntry(cuid);
             // now the in memory tokenRecord is replaced by the actual token data
-            logger.debug("TPSProcessor.isTokenRecordPresent: found token...");
+            logger.debug("TPSProcessor: Token " + cuid + " found");
+
+        } catch (EDBRecordNotFoundException e) {
+            logger.debug("TPSProcessor: Token " + cuid + " not found, creating token in memory");
+
         } catch (Exception e) {
-            logger.warn("TPSProcessor: token does not exist in tokendb... create one in memory: " + e.getMessage(), e);
+            logger.warn("TPSProcessor: Unable to find token " + cuid + ": " + e.getMessage(), e);
         }
 
         return tokenRecord;
@@ -3727,7 +3734,7 @@ public class TPSProcessor {
         } catch (TPSException e) {
 
             logger.warn("TPSProcessor.acquireChannelPlatformProtocolInfo: Error getting gp211 protocol data, assume scp01: "
-                    + e.getMessage(), e);
+                    + e.getMessage());
 
             platProtInfo.setPlatform(SecureChannel.GP201);
             platProtInfo.setProtocol(SecureChannel.SECURE_PROTO_01);
