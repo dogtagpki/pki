@@ -88,7 +88,7 @@ public class KRAKeyRetrieveCLI extends CLI {
             throw new Exception("Incorrect number of parameters provided.");
         }
 
-        Key keyData = null;
+        Key key = null;
 
         try {
             String keyId = cmd.getOptionValue("keyID");
@@ -112,25 +112,25 @@ public class KRAKeyRetrieveCLI extends CLI {
                 }
 
                 if (req.getCertificate() != null) {
-                    keyData = keyClient.retrieveKeyByPKCS12(req.getKeyId(), req.getCertificate(),
+                    key = keyClient.retrieveKeyByPKCS12(req.getKeyId(), req.getCertificate(),
                             req.getPassphrase());
 
                 } else if (req.getPassphrase() != null) {
-                    keyData = keyClient.retrieveKeyByPassphrase(req.getKeyId(), req.getPassphrase());
+                    key = keyClient.retrieveKeyByPassphrase(req.getKeyId(), req.getPassphrase());
 
                 } else if (req.getSessionWrappedPassphrase() != null) {
-                    keyData = keyClient.retrieveKeyUsingWrappedPassphrase(req.getKeyId(),
+                    key = keyClient.retrieveKeyUsingWrappedPassphrase(req.getKeyId(),
                             Utils.base64decode(req.getTransWrappedSessionKey()),
                             Utils.base64decode(req.getSessionWrappedPassphrase()),
                             Utils.base64decode(req.getNonceData()));
 
                 } else if (req.getTransWrappedSessionKey() != null) {
-                    keyData = keyClient.retrieveKey(req.getKeyId(),
+                    key = keyClient.retrieveKey(req.getKeyId(),
                             Utils.base64decode(req.getTransWrappedSessionKey()));
 
                 } else {
                     SymmetricKey sessionKey = keyClient.generateSessionKey();
-                    keyData = keyClient.retrieveKey(req.getKeyId(), sessionKey);
+                    key = keyClient.retrieveKey(req.getKeyId(), sessionKey);
                 }
 
             } else {
@@ -141,25 +141,25 @@ public class KRAKeyRetrieveCLI extends CLI {
 
                 if (passphrase != null) {
                     if (requestId != null) {
-                        keyData = keyClient.retrieveKeyByRequestWithPassphrase(
+                        key = keyClient.retrieveKeyByRequestWithPassphrase(
                                 new RequestId(requestId), passphrase);
                     } else {
-                        keyData = keyClient.retrieveKeyByPassphrase(new KeyId(keyId), passphrase);
+                        key = keyClient.retrieveKeyByPassphrase(new KeyId(keyId), passphrase);
                     }
 
                 } else {
                     SymmetricKey sessionKey = keyClient.generateSessionKey();
                     if (requestId != null) {
-                        keyData = keyClient.retrieveKeyByRequest(new RequestId(requestId), sessionKey);
+                        key = keyClient.retrieveKeyByRequest(new RequestId(requestId), sessionKey);
                     } else {
-                        keyData = keyClient.retrieveKey(new KeyId(keyId), sessionKey);
+                        key = keyClient.retrieveKey(new KeyId(keyId), sessionKey);
                     }
 
                     clientEncryption = false;
 
                     // No need to return the encrypted data since encryption
                     // is done locally.
-                    keyData.setEncryptedData(null);
+                    key.setEncryptedData(null);
                 }
             }
 
@@ -169,36 +169,36 @@ public class KRAKeyRetrieveCLI extends CLI {
 
                 byte[] data;
                 if (clientEncryption) { // store encrypted data
-                    data = keyData.getEncryptedData();
+                    data = key.getEncryptedData();
 
                 } else { // store unencrypted data
-                    data = keyData.getData();
+                    data = key.getData();
                 }
 
                 Path path = Paths.get(outputDataFile);
                 Files.write(path, data);
 
-                printKeyInfo(keyData);
+                printKeyInfo(key);
                 System.out.println("  Output: " + outputDataFile);
 
             } else if (outputFilePath != null) {
                 JAXBContext context = JAXBContext.newInstance(Key.class);
                 Marshaller marshaller = context.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-                marshaller.marshal(keyData, new File(outputFilePath));
+                marshaller.marshal(key, new File(outputFilePath));
 
                 System.out.println("  Output: " + outputFilePath);
 
             } else {
-                printKeyInfo(keyData);
-                printKeyData(keyData);
+                printKeyInfo(key);
+                printKeyData(key);
             }
 
         } catch (Exception e) {
             throw e;
         } finally {
-            if (keyData != null) {
-                keyData.clearSensitiveData();
+            if (key != null) {
+                key.clearSensitiveData();
             }
         }
     }
