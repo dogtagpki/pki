@@ -75,15 +75,17 @@ public class FilterMappingParams {
      *
      * @param name the name of the attribute to return.
      */
-    public String getString(String name)
-           throws TPSException {
+    public String getString(String name) throws TPSException {
+
         String val = content.get(name);
+
         if (val == null) {
-            logger.error("FilterMappingParams.getString: param null: " + name);
+            logger.error("FilterMappingParams: Missing filter mapping parameter: " + name);
             throw new TPSException (
-                    "FilterMappingParams.getString: param null:"+ name,
+                    "Missing filter mapping parameter: " + name,
                     TPSStatus.STATUS_ERROR_MAPPING_RESOLVER_PARAMS_NOT_FOUND);
         }
+
         return val;
     }
 
