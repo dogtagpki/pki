@@ -403,9 +403,7 @@ public class KeyClient extends Client {
 
         byte[] transWrappedSessionKey = crypto.wrapSymmetricKey(sessionKey, transportCert.getPublicKey());
 
-        Key data = retrieveKey(keyId, transWrappedSessionKey);
-        processKeyData(data, sessionKey);
-        return data;
+        return retrieveKey(keyId, transWrappedSessionKey);
     }
 
     public void processKeyData(Key data, SymmetricKey sessionKey) throws Exception {
@@ -465,10 +463,7 @@ public class KeyClient extends Client {
         recoveryRequest.setPayloadEncryptionOID(getEncryptAlgorithmOID());
         recoveryRequest.setPayloadWrappingName(wrapAlgorithm.toString());
 
-        Key data = new Key(retrieveKeyData(recoveryRequest));
-        processKeyData(data, sessionKey);
-
-        return data;
+        return new Key(retrieveKeyData(recoveryRequest));
     }
 
     /**

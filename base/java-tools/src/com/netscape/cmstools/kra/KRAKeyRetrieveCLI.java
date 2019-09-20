@@ -136,6 +136,7 @@ public class KRAKeyRetrieveCLI extends CLI {
                 } else {
                     SymmetricKey sessionKey = keyClient.generateSessionKey();
                     key = keyClient.retrieveKey(req.getKeyId(), sessionKey);
+                    keyClient.processKeyData(key, sessionKey);
                 }
 
             } else {
@@ -160,6 +161,7 @@ public class KRAKeyRetrieveCLI extends CLI {
                     } else {
                         key = keyClient.retrieveKey(new KeyId(keyId), sessionKey);
                     }
+                    keyClient.processKeyData(key, sessionKey);
 
                     clientEncryption = false;
 
