@@ -262,6 +262,8 @@ public abstract class DirBasedAuthentication
     public void init(String name, String implName, IConfigStore config, boolean needBaseDN)
             throws EBaseException {
 
+        logger.info("DirBasedAuthentication: Initializing " + name);
+
         mName = name;
         mImplName = implName;
         mConfig = config;
@@ -272,31 +274,40 @@ public abstract class DirBasedAuthentication
 
         /* initialize ldap server configuration */
         mLdapConfig = mConfig.getSubStore(PROP_LDAP);
+
         if (needBaseDN) {
             mBaseDN = mLdapConfig.getString(PROP_BASEDN);
             if (mBaseDN == null || mBaseDN.trim().equals(""))
                 throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", "basedn"));
+
             mGroupsEnable = mLdapConfig.getBoolean(PROP_GROUPS_ENABLE, false);
-            logger.debug(method + " mGroupsEnable=" + (mGroupsEnable ? "true" : "false"));
+            logger.info("DirBasedAuthentication: Groups enable: " + mGroupsEnable);
+
             mGroupsBaseDN = mLdapConfig.getString(PROP_GROUPS_BASEDN, mBaseDN);
-            logger.debug(method + " mGroupsBaseDN="+ mGroupsBaseDN);
+            logger.info("DirBasedAuthentication: Groups base DN: " + mGroupsBaseDN);
+
             mGroups= mLdapConfig.getString(PROP_GROUPS, "ou=groups");
-            logger.debug(method + " mGroups="+ mGroups);
+            logger.info("DirBasedAuthentication: Groups: " + mGroups);
+
             mGroupObjectClass = mLdapConfig.getString(PROP_GROUP_OBJECT_CLASS, "groupofuniquenames");
-            logger.debug(method + " mGroupObjectClass="+ mGroupObjectClass);
+            logger.info("DirBasedAuthentication: Group object class: " + mGroupObjectClass);
+
             mUserIDName = mLdapConfig.getString(PROP_USERID_NAME, "uid");
-            logger.debug(method + " mUserIDName="+ mUserIDName);
+            logger.info("DirBasedAuthentication: User ID name: " + mUserIDName);
+
             mSearchGroupUserByUserdn = mLdapConfig.getBoolean(PROP_SEARCH_GROUP_USER_BY_USERDN, true);
-            logger.debug(method + " mSearchGroupUserByUserdn="+ mSearchGroupUserByUserdn);
+            logger.info("DirBasedAuthentication: Search group user by user DN: " + mSearchGroupUserByUserdn);
+
             mGroupUserIDName = mLdapConfig.getString(PROP_GROUP_USERID_NAME, "cn");
-            logger.debug(method + " mGroupUserIDName="+ mGroupUserIDName);
+            logger.info("DirBasedAuthentication: Group user ID name: " + mGroupUserIDName);
         }
+
         mBoundConnEnable = mLdapConfig.getBoolean(PROP_LDAP_BOUND_CONN, false);
-        logger.debug(method +" mBoundConnEnable =" + (mBoundConnEnable ? "true" : "false"));
+        logger.info("DirBasedAuthentication: Bound connection enable: " + mBoundConnEnable);
 
         if (mBoundConnEnable) {
             mTag = mLdapConfig.getString(PROP_LDAP_BOUND_TAG);
-            logger.debug(method + " getting ldap bound conn factory using id= " + mTag);
+            logger.info("DirBasedAuthentication: Bind password prompt: " + mTag);
 
             LdapBoundConnFactory connFactory = new LdapBoundConnFactory(mTag);
             connFactory.init(cs, mLdapConfig, engine.getPasswordStore());
@@ -313,6 +324,9 @@ public abstract class DirBasedAuthentication
 
         if (pattern == null || pattern.length() == 0)
             pattern = DEFAULT_DNPATTERN;
+
+        logger.info("DirBasedAuthentication: DN pattern: " + pattern);
+
         mPattern = new DNPattern(pattern);
         String[] patternLdapAttrs = mPattern.getLdapAttrs();
 
@@ -321,23 +335,27 @@ public abstract class DirBasedAuthentication
 
         if (ldapStringAttrs == null) {
             mLdapStringAttrs = patternLdapAttrs;
+
         } else {
-            StringTokenizer pAttrs =
-                    new StringTokenizer(ldapStringAttrs, ",", false);
+            StringTokenizer pAttrs = new StringTokenizer(ldapStringAttrs, ",", false);
             int begin = 0;
 
             if (patternLdapAttrs != null && patternLdapAttrs.length > 0) {
-                mLdapStringAttrs = new String[
-                        patternLdapAttrs.length + pAttrs.countTokens()];
-                System.arraycopy(patternLdapAttrs, 0,
-                        mLdapStringAttrs, 0, patternLdapAttrs.length);
+                mLdapStringAttrs = new String[patternLdapAttrs.length + pAttrs.countTokens()];
+                System.arraycopy(patternLdapAttrs, 0, mLdapStringAttrs, 0, patternLdapAttrs.length);
                 begin = patternLdapAttrs.length;
             } else {
                 mLdapStringAttrs = new String[pAttrs.countTokens()];
             }
+
             for (int i = begin; i < mLdapStringAttrs.length; i++) {
                 mLdapStringAttrs[i] = ((String) pAttrs.nextElement()).trim();
             }
+        }
+
+        logger.debug("DirBasedAuthentication: String attributes:");
+        for (String attr : mLdapStringAttrs) {
+            logger.debug("DirBasedAuthentication: - " + attr);
         }
 
         /* initialize ldap byte[] attribute list */
@@ -346,8 +364,7 @@ public abstract class DirBasedAuthentication
         if (ldapByteAttrs == null) {
             mLdapByteAttrs = new String[0];
         } else {
-            StringTokenizer byteAttrs =
-                    new StringTokenizer(ldapByteAttrs, ",", false);
+            StringTokenizer byteAttrs = new StringTokenizer(ldapByteAttrs, ",", false);
 
             mLdapByteAttrs = new String[byteAttrs.countTokens()];
             for (int j = 0; j < mLdapByteAttrs.length; j++) {
@@ -355,15 +372,17 @@ public abstract class DirBasedAuthentication
             }
         }
 
-        /* make the combined list */
-        mLdapAttrs =
-                new String[mLdapStringAttrs.length + mLdapByteAttrs.length];
-        System.arraycopy(mLdapStringAttrs, 0, mLdapAttrs,
-                0, mLdapStringAttrs.length);
-        System.arraycopy(mLdapByteAttrs, 0, mLdapAttrs,
-                mLdapStringAttrs.length, mLdapByteAttrs.length);
+        logger.debug("DirBasedAuthentication: Byte attributes:");
+        for (String attr : mLdapByteAttrs) {
+            logger.debug("DirBasedAuthentication: - " + attr);
+        }
 
-        logger.info("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_INIT_DONE"));
+        /* make the combined list */
+        mLdapAttrs = new String[mLdapStringAttrs.length + mLdapByteAttrs.length];
+        System.arraycopy(mLdapStringAttrs, 0, mLdapAttrs, 0, mLdapStringAttrs.length);
+        System.arraycopy(mLdapByteAttrs, 0, mLdapAttrs, mLdapStringAttrs.length, mLdapByteAttrs.length);
+
+        logger.info("DirBasedAuthentication: Initialization complete");
     }
 
     /**
