@@ -584,33 +584,41 @@ public abstract class DirBasedAuthentication
             X509CertInfo certinfo,
             AuthToken token)
             throws EBaseException {
+
         String dn = null;
-        // get ldap attributes to retrieve.
-        String[] attrs = getLdapAttrs();
 
         // retrieve the attributes.
         try {
             if (conn != null) {
-                LDAPEntry entry = null;
-                LDAPSearchResults results =
-                        conn.search(userdn, LDAPv2.SCOPE_BASE, "objectclass=*",
-                                attrs, false);
+                logger.info("DirBasedAuthentication: Searching for " + userdn);
+
+                String[] attrs = getLdapAttrs();
+                logger.info("DirBasedAuthentication: - attributes:");
+                for (String attr : attrs) {
+                    logger.info("DirBasedAuthentication:   - " + attr);
+                }
+
+                LDAPSearchResults results = conn.search(
+                        userdn,
+                        LDAPv2.SCOPE_BASE,
+                        "(objectClass=*)",
+                        attrs,
+                        false);
 
                 if (!results.hasMoreElements()) {
-                    logger.error("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_NO_ATTR_ERROR"));
+                    logger.error("DirBasedAuthentication: Unable to find user: " + userdn);
                     throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_LDAPATTRIBUTES_NOT_FOUND"));
                 }
-                entry = results.next();
+
+                LDAPEntry entry = results.next();
 
                 // formulate the subject dn
-                try {
-                    dn = formSubjectName(entry);
-                } catch (EBaseException e) {
-                    //e.printStackTrace();
-                    throw e;
-                }
+                dn = formSubjectName(entry);
+                logger.info("DirBasedAuthentication: DN: " + dn);
+
                 // Put selected values from the entry into the token
                 setAuthTokenValues(entry, token);
+
             } else {
                 dn = userdn;
             }
@@ -620,16 +628,14 @@ public abstract class DirBasedAuthentication
 
             // pack the dn into X500name and set subject name.
             if (dn.length() == 0) {
-                EBaseException ex =
-                        new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_EMPTY_DN_FORMED", mName));
-
+                EBaseException ex = new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_EMPTY_DN_FORMED", mName));
                 logger.error("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_NO_DN_ERROR", ex.toString()));
                 throw ex;
             }
-            X500Name subjectdn = new X500Name(dn);
 
-            certinfo.set(X509CertInfo.SUBJECT,
-                    new CertificateSubjectName(subjectdn));
+            X500Name subjectdn = new X500Name(dn);
+            certinfo.set(X509CertInfo.SUBJECT, new CertificateSubjectName(subjectdn));
+
         } catch (LDAPException e) {
             switch (e.getLDAPResultCode()) {
             case LDAPException.SERVER_DOWN:
@@ -648,9 +654,11 @@ public abstract class DirBasedAuthentication
                         CMS.getUserMessage("CMS_LDAP_OTHER_LDAP_EXCEPTION",
                                 e.errorCodeToString()));
             }
+
         } catch (IOException e) {
             logger.error("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_CREATE_SUBJECT_ERROR", userdn, e.getMessage()), e);
             throw new EFormSubjectDN(CMS.getUserMessage("CMS_AUTHENTICATION_FORM_SUBJECTDN_ERROR"));
+
         } catch (CertificateException e) {
             logger.error("DirBasedAuthentication: " + CMS.getLogMessage("CMS_AUTH_CREATE_CERTINFO_ERROR", userdn, e.getMessage()));
             throw new EFormSubjectDN(CMS.getUserMessage("CMS_AUTHENTICATION_FORM_SUBJECTDN_ERROR"));
