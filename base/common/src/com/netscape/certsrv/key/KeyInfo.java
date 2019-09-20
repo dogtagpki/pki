@@ -29,6 +29,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.dbs.keydb.KeyId;
 
 /**
@@ -171,4 +173,104 @@ public class KeyInfo {
         this.realm = realm;
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((algorithm == null) ? 0 : algorithm.hashCode());
+        result = prime * result + ((clientKeyID == null) ? 0 : clientKeyID.hashCode());
+        result = prime * result + ((keyURL == null) ? 0 : keyURL.hashCode());
+        result = prime * result + ((ownerName == null) ? 0 : ownerName.hashCode());
+        result = prime * result + ((publicKey == null) ? 0 : publicKey.hashCode());
+        result = prime * result + ((realm == null) ? 0 : realm.hashCode());
+        result = prime * result + ((size == null) ? 0 : size.hashCode());
+        result = prime * result + ((status == null) ? 0 : status.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        KeyInfo other = (KeyInfo) obj;
+        if (algorithm == null) {
+            if (other.algorithm != null)
+                return false;
+        } else if (!algorithm.equals(other.algorithm))
+            return false;
+        if (clientKeyID == null) {
+            if (other.clientKeyID != null)
+                return false;
+        } else if (!clientKeyID.equals(other.clientKeyID))
+            return false;
+        if (keyURL == null) {
+            if (other.keyURL != null)
+                return false;
+        } else if (!keyURL.equals(other.keyURL))
+            return false;
+        if (ownerName == null) {
+            if (other.ownerName != null)
+                return false;
+        } else if (!ownerName.equals(other.ownerName))
+            return false;
+        if (publicKey == null) {
+            if (other.publicKey != null)
+                return false;
+        } else if (!publicKey.equals(other.publicKey))
+            return false;
+        if (realm == null) {
+            if (other.realm != null)
+                return false;
+        } else if (!realm.equals(other.realm))
+            return false;
+        if (size == null) {
+            if (other.size != null)
+                return false;
+        } else if (!size.equals(other.size))
+            return false;
+        if (status == null) {
+            if (other.status != null)
+                return false;
+        } else if (!status.equals(other.status))
+            return false;
+        return true;
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        return mapper.writeValueAsString(this);
+    }
+
+    public static KeyInfo fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        return mapper.readValue(json, KeyInfo.class);
+    }
+
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        KeyInfo before = new KeyInfo();
+        before.setClientKeyID("key");
+        before.setStatus("active");
+
+        String json = before.toJSON();
+        System.out.println(json);
+
+        KeyInfo after = KeyInfo.fromJSON(json);
+        System.out.println(after.toJSON());
+        System.out.println(before.equals(after));
+    }
 }

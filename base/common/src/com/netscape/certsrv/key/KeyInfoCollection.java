@@ -22,6 +22,8 @@ import java.util.Collection;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.netscape.certsrv.base.DataCollection;
 
 @XmlRootElement(name = "KeyInfoCollection")
@@ -30,5 +32,43 @@ public class KeyInfoCollection extends DataCollection<KeyInfo> {
     @XmlElementRef
     public Collection<KeyInfo> getEntries() {
         return super.getEntries();
+    }
+
+    public String toJSON() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        return mapper.writeValueAsString(this);
+    }
+
+    public static KeyInfoCollection fromJSON(String json) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new JaxbAnnotationIntrospector(mapper.getTypeFactory()));
+        return mapper.readValue(json, KeyInfoCollection.class);
+    }
+
+    public String toString() {
+        try {
+            return toJSON();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        KeyInfoCollection collection = new KeyInfoCollection();
+
+        KeyInfo key1 = new KeyInfo();
+        key1.setClientKeyID("key1");
+        key1.setStatus("active");
+        collection.addEntry(key1);
+
+        KeyInfo key2 = new KeyInfo();
+        key2.setClientKeyID("key2");
+        key2.setStatus("active");
+        collection.addEntry(key2);
+
+        String json = collection.toJSON();
+        System.out.println(json);
     }
 }
