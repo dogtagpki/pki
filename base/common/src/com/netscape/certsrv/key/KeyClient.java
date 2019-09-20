@@ -496,7 +496,7 @@ public class KeyClient extends Client {
         recoveryRequest.setKeyId(keyId);
         recoveryRequest.setTransWrappedSessionKey(Utils.base64encode(transWrappedSessionKey, true));
         recoveryRequest.setPayloadEncryptionOID(getEncryptAlgorithmOID());
-        recoveryRequest.setPayloadWrappingName(wrapAlgorithm.toString());
+        recoveryRequest.setPayloadWrappingName(getWrapAlgorithmName());
 
         return retrieveKeyData(recoveryRequest);
     }
@@ -701,6 +701,10 @@ public class KeyClient extends Client {
             algorithmOID = encryptAlgorithm.toOID().toString();
         }
         return algorithmOID;
+    }
+
+    public String getWrapAlgorithmName() {
+        return wrapAlgorithm.toString();
     }
 
     /**
