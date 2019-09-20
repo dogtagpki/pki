@@ -226,9 +226,11 @@ class NSSDatabase(object):
         cmd = [
             'certutil',
             '-N',
-            '-d', self.directory,
-            '-f', self.internal_password_file
+            '-d', self.directory
         ]
+
+        if self.internal_password_file:
+            cmd.extend(['-f', self.internal_password_file])
 
         logger.debug('Command: %s', ' '.join(cmd))
         subprocess.check_call(cmd)
@@ -295,6 +297,9 @@ class NSSDatabase(object):
         return dest_dbtype == 'sql' and self.get_dbtype() == 'dbm'
 
     def convert_db(self):
+        '''
+        See https://fedoraproject.org/wiki/Changes/NSSDefaultFileFormatSql
+        '''
         dbtype = self.get_dbtype()
         if dbtype is None:
             raise ValueError(
@@ -309,16 +314,17 @@ class NSSDatabase(object):
             "Convert NSSDB %s from DBM to SQL format", self.directory
         )
 
-        basecmd = [
+        cmd = [
             'certutil',
-            '-d', 'sql:{}'.format(self.directory),
-            '-f', self.password_file,
-        ]
-        # See https://fedoraproject.org/wiki/Changes/NSSDefaultFileFormatSql
-        cmd = basecmd + [
             '-N',
-            '-@', self.password_file
+            '-d', 'sql:{}'.format(self.directory)
         ]
+
+        if self.password_file:
+            cmd.extend([
+                '-f', self.password_file,
+                '-@', self.password_file
+            ])
 
         logger.debug('Command: %s', ' '.join(map(str, cmd)))
         subprocess.check_call(cmd)
@@ -339,16 +345,25 @@ class NSSDatabase(object):
         if selinux is not None and selinux.is_selinux_enabled():
             selinux.restorecon(self.directory, recursive=True)
 
-        # list certs to verify DB
         if self.get_dbtype() != 'sql':
             raise RuntimeError(
-                "Migration of NSS database {} was not successfull.".format(
+                "Migration of NSS database {} was not successful.".format(
                     self.directory
                 )
             )
 
+        # list certs to verify DB
+        cmd = [
+            'certutil',
+            '-L',
+            '-d', 'sql:{}'.format(self.directory)
+        ]
+
+        if self.password_file:
+            cmd.extend(['-f', self.password_file])
+
         with open(os.devnull, 'wb') as f:
-            subprocess.check_call(basecmd + ['-L'], stdout=f)
+            subprocess.check_call(cmd, stdout=f)
 
         for oldname, _ in migration:  # pylint: disable=unused-variable
             oldname = os.path.join(self.directory, oldname)
@@ -372,13 +387,18 @@ class NSSDatabase(object):
                     '-A',
                     '-d', self.directory,
                     '-h', token,
-                    '-P', token,
-                    '-f', password_file,
+                    '-P', token
+                ]
+
+                if password_file:
+                    cmd.extend(['-f', password_file])
+
+                cmd.extend([
                     '-n', nickname,
                     '-a',
                     '-i', cert_file,
                     '-t', ''
-                ]
+                ])
 
                 logger.debug('Command: %s', ' '.join(map(str, cmd)))
                 rc = subprocess.call(cmd)
@@ -395,13 +415,18 @@ class NSSDatabase(object):
                 cmd = [
                     'certutil',
                     '-A',
-                    '-d', self.directory,
-                    '-f', self.internal_password_file,
+                    '-d', self.directory
+                ]
+
+                if self.internal_password_file:
+                    cmd.extend(['-f', self.internal_password_file])
+
+                cmd.extend([
                     '-n', nickname,
                     '-a',
                     '-i', cert_file,
                     '-t', trust_attributes
-                ]
+                ])
 
                 logger.debug('Command: %s', ' '.join(map(str, cmd)))
                 subprocess.check_call(cmd)
@@ -425,9 +450,11 @@ class NSSDatabase(object):
 
         cmd = [
             'pki',
-            '-d', self.directory,
-            '-C', self.internal_password_file
+            '-d', self.directory
         ]
+
+        if self.internal_password_file:
+            cmd.extend(['-C', self.internal_password_file])
 
         cmd.extend([
             'client-cert-import',
@@ -450,8 +477,10 @@ class NSSDatabase(object):
         if self.token:
             cmd.extend(['-h', self.token])
 
+        if self.password_file:
+            cmd.extend(['-f', self.password_file])
+
         cmd.extend([
-            '-f', self.password_file,
             '-n', nickname,
             '-t', trust_attributes
         ])
@@ -596,8 +625,10 @@ class NSSDatabase(object):
             if token:
                 cmd.extend(['-h', token])
 
+            if password_file:
+                cmd.extend(['-f', password_file])
+
             cmd.extend([
-                '-f', password_file,
                 '-s', subject_dn,
                 '-o', binary_request_file,
             ])
@@ -732,10 +763,12 @@ class NSSDatabase(object):
 
         cmd = [
             'certutil',
-            '-d', self.directory,
-            '-f', password_file,
             '-G',
+            '-d', self.directory
         ]
+
+        if password_file:
+            cmd.extend(['-f', password_file])
 
         token = self.get_effective_token(token)
         if token:
@@ -768,10 +801,12 @@ class NSSDatabase(object):
         """
         cmd = [
             'certutil',
-            '-d', self.directory,
-            '-f', password_file,
             '-K',
+            '-d', self.directory
         ]
+
+        if password_file:
+            cmd.extend(['-f', password_file])
 
         token = self.get_effective_token(token)
         if token:
@@ -811,8 +846,10 @@ class NSSDatabase(object):
         if self.token:
             cmd.extend(['-h', self.token])
 
+        if self.password_file:
+            cmd.extend(['-f', self.password_file])
+
         cmd.extend([
-            '-f', self.password_file,
             '-a',
             '-i', request_file,
             '-o', cert_file,
@@ -1063,10 +1100,10 @@ class NSSDatabase(object):
                 cmd.extend(['-h', token])
                 fullname = token + ':' + fullname
 
-            cmd.extend([
-                '-f', password_file,
-                '-n', fullname
-            ])
+            if password_file:
+                cmd.extend(['-f', password_file])
+
+            cmd.extend(['-n', fullname])
 
             if output_format_option:
                 cmd.extend([output_format_option])
@@ -1164,9 +1201,11 @@ class NSSDatabase(object):
 
             cmd = [
                 'pki',
-                '-d', self.directory,
-                '-C', self.password_file
+                '-d', self.directory
             ]
+
+            if self.password_file:
+                cmd.extend(['-C', self.password_file])
 
             if self.token:
                 cmd.extend(['--token', self.token])
@@ -1236,10 +1275,10 @@ class NSSDatabase(object):
             if token:
                 cmd.extend(['-h', token])
 
-            cmd.extend([
-                '-f', password_file,
-                '-n', nickname
-            ])
+            if password_file:
+                cmd.extend(['-f', password_file])
+
+            cmd.extend(['-n', nickname])
 
             logger.debug('Command: %s', ' '.join(map(str, cmd)))
             subprocess.check_call(cmd)
@@ -1390,9 +1429,11 @@ class NSSDatabase(object):
 
             cmd = [
                 'pki',
-                '-d', self.directory,
-                '-C', self.password_file
+                '-d', self.directory
             ]
+
+            if self.password_file:
+                cmd.extend(['-C', self.password_file])
 
             if self.token:
                 cmd.extend(['--token', self.token])
@@ -1447,9 +1488,11 @@ class NSSDatabase(object):
 
             cmd = [
                 'pki',
-                '-d', self.directory,
-                '-C', self.password_file
+                '-d', self.directory
             ]
+
+            if self.password_file:
+                cmd.extend(['-C', self.password_file])
 
             if self.token:
                 cmd.extend(['--token', self.token])
