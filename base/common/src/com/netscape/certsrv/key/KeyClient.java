@@ -542,7 +542,7 @@ public class KeyClient extends Client {
         byte[] sessionWrappedPassphrase = crypto.encryptSecret(secret, nonceData, sessionKey,
                 encryptAlgorithm);
 
-        return retrieveKeyUsingWrappedPassphrase(keyId, transWrappedSessionKey, sessionWrappedPassphrase, nonceData);
+        return new Key(retrieveKeyUsingWrappedPassphrase(keyId, transWrappedSessionKey, sessionWrappedPassphrase, nonceData));
     }
 
     public Key retrieveKeyByRequestWithPassphrase(RequestId requestId, String passphrase) throws Exception {
@@ -590,7 +590,7 @@ public class KeyClient extends Client {
      *             CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
      *             BadPaddingException, IllegalBlockSizeException
      */
-    public Key retrieveKeyUsingWrappedPassphrase(KeyId keyId, byte[] transWrappedSessionKey,
+    public KeyData retrieveKeyUsingWrappedPassphrase(KeyId keyId, byte[] transWrappedSessionKey,
             byte[] sessionWrappedPassphrase, byte[] nonceData) throws Exception {
 
         if (keyId == null) {
@@ -630,7 +630,7 @@ public class KeyClient extends Client {
 
         // Just return the KeyData as the wrappedPrivateData contains the key wrapped by the passphrase
         // and the the nonceData, to recover extract the key.
-        return new Key(retrieveKeyData(data));
+        return retrieveKeyData(data);
     }
 
     /**

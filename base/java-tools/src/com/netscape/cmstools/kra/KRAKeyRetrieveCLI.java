@@ -122,10 +122,11 @@ public class KRAKeyRetrieveCLI extends CLI {
                     key = keyClient.retrieveKeyByPassphrase(req.getKeyId(), req.getPassphrase());
 
                 } else if (req.getSessionWrappedPassphrase() != null) {
-                    key = keyClient.retrieveKeyUsingWrappedPassphrase(req.getKeyId(),
+                    keyData = keyClient.retrieveKeyUsingWrappedPassphrase(req.getKeyId(),
                             Utils.base64decode(req.getTransWrappedSessionKey()),
                             Utils.base64decode(req.getSessionWrappedPassphrase()),
                             Utils.base64decode(req.getNonceData()));
+                    key = new Key(keyData);
 
                 } else if (req.getTransWrappedSessionKey() != null) {
                     key = keyClient.retrieveKey(req.getKeyId(),
