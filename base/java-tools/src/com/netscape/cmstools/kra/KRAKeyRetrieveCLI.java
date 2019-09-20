@@ -159,7 +159,8 @@ public class KRAKeyRetrieveCLI extends CLI {
                 } else {
                     SymmetricKey sessionKey = keyClient.generateSessionKey();
                     if (requestId != null) {
-                        key = keyClient.retrieveKeyByRequest(new RequestId(requestId), sessionKey);
+                        keyData = keyClient.retrieveKeyByRequest(new RequestId(requestId), sessionKey);
+                        key = new Key(keyData);
                     } else {
                         keyData = keyClient.retrieveKey(new KeyId(keyId), sessionKey);
                         key = new Key(keyData);

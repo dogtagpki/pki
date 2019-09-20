@@ -449,7 +449,7 @@ public class KeyClient extends Client {
         data.setData(bytes);
     }
 
-    public Key retrieveKeyByRequest(RequestId requestId, SymmetricKey sessionKey) throws Exception {
+    public KeyData retrieveKeyByRequest(RequestId requestId, SymmetricKey sessionKey) throws Exception {
 
         if (requestId == null) {
             throw new IllegalArgumentException("RequestId must be specified.");
@@ -463,7 +463,7 @@ public class KeyClient extends Client {
         recoveryRequest.setPayloadEncryptionOID(getEncryptAlgorithmOID());
         recoveryRequest.setPayloadWrappingName(wrapAlgorithm.toString());
 
-        return new Key(retrieveKeyData(recoveryRequest));
+        return retrieveKeyData(recoveryRequest);
     }
 
     /**
