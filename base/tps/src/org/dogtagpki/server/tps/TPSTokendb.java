@@ -97,7 +97,7 @@ public class TPSTokendb {
                     (tokenRecord != null)? tokenRecord.getUserID():null,
                     (tokenRecord != null)? tokenRecord.getType():null);
         } catch (Exception e) {
-            msg = msg + ";" + " tokendb activity logging failure: " + e;
+            logger.warn(msg + ";" + " tokendb activity logging failure: " + e.getMessage(), e);
         }
     }
 
@@ -115,8 +115,9 @@ public class TPSTokendb {
                     msg,
                     uid,
                     (tokenRecord != null)? tokenRecord.getType():null);
+
         } catch (Exception e) {
-            msg = msg + ";" + " tokendb activity logging failure: " + e;
+            logger.warn(msg + ";" + " tokendb activity logging failure: " + e.getMessage(), e);
         }
     }
 
@@ -217,7 +218,7 @@ public class TPSTokendb {
         } catch (EDBRecordNotFoundException e) {
             String logMsg = method + e.getMessage();
             logger.error(logMsg, e);
-            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN);
+            throw new TPSException(logMsg, TPSStatus.STATUS_ERROR_CONTACT_ADMIN, e);
         }
         // token found; modify
         logger.debug(method + " token entry found; Modifying with status: " + tokenRecord.getTokenStatus());
@@ -261,7 +262,7 @@ public class TPSTokendb {
         } catch (Exception e) {
             logger.error(method + e.getMessage(), e);
             // TODO: what if it throws in the middle of the cert list -- some cert records already updated?
-            throw new TPSException(e.getMessage());
+            throw new TPSException(e.getMessage(), e);
         }
     }
 
@@ -307,7 +308,7 @@ public class TPSTokendb {
             records = tps.certDatabase.findRecords(null, attributes).iterator();
         } catch (Exception e) {
             logger.error(method + e.getMessage(), e);
-            throw new TPSException(e.getMessage());
+            throw new TPSException(e.getMessage(), e);
         }
 
         while (records.hasNext()) {
@@ -540,9 +541,9 @@ public class TPSTokendb {
             try {
                 tokenRecord = tdbGetTokenEntry(cert.getTokenID());
             } catch (Exception e) {
-                throw new TPSException("error getting token entry for: " +
-                        cert.getTokenID() + e.toString());
+                throw new TPSException("Unable to get token " + cert.getTokenID() + ": " + e.getMessage(), e);
             }
+
             if ((tokenRecord.getTokenStatus() == TokenStatus.ACTIVE) ||
                     (tokenRecord.getTokenStatus() == TokenStatus.SUSPENDED)) {
                 logger.warn(method + "token " + cert.getTokenID() + " contains the cert and has status: "
