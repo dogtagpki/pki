@@ -122,7 +122,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
                 sys.exit()
 
             else:
-                logger.error('option %s not recognized', o)
+                logger.error('Invalid option: %s', o)
                 self.print_help()
                 sys.exit(1)
 
@@ -142,7 +142,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
         # using certutil in order to preserve the nickname stored in
         # the PKCS #12 file.
 
-        logger.info('Getting certificate infos in PKCS #12 file')
+        logger.info('Certificates in PKCS #12 file:')
 
         certs = []
 
@@ -186,7 +186,9 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
                     match = re.match(r'  Friendly Name: (.*)$', line)
                     if match:
-                        cert_info['nickname'] = match.group(1)
+                        nickname = match.group(1)
+                        cert_info['nickname'] = nickname
+                        logger.info('- %s', nickname)
                         continue
 
                     match = re.match(r'  Trust Flags: (.*)$', line)
@@ -205,7 +207,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
         # import CA certificates if requested
         if import_ca_certs:
 
-            logger.info('Importing CA certificates')
+            logger.info('Importing CA certificates:')
 
             tmpdir = tempfile.mkdtemp()
 
@@ -226,17 +228,16 @@ class PKCS12ImportCLI(pki.cli.CLI):
 
                     cert_id = cert_info['id']
                     nickname = cert_info['nickname']
+                    logger.info('- %s', nickname)
 
-                    cert = nssdb.get_cert(
-                        nickname=nickname)
+                    cert = nssdb.get_cert(nickname=nickname)
 
                     if cert:
                         if not overwrite:
-                            logger.warning('cert %s already exists', nickname)
+                            logger.warning('Certificate already exists: %s', nickname)
                             continue
 
-                        nssdb.remove_cert(
-                            nickname=nickname)
+                        nssdb.remove_cert(nickname=nickname)
 
                     if 'trust_flags' in cert_info:
                         trust_flags = cert_info['trust_flags']
@@ -282,7 +283,7 @@ class PKCS12ImportCLI(pki.cli.CLI):
         # import user certificates if requested
         if import_user_certs:
 
-            logger.info('Importing user certificates')
+            logger.info('Importing user certificates:')
 
             nicknames = []
             for cert_info in certs:
@@ -292,6 +293,8 @@ class PKCS12ImportCLI(pki.cli.CLI):
                     continue
 
                 nickname = cert_info['nickname']
+                logger.info('- %s', nickname)
+
                 if nickname not in nicknames:
                     nicknames.append(nickname)
 
