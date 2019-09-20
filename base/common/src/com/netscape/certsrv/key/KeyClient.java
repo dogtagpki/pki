@@ -365,12 +365,12 @@ public class KeyClient extends Client {
      *            request and a wrapping mechanism.
      * @return A Key object containing the wrapped secret.
      */
-    public Key retrieveKeyData(KeyRecoveryRequest data) {
+    public KeyData retrieveKeyData(KeyRecoveryRequest data) {
         if (data == null) {
             throw new IllegalArgumentException("A KeyRecoveryRequest object must be specified");
         }
         Response response = keyClient.retrieveKey(data);
-        return new Key(client.getEntity(response, KeyData.class));
+        return client.getEntity(response, KeyData.class);
     }
 
     public SymmetricKey generateSessionKey() throws Exception {
@@ -465,7 +465,7 @@ public class KeyClient extends Client {
         recoveryRequest.setPayloadEncryptionOID(getEncryptAlgorithmOID());
         recoveryRequest.setPayloadWrappingName(wrapAlgorithm.toString());
 
-        Key data = retrieveKeyData(recoveryRequest);
+        Key data = new Key(retrieveKeyData(recoveryRequest));
         processKeyData(data, sessionKey);
 
         return data;
@@ -505,7 +505,7 @@ public class KeyClient extends Client {
         recoveryRequest.setPayloadEncryptionOID(getEncryptAlgorithmOID());
         recoveryRequest.setPayloadWrappingName(getWrapAlgorithmName());
 
-        return retrieveKeyData(recoveryRequest);
+        return new Key(retrieveKeyData(recoveryRequest));
     }
 
     /**
@@ -569,7 +569,7 @@ public class KeyClient extends Client {
         data.setPayloadEncryptionOID(getEncryptAlgorithmOID());
         data.setPayloadWrappingName(wrapAlgorithm.toString());
 
-        return retrieveKeyData(data);
+        return new Key(retrieveKeyData(data));
     }
 
     /**
@@ -630,7 +630,7 @@ public class KeyClient extends Client {
 
         // Just return the KeyData as the wrappedPrivateData contains the key wrapped by the passphrase
         // and the the nonceData, to recover extract the key.
-        return retrieveKeyData(data);
+        return new Key(retrieveKeyData(data));
     }
 
     /**
@@ -657,7 +657,7 @@ public class KeyClient extends Client {
         recoveryRequest.setRequestId(keyData.getRequestId());
         recoveryRequest.setPassphrase(passphrase);
 
-        return retrieveKeyData(recoveryRequest);
+        return new Key(retrieveKeyData(recoveryRequest));
     }
 
     /**
