@@ -178,7 +178,7 @@ public class SecurityDataProcessor {
             // Symmetric Key
             keyType = KeyRequestResource.SYMMETRIC_KEY_TYPE;
 
-            if (allowEncDecrypt_archival == true) {
+            if (allowEncDecrypt_archival) {
                 try {
                     tmp_unwrapped = transportUnit.decryptExternalPrivate(
                             wrappedSessionKey,
@@ -188,7 +188,7 @@ public class SecurityDataProcessor {
                             null);
 
                 } catch (Exception e) {
-                    throw new EBaseException("Can't decrypt symm key using allEncDecrypt_archival : true .");
+                    throw new EBaseException("Unable to decrypt symmetric key with kra.allowEncDecrypt.archival=true: " + e.getMessage(), e);
                 }
 
                 /* making sure leading 0's are removed */
@@ -210,7 +210,7 @@ public class SecurityDataProcessor {
                             KeyRequestService.SYMKEY_TYPES.get(algorithm),
                             strength);
                 } catch (Exception e) {
-                    throw new EBaseException("Can't decrypt symmetric key.", e);
+                    throw new EBaseException("Unable to decrypt symmetric key: " + e.getMessage(), e);
                 }
             }
 
@@ -224,7 +224,7 @@ public class SecurityDataProcessor {
                         secdata,
                         null);
             } catch (Exception e) {
-                throw new EBaseException("Can't decrypt passphrase.", e);
+                throw new EBaseException("Unable to decrypt passphrase: " + e.getMessage(), e);
             }
 
         }
