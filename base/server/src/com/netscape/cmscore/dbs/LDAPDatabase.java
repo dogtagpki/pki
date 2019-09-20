@@ -142,13 +142,15 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
         logger.debug("LDAPDatabase: findRecords()");
 
         try (IDBSSession session = dbSubsystem.createSession()) {
-            Collection<E> list = new ArrayList<E>();
+
+            logger.debug("LDAPDatabase: LDAP search on " + baseDN);
 
             String ldapFilter = createFilter(keyword, attributes);
+            logger.debug("LDAPDatabase: - filter " + ldapFilter);
 
-            logger.debug("LDAPDatabase: searching " + baseDN + " with filter " + ldapFilter);
             IDBSearchResults results = session.search(baseDN, ldapFilter);
 
+            Collection<E> list = new ArrayList<E>();
             while (results.hasMoreElements()) {
                 @SuppressWarnings("unchecked")
                 E result = (E)results.nextElement();
@@ -166,8 +168,19 @@ public abstract class LDAPDatabase<E extends IDBObj> extends Database<E> {
 
         try (IDBSSession session = dbSubsystem.createSession()) {
 
+            logger.debug("LDAPDatabase: LDAP VLV search on " + baseDN);
+
             String ldapFilter = createFilter(keyword, attributes);
-            logger.debug("LDAPDatabase: searching " + baseDN + " with filter " + ldapFilter);
+            logger.debug("LDAPDatabase: - filter " + ldapFilter);
+
+            logger.debug("LDAPDatabase: - sort keys:");
+            if (sortKeys != null) {
+                for (String key : sortKeys) {
+                    logger.debug("LDAPDatabase:   - " + key);
+                }
+            }
+
+            logger.debug("LDAPDatabase: - page size: " + pageSize);
 
             return session.<E>createVirtualList(
                     baseDN,
