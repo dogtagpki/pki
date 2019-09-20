@@ -527,7 +527,7 @@ public class KeyClient extends Client {
      *             CertificateEncodingException, InvalidKeyException, InvalidAlgorithmParameterException,
      *             BadPaddingException, IllegalBlockSizeException
      */
-    public Key retrieveKeyByPassphrase(KeyId keyId, String passphrase) throws Exception {
+    public KeyData retrieveKeyByPassphrase(KeyId keyId, String passphrase) throws Exception {
         if (keyId == null) {
             throw new IllegalArgumentException("KeyId must be specified.");
         }
@@ -542,7 +542,7 @@ public class KeyClient extends Client {
         byte[] sessionWrappedPassphrase = crypto.encryptSecret(secret, nonceData, sessionKey,
                 encryptAlgorithm);
 
-        return new Key(retrieveKeyUsingWrappedPassphrase(keyId, transWrappedSessionKey, sessionWrappedPassphrase, nonceData));
+        return retrieveKeyUsingWrappedPassphrase(keyId, transWrappedSessionKey, sessionWrappedPassphrase, nonceData);
     }
 
     public Key retrieveKeyByRequestWithPassphrase(RequestId requestId, String passphrase) throws Exception {
