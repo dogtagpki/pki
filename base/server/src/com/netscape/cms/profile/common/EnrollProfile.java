@@ -144,8 +144,6 @@ public abstract class EnrollProfile extends BasicProfile
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EnrollProfile.class);
 
-    private PKIData mCMCData;
-
     public EnrollProfile() {
         super();
     }
@@ -628,11 +626,11 @@ public abstract class EnrollProfile extends BasicProfile
             ByteArrayInputStream s = new ByteArrayInputStream(content.toByteArray());
             pkiData = (PKIData) (new PKIData.Template()).decode(s);
 
-            mCMCData = pkiData;
             //PKIData pkiData = (PKIData)
             //    (new PKIData.Template()).decode(cmcBlobIn);
 
             return pkiData;
+
         } catch (Exception e) {
             logger.error(method + e.getMessage(), e);
             throw new EProfileException(
@@ -895,8 +893,7 @@ public abstract class EnrollProfile extends BasicProfile
                                             msg);
                         }
 
-                        boolean valid = verifyIdentityProofV2(context, attr, ident_s,
-                                reqSeq);
+                        boolean valid = verifyIdentityProofV2(context, attr, ident_s, reqSeq, pkiData);
                         if (!valid) {
                             SEQUENCE bpids = getRequestBpids(reqSeq);
                             context.put("identityProofV2", bpids);
@@ -910,8 +907,7 @@ public abstract class EnrollProfile extends BasicProfile
                         }
                     } else if (id_cmc_identityProof && (attr != null)) {
                         logger.debug(method + "not pre-signed CMC request; calling verifyIdentityProof;");
-                        boolean valid = verifyIdentityProof(attr,
-                                reqSeq);
+                        boolean valid = verifyIdentityProof(attr, reqSeq, pkiData);
                         if (!valid) {
                             SEQUENCE bpids = getRequestBpids(reqSeq);
                             context.put("identityProof", bpids);
@@ -1088,7 +1084,7 @@ public abstract class EnrollProfile extends BasicProfile
                         // verifyPOPLinkWitness() will determine if this is
                         // POPLinkWitnessV2 or POPLinkWitness
                         // If failure, context is set in verifyPOPLinkWitness
-                        valid = verifyPOPLinkWitness(ident_s, randomSeed, msgs[i], bpids, context);
+                        valid = verifyPOPLinkWitness(ident_s, randomSeed, msgs[i], bpids, context, pkiData);
                         if (valid == false) {
                             if (context.containsKey("POPLinkWitnessV2"))
                                 msg = " in POPLinkWitnessV2";
@@ -1399,7 +1395,9 @@ public abstract class EnrollProfile extends BasicProfile
      */
     private boolean verifyPOPLinkWitness(
             UTF8String ident, byte[] randomSeed, TaggedRequest req,
-            SEQUENCE bpids, SessionContext context) {
+            SEQUENCE bpids, SessionContext context,
+            PKIData pkiData) {
+
         String method = "EnrollProfile: verifyPOPLinkWitness: ";
         logger.debug(method + "begins.");
 
@@ -1433,7 +1431,7 @@ public abstract class EnrollProfile extends BasicProfile
                 if (ident_string != null) {
                     sharedSecret = tokenClass.getSharedToken(ident_string, authToken);
                 } else {
-                    sharedSecret = tokenClass.getSharedToken(mCMCData);
+                    sharedSecret = tokenClass.getSharedToken(pkiData);
                 }
                 if (sharedSecret == null) {
                     sharedSecretFound = false;
@@ -1687,7 +1685,9 @@ public abstract class EnrollProfile extends BasicProfile
             SessionContext sessionContext,
             TaggedAttribute attr,
             UTF8String ident,
-            SEQUENCE reqSeq) {
+            SEQUENCE reqSeq,
+            PKIData pkiData) {
+
         String method = "EnrollProfile:verifyIdentityProofV2: ";
         String msg = "";
         logger.debug(method + " begins");
@@ -1746,7 +1746,7 @@ public abstract class EnrollProfile extends BasicProfile
                 auditAttemptedCred = ident_string;
                 token = tokenClass.getSharedToken(ident_string, authToken);
             } else
-                token = tokenClass.getSharedToken(mCMCData);
+                token = tokenClass.getSharedToken(pkiData);
 
             if (token == null) {
                 msg = " Failed to retrieve shared secret";
@@ -1852,8 +1852,8 @@ public abstract class EnrollProfile extends BasicProfile
 
     } // verifyIdentityProofV2
 
-    private boolean verifyIdentityProof(
-            TaggedAttribute attr, SEQUENCE reqSeq) {
+    private boolean verifyIdentityProof(TaggedAttribute attr, SEQUENCE reqSeq, PKIData pkiData) {
+
         String method = "verifyIdentityProof: ";
         boolean verified = false;
 
@@ -1872,7 +1872,7 @@ public abstract class EnrollProfile extends BasicProfile
         OCTET_STRING ostr = null;
         char[] token = null;
         try {
-            token = tokenClass.getSharedToken(mCMCData);
+            token = tokenClass.getSharedToken(pkiData);
             ostr = (OCTET_STRING) (ASN1Util.decode(OCTET_STRING.getTemplate(),
                     ASN1Util.encode(vals.elementAt(0))));
         } catch (InvalidBERException e) {
