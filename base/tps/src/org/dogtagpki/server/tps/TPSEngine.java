@@ -19,8 +19,9 @@
 package org.dogtagpki.server.tps;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 
 public class TPSEngine extends CMSEngine {
@@ -29,7 +30,15 @@ public class TPSEngine extends CMSEngine {
         super("TPS");
     }
 
-    public Configurator createConfigurator() throws Exception {
+    public EngineConfig createConfig(ConfigStorage storage) throws Exception {
+        return new TPSEngineConfig(storage);
+    }
+
+    public TPSEngineConfig getConfig() {
+        return (TPSEngineConfig) mConfig;
+    }
+
+    public TPSConfigurator createConfigurator() throws Exception {
         return new TPSConfigurator(this);
     }
 

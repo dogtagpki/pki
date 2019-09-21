@@ -20,8 +20,9 @@ package org.dogtagpki.server.kra;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
-import com.netscape.cms.servlet.csadmin.Configurator;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
+import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.selftests.SelfTestSubsystem;
 import com.netscape.kra.KeyRecoveryAuthority;
 
@@ -31,7 +32,15 @@ public class KRAEngine extends CMSEngine {
         super("KRA");
     }
 
-    public Configurator createConfigurator() throws Exception {
+    public EngineConfig createConfig(ConfigStorage storage) throws Exception {
+        return new KRAEngineConfig(storage);
+    }
+
+    public KRAEngineConfig getConfig() {
+        return (KRAEngineConfig) mConfig;
+    }
+
+    public KRAConfigurator createConfigurator() throws Exception {
         return new KRAConfigurator(this);
     }
 
@@ -54,10 +63,10 @@ public class KRAEngine extends CMSEngine {
 
         IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) getSubsystem(IKeyRecoveryAuthority.ID);
         if (!isPreOpMode()) {
-            logger.debug("CMSEngine: checking request serial number ranges for the KRA");
+            logger.debug("KRAEngine: checking request serial number ranges for the KRA");
             kra.getRequestQueue().getRequestRepository().checkRanges();
 
-            logger.debug("CMSEngine: checking key serial number ranges");
+            logger.debug("KRAEngine: checking key serial number ranges");
             kra.getKeyRepository().checkRanges();
         }
     }
