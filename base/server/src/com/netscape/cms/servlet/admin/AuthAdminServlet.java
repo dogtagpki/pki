@@ -37,12 +37,12 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.common.DestDef;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.logging.AuditEvent;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -452,8 +452,7 @@ public class AuthAdminServlet extends AdminServlet {
                 return;
             }
 
-            IConfigStore destStore =
-                    mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
+            AuthenticationConfig destStore = mConfig.getAuthenticationConfig();
             IConfigStore instancesConfig =
                     destStore.getSubStore(scope);
 
@@ -727,8 +726,7 @@ public class AuthAdminServlet extends AdminServlet {
             // are there, but not checking the values are valid
             String[] configParams = mAuths.getConfigParams(implname);
 
-            IConfigStore destStore =
-                    mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
+            AuthenticationConfig destStore = mConfig.getAuthenticationConfig();
             IConfigStore instancesConfig =
                     destStore.getSubStore(scope);
             IConfigStore substore = instancesConfig.makeSubStore(id);
@@ -1054,8 +1052,7 @@ public class AuthAdminServlet extends AdminServlet {
             // then delete this auth manager
             mAuths.getPlugins().remove(id);
 
-            IConfigStore destStore =
-                    mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
+            AuthenticationConfig destStore = mConfig.getAuthenticationConfig();
             IConfigStore instancesConfig =
                     destStore.getSubStore(scope);
 
@@ -1207,8 +1204,7 @@ public class AuthAdminServlet extends AdminServlet {
             mAuths.getInstances().remove(id);
 
             // remove the configuration.
-            IConfigStore destStore =
-                    mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
+            AuthenticationConfig destStore = mConfig.getAuthenticationConfig();
             IConfigStore instancesConfig =
                     destStore.getSubStore(scope);
 
@@ -1516,8 +1512,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // remove old substore.
 
-            IConfigStore destStore =
-                    mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
+            AuthenticationConfig destStore = mConfig.getAuthenticationConfig();
             IConfigStore instancesConfig =
                     destStore.getSubStore(scope);
 

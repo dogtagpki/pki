@@ -6,6 +6,7 @@
 package com.netscape.cmscore.apps;
 
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -79,6 +80,19 @@ public class EngineConfig extends PropConfigStore {
 
         } else {
             return new SubsystemsConfig(reference, mSource);
+        }
+    }
+
+    public AuthenticationConfig getAuthenticationConfig() {
+
+        String fullname = getFullName("auths");
+        String reference = mSource.get(fullname);
+
+        if (reference == null) {
+            return new AuthenticationConfig(fullname, mSource);
+
+        } else {
+            return new AuthenticationConfig(reference, mSource);
         }
     }
 }

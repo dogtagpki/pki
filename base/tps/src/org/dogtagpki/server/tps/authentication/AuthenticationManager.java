@@ -23,8 +23,10 @@ import java.util.Hashtable;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 /**
  * AuthenticationManager is a class for management of authentication
@@ -80,8 +82,10 @@ public class AuthenticationManager
     public void initAuthInstances() throws EBaseException {
         logger.debug("AuthenticationManager: initAuthInstances(): begins.");
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore conf = engine.getConfigStore();
-        IConfigStore authInstSubstore = conf.getSubStore("auths.instance");
+        EngineConfig conf = engine.getConfig();
+        AuthenticationConfig authConfig = conf.getAuthenticationConfig();
+
+        IConfigStore authInstSubstore = authConfig.getSubStore("instance");
         Enumeration<String> auth_enu = authInstSubstore.getSubStoreNames();
         authInstances = new Hashtable<String, TPSAuthenticator>();
         while (auth_enu.hasMoreElements()) {

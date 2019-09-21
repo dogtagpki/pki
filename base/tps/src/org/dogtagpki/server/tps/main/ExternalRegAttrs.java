@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import org.dogtagpki.server.tps.engine.TPSEngine;
 
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.EngineConfig;
 
 public class ExternalRegAttrs {
 
@@ -31,24 +32,23 @@ public class ExternalRegAttrs {
     public ExternalRegAttrs(String authId) {
         String method = "ExternalRegAttrs";
         CMSEngine engine = CMS.getCMSEngine();
-        IConfigStore configStore = engine.getConfigStore();
+        EngineConfig configStore = engine.getConfig();
+        AuthenticationConfig authConfig = configStore.getAuthenticationConfig();
+
         String configName = null;
 
         try {
-            configName = "auths.instance." + authId + ".externalReg.tokenTypeAttributeName";
-            logger.debug(method + ": getting config: " + configName);
-            ldapAttrNameTokenType = configStore.getString(configName,
-                    "tokenType");
+            configName = "instance." + authId + ".externalReg.tokenTypeAttributeName";
+            logger.debug(method + ": getting config: auths." + configName);
+            ldapAttrNameTokenType = authConfig.getString(configName, "tokenType");
 
-            configName = "auths.instance." + authId + ".externalReg.cuidAttributeName";
-            logger.debug(method + ": getting config: " + configName);
-            ldapAttrNameTokenCUID = configStore.getString(configName,
-                    "tokenCUID");
+            configName = "instance." + authId + ".externalReg.cuidAttributeName";
+            logger.debug(method + ": getting config: auths." + configName);
+            ldapAttrNameTokenCUID = authConfig.getString(configName, "tokenCUID");
 
-            configName = "auths.instance." + authId + ".externalReg.certs.recoverAttributeName";
-            logger.debug(method + ": getting config: " + configName);
-            ldapAttrNameCertsToRecover = configStore.getString(configName,
-                    "certsToRecover");
+            configName = "instance." + authId + ".externalReg.certs.recoverAttributeName";
+            logger.debug(method + ": getting config: auths." + configName);
+            ldapAttrNameCertsToRecover = authConfig.getString(configName, "certsToRecover");
 
             String RH_Delegation_Cfg = TPSEngine.CFG_EXTERNAL_REG + "." +
                     TPSEngine.CFG_ER_DELEGATION + ".enable";

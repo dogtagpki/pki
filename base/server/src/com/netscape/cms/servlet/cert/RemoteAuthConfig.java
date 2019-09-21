@@ -36,6 +36,7 @@ import com.netscape.certsrv.authentication.IAuthSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ICMSRequest;
+import com.netscape.cms.authentication.AuthenticationConfig;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
@@ -72,7 +73,7 @@ public class RemoteAuthConfig extends CMSServlet {
 
     private String mFormPath = null;
     private IAuthSubsystem mAuthSubsystem = null;
-    private IConfigStore mAuthConfig = null;
+    private AuthenticationConfig mAuthConfig = null;
     private IConfigStore mFileConfig = null;
     private Vector<String> mRemotelySetInstances = new Vector<String>();
     private boolean mEnableRemoteConfiguration = false;
@@ -100,7 +101,8 @@ public class RemoteAuthConfig extends CMSServlet {
 
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
         mFileConfig = cs;
-        mAuthConfig = cs.getSubStore("auths");
+        mAuthConfig = cs.getAuthenticationConfig();
+
         try {
             mEnableRemoteConfiguration = mAuthConfig.getBoolean(ENABLE_REMOTE_CONFIG, false);
         } catch (EBaseException eb) {
