@@ -7,6 +7,7 @@ package com.netscape.cmscore.apps;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.authentication.AuthenticationConfig;
+import com.netscape.cms.authorization.AuthorizationConfig;
 import com.netscape.cmscore.base.ConfigStorage;
 import com.netscape.cmscore.base.PropConfigStore;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -93,6 +94,19 @@ public class EngineConfig extends PropConfigStore {
 
         } else {
             return new AuthenticationConfig(reference, mSource);
+        }
+    }
+
+    public AuthorizationConfig getAuthorizationConfig() {
+
+        String fullname = getFullName("authz");
+        String reference = mSource.get(fullname);
+
+        if (reference == null) {
+            return new AuthorizationConfig(fullname, mSource);
+
+        } else {
+            return new AuthorizationConfig(reference, mSource);
         }
     }
 }

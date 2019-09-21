@@ -135,7 +135,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     public final static String AUTHZ_SRC_LDAP = "ldap";
     public final static String AUTHZ_SRC_TYPE = "sourceType";
-    public final static String AUTHZ_CONFIG_STORE = "authz";
+
     public final static String AUTHZ_SRC_XML = "web.xml";
     public final static String PROP_AUTHZ_MGR = "AuthzMgr";
     public final static String PROP_ACL = "ACLinfo";

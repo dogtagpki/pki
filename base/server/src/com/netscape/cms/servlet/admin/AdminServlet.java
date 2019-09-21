@@ -58,6 +58,7 @@ import com.netscape.certsrv.logging.event.AuthzEvent;
 import com.netscape.certsrv.logging.event.RoleAssumeEvent;
 import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IUser;
+import com.netscape.cms.authorization.AuthorizationConfig;
 import com.netscape.cms.logging.Logger;
 import com.netscape.cms.logging.SignedAuditLogger;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -121,7 +122,7 @@ public class AdminServlet extends HttpServlet {
     public final static String AUTHZ_MGR_BASIC = "BasicAclAuthz";
     public final static String AUTHZ_MGR_LDAP = "DirAclAuthz";
     public final static String PROP_ID = "ID";
-    public final static String AUTHZ_CONFIG_STORE = "authz";
+
     public final static String AUTHZ_SRC_TYPE = "sourceType";
     public final static String AUTHZ_SRC_LDAP = "ldap";
     public final static String AUTHZ_SRC_XML = "web.xml";
@@ -152,8 +153,7 @@ public class AdminServlet extends HttpServlet {
         String srcType = AUTHZ_SRC_LDAP;
 
         try {
-            IConfigStore authzConfig = mConfig.getSubStore(AUTHZ_CONFIG_STORE);
-
+            AuthorizationConfig authzConfig = mConfig.getAuthorizationConfig();
             srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
         } catch (EBaseException e) {
             logger.warn("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE") + ": " + e.getMessage(), e);

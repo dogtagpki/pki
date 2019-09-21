@@ -874,9 +874,10 @@ public abstract class AAclAuthz implements IAuthzManager {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
+        AuthorizationConfig authzConfig = cs.getAuthorizationConfig();
 
         try {
-            String order = cs.getString("authz.evaluateOrder", "");
+            String order = authzConfig.getString("evaluateOrder", "");
             if (order.startsWith("allow"))
                 return EvaluationOrder.AllowDeny;
             else

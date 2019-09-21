@@ -24,7 +24,7 @@ import javax.servlet.ServletException;
 
 import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
+import com.netscape.cms.authorization.AuthorizationConfig;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
 import com.netscape.cmscore.apps.EngineConfig;
@@ -40,7 +40,7 @@ public class ServletUtils {
 
     public final static String AUTHZ_SRC_LDAP = "ldap";
     public final static String AUTHZ_SRC_TYPE = "sourceType";
-    public final static String AUTHZ_CONFIG_STORE = "authz";
+
     public final static String AUTHZ_SRC_XML = "web.xml";
     public final static String PROP_AUTHZ_MGR = "AuthzMgr";
     public final static String PROP_ACL = "ACLinfo";
@@ -56,7 +56,7 @@ public class ServletUtils {
         String srcType = AUTHZ_SRC_LDAP;
 
         try {
-            IConfigStore authzConfig = cs.getSubStore(AUTHZ_CONFIG_STORE);
+            AuthorizationConfig authzConfig = cs.getAuthorizationConfig();
             srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
 
         } catch (EBaseException e) {
@@ -122,7 +122,7 @@ public class ServletUtils {
         IAuthzSubsystem authz = (IAuthzSubsystem) engine.getSubsystem(IAuthzSubsystem.ID);
 
         try {
-            IConfigStore authzConfig = cs.getSubStore(AUTHZ_CONFIG_STORE);
+            AuthorizationConfig authzConfig = cs.getAuthorizationConfig();
             srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
         } catch (EBaseException e) {
             logger.warn("ServletUtils: " + CMS.getLogMessage("ADMIN_SRVLT_FAIL_SRC_TYPE"));
