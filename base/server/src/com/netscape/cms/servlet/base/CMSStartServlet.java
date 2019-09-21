@@ -36,9 +36,6 @@ import com.netscape.cms.realm.PKIRealm;
 import com.netscape.cms.tomcat.ProxyRealm;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
-import com.netscape.cmscore.apps.EngineConfig;
-import com.netscape.cmscore.base.ConfigStorage;
-import com.netscape.cmscore.base.FileConfigStore;
 
 /**
  * This servlet is started by the web server at startup, and
@@ -76,19 +73,6 @@ public class CMSStartServlet extends HttpServlet {
                     subsystem + File.separator + "CS.cfg";
         }
 
-        EngineConfig engineConfig;
-
-        try {
-            logger.debug("CMSStartServlet: Loading CMS engine configuration: " + path);
-            ConfigStorage storage = new FileConfigStore(path);
-            engineConfig = new EngineConfig(storage);
-            engineConfig.load();
-
-        } catch (Exception e) {
-            logger.error("Unable to load CMS engine configuration: " + e.getMessage(), e);
-            throw new ServletException(e);
-        }
-
         Class<?> engineClass = CMSEngine.class;
 
         String className = getServletConfig().getInitParameter(PROP_CMS_ENGINE);
@@ -107,7 +91,6 @@ public class CMSStartServlet extends HttpServlet {
         try {
             logger.debug("CMSStartServlet: Creating CMS engine: " + engineClass.getName());
             engine = (CMSEngine) engineClass.newInstance();
-            CMS.setCMSEngine(engine);
 
         } catch (Exception e) {
             logger.error("Unable to create CMS engine: " + e.getMessage(), e);
@@ -115,8 +98,19 @@ public class CMSStartServlet extends HttpServlet {
         }
 
         try {
+            logger.debug("CMSStartServlet: Loading CMS engine configuration: " + path);
+            engine.loadConfig(path);
+
+        } catch (Exception e) {
+            logger.error("Unable to load CMS engine configuration: " + e.getMessage(), e);
+            throw new ServletException(e);
+        }
+
+        CMS.setCMSEngine(engine);
+
+        try {
             logger.debug("CMSStartServlet: Starting CMS engine: " + engineClass.getName());
-            engine.init(null, engineConfig);
+            engine.init(null, null);
             engine.startup();
 
         } catch (Exception e) {

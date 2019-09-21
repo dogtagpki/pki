@@ -165,6 +165,18 @@ public class CMSEngine implements ISubsystem {
 
     public CMSEngine(String name) {
         this.name = name;
+
+        logger.info("Creating " + name + " engine");
+    }
+
+    public void loadConfig(String path) throws Exception {
+        ConfigStorage storage = new FileConfigStore(path);
+        mConfig = createConfig(storage);
+        mConfig.load();
+    }
+
+    public EngineConfig createConfig(ConfigStorage storage) throws Exception {
+        return new EngineConfig(storage);
     }
 
     /**
@@ -402,7 +414,7 @@ public class CMSEngine implements ISubsystem {
      * initialize all static, dynamic and final static subsystems.
      *
      * @param owner null
-     * @param config main config store.
+     * @param config null
      * @exception EBaseException if any error occur in subsystems during
      *                initialization.
      */
@@ -412,7 +424,6 @@ public class CMSEngine implements ISubsystem {
         logger.info("Initializing " + name + " subsystem");
 
         mOwner = owner;
-        mConfig = (EngineConfig) config;
         int state = mConfig.getState();
 
         ready = false;
@@ -431,11 +442,11 @@ public class CMSEngine implements ISubsystem {
         }
 
         // my default is 1 day
-        String flush_timeout = config.getString("securitydomain.flushinterval", "86400000");
-        String secdomain_source = config.getString("securitydomain.source", "memory");
-        String secdomain_check_interval = config.getString("securitydomain.checkinterval", "5000");
+        String flush_timeout = mConfig.getString("securitydomain.flushinterval", "86400000");
+        String secdomain_source = mConfig.getString("securitydomain.source", "memory");
+        String secdomain_check_interval = mConfig.getString("securitydomain.checkinterval", "5000");
 
-        String tsClass = config.getString("timeSourceClass", null);
+        String tsClass = mConfig.getString("timeSourceClass", null);
 
         if (tsClass != null) {
             try {
