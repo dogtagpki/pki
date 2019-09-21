@@ -27,6 +27,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
@@ -51,6 +52,8 @@ public class ReplicationUtil {
 
         CMSEngine engine = CMS.getCMSEngine();
         EngineConfig cs = engine.getConfig();
+        DatabaseConfig dbConfig = cs.getDatabaseConfig();
+
         IConfigStore masterCfg = cs.getSubStore("preop.internaldb.master");
         LDAPConfig replicaCfg = cs.getInternalDatabase();
 
@@ -113,7 +116,7 @@ public class ReplicationUtil {
             logger.debug("ReplicationUtil: creating replica changelog dir: " + dir1);
             createChangeLog(replicaConn, dir2);
 
-            int replicaId = cs.getInteger("dbs.beginReplicaNumber", 1);
+            int replicaId = dbConfig.getInteger("beginReplicaNumber", 1);
 
             logger.debug("ReplicationUtil: enabling replication on master");
             replicaId = enableReplication(replicadn, masterConn, masterBindUser, basedn, replicaId);
@@ -122,7 +125,7 @@ public class ReplicationUtil {
             replicaId = enableReplication(replicadn, replicaConn, cloneBindUser, basedn, replicaId);
 
             logger.debug("ReplicationUtil: replica ID: " + replicaId);
-            cs.putString("dbs.beginReplicaNumber", Integer.toString(replicaId));
+            dbConfig.putString("beginReplicaNumber", Integer.toString(replicaId));
 
             logger.debug("ReplicationUtil: creating master replication agreement");
             createReplicationAgreement(replicadn, masterConn, masterAgreementName,

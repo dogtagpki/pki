@@ -103,7 +103,7 @@ public interface ICertificateAuthority extends ISubsystem {
 
     public final static String PROP_ISSUER_NAME = "name";
     public final static String PROP_CA_NAMES = "CAs";
-    public final static String PROP_DBS_SUBSTORE = "dbs";
+
     public final static String PROP_SIGNING_SUBSTORE = "signing";
     public final static String PROP_CA_CHAIN_NUM = "certchainNum";
     public final static String PROP_CA_CHAIN = "certchain";

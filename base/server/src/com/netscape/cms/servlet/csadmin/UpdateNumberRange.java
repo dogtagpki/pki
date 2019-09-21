@@ -44,6 +44,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmsutil.xml.XMLObject;
 
@@ -123,6 +124,7 @@ public class UpdateNumberRange extends CMSServlet {
             logger.debug("UpdateNumberRange: type: " + type);
 
             EngineConfig cs = engine.getConfig();
+            DatabaseConfig dbConfig = cs.getDatabaseConfig();
             String cstype = cs.getType();
 
             auditParams += "+type;;" + type;
@@ -168,19 +170,19 @@ public class UpdateNumberRange extends CMSServlet {
 
             if (type.equals("request")) {
                 radix = 10;
-                endNumConfig = "dbs.endRequestNumber";
-                cloneNumConfig = "dbs.requestCloneTransferNumber";
-                nextEndConfig = "dbs.nextEndRequestNumber";
+                endNumConfig = "endRequestNumber";
+                cloneNumConfig = "requestCloneTransferNumber";
+                nextEndConfig = "nextEndRequestNumber";
             } else if (type.equals("serialNo")) {
                 radix = 16;
-                endNumConfig = "dbs.endSerialNumber";
-                cloneNumConfig = "dbs.serialCloneTransferNumber";
-                nextEndConfig = "dbs.nextEndSerialNumber";
+                endNumConfig = "endSerialNumber";
+                cloneNumConfig = "serialCloneTransferNumber";
+                nextEndConfig = "nextEndSerialNumber";
             } else if (type.equals("replicaId")) {
                 radix = 10;
-                endNumConfig = "dbs.endReplicaNumber";
-                cloneNumConfig = "dbs.replicaCloneTransferNumber";
-                nextEndConfig = "dbs.nextEndReplicaNumber";
+                endNumConfig = "endReplicaNumber";
+                cloneNumConfig = "replicaCloneTransferNumber";
+                nextEndConfig = "nextEndReplicaNumber";
             }
 
             /* UpdateNumberRange transfers a portion of this instance's
@@ -196,13 +198,13 @@ public class UpdateNumberRange extends CMSServlet {
              * cases this is done by a scheduled task).
              */
 
-            String endNumStr = cs.getString(endNumConfig);
+            String endNumStr = dbConfig.getString(endNumConfig);
             BigInteger endNum = new BigInteger(endNumStr, radix);
-            logger.debug("UpdateNumberRange: " + endNumConfig + ": " + endNum);
+            logger.debug("UpdateNumberRange: dbs." + endNumConfig + ": " + endNum);
 
-            String transferSizeStr = cs.getString(cloneNumConfig, "");
+            String transferSizeStr = dbConfig.getString(cloneNumConfig, "");
             BigInteger transferSize = new BigInteger(transferSizeStr, radix);
-            logger.debug("UpdateNumberRange: " + cloneNumConfig + ": " + transferSize);
+            logger.debug("UpdateNumberRange: dbs." + cloneNumConfig + ": " + transferSize);
 
             // transferred range will start at beginNum
             //  (which, for now, is just a candidate)
@@ -260,20 +262,21 @@ public class UpdateNumberRange extends CMSServlet {
                      * this scenario is unlikely to arise.  Furthermore,
                      * recovery is automatic thanks to the scheduled tasks.
                      */
-                    endNum = new BigInteger(cs.getString(nextEndConfig, ""), radix);
+                    endNum = new BigInteger(dbConfig.getString(nextEndConfig, ""), radix);
                     BigInteger newEndNum = endNum.subtract(transferSize);
                     logger.debug("UpdateNumberRange: Transferring from the end of next range");
                     logger.debug("UpdateNumberRange:  Next range current end: " + endNum);
                     logger.debug("UpdateNumberRange:  Next range new end: " + newEndNum);
                     repo.setNextMaxSerial(newEndNum.toString(radix));
-                    cs.putString(nextEndConfig, newEndNum.toString(radix));
+                    dbConfig.putString(nextEndConfig, newEndNum.toString(radix));
                     beginNum = newEndNum.add(BigInteger.ONE);
+
                 } else {
                     logger.debug("UpdateNumberRange: Transferring from the end of the current range");
                     BigInteger newEndNum = beginNum.subtract(BigInteger.ONE);
                     String newValStr = newEndNum.toString(radix);
                     repo.setMaxSerial(newEndNum.toString(radix));
-                    cs.putString(endNumConfig, newValStr);
+                    dbConfig.putString(endNumConfig, newValStr);
                     logger.debug("UpdateNumberRange: New current range: " + nextSerial + ".." + newEndNum);
                 }
                 logger.debug("UpdateNumberRange: Transferring range: " + beginNum + ".." + endNum);

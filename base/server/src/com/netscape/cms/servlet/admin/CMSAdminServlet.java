@@ -82,6 +82,7 @@ import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.ldapconn.LDAPConfig;
@@ -103,7 +104,6 @@ public final class CMSAdminServlet extends AdminServlet {
     private static final long serialVersionUID = 714370238027440050L;
     private final static String INFO = "CMSAdminServlet";
 
-    private final static String PROP_DB = "dbs";
     private final static String PROP_SMTP = "smtp";
 
     // CMS must be instantiated before this admin servlet.
@@ -939,7 +939,7 @@ public final class CMSAdminServlet extends AdminServlet {
     private void getDBConfig(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        IConfigStore dbConfig = mConfig.getSubStore(PROP_DB);
+        DatabaseConfig dbConfig = mConfig.getDatabaseConfig();
         IConfigStore ldapConfig = dbConfig.getSubStore("ldap");
         NameValuePairs params = new NameValuePairs();
         Enumeration<String> e = req.getParameterNames();

@@ -142,6 +142,7 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.profile.common.IEnrollProfile;
 import com.netscape.cmscore.apps.CMS;
 import com.netscape.cmscore.apps.CMSEngine;
+import com.netscape.cmscore.apps.DatabaseConfig;
 import com.netscape.cmscore.apps.EngineConfig;
 import com.netscape.cmscore.apps.ServerXml;
 import com.netscape.cmscore.apps.SubsystemConfig;
@@ -808,22 +809,30 @@ public class Configurator {
         String status = parser.getValue("Status");
 
         logger.debug("updateNumberRange(): status=" + status);
+
         if (status.equals(SUCCESS)) {
+
+            DatabaseConfig dbConfig = cs.getDatabaseConfig();
             String beginNum = parser.getValue("beginNumber");
             String endNum = parser.getValue("endNumber");
+
             if (type.equals("request")) {
-                cs.putString("dbs.beginRequestNumber", beginNum);
-                cs.putString("dbs.endRequestNumber", endNum);
+                dbConfig.putString("beginRequestNumber", beginNum);
+                dbConfig.putString("endRequestNumber", endNum);
+
             } else if (type.equals("serialNo")) {
-                cs.putString("dbs.beginSerialNumber", beginNum);
-                cs.putString("dbs.endSerialNumber", endNum);
+                dbConfig.putString("beginSerialNumber", beginNum);
+                dbConfig.putString("endSerialNumber", endNum);
+
             } else if (type.equals("replicaId")) {
-                cs.putString("dbs.beginReplicaNumber", beginNum);
-                cs.putString("dbs.endReplicaNumber", endNum);
+                dbConfig.putString("beginReplicaNumber", beginNum);
+                dbConfig.putString("endReplicaNumber", endNum);
             }
+
             // enable serial number management in clone
-            cs.putString("dbs.enableSerialManagement", "true");
+            dbConfig.putString("enableSerialManagement", "true");
             cs.commit(false);
+
             return;
 
         } else if (status.equals(AUTH_FAILURE)) {
@@ -3794,13 +3803,14 @@ public class Configurator {
     public void updateNextRanges() throws EBaseException, LDAPException {
 
         CMSEngine engine = CMS.getCMSEngine();
-
-        String endRequestNumStr = cs.getString("dbs.endRequestNumber", "");
-        String endSerialNumStr = cs.getString("dbs.endSerialNumber", "");
         String type = cs.getType();
 
-        LDAPConfig dbCfg = cs.getInternalDatabase();
-        String basedn = dbCfg.getString("basedn");
+        DatabaseConfig dbConfig = cs.getDatabaseConfig();
+        String endRequestNumStr = dbConfig.getString("endRequestNumber", "");
+        String endSerialNumStr = dbConfig.getString("endSerialNumber", "");
+
+        LDAPConfig ldapCfg = cs.getInternalDatabase();
+        String basedn = ldapCfg.getString("basedn");
 
         BigInteger endRequestNum = new BigInteger(endRequestNumStr);
         BigInteger endSerialNum = new BigInteger(endSerialNumStr);
@@ -3808,7 +3818,7 @@ public class Configurator {
 
         // update global next range entries
         LdapBoundConnFactory dbFactory = new LdapBoundConnFactory("Configurator");
-        dbFactory.init(cs, dbCfg, engine.getPasswordStore());
+        dbFactory.init(cs, ldapCfg, engine.getPasswordStore());
 
         LDAPConnection conn = dbFactory.getConn();
 

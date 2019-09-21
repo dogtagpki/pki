@@ -109,4 +109,17 @@ public class EngineConfig extends PropConfigStore {
             return new AuthorizationConfig(reference, mSource);
         }
     }
+
+    public DatabaseConfig getDatabaseConfig() {
+
+        String fullname = getFullName("dbs");
+        String reference = mSource.get(fullname);
+
+        if (reference == null) {
+            return new DatabaseConfig(fullname, mSource);
+
+        } else {
+            return new DatabaseConfig(reference, mSource);
+        }
+    }
 }

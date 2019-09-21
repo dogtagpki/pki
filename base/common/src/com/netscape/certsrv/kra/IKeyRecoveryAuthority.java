@@ -26,6 +26,7 @@ import org.dogtagpki.legacy.policy.IPolicyProcessor;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.KeyPairGeneratorSpi;
 import org.mozilla.jss.crypto.PQGParams;
+import org.mozilla.jss.netscape.security.x509.X500Name;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
@@ -38,8 +39,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
-
-import org.mozilla.jss.netscape.security.x509.X500Name;
 
 /**
  * An interface represents key recovery authority. The
@@ -56,7 +55,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
     public final static String PROP_NAME = "name";
     public final static String PROP_HTTP = "http";
     public final static String PROP_POLICY = "policy";
-    public final static String PROP_DBS = "dbs";
+
     public final static String PROP_TOKEN = "token";
     public final static String PROP_SHARE = "share";
     public final static String PROP_PROTECTOR = "protector";
