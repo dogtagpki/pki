@@ -1558,8 +1558,8 @@ public class SecureChannel {
         byte keyVersion = curVersion;
 
         if (curVersion == (byte) 0xff) {
-            CMS.debug("Setting keyVersion to 1");
-            keyVersion = 0x1;
+            CMS.debug("Setting keyVersion to 0");
+            keyVersion = 0x0;
         }
 
         CMS.debug("keyVersion now set to: " + keyVersion);
