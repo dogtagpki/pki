@@ -1,25 +1,23 @@
 package com.netscape.cmstools.kra;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.key.KeyArchivalRequest;
 import com.netscape.certsrv.key.KeyClient;
 import com.netscape.certsrv.key.KeyRequestResponse;
 import com.netscape.cmstools.cli.MainCLI;
-import org.mozilla.jss.netscape.security.util.Utils;
 
 public class KRAKeyArchiveCLI extends CLI {
     public KRAKeyCLI keyCLI;
@@ -110,30 +108,31 @@ public class KRAKeyArchiveCLI extends CLI {
 
         } else if (requestFile != null) {
             // Case where the request file is used. For pre-encrypted data.
-            try {
-                JAXBContext context = JAXBContext.newInstance(KeyArchivalRequest.class);
-                Unmarshaller unmarshaller = context.createUnmarshaller();
-                FileInputStream fis = new FileInputStream(requestFile);
-                KeyArchivalRequest req = (KeyArchivalRequest) unmarshaller.unmarshal(fis);
 
-                if (req.getPKIArchiveOptions() != null) {
-                    response = keyClient.archivePKIOptions(req.getClientKeyId(), req.getDataType(),
-                            req.getKeyAlgorithm(), req.getKeySize(), Utils.base64decode(req.getPKIArchiveOptions()),
-                            req.getRealm());
-                } else {
-                    response = keyClient.archiveEncryptedData(req.getClientKeyId(), req.getDataType(),
-                            req.getKeyAlgorithm(), req.getKeySize(), req.getAlgorithmOID(),
-                            Utils.base64decode(req.getSymmetricAlgorithmParams()),
-                            Utils.base64decode(req.getWrappedPrivateData()),
-                            Utils.base64decode(req.getTransWrappedSessionKey()),
-                            req.getRealm());
-                }
+            JAXBContext context = JAXBContext.newInstance(KeyArchivalRequest.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            FileInputStream fis = new FileInputStream(requestFile);
+            KeyArchivalRequest req = (KeyArchivalRequest) unmarshaller.unmarshal(fis);
 
-            } catch (JAXBException e) {
-                throw new Exception("Cannot parse the request file.", e);
-
-            } catch (FileNotFoundException e) {
-                throw new Exception("Cannot locate file at path: " + requestFile, e);
+            if (req.getPKIArchiveOptions() != null) {
+                response = keyClient.archivePKIOptions(
+                        req.getClientKeyId(),
+                        req.getDataType(),
+                        req.getKeyAlgorithm(),
+                        req.getKeySize(),
+                        Utils.base64decode(req.getPKIArchiveOptions()),
+                        req.getRealm());
+            } else {
+                response = keyClient.archiveEncryptedData(
+                        req.getClientKeyId(),
+                        req.getDataType(),
+                        req.getKeyAlgorithm(),
+                        req.getKeySize(),
+                        req.getAlgorithmOID(),
+                        Utils.base64decode(req.getSymmetricAlgorithmParams()),
+                        Utils.base64decode(req.getWrappedPrivateData()),
+                        Utils.base64decode(req.getTransWrappedSessionKey()),
+                        req.getRealm());
             }
 
         } else {

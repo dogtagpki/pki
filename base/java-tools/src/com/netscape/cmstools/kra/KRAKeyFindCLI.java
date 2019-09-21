@@ -117,10 +117,10 @@ public class KRAKeyFindCLI extends CLI {
         KeyClient keyClient = keyCLI.getKeyClient();
         KeyInfoCollection keys = keyClient.listKeys(clientKeyID, status, maxResults, maxTime, start, size, realm);
 
-        if ("json".equals(outputFormat)) {
+        if ("json".equalsIgnoreCase(outputFormat)) {
             System.out.println(keys.toJSON());
 
-        } else if ("text".equals(outputFormat)) {
+        } else if ("text".equalsIgnoreCase(outputFormat)) {
             Collection<KeyInfo> entries = keys.getEntries();
 
             MainCLI.printMessage(entries.size() + " key(s) matched");
