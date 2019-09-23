@@ -194,6 +194,9 @@ class NSSCryptoProvider(CryptoProvider):
         else:
             content = cert
 
+        if type(content) is not six.binary_type:
+            content = content.encode()
+
         # certutil -A -d db_dir -n cert_nick -t trust -i cert_file
         with tempfile.NamedTemporaryFile() as cert_file:
             cert_file.write(content)
