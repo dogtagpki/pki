@@ -40,6 +40,8 @@ import com.netscape.certsrv.client.PKIClient;
  */
 public class CLI {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CLI.class);
+
     public static boolean verbose;
 
     public static CommandLineParser parser = new PosixParser();
@@ -362,22 +364,22 @@ public class CLI {
 
     public void runExternal(String[] command) throws CLIException, IOException, InterruptedException {
 
-        if (verbose) {
+        if (logger.isDebugEnabled()) {
 
-            System.out.print("External command:");
+            StringBuilder sb = new StringBuilder("Command:");
 
-           for (String c : command) {
+            for (String c : command) {
 
-               boolean quote = c.contains(" ");
+                boolean quote = c.contains(" ");
 
-               System.out.print(" ");
+                sb.append(' ');
 
-               if (quote) System.out.print("\"");
-               System.out.print(c);
-               if (quote) System.out.print("\"");
-           }
+                if (quote) sb.append('"');
+                sb.append(c);
+                if (quote) sb.append('"');
+            }
 
-           System.out.println();
+            logger.debug(sb.toString());
         }
 
         Runtime rt = Runtime.getRuntime();
@@ -385,7 +387,7 @@ public class CLI {
         int rc = p.waitFor();
 
         if (rc != 0) {
-            throw new CLIException("External command failed. RC: " + rc, rc);
+            throw new CLIException("Command failed. RC: " + rc, rc);
         }
     }
 }

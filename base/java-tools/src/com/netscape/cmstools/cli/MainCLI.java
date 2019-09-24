@@ -130,6 +130,10 @@ public class MainCLI extends CLI {
         createOptions();
     }
 
+    public File getNSSDatabase() {
+        return certDatabase;
+    }
+
     public String getFullModuleName(String moduleName) {
         return moduleName;
     }

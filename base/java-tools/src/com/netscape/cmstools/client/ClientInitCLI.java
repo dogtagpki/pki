@@ -30,13 +30,17 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
 
+import com.netscape.certsrv.client.ClientConfig;
 import com.netscape.cmstools.cli.MainCLI;
 
 /**
  * @author Endi S. Dewata
  */
 public class ClientInitCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientInitCLI.class);
 
     public ClientInitCLI(ClientCLI clientCLI) {
         super("init", "Initialize NSS database", clientCLI);
@@ -49,7 +53,7 @@ public class ClientInitCLI extends CLI {
     }
 
     public void createOptions() {
-        options.addOption(null, "force", false, "Force database initialization.");
+        options.addOption(null, "force", false, "Force NSS database initialization.");
     }
 
     public void execute(String[] args) throws Exception {
@@ -64,25 +68,32 @@ public class ClientInitCLI extends CLI {
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length != 0) {
-            throw new Exception("Too many arguments specified.");
+            throw new Exception("Too many arguments specified");
+        }
+
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
         }
 
         MainCLI mainCLI = (MainCLI)parent.getParent();
-
-        boolean force = cmd.hasOption("force");
-        File certDatabase = mainCLI.certDatabase;
+        File certDatabase = mainCLI.getNSSDatabase();
 
         if (certDatabase.exists()) {
 
+            boolean force = cmd.hasOption("force");
+
             if (!force) {
-                System.out.print("Security database already exists. Overwrite (y/N)? ");
+                System.out.println("NSS database already exists in " + certDatabase.getAbsolutePath() + ".");
+                System.out.print("Overwrite (y/N)? ");
                 System.out.flush();
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
                 String line = reader.readLine().trim();
 
                 if (line.equals("") || !line.substring(0, 1).equalsIgnoreCase("Y")) {
-                    MainCLI.printMessage("Client initialization canceled");
                     return;
                 }
             }
@@ -90,36 +101,36 @@ public class ClientInitCLI extends CLI {
             FileUtils.deleteDirectory(certDatabase);
         }
 
-        certDatabase.mkdirs();
-
         File passwordFile = new File(certDatabase, "password.txt");
 
         try {
-            List<String> list = new ArrayList<>();
-            list.add("/usr/bin/certutil");
-            list.add("-N");
-            list.add("-d");
-            list.add(certDatabase.getAbsolutePath());
+            certDatabase.mkdirs();
 
-            if (mainCLI.config.getNSSPassword() == null) {
-                list.add("--empty-password");
+            List<String> command = new ArrayList<>();
+            command.add("certutil");
+            command.add("-N");
+            command.add("-d");
+            command.add(certDatabase.getAbsolutePath());
+
+            ClientConfig config = mainCLI.getConfig();
+            String password = config.getNSSPassword();
+
+            if (password == null) {
+                command.add("--empty-password");
 
             } else {
                 try (PrintWriter out = new PrintWriter(new FileWriter(passwordFile))) {
-                    out.println(mainCLI.config.getNSSPassword());
+                    out.println(password);
                 }
 
-                list.add("-f");
-                list.add(passwordFile.getAbsolutePath());
+                command.add("-f");
+                command.add(passwordFile.getAbsolutePath());
             }
 
-            try {
-                runExternal(list);
-            } catch (Exception e) {
-                throw new Exception("Client initialization failed", e);
-            }
+            runExternal(command);
 
-            MainCLI.printMessage("Client initialized");
+        } catch (Exception e) {
+            throw new Exception("Unable to create NSS database: " + e.getMessage(), e);
 
         } finally {
             if (passwordFile.exists()) passwordFile.delete();
