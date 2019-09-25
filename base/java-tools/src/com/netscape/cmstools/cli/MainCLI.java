@@ -150,7 +150,7 @@ public class MainCLI extends CLI {
         option.setArgName("uri");
         options.addOption(option);
 
-        option = new Option("P", true, "Protocol (default: http)");
+        option = new Option("P", true, "Protocol (default: https)");
         option.setArgName("protocol");
         options.addOption(option);
 
@@ -158,7 +158,7 @@ public class MainCLI extends CLI {
         option.setArgName("hostname");
         options.addOption(option);
 
-        option = new Option("p", true, "Port (default: 8080)");
+        option = new Option("p", true, "Port (default: 8443)");
         option.setArgName("port");
         options.addOption(option);
 
@@ -323,9 +323,9 @@ public class MainCLI extends CLI {
 
         String url = cmd.getOptionValue("U");
 
-        String protocol = cmd.getOptionValue("P", "http");
+        String protocol = cmd.getOptionValue("P", "https");
         String hostname = cmd.getOptionValue("h", InetAddress.getLocalHost().getCanonicalHostName());
-        String port = cmd.getOptionValue("p", "8080");
+        String port = cmd.getOptionValue("p", "8443");
         String subsystem = cmd.getOptionValue("t");
 
         if (url == null)
