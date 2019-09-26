@@ -22,12 +22,13 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.security.Principal;
 import java.util.Enumeration;
 
+import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
-
-import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class PKICertificateApprovalCallback implements SSLCertificateApprovalCallback {
 
@@ -96,31 +97,26 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
 
     public boolean handleUntrustedIssuer(X509Certificate serverCert) {
         try {
-            System.out.print("Import CA certificate (Y/n)? ");
+            System.err.print("Trust this certificate (y/N)? ");
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String line = reader.readLine().trim();
 
-            if (!line.equals("") && !line.equalsIgnoreCase("Y"))
+            // require explicit confirmation to trust certificate
+            if (!line.equalsIgnoreCase("Y"))
                 return false;
 
-            String caServerURL = "http://" + client.getConfig().getServerURL().getHost() + ":8080/ca";
+            Principal subjectDN = serverCert.getSubjectDN();
+            String nickname = subjectDN.getName();
 
-            System.out.print("CA server URL [" + caServerURL + "]: ");
-            System.out.flush();
+            logger.info("Importing certificate as " + nickname);
+            CryptoManager manager = CryptoManager.getInstance();
+            manager.importCertToPerm(serverCert, nickname);
 
-            line = reader.readLine().trim();
-            if (!line.equals("")) {
-                caServerURL = line;
-            }
+            logger.info("Trusting certificate");
+            InternalCertificate internalCert = (InternalCertificate) serverCert;
+            internalCert.setSSLTrust(InternalCertificate.TRUSTED_PEER);
 
-            logger.info("Downloading CA certificate chain from " + caServerURL);
-            byte[] bytes = client.downloadCACertChain(caServerURL);
-
-            logger.info("Importing CA certificate chain");
-            CryptoUtil.importCertificateChain(bytes);
-
-            logger.info("Imported CA certificate");
             return true;
 
         } catch (Exception e) {
@@ -166,7 +162,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
                 // cert for this operation.
                 if (!client.statuses.contains(reason)) {
                     System.err.println("WARNING: " + getMessage(serverCert, reason));
-                    handleUntrustedIssuer(serverCert);
+                    approval = handleUntrustedIssuer(serverCert);
                 }
 
             } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
