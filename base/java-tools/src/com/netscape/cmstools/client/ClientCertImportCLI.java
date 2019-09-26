@@ -32,9 +32,14 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.dogtagpki.cli.CLI;
+import org.dogtagpki.util.logging.PKILogger;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.netscape.security.pkcs.PKCS12;
+import org.mozilla.jss.netscape.security.pkcs.PKCS7;
+import org.mozilla.jss.netscape.security.util.Cert;
+import org.mozilla.jss.netscape.security.util.Utils;
 
 import com.netscape.certsrv.ca.CACertClient;
 import com.netscape.certsrv.ca.CAClient;
@@ -44,16 +49,13 @@ import com.netscape.certsrv.client.PKIClient;
 import com.netscape.certsrv.dbs.certdb.CertId;
 import com.netscape.cmstools.cli.MainCLI;
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import org.mozilla.jss.netscape.security.util.Cert;
-import org.mozilla.jss.netscape.security.util.Utils;
-
-import org.mozilla.jss.netscape.security.pkcs.PKCS12;
-import org.mozilla.jss.netscape.security.pkcs.PKCS7;
 
 /**
  * @author Endi S. Dewata
  */
 public class ClientCertImportCLI extends CLI {
+
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientCertImportCLI.class);
 
     public ClientCLI clientCLI;
 
@@ -116,7 +118,14 @@ public class ClientCertImportCLI extends CLI {
         String[] cmdArgs = cmd.getArgs();
 
         if (cmdArgs.length > 1) {
-            throw new Exception("Too many arguments specified.");
+            throw new Exception("Too many arguments specified");
+        }
+
+        if (cmd.hasOption("debug")) {
+            PKILogger.setLevel(PKILogger.Level.DEBUG);
+
+        } else if (cmd.hasOption("verbose")) {
+            PKILogger.setLevel(PKILogger.Level.INFO);
         }
 
         MainCLI mainCLI = (MainCLI)parent.getParent();
@@ -164,7 +173,7 @@ public class ClientCertImportCLI extends CLI {
         // load the certificate
         if (certPath != null) {
 
-            if (verbose) System.out.println("Importing certificate from " + certPath + ".");
+            logger.info("Importing certificate from " + certPath);
 
             if (trustAttributes == null)
                 trustAttributes = "u,u,u";
@@ -178,7 +187,7 @@ public class ClientCertImportCLI extends CLI {
 
         } else if (caCertPath != null) {
 
-            if (verbose) System.out.println("Importing CA certificate from " + caCertPath + ".");
+            logger.info("Importing CA certificate from " + caCertPath);
 
             // initialize JSS
             mainCLI.init();
@@ -195,7 +204,7 @@ public class ClientCertImportCLI extends CLI {
 
         } else if (pkcs7Path != null) {
 
-            if (verbose) System.out.println("Importing certificates from " + pkcs7Path + ".");
+            logger.info("Importing certificates from " + pkcs7Path);
 
             // initialize JSS
             mainCLI.init();
@@ -204,7 +213,7 @@ public class ClientCertImportCLI extends CLI {
 
         } else if (pkcs12Path != null) {
 
-            if (verbose) System.out.println("Importing certificates from " + pkcs12Path + ".");
+            logger.info("Importing certificates from " + pkcs12Path);
 
             if (pkcs12Password != null && pkcs12PasswordPath != null) {
                 throw new Exception("PKCS #12 password and password file are mutually exclusive");
@@ -245,7 +254,7 @@ public class ClientCertImportCLI extends CLI {
             String caServerURI = serverURI.getScheme() + "://" +
                 serverURI.getHost() + ":" + serverURI.getPort() + "/ca";
 
-            if (verbose) System.out.println("Importing CA certificate from " + caServerURI + ".");
+            logger.info("Importing CA certificate from " + caServerURI);
             byte[] bytes = client.downloadCACertChain(caServerURI);
 
             File certFile = File.createTempFile("pki-client-cert-import-", ".crt");
@@ -277,7 +286,7 @@ public class ClientCertImportCLI extends CLI {
             config.setCertNickname(null);
 
             URL serverURL = config.getServerURL();
-            if (verbose) System.out.println("Importing certificate " + serialNumber + " from " + serverURL + ".");
+            logger.info("Importing certificate " + serialNumber + " from " + serverURL);
 
             PKIClient client = new PKIClient(config, null);
             CAClient caClient = new CAClient(client);
@@ -328,7 +337,7 @@ public class ClientCertImportCLI extends CLI {
             String trustAttributes) throws Exception {
 
         if (nickname == null) {
-            throw new Exception("Missing certificate nickname.");
+            throw new Exception("Missing certificate nickname");
         }
 
         List<String> command = new ArrayList<>();
@@ -358,7 +367,7 @@ public class ClientCertImportCLI extends CLI {
             throw new Exception("Unable to import certificate file", e);
         }
 
-        MainCLI.printMessage("Imported certificate \"" + nickname + "\"");
+        System.out.println("Imported certificate \"" + nickname + "\"");
     }
 
     public void importCACert(
@@ -382,7 +391,7 @@ public class ClientCertImportCLI extends CLI {
         X509Certificate cert = manager.importCACertPackage(binCert);
         setTrustAttributes(cert, trustAttributes);
 
-        MainCLI.printMessage("Imported certificate \"" + cert.getNickname() + "\"");
+        System.out.println("Imported certificate \"" + cert.getNickname() + "\"");
     }
 
     public void importPKCS7(
@@ -391,16 +400,16 @@ public class ClientCertImportCLI extends CLI {
             String trustAttributes) throws Exception {
 
         if (nickname == null) {
-            throw new Exception("Missing certificate nickname.");
+            throw new Exception("Missing certificate nickname");
         }
 
-        if (verbose) System.out.println("Loading PKCS #7 data from " + pkcs7Path);
+        logger.info("Loading PKCS #7 data from " + pkcs7Path);
         String str = new String(Files.readAllBytes(Paths.get(pkcs7Path))).trim();
         PKCS7 pkcs7 = new PKCS7(str);
 
         java.security.cert.X509Certificate[] certs = pkcs7.getCertificates();
         if (certs == null || certs.length == 0) {
-            if (verbose) System.out.println("No certificates to import");
+            logger.info("No certificates to import");
             return;
         }
 
@@ -418,13 +427,13 @@ public class ClientCertImportCLI extends CLI {
         for (java.security.cert.X509Certificate cert : certs) {
 
             String preferredNickname = nickname + (i == 0 ? "" : " #" + (i + 1));
-            if (verbose) System.out.println("Importing certificate " + preferredNickname + ": " + cert.getSubjectDN());
+            logger.info("Importing certificate " + preferredNickname + ": " + cert.getSubjectDN());
 
             X509Certificate importedCert = manager.importCertPackage(cert.getEncoded(), preferredNickname);
             importedCerts.add(importedCert);
 
             String importedNickname = importedCert.getNickname();
-            if (verbose) System.out.println("Certificate imported as " + importedNickname);
+            logger.info("Certificate imported as " + importedNickname);
 
             if (importedNickname.equals(preferredNickname)) {
                 // Cert was imported with preferred nickname, increment counter.
@@ -433,15 +442,10 @@ public class ClientCertImportCLI extends CLI {
         }
 
         X509Certificate cert = importedCerts.get(0);
-        if (verbose) {
-            System.out.println("Leaf cert: " + cert.getNickname());
-        }
+        logger.info("Leaf certificate: " + cert.getNickname());
 
         if (trustAttributes != null) {
-            if (verbose) {
-                System.out.println(
-                        "Setting trust attributes to " + trustAttributes);
-            }
+            logger.info("Setting trust attributes to " + trustAttributes);
             setTrustAttributes(cert, trustAttributes);
         }
 
@@ -453,14 +457,11 @@ public class ClientCertImportCLI extends CLI {
 
         // Trust root cert.
         X509Certificate root = chain[chain.length - 1];
-        if (verbose) {
-            System.out.println("Root cert: " + root.getNickname());
-            System.out.println(
-                    "Setting trust attributes to CT,C,C");
-        }
+        logger.info("Root certificate: " + root.getNickname());
+        logger.info("Setting trust attributes to CT,C,C");
         setTrustAttributes(root, "CT,C,C");
 
-        MainCLI.printMessage("Imported certificate \"" + nickname + "\"");
+        System.out.println("Imported certificate \"" + nickname + "\"");
     }
 
     public void importPKCS12(
@@ -490,6 +491,6 @@ public class ClientCertImportCLI extends CLI {
             throw new Exception("Unable to import PKCS #12 file", e);
         }
 
-        MainCLI.printMessage("Imported certificates from PKCS #12 file");
+        System.out.println("Imported certificates from PKCS #12 file");
     }
 }
