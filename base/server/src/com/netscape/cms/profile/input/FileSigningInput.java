@@ -27,7 +27,6 @@ import java.util.Map;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -40,7 +39,7 @@ import com.netscape.cmscore.apps.CMS;
  *
  * @version $Revision$, $Date$
  */
-public class FileSigningInput extends EnrollInput implements IProfileInput {
+public class FileSigningInput extends EnrollInput {
 
     public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FileSigningInput.class);
 

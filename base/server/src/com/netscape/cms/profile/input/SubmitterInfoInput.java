@@ -23,7 +23,6 @@ import java.util.Map;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -37,7 +36,7 @@ import com.netscape.cmscore.apps.CMS;
  *
  * @version $Revision$, $Date$
  */
-public class SubmitterInfoInput extends EnrollInput implements IProfileInput {
+public class SubmitterInfoInput extends EnrollInput {
 
     public static final String NAME = "requestor_name";
     public static final String EMAIL = "requestor_email";

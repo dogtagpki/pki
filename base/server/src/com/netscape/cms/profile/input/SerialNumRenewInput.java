@@ -23,7 +23,6 @@ import java.util.Map;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.EProfileException;
 import com.netscape.certsrv.profile.IProfile;
-import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -36,7 +35,7 @@ import com.netscape.cmscore.apps.CMS;
  *
  * @author Christina Fu
  */
-public class SerialNumRenewInput extends EnrollInput implements IProfileInput {
+public class SerialNumRenewInput extends EnrollInput {
 
     public static final String SERIAL_NUM = "serial_num";
 
