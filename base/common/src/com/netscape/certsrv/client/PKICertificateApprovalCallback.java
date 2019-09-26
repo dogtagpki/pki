@@ -31,6 +31,8 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class PKICertificateApprovalCallback implements SSLCertificateApprovalCallback {
 
+    public static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PKICertificateApprovalCallback.class);
+
     public PKIClient client;
 
     public PKICertificateApprovalCallback(PKIClient client) {
@@ -112,13 +114,13 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
                 caServerURL = line;
             }
 
-            if (client.verbose) System.out.println("Downloading CA certificate chain from " + caServerURL + ".");
+            logger.info("Downloading CA certificate chain from " + caServerURL);
             byte[] bytes = client.downloadCACertChain(caServerURL);
 
-            if (client.verbose) System.out.println("Importing CA certificate chain.");
+            logger.info("Importing CA certificate chain");
             CryptoUtil.importCertificateChain(bytes);
 
-            if (client.verbose) System.out.println("Imported CA certificate.");
+            logger.info("Imported CA certificate");
             return true;
 
         } catch (Exception e) {
@@ -134,7 +136,7 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
 
         boolean approval = true;
 
-        if (client.verbose) System.out.println("Server certificate: "+serverCert.getSubjectDN());
+        logger.info("Server certificate: " + serverCert.getSubjectDN());
 
         SSLCertificateApprovalCallback.ValidityItem item;
 
@@ -150,8 +152,9 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
             int reason = item.getReason();
 
             if (client.isRejected(reason)) {
-                if (!client.statuses.contains(reason))
+                if (!client.statuses.contains(reason)) {
                     System.err.println("ERROR: " + getMessage(serverCert, reason));
+                }
                 approval = false;
 
             } else if (client.isIgnored(reason)) {
@@ -169,24 +172,27 @@ public class PKICertificateApprovalCallback implements SSLCertificateApprovalCal
             } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
                 // Issue a WARNING, but allow this process to continue on
                 // common-name mismatches.
-                if (!client.statuses.contains(reason))
+                if (!client.statuses.contains(reason)) {
                     System.err.println("WARNING: " + getMessage(serverCert, reason));
+                }
 
             } else if (reason == SSLCertificateApprovalCallback.ValidityStatus.CA_CERT_INVALID) {
                 // Set approval false to deny this
                 // certificate so that the connection is terminated.
                 // (Expect an IOException on the outstanding
                 //  read()/write() on the socket).
-                if (!client.statuses.contains(reason))
+                if (!client.statuses.contains(reason)) {
                     System.err.println("ERROR: " + getMessage(serverCert, reason));
+                }
                 approval = false;
 
             } else {
                 // Set approval false to deny this certificate so that
                 // the connection is terminated. (Expect an IOException
                 // on the outstanding read()/write() on the socket).
-                if (!client.statuses.contains(reason))
+                if (!client.statuses.contains(reason)) {
                     System.err.println("ERROR: " + getMessage(serverCert, reason));
+                }
                 approval = false;
             }
 
