@@ -48,6 +48,7 @@ public class CACertCLI extends CLI {
 
         addModule(new CACertFindCLI(this));
         addModule(new CACertShowCLI(this));
+        addModule(new CACertExportCLI(this));
         addModule(new CACertRevokeCLI(this));
         addModule(new CACertHoldCLI(this));
         addModule(new CACertReleaseHoldCLI(this));
