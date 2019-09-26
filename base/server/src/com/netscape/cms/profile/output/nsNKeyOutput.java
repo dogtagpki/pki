@@ -24,7 +24,6 @@ import org.mozilla.jss.netscape.security.util.Utils;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -37,7 +36,7 @@ import com.netscape.cmscore.apps.CMS;
  *
  * @version $Revision$, $Date$
  */
-public class nsNKeyOutput extends EnrollOutput implements IProfileOutput {
+public class nsNKeyOutput extends EnrollOutput {
 
     public static final String VAL_DER = "der";
 

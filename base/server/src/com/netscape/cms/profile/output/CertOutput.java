@@ -23,7 +23,6 @@ import java.util.Map;
 import org.mozilla.jss.netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -38,7 +37,7 @@ import com.netscape.cmscore.cert.CertUtils;
  *
  * @version $Revision$, $Date$
  */
-public class CertOutput extends EnrollOutput implements IProfileOutput {
+public class CertOutput extends EnrollOutput {
     public static final String VAL_PRETTY_CERT = "pretty_cert";
     public static final String VAL_B64_CERT = "b64_cert";
 

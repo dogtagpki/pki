@@ -34,7 +34,6 @@ import org.mozilla.jss.pkix.cmmf.CertifiedKeyPair;
 import org.mozilla.jss.pkix.cmmf.PKIStatusInfo;
 
 import com.netscape.certsrv.profile.EProfileException;
-import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
@@ -49,7 +48,7 @@ import com.netscape.cmscore.cert.CertPrettyPrint;
  *
  * @version $Revision$, $Date$
  */
-public class CMMFOutput extends EnrollOutput implements IProfileOutput {
+public class CMMFOutput extends EnrollOutput {
 
     public static final String VAL_PRETTY_CERT = "pretty_cert";
     public static final String VAL_CMMF_RESPONSE = "cmmf_response";
